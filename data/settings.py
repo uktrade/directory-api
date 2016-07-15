@@ -107,6 +107,8 @@ STATIC_URL = '/static/'
 # Application authorisation
 UI_SECRET = os.getenv("UI_SECRET")
 
+SECRET_KEY = os.getenv("SECRET_KEY")  # needed for shell not sure why
+
 
 # DRF
 REST_FRAMEWORK = {
