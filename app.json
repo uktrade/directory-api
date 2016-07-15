@@ -4,9 +4,6 @@
   "env": {
     "UI_SECRET": "change-me-when-you-can",
   },
-  "addons": [
-    "heroku-postgresql:hobby-dev"
-  ],
   "buildpacks": [
     {
       "url": "https://github.com/heroku/heroku-buildpack-python"
