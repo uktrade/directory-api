@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import io
 
@@ -10,7 +11,8 @@ from form.models import Form
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        forms = Form.objects.all().order_by('created')
+        live_date = datetime.date(year=2016, month=7, day=21)
+        forms = Form.objects.filter(created__gte=live_date).order_by('created')
         form_dicts = []
         keys = set()
         for form in forms:
