@@ -1,6 +1,4 @@
-import logging
 import os
-import sys
 
 import dj_database_url
 
@@ -80,7 +78,9 @@ WSGI_APPLICATION = 'data.wsgi.application'
 # https://devcenter.heroku.com/articles/getting-started-with-python#provision-a-database
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgres://ad:@localhost:/big-quick-form-data")
+    'default': dj_database_url.config(
+        default="postgres://ad:@localhost:/big-quick-form-data"
+    )
 }
 
 
