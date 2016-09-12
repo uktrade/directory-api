@@ -1,6 +1,4 @@
-import logging
 import os
-import sys
 
 import dj_database_url
 
@@ -8,12 +6,8 @@ import dj_database_url
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv("DEBUG", False))
@@ -26,31 +20,16 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-
-    # 'django.contrib.admin',
-    # 'django.contrib.auth',
-    # 'django.contrib.contenttypes',
-    # 'django.contrib.sessions',
-    # 'django.contrib.messages',
-    # 'django.contrib.staticfiles',
-
     "django_extensions",
     "raven.contrib.django.raven_compat",
     "rest_framework",
-    # "rest_framework.authtoken",
-
     "form.apps.FormsConfig",
  ]
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'alice.middleware.SignatureRejectionMiddleware',
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    # 'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -65,8 +44,6 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                # 'django.contrib.auth.context_processors.auth',
-                # 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -80,7 +57,9 @@ WSGI_APPLICATION = 'data.wsgi.application'
 # https://devcenter.heroku.com/articles/getting-started-with-python#provision-a-database
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgres://ad:@localhost:/big-quick-form-data")
+    'default': dj_database_url.config(
+        default="postgres://ad:@localhost:/big-quick-form-data"
+    )
 }
 
 
@@ -107,7 +86,8 @@ STATIC_URL = '/static/'
 # Application authorisation
 UI_SECRET = os.getenv("UI_SECRET")
 
-SECRET_KEY = os.getenv("SECRET_KEY")  # needed for shell not sure why
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # DRF
@@ -120,9 +100,6 @@ REST_FRAMEWORK = {
 
 RAVEN_CONFIG = {
     "dsn": os.getenv("SENTRY_DSN"),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    # 'release': raven.fetch_git_sha(os.path.dirname(__file__)),
 }
 
 

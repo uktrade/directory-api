@@ -1,0 +1,10 @@
+machine:
+  python:
+    version: 3.5.2
+
+dependencies:
+  override:
+    - make requirements db
+test:
+  override:
+    - make test
