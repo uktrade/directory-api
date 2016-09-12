@@ -1,5 +1,5 @@
 # directory-form-data
-[Export Directory registration form](https://www.directory.exportingisgreat.gov.uk/)
+[Export Directory registration form data API](https://www.directory.exportingisgreat.gov.uk/)
 
 ## Build status
 
