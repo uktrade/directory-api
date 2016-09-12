@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(PROJECT_ROOT)
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("DEBUG", False))
+DEBUG = True if (os.getenv('DEBUG') == 'true') else False
 
 # As app is running behind a host-based router supplied by Heroku or other
 # PaaS, we can open ALLOWED_HOSTS
@@ -28,7 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
-    'alice.middleware.SignatureRejectionMiddleware',
+    # 'alice.middleware.SignatureRejectionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -132,3 +132,10 @@ if DEBUG:
             },
         }
     }
+
+
+# SQS
+
+SQS_QUEUE_NAME = os.getenv("SQS_QUEUE_NAME", 'directory-form-data')
+SQS_DEFAULT_WAIT_TIME = int(os.getenv("SQS_DEFAULT_WAIT_TIME", 20))
+SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
