@@ -14,13 +14,16 @@ db:
 SET_SECRET_KEY_IF_NOT_SET := if [ -z ${SECRET_KEY+x} ]; then export SECRET_KEY=test; else echo "SECRET_KEY is set to $(SECRET_KEY)"; fi
 
 runserver:
-	$(SET_SECRET_KEY_IF_NOT_SET); export DEBUG='true'; ./manage.py migrate; ./manage.py runserver
+	$(SET_SECRET_KEY_IF_NOT_SET); export DEBUG=true; ./manage.py migrate; ./manage.py runserver
+
+queue_worker:
+	$(SET_SECRET_KEY_IF_NOT_SET); export DEBUG=true; ./manage.py queue_worker
 
 flake8:
 	flake8 . --exclude=migrations
 
 test: flake8
-	 export DEBUG=true; pytest . --cov=. $(pytest_args)
+	 $(SET_SECRET_KEY_IF_NOT_SET); export DEBUG=true; pytest . --cov=. $(pytest_args)
 
 .PHONY: build db clean requirements flake8 test
 

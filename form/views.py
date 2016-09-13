@@ -19,11 +19,11 @@ class FormViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        queue_service.send(data=request.data)
 
-        headers = self.get_success_headers(serializer.data)
+        queue_service.send(data=request.data.dict())
+
         return Response(
             serializer.data,
             status=status.HTTP_202_ACCEPTED,
-            headers=headers
+            headers=self.get_success_headers(serializer.data)
         )
