@@ -136,6 +136,14 @@ if DEBUG:
 
 # SQS
 
-SQS_QUEUE_NAME = os.getenv("SQS_QUEUE_NAME", 'directory-form-data')
-SQS_DEFAULT_WAIT_TIME = int(os.getenv("SQS_DEFAULT_WAIT_TIME", 20))
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
+SQS_QUEUE_NAME = os.getenv("SQS_QUEUE_NAME", 'directory-form-data')
+# In seconds, max is 20
+SQS_WAIT_TIME = int(os.getenv("SQS_WAIT_TIME", 20))
+# Max is 10
+SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
+# Max is 43200 (12 hours)
+SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 60))
+SQS_QUEUE_WORKER_PROCESSES_NUMBER = int(
+    os.getenv("SQS_QUEUE_WORKER_PROCESSES_NUMBER", 1)
+)
