@@ -12,7 +12,7 @@ from form.tests import VALID_REQUEST_DATA
 
 @pytest.mark.django_db
 def test_form_viewset_create():
-    with mock.patch('botocore.client.BaseClient._make_api_call') as boto_mock:
+    with mock.patch('boto3.resource') as boto_mock:
         request_factory = APIRequestFactory()
         view = FormViewSet.as_view(actions={'post': 'create'})
         request = request_factory.post('/form/', VALID_REQUEST_DATA)

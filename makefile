@@ -25,5 +25,5 @@ flake8:
 test: flake8
 	 $(SET_TEST_ENV_VARS); pytest . --cov=. $(pytest_args)
 
-.PHONY: build db clean requirements flake8 test runserver queue_worker circus_daemon
+.PHONY: build db clean requirements flake8 test runserver queue_worker
 

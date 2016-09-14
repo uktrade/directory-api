@@ -7,6 +7,7 @@ import tempfile
 from django.conf import settings
 
 import boto3
+import botocore
 
 import form.models
 
@@ -36,10 +37,27 @@ class Service:
         """
         try:
             queue = self.sqs.get_queue_by_name(QueueName=name)
-        except:
-            queue = self.sqs.create_queue(QueueName=name)
+        except botocore.exceptions.ClientError as error:
+            if self.is_sqs_queue_non_existent_exception(error):
+                queue = self.sqs.create_queue(QueueName=name)
+            else:
+                raise
 
         return queue
+
+    @staticmethod
+    def is_sqs_queue_non_existent_exception(error):
+        """Return True if exception is boto's 'NonExistentQueue'
+
+        Args:
+            error (botocore.exceptions.ClientError): Exception
+
+        Returns:
+            boolean: True if exception is boto's 'NonExistentQueue'
+        """
+        if hasattr(error, 'response'):
+            error_code = error.response.get('Error', {}).get('Code')
+            return error_code == 'AWS.SimpleQueueService.NonExistentQueue'
 
     def send(self, data):
         """Send data to the queue as json
@@ -100,7 +118,7 @@ class Worker:
         return pid_file_path
 
     def run(self):
-        """Run worker as long as pid file exists"""
+        """Runs worker as long as pid file exists"""
 
         while os.path.exists(self.pid_file_path):
             messages = self.queue_service.receive()
@@ -129,10 +147,10 @@ class Worker:
             return form_data.get('data') is not None
 
     def process_message(self, message):
-        """Create form.models.Form if message data is valid and delete it
+        """Creates form.models.Form if message data is valid and delete it
 
         Args:
-            message (SQS.): Description
+            message (SQS.Message): message to process
         """
         if self.is_valid_form_data(message_body=message.body):
             form.models.Form.objects.create(data=json.loads(message.body))
