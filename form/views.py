@@ -14,6 +14,8 @@ class FormViewSet(ModelViewSet):
     http_method_names = ("post", )
 
     def create(self, request, *args, **kwargs):
+        """Sends valid request data to an SQS queue"""
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

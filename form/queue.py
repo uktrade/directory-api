@@ -1,4 +1,5 @@
 import datetime
+import gc
 import json
 import os
 import tempfile
@@ -21,8 +22,6 @@ class Service:
     queue_name = settings.SQS_QUEUE_NAME
 
     def __init__(self):
-        """Summary
-        """
         self.sqs = boto3.resource('sqs', region_name=settings.SQS_REGION_NAME)
         self.queue = self.get_or_create_queue(name=self.queue_name)
 
@@ -108,6 +107,9 @@ class Worker:
             if messages:
                 for message in messages:
                     self.process_message(message)
+
+            # Run a full garbage collection, as this is a long running process
+            gc.collect()
 
     @staticmethod
     def is_valid_form_data(message_body):
