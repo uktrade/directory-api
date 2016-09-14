@@ -1,23 +1,12 @@
-import json
-import os
 import multiprocessing
-
+import os
 from unittest import mock
+
 import pytest
 
 import form.queue
 import form.models
-
-
-VALID_REQUEST_DATA = {
-    'data': '{"contact_name": "Test", "marketing_source_bank": "", '
-    '"website": ''"example.com", "exporting": "False", "phone_number": "",'
-    ' ''"marketing_source": "Social media", "opt_in": true, ''"marketing_s'
-    'ource_other": "", "email_address1": ''"test@example.com", "agree_term'
-    's": true, "company_name": "Example ''Limited", "email_address2": "tes'
-    't@example.com"}'
-}
-VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
+from form.tests import VALID_REQUEST_DATA, VALID_REQUEST_DATA_JSON
 
 
 def test_create_pid_file():
@@ -25,7 +14,7 @@ def test_create_pid_file():
 
 
 def test_run_worker():
-    with mock.patch('boto3.resource'):
+    with mock.patch('botocore.client.BaseClient._make_api_call'):
         worker = form.queue.Worker()
         worker_process = multiprocessing.Process(target=worker.run)
         worker_process.start()
@@ -50,7 +39,7 @@ def test_is_valid_form_data():
 def test_process_message():
     message = mock.Mock(body=VALID_REQUEST_DATA_JSON)
 
-    with mock.patch('boto3.resource'):
+    with mock.patch('botocore.client.BaseClient._make_api_call'):
         worker = form.queue.Worker()
         worker.process_message(message)
 

@@ -124,7 +124,7 @@ class Worker:
         except (ValueError, json.decoder.JSONDecodeError):
             return False
         else:
-            return True if form_data.get('data') is not None else False
+            return form_data.get('data') is not None
 
     def process_message(self, message):
         """Create form.models.Form if message data is valid and delete it

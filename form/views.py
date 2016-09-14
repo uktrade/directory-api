@@ -3,11 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 
 import form.queue
-from .serializers import FormSerializer
-from .models import Form
-
-
-queue_service = form.queue.Service()
+from form.serializers import FormSerializer
+from form.models import Form
 
 
 class FormViewSet(ModelViewSet):
@@ -20,7 +17,7 @@ class FormViewSet(ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        queue_service.send(data=request.data.dict())
+        form.queue.Service().send(data=request.data.dict())
 
         return Response(
             serializer.data,
