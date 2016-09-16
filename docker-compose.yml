@@ -1,0 +1,23 @@
+version: '2'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: ad
+      POSTGRES_USER: test
+      POSTGRES_DB: big-quick-form-data
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: directory-form-data
+    links: [postgres]
+    env_file: .env
+
+  queue_worker:
+    image: directory-form-data
+    depends_on: [webserver]
+    command: /usr/src/app/docker-entrypoint-queue_worker.sh
+    links: [postgres]
+    env_file: .env

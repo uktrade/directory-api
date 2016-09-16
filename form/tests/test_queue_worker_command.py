@@ -27,9 +27,8 @@ class TestQueueWorkerCommand(MockBoto):
             target=call_command, args=('queue_worker', )
         )
         worker_process.start()
-        # wait for worker to process some messages
-        while not form.models.Form.objects.exists():
-            time.sleep(0.1)
+        # wait for worker to start
+        time.sleep(0.5)
 
         os.kill(worker_process.pid, signal.SIGTERM)
         worker_process.join()

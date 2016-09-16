@@ -51,6 +51,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'data.wsgi.application'
 
+DATABASE_HOST = os.getenv("DATABASE_HOST", 'localhost')
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -58,10 +60,11 @@ WSGI_APPLICATION = 'data.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default="postgres://ad:@localhost:/big-quick-form-data"
+        default="postgres://ad:@{host}:/big-quick-form-data".format(
+            host=DATABASE_HOST
+        )
     )
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
