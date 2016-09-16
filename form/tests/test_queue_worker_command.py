@@ -21,7 +21,7 @@ class TestQueueWorkerCommand(MockBoto):
         worker = form.queue.Worker()
         worker.form_data_queue._queue.receive_messages.return_value = [
             mock.Mock(message_id=x, body=VALID_REQUEST_DATA_JSON)
-            for x in range(1000)
+            for x in range(10)
         ]
         worker_process = multiprocessing.Process(
             target=call_command, args=('queue_worker', )

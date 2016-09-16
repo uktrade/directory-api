@@ -22,6 +22,13 @@
 
     $ make test
 
+## Running application locally with docker compose
+
+1. Create ``.env`` file with ``cp env.template .env`` and set environment variables in it.
+2. ``docker-compose build``
+3. ``docker-compose up``
+
+
 ## Environment variables
 
 | Environment variable | Required | Default value | Description 
@@ -34,6 +41,10 @@
 | SQS_WAIT_TIME | true | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on single boto API call |
 | SQS_MAX_NUMBER_OF_MESSAGES | true | 10 (max value) | How many messages to receive on single boto API call |
 | SQS_VISIBILITY_TIMEOUT | true | 21600 (6 hours, max value is 43200) | After what time retrieved, but not deleted messages will return to the queue |
+| SECRET_KEY | true | 'test' when running ``make test``, otherwise ``None`` | Django secret key |
+| AWS_ACCESS_KEY_ID | true | ``None``, set in ``.env`` for local ``docker-compose`` | AWS access key ID |
+| AWS_SECRET_ACCESS_KEY | true | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
+| DATABASE_HOST | true | ``localhost``, ``postgres`` for ``docker-compose`` | Postgres database host name |
 
 
 ## Architecture
