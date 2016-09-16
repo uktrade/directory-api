@@ -1,130 +1,77 @@
-import datetime
 import gc
 import json
-import os
-import tempfile
+import logging
 
 from django.conf import settings
+from django.db import IntegrityError
 
-import boto3
-import botocore
+from psycopg2.errorcodes import UNIQUE_VIOLATION
 
 import form.models
+from form.utils import ExitSignalReceiver, QueueService
 
 
-class Service:
-    """Form queue service
+logger = logging.getLogger(__name__)
 
-    Attributes:
-        queue_name (str): Name of the SQS queue
-        queue (SQS.Queue): SQS queue
-        sqs (boto3.resource): SQS connection
-    """
-    queue_name = settings.SQS_QUEUE_NAME
 
-    def __init__(self):
-        self.sqs = boto3.resource('sqs', region_name=settings.SQS_REGION_NAME)
-        self.queue = self.get_or_create_queue(name=self.queue_name)
+class FormData(QueueService):
+    """SQS queue service for form data"""
+    queue_name = settings.SQS_INVALID_MESAGES_QUEUE_NAME
 
-    def get_or_create_queue(self, name):
-        """Returns SQS queue by name, creates if it does not exist
 
-        Args:
-            name (str): Queue name
-
-        Returns:
-            SQS.Queue: Requested queue
-        """
-        try:
-            queue = self.sqs.get_queue_by_name(QueueName=name)
-        except botocore.exceptions.ClientError as error:
-            if self.is_sqs_queue_non_existent_exception(error):
-                queue = self.sqs.create_queue(QueueName=name)
-            else:
-                raise
-
-        return queue
-
-    @staticmethod
-    def is_sqs_queue_non_existent_exception(error):
-        """Return True if exception is boto's 'NonExistentQueue'
-
-        Args:
-            error (botocore.exceptions.ClientError): Exception
-
-        Returns:
-            boolean: True if exception is boto's 'NonExistentQueue'
-        """
-        if hasattr(error, 'response'):
-            error_code = error.response.get('Error', {}).get('Code')
-            return error_code == 'AWS.SimpleQueueService.NonExistentQueue'
-
-    def send(self, data):
-        """Send data to the queue as json
-
-        Args:
-            data (object): JSON-serializabe data
-        """
-        self.queue.send_message(
-            MessageBody=json.dumps(data, ensure_ascii=False)
-        )
-
-    def receive(
-            self,
-            wait_time_in_seconds=settings.SQS_WAIT_TIME,
-            max_number_of_messages=settings.SQS_MAX_NUMBER_OF_MESSAGES):
-        """Receive messages from the queue
-
-        Args:
-            wait_time_in_seconds (int, optional): Long polling period
-            max_number_of_messages (int, optional): Number of messages to get
-
-        Returns:
-            list: List of SQS.Message
-        """
-        return self.queue.receive_messages(
-            WaitTimeSeconds=wait_time_in_seconds,
-            MaxNumberOfMessages=max_number_of_messages,
-        )
+class InvalidFormData(QueueService):
+    """SQS queue service for invalid form data"""
+    queue_name = settings.SQS_INVALID_MESAGES_QUEUE_NAME
 
 
 class Worker:
-    """Form queue worker
+    """Form data queue worker
 
     Attributes:
-        pid_file_path (str): path to pid file (running as long as it exists)
-        queue_service (form.queue.Service): SQS queue service
+        exit_signal_receiver (TYPE): Description
+        form_data_queue (form.queue.FormData): Form data SQS queue service
+
+        invalid_form_data_queue (form.queue.InvalidFormData): Invalid form
+            data SQS queue service
+
     """
-    def __init__(self, queue_service=None):
-        self.queue_service = queue_service or Service()
-        self.pid_file_path = self.create_pid_file()
-
-    @staticmethod
-    def create_pid_file():
-        """Creates a pid file
-
-        Returns:
-            str: Path to pid file
+    def __init__(self):
+        """Summary
         """
-        pid_file_path = os.path.join(
-            tempfile.gettempdir(),
-            'queue_worker-{}.pid'.format(
-                datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')
+        self.form_data_queue = FormData()
+        self.invalid_form_data_queue = InvalidFormData()
+        self.exit_signal_receiver = ExitSignalReceiver()
+
+    @property
+    def exit_signal_received(self):
+        """Returns True if exit signal was received"""
+        if self.exit_signal_receiver.received:
+            logger.warning(
+                "Exit signal received: {}".format(", ".join([
+                    str(sig) for sig in self.exit_signal_receiver.received
+                ]))
             )
-        )
-
-        open(pid_file_path, 'a').close()
-
-        return pid_file_path
+            return True
+        else:
+            return False
 
     def run(self):
-        """Runs worker as long as pid file exists"""
+        """Runs worker until SIGTERM or SIGINT is received"""
+        while not self.exit_signal_received:
+            logger.info(
+                "Retrieving messages from '{}' queue".format(
+                    self.form_data_queue.queue_name
+                )
+            )
+            messages = self.form_data_queue.receive()
 
-        while os.path.exists(self.pid_file_path):
-            messages = self.queue_service.receive()
-            if messages:
-                for message in messages:
-                    self.process_message(message)
+            for message in messages:
+                self.process_message(message)
+
+                # exit cleanly when exit signal is received, unprocessed
+                # messages will return to the form data queue
+                if self.exit_signal_received:
+                    return
 
             # Run a full garbage collection, as this is a long running process
             gc.collect()
@@ -147,12 +94,68 @@ class Worker:
             return form_data.get('data') is not None
 
     def process_message(self, message):
-        """Creates form.models.Form if message data is valid and delete it
+        """Creates new form.models.Form if message body is valid form data,
+        otherwise sends it to the invalid messages queue
 
         Args:
             message (SQS.Message): message to process
         """
-        if self.is_valid_form_data(message_body=message.body):
-            form.models.Form.objects.create(data=json.loads(message.body))
+        logger.debug(
+            "Processing message '{}'".format(message.message_id)
+        )
+
+        if self.is_valid_form_data(message.body):
+            self.save_form(
+                sqs_message_id=message.message_id,
+                form_data=json.loads(message.body)
+            )
+        else:
+            logger.error(
+                "Message '{}' body is not valid form data, sending it to "
+                "invalid messages queue".format(
+                    message.message_id
+                )
+            )
+            self.invalid_form_data_queue.send(data=message.body)
 
         message.delete()
+
+    @staticmethod
+    def is_postgres_unique_violation_error(exception):
+        """Returns true if exception is psycopg2 UNIQUE_VIOLATION error
+
+        Args:
+            exception (Exception): exception to check
+
+        Returns:
+            bool: True if exception is psycopg2 UNIQUE_VIOLATION error
+        """
+        return (
+            hasattr(exception, 'pgcode') and
+            exception.pgcode == UNIQUE_VIOLATION
+        )
+
+    def save_form(self, sqs_message_id, form_data):
+        """Creates new form.models.Form
+
+        Args:
+            sqs_message_id (str): SQS message ID
+            form_data (str): Form data
+        """
+        logger.debug(
+            "Saving new form from message '{}'".format(sqs_message_id)
+        )
+        try:
+            form.models.Form.objects.create(
+                sqs_message_id=sqs_message_id,
+                data=form_data,
+            )
+        except IntegrityError as exc:
+            if self.is_postgres_unique_violation_error(exc):
+                logger.warning(
+                    "SQS message '{}' was already processed".format(
+                        sqs_message_id
+                    )
+                )
+            else:
+                raise

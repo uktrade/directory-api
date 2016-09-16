@@ -1,3 +1,5 @@
+import json
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,13 +15,19 @@ class FormViewSet(ModelViewSet):
     serializer_class = FormSerializer
     http_method_names = ("post", )
 
+    def __init__(self, *args, **kwargs):
+        super(FormViewSet, self).__init__(*args, **kwargs)
+        self.form_data_queue = form.queue.FormData()
+
     def create(self, request, *args, **kwargs):
-        """Sends valid request data to an SQS queue"""
+        """Sends valid request data to form data SQS queue"""
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        form.queue.Service().send(data=request.data.dict())
+        self.form_data_queue.send(
+            data=json.dumps(request.data.dict(), ensure_ascii=False)
+        )
 
         return Response(
             serializer.data,
