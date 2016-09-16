@@ -6,4 +6,3 @@ gunicorn==19.5.0
 psycopg2==2.6.1
 raven==5.19.0
 boto3==1.4.0
-circus==0.14.0

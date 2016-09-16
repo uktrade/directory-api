@@ -137,11 +137,19 @@ if DEBUG:
 # SQS
 
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
-SQS_QUEUE_NAME = os.getenv("SQS_QUEUE_NAME", 'directory-form-data')
-# In seconds, max is 20
+
+SQS_FORM_DATA_QUEUE_NAME = os.getenv(
+    "SQS_FORM_DATA_QUEUE_NAME", 'directory-form-data'
+)
+SQS_INVALID_MESAGES_QUEUE_NAME = os.getenv(
+    "SQS_INVALID_MESAGES_QUEUE_NAME", 'directory-form-data-invalid'
+)
+
+# Long polling time (how long boto client waits for messages during single
+# receive_messages call), in seconds, max is 20
 SQS_WAIT_TIME = int(os.getenv("SQS_WAIT_TIME", 20))
-# Max is 10
+# Number of messages retrieved at once, max is 10
 SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
-# Max is 43200 (12 hours)
-SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 60))
-SQS_WORKERS_NUMBER = int(os.getenv("SQS_WORKERS_NUMBER", 1))
+# Time after which retrieved, but not deleted message will reappear in the
+# queue, max is 43200 (12 hours)
+SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
