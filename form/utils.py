@@ -62,7 +62,7 @@ class QueueService:
         Args:
             data (str): Data string
         """
-        self._queue.send_message(data)
+        self._queue.send_message(MessageBody=data)
 
     def receive(
             self,
