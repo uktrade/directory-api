@@ -36,8 +36,6 @@ class Worker:
 
     """
     def __init__(self):
-        """Summary
-        """
         self.form_data_queue = FormData()
         self.invalid_form_data_queue = InvalidFormData()
         self.exit_signal_receiver = ExitSignalReceiver()
