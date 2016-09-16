@@ -33,8 +33,6 @@
 
 | Environment variable | Required | Default value | Description 
 | ------------- | ------------- | ------------- | ------------- |
-| WEB_SERVER_ENABLED | this or QUEUE_WORKER_ENABLED | true | Enables the webserver (gunicorn running Django) in docker container|
-| QUEUE_WORKER_ENABLED | this or WEB_SERVER_ENABLED | true | Enables Amazon SQS queue worker in docker container|
 | SQS_REGION_NAME | true | eu-west-1 | AWS region name |
 | SQS_FORM_DATA_QUEUE_NAME | true | directory-form-data | AWS SQS queue name for form data |
 | SQS_INVALID_MESAGES_QUEUE_NAME | true | directory-form-data-invalid | AWS SQS queue name for invalid messages from form data queue |
