@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres
     environment:
-      POSTGRES_PASSWORD: ad
-      POSTGRES_USER: test
+      POSTGRES_USER: ad
+      POSTGRES_PASSWORD: test
       POSTGRES_DB: big-quick-form-data
 
   webserver:

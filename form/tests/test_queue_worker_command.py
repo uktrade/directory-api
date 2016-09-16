@@ -1,8 +1,9 @@
 import multiprocessing
 from unittest import mock
 import os
-import time
 import signal
+import time
+import uuid
 
 from django.core.management import call_command
 
@@ -20,8 +21,8 @@ class TestQueueWorkerCommand(MockBoto):
         """ Test queue worker stops running on sigterm """
         worker = form.queue.Worker()
         worker.form_data_queue._queue.receive_messages.return_value = [
-            mock.Mock(message_id=x, body=VALID_REQUEST_DATA_JSON)
-            for x in range(10)
+            mock.Mock(message_id=uuid.uuid4(), body=VALID_REQUEST_DATA_JSON)
+            for _ in range(10)
         ]
         worker_process = multiprocessing.Process(
             target=call_command, args=('queue_worker', )
