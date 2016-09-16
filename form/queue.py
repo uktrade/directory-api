@@ -28,7 +28,7 @@ class Worker:
     """Form data queue worker
 
     Attributes:
-        exit_signal_receiver (TYPE): Description
+        exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
         form_data_queue (form.queue.FormData): Form data SQS queue service
 
         invalid_form_data_queue (form.queue.InvalidFormData): Invalid form

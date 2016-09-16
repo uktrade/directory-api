@@ -37,7 +37,6 @@ class TestService(MockBoto):
     def test_get_or_create_queue_other_exception(self):
         """ Test form.queue.Service.get_or_create_queue
 
-
         Exceptions other than NonExistentQueue should be propagated
         """
         form.utils.QueueService.queue_name = 'test'
