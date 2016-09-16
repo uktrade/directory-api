@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(PROJECT_ROOT)
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("DEBUG", False))
+DEBUG = True if (os.getenv('DEBUG') == 'true') else False
 
 # As app is running behind a host-based router supplied by Heroku or other
 # PaaS, we can open ALLOWED_HOSTS
@@ -51,6 +51,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'data.wsgi.application'
 
+DATABASE_HOST = os.getenv("DATABASE_HOST", 'localhost')
+
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -58,10 +60,11 @@ WSGI_APPLICATION = 'data.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default="postgres://ad:@localhost:/big-quick-form-data"
+        default="postgres://ad:@{host}:/big-quick-form-data".format(
+            host=DATABASE_HOST
+        )
     )
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -132,3 +135,24 @@ if DEBUG:
             },
         }
     }
+
+
+# SQS
+
+SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
+
+SQS_FORM_DATA_QUEUE_NAME = os.getenv(
+    "SQS_FORM_DATA_QUEUE_NAME", 'directory-form-data'
+)
+SQS_INVALID_MESAGES_QUEUE_NAME = os.getenv(
+    "SQS_INVALID_MESAGES_QUEUE_NAME", 'directory-form-data-invalid'
+)
+
+# Long polling time (how long boto client waits for messages during single
+# receive_messages call), in seconds, max is 20
+SQS_WAIT_TIME = int(os.getenv("SQS_WAIT_TIME", 20))
+# Number of messages retrieved at once, max is 10
+SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
+# Time after which retrieved, but not deleted message will reappear in the
+# queue, max is 43200 (12 hours)
+SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
