@@ -1,18 +1,21 @@
 version: '2'
 services:
+
   postgres:
     image: postgres
     environment:
-      POSTGRES_USER: ad
+      POSTGRES_USER: test
       POSTGRES_PASSWORD: test
-      POSTGRES_DB: big-quick-form-data
+      POSTGRES_DB: directory-form-data-test
 
   webserver:
     build:
       context: .
       dockerfile: Dockerfile
+
     image: directory-form-data
     links: [postgres]
+    expose: ["8000"]
     env_file: .env
 
   queue_worker:

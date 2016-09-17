@@ -7,8 +7,8 @@
 
 ## Requirements
 
-[PostgreSQL](https://www.postgresql.org/) running on ``localhost``  
 [Python 3.5](https://www.python.org/downloads/)
+[pip](https://pip.pypa.io/en/stable/installing/)
 
 ## Local installation
 
@@ -19,30 +19,29 @@
 
 
 ## Running tests
+Requires [PostgreSQL](https://www.postgresql.org/) running on ``localhost``
 
     $ make test
 
 ## Running application locally with docker compose
+Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set
 
-1. Create ``.env`` file with ``cp env.template .env`` and set environment variables in it.
-2. ``docker-compose build``
-3. ``docker-compose up``
-
+    $ make run
 
 ## Environment variables
 
-| Environment variable | Required | Default value | Description 
+| Environment variable | Default value | Description 
 | ------------- | ------------- | ------------- | ------------- |
-| SQS_REGION_NAME | true | eu-west-1 | AWS region name |
-| SQS_FORM_DATA_QUEUE_NAME | true | directory-form-data | AWS SQS queue name for form data |
-| SQS_INVALID_MESAGES_QUEUE_NAME | true | directory-form-data-invalid | AWS SQS queue name for invalid messages from form data queue |
-| SQS_WAIT_TIME | true | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on single boto API call |
-| SQS_MAX_NUMBER_OF_MESSAGES | true | 10 (max value) | How many messages to receive on single boto API call |
-| SQS_VISIBILITY_TIMEOUT | true | 21600 (6 hours, max value is 43200) | After what time retrieved, but not deleted messages will return to the queue |
-| SECRET_KEY | true | 'test' when running ``make test``, otherwise ``None`` | Django secret key |
-| AWS_ACCESS_KEY_ID | true | ``None``, set in ``.env`` for local ``docker-compose`` | AWS access key ID |
-| AWS_SECRET_ACCESS_KEY | true | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
-| DATABASE_HOST | true | ``localhost``, ``postgres`` for ``docker-compose`` | Postgres database host name |
+| SQS_REGION_NAME | eu-west-1 | AWS region name |
+| SQS_FORM_DATA_QUEUE_NAME | directory-form-data | AWS SQS form data queue name  |
+| SQS_INVALID_MESAGES_QUEUE_NAME | directory-form-data-invalid | AWS SQS invalid messages queue name |
+| SQS_WAIT_TIME | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on a single boto API call |
+| SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
+| SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
+| SECRET_KEY | ``test`` when running ``make test`` and ``docker-compose`` locally, otherwise ``None`` | Django secret key |
+| AWS_ACCESS_KEY_ID | ``None``, set in ``.env`` for local ``docker-compose`` | AWS access key ID |
+| AWS_SECRET_ACCESS_KEY | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
+| DATABASE_URL | ``postgres://test:test@localhost:/directory-form-data-test``, ``postgres://test:test@postgres:/directory-form-data-test`` for ``docker-compose`` | Postgres database url |
 
 
 ## Architecture
@@ -50,17 +49,17 @@ Docker container runs web server or queue worker (enabling both is possible, but
 
 ### Web server
 1. Web server is started with gunicorn.
-2. receives POST request from [directory-form-ui](https://github.com/uktrade/directory-form).
+2. Receives POST request from [directory-form-ui](https://github.com/uktrade/directory-form).
 3. Request goes to [form view](https://github.com/uktrade/directory-form-data/blob/master/form/views.py).
 4. If form data is valid, it is sent to Amazon SQS queue. 
 
 ### Queue worker
-1. Queue worker is started with Django management command.
+1. Queue worker is started with django management command.
 2. Retrieves messages (the maximum of ``$SQS_MAX_NUMBER_OF_MESSAGES``) from Amazon SQS queue ``$SQS_FORM_DATA_QUEUE_NAME``.
     1. If there are no messages, it waits for ``$SQS_WAIT_TIME`` for messages to arrive 
         1. If there are no messages in the queue, it polls again.
     2. If messages were retrieved:
-        1. If message body is valid form data a new instance of ``form.models.Form`` is saved to the database.
+        1. If message body is valid form data, a new instance of ``form.models.Form`` is saved to the database.
             1. If message with same message ID was already saved (as SQS provides ``at-least-once delivery``), it is skipped (unique constraint on ``form.models.Form.sqs_message_id``).
         2. Else it is send to ``$SQS_INVALID_MESAGES_QUEUE_NAME``.
 3. If SIGTERM or SIGINT signal is received:

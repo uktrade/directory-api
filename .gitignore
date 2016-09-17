@@ -95,4 +95,4 @@ Temporary Items
 .apdisk
 
 # Docker
-!/.env
+.env

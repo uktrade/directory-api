@@ -1,0 +1,13 @@
+version: '2'
+services:
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: directory-form-data
+    working_dir: /usr/src/app
+    command: make requirements test
+    links: [postgres]
+    env_file: .env
