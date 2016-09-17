@@ -36,6 +36,7 @@ test: flake8
 	 $(SET_TEST_ENV_VARS); pytest . --cov=. $(pytest_args)
 
 test_docker:
+	$(DOCKER_COMPOSE_ENV)
 	docker-compose rm -f
 	docker-compose -f docker-compose.yml -f docker-compose-test.yml build
 	docker-compose -f docker-compose.yml -f docker-compose-test.yml run test
