@@ -7,7 +7,7 @@
 
 ## Requirements
 
-[Python 3.5](https://www.python.org/downloads/)
+[Python 3.5](https://www.python.org/downloads/) 
 [pip](https://pip.pypa.io/en/stable/installing/)
 
 ## Local installation
@@ -18,7 +18,7 @@
     $ make
 
 
-## Running tests on localhost
+## Running tests locally
 Requires [PostgreSQL](https://www.postgresql.org/) running on ``localhost:5432``.
 
     $ make test
@@ -27,11 +27,6 @@ Requires [PostgreSQL](https://www.postgresql.org/) running on ``localhost:5432``
 Requires [Docker >= 1.10](https://docs.docker.com/engine/installation/) and [Docker Compose >= 1.8](https://docs.docker.com/compose/install/).
 
     $ make test_docker
-
-## Running application with docker-compose
-Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set.
-
-    $ make run
 
 ## Environment variables
 
@@ -44,9 +39,43 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 | SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
 | SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
 | SECRET_KEY | ``test`` when running ``make test`` and ``docker-compose`` locally, otherwise ``None`` | Django secret key |
+| DATABASE_URL | ``postgres://test:test@localhost:5432/directory-form-data-test``, ``postgres://test:test@postgres:5432/directory-form-data-test`` for ``docker-compose`` | Postgres database url |
 | AWS_ACCESS_KEY_ID | ``None``, set in ``.env`` for local ``docker-compose`` | AWS access key ID |
 | AWS_SECRET_ACCESS_KEY | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
-| DATABASE_URL | ``postgres://test:test@localhost:5432/directory-form-data-test``, ``postgres://test:test@postgres:5432/directory-form-data-test`` for ``docker-compose`` | Postgres database url |
+
+## Host environment variables for docker-compose
+``.env`` files will be automatically created by ``make run``, based on host environment variables with ``DIRECTORY_FORM_DATA_`` prefix.
+
+### Web server and queue worker
+| Host environment variable | Docker environment variable  |
+| ------------- | ------------- |
+| DIRECTORY_FORM_DATA_SQS_REGION_NAME | SQS_REGION_NAME |
+| DIRECTORY_FORM_DATA_SQS_FORM_DATA_QUEUE_NAME | SQS_FORM_DATA_QUEUE_NAME |
+| DIRECTORY_FORM_DATA_SQS_INVALID_MESAGES_QUEUE_NAME | SQS_INVALID_MESAGES_QUEUE_NAME |
+| DIRECTORY_FORM_DATA_SQS_WAIT_TIME | SQS_WAIT_TIME |
+| DIRECTORY_FORM_DATA_SQS_MAX_NUMBER_OF_MESSAGES | SQS_MAX_NUMBER_OF_MESSAGES |
+| DIRECTORY_FORM_DATA_SQS_VISIBILITY_TIMEOUT | SQS_VISIBILITY_TIMEOUT |
+| DIRECTORY_FORM_DATA_SECRET_KEY | SECRET_KEY |
+| DIRECTORY_FORM_DATA_DATABASE_URL | DATABASE_URL |
+| DIRECTORY_FORM_DATA_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
+| DIRECTORY_FORM_DATA_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
+
+### Database
+| Host environment variable | Docker environment variable  |
+| ------------- | ------------- |
+| DIRECTORY_FORM_DATA_POSTGRES_USER | POSTGRES_USER |
+| DIRECTORY_FORM_DATA_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
+| DIRECTORY_FORM_DATA_POSTGRES_DB | POSTGRES_DB |
+
+
+## Running with docker-compose
+Requires all host environment variables to be set.
+
+    $ make run
+
+To run locally (requires just ``DIRECTORY_FORM_DATA_AWS_ACCESS_KEY_ID`` and ``DIRECTORY_FORM_DATA_AWS_SECRET_ACCESS_KEY``):
+
+    $ make run_locally
 
 
 ## Architecture

@@ -1,4 +1,4 @@
-build: requirements db test
+build: requirements	db test
 
 clean:
 	-find . -type f -name "*.pyc" -delete
@@ -19,15 +19,16 @@ webserver:
 queue_worker:
 	$(SET_TEST_ENV_VARS); ./manage.py queue_worker
 
-CHECK_DOCKER_COMPOSE_ENV_VARS := if [ -z $(AWS_ACCESS_KEY_ID) ] && [ -z $(AWS_SECRET_ACCESS_KEY) ]; then echo AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set; exit 1; fi
-DOCKER_COMPOSE_ENV := echo "SECRET_KEY=test\nAWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)\nAWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)\nDATABASE_URL=postgres://test:test@postgres:5432/directory-form-data-test" > .env
-env:
-	$(CHECK_DOCKER_COMPOSE_ENV_VARS)
-	$(DOCKER_COMPOSE_ENV)
 
-run: env
-	docker-compose up --build -d
-	docker-compose logs -f
+DOCKER_COMPOSE := docker-compose rm -f && docker-compose pull && docker-compose up --build -d  && docker-compose logs -f
+CREATE_DOCKER_COMPOSE_ENVS := python envs.py
+run:
+	$(CREATE_DOCKER_COMPOSE_ENVS)
+	$(DOCKER_COMPOSE)
+
+SET_RUNNING_LOCALLY := export DIRECTORY_FORM_DATA_RUNNING_LOCALLY=true
+run_locally:
+	$(SET_RUNNING_LOCALLY) && $(CREATE_DOCKER_COMPOSE_ENVS) && $(DOCKER_COMPOSE)
 
 flake8:
 	flake8 . --exclude=migrations
@@ -35,11 +36,12 @@ flake8:
 test: flake8
 	 $(SET_TEST_ENV_VARS); pytest . --cov=. $(pytest_args)
 
+SET_TEST_AWS_ACCESS_ENVS := export DIRECTORY_FORM_DATA_AWS_ACCESS_KEY_ID=test; export DIRECTORY_FORM_DATA_AWS_SECRET_ACCESS_KEY=test
 test_docker:
-	$(DOCKER_COMPOSE_ENV)
+	$(SET_TEST_AWS_ACCESS_ENVS) && $(SET_RUNNING_LOCALLY) && $(CREATE_DOCKER_COMPOSE_ENVS)
 	docker-compose rm -f
 	docker-compose -f docker-compose.yml -f docker-compose-test.yml build
 	docker-compose -f docker-compose.yml -f docker-compose-test.yml run test
 
-.PHONY: build db clean requirements flake8 test webserver queue_worker env run test_in_docker
+.PHONY: build db clean requirements flake8 test webserver queue_worker run test_docker run_locally
 
