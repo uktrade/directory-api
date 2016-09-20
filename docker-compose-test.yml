@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    image: directory-form-data
     working_dir: /usr/src/app
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 10s
     command: make requirements test
     links: [postgres]
     env_file: .env
