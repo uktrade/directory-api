@@ -6,6 +6,61 @@ import boto3
 import botocore
 
 
+class AwsErrorCodes:
+    SQS_NON_EXISTENT_QUEUE = 'AWS.SimpleQueueService.NonExistentQueue'
+    SIGNATURE_DOES_NOT_MATCH = 'SignatureDoesNotMatch'
+
+
+class AwsError:
+    codes = AwsErrorCodes()
+
+    @staticmethod
+    def is_error(exception, error_code):
+        """Returns True if exception is boto's error with given code
+
+        Args:
+            exception (Exception): boto client exception
+            error_code (string): AWS error code
+
+        Returns:
+            boolean: True if exception is boto's error with given code
+        """
+        if hasattr(exception, 'response'):
+            error_code = exception.response.get('Error', {}).get('Code')
+            return error_code == error_code
+
+    @staticmethod
+    def is_sqs_non_existent_queue(exception):
+        """Returns True if exception is boto's
+        AWS.SimpleQueueService.NonExistentQueue'
+
+        Args:
+            error (Exception): boto client exception
+
+        Returns:
+            boolean: True if exception is boto's 'NonExistentQueue'
+        """
+        return AwsError.is_error(
+            exception=exception,
+            error_code=AwsError.codes.SQS_NON_EXISTENT_QUEUE
+        )
+
+    @staticmethod
+    def is_signature_does_not_match(exception):
+        """Returns True if exception is boto's 'SignatureDoesNotMatch'
+
+        Args:
+            error (Exception): boto client exception
+
+        Returns:
+            boolean: True if exception is boto's 'SignatureDoesNotMatch'
+        """
+        return AwsError.is_error(
+            exception=exception,
+            error_code=AwsError.codes.SIGNATURE_DOES_NOT_MATCH
+        )
+
+
 class QueueService:
     """Form data queue service
 
@@ -20,6 +75,9 @@ class QueueService:
         if not self.queue_name:
             raise NotImplementedError("queue_name cannot be empty")
 
+        self.initialise_sqs()
+
+    def initialise_sqs(self):
         self._sqs = boto3.resource('sqs', region_name=settings.SQS_REGION_NAME)
         self._queue = self.get_or_create_queue(name=self.queue_name)
 
@@ -35,26 +93,12 @@ class QueueService:
         try:
             queue = self._sqs.get_queue_by_name(QueueName=name)
         except botocore.exceptions.ClientError as error:
-            if self.is_sqs_queue_non_existent_exception(error):
+            if AwsError.is_sqs_non_existent_queue(error):
                 queue = self._sqs.create_queue(QueueName=name)
             else:
                 raise
 
         return queue
-
-    @staticmethod
-    def is_sqs_queue_non_existent_exception(error):
-        """Returns True if exception is boto's 'NonExistentQueue'
-
-        Args:
-            error (Exception): boto client exception
-
-        Returns:
-            boolean: True if exception is boto's 'NonExistentQueue'
-        """
-        if hasattr(error, 'response'):
-            error_code = error.response.get('Error', {}).get('Code')
-            return error_code == 'AWS.SimpleQueueService.NonExistentQueue'
 
     def send(self, data):
         """Sends data to the queue
@@ -77,10 +121,21 @@ class QueueService:
         Returns:
             list: List of SQS.Message
         """
-        return self._queue.receive_messages(
-            WaitTimeSeconds=wait_time_in_seconds,
-            MaxNumberOfMessages=max_number_of_messages,
-        )
+        try:
+            messages = self._queue.receive_messages(
+                WaitTimeSeconds=wait_time_in_seconds,
+                MaxNumberOfMessages=max_number_of_messages,
+            )
+        except botocore.exceptions.ClientError as error:
+            # try to reinitialise sqs connection on 'Signature expired' error
+            if AwsError.is_signature_does_not_match(error):
+                self.initialise_sqs()
+                messages = self._queue.receive_messages(
+                    WaitTimeSeconds=wait_time_in_seconds,
+                    MaxNumberOfMessages=max_number_of_messages,
+                )
+
+        return messages
 
 
 class SignalReceiver:
