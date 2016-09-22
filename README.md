@@ -6,27 +6,28 @@
 [![CircleCI](https://circleci.com/gh/uktrade/directory-form-data/tree/master.svg?style=svg)](https://circleci.com/gh/uktrade/directory-form-data/tree/master)
 
 ## Requirements
-
-[Python 3.5](https://www.python.org/downloads/) 
-[pip](https://pip.pypa.io/en/stable/installing/)
+[Docker >= 1.10](https://docs.docker.com/engine/installation/) 
+[Docker Compose >= 1.8](https://docs.docker.com/compose/install/)
 
 ## Local installation
 
     $ git clone https://github.com/uktrade/directory-form-data
     $ cd directory-form-data
-    $ mkvirtualenv directory-form-data -a . --python=/usr/local/bin/python3
     $ make
 
+## Running
+Requires all host environment variables to be set.
 
-## Running tests locally
-Requires [PostgreSQL](https://www.postgresql.org/) running on ``localhost:5432``.
+    $ make run
 
-    $ make test
+## Running for local development
+Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY``
 
-## Running tests in docker
-Requires [Docker >= 1.10](https://docs.docker.com/engine/installation/) and [Docker Compose >= 1.8](https://docs.docker.com/compose/install/).
+    $ make run_debug
 
-    $ make test_docker
+## Running tests
+
+    $ make run_test
 
 ## Environment variables
 
@@ -44,7 +45,7 @@ Requires [Docker >= 1.10](https://docs.docker.com/engine/installation/) and [Doc
 | AWS_SECRET_ACCESS_KEY | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
 
 ## Host environment variables for docker-compose
-``.env`` files will be automatically created by ``make run``, based on host environment variables with ``DIRECTORY_FORM_DATA_`` prefix.
+``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make run_test``, based on host environment variables with ``DIRECTORY_FORM_DATA_`` prefix.
 
 ### Web server and queue worker
 | Host environment variable | Docker environment variable  |
@@ -66,17 +67,6 @@ Requires [Docker >= 1.10](https://docs.docker.com/engine/installation/) and [Doc
 | DIRECTORY_FORM_DATA_POSTGRES_USER | POSTGRES_USER |
 | DIRECTORY_FORM_DATA_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
 | DIRECTORY_FORM_DATA_POSTGRES_DB | POSTGRES_DB |
-
-
-## Running with docker-compose
-Requires all host environment variables to be set.
-
-    $ make run
-
-To run locally (requires just ``DIRECTORY_FORM_DATA_AWS_ACCESS_KEY_ID`` and ``DIRECTORY_FORM_DATA_AWS_SECRET_ACCESS_KEY``):
-
-    $ make run_locally
-
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
