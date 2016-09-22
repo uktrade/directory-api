@@ -11,3 +11,4 @@ services:
     command: make requirements test
     links: [postgres]
     env_file: .env
+    restart: "no"

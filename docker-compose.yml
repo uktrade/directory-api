@@ -17,6 +17,7 @@ services:
     command: ./docker-entrypoint-webserver.sh
     expose: ["8000"]
     env_file: .env
+    restart: "always"
 
   queue_worker:
     build:
@@ -28,3 +29,4 @@ services:
     entrypoint: dockerize -wait tcp://postgres:5432 -timeout 10s
     command: ./docker-entrypoint-queue_worker.sh
     env_file: .env
+    restart: "always"
