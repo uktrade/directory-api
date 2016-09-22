@@ -21,7 +21,13 @@ SET_DEBUG_ENV_VARS := \
     export DIRECTORY_FORM_DATA_SQS_INVALID_MESAGES_QUEUE_NAME=debug; \
 	export DIRECTORY_FORM_DATA_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
 
-REMOVE_ALL_WEBSERVERS_AND_WORKERS := docker ps -a | awk '{ print $$1,$$12 }' | grep -e directoryformdata_webserver -e directoryformdata_queue_worker | awk '{print $$1 }' | xargs -I {} docker rm -f {}
+REMOVE_ALL_WEBSERVERS_AND_WORKERS := \
+	docker ps -a | \
+	awk '{ print $$1,$$12 }' | \
+	grep -e directoryformdata_webserver -e directoryformdata_queue_worker | \
+	awk '{print $$1 }' | \
+	xargs -I {} docker rm -f {}
+
 run_debug:
 	$(REMOVE_ALL_WEBSERVERS_AND_WORKERS) && \
 	$(SET_DEBUG_ENV_VARS) && \
