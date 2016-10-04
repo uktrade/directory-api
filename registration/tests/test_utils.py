@@ -1,8 +1,8 @@
 from botocore.exceptions import ClientError
 import pytest
 
-import form
-from form.tests import MockBoto
+from registration import utils
+from registration.tests import MockBoto
 
 
 class OtherException(Exception):
@@ -12,19 +12,19 @@ class OtherException(Exception):
 class TestService(MockBoto):
 
     def test_get_or_create_queue_non_existent_exception(self):
-        """ Test form.utils.Service.get_or_create_queue
+        """ Test utils.Service.get_or_create_queue
 
         NonExistentQueue exception should be handled by
-        calling form.utils.Service.create_queue
+        calling utils.Service.create_queue
         """
-        form.utils.QueueService.queue_name = 'test'
-        queue_service = form.utils.QueueService()
+        utils.QueueService.queue_name = 'test'
+        queue_service = utils.QueueService()
 
         queue_service._sqs.get_queue_by_name.side_effect = ClientError(
             operation_name='GetQueueUrl',
             error_response={
                 'Error': {
-                    'Code': form.utils.AwsErrorCodes.SQS_NON_EXISTENT_QUEUE
+                    'Code': utils.AwsErrorCodes.SQS_NON_EXISTENT_QUEUE
                 },
             }
         )
@@ -34,12 +34,12 @@ class TestService(MockBoto):
         assert queue_service._sqs.create_queue.called
 
     def test_get_or_create_queue_other_exception(self):
-        """ Test form.utils.Service.get_or_create_queue
+        """ Test utils.Service.get_or_create_queue
 
         Exceptions other than NonExistentQueue should be propagated
         """
-        form.utils.QueueService.queue_name = 'test'
-        queue_service = form.utils.QueueService()
+        utils.QueueService.queue_name = 'test'
+        queue_service = utils.QueueService()
 
         queue_service._sqs.get_queue_by_name.side_effect = OtherException
 
@@ -50,17 +50,17 @@ class TestService(MockBoto):
         assert not queue_service._sqs.create_queue.called
 
     def test_receive_reinitialise_sqs_on_signature_not_match(self):
-        """ Test form.utils.Service.receive reinitialises SQS connection on
+        """ Test utils.Service.receive reinitialises SQS connection on
         'SignatureDoesNotMatch' boto error
         """
-        queue_service = form.utils.QueueService()
+        queue_service = utils.QueueService()
         queue_service.queue_name = 'test'
 
         queue_service._sqs.get_queue_by_name.side_effect = ClientError(
             operation_name='ReceiveMessage',
             error_response={
                 'Error': {
-                    'Code': form.utils.AwsErrorCodes.SIGNATURE_DOES_NOT_MATCH
+                    'Code': utils.AwsErrorCodes.SIGNATURE_DOES_NOT_MATCH
                 },
             }
         )

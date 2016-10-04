@@ -1,10 +1,11 @@
 from django.conf.urls import url, include
 
 from rest_framework.routers import DefaultRouter
-from form.views import FormViewSet
+from registration.views import RegistrationViewSet
+
 
 router = DefaultRouter()
-router.register(r"form", FormViewSet, base_name="form")
+router.register(r"registration", RegistrationViewSet, base_name="registration")
 
 urlpatterns = [
 

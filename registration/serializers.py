@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from .models import Form
+from registration import models
 
 
-class FormSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
 
     class Meta(object):
-        model = Form
+        model = models.Registration
         fields = ("id", "data",)

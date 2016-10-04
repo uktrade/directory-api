@@ -7,37 +7,38 @@ from django.db import IntegrityError
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 
-import form.models
-from form.utils import ExitSignalReceiver, QueueService
+from registration import models
+from registration.utils import ExitSignalReceiver, QueueService
 
 
 logger = logging.getLogger(__name__)
 
 
-class FormData(QueueService):
-    """SQS queue service for form data"""
-    queue_name = settings.SQS_INVALID_MESAGES_QUEUE_NAME
+class Registration(QueueService):
+    """SQS queue service for registration"""
+    queue_name = settings.SQS_REGISTRATION_QUEUE_NAME
 
 
-class InvalidFormData(QueueService):
-    """SQS queue service for invalid form data"""
-    queue_name = settings.SQS_INVALID_MESAGES_QUEUE_NAME
+class InvalidRegistration(QueueService):
+    """SQS queue service for invalid registration"""
+    queue_name = settings.SQS_INVALID_REGISTRATION_QUEUE_NAME
 
 
 class Worker:
-    """Form data queue worker
+    """Registration queue worker
 
     Attributes:
         exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
-        form_data_queue (form.queue.FormData): Form data SQS queue service
+        registration_queue (registration.queue.Registration): Registration
+            SQS queue service
 
-        invalid_form_data_queue (form.queue.InvalidFormData): Invalid form
-            data SQS queue service
+        invalid_registration_queue (registration.queue.InvalidRegistration):
+            Invalid registration SQS queue service
 
     """
     def __init__(self):
-        self.form_data_queue = FormData()
-        self.invalid_form_data_queue = InvalidFormData()
+        self.registration_queue = Registration()
+        self.invalid_registration_queue = InvalidRegistration()
         self.exit_signal_receiver = ExitSignalReceiver()
 
     @property
@@ -58,16 +59,16 @@ class Worker:
         while not self.exit_signal_received:
             logger.info(
                 "Retrieving messages from '{}' queue".format(
-                    self.form_data_queue.queue_name
+                    self.registration_queue.queue_name
                 )
             )
-            messages = self.form_data_queue.receive()
+            messages = self.registration_queue.receive()
 
             for message in messages:
                 self.process_message(message)
 
                 # exit cleanly when exit signal is received, unprocessed
-                # messages will return to the form data queue
+                # messages will return to the registration queue
                 if self.exit_signal_received:
                     return
 
@@ -75,8 +76,8 @@ class Worker:
             gc.collect()
 
     @staticmethod
-    def is_valid_form_data(message_body):
-        """Returns True if message body is valid models.Form data
+    def is_valid_registration(message_body):
+        """Returns True if message body is valid models.Registration
 
         Args:
             message_body (SQS.Message.body): SQS message body
@@ -85,15 +86,15 @@ class Worker:
             boolean: True if valid, False if not
         """
         try:
-            form_data = json.loads(message_body)
+            registration = json.loads(message_body)
         except (ValueError, json.decoder.JSONDecodeError):
             return False
         else:
-            return form_data.get('data') is not None
+            return registration.get('data') is not None
 
     def process_message(self, message):
-        """Creates new form.models.Form if message body is valid form data,
-        otherwise sends it to the invalid messages queue
+        """Creates new models.Registration if message body is a valid
+        registration, otherwise sends it to the invalid registrations queue
 
         Args:
             message (SQS.Message): message to process
@@ -102,19 +103,19 @@ class Worker:
             "Processing message '{}'".format(message.message_id)
         )
 
-        if self.is_valid_form_data(message.body):
-            self.save_form(
+        if self.is_valid_registration(message.body):
+            self.save_registration(
                 sqs_message_id=message.message_id,
-                form_data=json.loads(message.body)
+                registration=json.loads(message.body)
             )
         else:
             logger.error(
-                "Message '{}' body is not valid form data, sending it to "
+                "Message '{}' body is not valid registration, sending it to "
                 "invalid messages queue".format(
                     message.message_id
                 )
             )
-            self.invalid_form_data_queue.send(data=message.body)
+            self.invalid_registration_queue.send(data=message.body)
 
         message.delete()
 
@@ -133,20 +134,20 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    def save_form(self, sqs_message_id, form_data):
-        """Creates new form.models.Form
+    def save_registration(self, sqs_message_id, registration):
+        """Creates new registration.models.Registration
 
         Args:
             sqs_message_id (str): SQS message ID
-            form_data (str): Form data
+            registration (str): Registration
         """
         logger.debug(
-            "Saving new form from message '{}'".format(sqs_message_id)
+            "Saving new registration from message '{}'".format(sqs_message_id)
         )
         try:
-            form.models.Form.objects.create(
+            models.Registration.objects.create(
                 sqs_message_id=sqs_message_id,
-                data=form_data,
+                data=registration,
             )
         except IntegrityError as exc:
             if self.is_postgres_unique_violation_error(exc):

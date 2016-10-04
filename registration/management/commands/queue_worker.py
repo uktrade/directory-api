@@ -2,11 +2,11 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-import form.queue
+import registration.queue
 
 
 class Command(BaseCommand):
-    help = 'Runs a form data SQS queue worker'
+    help = 'Runs a registration SQS queue worker'
 
     @staticmethod
     def setup_logging():
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             self.style.SUCCESS('Starting queue worker')
         )
 
-        form.queue.Worker().run()
+        registration.queue.Worker().run()
 
         self.stdout.write(
             self.style.SUCCESS('Queue worker finished running')

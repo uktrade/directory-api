@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "raven.contrib.django.raven_compat",
     "rest_framework",
-    "form.apps.FormsConfig",
+    "registration.apps.RegistrationsConfig",
  ]
 
 MIDDLEWARE_CLASSES = [
@@ -33,7 +33,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'data.urls'
+ROOT_URLCONF = 'api.urls'
 
 TEMPLATES = [
     {
@@ -49,14 +49,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'data.wsgi.application'
+WSGI_APPLICATION = 'api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
     'default': dj_database_url.config(
-        default="postgres://test:test@localhost:5432/directory-form-data-test"
+        default="postgres://test:test@localhost:5432/directory-test"
     )
 }
 
@@ -135,11 +135,11 @@ if DEBUG:
 
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
 
-SQS_FORM_DATA_QUEUE_NAME = os.getenv(
-    "SQS_FORM_DATA_QUEUE_NAME", 'directory-form-data'
+SQS_REGISTRATION_QUEUE_NAME = os.getenv(
+    "SQS_REGISTRATION_QUEUE_NAME", 'directory-registration'
 )
-SQS_INVALID_MESAGES_QUEUE_NAME = os.getenv(
-    "SQS_INVALID_MESAGES_QUEUE_NAME", 'directory-form-data-invalid'
+SQS_INVALID_REGISTRATION_QUEUE_NAME = os.getenv(
+    "SQS_INVALID_REGISTRATION_QUEUE_NAME", 'directory-registration-invalid'
 )
 
 # Long polling time (how long boto client waits for messages during single

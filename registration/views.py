@@ -4,28 +4,28 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 
-import form.queue
-from form.serializers import FormSerializer
-from form.models import Form
+import registration.queue
+from registration.serializers import RegistrationSerializer
+from registration.models import Registration
 
 
-class FormViewSet(ModelViewSet):
+class RegistrationViewSet(ModelViewSet):
 
-    model = Form
-    serializer_class = FormSerializer
+    model = Registration
+    serializer_class = RegistrationSerializer
     http_method_names = ("post", )
 
     def __init__(self, *args, **kwargs):
-        super(FormViewSet, self).__init__(*args, **kwargs)
-        self.form_data_queue = form.queue.FormData()
+        super(RegistrationViewSet, self).__init__(*args, **kwargs)
+        self.registration_queue = registration.queue.Registration()
 
     def create(self, request, *args, **kwargs):
-        """Sends valid request data to form data SQS queue"""
+        """Sends valid request data to registration SQS queue"""
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        self.form_data_queue.send(
+        self.registration_queue.send(
             data=json.dumps(request.data.dict(), ensure_ascii=False)
         )
 

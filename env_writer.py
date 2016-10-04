@@ -5,7 +5,7 @@ Usage: python docker-compose-env_writer.py <path_to_json_config>
 
 Example config:
     {
-      "host_env_var_prefix": "DIRECTORY_FORM_DATA",
+      "host_env_var_prefix": "DIRECTORY",
       "file_path": ".env-postgres",
       "env_vars": {
         "required": [

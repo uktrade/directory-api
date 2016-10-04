@@ -12,14 +12,14 @@ run:
 	docker-compose up --build
 
 SET_DEBUG_ENV_VARS := \
-	export DIRECTORY_FORM_DATA_SECRET_KEY=debug; \
-	export DIRECTORY_FORM_DATA_UI_SECRET=debug; \
-	export DIRECTORY_FORM_DATA_POSTGRES_USER=debug; \
-	export DIRECTORY_FORM_DATA_POSTGRES_PASSWORD=debug; \
-	export DIRECTORY_FORM_DATA_POSTGRES_DB=debug; \
-    export DIRECTORY_FORM_DATA_SQS_FORM_DATA_QUEUE_NAME=debug; \
-    export DIRECTORY_FORM_DATA_SQS_INVALID_MESAGES_QUEUE_NAME=debug; \
-	export DIRECTORY_FORM_DATA_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
+	export DIRECTORY_SECRET_KEY=debug; \
+	export DIRECTORY_UI_SECRET=debug; \
+	export DIRECTORY_POSTGRES_USER=debug; \
+	export DIRECTORY_POSTGRES_PASSWORD=debug; \
+	export DIRECTORY_POSTGRES_DB=debug; \
+    export DIRECTORY_SQS_REGISTRATION_QUEUE_NAME=debug; \
+    export DIRECTORY_SQS_INVALID_REGISTRATION_QUEUE_NAME=debug; \
+	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
 
 REMOVE_ALL_WEBSERVERS_AND_WORKERS := \
 	docker ps -a | \
@@ -42,17 +42,17 @@ debug_webserver:
 	export DEBUG=true; python manage.py migrate; python manage.py runserver 0.0.0.0:8000
 
 webserver_bash:
-	docker exec -it directoryformdata_webserver_1 sh
+	docker exec -it directoryapi_webserver_1 sh
 
 queue_worker_bash:
-	docker exec -it directoryformdata_queue_worker_1 sh
+	docker exec -it directoryapi_queue_worker_1 sh
 
 psql:
 	docker-compose run postgres psql -h postgres -U debug
 
 SET_TEST_AWS_ACCESS_ENVS := \
-	export DIRECTORY_FORM_DATA_AWS_ACCESS_KEY_ID=test; \
-	export DIRECTORY_FORM_DATA_AWS_SECRET_ACCESS_KEY=test
+	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
+	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
 
 run_test:
 	$(SET_TEST_AWS_ACCESS_ENVS) && \
