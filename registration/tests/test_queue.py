@@ -27,8 +27,8 @@ class TestQueueWorker(MockBoto):
         worker.process_message(
             mock.Mock(message_id='1', body=VALID_REQUEST_DATA_JSON)
         )
-
-        assert (
-            registration.models.Registration.objects.last().data ==
-            VALID_REQUEST_DATA
-        )
+        instance = registration.models.Registration.objects.last()
+        assert instance.aims == VALID_REQUEST_DATA['aims']
+        assert instance.company_number == VALID_REQUEST_DATA['company_number']
+        assert instance.email == VALID_REQUEST_DATA['email']
+        assert instance.personal_name == VALID_REQUEST_DATA['personal_name']

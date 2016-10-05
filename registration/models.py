@@ -4,10 +4,10 @@ from django.db import models
 
 class Registration(models.Model):
     aims = JSONField(help_text='list of strings e.g., ["AIM1", "AIM2"]')
-    company_number = models.CharField(unique=True)
+    company_number = models.CharField(max_length=8)
     created = models.DateTimeField(auto_now_add=True)
     email = models.EmailField()
-    personal_name = models.CharField()
+    personal_name = models.CharField(max_length=100)
     # Unique constraint to achieve “exactly-once delivery” with Amazon SQS
     sqs_message_id = models.CharField(
         max_length=255, blank=False, null=True, unique=True,
