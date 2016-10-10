@@ -15,39 +15,24 @@
     $ cd directory-api
     $ make
 
-## Running
+## Running with Docker
 Requires all host environment variables to be set.
 
-    $ make run
+    $ make docker_run
 
-## Running for local development
+### Run debug webserver in Docker
 Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY``
 
-    $ make run_debug
+    $ make docker_debug
 
-## Running tests
+### Run tests in Docker
 
-    $ make run_test
+    $ make docker_test
 
-## Environment variables
+### Host environment variables for docker-compose
+``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make docker_test``, based on host environment variables with ``DIRECTORY_`` prefix.
 
-| Environment variable | Default value | Description 
-| ------------- | ------------- | ------------- | ------------- |
-| SQS_REGION_NAME | eu-west-1 | AWS region name |
-| SQS_REGISTRATION_QUEUE_NAME | directory-registration | AWS SQS registration queue name  |
-| SQS_INVALID_REGISTRATION_QUEUE_NAME | directory-registration-invalid | AWS SQS invalid messages queue name |
-| SQS_WAIT_TIME | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on a single boto API call |
-| SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
-| SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
-| SECRET_KEY | ``test`` when running ``make test`` and ``docker-compose`` locally, otherwise ``None`` | Django secret key |
-| DATABASE_URL | ``postgres://test:test@localhost:5432/directory-test``, ``postgres://test:test@postgres:5432/directory-test`` for ``docker-compose`` | Postgres database url |
-| AWS_ACCESS_KEY_ID | ``None``, set in ``.env`` for local ``docker-compose`` | AWS access key ID |
-| AWS_SECRET_ACCESS_KEY | ``None``, set in ``.env`` for local ``docker-compose`` | AWS secret access key |
-
-## Host environment variables for docker-compose
-``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make run_test``, based on host environment variables with ``DIRECTORY_`` prefix.
-
-### Web server and queue worker
+#### Web server and queue worker
 | Host environment variable | Docker environment variable  |
 | ------------- | ------------- |
 | DIRECTORY_SQS_REGION_NAME | SQS_REGION_NAME |
@@ -61,12 +46,48 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 | DIRECTORY_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
 | DIRECTORY_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
 
-### Database
+#### Database
 | Host environment variable | Docker environment variable  |
 | ------------- | ------------- |
 | DIRECTORY_POSTGRES_USER | POSTGRES_USER |
 | DIRECTORY_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
 | DIRECTORY_POSTGRES_DB | POSTGRES_DB |
+
+## Debugging
+
+### Setup debug environment
+Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/) for the Mac)
+    
+    $ make debug
+
+### Run debug webserver
+
+    $ make debug_webserver
+
+### Run debug queue worker
+Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set
+
+    $ make debug_queue_worker
+
+### Run debug tests
+
+    $ make debug_test
+
+
+## Environment variables
+
+| Environment variable | Default value | Description 
+| ------------- | ------------- | ------------- | ------------- |
+| SQS_REGION_NAME | eu-west-1 | AWS region name |
+| SQS_REGISTRATION_QUEUE_NAME | directory-registration | AWS SQS registration queue name  |
+| SQS_INVALID_REGISTRATION_QUEUE_NAME | directory-registration-invalid | AWS SQS invalid messages queue name |
+| SQS_WAIT_TIME | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on a single boto API call |
+| SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
+| SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
+| SECRET_KEY | None | Django secret key |
+| DATABASE_URL | None | Postgres database url |
+| AWS_ACCESS_KEY_ID | None | AWS access key ID |
+| AWS_SECRET_ACCESS_KEY | None | AWS secret access key |
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
