@@ -1,5 +1,5 @@
 # directory-api
-[Export Directory registration service](https://www.directory.exportingisgreat.gov.uk/)
+[Export Directory API service](https://www.directory.exportingisgreat.gov.uk/)
 
 ## Build status
 
@@ -79,8 +79,8 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 | Environment variable | Default value | Description 
 | ------------- | ------------- | ------------- | ------------- |
 | SQS_REGION_NAME | eu-west-1 | AWS region name |
-| SQS_REGISTRATION_QUEUE_NAME | directory-registration | AWS SQS registration queue name  |
-| SQS_INVALID_REGISTRATION_QUEUE_NAME | directory-registration-invalid | AWS SQS invalid messages queue name |
+| SQS_REGISTRATION_QUEUE_NAME | directory-enrollment | AWS SQS enrollment queue name  |
+| SQS_INVALID_REGISTRATION_QUEUE_NAME | directory-enrollment-invalid | AWS SQS invalid messages queue name |
 | SQS_WAIT_TIME | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on a single boto API call |
 | SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
 | SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
@@ -97,8 +97,8 @@ Web server and Queue worker use same Docker image with different ``CMD``, see [`
 ### Web server
 1. Web server is started with gunicorn.
 2. Receives POST request from [directory-ui](https://github.com/uktrade/directory-ui).
-3. Request goes to [registration view](https://github.com/uktrade/directory-api/blob/master/registration/views.py).
-4. If registration is valid, it is sent to Amazon SQS queue ``$SQS_REGISTRATION_QUEUE_NAME``. 
+3. Request goes to [enrollment view](https://github.com/uktrade/directory-api/blob/master/enrollment/views.py).
+4. If enrollment is valid, it is sent to Amazon SQS queue ``$SQS_REGISTRATION_QUEUE_NAME``. 
 
 ### Queue worker
 1. Queue worker is started with django management command.
@@ -106,8 +106,8 @@ Web server and Queue worker use same Docker image with different ``CMD``, see [`
     1. If there are no messages, it [long polls](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) for ``$SQS_WAIT_TIME``.
         1. It keeps making polling calls every ``$SQS_WAIT_TIME`` until messages are received.
     2. If messages were retrieved:
-        1. If message body is valid registration, a new instance of ``registration.models.Registration`` is saved to the database.
-            1. If message with same message ID was already saved (as SQS provides [at-least-once delivery](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/DistributedQueues.html)), it is skipped (unique constraint on ``registration.models.Registration.sqs_message_id``).
+        1. If message body is valid enrollment, a new instance of ``enrollment.models.Enrollment`` is saved to the database.
+            1. If message with same message ID was already saved (as SQS provides [at-least-once delivery](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/DistributedQueues.html)), it is skipped (unique constraint on ``enrollment.models.Enrollment.sqs_message_id``).
         2. Else it is send to ``$SQS_INVALID_REGISTRATION_QUEUE_NAME``.
 3. If ``SIGTERM`` or ``SIGINT`` signal is received:
     1. If it happened at the start of long polling:

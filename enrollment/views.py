@@ -4,28 +4,28 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 
-import registration.queue
-from registration.serializers import RegistrationSerializer
-from registration.models import Registration
+import enrollment.queue
+from enrollment.serializers import EnrollmentSerializer
+from enrollment.models import Enrollment
 
 
-class RegistrationViewSet(ModelViewSet):
+class EnrollmentViewSet(ModelViewSet):
 
-    model = Registration
-    serializer_class = RegistrationSerializer
+    model = Enrollment
+    serializer_class = EnrollmentSerializer
     http_method_names = ("post", )
 
     def __init__(self, *args, **kwargs):
-        super(RegistrationViewSet, self).__init__(*args, **kwargs)
-        self.registration_queue = registration.queue.Registration()
+        super(EnrollmentViewSet, self).__init__(*args, **kwargs)
+        self.enrollment_queue = enrollment.queue.Enrollment()
 
     def create(self, request, *args, **kwargs):
-        """Sends valid request data to registration SQS queue"""
+        """Sends valid request data to enrollment SQS queue"""
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        self.registration_queue.send(
+        self.enrollment_queue.send(
             data=json.dumps(request.data.dict(), ensure_ascii=False)
         )
 
