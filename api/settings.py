@@ -20,10 +20,20 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    "django_extensions",
-    "raven.contrib.django.raven_compat",
-    "rest_framework",
-    "registration.apps.RegistrationsConfig",
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sites',
+    'django_extensions',
+    'raven.contrib.django.raven_compat',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'oauth2_provider',
+    'corsheaders',
+    'enrollment.apps.EnrollmentConfig',
  ]
 
 MIDDLEWARE_CLASSES = [
@@ -31,7 +41,10 @@ MIDDLEWARE_CLASSES = [
     'alice.middleware.SignatureRejectionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'api.urls'
 
@@ -136,10 +149,10 @@ if DEBUG:
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
 
 SQS_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_REGISTRATION_QUEUE_NAME", 'directory-registration'
+    "SQS_REGISTRATION_QUEUE_NAME", 'directory-enrollment'
 )
 SQS_INVALID_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_INVALID_REGISTRATION_QUEUE_NAME", 'directory-registration-invalid'
+    "SQS_INVALID_REGISTRATION_QUEUE_NAME", 'directory-enrollment-invalid'
 )
 
 # Long polling time (how long boto client waits for messages during single
@@ -150,3 +163,12 @@ SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
 # Time after which retrieved, but not deleted message will reappear in the
 # queue, max is 43200 (12 hours)
 SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
+
+# SSO
+SITE_ID = 1
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    )
+}
