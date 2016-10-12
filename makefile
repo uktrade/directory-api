@@ -1,5 +1,8 @@
 build: docker_test
 
+heroku_deploy:
+	heroku container:push web
+
 clean:
 	-find . -type f -name "*.pyc" -delete
 	-find . -type d -name "__pycache__" -delete
