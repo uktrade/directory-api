@@ -87,7 +87,7 @@ class Worker:
         """
         try:
             registration = json.loads(message_body)
-        except ValueError:
+        except ValueError: # includes JSONDecodeError
             return False
         else:
             serializer = serializers.RegistrationSerializer(data=registration)
@@ -144,6 +144,7 @@ class Worker:
         logger.debug(
             "Saving new registration from message '{}'".format(sqs_message_id)
         )
+        # `copy` registration to avoid it being be mutated is other scopes.
         data = registration.copy()
         data['sqs_message_id'] = sqs_message_id
         serializer = serializers.RegistrationSerializer(data=data)
