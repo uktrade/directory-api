@@ -19,7 +19,7 @@ class SignatureRejection:
         if not offered:
             return False
 
-        generated = self._generate_signature(
+        generated = self.generate_signature(
             settings.UI_SECRET,
             request.get_full_path(),
             request.body,

@@ -4,7 +4,6 @@ from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from rest_framework.response import Response
 
-from alice.utils import SignatureRejection
 import enrollment.queue
 from enrollment.serializers import EnrollmentSerializer
 from enrollment.models import Enrollment
@@ -22,9 +21,6 @@ class EnrollmentCreateAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Sends valid request data to enrollment SQS queue"""
-
-        if not SignatureRejection.test_signature(request):
-            return False
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

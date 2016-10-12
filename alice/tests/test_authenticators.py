@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings, RequestFactory
 
 from ..authenticators import AlicePermission
 from ..middleware import SignatureRejectionMiddleware
+from ..utils import SignatureRejection
 from .client import AliceClient
 
 
@@ -25,10 +26,11 @@ class SignatureRejectionMiddlewareTestCase(BaseSignatureTestCase):
 
     def setUp(self):
         super().setUp()
+        self.signature_rejection = SignatureRejection
         self.middleware = SignatureRejectionMiddleware()
 
     def test_generate_signature(self):
-        signature = self.middleware._generate_signature(
+        signature = self.signature_rejection.generate_signature(
             'secret',
             'path',
             b'body',
@@ -40,17 +42,17 @@ class SignatureRejectionMiddlewareTestCase(BaseSignatureTestCase):
 
     @override_settings(UI_SECRET=AliceClient.SECRET)
     def test_test_signature_missing(self):
-        self.assertFalse(self.middleware._test_signature(self.request))
+        self.assertFalse(self.signature_rejection.test_signature(self.request))
 
     @override_settings(UI_SECRET=AliceClient.SECRET)
     def test_test_signature_incorrect(self):
         self.request.META['HTTP_X_SIGNATURE'] = 'bad-signature'
-        self.assertFalse(self.middleware._test_signature(self.request))
+        self.assertFalse(self.signature_rejection.test_signature(self.request))
 
     @override_settings(UI_SECRET=AliceClient.SECRET)
     def test_test_signature_correct(self):
         self.request.META['HTTP_X_SIGNATURE'] = self.sig
-        self.assertTrue(self.middleware._test_signature(self.request))
+        self.assertTrue(self.signature_rejection.test_signature(self.request))
 
     @override_settings(UI_SECRET=AliceClient.SECRET)
     def test_process_request_pass(self):
