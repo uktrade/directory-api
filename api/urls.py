@@ -1,18 +1,17 @@
 from django.conf.urls import url, include
+from django.contrib import admin
 from django.views.generic import TemplateView
 
 import oauth2_provider.views
 import rest_auth.views
 import rest_auth.registration.views
-from rest_framework.routers import DefaultRouter
 
-from enrollment.views import EnrollmentViewSet
+from enrollment.views import EnrollmentCreateAPIView
+from api.views import documentation
 
 
-router = DefaultRouter()
-router.register(
-    r'enrollment', EnrollmentViewSet, base_name='enrollment'
-)
+admin.autodiscover()
+
 
 rest_auth_patterns = [
     url(
@@ -123,8 +122,17 @@ oauth2_provider_patterns = [
 
 urlpatterns = [
     url(
-        r'^',
-        include(router.urls, namespace='drf')
+        r'^admin/',
+        include(admin.site.urls)
+    ),
+    url(
+        r'^documentation/$',
+        documentation
+    ),
+    url(
+        r'enrollment/$',
+        EnrollmentCreateAPIView.as_view(),
+        name='enrollment'
     ),
     url(
         r'^sso/',
