@@ -6,7 +6,7 @@ import oauth2_provider.views
 import rest_auth.views
 import rest_auth.registration.views
 
-from enrollment.views import EnrollmentCreateAPIView
+from enrolment.views import EnrolmentCreateAPIView
 from api.views import documentation
 
 
@@ -130,9 +130,9 @@ urlpatterns = [
         documentation
     ),
     url(
-        r'enrollment/$',
-        EnrollmentCreateAPIView.as_view(),
-        name='enrollment'
+        r'enrolment/$',
+        EnrolmentCreateAPIView.as_view(),
+        name='enrolment'
     ),
     url(
         r'^sso/',

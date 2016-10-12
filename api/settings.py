@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'oauth2_provider',
     'corsheaders',
-    'enrollment.apps.EnrollmentConfig',
+    'enrolment.apps.EnrolmentConfig',
 ]
 
 SITE_ID = 1
@@ -51,7 +51,9 @@ MIDDLEWARE_CLASSES = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True if (
+    os.getenv('CORS_ORIGIN_ALLOW_ALL') == 'true'
+) else False
 
 ROOT_URLCONF = 'api.urls'
 
@@ -167,11 +169,11 @@ if DEBUG:
 
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
 
-SQS_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_REGISTRATION_QUEUE_NAME", 'directory-enrollment'
+SQS_ENROLMENT_QUEUE_NAME = os.getenv(
+    "SQS_ENROLMENT_QUEUE_NAME", 'directory-enrolment'
 )
-SQS_INVALID_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_INVALID_REGISTRATION_QUEUE_NAME", 'directory-enrollment-invalid'
+SQS_INVALID_ENROLMENT_QUEUE_NAME = os.getenv(
+    "SQS_INVALID_ENROLMENT_QUEUE_NAME", 'directory-enrolment-invalid'
 )
 
 # Long polling time (how long boto client waits for messages during single

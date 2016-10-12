@@ -7,38 +7,38 @@ from django.db import IntegrityError
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 
-from enrollment import models
-from enrollment.utils import ExitSignalReceiver, QueueService
+from enrolment import models
+from enrolment.utils import ExitSignalReceiver, QueueService
 
 
 logger = logging.getLogger(__name__)
 
 
-class Enrollment(QueueService):
-    """SQS queue service for enrollment"""
-    queue_name = settings.SQS_REGISTRATION_QUEUE_NAME
+class Enrolment(QueueService):
+    """SQS queue service for enrolment"""
+    queue_name = settings.SQS_ENROLMENT_QUEUE_NAME
 
 
-class InvalidEnrollment(QueueService):
-    """SQS queue service for invalid enrollment"""
-    queue_name = settings.SQS_INVALID_REGISTRATION_QUEUE_NAME
+class InvalidEnrolment(QueueService):
+    """SQS queue service for invalid enrolment"""
+    queue_name = settings.SQS_INVALID_ENROLMENT_QUEUE_NAME
 
 
 class Worker:
-    """Enrollment queue worker
+    """Enrolment queue worker
 
     Attributes:
         exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
-        enrollment_queue (enrollment.queue.Enrollment): Enrollment
+        enrolment_queue (enrolment.queue.Enrolment): Enrolment
             SQS queue service
 
-        invalid_enrollment_queue (enrollment.queue.InvalidEnrollment):
-            Invalid enrollment SQS queue service
+        invalid_enrolment_queue (enrolment.queue.InvalidEnrolment):
+            Invalid enrolment SQS queue service
 
     """
     def __init__(self):
-        self.enrollment_queue = Enrollment()
-        self.invalid_enrollment_queue = InvalidEnrollment()
+        self.enrolment_queue = Enrolment()
+        self.invalid_enrolment_queue = InvalidEnrolment()
         self.exit_signal_receiver = ExitSignalReceiver()
 
     @property
@@ -59,16 +59,16 @@ class Worker:
         while not self.exit_signal_received:
             logger.info(
                 "Retrieving messages from '{}' queue".format(
-                    self.enrollment_queue.queue_name
+                    self.enrolment_queue.queue_name
                 )
             )
-            messages = self.enrollment_queue.receive()
+            messages = self.enrolment_queue.receive()
 
             for message in messages:
                 self.process_message(message)
 
                 # exit cleanly when exit signal is received, unprocessed
-                # messages will return to the enrollment queue
+                # messages will return to the enrolment queue
                 if self.exit_signal_received:
                     return
 
@@ -76,8 +76,8 @@ class Worker:
             gc.collect()
 
     @staticmethod
-    def is_valid_enrollment(message_body):
-        """Returns True if message body is valid models.Enrollment
+    def is_valid_enrolment(message_body):
+        """Returns True if message body is valid models.Enrolment
 
         Args:
             message_body (SQS.Message.body): SQS message body
@@ -86,15 +86,15 @@ class Worker:
             boolean: True if valid, False if not
         """
         try:
-            enrollment = json.loads(message_body)
+            enrolment = json.loads(message_body)
         except (ValueError, json.decoder.JSONDecodeError):
             return False
         else:
-            return enrollment.get('data') is not None
+            return enrolment.get('data') is not None
 
     def process_message(self, message):
-        """Creates new models.Enrollment if message body is a valid
-        enrollment, otherwise sends it to the invalid enrollments queue
+        """Creates new models.Enrolment if message body is a valid
+        enrolment, otherwise sends it to the invalid enrolments queue
 
         Args:
             message (SQS.Message): message to process
@@ -103,19 +103,19 @@ class Worker:
             "Processing message '{}'".format(message.message_id)
         )
 
-        if self.is_valid_enrollment(message.body):
-            self.save_enrollment(
+        if self.is_valid_enrolment(message.body):
+            self.save_enrolment(
                 sqs_message_id=message.message_id,
-                enrollment=json.loads(message.body)
+                enrolment=json.loads(message.body)
             )
         else:
             logger.error(
-                "Message '{}' body is not valid enrollment, sending it to "
+                "Message '{}' body is not valid enrolment, sending it to "
                 "invalid messages queue".format(
                     message.message_id
                 )
             )
-            self.invalid_enrollment_queue.send(data=message.body)
+            self.invalid_enrolment_queue.send(data=message.body)
 
         message.delete()
 
@@ -134,20 +134,20 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    def save_enrollment(self, sqs_message_id, enrollment):
-        """Creates new enrollment.models.Enrollment
+    def save_enrolment(self, sqs_message_id, enrolment):
+        """Creates new enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
-            enrollment (str): Enrollment
+            enrolment (str): Enrolment
         """
         logger.debug(
-            "Saving new enrollment from message '{}'".format(sqs_message_id)
+            "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
         try:
-            models.Enrollment.objects.create(
+            models.Enrolment.objects.create(
                 sqs_message_id=sqs_message_id,
-                data=enrollment,
+                data=enrolment,
             )
         except IntegrityError as exc:
             if self.is_postgres_unique_violation_error(exc):

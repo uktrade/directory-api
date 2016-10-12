@@ -2,7 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
-class Enrollment(models.Model):
+class Enrolment(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     data = JSONField()
@@ -19,4 +19,4 @@ class Enrollment(models.Model):
         if not self.sqs_message_id:
             self.sqs_message_id = None
 
-        super(Enrollment, self).save(*args, **kwargs)
+        super(Enrolment, self).save(*args, **kwargs)

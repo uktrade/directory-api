@@ -62,7 +62,7 @@ class AwsError:
 
 
 class QueueService:
-    """Enrollment data queue service
+    """Enrolment data queue service
 
     Attributes:
         queue (SQS.Queue): SQS queue

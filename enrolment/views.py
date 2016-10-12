@@ -4,28 +4,28 @@ from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from rest_framework.response import Response
 
-import enrollment.queue
-from enrollment.serializers import EnrollmentSerializer
-from enrollment.models import Enrollment
+import enrolment.queue
+from enrolment.serializers import EnrolmentSerializer
+from enrolment.models import Enrolment
 
 
-class EnrollmentCreateAPIView(CreateAPIView):
+class EnrolmentCreateAPIView(CreateAPIView):
 
-    model = Enrollment
-    serializer_class = EnrollmentSerializer
+    model = Enrolment
+    serializer_class = EnrolmentSerializer
     http_method_names = ("post", )
 
     def __init__(self, *args, **kwargs):
-        super(EnrollmentCreateAPIView, self).__init__(*args, **kwargs)
-        self.enrollment_queue = enrollment.queue.Enrollment()
+        super(EnrolmentCreateAPIView, self).__init__(*args, **kwargs)
+        self.enrolment_queue = enrolment.queue.Enrolment()
 
     def create(self, request, *args, **kwargs):
-        """Sends valid request data to enrollment SQS queue"""
+        """Sends valid request data to enrolment SQS queue"""
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        self.enrollment_queue.send(
+        self.enrolment_queue.send(
             data=json.dumps(request.data, ensure_ascii=False)
         )
 
