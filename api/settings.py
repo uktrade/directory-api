@@ -22,10 +22,14 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
     'django_extensions',
     'raven.contrib.django.raven_compat',
     'rest_framework',
+    'rest_framework_swagger',
     'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
@@ -34,12 +38,15 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'enrollment.apps.EnrollmentConfig',
- ]
+]
+
+SITE_ID = 1
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
-    'alice.middleware.SignatureRejectionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
@@ -52,15 +59,21 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader',
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
@@ -165,10 +178,4 @@ SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
 SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
 # SSO
-SITE_ID = 1
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-    )
-}
