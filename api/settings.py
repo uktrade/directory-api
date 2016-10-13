@@ -20,18 +20,40 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    "django_extensions",
-    "raven.contrib.django.raven_compat",
-    "rest_framework",
-    "registration.apps.RegistrationsConfig",
- ]
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django_extensions',
+    'raven.contrib.django.raven_compat',
+    'rest_framework',
+    'rest_framework_swagger',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'oauth2_provider',
+    'corsheaders',
+    'enrolment.apps.EnrolmentConfig',
+]
+
+SITE_ID = 1
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
-    'alice.middleware.SignatureRejectionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True if (
+    os.getenv('CORS_ORIGIN_ALLOW_ALL') == 'true'
+) else False
 
 ROOT_URLCONF = 'api.urls'
 
@@ -39,15 +61,21 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader',
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
@@ -79,6 +107,12 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
 
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
+)
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Application authorisation
 UI_SECRET = os.getenv("UI_SECRET")
@@ -135,11 +169,11 @@ if DEBUG:
 
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
 
-SQS_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_REGISTRATION_QUEUE_NAME", 'directory-registration'
+SQS_ENROLMENT_QUEUE_NAME = os.getenv(
+    "SQS_ENROLMENT_QUEUE_NAME", 'directory-enrolment'
 )
-SQS_INVALID_REGISTRATION_QUEUE_NAME = os.getenv(
-    "SQS_INVALID_REGISTRATION_QUEUE_NAME", 'directory-registration-invalid'
+SQS_INVALID_ENROLMENT_QUEUE_NAME = os.getenv(
+    "SQS_INVALID_ENROLMENT_QUEUE_NAME", 'directory-enrolment-invalid'
 )
 
 # Long polling time (how long boto client waits for messages during single
@@ -150,3 +184,11 @@ SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
 # Time after which retrieved, but not deleted message will reappear in the
 # queue, max is 43200 (12 hours)
 SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
+
+# Auth
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}

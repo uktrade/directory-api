@@ -1,8 +1,8 @@
 from botocore.exceptions import ClientError
 import pytest
 
-from registration import utils
-from registration.tests import MockBoto
+from enrolment import utils
+from enrolment.tests import MockBoto
 
 
 class OtherException(Exception):

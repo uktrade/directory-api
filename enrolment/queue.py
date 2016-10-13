@@ -7,38 +7,38 @@ from django.db import IntegrityError
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 
-from registration import models, serializers
-from registration.utils import ExitSignalReceiver, QueueService
+from enrolment import serializers
+from enrolment.utils import ExitSignalReceiver, QueueService
 
 
 logger = logging.getLogger(__name__)
 
 
-class Registration(QueueService):
-    """SQS queue service for registration"""
-    queue_name = settings.SQS_REGISTRATION_QUEUE_NAME
+class Enrolment(QueueService):
+    """SQS queue service for enrolment"""
+    queue_name = settings.SQS_ENROLMENT_QUEUE_NAME
 
 
-class InvalidRegistration(QueueService):
-    """SQS queue service for invalid registration"""
-    queue_name = settings.SQS_INVALID_REGISTRATION_QUEUE_NAME
+class InvalidEnrolment(QueueService):
+    """SQS queue service for invalid enrolment"""
+    queue_name = settings.SQS_INVALID_ENROLMENT_QUEUE_NAME
 
 
 class Worker:
-    """Registration queue worker
+    """Enrolment queue worker
 
     Attributes:
         exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
-        registration_queue (registration.queue.Registration): Registration
+        enrolment_queue (enrolment.queue.Enrolment): Enrolment
             SQS queue service
 
-        invalid_registration_queue (registration.queue.InvalidRegistration):
-            Invalid registration SQS queue service
+        invalid_enrolment_queue (enrolment.queue.InvalidEnrolment):
+            Invalid enrolment SQS queue service
 
     """
     def __init__(self):
-        self.registration_queue = Registration()
-        self.invalid_registration_queue = InvalidRegistration()
+        self.enrolment_queue = Enrolment()
+        self.invalid_enrolment_queue = InvalidEnrolment()
         self.exit_signal_receiver = ExitSignalReceiver()
 
     @property
@@ -59,16 +59,16 @@ class Worker:
         while not self.exit_signal_received:
             logger.info(
                 "Retrieving messages from '{}' queue".format(
-                    self.registration_queue.queue_name
+                    self.enrolment_queue.queue_name
                 )
             )
-            messages = self.registration_queue.receive()
+            messages = self.enrolment_queue.receive()
 
             for message in messages:
                 self.process_message(message)
 
                 # exit cleanly when exit signal is received, unprocessed
-                # messages will return to the registration queue
+                # messages will return to the enrolment queue
                 if self.exit_signal_received:
                     return
 
@@ -76,8 +76,8 @@ class Worker:
             gc.collect()
 
     @staticmethod
-    def is_valid_registration(message_body):
-        """Returns True if message body is valid models.Registration
+    def is_valid_enrolment(message_body):
+        """Returns True if message body is valid models.Enrolment
 
         Args:
             message_body (SQS.Message.body): SQS message body
@@ -86,16 +86,16 @@ class Worker:
             boolean: True if valid, False if not
         """
         try:
-            registration = json.loads(message_body)
-        except ValueError: # includes JSONDecodeError
+            enrolment = json.loads(message_body)
+        except ValueError:  # includes JSONDecodeError
             return False
         else:
-            serializer = serializers.RegistrationSerializer(data=registration)
+            serializer = serializers.EnrolmentSerializer(data=enrolment)
             return serializer.is_valid()
 
     def process_message(self, message):
-        """Creates new models.Registration if message body is a valid
-        registration, otherwise sends it to the invalid registrations queue
+        """Creates new models.Enrolment if message body is a valid
+        enrolment, otherwise sends it to the invalid enrolments queue
 
         Args:
             message (SQS.Message): message to process
@@ -103,19 +103,19 @@ class Worker:
         logger.debug(
             "Processing message '{}'".format(message.message_id)
         )
-        if self.is_valid_registration(message.body):
-            self.save_registration(
+        if self.is_valid_enrolment(message.body):
+            self.save_enrolment(
                 sqs_message_id=message.message_id,
-                registration=json.loads(message.body)
+                enrolment=json.loads(message.body)
             )
         else:
             logger.error(
-                "Message '{}' body is not valid registration, sending it to "
+                "Message '{}' body is not valid enrolment, sending it to "
                 "invalid messages queue".format(
                     message.message_id
                 )
             )
-            self.invalid_registration_queue.send(data=message.body)
+            self.invalid_enrolment_queue.send(data=message.body)
 
         message.delete()
 
@@ -134,21 +134,23 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    def save_registration(self, sqs_message_id, registration):
-        """Creates new registration.models.Registration
+    def save_enrolment(self, sqs_message_id, enrolment):
+        """Creates new enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
-            registration (str): Registration
+            enrolment (str): Enrolment
         """
         logger.debug(
-            "Saving new registration from message '{}'".format(sqs_message_id)
+            "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
-        # `copy` registration to avoid it being be mutated is other scopes.
-        data = registration.copy()
+        # `copy` enrolment to avoid it being be mutated is other scopes.
+        data = enrolment.copy()
         data['sqs_message_id'] = sqs_message_id
-        serializer = serializers.RegistrationSerializer(data=data)
+
+        serializer = serializers.EnrolmentSerializer(data=data)
         assert serializer.is_valid()
+
         try:
             serializer.save()
         except IntegrityError as exc:

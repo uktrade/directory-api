@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from registration import models
+from enrolment import models
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class EnrolmentSerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
 
     class Meta(object):
-        model = models.Registration
+        model = models.Enrolment
         fields = (
             'aims',
             'company_number',

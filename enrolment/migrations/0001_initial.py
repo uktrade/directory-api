@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Registration',
+            name='Enrolment',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('aims', django.contrib.postgres.fields.jsonb.JSONField(help_text='list of strings e.g., ["AIM1", "AIM2"]')),

@@ -1,5 +1,8 @@
 build: docker_test
 
+heroku_deploy:
+	heroku container:push web
+
 clean:
 	-find . -type f -name "*.pyc" -delete
 	-find . -type d -name "__pycache__" -delete
@@ -36,8 +39,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_POSTGRES_USER=debug; \
 	export DIRECTORY_POSTGRES_PASSWORD=debug; \
 	export DIRECTORY_POSTGRES_DB=debug; \
-    export DIRECTORY_SQS_REGISTRATION_QUEUE_NAME=debug; \
-    export DIRECTORY_SQS_INVALID_REGISTRATION_QUEUE_NAME=debug; \
+    export DIRECTORY_SQS_ENROLMENT_QUEUE_NAME=debug; \
+    export DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
 
 DOCKER_REMOVE_ALL_WEBSERVERS_AND_WORKERS := \
