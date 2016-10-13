@@ -17,7 +17,6 @@ def test_registration_viewset_create():
         view = RegistrationViewSet.as_view(actions={'post': 'create'})
         request = request_factory.post('/registration/', VALID_REQUEST_DATA)
         response = view(request)
-
     assert response.status_code == status.HTTP_202_ACCEPTED
     assert not Registration.objects.all().exists()
     assert boto_mock.called
