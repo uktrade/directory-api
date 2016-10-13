@@ -10,6 +10,7 @@ class Company(models.Model):
     website = models.URLField(max_length=255, blank=True)
     description = models.TextField(blank=True)
     aims = JSONField()
+    logo = models.FileField(blank=True, null=True)
 
     def __str__(self):
         return self.name
