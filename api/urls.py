@@ -135,11 +135,11 @@ urlpatterns = [
         name='enrolment'
     ),
     url(
-        r'^sso/',
+        r'^auth/',
         include(rest_auth_patterns, namespace='rest_auth')
     ),
     url(
-        r'^sso/',
+        r'^auth/',
         include(oauth2_provider_patterns, namespace='oauth2_provider')
     ),
 ]
