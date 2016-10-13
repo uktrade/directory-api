@@ -1,5 +1,6 @@
 import json
 
+
 VALID_REQUEST_DATA = {
     "aims": ['AIM1', 'AIM2'],
     "number": "01234567",
