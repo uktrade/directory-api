@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'enrolment.apps.EnrolmentConfig',
+    'company.apps.CompanyConfig',
 ]
 
 SITE_ID = 1
