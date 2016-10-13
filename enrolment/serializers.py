@@ -9,4 +9,11 @@ class EnrolmentSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = models.Enrolment
-        fields = ("id", "data",)
+        fields = (
+            'aims',
+            'company_number',
+            'created',
+            'email',
+            'id',
+            'personal_name',
+        )

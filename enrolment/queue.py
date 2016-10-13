@@ -7,7 +7,7 @@ from django.db import IntegrityError
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 
-from enrolment import models
+from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService
 
 
@@ -87,10 +87,11 @@ class Worker:
         """
         try:
             enrolment = json.loads(message_body)
-        except (ValueError, json.decoder.JSONDecodeError):
+        except ValueError:  # includes JSONDecodeError
             return False
         else:
-            return enrolment.get('data') is not None
+            serializer = serializers.EnrolmentSerializer(data=enrolment)
+            return serializer.is_valid()
 
     def process_message(self, message):
         """Creates new models.Enrolment if message body is a valid
@@ -102,7 +103,6 @@ class Worker:
         logger.debug(
             "Processing message '{}'".format(message.message_id)
         )
-
         if self.is_valid_enrolment(message.body):
             self.save_enrolment(
                 sqs_message_id=message.message_id,
@@ -144,11 +144,15 @@ class Worker:
         logger.debug(
             "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
+        # `copy` enrolment to avoid it being be mutated is other scopes.
+        data = enrolment.copy()
+        data['sqs_message_id'] = sqs_message_id
+
+        serializer = serializers.EnrolmentSerializer(data=data)
+        assert serializer.is_valid()
+
         try:
-            models.Enrolment.objects.create(
-                sqs_message_id=sqs_message_id,
-                data=enrolment,
-            )
+            serializer.save()
         except IntegrityError as exc:
             if self.is_postgres_unique_violation_error(exc):
                 logger.warning(
