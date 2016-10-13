@@ -126,7 +126,7 @@ urlpatterns = [
         include(admin.site.urls)
     ),
     url(
-        r'^documentation/$',
+        r'^docs/$',
         documentation
     ),
     url(
