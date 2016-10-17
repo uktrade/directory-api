@@ -6,7 +6,16 @@ from django.utils.translation import ugettext_lazy as _
 
 class User(AbstractBaseUser):
 
-    name = models.CharField(_('name'), max_length=255)
+    # NOTE: AbstractBaseUser also implements two more fields:
+    # password and last_login. Because of our architecture
+    # last_login won't necessarily be reliable.
+    name = models.CharField(
+        _('name'),
+        max_length=255,
+        blank=True,
+        null=True,  # serializer validation requires both null & default
+        default=''
+    )
     email = models.EmailField(_('email'), unique=True)
     date_joined = models.DateTimeField(
         _('date joined'),
@@ -19,17 +28,14 @@ class User(AbstractBaseUser):
         help_text=_('Designates whether the user '
                     'can log into this admin site.'),
     )
-    # Field from django that is used to validate user in oauth library
-    is_active = models.BooleanField(
-        _('active'),
-        default=True,
-        help_text=_(
-            'Designates whether this user should be treated as active. '
-            'Unselect this instead of deleting accounts.'
-        ),
+    terms_agreed = models.BooleanField(_('terms_agreed'), default=False)
+    referrer = models.CharField(
+        _('referrer'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default='',  # serializer validation requires both null & default
     )
-    terms_agreed = models.BooleanField()
-    referrer = models.CharField(max_length=255)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # email/password required by default
