@@ -57,3 +57,19 @@ def test_user_manager_has_create_user_method():
     assert user.email == 'gargoyle@example.com'
     assert user.is_staff is False
     assert user.is_superuser is False
+
+
+@pytest.mark.django_db
+def test_create_user_doesnt_save_plaintext_password():
+    user = User.objects.create_user('gargoyle@example.com', 'pass')
+
+    assert user.password != 'pass'
+    assert user.check_password('pass') is True
+
+
+@pytest.mark.django_db
+def test_create_superuser_doesnt_save_plaintext_password():
+    user = User.objects.create_superuser('gargoyle@example.com', 'pass')
+
+    assert user.password != 'pass'
+    assert user.check_password('pass') is True
