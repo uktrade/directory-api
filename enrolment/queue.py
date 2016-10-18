@@ -2,14 +2,17 @@ import gc
 import json
 import logging
 
-from django.conf import settings
-from django.db import IntegrityError
-
 from psycopg2.errorcodes import UNIQUE_VIOLATION
+from rest_framework.serializers import ValidationError
+
+from django.conf import settings
+from django.db import IntegrityError, transaction
+from django.contrib.auth.hashers import make_password
 
 from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService
-
+from user.serializers import UserSerializer
+from company.serializers import CompanySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -104,9 +107,9 @@ class Worker:
             "Processing message '{}'".format(message.message_id)
         )
         if self.is_valid_enrolment(message.body):
-            self.save_enrolment(
-                sqs_message_id=message.message_id,
-                enrolment=json.loads(message.body)
+            self.create_objects(
+                json_payload=message.body,
+                message_id=message.message_id,
             )
         else:
             logger.error(
@@ -134,31 +137,117 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    def save_enrolment(self, sqs_message_id, enrolment):
+    @transaction.atomic
+    def create_objects(self, json_payload, message_id):
+        """
+        This function will create either all three objects (Enrolment, User,
+        Company), or none of them. Using transactions.atomic rollsback our db
+        changes on uncaught exception - so if `save_company` raises an
+        exception, User and Enrolment objects will not be created too.
+
+        Args:
+            json_payload (str): JSON containing all object field values
+            message_id (str): The Amazon SQS message id
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: Serializer in child function may fail to validate
+            IntegrityError: SQS message may already have been processed
+
+        """
+
+        payload = json.loads(json_payload)
+        self.save_enrolment(
+            sqs_message_id=message_id,
+            aims=payload['aims'],
+            company_number=payload['company_number'],
+            email=payload['email'],
+            personal_name=payload['personal_name'],
+        )
+        user = self.save_user(
+            email=payload['email'],
+            name=payload['personal_name'],
+            referrer=payload['referrer'],
+            plaintext_password=payload['password'],
+        )
+        self.save_company(
+            aims=payload['aims'],
+            number=payload['company_number'],
+            user=user,
+        )
+
+    def save_enrolment(
+        self, sqs_message_id, aims, company_number, email, personal_name
+    ):
         """Creates new enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
-            enrolment (str): Enrolment
+            aims (str[]): Goals of joining the scheme
+            company_number (str): Companies House number
+            email (str): User's email
+            personal_name (str): User's full name
         """
         logger.debug(
             "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
-        # `copy` enrolment to avoid it being be mutated is other scopes.
-        data = enrolment.copy()
-        data['sqs_message_id'] = sqs_message_id
-
-        serializer = serializers.EnrolmentSerializer(data=data)
-        assert serializer.is_valid()
-
+        serializer = serializers.EnrolmentSerializer(data={
+            'aims': aims,
+            'company_number': company_number,
+            'email': email,
+            'personal_name': personal_name,
+            'sqs_message_id': sqs_message_id,
+        })
         try:
+            serializer.is_valid()
             serializer.save()
+        except ValidationError:
+            logger.error(
+                'Cannot create enrolment. Invalid details.',
+                extra={'errors': serializer.errors}
+            )
+            raise  # trigger transaction rollback in parent function.
         except IntegrityError as exc:
             if self.is_postgres_unique_violation_error(exc):
                 logger.warning(
-                    "SQS message '{}' was already processed".format(
-                        sqs_message_id
-                    )
+                    "Message already processed",
+                    extra={'message_id': sqs_message_id}
                 )
-            else:
-                raise
+            raise  # trigger transaction rollback in parent function.
+
+    def save_user(self, email, name, referrer, plaintext_password):
+        serializer = UserSerializer(data={
+            'email': email,
+            'name': name,
+            'referrer': referrer,
+            'password': make_password(plaintext_password),
+        })
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            logger.error(
+                'Cannot create user. Invalid details.',
+                extra={'errors': serializer.errors}
+            )
+            raise  # trigger transaction rollback in parent function.
+        else:
+            return serializer.save()
+
+    def save_company(self, aims, number, user):
+        serializer = CompanySerializer(data={
+            'aims': aims,
+            'number': number,
+            'user': user.pk,
+        })
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            logger.error(
+                'Cannot create company. Invalid details.',
+                extra={'errors': serializer.errors}
+            )
+            raise  # trigger transaction rollback in parent function.
+        else:
+            serializer.save()

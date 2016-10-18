@@ -1,3 +1,4 @@
+import json
 import multiprocessing
 from unittest import mock
 import os
@@ -10,7 +11,14 @@ from django.core.management import call_command
 import pytest
 
 import enrolment.queue
-from enrolment.tests import MockBoto, VALID_REQUEST_DATA_JSON
+from enrolment.tests import MockBoto, VALID_REQUEST_DATA
+
+
+def get_request_data_json(email_prefix):
+    request_data = VALID_REQUEST_DATA.copy()
+    # email muse be unique.
+    request_data['email'] = email_prefix + request_data['email']
+    return json.dumps(request_data)
 
 
 class TestQueueWorkerCommand(MockBoto):
@@ -20,7 +28,7 @@ class TestQueueWorkerCommand(MockBoto):
         """ Test queue worker stops running on sigterm """
         worker = enrolment.queue.Worker()
         worker.enrolment_queue._queue.receive_messages.return_value = [
-            mock.Mock(message_id=x, body=VALID_REQUEST_DATA_JSON)
+            mock.Mock(message_id=x, body=get_request_data_json(str(x)))
             for x in range(1000)
         ]
         worker_process = multiprocessing.Process(
