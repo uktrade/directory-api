@@ -1,7 +1,8 @@
+from user.models import User
+
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.postgres.fields import JSONField
-
 
 class Company(models.Model):
 
@@ -17,6 +18,7 @@ class Company(models.Model):
     description = models.TextField(blank=True, null=True, default='')
     aims = JSONField()
     logo = models.FileField(blank=True, null=True)
+    user = models.ForeignKey(User)
 
     def __str__(self):
         return self.name
