@@ -7,8 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 class User(AbstractBaseUser):
 
     # NOTE: AbstractBaseUser also implements two more fields:
-    # password and last_login. Because of our architecture
-    # last_login won't necessarily be reliable.
+    # password and last_login.
     name = models.CharField(
         _('name'),
         max_length=255,
