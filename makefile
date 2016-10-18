@@ -8,13 +8,15 @@ clean:
 	-find . -type d -name "__pycache__" -delete
 
 test_requirements:
-	pip install -r test.txt
+	pip install -r requirements_test.txt
 
+DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
 PYTEST := pytest . --cov=. $(pytest_args)
+COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
-	$(FLAKE8) && $(PYTEST)
+	$(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
 
 DJANGO_WEBSERVER := \
 	python manage.py migrate; \
@@ -73,13 +75,19 @@ DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
 	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
 	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
 
+docker_test_requirements:
+	pip install -r requirements_test.txt --src /usr/local/src
+
 docker_test: docker_remove_all_directory_api
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
 	docker-compose build && \
-	docker-compose run webserver make test_requirements test
+	docker-compose run webserver make docker_test_requirements test
+
+docker_test_circleci: docker_test
+	bash -c "if [[ $? != 0 ]]; then exit 1; fi"
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
