@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
+    'user.apps.UserConfig',
 ]
 
 SITE_ID = 1
@@ -187,6 +188,9 @@ SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
 SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
 # Auth
+
+AUTH_USER_MODEL = 'user.User'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
