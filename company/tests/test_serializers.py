@@ -5,6 +5,32 @@ from company.tests import VALID_REQUEST_DATA
 
 
 @pytest.mark.django_db
+def test_company_serializer_doesnt_accept_number_under_8_chars():
+    data = {'number': "1234567", 'aims': ['AIM1', 'AIM2']}
+    serializer = CompanySerializer(data=data)
+
+    valid = serializer.is_valid()
+
+    assert valid is False
+    assert 'number' in serializer.errors
+    error_msg = 'Ensure this field has at least 8 characters.'
+    assert error_msg in serializer.errors['number']
+
+
+@pytest.mark.django_db
+def test_company_serializer_doesnt_accept_number_over_8_chars():
+    data = {'number': "123456789", 'aims': ['AIM1', 'AIM2']}
+    serializer = CompanySerializer(data=data)
+
+    valid = serializer.is_valid()
+
+    assert valid is False
+    assert 'number' in serializer.errors
+    error_msg = 'Ensure this field has no more than 8 characters.'
+    assert error_msg in serializer.errors['number']
+
+
+@pytest.mark.django_db
 def test_company_serializer_defaults_to_empty_string():
     data = {'number': "01234567", 'aims': ['AIM1', 'AIM2']}
     serializer = CompanySerializer(data=data)
