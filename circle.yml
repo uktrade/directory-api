@@ -10,4 +10,4 @@ dependencies:
 
 test:
   override:
-    - make docker_test_circleci
+    - make docker_test

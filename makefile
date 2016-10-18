@@ -12,7 +12,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
-PYTEST := pytest . --cov=. $(pytest_args)
+PYTEST := pytest . --cov=.
 COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
@@ -25,7 +25,7 @@ DJANGO_WEBSERVER := \
 django_webserver:
 	$(DJANGO_WEBSERVER)
 
-DOCKER_COMPOSE_REMOVE_AND_PULL := docker-compose rm -f && docker-compose pull
+DOCKER_COMPOSE_REMOVE_AND_PULL := docker-compose -f docker-compose.yml -f docker-compose-test.yml rm -f && docker-compose -f docker-compose.yml -f docker-compose-test.yml pull
 DOCKER_COMPOSE_CREATE_ENVS := python env_writer.py env.json env-postgres.json
 
 docker_run:
@@ -45,16 +45,16 @@ DOCKER_SET_DEBUG_ENV_VARS := \
     export DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
 
-DOCKER_REMOVE_ALL_DIRECTORY_API := \
+DOCKER_REMOVE_ALL := \
 	docker ps -a | \
 	grep -e directoryapi_ | \
 	awk '{print $$1 }' | \
 	xargs -I {} docker rm -f {}
 
-docker_remove_all_directory_api:
-	$(DOCKER_REMOVE_ALL_DIRECTORY_API)
+docker_remove_all:
+	$(DOCKER_REMOVE_ALL)
 
-docker_debug: docker_remove_all_directory_api
+docker_debug: docker_remove_all
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
@@ -75,19 +75,13 @@ DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
 	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
 	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
 
-docker_test_requirements:
-	pip install -r requirements_test.txt --src /usr/local/src
-
-docker_test: docker_remove_all_directory_api
+docker_test: docker_remove_all
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
-	docker-compose build && \
-	docker-compose run webserver make docker_test_requirements test
-
-docker_test_circleci: docker_test
-	bash -c "if [[ $? != 0 ]]; then exit 1; fi"
+	docker-compose -f docker-compose-test.yml build && \
+	docker-compose -f docker-compose-test.yml run test
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
