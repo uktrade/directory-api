@@ -1,6 +1,7 @@
 import pytest
 
 from user.serializers import UserSerializer
+from user.models import User
 from user.tests import VALID_REQUEST_DATA
 
 
@@ -48,3 +49,19 @@ def test_user_serializer_save():
     assert user.is_staff is False
     assert user.password == ''
     assert user.last_login is None
+
+
+@pytest.mark.django_db
+def test_user_serializer_readonly_password_serialize():
+    user = User(password=123)
+    serializer = UserSerializer(user)
+    assert 'password' not in serializer.data
+
+
+@pytest.mark.django_db
+def test_user_serializer_readonly_password_deserialize():
+    data = VALID_REQUEST_DATA.copy()
+    data['password'] = 'password'
+    serializer = UserSerializer(data=data)
+    assert serializer.is_valid()
+    assert serializer.validated_data['password'] == 'password'

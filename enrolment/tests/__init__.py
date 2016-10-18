@@ -7,6 +7,8 @@ VALID_REQUEST_DATA = {
     "company_number": "01234567",
     "email": "test@example.com",
     "personal_name": "Test",
+    "referrer": "email",
+    "password": "hunter2"
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 
