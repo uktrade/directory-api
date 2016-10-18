@@ -4,6 +4,7 @@ from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.postgres.fields import JSONField
 
+
 class Company(models.Model):
 
     # NOTE: For various reasons owing to how django handles empty values
@@ -18,7 +19,7 @@ class Company(models.Model):
     description = models.TextField(blank=True, null=True, default='')
     aims = JSONField()
     logo = models.FileField(blank=True, null=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, null=True, related_name='companies')
 
     def __str__(self):
         return self.name

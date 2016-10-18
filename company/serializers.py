@@ -9,7 +9,15 @@ class CompanySerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = models.Company
-        fields = ('id', 'name', 'number', 'website', 'description', 'aims')
+        fields = (
+            'aims',
+            'description',
+            'id',
+            'name',
+            'number',
+            'user',
+            'website',
+        )
 
     def validate_name(self, value):
         return value or ''

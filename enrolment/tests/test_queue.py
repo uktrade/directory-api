@@ -53,8 +53,10 @@ class TestQueueWorker(MockBoto):
             mock.Mock(message_id='1', body=VALID_REQUEST_DATA_JSON)
         )
         instance = Company.objects.last()
+        user = User.objects.last()
         assert instance.aims == VALID_REQUEST_DATA['aims']
         assert instance.number == VALID_REQUEST_DATA['company_number']
+        assert instance.user == user
 
     @pytest.mark.django_db
     def test_process_message_company_exception_rollback(self):
