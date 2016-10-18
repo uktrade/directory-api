@@ -38,21 +38,21 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_UI_SECRET=debug; \
 	export DIRECTORY_POSTGRES_USER=debug; \
 	export DIRECTORY_POSTGRES_PASSWORD=debug; \
-	export DIRECTORY_POSTGRES_DB=debug; \
+	export DIRECTORY_POSTGRES_DB=directory_api_debug; \
     export DIRECTORY_SQS_ENROLMENT_QUEUE_NAME=debug; \
     export DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
-	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
+	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
 
-DOCKER_REMOVE_ALL_WEBSERVERS_AND_WORKERS := \
+DOCKER_REMOVE_ALL_DIRECTORY_API := \
 	docker ps -a | \
-	grep -e directoryapi_webserver -e directoryapi_queue_worker | \
+	grep -e directoryapi_ | \
 	awk '{print $$1 }' | \
 	xargs -I {} docker rm -f {}
 
-docker_remove_all_webservers_and_workers:
-	$(DOCKER_REMOVE_ALL_WEBSERVERS_AND_WORKERS)
+docker_remove_all_directory_api:
+	$(DOCKER_REMOVE_ALL_DIRECTORY_API)
 
-docker_debug: docker_remove_all_webservers_and_workers
+docker_debug: docker_remove_all_directory_api
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
@@ -73,7 +73,7 @@ DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
 	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
 	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
 
-docker_test:
+docker_test: docker_remove_all_directory_api
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
@@ -85,7 +85,7 @@ DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
 	export PORT=8000; \
 	export DEBUG=true; \
-	export DB_NAME=directory_debug; \
+	export DB_NAME=directory_api_debug; \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug
 
