@@ -8,7 +8,7 @@ from user.tests import VALID_REQUEST_DATA
 def test_user_model_str():
     user = User(**VALID_REQUEST_DATA)
 
-    assert user.email == str(user)
+    assert user.company_email == str(user)
 
 
 @pytest.mark.django_db
@@ -33,7 +33,7 @@ def test_user_manager_has_natural_key_method():
     # `manage.py createsuperuser` to work
     user = User.objects.get_by_natural_key('gargoyle@example.com')
 
-    assert user.email == 'gargoyle@example.com'
+    assert user.company_email == 'gargoyle@example.com'
     assert user == expected
 
 
@@ -43,7 +43,7 @@ def test_user_manager_has_create_superuser_method():
     # `manage.py createsuperuser` to work
     user = User.objects.create_superuser('gargoyle@example.com', 'pass')
 
-    assert user.email == 'gargoyle@example.com'
+    assert user.company_email == 'gargoyle@example.com'
     assert user.is_staff is True
     assert user.is_superuser is True
 
@@ -54,7 +54,7 @@ def test_user_manager_has_create_user_method():
     # django's management commands to work
     user = User.objects.create_user('gargoyle@example.com', 'pass')
 
-    assert user.email == 'gargoyle@example.com'
+    assert user.company_email == 'gargoyle@example.com'
     assert user.is_staff is False
     assert user.is_superuser is False
 
@@ -73,3 +73,27 @@ def test_create_superuser_doesnt_save_plaintext_password():
 
     assert user.password != 'pass'
     assert user.check_password('pass') is True
+
+
+@pytest.mark.django_db
+def test_confirm_email_invalid_confirmation_code():
+    user = User.objects.create_user(
+        company_email='gargoyle@example.com',
+        password='pass',
+        confirmation_code='123456789'
+    )
+    assert user.confirm_company_email(confirmation_code='invalid') is False
+
+
+@pytest.mark.django_db
+def test_confirm_email_valid_confirmation_code():
+    confirmation_code = '123456789'
+
+    user = User.objects.create_user(
+        company_email='gargoyle@example.com',
+        password='pass',
+        confirmation_code=confirmation_code
+    )
+    assert (
+        user.confirm_company_email(confirmation_code=confirmation_code) is True
+    )
