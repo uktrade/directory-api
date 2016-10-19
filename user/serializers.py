@@ -9,9 +9,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ('id', 'name', 'company_email', 'terms_agreed', 'referrer',
-                  'date_joined', 'password',)
-        extra_kwargs = {'password': {'write_only': True, 'required': False}}
+        fields = (
+            'company',
+            'date_joined',
+            'company_email',
+            'id',
+            'name',
+            'password',
+            'referrer',
+            'terms_agreed',
+        )
+        extra_kwargs = {
+            'company': {'required': False},
+            'password': {'write_only': True, 'required': False}
+        }
 
     def validate_name(self, value):
         return value or ''

@@ -123,12 +123,14 @@ class TestQueueWorker(MockBoto):
 
     @pytest.mark.django_db
     def test_save_user_hashes_password(self):
+        company = Company.objects.create(aims=['1'])
         worker = enrolment.queue.Worker()
         worker.save_user(
             company_email=VALID_REQUEST_DATA['company_email'],
             name=VALID_REQUEST_DATA['personal_name'],
             referrer=VALID_REQUEST_DATA['referrer'],
-            plaintext_password='password'
+            plaintext_password='password',
+            company=company,
         )
         instance = User.objects.last()
 
@@ -136,18 +138,17 @@ class TestQueueWorker(MockBoto):
 
     @pytest.mark.django_db
     def test_save_company_handles_exception(self):
-        user = User()
         worker = enrolment.queue.Worker()
 
         with pytest.raises(ValidationError):
             worker.save_company(
                 number=None,  # cause ValidationError
                 aims=VALID_REQUEST_DATA['aims'],
-                user=user,
             )
 
     @pytest.mark.django_db
     def test_save_user_handles_exception(self):
+        company = Company.objects.create(aims=['1'])
         worker = enrolment.queue.Worker()
 
         with pytest.raises(ValidationError):
@@ -155,5 +156,6 @@ class TestQueueWorker(MockBoto):
                 company_email=None,  # cause ValidationError
                 name=VALID_REQUEST_DATA['personal_name'],
                 referrer=VALID_REQUEST_DATA['referrer'],
-                plaintext_password='password'
+                plaintext_password='password',
+                company=company,
             )

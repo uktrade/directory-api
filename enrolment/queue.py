@@ -173,16 +173,16 @@ class Worker:
             company_email=payload['company_email'],
             personal_name=payload['personal_name'],
         )
-        user = self.save_user(
+        company = self.save_company(
+            aims=payload['aims'],
+            number=payload['company_number'],
+        )
+        self.save_user(
             company_email=payload['company_email'],
             name=payload['personal_name'],
             referrer=payload['referrer'],
             plaintext_password=payload['password'],
-        )
-        self.save_company(
-            aims=payload['aims'],
-            number=payload['company_number'],
-            user=user,
+            company=company,
         )
 
     def save_enrolment(
@@ -212,22 +212,23 @@ class Worker:
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def save_user(self, company_email, name, referrer, plaintext_password):
+    def save_user(
+            self, company_email, name, referrer, plaintext_password, company):
         serializer = UserSerializer(data={
             'company_email': company_email,
             'name': name,
             'referrer': referrer,
             'password': make_password(plaintext_password),
+            'company': company.pk,
         })
 
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def save_company(self, aims, number, user):
+    def save_company(self, aims, number):
         serializer = CompanySerializer(data={
             'aims': aims,
             'number': number,
-            'user': user.pk,
         })
 
         serializer.is_valid(raise_exception=True)
