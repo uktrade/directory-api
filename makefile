@@ -8,13 +8,15 @@ clean:
 	-find . -type d -name "__pycache__" -delete
 
 test_requirements:
-	pip install -r test.txt
+	pip install -r requirements_test.txt
 
+DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
-PYTEST := pytest . --cov=. $(pytest_args)
+PYTEST := pytest . --cov=.
+COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
-	$(FLAKE8) && $(PYTEST)
+	$(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
 
 DJANGO_WEBSERVER := \
 	python manage.py migrate; \
@@ -23,7 +25,7 @@ DJANGO_WEBSERVER := \
 django_webserver:
 	$(DJANGO_WEBSERVER)
 
-DOCKER_COMPOSE_REMOVE_AND_PULL := docker-compose rm -f && docker-compose pull
+DOCKER_COMPOSE_REMOVE_AND_PULL := docker-compose -f docker-compose.yml -f docker-compose-test.yml rm -f && docker-compose -f docker-compose.yml -f docker-compose-test.yml pull
 DOCKER_COMPOSE_CREATE_ENVS := python env_writer.py env.json env-postgres.json
 
 docker_run:
@@ -38,21 +40,21 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_UI_SECRET=debug; \
 	export DIRECTORY_POSTGRES_USER=debug; \
 	export DIRECTORY_POSTGRES_PASSWORD=debug; \
-	export DIRECTORY_POSTGRES_DB=debug; \
+	export DIRECTORY_POSTGRES_DB=directory_api_debug; \
     export DIRECTORY_SQS_ENROLMENT_QUEUE_NAME=debug; \
     export DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
-	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/debug
+	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
 
-DOCKER_REMOVE_ALL_WEBSERVERS_AND_WORKERS := \
+DOCKER_REMOVE_ALL := \
 	docker ps -a | \
-	grep -e directoryapi_webserver -e directoryapi_queue_worker | \
+	grep -e directoryapi_ | \
 	awk '{print $$1 }' | \
 	xargs -I {} docker rm -f {}
 
-docker_remove_all_webservers_and_workers:
-	$(DOCKER_REMOVE_ALL_WEBSERVERS_AND_WORKERS)
+docker_remove_all:
+	$(DOCKER_REMOVE_ALL)
 
-docker_debug: docker_remove_all_webservers_and_workers
+docker_debug: docker_remove_all
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
@@ -73,19 +75,19 @@ DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
 	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
 	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
 
-docker_test:
+docker_test: docker_remove_all
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
-	docker-compose build && \
-	docker-compose run webserver make test_requirements test
+	docker-compose -f docker-compose-test.yml build && \
+	docker-compose -f docker-compose-test.yml run test
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
 	export PORT=8000; \
 	export DEBUG=true; \
-	export DB_NAME=directory_debug; \
+	export DB_NAME=directory_api_debug; \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug
 
