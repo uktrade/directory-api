@@ -7,9 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
 
-    class Meta(object):
+    class Meta:
         model = models.User
-        fields = ('id', 'name', 'email', 'terms_agreed', 'referrer',
+        fields = ('id', 'name', 'company_email', 'terms_agreed', 'referrer',
                   'date_joined', 'password',)
         extra_kwargs = {'password': {'write_only': True, 'required': False}}
 

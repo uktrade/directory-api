@@ -163,11 +163,11 @@ class Worker:
             sqs_message_id=message_id,
             aims=payload['aims'],
             company_number=payload['company_number'],
-            email=payload['email'],
+            company_email=payload['company_email'],
             personal_name=payload['personal_name'],
         )
         user = self.save_user(
-            email=payload['email'],
+            company_email=payload['company_email'],
             name=payload['personal_name'],
             referrer=payload['referrer'],
             plaintext_password=payload['password'],
@@ -179,15 +179,15 @@ class Worker:
         )
 
     def save_enrolment(
-        self, sqs_message_id, aims, company_number, email, personal_name
-    ):
+            self, sqs_message_id, aims,
+            company_number, company_email, personal_name):
         """Creates new enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
             aims (str[]): Goals of joining the scheme
             company_number (str): Companies House number
-            email (str): User's email
+            company_email (str): User's company_email
             personal_name (str): User's full name
         """
         logger.debug(
@@ -196,7 +196,7 @@ class Worker:
         serializer = serializers.EnrolmentSerializer(data={
             'aims': aims,
             'company_number': company_number,
-            'email': email,
+            'company_email': company_email,
             'personal_name': personal_name,
             'sqs_message_id': sqs_message_id,
         })
@@ -217,9 +217,9 @@ class Worker:
                 )
             raise  # trigger transaction rollback in parent function.
 
-    def save_user(self, email, name, referrer, plaintext_password):
+    def save_user(self, company_email, name, referrer, plaintext_password):
         serializer = UserSerializer(data={
-            'email': email,
+            'company_email': company_email,
             'name': name,
             'referrer': referrer,
             'password': make_password(plaintext_password),

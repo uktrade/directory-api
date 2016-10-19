@@ -33,7 +33,7 @@ class TestQueueWorker(MockBoto):
         instance = enrolment.models.Enrolment.objects.last()
         assert instance.aims == VALID_REQUEST_DATA['aims']
         assert instance.company_number == VALID_REQUEST_DATA['company_number']
-        assert instance.email == VALID_REQUEST_DATA['email']
+        assert instance.company_email == VALID_REQUEST_DATA['company_email']
         assert instance.personal_name == VALID_REQUEST_DATA['personal_name']
 
     @pytest.mark.django_db
@@ -44,7 +44,7 @@ class TestQueueWorker(MockBoto):
         )
         instance = User.objects.last()
         assert instance.name == VALID_REQUEST_DATA['personal_name']
-        assert instance.email == VALID_REQUEST_DATA['email']
+        assert instance.company_email == VALID_REQUEST_DATA['company_email']
 
     @pytest.mark.django_db
     def test_process_message_creates_company(self):
@@ -102,7 +102,7 @@ class TestQueueWorker(MockBoto):
     def test_save_user_hashes_password(self):
         worker = enrolment.queue.Worker()
         worker.save_user(
-            email=VALID_REQUEST_DATA['email'],
+            company_email=VALID_REQUEST_DATA['company_email'],
             name=VALID_REQUEST_DATA['personal_name'],
             referrer=VALID_REQUEST_DATA['referrer'],
             plaintext_password='password'
@@ -126,7 +126,7 @@ class TestQueueWorker(MockBoto):
         worker = enrolment.queue.Worker()
         with pytest.raises(ValidationError):
             worker.save_user(
-                email=None,  # cause ValidationError
+                company_email=None,  # cause ValidationError
                 name=VALID_REQUEST_DATA['personal_name'],
                 referrer=VALID_REQUEST_DATA['referrer'],
                 plaintext_password='password'

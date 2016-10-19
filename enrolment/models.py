@@ -10,7 +10,7 @@ class Enrolment(models.Model):
         max_length=8, help_text="Companies House ID"
     )
     created = models.DateTimeField(auto_now_add=True)
-    email = models.EmailField()
+    company_email = models.EmailField()
     personal_name = models.CharField(max_length=255)
 
     # Unique constraint to achieve “exactly-once delivery” with Amazon SQS

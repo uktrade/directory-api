@@ -13,7 +13,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
             'aims',
             'company_number',
             'created',
-            'email',
+            'company_email',
             'id',
             'personal_name',
         )

@@ -29,7 +29,7 @@ class TestQueueWorkerCommand(MockBoto):
         worker = enrolment.queue.Worker()
         worker.enrolment_queue._queue.receive_messages.return_value = [
             mock.Mock(message_id=x, body=get_request_data_json(str(x)))
-            for x in range(1000)
+            for x in range(10)
         ]
         worker_process = multiprocessing.Process(
             target=call_command, args=('queue_worker', )
