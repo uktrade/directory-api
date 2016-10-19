@@ -107,13 +107,17 @@ class Worker:
             "Processing message '{}'".format(message.message_id)
         )
         if self.is_valid_enrolment(message.body):
-            self.create_objects(
-                json_payload=message.body,
-                message_id=message.message_id,
-            )
+            try:
+                self.process_enrolment(
+                    json_payload=message.body,
+                    sqs_message_id=message.message_id,
+                )
+            except ValidationError:
+                # Log with stacktrace
+                logging.exception("Failed to process enrolment")
         else:
             logger.error(
-                "Message '{}' body is not valid enrolment, sending it to "
+                "Message '{}' body is not a valid enrolment, sending it to "
                 "invalid messages queue".format(
                     message.message_id
                 )
@@ -138,7 +142,7 @@ class Worker:
         )
 
     @transaction.atomic
-    def create_objects(self, json_payload, message_id):
+    def process_enrolment(self, json_payload, sqs_message_id):
         """
         This function will create either all three objects (Enrolment, User,
         Company), or none of them. Using transactions.atomic rollsback our db
@@ -147,20 +151,15 @@ class Worker:
 
         Args:
             json_payload (str): JSON containing all object field values
-            message_id (str): The Amazon SQS message id
+            sqs_message_id (str): The Amazon SQS message id
 
         Returns:
             None
 
-        Raises:
-            ValidationError: Serializer in child function may fail to validate
-            IntegrityError: SQS message may already have been processed
-
         """
-
         payload = json.loads(json_payload)
         self.save_enrolment(
-            sqs_message_id=message_id,
+            sqs_message_id=sqs_message_id,
             aims=payload['aims'],
             company_number=payload['company_number'],
             company_email=payload['company_email'],
@@ -187,12 +186,13 @@ class Worker:
             sqs_message_id (str): SQS message ID
             aims (str[]): Goals of joining the scheme
             company_number (str): Companies House number
-            company_email (str): User's company_email
+            company_email (str): User's company email
             personal_name (str): User's full name
         """
         logger.debug(
             "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
+
         serializer = serializers.EnrolmentSerializer(data={
             'aims': aims,
             'company_number': company_number,
@@ -200,22 +200,17 @@ class Worker:
             'personal_name': personal_name,
             'sqs_message_id': sqs_message_id,
         })
-        try:
-            serializer.is_valid()
-            serializer.save()
-        except ValidationError:
-            logger.error(
-                'Cannot create enrolment. Invalid details.',
-                extra={'errors': serializer.errors}
-            )
-            raise  # trigger transaction rollback in parent function.
-        except IntegrityError as exc:
-            if self.is_postgres_unique_violation_error(exc):
-                logger.warning(
-                    "Message already processed",
-                    extra={'message_id': sqs_message_id}
-                )
-            raise  # trigger transaction rollback in parent function.
+
+        if serializer.is_valid(raise_exception=True):
+            try:
+                serializer.save()
+            except IntegrityError as exc:
+                if self.is_postgres_unique_violation_error(exc):
+                    raise Exception(
+                        "Message '{}' has already been processed".format(
+                            sqs_message_id
+                        )
+                    )
 
     def save_user(self, company_email, name, referrer, plaintext_password):
         serializer = UserSerializer(data={
@@ -224,15 +219,8 @@ class Worker:
             'referrer': referrer,
             'password': make_password(plaintext_password),
         })
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError:
-            logger.error(
-                'Cannot create user. Invalid details.',
-                extra={'errors': serializer.errors}
-            )
-            raise  # trigger transaction rollback in parent function.
-        else:
+
+        if serializer.is_valid(raise_exception=True):
             return serializer.save()
 
     def save_company(self, aims, number, user):
@@ -241,13 +229,6 @@ class Worker:
             'number': number,
             'user': user.pk,
         })
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError:
-            logger.error(
-                'Cannot create company. Invalid details.',
-                extra={'errors': serializer.errors}
-            )
-            raise  # trigger transaction rollback in parent function.
-        else:
-            serializer.save()
+
+        if serializer.is_valid(raise_exception=True):
+            return serializer.save()
