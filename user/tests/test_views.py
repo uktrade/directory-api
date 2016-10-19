@@ -27,7 +27,7 @@ def test_user_retrieve_view():
 @pytest.mark.django_db
 def test_user_update_view_with_put():
     client = APIClient()
-    user = User.objects.create(email='harry.potter@hogwarts.com')
+    user = User.objects.create(company_email='harry.potter@hogwarts.com')
 
     response = client.put(
         reverse('user', kwargs={'pk': user.pk}),
@@ -42,7 +42,7 @@ def test_user_update_view_with_put():
 @pytest.mark.django_db
 def test_user_update_view_with_patch():
     client = APIClient()
-    user = User.objects.create(email='harry.potter@hogwarts.com')
+    user = User.objects.create(company_email='harry.potter@hogwarts.com')
 
     response = client.patch(
         reverse('user', kwargs={'pk': user.pk}),
@@ -52,7 +52,6 @@ def test_user_update_view_with_patch():
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected
-
 
 
 @pytest.mark.django_db
@@ -97,6 +96,6 @@ def test_confirm_company_email_view_valid_confirmation_code():
 
     response_data = json.loads(response.data)
     assert response_data['status_code'] == status.HTTP_200_OK
-    assert response_data['detail'] == "Email confirmed"
+    assert response_data['detail'] == "Company email confirmed"
 
     assert User.objects.get(id=user.id).company_email_confirmed is True

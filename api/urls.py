@@ -9,9 +9,8 @@ import rest_auth.registration.views
 
 from api.views import documentation
 from company.views import CompanyRetrieveUpdateAPIView
+from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
 from enrolment.views import EnrolmentCreateAPIView
-from company.views import CompanyRetrieveUpdateAPIView
-from api.views import documentation
 
 
 admin.autodiscover()

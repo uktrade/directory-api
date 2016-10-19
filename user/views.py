@@ -29,7 +29,7 @@ class ConfirmCompanyEmailAPIView(GenericAPIView):
             response_status_code = status.HTTP_200_OK
             response_data = json.dumps({
                 "status_code": response_status_code,
-                "detail": "Email confirmed"
+                "detail": "Company email confirmed"
             })
         else:
             response_status_code = status.HTTP_400_BAD_REQUEST

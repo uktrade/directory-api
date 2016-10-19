@@ -1,4 +1,3 @@
-from unittest import mock
 from unittest.mock import patch, Mock
 import pytest
 from rest_framework.serializers import ValidationError

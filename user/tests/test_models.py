@@ -76,7 +76,7 @@ def test_create_superuser_doesnt_save_plaintext_password():
 
 
 @pytest.mark.django_db
-def test_confirm_email_invalid_confirmation_code():
+def test_confirm_company_email_invalid_confirmation_code():
     user = User.objects.create_user(
         company_email='gargoyle@example.com',
         password='pass',
@@ -86,7 +86,7 @@ def test_confirm_email_invalid_confirmation_code():
 
 
 @pytest.mark.django_db
-def test_confirm_email_valid_confirmation_code():
+def test_confirm_company_email_valid_confirmation_code():
     confirmation_code = '123456789'
 
     user = User.objects.create_user(
