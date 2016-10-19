@@ -64,7 +64,7 @@ def test_confirm_company_email_view_invalid_confirmation_code():
 
     client = APIClient()
     client.force_authenticate(user=user)
-    response = client.get(
+    response = client.post(
         '/confirm-company-email/', data={'confirmation_code': 12345678}
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -88,7 +88,7 @@ def test_confirm_company_email_view_valid_confirmation_code():
 
     client = APIClient()
     client.force_authenticate(user=user)
-    response = client.get(
+    response = client.post(
         '/confirm-company-email/',
         data={'confirmation_code': confirmation_code}
     )

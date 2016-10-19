@@ -1,10 +1,11 @@
 import json
 
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from user.serializers import UserSerializer
+from user.serializers import UserSerializer, ConfirmCompanyEmailSerializer
 from user.models import User
 
 
@@ -14,15 +15,19 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer
 
 
-class ConfirmCompanyEmailAPIView(GenericAPIView):
+class ConfirmCompanyEmailAPIView(APIView):
 
-    http_method_names = ("get", )
+    http_method_names = ("post", )
+    serializer_class = ConfirmCompanyEmailSerializer
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
 
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         company_email_confirmed = request.user.confirm_company_email(
-            confirmation_code=request.GET.get('confirmation_code')
+            confirmation_code=serializer.data['confirmation_code']
         )
 
         if company_email_confirmed:

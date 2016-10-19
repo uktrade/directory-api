@@ -18,3 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_referrer(self, value):
         return value or ''
+
+
+class ConfirmCompanyEmailSerializer(serializers.Serializer):
+
+    confirmation_code = serializers.CharField()
