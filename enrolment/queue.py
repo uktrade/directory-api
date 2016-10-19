@@ -113,8 +113,16 @@ class Worker:
                     sqs_message_id=message.message_id,
                 )
             except ValidationError:
-                # Log with stacktrace
                 logging.exception("Failed to process enrolment")
+            except IntegrityError as exc:
+                if self.is_postgres_unique_violation_error(exc):
+                    logging.warning(
+                        "Message '{}' has already been processed".format(
+                            message.message_id,
+                        )
+                    )
+                else:
+                    raise
         else:
             logger.error(
                 "Message '{}' body is not a valid enrolment, sending it to "
@@ -201,16 +209,8 @@ class Worker:
             'sqs_message_id': sqs_message_id,
         })
 
-        if serializer.is_valid(raise_exception=True):
-            try:
-                serializer.save()
-            except IntegrityError as exc:
-                if self.is_postgres_unique_violation_error(exc):
-                    raise Exception(
-                        "Message '{}' has already been processed".format(
-                            sqs_message_id
-                        )
-                    )
+        serializer.is_valid(raise_exception=True)
+        return serializer.save()
 
     def save_user(self, company_email, name, referrer, plaintext_password):
         serializer = UserSerializer(data={
@@ -220,8 +220,8 @@ class Worker:
             'password': make_password(plaintext_password),
         })
 
-        if serializer.is_valid(raise_exception=True):
-            return serializer.save()
+        serializer.is_valid(raise_exception=True)
+        return serializer.save()
 
     def save_company(self, aims, number, user):
         serializer = CompanySerializer(data={
@@ -230,5 +230,5 @@ class Worker:
             'user': user.pk,
         })
 
-        if serializer.is_valid(raise_exception=True):
-            return serializer.save()
+        serializer.is_valid(raise_exception=True)
+        return serializer.save()
