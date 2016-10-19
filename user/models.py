@@ -109,12 +109,3 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         # django method that must be implemented
         return self.name
-
-    def confirm_company_email(self, confirmation_code):
-        """Returns True if user company email was confirmed successfully"""
-        if confirmation_code == self.confirmation_code:
-            self.company_email_confirmed = True
-            self.save()
-            return True
-        else:
-            return False

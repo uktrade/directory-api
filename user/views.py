@@ -26,21 +26,24 @@ class ConfirmCompanyEmailAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        company_email_confirmed = request.user.confirm_company_email(
-            confirmation_code=serializer.data['confirmation_code']
-        )
-
-        if company_email_confirmed:
-            response_status_code = status.HTTP_200_OK
-            response_data = json.dumps({
-                "status_code": response_status_code,
-                "detail": "Company email confirmed"
-            })
-        else:
+        try:
+            user = User.objects.get(
+                confirmation_code=serializer.data['confirmation_code']
+            )
+        except User.DoesNotExist:
             response_status_code = status.HTTP_400_BAD_REQUEST
             response_data = json.dumps({
                 "status_code": response_status_code,
                 "detail": "Invalid confirmation code"
+            })
+        else:
+            user.company_email_confirmed = True
+            user.save()
+
+            response_status_code = status.HTTP_200_OK
+            response_data = json.dumps({
+                "status_code": response_status_code,
+                "detail": "Company email confirmed"
             })
 
         return Response(
