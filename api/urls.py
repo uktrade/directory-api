@@ -8,6 +8,7 @@ import rest_auth.registration.views
 
 from enrolment.views import EnrolmentCreateAPIView
 from company.views import CompanyRetrieveUpdateAPIView
+from user.views import UserRetrieveUpdateAPIView
 from api.views import documentation
 
 
@@ -139,6 +140,11 @@ urlpatterns = [
         r'company/(?P<pk>[0-9]+)/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
+    ),
+    url(
+        r'user/(?P<pk>[0-9]+)/$',
+        UserRetrieveUpdateAPIView.as_view(),
+        name='user'
     ),
     url(
         r'^auth/private/',

@@ -42,7 +42,7 @@ class User(AbstractBaseUser):
         max_length=255,
         blank=True,
         null=True,  # serializer validation requires both null & default
-        default=''
+        default='',
     )
     email = models.EmailField(_('email'), unique=True)
     date_joined = models.DateTimeField(
