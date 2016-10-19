@@ -111,7 +111,7 @@ class User(AbstractBaseUser):
         return self.name
 
     def confirm_company_email(self, confirmation_code):
-        """Returns True if user company email was validated"""
+        """Returns True if user company email was confirmed successfully"""
         if confirmation_code == self.confirmation_code:
             self.company_email_confirmed = True
             self.save()

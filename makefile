@@ -12,7 +12,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
-PYTEST := pytest . --cov=.
+PYTEST := pytest . --cov=. $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
@@ -89,7 +89,8 @@ DEBUG_SET_ENV_VARS := \
 	export DEBUG=true; \
 	export DB_NAME=directory_api_debug; \
 	export DB_USER=debug; \
-	export DB_PASSWORD=debug
+	export DB_PASSWORD=debug; \
+	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
@@ -107,7 +108,7 @@ debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
 
 debug_test:
-	$(DEBUG_SET_ENV_VARS) && $(FLAKE8) && $(PYTEST)
+	$(DEBUG_SET_ENV_VARS) && $(PYTEST)
 
 debug: test_requirements debug_db debug_test
 

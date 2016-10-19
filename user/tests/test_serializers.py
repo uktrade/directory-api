@@ -7,7 +7,7 @@ from user.tests import VALID_REQUEST_DATA
 
 @pytest.mark.django_db
 def test_user_serializer_defaults_to_empty_string():
-    data = {"email": "henry@example.com"}
+    data = {"company_email": "henry@example.com"}
     serializer = UserSerializer(data=data)
     serializer.is_valid()
 
@@ -21,7 +21,9 @@ def test_user_serializer_defaults_to_empty_string():
 
 @pytest.mark.django_db
 def test_user_serializer_translates_none_to_empty_string():
-    data = {"email": "henry@example.com", "name": None, "referrer": None}
+    data = {
+        "company_email": "henry@example.com", "name": None, "referrer": None
+    }
     serializer = UserSerializer(data=data)
     serializer.is_valid()
 
@@ -41,7 +43,7 @@ def test_user_serializer_save():
     user = serializer.save()
 
     assert user.name == VALID_REQUEST_DATA['name']
-    assert user.email == VALID_REQUEST_DATA['email']
+    assert user.company_email == VALID_REQUEST_DATA['company_email']
     assert user.referrer == VALID_REQUEST_DATA['referrer']
     assert user.date_joined.year == 2017
     assert user.date_joined.month == 3

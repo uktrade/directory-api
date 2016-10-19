@@ -17,7 +17,10 @@ from enrolment.tests import MockBoto, VALID_REQUEST_DATA
 def get_request_data_json(email_prefix):
     request_data = VALID_REQUEST_DATA.copy()
     # email muse be unique.
-    request_data['email'] = email_prefix + request_data['email']
+    request_data['company_email'] = "{}{}".format(
+        email_prefix, request_data['company_email']
+    )
+
     return json.dumps(request_data)
 
 
