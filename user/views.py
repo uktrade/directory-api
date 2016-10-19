@@ -6,6 +6,5 @@ from user.models import User
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
-    model = User
-    queryset = model.objects
+    queryset = User.objects.all()
     serializer_class = UserSerializer

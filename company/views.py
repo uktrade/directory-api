@@ -6,6 +6,5 @@ from company.models import Company
 
 class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
-    model = Company
-    queryset = model.objects
+    queryset = Company.objects.all()
     serializer_class = CompanySerializer
