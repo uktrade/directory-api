@@ -23,26 +23,16 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django_extensions',
-    'raven.contrib.django.raven_compat',
-    'rest_framework',
+    "django_extensions",
+    "raven.contrib.django.raven_compat",
+    "rest_framework",
     'rest_framework_swagger',
-    'rest_framework.authtoken',
-    'rest_auth',
-    'rest_auth.registration',
-    'allauth',
-    'allauth.account',
-    'oauth2_provider',
-    'corsheaders',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -50,12 +40,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
-
-CORS_ORIGIN_ALLOW_ALL = True if (
-    os.getenv('CORS_ORIGIN_ALLOW_ALL') == 'true'
-) else False
 
 ROOT_URLCONF = 'api.urls'
 
@@ -197,9 +182,3 @@ SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
 AUTH_USER_MODEL = 'user.User'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    )
-}
