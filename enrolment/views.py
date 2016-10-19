@@ -1,12 +1,13 @@
 import json
 
-from rest_framework.generics import CreateAPIView
 from rest_framework import status
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
 import enrolment.queue
-from enrolment.serializers import EnrolmentSerializer
+
 from enrolment.models import Enrolment
+from enrolment.serializers import EnrolmentSerializer
 
 
 class EnrolmentCreateAPIView(CreateAPIView):
@@ -30,7 +31,7 @@ class EnrolmentCreateAPIView(CreateAPIView):
         )
 
         return Response(
-            serializer.data,
+            data=serializer.data,
             status=status.HTTP_202_ACCEPTED,
             headers=self.get_success_headers(serializer.data)
         )

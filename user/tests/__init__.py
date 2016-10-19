@@ -2,7 +2,7 @@ import json
 
 
 VALID_REQUEST_DATA = {
-    "email": 'gargoyle@example.com',
+    "company_email": 'gargoyle@example.com',
     "name": 'Gregory Johnson',
     "terms_agreed": True,
     "referrer": 'google',

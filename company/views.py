@@ -1,7 +1,7 @@
 from rest_framework.generics import RetrieveUpdateAPIView
 
-from company.serializers import CompanySerializer
 from company.models import Company
+from company.serializers import CompanySerializer
 
 
 class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):

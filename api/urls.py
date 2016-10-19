@@ -3,13 +3,14 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 
 import oauth2_provider.views
+import rest_auth.registration.views
 import rest_auth.views
 import rest_auth.registration.views
 
-from enrolment.views import EnrolmentCreateAPIView
-from company.views import CompanyRetrieveUpdateAPIView
-from user.views import UserRetrieveUpdateAPIView
 from api.views import documentation
+from company.views import CompanyRetrieveUpdateAPIView
+from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
+from enrolment.views import EnrolmentCreateAPIView
 
 
 admin.autodiscover()
@@ -22,9 +23,9 @@ rest_auth_patterns = [
         name='rest_register'
     ),
 
-    # TODO: override this view to handle it and send post to /verify-email/
-    # endpoint with proper key (see allauth.account.views.ConfirmEmailView for
-    # example)
+    # TODO: override this view to handle it and send post to
+    # /verify-email/ endpoint with proper key
+    # (see allauth.account.views.ConfirmEmailView for example)
     url(
         r'^account-confirm-email/(?P<key>[-:\w]+)/$',
         TemplateView.as_view(),
@@ -135,6 +136,11 @@ urlpatterns = [
         r'enrolment/$',
         EnrolmentCreateAPIView.as_view(),
         name='enrolment'
+    ),
+    url(
+        r'confirm-company-email/$',
+        ConfirmCompanyEmailAPIView.as_view(),
+        name='confirm-company-email'
     ),
     url(
         r'company/(?P<pk>[0-9]+)/$',

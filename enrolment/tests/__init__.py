@@ -5,9 +5,9 @@ from unittest import mock, TestCase
 VALID_REQUEST_DATA = {
     "aims": ['AIM1', 'AIM2'],
     "company_number": "01234567",
-    "email": "test@example.com",
+    "company_email": "test@example.com",
     "personal_name": "Test",
-    "referrer": "email",
+    "referrer": "company_email",
     "password": "hunter2"
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
