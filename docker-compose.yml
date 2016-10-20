@@ -3,7 +3,7 @@ services:
 
   postgres:
     image: postgres:9.5.2
-    env_file: .env-postgres
+    env_file: ./docker/.env-postgres
 
   webserver:
     build:
@@ -14,9 +14,9 @@ services:
     links: [postgres]
     working_dir: /usr/src/app
     entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
-    command: ./docker-cmd-webserver.sh
+    command: ./docker/cmd-webserver.sh
     ports: ["8000:8000"]
-    env_file: .env
+    env_file: ./docker/.env
     restart: "always"
 
   queue_worker:
@@ -27,6 +27,6 @@ services:
     links: [postgres]
     working_dir: /usr/src/app
     entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
-    command: ./docker-cmd-queue_worker.sh
-    env_file: .env
+    command: ./docker/cmd-queue_worker.sh
+    env_file: ./docker/.env
     restart: "always"
