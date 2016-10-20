@@ -2,7 +2,10 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from api.views import documentation
-from company.views import CompanyRetrieveUpdateAPIView
+from company.views import (
+    CompanyNumberValidatorAPIView,
+    CompanyRetrieveUpdateAPIView
+)
 from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
 from enrolment.views import EnrolmentCreateAPIView
 
@@ -38,4 +41,11 @@ urlpatterns = [
         ConfirmCompanyEmailAPIView.as_view(),
         name='confirm-company-email'
     ),
+    url(
+        r'validate-company-number/$',
+        CompanyNumberValidatorAPIView.as_view(),
+        name='validate-company-number'
+    ),
+
+
 ]

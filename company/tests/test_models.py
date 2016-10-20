@@ -1,5 +1,7 @@
 import pytest
 
+from django.db import IntegrityError
+
 from company.models import Company
 from company.tests import VALID_REQUEST_DATA
 
@@ -23,3 +25,10 @@ def test_company_model_sets_string_fields_to_empty_by_default():
     assert company.name == ''
     assert company.website == ''
     assert company.description == ''
+
+
+@pytest.mark.django_db
+def test_company_enforces_unique_company_number():
+    Company.objects.create(number="01234567", aims=['AIM1', 'AIM2'])
+    with pytest.raises(IntegrityError):
+        Company.objects.create(number="01234567", aims=['AIM1', 'AIM2'])

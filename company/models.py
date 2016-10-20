@@ -11,7 +11,11 @@ class Company(models.Model):
     # behaviour consistent between not specifying a field and
     # specifying it as None
     name = models.CharField(max_length=255, blank=True, null=True, default='')
-    number = models.CharField(max_length=8, validators=[MinLengthValidator(8)])
+    number = models.CharField(
+        max_length=8,
+        validators=[MinLengthValidator(8)],
+        unique=True
+    )
     website = models.URLField(max_length=255, blank=True, null=True,
                               default='')
     description = models.TextField(blank=True, null=True, default='')
