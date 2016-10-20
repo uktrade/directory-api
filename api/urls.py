@@ -14,7 +14,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(
-        r'^health-check/$',
+        r'^$',
         HealthCheckAPIView.as_view(),
         name='health-check'
     ),
