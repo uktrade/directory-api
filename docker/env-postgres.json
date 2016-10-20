@@ -1,6 +1,6 @@
 {
   "host_env_var_prefix": "DIRECTORY",
-  "file_path": ".env-postgres",
+  "file_path": "./docker/.env-postgres",
   "env_vars": {
     "required": [
       "POSTGRES_DB",
