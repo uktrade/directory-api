@@ -35,16 +35,16 @@ docker_run:
 	docker-compose up --build
 
 DOCKER_SET_DEBUG_ENV_VARS := \
-	export DIRECTORY_PORT=8000; \
-	export DIRECTORY_DEBUG=true; \
-	export DIRECTORY_SECRET_KEY=debug; \
-	export DIRECTORY_UI_SECRET=debug; \
-	export DIRECTORY_POSTGRES_USER=debug; \
-	export DIRECTORY_POSTGRES_PASSWORD=debug; \
-	export DIRECTORY_POSTGRES_DB=directory_api_debug; \
-    export DIRECTORY_SQS_ENROLMENT_QUEUE_NAME=debug; \
-    export DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
-	export DIRECTORY_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
+	export DIRECTORY_API_PORT=8000; \
+	export DIRECTORY_API_DEBUG=true; \
+	export DIRECTORY_API_SECRET_KEY=debug; \
+	export DIRECTORY_API_UI_SECRET=debug; \
+	export DIRECTORY_API_POSTGRES_USER=debug; \
+	export DIRECTORY_API_POSTGRES_PASSWORD=debug; \
+	export DIRECTORY_API_POSTGRES_DB=directory_api_debug; \
+	export DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME=debug; \
+	export DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
+	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -73,8 +73,8 @@ docker_psql:
 	docker-compose run postgres psql -h postgres -U debug
 
 DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
-	export DIRECTORY_AWS_ACCESS_KEY_ID=test; \
-	export DIRECTORY_AWS_SECRET_ACCESS_KEY=test
+	export DIRECTORY_API_AWS_ACCESS_KEY_ID=test; \
+	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=test
 
 docker_test: docker_remove_all
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \

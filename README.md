@@ -30,28 +30,28 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
     $ make docker_test
 
 ### Host environment variables for docker-compose
-``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make docker_test``, based on host environment variables with ``DIRECTORY_`` prefix.
+``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make docker_test``, based on host environment variables with ``DIRECTORY_API_`` prefix.
 
 #### Web server and queue worker
 | Host environment variable | Docker environment variable  |
 | ------------- | ------------- |
-| DIRECTORY_SQS_REGION_NAME | SQS_REGION_NAME |
-| DIRECTORY_SQS_ENROLMENT_QUEUE_NAME | SQS_ENROLMENT_QUEUE_NAME |
-| DIRECTORY_SQS_INVALID_ENROLMENT_QUEUE_NAME | SQS_INVALID_ENROLMENT_QUEUE_NAME |
-| DIRECTORY_SQS_WAIT_TIME | SQS_WAIT_TIME |
-| DIRECTORY_SQS_MAX_NUMBER_OF_MESSAGES | SQS_MAX_NUMBER_OF_MESSAGES |
-| DIRECTORY_SQS_VISIBILITY_TIMEOUT | SQS_VISIBILITY_TIMEOUT |
-| DIRECTORY_SECRET_KEY | SECRET_KEY |
-| DIRECTORY_DATABASE_URL | DATABASE_URL |
-| DIRECTORY_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
-| DIRECTORY_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
+| DIRECTORY_API_SQS_REGION_NAME | SQS_REGION_NAME |
+| DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME | SQS_ENROLMENT_QUEUE_NAME |
+| DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME | SQS_INVALID_ENROLMENT_QUEUE_NAME |
+| DIRECTORY_API_SQS_WAIT_TIME | SQS_WAIT_TIME |
+| DIRECTORY_API_SQS_MAX_NUMBER_OF_MESSAGES | SQS_MAX_NUMBER_OF_MESSAGES |
+| DIRECTORY_API_SQS_VISIBILITY_TIMEOUT | SQS_VISIBILITY_TIMEOUT |
+| DIRECTORY_API_SECRET_KEY | SECRET_KEY |
+| DIRECTORY_API_DATABASE_URL | DATABASE_URL |
+| DIRECTORY_API_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
+| DIRECTORY_API_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
 
 #### Database
 | Host environment variable | Docker environment variable  |
 | ------------- | ------------- |
-| DIRECTORY_POSTGRES_USER | POSTGRES_USER |
-| DIRECTORY_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
-| DIRECTORY_POSTGRES_DB | POSTGRES_DB |
+| DIRECTORY_API_POSTGRES_USER | POSTGRES_USER |
+| DIRECTORY_API_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
+| DIRECTORY_API_POSTGRES_DB | POSTGRES_DB |
 
 ## Debugging
 
