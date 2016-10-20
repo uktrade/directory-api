@@ -86,6 +86,9 @@ docker_test: docker_remove_all
 	docker-compose -f docker-compose-test.yml build && \
 	docker-compose -f docker-compose-test.yml run sut
 
+docker_build:
+	docker build -t ukti/directory-api:latest .
+
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
 	export PORT=8000; \
