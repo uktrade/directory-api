@@ -73,27 +73,3 @@ def test_create_superuser_doesnt_save_plaintext_password():
 
     assert user.password != 'pass'
     assert user.check_password('pass') is True
-
-
-@pytest.mark.django_db
-def test_confirm_company_email_invalid_confirmation_code():
-    user = User.objects.create_user(
-        company_email='gargoyle@example.com',
-        password='pass',
-        confirmation_code='123456789'
-    )
-    assert user.confirm_company_email(confirmation_code='invalid') is False
-
-
-@pytest.mark.django_db
-def test_confirm_company_email_valid_confirmation_code():
-    confirmation_code = '123456789'
-
-    user = User.objects.create_user(
-        company_email='gargoyle@example.com',
-        password='pass',
-        confirmation_code=confirmation_code
-    )
-    assert (
-        user.confirm_company_email(confirmation_code=confirmation_code) is True
-    )
