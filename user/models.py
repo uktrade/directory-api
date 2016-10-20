@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from company.models import Company
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -79,6 +81,7 @@ class User(AbstractBaseUser):
         null=True,
         default='',  # serializer validation requires both null & default
     )
+
     confirmation_code = models.CharField(
         _('confirmation code'),
         max_length=255,
@@ -93,6 +96,8 @@ class User(AbstractBaseUser):
             'Designates whether the user has confirmed company_email address.'
         ),
     )
+
+    company = models.ForeignKey(Company, related_name='users')
 
     objects = UserManager()
 

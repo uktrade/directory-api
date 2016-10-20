@@ -1,5 +1,6 @@
 import pytest
 
+from company.models import Company
 from user.serializers import UserSerializer
 from user.models import User
 from user.tests import VALID_REQUEST_DATA
@@ -51,6 +52,18 @@ def test_user_serializer_save():
     assert user.is_staff is False
     assert user.password == ''
     assert user.last_login is None
+
+
+@pytest.mark.django_db
+def test_user_with_company_serializer_save():
+    company = Company.objects.create(aims=['1'])
+    data = VALID_REQUEST_DATA.copy()
+    data['company'] = company.pk
+    serializer = UserSerializer(data=data)
+    serializer.is_valid()
+
+    user = serializer.save()
+    assert user.company == company
 
 
 @pytest.mark.django_db
