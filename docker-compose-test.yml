@@ -5,7 +5,7 @@ services:
     image: postgres:9.5.2
     env_file: ./docker/.env-postgres.test
 
-  test:
+  sut:
     build:
       context: .
       dockerfile: Dockerfile
