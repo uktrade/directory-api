@@ -11,3 +11,10 @@ dependencies:
 test:
   override:
     - make docker_test
+
+deployment:
+  heroku:
+    branch: master
+    commands:
+      - docker login --email=$HEROKU_EMAIL --username=$HEROKU_EMAIL --password=$HEROKU_API_KEY registry.heroku.com
+      - docker push registry.heroku.com/directory-api-dev/web
