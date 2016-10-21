@@ -1,13 +1,11 @@
 import gc
-import json
 import logging
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from rest_framework.serializers import ValidationError
 
+from django.db import IntegrityError
 from django.conf import settings
-from django.db import IntegrityError, transaction
-from django.contrib.auth.hashers import make_password
 
 from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService

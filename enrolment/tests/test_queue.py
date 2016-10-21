@@ -1,5 +1,4 @@
 import json
-from unittest.mock import patch, Mock
 
 import pytest
 from rest_framework.serializers import ValidationError

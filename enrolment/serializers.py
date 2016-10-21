@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.db import transaction
+
 from enrolment import models
 from company.serializers import CompanySerializer
 from user.serializers import UserSerializer
@@ -20,6 +22,11 @@ class EnrolmentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
+        self.create_nested_objects(validated_data)
+        return instance
+
+    @transaction.atomic
+    def create_nested_objects(self, validated_data):
         try:
             validated_company_data = {
                 'aims': validated_data['data']['aims'],
@@ -36,7 +43,6 @@ class EnrolmentSerializer(serializers.ModelSerializer):
             )
         company = self.create_company(**validated_company_data)
         self.create_user(company=company, **validated_user_data)
-        return instance
 
     def create_company(self, aims, number):
         serializer = CompanySerializer(data={
