@@ -20,16 +20,22 @@ class EnrolmentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
-        company = self.create_company(
-            aims=validated_data['data']['aims'],
-            number=validated_data['data']['company_number'],
-        )
-        self.create_user(
-            company_email=validated_data['data']['company_email'],
-            name=validated_data['data']['personal_name'],
-            referrer=validated_data['data']['referrer'],
-            company=company,
-         )
+        try:
+            validated_company_data = {
+                'aims': validated_data['data']['aims'],
+                'number': validated_data['data']['company_number'],
+            }
+            validated_user_data = {
+                'company_email': validated_data['data']['company_email'],
+                'name': validated_data['data']['personal_name'],
+                'referrer': validated_data['data']['referrer'],
+            }
+        except KeyError as error:
+            raise serializers.ValidationError(
+                'missing key: "{key}"'.format(key=error)
+            )
+        company = self.create_company(**validated_company_data)
+        self.create_user(company=company, **validated_user_data)
         return instance
 
     def create_company(self, aims, number):

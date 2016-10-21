@@ -86,12 +86,10 @@ class Worker:
         Returns:
             boolean: True if valid, False if not
         """
-        try:
-            enrolment = json.loads(message_body)
-        except ValueError:  # includes JSONDecodeError
-            return False
-        else:
-            return True
+        serializer = serializers.EnrolmentSerializer(
+            data={'data': message_body}
+        )
+        return serializer.is_valid()
 
     def process_message(self, message):
         """Creates new models.Enrolment if message body is a valid
@@ -109,7 +107,7 @@ class Worker:
                     json_payload=message.body,
                     sqs_message_id=message.message_id,
                 )
-            except (ValidationError, KeyError):
+            except ValidationError:
                 logging.exception("Failed to process enrolment")
             except IntegrityError as exc:
                 if self.is_postgres_unique_violation_error(exc):
@@ -151,7 +149,7 @@ class Worker:
 
         Args:
             sqs_message_id (str): SQS message ID
-            json_payload (str[]): Goals of joining the scheme
+            json_payload (str): The message body. A JSON payload.
         """
         logger.debug(
             "Saving new enrolment from message '{}'".format(sqs_message_id)

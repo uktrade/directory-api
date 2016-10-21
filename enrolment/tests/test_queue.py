@@ -1,4 +1,6 @@
+import json
 from unittest.mock import patch, Mock
+
 import pytest
 from rest_framework.serializers import ValidationError
 
@@ -58,3 +60,24 @@ class TestQueueWorker(MockBoto):
         assert instance.aims == VALID_REQUEST_DATA['aims']
         assert instance.number == VALID_REQUEST_DATA['company_number']
 
+    @pytest.mark.django_db
+    def test_save_company_handles_exception(self):
+        worker = enrolment.queue.Worker()
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_number'] = None
+        with pytest.raises(ValidationError):
+            worker.process_enrolment(
+                sqs_message_id='1',
+                json_payload=json.dumps(invalid_data)
+            )
+
+    @pytest.mark.django_db
+    def test_save_user_handles_exception(self):
+        worker = enrolment.queue.Worker()
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_email'] = None
+        with pytest.raises(ValidationError):
+            worker.process_enrolment(
+                sqs_message_id='1',
+                json_payload=json.dumps(invalid_data)
+            )
