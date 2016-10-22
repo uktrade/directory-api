@@ -1,13 +1,13 @@
 import pytest
 
-from company.serializers import CompanySerializer
 from company.tests import VALID_REQUEST_DATA
+from company import serializers, validators
 
 
 @pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_under_8_chars():
     data = {'number': "1234567", 'aims': ['AIM1', 'AIM2']}
-    serializer = CompanySerializer(data=data)
+    serializer = serializers.CompanySerializer(data=data)
 
     valid = serializer.is_valid()
 
@@ -20,7 +20,7 @@ def test_company_serializer_doesnt_accept_number_under_8_chars():
 @pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_over_8_chars():
     data = {'number': "123456789", 'aims': ['AIM1', 'AIM2']}
-    serializer = CompanySerializer(data=data)
+    serializer = serializers.CompanySerializer(data=data)
 
     valid = serializer.is_valid()
 
@@ -33,7 +33,7 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
 @pytest.mark.django_db
 def test_company_serializer_defaults_to_empty_string():
     data = {'number': "01234567", 'aims': ['AIM1', 'AIM2']}
-    serializer = CompanySerializer(data=data)
+    serializer = serializers.CompanySerializer(data=data)
     serializer.is_valid()
 
     company = serializer.save()
@@ -53,7 +53,7 @@ def test_company_serializer_translates_none_to_empty_string():
         'number': "01234567", 'aims': ['AIM1', 'AIM2'],
         'name': None, 'website': None, 'description': None
     }
-    serializer = CompanySerializer(data=data)
+    serializer = serializers.CompanySerializer(data=data)
     serializer.is_valid()
 
     company = serializer.save()
@@ -69,7 +69,7 @@ def test_company_serializer_translates_none_to_empty_string():
 
 @pytest.mark.django_db
 def test_company_serializer_save():
-    serializer = CompanySerializer(data=VALID_REQUEST_DATA)
+    serializer = serializers.CompanySerializer(data=VALID_REQUEST_DATA)
     serializer.is_valid()
 
     company = serializer.save()
@@ -79,3 +79,11 @@ def test_company_serializer_save():
     assert company.website == VALID_REQUEST_DATA['website']
     assert company.description == VALID_REQUEST_DATA['description']
     assert company.aims == VALID_REQUEST_DATA['aims']
+
+
+def test_company_number_serializer_validators():
+    serializer = serializers.CompanyNumberValidatorSerializer()
+    field = serializer.get_fields()['number']
+
+    assert validators.company_unique in field.validators
+    assert validators.company_active in field.validators

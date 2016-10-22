@@ -1,19 +1,20 @@
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
-from rest_framework.views import APIView
 
 from company.models import Company
-from company.serializers import CompanySerializer
+from company.serializers import (
+    CompanyNumberValidatorSerializer,
+    CompanySerializer
+)
 
 
-class CompanyNumberValidatorAPIView(APIView):
+class CompanyNumberValidatorAPIView(GenericAPIView):
+
+    serializer_class = CompanyNumberValidatorSerializer
 
     def get(self, request, *args, **kwargs):
-        if 'number' not in request.GET:
-            raise ValidationError({'number': ['This field is required']})
-        if Company.objects.filter(number=request.GET['number']).exists():
-            raise ValidationError({'number': ['Already registered']})
+        validator = self.get_serializer(data=request.GET)
+        validator.is_valid(raise_exception=True)
         return Response()
 
 
