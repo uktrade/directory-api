@@ -45,6 +45,7 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 | DIRECTORY_API_DATABASE_URL | DATABASE_URL |
 | DIRECTORY_API_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
 | DIRECTORY_API_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
+| DIRECTORY_API_COMPANIES_HOUSE_API_KEY | COMPANIES_HOUSE_API_KEY |
 
 #### Database
 | Host environment variable | Docker environment variable  |
@@ -88,6 +89,7 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 | DATABASE_URL | None | Postgres database url |
 | AWS_ACCESS_KEY_ID | None | AWS access key ID |
 | AWS_SECRET_ACCESS_KEY | None | AWS secret access key |
+| COMPANIES_HOUSE_API_KEY | None | Auth key used when communicating with Companies House API
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
