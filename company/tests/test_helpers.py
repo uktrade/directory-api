@@ -1,7 +1,6 @@
 import http
 
 import requests_mock
-
 from company import helpers
 
 

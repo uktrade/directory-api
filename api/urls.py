@@ -3,8 +3,9 @@ from django.contrib import admin
 
 from api.views import documentation, HealthCheckAPIView
 from company.views import (
+    CompaniesHouseProfileDetailsAPIView,
     CompanyNumberValidatorAPIView,
-    CompanyRetrieveUpdateAPIView
+    CompanyRetrieveUpdateAPIView,
 )
 from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
 from enrolment.views import EnrolmentCreateAPIView
@@ -33,7 +34,7 @@ urlpatterns = [
         name='enrolment'
     ),
     url(
-        r'company/(?P<pk>[0-9]+)/$',
+        r'company/details/(?P<pk>[0-9]+)/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
     ),
@@ -52,6 +53,11 @@ urlpatterns = [
         CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
     ),
+    url(
+        r'company/companies-house-profile/$',
+        CompaniesHouseProfileDetailsAPIView.as_view(),
+        name='companies-house-profile',
+    )
 
 
 ]
