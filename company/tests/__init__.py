@@ -18,4 +18,4 @@ class MockInvalidSerializer(serializers.Serializer):
 
 
 class MockValidSerializer(serializers.Serializer):
-    field = serializers.CharField(required=False)
+    number = serializers.CharField(required=False)

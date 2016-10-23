@@ -1,12 +1,13 @@
 import json
+import http
 from unittest.mock import patch
 
 import pytest
-
-from django.core.urlresolvers import reverse
-
+import requests_mock
 from rest_framework.test import APIClient
 from rest_framework import status
+
+from django.core.urlresolvers import reverse
 
 from company.models import Company
 from company.tests import (
@@ -14,6 +15,7 @@ from company.tests import (
     MockValidSerializer,
     VALID_REQUEST_DATA,
 )
+from company.views import CompaniesHouseProfileDetailsAPIView
 
 
 @pytest.mark.django_db
@@ -81,3 +83,36 @@ def test_company_number_validator_accepts_valid_serializer(
     mock_get_serializer.return_value = MockValidSerializer(data={})
     response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
+def test_companies_house_profile_details(mock_get_serializer_class, client):
+    profile = {'name': 'Extreme corp'}
+    mock_get_serializer_class.return_value = MockValidSerializer
+    with requests_mock.mock() as mock:
+        mock.get(
+            'https://api.companieshouse.gov.uk/company/01234567',
+            status_code=http.client.OK,
+            json=profile
+        )
+        data = {'number': '01234567'}
+        response = client.get(reverse('companies-house-profile'), data)
+    assert response.status_code == http.client.OK
+    assert response.json() == profile
+
+
+@pytest.mark.django_db
+@patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
+def test_companies_house_profile_details_bad_request(
+        mock_get_serializer_class, client):
+
+    mock_get_serializer_class.return_value = MockValidSerializer
+    with requests_mock.mock() as mock:
+        mock.get(
+            'https://api.companieshouse.gov.uk/company/01234567',
+            status_code=http.client.BAD_REQUEST,
+        )
+        data = {'number': '01234567'}
+        response = client.get(reverse('companies-house-profile'), data)
+    assert response.status_code == http.client.BAD_REQUEST
