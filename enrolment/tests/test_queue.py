@@ -2,6 +2,8 @@ from unittest.mock import patch, Mock
 import pytest
 from rest_framework.serializers import ValidationError
 
+from django.conf import settings
+
 import enrolment.queue
 import enrolment.models
 from enrolment.tests import (
@@ -9,6 +11,11 @@ from enrolment.tests import (
 )
 from user.models import User
 from company.models import Company
+
+
+GOV_NOTIFY_EMAIL_METHOD = (
+    'notifications_python_client.notifications'
+    '.NotificationsAPIClient.send_email_notification')
 
 
 class TestQueueWorker(MockBoto):
@@ -21,6 +28,7 @@ class TestQueueWorker(MockBoto):
             VALID_REQUEST_DATA_JSON
         )
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_enrolment(self):
         """ Test processing a message creates a new .models.Enrolment object
@@ -37,6 +45,7 @@ class TestQueueWorker(MockBoto):
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
         assert instance.personal_name == VALID_REQUEST_DATA['personal_name']
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_user(self):
         worker = enrolment.queue.Worker()
@@ -49,6 +58,7 @@ class TestQueueWorker(MockBoto):
         assert instance.name == VALID_REQUEST_DATA['personal_name']
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_company(self):
         worker = enrolment.queue.Worker()
@@ -61,6 +71,22 @@ class TestQueueWorker(MockBoto):
         assert instance.aims == VALID_REQUEST_DATA['aims']
         assert instance.number == VALID_REQUEST_DATA['company_number']
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD)
+    @pytest.mark.django_db
+    def test_process_message_sends_confirmation_email(
+            self, mocked_email_notify):
+        worker = enrolment.queue.Worker()
+
+        worker.process_enrolment(
+            sqs_message_id='1',
+            json_payload=VALID_REQUEST_DATA_JSON
+        )
+
+        mocked_email_notify.assert_called_once_with(
+            VALID_REQUEST_DATA['company_email'],
+            settings.CONFIRMATION_EMAIL_TEMPLATE_ID)
+
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_company_exception_rollback(self):
 
@@ -81,6 +107,7 @@ class TestQueueWorker(MockBoto):
                 assert User.objects.count() == 0
                 assert enrolment.models.Enrolment.objects.count() == 0
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_user_exception_rollback(self):
 
@@ -101,6 +128,7 @@ class TestQueueWorker(MockBoto):
                 assert User.objects.count() == 0
                 assert enrolment.models.Enrolment.objects.count() == 0
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_enrolment_exception_rollback(self):
 
@@ -120,6 +148,21 @@ class TestQueueWorker(MockBoto):
                 assert Company.objects.count() == 0
                 assert User.objects.count() == 0
                 assert enrolment.models.Enrolment.objects.count() == 0
+
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock(side_effect=Exception))
+    @pytest.mark.django_db
+    def test_process_message_no_rollback_on_confirmation_email_exception(self):
+
+        worker = enrolment.queue.Worker()
+
+        worker.process_enrolment(
+            sqs_message_id='1',
+            json_payload=VALID_REQUEST_DATA_JSON
+        )
+
+        assert Company.objects.count() == 1
+        assert User.objects.count() == 1
+        assert enrolment.models.Enrolment.objects.count() == 1
 
     @pytest.mark.django_db
     def test_save_user_hashes_password(self):
@@ -159,3 +202,14 @@ class TestQueueWorker(MockBoto):
                 plaintext_password='password',
                 company=company,
             )
+
+    @patch(GOV_NOTIFY_EMAIL_METHOD)
+    def test_send_confirmation_email_calls_send_email_method(
+            self, mocked_email_notify):
+        worker = enrolment.queue.Worker()
+        email = 'test@digital.trade.gov.uk'
+
+        worker.send_confirmation_email(email)
+
+        mocked_email_notify.assert_called_once_with(
+            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID)

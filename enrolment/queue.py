@@ -4,6 +4,7 @@ import logging
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from rest_framework.serializers import ValidationError
+from notifications_python_client.notifications import NotificationsAPIClient
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
@@ -184,6 +185,13 @@ class Worker:
             plaintext_password=payload['password'],
             company=company,
         )
+        # If there's an exception during email sending, the db
+        # transaction should complete and the exception should be logged
+        try:
+            self.send_confirmation_email(payload['company_email'])
+        except:
+            logger.exception("Error sending confirmation email to %s",
+                             payload['company_email'])
 
     def save_enrolment(
             self, sqs_message_id, aims,
@@ -233,3 +241,11 @@ class Worker:
 
         serializer.is_valid(raise_exception=True)
         return serializer.save()
+
+    def send_confirmation_email(self, email):
+        service_id = settings.NOTIFY_SERVICE_ID
+        api_key = settings.NOTIFY_API_KEY
+        template_id = settings.CONFIRMATION_EMAIL_TEMPLATE_ID
+        notifications_client = NotificationsAPIClient(
+            service_id=service_id, api_key=api_key)
+        notifications_client.send_email_notification(email, template_id)
