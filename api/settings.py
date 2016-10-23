@@ -191,4 +191,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
 NOTIFY_SERVICE_ID = os.getenv("GOV_UK_NOTIFY_SERVICE_ID")
 NOTIFY_API_KEY = os.getenv("GOV_UK_NOTIFY_API_KEY")
 # TODO: This is a temporary test template. Needs to be changed.
+# Template must contain ((confirmation url)) variable
 CONFIRMATION_EMAIL_TEMPLATE_ID = "db881d48-9eba-4401-acea-ebc1609db31e"
+# TODO: What is the correct url?
+CONFIRMATION_URL_TEMPLATE = "http://localhost/confirm?token=%s"

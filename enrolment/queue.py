@@ -9,6 +9,7 @@ from notifications_python_client.notifications import NotificationsAPIClient
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.contrib.auth.hashers import make_password
+from django.utils.crypto import get_random_string
 
 from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService
@@ -178,7 +179,7 @@ class Worker:
             aims=payload['aims'],
             number=payload['company_number'],
         )
-        self.save_user(
+        user = self.save_user(
             company_email=payload['company_email'],
             name=payload['personal_name'],
             referrer=payload['referrer'],
@@ -188,7 +189,7 @@ class Worker:
         # If there's an exception during email sending, the db
         # transaction should complete and the exception should be logged
         try:
-            self.send_confirmation_email(payload['company_email'])
+            self.send_confirmation_email(user)
         except:
             logger.exception("Error sending confirmation email to %s",
                              payload['company_email'])
@@ -242,10 +243,15 @@ class Worker:
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def send_confirmation_email(self, email):
+    def send_confirmation_email(self, user):
         service_id = settings.NOTIFY_SERVICE_ID
         api_key = settings.NOTIFY_API_KEY
         template_id = settings.CONFIRMATION_EMAIL_TEMPLATE_ID
+        user.confirmation_code = get_random_string(64).lower()
+        user.save()
         notifications_client = NotificationsAPIClient(
             service_id=service_id, api_key=api_key)
-        notifications_client.send_email_notification(email, template_id)
+        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
+        notifications_client.send_email_notification(
+            user.company_email, template_id,
+            personalisation={'confirmation url': url})

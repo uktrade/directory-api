@@ -82,9 +82,27 @@ class TestQueueWorker(MockBoto):
             json_payload=VALID_REQUEST_DATA_JSON
         )
 
+        email = VALID_REQUEST_DATA['company_email']
+        user = User.objects.get()
+        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
         mocked_email_notify.assert_called_once_with(
-            VALID_REQUEST_DATA['company_email'],
-            settings.CONFIRMATION_EMAIL_TEMPLATE_ID)
+            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID,
+            personalisation={'confirmation url': url})
+
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
+    @pytest.mark.django_db
+    def test_process_message_saves_confirmation_code_to_db(self):
+        worker = enrolment.queue.Worker()
+
+        worker.process_enrolment(
+            sqs_message_id='1',
+            json_payload=VALID_REQUEST_DATA_JSON
+        )
+
+        user = User.objects.get()
+        assert user.confirmation_code
+        assert len(user.confirmation_code) == 64  # 64 random chars
+        assert user.company_email_confirmed is False
 
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
@@ -204,12 +222,16 @@ class TestQueueWorker(MockBoto):
             )
 
     @patch(GOV_NOTIFY_EMAIL_METHOD)
+    @pytest.mark.django_db
     def test_send_confirmation_email_calls_send_email_method(
             self, mocked_email_notify):
         worker = enrolment.queue.Worker()
         email = 'test@digital.trade.gov.uk'
+        user = User(company_email=email)
 
-        worker.send_confirmation_email(email)
+        worker.send_confirmation_email(user)
 
+        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
         mocked_email_notify.assert_called_once_with(
-            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID)
+            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID,
+            personalisation={'confirmation url': url})
