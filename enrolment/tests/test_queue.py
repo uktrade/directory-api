@@ -101,7 +101,7 @@ class TestQueueWorker(MockBoto):
 
         user = User.objects.get()
         assert user.confirmation_code
-        assert len(user.confirmation_code) == 64  # 64 random chars
+        assert len(user.confirmation_code) == 36  # 36 random chars
         assert user.company_email_confirmed is False
 
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())

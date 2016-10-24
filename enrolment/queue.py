@@ -1,6 +1,7 @@
 import gc
 import json
 import logging
+import uuid
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from rest_framework.serializers import ValidationError
@@ -9,7 +10,6 @@ from notifications_python_client.notifications import NotificationsAPIClient
 from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.contrib.auth.hashers import make_password
-from django.utils.crypto import get_random_string
 
 from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService
@@ -247,7 +247,7 @@ class Worker:
         service_id = settings.GOV_NOTIFY_SERVICE_ID
         api_key = settings.GOV_NOTIFY_API_KEY
         template_id = settings.CONFIRMATION_EMAIL_TEMPLATE_ID
-        user.confirmation_code = get_random_string(64).lower()
+        user.confirmation_code = str(uuid.uuid4())
         user.save()
         notifications_client = NotificationsAPIClient(
             service_id=service_id, api_key=api_key)
