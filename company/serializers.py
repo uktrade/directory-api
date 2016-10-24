@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from company import models
+from company import models, validators
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -19,3 +19,10 @@ class CompanySerializer(serializers.ModelSerializer):
 
     def validate_description(self, value):
         return value or ''
+
+
+class CompanyNumberValidatorSerializer(serializers.Serializer):
+    number = serializers.CharField(validators=[
+        validators.company_unique,
+        validators.company_active,
+    ])

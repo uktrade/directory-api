@@ -1,14 +1,21 @@
 import json
+import http
+from unittest.mock import patch
 
 import pytest
-
-from django.core.urlresolvers import reverse
-
+import requests_mock
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from django.core.urlresolvers import reverse
+
 from company.models import Company
-from company.tests import VALID_REQUEST_DATA
+from company.tests import (
+    MockInvalidSerializer,
+    MockValidSerializer,
+    VALID_REQUEST_DATA,
+)
+from company.views import CompaniesHouseProfileDetailsAPIView
 
 
 @pytest.mark.django_db
@@ -57,23 +64,55 @@ def test_company_update_view_with_patch():
 
 
 @pytest.mark.django_db
-def test_company_number_validator_rejects_missing_param(client):
-    response = client.get(reverse('validate-company-number'))
+@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+def test_company_number_validator_rejects_invalid_serializer(
+        mock_get_serializer, client):
+
+    serializer = MockInvalidSerializer(data={})
+    mock_get_serializer.return_value = serializer
+    response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'number': ['This field is required']}
+    assert response.json() == serializer.errors
 
 
 @pytest.mark.django_db
-def test_company_number_validator_rejects_existing_company(client):
-    data = {'number': '01234567'}
-    Company.objects.create(number='01234567', aims=['1'])
-    response = client.get(reverse('validate-company-number'), data)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {'number': ['Already registered']}
+@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+def test_company_number_validator_accepts_valid_serializer(
+        mock_get_serializer, client):
 
-
-@pytest.mark.django_db
-def test_company_number_validator_accepts_new_company(client):
-    data = {'number': '01234567'}
-    response = client.get(reverse('validate-company-number'), data)
+    mock_get_serializer.return_value = MockValidSerializer(data={})
+    response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+@patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
+def test_companies_house_profile_details(mock_get_serializer_class, client):
+    profile = {'name': 'Extreme corp'}
+    mock_get_serializer_class.return_value = MockValidSerializer
+    with requests_mock.mock() as mock:
+        mock.get(
+            'https://api.companieshouse.gov.uk/company/01234567',
+            status_code=http.client.OK,
+            json=profile
+        )
+        data = {'number': '01234567'}
+        response = client.get(reverse('companies-house-profile'), data)
+    assert response.status_code == http.client.OK
+    assert response.json() == profile
+
+
+@pytest.mark.django_db
+@patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
+def test_companies_house_profile_details_bad_request(
+        mock_get_serializer_class, client):
+
+    mock_get_serializer_class.return_value = MockValidSerializer
+    with requests_mock.mock() as mock:
+        mock.get(
+            'https://api.companieshouse.gov.uk/company/01234567',
+            status_code=http.client.BAD_REQUEST,
+        )
+        data = {'number': '01234567'}
+        response = client.get(reverse('companies-house-profile'), data)
+    assert response.status_code == http.client.BAD_REQUEST

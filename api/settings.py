@@ -70,7 +70,9 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': dj_database_url.config(
+        default="postgres://test:test@localhost:5432/directory-test"
+    )
 }
 
 # Internationalization
@@ -182,6 +184,8 @@ SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
 AUTH_USER_MODEL = 'user.User'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
+
+COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
 
 # Settings for Gov UK Notify
 # NOTE: The service id & api key can be generated at
