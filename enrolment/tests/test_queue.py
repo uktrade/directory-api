@@ -44,8 +44,9 @@ class TestQueueWorker(MockBoto):
         )
         instance = User.objects.last()
 
-        assert instance.name == VALID_REQUEST_DATA['personal_name']
+        assert instance.referrer == VALID_REQUEST_DATA['referrer']
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
+        assert instance.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
     @pytest.mark.django_db
     def test_process_message_creates_company(self):
@@ -56,7 +57,9 @@ class TestQueueWorker(MockBoto):
         )
         instance = Company.objects.last()
 
-        assert instance.aims == VALID_REQUEST_DATA['aims']
+        assert instance.name == VALID_REQUEST_DATA['company_name']
+        assert str(instance.revenue) == VALID_REQUEST_DATA['revenue']
+        assert instance.export_status == VALID_REQUEST_DATA['export_status']
         assert instance.number == VALID_REQUEST_DATA['company_number']
 
     @pytest.mark.django_db

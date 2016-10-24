@@ -2,6 +2,7 @@ import json
 import http
 from unittest.mock import patch
 
+from directory_validators.constants import choices
 import pytest
 import requests_mock
 from rest_framework.test import APIClient
@@ -35,7 +36,10 @@ def test_company_retrieve_view():
 def test_company_update_view_with_put():
     client = APIClient()
     company = Company.objects.create(
-        number='12345678', aims=json.dumps(['AIM101']))
+        number='12345678',
+        revenue=1111,
+        export_status=choices.EXPORT_STATUSES[1][0],
+    )
 
     response = client.put(
         reverse('company', kwargs={'pk': company.pk}),
@@ -51,7 +55,11 @@ def test_company_update_view_with_put():
 def test_company_update_view_with_patch():
     client = APIClient()
     company = Company.objects.create(
-        number='12345678', aims=json.dumps(['AIM101']))
+        number='12345678',
+        revenue=122,
+        export_status=choices.EXPORT_STATUSES[1][0]
+
+    )
 
     response = client.patch(
         reverse('company', kwargs={'pk': company.pk}),

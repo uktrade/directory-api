@@ -29,12 +29,14 @@ class EnrolmentSerializer(serializers.ModelSerializer):
     def create_nested_objects(self, validated_data):
         try:
             validated_company_data = {
-                'aims': validated_data['data']['aims'],
+                'export_status': validated_data['data']['export_status'],
+                'name': validated_data['data']['company_name'],
                 'number': validated_data['data']['company_number'],
+                'revenue': validated_data['data']['revenue'],
             }
             validated_user_data = {
                 'company_email': validated_data['data']['company_email'],
-                'name': validated_data['data']['personal_name'],
+                'mobile_number': validated_data['data']['mobile_number'],
                 'referrer': validated_data['data']['referrer'],
             }
         except KeyError as error:
@@ -44,19 +46,21 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         company = self.create_company(**validated_company_data)
         self.create_user(company=company, **validated_user_data)
 
-    def create_company(self, aims, number):
+    def create_company(self, name, number, export_status, revenue):
         serializer = CompanySerializer(data={
-            'aims': aims,
+            'name': name,
             'number': number,
+            'export_status': export_status,
+            'revenue': revenue,
         })
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def create_user(self, company_email, name, referrer, company):
+    def create_user(self, company_email, mobile_number, referrer, company):
         serializer = UserSerializer(data={
             'company_email': company_email,
-            'name': name,
             'referrer': referrer,
+            'mobile_number': mobile_number,
             'company': company.pk,
         })
         serializer.is_valid(raise_exception=True)

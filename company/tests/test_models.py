@@ -15,8 +15,7 @@ def test_company_model_str():
 
 @pytest.mark.django_db
 def test_company_model_sets_string_fields_to_empty_by_default():
-    company = Company.objects.create(
-        number="01234567", aims=['AIM1', 'AIM2'])
+    company = Company.objects.create(number="01234567", revenue=10000)
 
     # NOTE: These are fields that the registration form currently
     # doesn't define and therefore might be empty.
@@ -29,6 +28,6 @@ def test_company_model_sets_string_fields_to_empty_by_default():
 
 @pytest.mark.django_db
 def test_company_enforces_unique_company_number():
-    Company.objects.create(number="01234567", aims=['AIM1', 'AIM2'])
+    Company.objects.create(number="01234567", revenue=10000)
     with pytest.raises(IntegrityError):
-        Company.objects.create(number="01234567", aims=['AIM1', 'AIM2'])
+        Company.objects.create(number="01234567")

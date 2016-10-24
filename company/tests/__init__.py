@@ -1,14 +1,16 @@
 import json
 
+from directory_validators.constants import choices
 from rest_framework import serializers
 
 
 VALID_REQUEST_DATA = {
-    "aims": ['AIM1', 'AIM2'],
     "number": "01234567",
     "name": 'Test Company',
     "website": "http://example.com",
     "description": "Company description",
+    "export_status": choices.EXPORT_STATUSES[1][0],
+    "revenue": '100000.00',
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 

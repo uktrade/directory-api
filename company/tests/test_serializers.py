@@ -1,5 +1,7 @@
 import pytest
 
+from directory_validators.constants import choices
+
 from company.tests import VALID_REQUEST_DATA
 from company import serializers, validators
 
@@ -13,13 +15,18 @@ def test_company_serializer_doesnt_accept_number_under_8_chars():
 
     assert valid is False
     assert 'number' in serializer.errors
-    error_msg = 'Ensure this field has at least 8 characters.'
+    error_msg = 'Company number must be 8 characters'
     assert error_msg in serializer.errors['number']
 
 
 @pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_over_8_chars():
-    data = {'number': "123456789", 'aims': ['AIM1', 'AIM2']}
+    data = {
+        'number': "123456789",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'revenue': 19900,
+        'name': 'Earnest Corp',
+    }
     serializer = serializers.CompanySerializer(data=data)
 
     valid = serializer.is_valid()
@@ -32,9 +39,15 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
 
 @pytest.mark.django_db
 def test_company_serializer_defaults_to_empty_string():
-    data = {'number': "01234567", 'aims': ['AIM1', 'AIM2']}
+    data = {
+        'number': "01234567",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'revenue': 19900,
+        'name': 'Extreme corp'
+    }
     serializer = serializers.CompanySerializer(data=data)
-    serializer.is_valid()
+
+    assert serializer.is_valid(), serializer.errors
 
     company = serializer.save()
 
@@ -42,7 +55,7 @@ def test_company_serializer_defaults_to_empty_string():
     # doesn't define and therefore might be empty.
     # This test is just for peace of mind that we handle this in a
     # consistent manner
-    assert company.name == ''
+    assert company.name == 'Extreme corp'
     assert company.website == ''
     assert company.description == ''
 
@@ -50,11 +63,15 @@ def test_company_serializer_defaults_to_empty_string():
 @pytest.mark.django_db
 def test_company_serializer_translates_none_to_empty_string():
     data = {
-        'number': "01234567", 'aims': ['AIM1', 'AIM2'],
-        'name': None, 'website': None, 'description': None
+        'number': "01234567",
+        'name': "extreme corp",
+        'website': None,
+        'description': None,
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'revenue': 19900,
     }
     serializer = serializers.CompanySerializer(data=data)
-    serializer.is_valid()
+    assert serializer.is_valid(), serializer.errors
 
     company = serializer.save()
 
@@ -62,7 +79,7 @@ def test_company_serializer_translates_none_to_empty_string():
     # doesn't define and therefore might be empty.
     # This test is just for peace of mind that we handle this in a
     # consistent manner
-    assert company.name == ''
+    assert company.name == 'extreme corp'
     assert company.website == ''
     assert company.description == ''
 
@@ -78,7 +95,6 @@ def test_company_serializer_save():
     assert company.number == VALID_REQUEST_DATA['number']
     assert company.website == VALID_REQUEST_DATA['website']
     assert company.description == VALID_REQUEST_DATA['description']
-    assert company.aims == VALID_REQUEST_DATA['aims']
 
 
 def test_company_number_serializer_validators():
