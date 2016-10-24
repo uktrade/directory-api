@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch, Mock
 
 import pytest
 from rest_framework.serializers import ValidationError
@@ -104,23 +105,6 @@ class TestQueueWorker(MockBoto):
 
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock(side_effect=Exception))
-    @pytest.mark.django_db
-    def test_process_message_no_rollback_on_confirmation_email_exception(self):
-
-        worker = enrolment.queue.Worker()
-
-        worker.process_enrolment(
-            sqs_message_id='1',
-            json_payload=VALID_REQUEST_DATA_JSON
-        )
-
-        assert Company.objects.count() == 1
-        assert User.objects.count() == 1
-        assert enrolment.models.Enrolment.objects.count() == 1
-
     def test_save_company_handles_exception(self):
         worker = enrolment.queue.Worker()
         invalid_data = VALID_REQUEST_DATA.copy()
@@ -131,6 +115,7 @@ class TestQueueWorker(MockBoto):
                 json_payload=json.dumps(invalid_data)
             )
 
+    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_save_user_handles_exception(self):
         worker = enrolment.queue.Worker()
@@ -141,18 +126,3 @@ class TestQueueWorker(MockBoto):
                 sqs_message_id='1',
                 json_payload=json.dumps(invalid_data)
             )
-
-    @patch(GOV_NOTIFY_EMAIL_METHOD)
-    @pytest.mark.django_db
-    def test_send_confirmation_email_calls_send_email_method(
-            self, mocked_email_notify):
-        worker = enrolment.queue.Worker()
-        email = 'test@digital.trade.gov.uk'
-        user = User(company_email=email)
-
-        worker.send_confirmation_email(user)
-
-        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
-        mocked_email_notify.assert_called_once_with(
-            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID,
-            personalisation={'confirmation url': url})

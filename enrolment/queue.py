@@ -1,10 +1,8 @@
 import gc
 import logging
-import uuid
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from rest_framework.serializers import ValidationError
-from notifications_python_client.notifications import NotificationsAPIClient
 
 from django.db import IntegrityError
 from django.conf import settings
@@ -169,16 +167,3 @@ class Worker:
 
         serializer.is_valid(raise_exception=True)
         return serializer.save()
-
-    def send_confirmation_email(self, user):
-        service_id = settings.GOV_NOTIFY_SERVICE_ID
-        api_key = settings.GOV_NOTIFY_API_KEY
-        template_id = settings.CONFIRMATION_EMAIL_TEMPLATE_ID
-        user.confirmation_code = str(uuid.uuid4())
-        user.save()
-        notifications_client = NotificationsAPIClient(
-            service_id=service_id, api_key=api_key)
-        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
-        notifications_client.send_email_notification(
-            user.company_email, template_id,
-            personalisation={'confirmation url': url})
