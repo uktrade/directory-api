@@ -9,6 +9,7 @@ from rest_framework.serializers import ValidationError
 from company import models, validators
 from company.tests import VALID_REQUEST_DATA
 
+
 @pytest.mark.django_db
 def test_company_unique_rejects_existing(client):
     models.Company.objects.create(**VALID_REQUEST_DATA)

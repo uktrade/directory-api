@@ -58,7 +58,6 @@ class TestQueueWorker(MockBoto):
         instance = Company.objects.last()
 
         assert instance.name == VALID_REQUEST_DATA['company_name']
-        assert str(instance.revenue) == VALID_REQUEST_DATA['revenue']
         assert instance.export_status == VALID_REQUEST_DATA['export_status']
         assert instance.number == VALID_REQUEST_DATA['company_number']
 

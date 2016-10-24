@@ -1,4 +1,3 @@
-import json
 import http
 from unittest.mock import patch
 
@@ -37,7 +36,6 @@ def test_company_update_view_with_put():
     client = APIClient()
     company = Company.objects.create(
         number='12345678',
-        revenue=1111,
         export_status=choices.EXPORT_STATUSES[1][0],
     )
 
@@ -56,7 +54,6 @@ def test_company_update_view_with_patch():
     client = APIClient()
     company = Company.objects.create(
         number='12345678',
-        revenue=122,
         export_status=choices.EXPORT_STATUSES[1][0]
 
     )

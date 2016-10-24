@@ -56,9 +56,10 @@ def test_user_serializer_save():
     assert user.last_login is None
     assert user.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
+
 @pytest.mark.django_db
 def test_user_with_company_serializer_save():
-    company = Company.objects.create(revenue=20000)
+    company = Company.objects.create()
     data = VALID_REQUEST_DATA.copy()
     data['company'] = company.pk
     serializer = UserSerializer(data=data)

@@ -32,7 +32,6 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 'export_status': validated_data['data']['export_status'],
                 'name': validated_data['data']['company_name'],
                 'number': validated_data['data']['company_number'],
-                'revenue': validated_data['data']['revenue'],
             }
             validated_user_data = {
                 'company_email': validated_data['data']['company_email'],
@@ -46,12 +45,11 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         company = self.create_company(**validated_company_data)
         self.create_user(company=company, **validated_user_data)
 
-    def create_company(self, name, number, export_status, revenue):
+    def create_company(self, name, number, export_status):
         serializer = CompanySerializer(data={
             'name': name,
             'number': number,
             'export_status': export_status,
-            'revenue': revenue,
         })
         serializer.is_valid(raise_exception=True)
         return serializer.save()

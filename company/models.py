@@ -2,8 +2,6 @@ from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
 
 from django.db import models
-from django.contrib.postgres.fields import JSONField
-
 
 
 class Company(models.Model):
@@ -32,7 +30,9 @@ class Company(models.Model):
     )
     revenue = models.DecimalField(
         max_digits=13,
-        decimal_places=2
+        decimal_places=2,
+        blank=True,
+        null=True,
     )
     sectors = models.CharField(
         max_length=8,
@@ -40,8 +40,8 @@ class Company(models.Model):
     )
     website = models.URLField(
         max_length=255, blank=True, null=True,
-                              default='')
-
+        default=''
+    )
 
     def __str__(self):
         return self.name
