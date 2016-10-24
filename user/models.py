@@ -97,7 +97,7 @@ class User(AbstractBaseUser):
         ),
     )
 
-    company = models.ForeignKey(Company, related_name='users')
+    company = models.ForeignKey(Company, related_name='users', null=True)
 
     objects = UserManager()
 

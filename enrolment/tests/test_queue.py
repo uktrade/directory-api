@@ -1,4 +1,5 @@
-from unittest.mock import patch, Mock
+import json
+
 import pytest
 from rest_framework.serializers import ValidationError
 
@@ -40,10 +41,7 @@ class TestQueueWorker(MockBoto):
         )
         instance = enrolment.models.Enrolment.objects.last()
 
-        assert instance.aims == VALID_REQUEST_DATA['aims']
-        assert instance.company_number == VALID_REQUEST_DATA['company_number']
-        assert instance.company_email == VALID_REQUEST_DATA['company_email']
-        assert instance.personal_name == VALID_REQUEST_DATA['personal_name']
+        assert instance.data == VALID_REQUEST_DATA
 
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
@@ -106,67 +104,8 @@ class TestQueueWorker(MockBoto):
 
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
-    def test_process_message_company_exception_rollback(self):
-
-        for exception_class in [Exception, ValidationError]:
-            stub = Mock(side_effect=exception_class('!'))
-
-            with patch.object(enrolment.queue.Worker, 'save_company', stub):
-
-                worker = enrolment.queue.Worker()
-
-                with pytest.raises(exception_class):
-                    worker.process_enrolment(
-                        sqs_message_id='1',
-                        json_payload=VALID_REQUEST_DATA_JSON
-                    )
-
-                assert Company.objects.count() == 0
-                assert User.objects.count() == 0
-                assert enrolment.models.Enrolment.objects.count() == 0
-
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
-    @pytest.mark.django_db
-    def test_process_message_user_exception_rollback(self):
-
-        for exception_class in [Exception, ValidationError]:
-            stub = Mock(side_effect=exception_class('!'))
-
-            with patch.object(enrolment.queue.Worker, 'save_user', stub):
-
-                worker = enrolment.queue.Worker()
-
-                with pytest.raises(exception_class):
-                    worker.process_enrolment(
-                        sqs_message_id='1',
-                        json_payload=VALID_REQUEST_DATA_JSON
-                    )
-
-                assert Company.objects.count() == 0
-                assert User.objects.count() == 0
-                assert enrolment.models.Enrolment.objects.count() == 0
-
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
-    @pytest.mark.django_db
-    def test_process_message_enrolment_exception_rollback(self):
-
-        for exception_class in [Exception, ValidationError]:
-            stub = Mock(side_effect=exception_class('!'))
-
-            with patch.object(enrolment.queue.Worker, 'save_enrolment', stub):
-
-                worker = enrolment.queue.Worker()
-
-                with pytest.raises(exception_class):
-                    worker.process_enrolment(
-                        sqs_message_id='1',
-                        json_payload=VALID_REQUEST_DATA_JSON
-                    )
-
-                assert Company.objects.count() == 0
-                assert User.objects.count() == 0
-                assert enrolment.models.Enrolment.objects.count() == 0
-
     @patch(GOV_NOTIFY_EMAIL_METHOD, Mock(side_effect=Exception))
     @pytest.mark.django_db
     def test_process_message_no_rollback_on_confirmation_email_exception(self):
@@ -182,43 +121,25 @@ class TestQueueWorker(MockBoto):
         assert User.objects.count() == 1
         assert enrolment.models.Enrolment.objects.count() == 1
 
-    @pytest.mark.django_db
-    def test_save_user_hashes_password(self):
-        company = Company.objects.create(aims=['1'])
-        worker = enrolment.queue.Worker()
-        worker.save_user(
-            company_email=VALID_REQUEST_DATA['company_email'],
-            name=VALID_REQUEST_DATA['personal_name'],
-            referrer=VALID_REQUEST_DATA['referrer'],
-            plaintext_password='password',
-            company=company,
-        )
-        instance = User.objects.last()
-
-        assert instance.check_password('password')
-
-    @pytest.mark.django_db
     def test_save_company_handles_exception(self):
         worker = enrolment.queue.Worker()
-
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_number'] = None
         with pytest.raises(ValidationError):
-            worker.save_company(
-                number=None,  # cause ValidationError
-                aims=VALID_REQUEST_DATA['aims'],
+            worker.process_enrolment(
+                sqs_message_id='1',
+                json_payload=json.dumps(invalid_data)
             )
 
     @pytest.mark.django_db
     def test_save_user_handles_exception(self):
-        company = Company.objects.create(aims=['1'])
         worker = enrolment.queue.Worker()
-
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_email'] = None
         with pytest.raises(ValidationError):
-            worker.save_user(
-                company_email=None,  # cause ValidationError
-                name=VALID_REQUEST_DATA['personal_name'],
-                referrer=VALID_REQUEST_DATA['referrer'],
-                plaintext_password='password',
-                company=company,
+            worker.process_enrolment(
+                sqs_message_id='1',
+                json_payload=json.dumps(invalid_data)
             )
 
     @patch(GOV_NOTIFY_EMAIL_METHOD)
