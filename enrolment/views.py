@@ -22,8 +22,9 @@ class EnrolmentCreateAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Sends valid request data to enrolment SQS queue"""
-
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data={
+            'data': request.body
+        })
         serializer.is_valid(raise_exception=True)
 
         self.enrolment_queue.send(

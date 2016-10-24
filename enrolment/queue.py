@@ -1,18 +1,14 @@
 import gc
-import json
 import logging
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from rest_framework.serializers import ValidationError
 
+from django.db import IntegrityError
 from django.conf import settings
-from django.db import IntegrityError, transaction
-from django.contrib.auth.hashers import make_password
 
 from enrolment import serializers
 from enrolment.utils import ExitSignalReceiver, QueueService
-from user.serializers import UserSerializer
-from company.serializers import CompanySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -88,13 +84,10 @@ class Worker:
         Returns:
             boolean: True if valid, False if not
         """
-        try:
-            enrolment = json.loads(message_body)
-        except ValueError:  # includes JSONDecodeError
-            return False
-        else:
-            serializer = serializers.EnrolmentSerializer(data=enrolment)
-            return serializer.is_valid()
+        serializer = serializers.EnrolmentSerializer(
+            data={'data': message_body}
+        )
+        return serializer.is_valid()
 
     def process_message(self, message):
         """Creates new models.Enrolment if message body is a valid
@@ -149,86 +142,20 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    @transaction.atomic
-    def process_enrolment(self, json_payload, sqs_message_id):
-        """
-        This function will create either all three objects (Enrolment, User,
-        Company), or none of them. Using transactions.atomic rollsback our db
-        changes on uncaught exception - so if `save_company` raises an
-        exception, User and Enrolment objects will not be created too.
-
-        Args:
-            json_payload (str): JSON containing all object field values
-            sqs_message_id (str): The Amazon SQS message id
-
-        Returns:
-            None
-
-        """
-        payload = json.loads(json_payload)
-        self.save_enrolment(
-            sqs_message_id=sqs_message_id,
-            aims=payload['aims'],
-            company_number=payload['company_number'],
-            company_email=payload['company_email'],
-            personal_name=payload['personal_name'],
-        )
-        company = self.save_company(
-            aims=payload['aims'],
-            number=payload['company_number'],
-        )
-        self.save_user(
-            company_email=payload['company_email'],
-            name=payload['personal_name'],
-            referrer=payload['referrer'],
-            plaintext_password=payload['password'],
-            company=company,
-        )
-
-    def save_enrolment(
-            self, sqs_message_id, aims,
-            company_number, company_email, personal_name):
-        """Creates new enrolment.models.Enrolment
+    def process_enrolment(self, sqs_message_id, json_payload):
+        """Persis the message in enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
-            aims (str[]): Goals of joining the scheme
-            company_number (str): Companies House number
-            company_email (str): User's company email
-            personal_name (str): User's full name
+            json_payload (str): The message body. A JSON payload.
         """
         logger.debug(
             "Saving new enrolment from message '{}'".format(sqs_message_id)
         )
 
         serializer = serializers.EnrolmentSerializer(data={
-            'aims': aims,
-            'company_number': company_number,
-            'company_email': company_email,
-            'personal_name': personal_name,
             'sqs_message_id': sqs_message_id,
-        })
-
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
-
-    def save_user(
-            self, company_email, name, referrer, plaintext_password, company):
-        serializer = UserSerializer(data={
-            'company_email': company_email,
-            'name': name,
-            'referrer': referrer,
-            'password': make_password(plaintext_password),
-            'company': company.pk,
-        })
-
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
-
-    def save_company(self, aims, number):
-        serializer = CompanySerializer(data={
-            'aims': aims,
-            'number': number,
+            'data': json_payload,
         })
 
         serializer.is_valid(raise_exception=True)
