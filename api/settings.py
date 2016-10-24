@@ -70,9 +70,7 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default="postgres://test:test@localhost:5432/directory-test"
-    )
+    'default': dj_database_url.config()
 }
 
 # Internationalization
@@ -192,10 +190,10 @@ COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
 # https://www.notifications.service.gov.uk
 # in the API Integration > API Keys section
 
-NOTIFY_SERVICE_ID = os.getenv("GOV_UK_NOTIFY_SERVICE_ID")
-NOTIFY_API_KEY = os.getenv("GOV_UK_NOTIFY_API_KEY")
+GOV_NOTIFY_SERVICE_ID = os.getenv("GOV_NOTIFY_SERVICE_ID")
+GOV_NOTIFY_API_KEY = os.getenv("GOV_NOTIFY_API_KEY")
 # TODO: This is a temporary test template. Needs to be changed.
 # Template must contain ((confirmation url)) variable
-CONFIRMATION_EMAIL_TEMPLATE_ID = "db881d48-9eba-4401-acea-ebc1609db31e"
+CONFIRMATION_EMAIL_TEMPLATE_ID = os.getenv("CONFIRMATION_EMAIL_TEMPLATE_ID")
 # TODO: What is the correct url?
-CONFIRMATION_URL_TEMPLATE = "http://localhost/confirm?token=%s"
+CONFIRMATION_URL_TEMPLATE = os.getenv("CONFIRMATION_URL_TEMPLATE")

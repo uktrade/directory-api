@@ -244,8 +244,8 @@ class Worker:
         return serializer.save()
 
     def send_confirmation_email(self, user):
-        service_id = settings.NOTIFY_SERVICE_ID
-        api_key = settings.NOTIFY_API_KEY
+        service_id = settings.GOV_NOTIFY_SERVICE_ID
+        api_key = settings.GOV_NOTIFY_API_KEY
         template_id = settings.CONFIRMATION_EMAIL_TEMPLATE_ID
         user.confirmation_code = get_random_string(64).lower()
         user.save()
