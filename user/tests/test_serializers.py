@@ -8,9 +8,12 @@ from user.tests import VALID_REQUEST_DATA
 
 @pytest.mark.django_db
 def test_user_serializer_defaults_to_empty_string():
-    data = {"company_email": "henry@example.com"}
+    data = {
+        "company_email": "henry@example.com",
+        "mobile_number": '07507605133',
+    }
     serializer = UserSerializer(data=data)
-    serializer.is_valid()
+    assert serializer.is_valid()
 
     user = serializer.save()
 
@@ -23,16 +26,16 @@ def test_user_serializer_defaults_to_empty_string():
 @pytest.mark.django_db
 def test_user_serializer_translates_none_to_empty_string():
     data = {
-        "company_email": "henry@example.com", "name": None, "referrer": None
+        "company_email": "henry@example.com",
+        "referrer": None,
+        "mobile_number": '07507605133',
     }
     serializer = UserSerializer(data=data)
-    serializer.is_valid()
-
+    assert serializer.is_valid()
     user = serializer.save()
 
     # NOTE: This test is just for peace of mind that we handle
     # optional fields in a consistent manner
-    assert user.name == ''
     assert user.referrer == ''
 
 
@@ -43,7 +46,6 @@ def test_user_serializer_save():
 
     user = serializer.save()
 
-    assert user.name == VALID_REQUEST_DATA['name']
     assert user.company_email == VALID_REQUEST_DATA['company_email']
     assert user.referrer == VALID_REQUEST_DATA['referrer']
     assert user.date_joined.year == 2017
@@ -52,11 +54,12 @@ def test_user_serializer_save():
     assert user.is_staff is False
     assert user.password == ''
     assert user.last_login is None
+    assert user.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
 
 @pytest.mark.django_db
 def test_user_with_company_serializer_save():
-    company = Company.objects.create(aims=['1'])
+    company = Company.objects.create()
     data = VALID_REQUEST_DATA.copy()
     data['company'] = company.pk
     serializer = UserSerializer(data=data)

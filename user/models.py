@@ -103,6 +103,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     company = models.ForeignKey(Company, related_name='users', null=True)
 
+    mobile_number = models.CharField(max_length=20)
     objects = UserManager()
 
     USERNAME_FIELD = 'company_email'

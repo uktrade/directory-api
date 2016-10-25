@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined',
             'company_email',
             'id',
-            'name',
+            'mobile_number',
             'password',
             'referrer',
             'terms_agreed',
