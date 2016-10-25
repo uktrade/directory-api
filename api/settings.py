@@ -47,7 +47,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -185,15 +185,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
 
 COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
 
-# Settings for Gov UK Notify
-# NOTE: The service id & api key can be generated at
-# https://www.notifications.service.gov.uk
-# in the API Integration > API Keys section
-
-GOV_NOTIFY_SERVICE_ID = os.getenv("GOV_NOTIFY_SERVICE_ID")
-GOV_NOTIFY_API_KEY = os.getenv("GOV_NOTIFY_API_KEY")
-# TODO: This is a temporary test template. Needs to be changed.
-# Template must contain ((confirmation url)) variable
-CONFIRMATION_EMAIL_TEMPLATE_ID = os.getenv("CONFIRMATION_EMAIL_TEMPLATE_ID")
-# TODO: What is the correct url?
+# Settings for Confirmation Emails
+CONFIRMATION_EMAIL_SUBJECT = 'Confirm your email address'
+CONFIRMATION_EMAIL_FROM = os.getenv("CONFIRMATION_EMAIL_FROM")
 CONFIRMATION_URL_TEMPLATE = os.getenv("CONFIRMATION_URL_TEMPLATE")

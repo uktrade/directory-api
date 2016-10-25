@@ -1,10 +1,10 @@
 import json
-from unittest.mock import patch, Mock
 
 import pytest
 from rest_framework.serializers import ValidationError
 
 from django.conf import settings
+from django.core import mail
 
 import enrolment.queue
 import enrolment.models
@@ -13,11 +13,6 @@ from enrolment.tests import (
 )
 from user.models import User
 from company.models import Company
-
-
-GOV_NOTIFY_EMAIL_METHOD = (
-    'notifications_python_client.notifications'
-    '.NotificationsAPIClient.send_email_notification')
 
 
 class TestQueueWorker(MockBoto):
@@ -30,7 +25,6 @@ class TestQueueWorker(MockBoto):
             VALID_REQUEST_DATA_JSON
         )
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_enrolment(self):
         """ Test processing a message creates a new .models.Enrolment object
@@ -44,7 +38,6 @@ class TestQueueWorker(MockBoto):
 
         assert instance.data == VALID_REQUEST_DATA
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_user(self):
         worker = enrolment.queue.Worker()
@@ -57,7 +50,6 @@ class TestQueueWorker(MockBoto):
         assert instance.name == VALID_REQUEST_DATA['personal_name']
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_creates_company(self):
         worker = enrolment.queue.Worker()
@@ -70,10 +62,8 @@ class TestQueueWorker(MockBoto):
         assert instance.aims == VALID_REQUEST_DATA['aims']
         assert instance.number == VALID_REQUEST_DATA['company_number']
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD)
     @pytest.mark.django_db
-    def test_process_message_sends_confirmation_email(
-            self, mocked_email_notify):
+    def test_process_message_sends_confirmation_email(self):
         worker = enrolment.queue.Worker()
 
         worker.process_enrolment(
@@ -84,11 +74,13 @@ class TestQueueWorker(MockBoto):
         email = VALID_REQUEST_DATA['company_email']
         user = User.objects.get()
         url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
-        mocked_email_notify.assert_called_once_with(
-            email, settings.CONFIRMATION_EMAIL_TEMPLATE_ID,
-            personalisation={'confirmation url': url})
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].subject == settings.CONFIRMATION_EMAIL_SUBJECT
+        assert mail.outbox[0].from_email == settings.CONFIRMATION_EMAIL_FROM
+        assert mail.outbox[0].to == [email]
+        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
+        assert url in mail.outbox[0].body
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_process_message_saves_confirmation_code_to_db(self):
         worker = enrolment.queue.Worker()
@@ -103,7 +95,6 @@ class TestQueueWorker(MockBoto):
         assert len(user.confirmation_code) == 36  # 36 random chars
         assert user.company_email_confirmed is False
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_save_company_handles_exception(self):
         worker = enrolment.queue.Worker()
@@ -115,7 +106,6 @@ class TestQueueWorker(MockBoto):
                 json_payload=json.dumps(invalid_data)
             )
 
-    @patch(GOV_NOTIFY_EMAIL_METHOD, Mock())
     @pytest.mark.django_db
     def test_save_user_handles_exception(self):
         worker = enrolment.queue.Worker()
