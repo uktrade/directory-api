@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser, BaseUserManager, PermissionsMixin
+)
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -36,7 +38,7 @@ class UserManager(BaseUserManager):
         return self._create_user(company_email, password, **extra_fields)
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
 
     # NOTE: AbstractBaseUser also implements two more fields:
     # password and last_login.
@@ -51,11 +53,7 @@ class User(AbstractBaseUser):
         _('company email'),
         unique=True
     )
-    date_joined = models.DateTimeField(
-        _('date joined'),
-        default=timezone.now,
-    )
-    # Field from django defining access to the admin
+
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -63,13 +61,19 @@ class User(AbstractBaseUser):
             'Designates whether the user can log into this admin site.'
         ),
     )
-    is_superuser = models.BooleanField(
-        _('superuser status'),
-        default=False,
+    is_active = models.BooleanField(
+        _('active'),
+        default=True,
         help_text=_(
-            'Designates whether the user has superuser privileges.'
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
         ),
     )
+    date_joined = models.DateTimeField(
+        _('date joined'),
+        default=timezone.now,
+    )
+
     terms_agreed = models.BooleanField(
         _('terms_agreed'),
         default=False
@@ -99,6 +103,7 @@ class User(AbstractBaseUser):
 
     company = models.ForeignKey(Company, related_name='users', null=True)
 
+    mobile_number = models.CharField(max_length=20)
     objects = UserManager()
 
     USERNAME_FIELD = 'company_email'

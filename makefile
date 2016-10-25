@@ -1,7 +1,13 @@
 build: docker_test
 
 heroku_deploy:
-	heroku container:push web
+	docker build -t registry.heroku.com/directory-api-dev/web .
+	docker push registry.heroku.com/directory-api-dev/web
+	# Heroku needs CMD to be set in the Dockerfile
+	sed -i -e 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
+	docker build -t registry.heroku.com/directory-api-dev/worker .
+	docker push registry.heroku.com/directory-api-dev/worker
+	sed -i -e 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
 
 clean:
 	-find . -type f -name "*.pyc" -delete
@@ -120,7 +126,10 @@ PYTEST_DEBUG := pytest . --cov=. -s $(pytest_args)
 debug_test:
 	$(DEBUG_SET_ENV_VARS) && $(PYTEST_DEBUG)
 
+migrations:
+	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment user company
+
 debug: test_requirements debug_db debug_test
 
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy

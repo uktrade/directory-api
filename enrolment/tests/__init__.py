@@ -1,13 +1,17 @@
 import json
 from unittest import mock, TestCase
 
+from directory_validators.constants import choices
+
 
 VALID_REQUEST_DATA = {
-    "aims": ['AIM1', 'AIM2'],
     "company_number": "01234567",
     "company_email": "test@example.com",
-    "personal_name": "Test",
+    "company_name": "Test Corp",
     "referrer": "company_email",
+    "export_status": choices.EXPORT_STATUSES[1][0],
+    "mobile_number": '07507605137',
+    "revenue": "101010.00",
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 
