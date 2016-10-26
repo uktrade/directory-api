@@ -42,6 +42,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug
+	export DIRECTORY_API_GOV_NOTIFY_SERVICE_ID=debug; \
+	export DIRECTORY_API_GOV_NOTIFY_API_KEY=debug; \
+	export DIRECTORY_API_GOV_NOTIFY_SERVICE_NAME='Export Directory';
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -94,10 +97,13 @@ DEBUG_SET_ENV_VARS := \
 	export DB_NAME=directory_api_debug; \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug; \
-	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug
-	export CONFIRMATION_URL_TEMPLATE=http://localhost/confirm-email?confirmation_code=%(confirmation_code)s
+	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug; \
+	export CONFIRMATION_URL_TEMPLATE=http://localhost/confirm-email?confirmation_code=%(confirmation_code)s; \
 	export CONFIRMATION_EMAIL_FROM=from@example.com
-	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'
+	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'; \
+	export GOV_NOTIFY_SERVICE_ID=debug; \
+	export GOV_NOTIFY_API_KEY=debug; \
+	export GOV_NOTIFY_SERVICE_NAME='Export Directory';
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);

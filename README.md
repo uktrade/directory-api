@@ -46,6 +46,9 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 | DIRECTORY_API_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
 | DIRECTORY_API_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
 | DIRECTORY_API_COMPANIES_HOUSE_API_KEY | COMPANIES_HOUSE_API_KEY |
+| DIRECTORY_API_GOV_NOTIFY_SERVICE_ID | GOV_NOTIFY_SERVICE_ID |
+| DIRECTORY_API_GOV_NOTIFY_API_KEY | GOV_NOTIFY_API_KEY |
+| DIRECTORY_API_GOV_NOTIFY_SERVICE_NAME | GOV_NOTIFY_SERVICE_NAME |
 
 #### Database
 | Host environment variable | Docker environment variable  |
@@ -90,6 +93,9 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 | AWS_ACCESS_KEY_ID | None | AWS access key ID |
 | AWS_SECRET_ACCESS_KEY | None | AWS secret access key |
 | COMPANIES_HOUSE_API_KEY | None | Auth key used when communicating with Companies House API
+| GOV_NOTIFY_SERVICE_ID | None | Gov notify service id |
+| GOV_NOTIFY_API_KEY | None | Gov notify api key |
+| GOV_NOTIFY_SERVICE_NAME | None | The name to included in an SMS when validating phone numbers |
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
