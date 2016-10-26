@@ -17,4 +17,4 @@ deployment:
     branch: master
     commands:
       - docker login --email=$HEROKU_EMAIL --username=$HEROKU_EMAIL --password=$HEROKU_API_KEY registry.heroku.com
-      - make heroku_deploy
+      - make heroku_deploy_dev
