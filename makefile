@@ -103,7 +103,7 @@ DEBUG_SET_ENV_VARS := \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug; \
 	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug
-	export CONFIRMATION_URL_TEMPLATE=http://localhost/confirm-email?confirmation_code=%s
+	export CONFIRMATION_URL_TEMPLATE=http://localhost/confirm-email?confirmation_code=%(confirmation_code)s
 	export CONFIRMATION_EMAIL_FROM=from@example.com
 	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'
 

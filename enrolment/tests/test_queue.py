@@ -75,12 +75,14 @@ class TestQueueWorker(MockBoto):
 
         email = VALID_REQUEST_DATA['company_email']
         user = User.objects.get()
-        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
+        url = settings.CONFIRMATION_URL_TEMPLATE.format(
+            confirmation_code=user.confirmation_code)
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == settings.CONFIRMATION_EMAIL_SUBJECT
         assert mail.outbox[0].from_email == settings.CONFIRMATION_EMAIL_FROM
         assert mail.outbox[0].to == [email]
-        url = settings.CONFIRMATION_URL_TEMPLATE % user.confirmation_code
+        url = settings.CONFIRMATION_URL_TEMPLATE.format(
+            confirmation_code=user.confirmation_code)
         assert url in mail.outbox[0].body
 
     @pytest.mark.django_db

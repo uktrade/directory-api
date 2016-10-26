@@ -47,7 +47,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [os.path.join(PROJECT_ROOT, 'templates')],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
