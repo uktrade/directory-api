@@ -8,7 +8,7 @@ from company.views import (
     CompanyRetrieveUpdateAPIView,
 )
 from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
-from enrolment.views import EnrolmentCreateAPIView
+from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 
 
 admin.autodiscover()

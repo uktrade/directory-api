@@ -44,8 +44,8 @@ class SendSMSVerificationAPIView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializers.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=True)
         sms_code = helpers.send_verification_code_via_sms(
-            phone_number=serializers.validated_data['phone_number'],
+            phone_number=serializer.validated_data['phone_number'],
         )
         return Response({'sms_code': sms_code})
