@@ -1,14 +1,5 @@
 build: docker_test
 
-heroku_deploy:
-	docker build -t registry.heroku.com/directory-api-dev/web .
-	docker push registry.heroku.com/directory-api-dev/web
-	# Heroku needs CMD to be set in the Dockerfile
-	sed -i -e 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
-	docker build -t registry.heroku.com/directory-api-dev/worker .
-	docker push registry.heroku.com/directory-api-dev/worker
-	sed -i -e 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
-
 clean:
 	-find . -type f -name "*.pyc" -delete
 	-find . -type d -name "__pycache__" -delete
@@ -97,6 +88,7 @@ docker_build:
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
+	export UI_SECRET=debug; \
 	export PORT=8000; \
 	export DEBUG=true; \
 	export DB_NAME=directory_api_debug; \
@@ -127,5 +119,22 @@ migrations:
 
 debug: test_requirements debug_db debug_test
 
+heroku_deploy_dev:
+	docker build -t registry.heroku.com/directory-api-dev/web .
+	docker push registry.heroku.com/directory-api-dev/web
+	# Heroku needs CMD to be set in the Dockerfile
+	sed -i -e 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
+	docker build -t registry.heroku.com/directory-api-dev/worker .
+	docker push registry.heroku.com/directory-api-dev/worker
+	sed -i -e 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy
+heroku_deploy_demo:
+	docker build -t registry.heroku.com/directory-api-demo/web .
+	docker push registry.heroku.com/directory-api-demo/web
+	# Heroku needs CMD to be set in the Dockerfile
+	sed -i -e 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
+	docker build -t registry.heroku.com/directory-api-demo/worker .
+	docker push registry.heroku.com/directory-api-demo/worker
+	sed -i -e 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
+
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy_dev heroku_deploy_demo
