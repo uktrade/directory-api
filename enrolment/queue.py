@@ -143,7 +143,7 @@ class Worker:
         )
 
     def process_enrolment(self, sqs_message_id, json_payload):
-        """Persis the message in enrolment.models.Enrolment
+        """Persist the message in enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID

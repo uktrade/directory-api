@@ -3,6 +3,9 @@ import json
 import pytest
 from rest_framework.serializers import ValidationError
 
+from django.conf import settings
+from django.core import mail
+
 import enrolment.queue
 import enrolment.models
 from enrolment.tests import (
@@ -60,6 +63,41 @@ class TestQueueWorker(MockBoto):
         assert instance.name == VALID_REQUEST_DATA['company_name']
         assert instance.export_status == VALID_REQUEST_DATA['export_status']
         assert instance.number == VALID_REQUEST_DATA['company_number']
+
+    @pytest.mark.django_db
+    def test_process_message_sends_confirmation_email(self):
+        worker = enrolment.queue.Worker()
+
+        worker.process_enrolment(
+            sqs_message_id='1',
+            json_payload=VALID_REQUEST_DATA_JSON
+        )
+
+        email = VALID_REQUEST_DATA['company_email']
+        user = User.objects.get()
+        url = settings.CONFIRMATION_URL_TEMPLATE.format(
+            confirmation_code=user.confirmation_code)
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].subject == settings.CONFIRMATION_EMAIL_SUBJECT
+        assert mail.outbox[0].from_email == settings.CONFIRMATION_EMAIL_FROM
+        assert mail.outbox[0].to == [email]
+        url = settings.CONFIRMATION_URL_TEMPLATE.format(
+            confirmation_code=user.confirmation_code)
+        assert url in mail.outbox[0].body
+
+    @pytest.mark.django_db
+    def test_process_message_saves_confirmation_code_to_db(self):
+        worker = enrolment.queue.Worker()
+
+        worker.process_enrolment(
+            sqs_message_id='1',
+            json_payload=VALID_REQUEST_DATA_JSON
+        )
+
+        user = User.objects.get()
+        assert user.confirmation_code
+        assert len(user.confirmation_code) == 36  # 36 random chars
+        assert user.company_email_confirmed is False
 
     @pytest.mark.django_db
     def test_save_company_handles_exception(self):

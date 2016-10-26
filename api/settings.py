@@ -47,7 +47,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(PROJECT_ROOT, 'templates')],
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -184,3 +184,8 @@ AUTH_USER_MODEL = 'user.User'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
 
 COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
+
+# Settings for Confirmation Emails
+CONFIRMATION_EMAIL_SUBJECT = os.getenv("CONFIRMATION_EMAIL_SUBJECT")
+CONFIRMATION_EMAIL_FROM = os.getenv("CONFIRMATION_EMAIL_FROM")
+CONFIRMATION_URL_TEMPLATE = os.getenv("CONFIRMATION_URL_TEMPLATE")
