@@ -105,6 +105,7 @@ DEBUG_SET_ENV_VARS := \
 	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug
 	export CONFIRMATION_URL_TEMPLATE=http://localhost/confirm-email?confirmation_code=%s
 	export CONFIRMATION_EMAIL_FROM=from@example.com
+	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
@@ -121,10 +122,8 @@ DEBUG_CREATE_DB := \
 debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
 
-PYTEST_DEBUG := pytest . --cov=. -s $(pytest_args)
-
 debug_test:
-	$(DEBUG_SET_ENV_VARS) && $(PYTEST_DEBUG)
+	$(DEBUG_SET_ENV_VARS) && $(PYTEST)
 
 migrations:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment user company

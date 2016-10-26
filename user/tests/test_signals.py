@@ -6,11 +6,6 @@ from user.models import User
 from user.signals import send_confirmation_email
 
 
-GOV_NOTIFY_EMAIL_METHOD = (
-    'notifications_python_client.notifications'
-    '.NotificationsAPIClient.send_email_notification')
-
-
 @pytest.mark.django_db
 def test_receiver_sets_confirmation_code():
     sender = User

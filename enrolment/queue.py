@@ -143,14 +143,7 @@ class Worker:
         )
 
     def process_enrolment(self, sqs_message_id, json_payload):
-        """Persis the message in enrolment.models.Enrolment
-        # If there's an exception during email sending, the db
-        # transaction should complete and the exception should be logged
-        try:
-            self.send_confirmation_email(user)
-        except:
-            logger.exception("Error sending confirmation email to %s",
-                             payload['company_email'])
+        """Persist the message in enrolment.models.Enrolment
 
         Args:
             sqs_message_id (str): SQS message ID
