@@ -63,3 +63,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         })
         serializer.is_valid(raise_exception=True)
         return serializer.save()
+
+
+class SMSVerificationSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=20)

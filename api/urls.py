@@ -8,7 +8,7 @@ from company.views import (
     CompanyRetrieveUpdateAPIView,
 )
 from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
-from enrolment.views import EnrolmentCreateAPIView
+from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 
 
 admin.autodiscover()
@@ -34,6 +34,11 @@ urlpatterns = [
         name='enrolment'
     ),
     url(
+        r'enrolment/verification-sms/$',
+        SendSMSVerificationAPIView.as_view(),
+        name='verification-sms',
+    ),
+    url(
         r'company/details/(?P<pk>[0-9]+)/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
@@ -57,7 +62,6 @@ urlpatterns = [
         r'company/companies-house-profile/$',
         CompaniesHouseProfileDetailsAPIView.as_view(),
         name='companies-house-profile',
-    )
-
+    ),
 
 ]
