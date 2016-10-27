@@ -44,7 +44,6 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug; \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_ID=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_API_KEY=debug; \
-	export DIRECTORY_API_GOV_NOTIFY_SERVICE_NAME='Export Directory'; \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
 	export DIRECTORY_API_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-email?confirmation_code=%(confirmation_code)s"; \
 	export DIRECTORY_API_CONFIRMATION_EMAIL_FROM=from@example.com; \
@@ -107,7 +106,6 @@ DEBUG_SET_ENV_VARS := \
 	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'; \
 	export GOV_NOTIFY_SERVICE_ID=debug; \
 	export GOV_NOTIFY_API_KEY=debug; \
-	export GOV_NOTIFY_SERVICE_NAME='Export Directory'; \
 	export GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1
 
 debug_webserver:
