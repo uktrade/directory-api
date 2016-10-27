@@ -22,7 +22,7 @@ services:
   queue_worker:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-worker
     depends_on: [webserver]
     links: [postgres]
     working_dir: /usr/src/app

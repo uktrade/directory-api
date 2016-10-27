@@ -87,7 +87,6 @@ DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
 docker_test: docker_remove_all
 	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
-	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	$(DOCKER_COMPOSE_CREATE_TEST_ENVS) && \
 	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
@@ -146,19 +145,13 @@ debug: test_requirements debug_db debug_test
 heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
-	# Heroku needs CMD to be set in the Dockerfile
-	sed -i '' 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
-	docker build -t registry.heroku.com/directory-api-dev/worker .
+	docker build -t registry.heroku.com/directory-api-dev/worker -f Dockerfile-worker .
 	docker push registry.heroku.com/directory-api-dev/worker
-	sed -i '' 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
 
 heroku_deploy_demo:
 	docker build -t registry.heroku.com/directory-api-demo/web .
 	docker push registry.heroku.com/directory-api-demo/web
-	# Heroku needs CMD to be set in the Dockerfile
-	sed -i '' 's/cmd-webserver.sh/cmd-queue_worker.sh/' Dockerfile
-	docker build -t registry.heroku.com/directory-api-demo/worker .
+	docker build -t registry.heroku.com/directory-api-demo/worker -f Dockerfile-worker .
 	docker push registry.heroku.com/directory-api-demo/worker
-	sed -i '' 's/cmd-queue_worker.sh/cmd-webserver.sh/' Dockerfile
 
 .PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy_dev heroku_deploy_demo
