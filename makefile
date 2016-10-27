@@ -45,6 +45,11 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_ID=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_API_KEY=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
+	export DIRECTORY_API_EMAIL_HOST=debug; \
+	export DIRECTORY_API_EMAIL_PORT=debug; \
+	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
+	export DIRECTORY_API_EMAIL_HOST_PASSWORD=debug; \
+	export DIRECTORY_API_DEFAULT_FROM_EMAIL=debug; \
 	export DIRECTORY_API_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-email?confirmation_code=%(confirmation_code)s"; \
 	export DIRECTORY_API_CONFIRMATION_EMAIL_FROM=from@example.com; \
 	export DIRECTORY_API_CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'
@@ -101,6 +106,13 @@ DEBUG_SET_ENV_VARS := \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug; \
 	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug; \
+	export SQS_ENROLMENT_QUEUE_NAME=debug; \
+	export SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
+	export EMAIL_HOST=debug; \
+	export EMAIL_PORT=debug; \
+	export EMAIL_HOST_USER=debug; \
+	export EMAIL_HOST_PASSWORD=debug; \
+	export DEFAULT_FROM_EMAIL=debug; \
 	export CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-email?confirmation_code=%(confirmation_code)s"; \
 	export CONFIRMATION_EMAIL_FROM=from@example.com; \
 	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'; \
