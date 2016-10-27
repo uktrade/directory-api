@@ -18,7 +18,6 @@ def send_verification_code_via_sms(phone_number):
         phone_number,
         settings.GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME,
         personalisation={
-            'service_name': settings.GOV_NOTIFY_SERVICE_NAME,
             'verification_code': verification_code,
         }
     )
