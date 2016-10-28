@@ -1,4 +1,6 @@
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import (
+    GenericAPIView, RetrieveUpdateAPIView, get_object_or_404
+)
 from rest_framework.response import Response
 
 from django.http import HttpResponse
@@ -43,6 +45,5 @@ class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def get_object(self):
 
-        return User.objects.get(
-            sso_id=self.kwargs['sso_user_id']
-        ).company
+        user = get_object_or_404(User, sso_id=self.kwargs['sso_user_id'])
+        return user.company

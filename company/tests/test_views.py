@@ -55,6 +55,22 @@ class CompanyViewsTests(TestCase):
         assert response.json() == expected
 
     @pytest.mark.django_db
+    def test_company_retrieve_view_404(self):
+        client = APIClient()
+        company = Company.objects.create(**VALID_REQUEST_DATA)
+        User.objects.create(
+            sso_id=1,
+            company_email='harry.potter@hogwarts.com',
+            company=company,
+        )
+
+        response = client.get(reverse(
+            'company', kwargs={'sso_user_id': 0}
+        ))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.django_db
     def test_company_update_view_with_put(self):
         client = APIClient()
         company = Company.objects.create(
