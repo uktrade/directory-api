@@ -1,5 +1,4 @@
-from django.conf.urls import url, include
-from django.contrib import admin
+from django.conf.urls import url
 
 from api.views import documentation, HealthCheckAPIView
 from company.views import (
@@ -10,9 +9,6 @@ from company.views import (
 from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 
-
-admin.autodiscover()
-
 urlpatterns = [
     url(
         r'^$',
@@ -20,10 +16,6 @@ urlpatterns = [
         name='health-check'
     ),
 
-    url(
-        r'^admin/',
-        include(admin.site.urls)
-    ),
     url(
         r'^docs/$',
         documentation
@@ -39,12 +31,12 @@ urlpatterns = [
         name='verification-sms',
     ),
     url(
-        r'company/details/(?P<pk>[0-9]+)/$',
+        r'company/details/(?P<sso_user_id>[0-9]+)/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
     ),
     url(
-        r'user/(?P<pk>[0-9]+)/$',
+        r'user/(?P<sso_id>[0-9]+)/$',
         UserRetrieveUpdateAPIView.as_view(),
         name='user'
     ),

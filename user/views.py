@@ -12,6 +12,7 @@ from user.models import User
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     queryset = User.objects.all()
+    lookup_field = 'sso_id'
     serializer_class = UserSerializer
 
 
@@ -28,13 +29,15 @@ class ConfirmCompanyEmailAPIView(APIView):
 
         try:
             user = User.objects.get(
-                confirmation_code=serializer.data['confirmation_code']
+                company_email_confirmation_code=serializer.data[
+                    'company_email_confirmation_code'
+                ]
             )
         except User.DoesNotExist:
             response_status_code = status.HTTP_400_BAD_REQUEST
             response_data = json.dumps({
                 "status_code": response_status_code,
-                "detail": "Invalid confirmation code"
+                "detail": "Invalid company email confirmation code"
             })
         else:
             user.company_email_confirmed = True

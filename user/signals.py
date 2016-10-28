@@ -9,14 +9,16 @@ def send_confirmation_email(sender, instance, created, *args, **kwargs):
     if not created or not instance.company_email:
         return
 
-    if not instance.confirmation_code:
-        instance.confirmation_code = str(uuid.uuid4())
+    if not instance.company_email_confirmation_code:
+        instance.company_email_confirmation_code = str(uuid.uuid4())
         instance.save()
 
-    subject = settings.CONFIRMATION_EMAIL_SUBJECT
-    from_email = settings.CONFIRMATION_EMAIL_FROM
-    url = settings.CONFIRMATION_URL_TEMPLATE.format(
-        confirmation_code=instance.confirmation_code)
+    subject = settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
+    from_email = settings.COMPANY_EMAIL_CONFIRMATION_FROM
+    company_email_confirmation_code = instance.company_email_confirmation_code
+    url = settings.COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE.format(
+        company_email_confirmation_code=company_email_confirmation_code
+    )
 
     context = {'confirmation_url': url}
     text_body = render_to_string('confirmation_email.txt', context)

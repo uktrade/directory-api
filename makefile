@@ -42,6 +42,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug; \
+	export DIRECTORY_API_COMPANIES_HOUSE_API_KEY=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_ID=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_API_KEY=debug; \
 	export DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
@@ -50,9 +51,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
 	export DIRECTORY_API_EMAIL_HOST_PASSWORD=debug; \
 	export DIRECTORY_API_DEFAULT_FROM_EMAIL=debug; \
-	export DIRECTORY_API_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-email?confirmation_code=%(confirmation_code)s"; \
-	export DIRECTORY_API_CONFIRMATION_EMAIL_FROM=from@example.com; \
-	export DIRECTORY_API_CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-company-email?company_email_confirmation_code=%(company_email_confirmation_code)s"; \
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=from@example.com; \
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT='Confirm your email address'
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -112,9 +113,10 @@ DEBUG_SET_ENV_VARS := \
 	export EMAIL_HOST_USER=debug; \
 	export EMAIL_HOST_PASSWORD=debug; \
 	export DEFAULT_FROM_EMAIL=debug; \
-	export CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-email?confirmation_code=%(confirmation_code)s"; \
-	export CONFIRMATION_EMAIL_FROM=from@example.com; \
-	export CONFIRMATION_EMAIL_SUBJECT='Confirm your email address'; \
+	export COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-company-email?company_email_confirmation_code=%(company_email_confirmation_code)s"; \
+	export COMPANY_EMAIL_CONFIRMATION_FROM=from@example.com; \
+	export COMPANY_EMAIL_CONFIRMATION_SUBJECT='Confirm your email address'; \
+	export COMPANIES_HOUSE_API_KEY=debug; \
 	export GOV_NOTIFY_SERVICE_ID=debug; \
 	export GOV_NOTIFY_API_KEY=debug; \
 	export GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1
@@ -135,7 +137,10 @@ debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
 
 debug_test:
-	$(DEBUG_SET_ENV_VARS) && $(PYTEST)
+	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
+
+debug_shell:
+	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
 migrations:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment user company

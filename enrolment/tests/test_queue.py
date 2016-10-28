@@ -75,18 +75,26 @@ class TestQueueWorker(MockBoto):
 
         email = VALID_REQUEST_DATA['company_email']
         user = User.objects.get()
-        url = settings.CONFIRMATION_URL_TEMPLATE.format(
-            confirmation_code=user.confirmation_code)
+        company_email_confirmation_code = user.company_email_confirmation_code
+        url = settings.COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE.format(
+            company_email_confirmation_code=company_email_confirmation_code
+            )
         assert len(mail.outbox) == 1
-        assert mail.outbox[0].subject == settings.CONFIRMATION_EMAIL_SUBJECT
-        assert mail.outbox[0].from_email == settings.CONFIRMATION_EMAIL_FROM
+        assert mail.outbox[0].subject == (
+            settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
+        )
+        assert mail.outbox[0].from_email == (
+            settings.COMPANY_EMAIL_CONFIRMATION_FROM
+        )
         assert mail.outbox[0].to == [email]
-        url = settings.CONFIRMATION_URL_TEMPLATE.format(
-            confirmation_code=user.confirmation_code)
+        company_email_confirmation_code = user.company_email_confirmation_code
+        url = settings.COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE.format(
+            company_email_confirmation_code=company_email_confirmation_code
+        )
         assert url in mail.outbox[0].body
 
     @pytest.mark.django_db
-    def test_process_message_saves_confirmation_code_to_db(self):
+    def test_process_message_saves_company_email_confirmation_code_to_db(self):
         worker = enrolment.queue.Worker()
 
         worker.process_enrolment(
@@ -95,8 +103,9 @@ class TestQueueWorker(MockBoto):
         )
 
         user = User.objects.get()
-        assert user.confirmation_code
-        assert len(user.confirmation_code) == 36  # 36 random chars
+        assert user.company_email_confirmation_code
+        # 36 random chars
+        assert len(user.company_email_confirmation_code) == 36
         assert user.company_email_confirmed is False
 
     @pytest.mark.django_db

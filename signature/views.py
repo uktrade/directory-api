@@ -1,16 +1,12 @@
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from .authenticators import AlicePermission
+from signature.permissions import SignaturePermission
 
 
-class AliceMixin(object):
-    """
-    Mixin for ViewSets used by Alice clients which authenticate via Alice and
-    reflect on schema view.
-    """
+class SignatureMixin(object):
 
-    permission_classes = (AlicePermission,)
+    permission_classes = (SignaturePermission, )
 
     @list_route(methods=("get",))
     def schema(self, request):

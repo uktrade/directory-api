@@ -16,6 +16,7 @@ def documentation(request):
 
 class HealthCheckAPIView(APIView):
 
+    permission_classes = ()
     http_method_names = ("get", )
 
     def get(self, request, *args, **kwargs):

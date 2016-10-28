@@ -5,6 +5,7 @@ from directory_validators.constants import choices
 
 
 VALID_REQUEST_DATA = {
+    "sso_id": 1,
     "company_number": "01234567",
     "company_email": "test@example.com",
     "company_name": "Test Corp",
