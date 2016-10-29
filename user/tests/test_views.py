@@ -79,8 +79,8 @@ class UserViewsTests(TestCase):
 
         client = APIClient()
         response = client.post(
-            '/confirm-company-email/',
-            data={'company_email_confirmation_code': 12345678}
+            '/enrolment/confirm/',
+            data={'confirmation_code': 12345678}
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -106,12 +106,8 @@ class UserViewsTests(TestCase):
 
         client = APIClient()
         response = client.post(
-            '/confirm-company-email/',
-            data={
-                'company_email_confirmation_code': (
-                    company_email_confirmation_code
-                )
-            }
+            '/enrolment/confirm/',
+            data={'confirmation_code': company_email_confirmation_code}
         )
         assert response.status_code == status.HTTP_200_OK
 
