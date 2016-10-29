@@ -51,7 +51,7 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 | DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME | GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME |
 | DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT | COMPANY_EMAIL_CONFIRMATION_SUBJECT |
 | DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM | COMPANY_EMAIL_CONFIRMATION_FROM |
-| DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE | COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE |
+| DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL | COMPANY_EMAIL_CONFIRMATION_URL |
 
 #### Database
 | Host environment variable | Docker environment variable  |
@@ -101,7 +101,7 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 | GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME | None | The template to use when sending the validation SMS |
 | COMPANY_EMAIL_CONFIRMATION_SUBJECT | None | Subject line to use when sending email confirmation to user |
 | COMPANY_EMAIL_CONFIRMATION_FROM | None | Email address to use in 'from' when sending confirmation to user |
-| COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE | None | Template to when sending confirmation to user |
+| COMPANY_EMAIL_CONFIRMATION_URL | None | Template to when sending confirmation to user |
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
