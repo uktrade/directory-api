@@ -45,5 +45,5 @@ class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def get_object(self):
 
-        user = get_object_or_404(User, sso_id=self.kwargs['sso_user_id'])
+        user = get_object_or_404(User, sso_id=self.kwargs['sso_id'])
         return user.company

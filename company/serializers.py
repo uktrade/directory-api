@@ -17,6 +17,8 @@ class CompanySerializer(serializers.ModelSerializer):
             'number',
             'revenue',
             'website',
+            'sectors',
+            'logo',
         )
 
     def validate_website(self, value):

@@ -37,6 +37,8 @@ class Company(models.Model):
     sectors = models.CharField(
         max_length=8,
         choices=choices.COMPANY_CLASSIFICATIONS,
+        blank=True,
+        null=True,
     )
     website = models.URLField(
         max_length=255, blank=True, null=True,

@@ -46,10 +46,10 @@ class CompanyViewsTests(TestCase):
         )
 
         response = client.get(reverse(
-            'company', kwargs={'sso_user_id': user.sso_id}
+            'company', kwargs={'sso_id': user.sso_id}
         ))
 
-        expected = {'id': str(company.id)}
+        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
@@ -65,7 +65,7 @@ class CompanyViewsTests(TestCase):
         )
 
         response = client.get(reverse(
-            'company', kwargs={'sso_user_id': 0}
+            'company', kwargs={'sso_id': 0}
         ))
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -84,10 +84,10 @@ class CompanyViewsTests(TestCase):
         )
 
         response = client.put(
-            reverse('company', kwargs={'sso_user_id': user.sso_id}),
+            reverse('company', kwargs={'sso_id': user.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'id': str(company.id)}
+        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
@@ -107,10 +107,10 @@ class CompanyViewsTests(TestCase):
         )
 
         response = client.patch(
-            reverse('company', kwargs={'sso_user_id': user.sso_id}),
+            reverse('company', kwargs={'sso_id': user.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'id': str(company.id)}
+        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
