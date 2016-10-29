@@ -31,7 +31,7 @@ urlpatterns = [
         name='verification-sms',
     ),
     url(
-        r'company/details/(?P<sso_user_id>[0-9]+)/$',
+        r'user/(?P<sso_id>[0-9]+)/company/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
     ),
