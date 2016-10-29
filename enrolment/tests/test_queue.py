@@ -76,9 +76,7 @@ class TestQueueWorker(MockBoto):
         email = VALID_REQUEST_DATA['company_email']
         user = User.objects.get()
         company_email_confirmation_code = user.company_email_confirmation_code
-        url = settings.COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE.format(
-            company_email_confirmation_code=company_email_confirmation_code
-            )
+
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == (
             settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
@@ -87,9 +85,9 @@ class TestQueueWorker(MockBoto):
             settings.COMPANY_EMAIL_CONFIRMATION_FROM
         )
         assert mail.outbox[0].to == [email]
-        company_email_confirmation_code = user.company_email_confirmation_code
-        url = settings.COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE.format(
-            company_email_confirmation_code=company_email_confirmation_code
+        url = "{confirmation_url}?code={confirmation_code}".format(
+            confirmation_url=settings.COMPANY_EMAIL_CONFIRMATION_URL,
+            confirmation_code=company_email_confirmation_code
         )
         assert url in mail.outbox[0].body
 

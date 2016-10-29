@@ -51,9 +51,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
 	export DIRECTORY_API_EMAIL_HOST_PASSWORD=debug; \
 	export DIRECTORY_API_DEFAULT_FROM_EMAIL=debug; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-company-email?company_email_confirmation_code=%(company_email_confirmation_code)s"; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=from@example.com; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT='Confirm your email address'
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL=debug ;\
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -113,9 +113,9 @@ DEBUG_SET_ENV_VARS := \
 	export EMAIL_HOST_USER=debug; \
 	export EMAIL_HOST_PASSWORD=debug; \
 	export DEFAULT_FROM_EMAIL=debug; \
-	export COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE="http://localhost/confirm-company-email?company_email_confirmation_code=%(company_email_confirmation_code)s"; \
-	export COMPANY_EMAIL_CONFIRMATION_FROM=from@example.com; \
-	export COMPANY_EMAIL_CONFIRMATION_SUBJECT='Confirm your email address'; \
+	export COMPANY_EMAIL_CONFIRMATION_URL=debug; \
+	export COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
+	export COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export COMPANIES_HOUSE_API_KEY=debug; \
 	export GOV_NOTIFY_SERVICE_ID=debug; \
 	export GOV_NOTIFY_API_KEY=debug; \
