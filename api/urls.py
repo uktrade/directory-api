@@ -41,7 +41,7 @@ urlpatterns = [
         name='user'
     ),
     url(
-        r'confirm-company-email/$',
+        r'enrolment/confirm/$',
         ConfirmCompanyEmailAPIView.as_view(),
         name='confirm-company-email'
     ),

@@ -30,4 +30,4 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ConfirmCompanyEmailSerializer(serializers.Serializer):
 
-    company_email_confirmation_code = serializers.CharField()
+    confirmation_code = serializers.CharField()

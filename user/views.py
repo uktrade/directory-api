@@ -26,11 +26,10 @@ class ConfirmCompanyEmailAPIView(APIView):
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         try:
             user = User.objects.get(
                 company_email_confirmation_code=serializer.data[
-                    'company_email_confirmation_code'
+                    'confirmation_code'
                 ]
             )
         except User.DoesNotExist:
