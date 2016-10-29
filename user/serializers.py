@@ -5,23 +5,20 @@ from user import models
 
 class UserSerializer(serializers.ModelSerializer):
 
-    id = serializers.CharField(read_only=True)
-
     class Meta:
         model = models.User
         fields = (
+            'sso_id',
             'company',
-            'date_joined',
             'company_email',
-            'id',
             'mobile_number',
-            'password',
             'referrer',
             'terms_agreed',
+            'date_joined',
         )
         extra_kwargs = {
+            'sso_id': {'required': True},
             'company': {'required': False},
-            'password': {'write_only': True, 'required': False}
         }
 
     def validate_name(self, value):
@@ -33,4 +30,4 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ConfirmCompanyEmailSerializer(serializers.Serializer):
 
-    confirmation_code = serializers.CharField()
+    company_email_confirmation_code = serializers.CharField()

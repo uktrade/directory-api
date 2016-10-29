@@ -2,6 +2,7 @@ import json
 
 
 VALID_REQUEST_DATA = {
+    "sso_id": 1,
     "company_email": "gargoyle@example.com",
     "date_joined": "2017-03-21T13:12:00Z",
     "mobile_number": "07505605132",

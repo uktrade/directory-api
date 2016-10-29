@@ -34,7 +34,7 @@ def test_create_company_exception_rollback():
 
 
 @pytest.mark.django_db
-def test_create_user_exception_rollback():
+def test_create_exception_rollback():
     for i, exception_class in enumerate([Exception, ValidationError]):
         stub = Mock(side_effect=exception_class('!'))
 

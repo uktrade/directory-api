@@ -24,11 +24,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
-    "django_extensions",
-    "raven.contrib.django.raven_compat",
     "rest_framework",
     'rest_framework_swagger',
+    "raven.contrib.django.raven_compat",
+    'signature',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
@@ -36,9 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -63,12 +60,10 @@ TEMPLATES = [
     },
 ]
 
-
 WSGI_APPLICATION = 'api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
 DATABASES = {
     'default': dj_database_url.config()
 }
@@ -85,7 +80,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -108,24 +102,21 @@ for static_dir in STATICFILES_DIRS:
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Application authorisation
-UI_SECRET = os.getenv("UI_SECRET")
+UI_SECRET = os.environ["UI_SECRET"]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
-
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # DRF
 REST_FRAMEWORK = {
-    'UNAUTHENTICATED_USER': None
+    'DEFAULT_PERMISSION_CLASSES': (
+        'signature.permissions.SignaturePermission',
+    )
 }
-
-
 # Sentry
-
 RAVEN_CONFIG = {
     "dsn": os.getenv("SENTRY_DSN"),
 }
-
 
 # Logging for development
 if DEBUG:
@@ -159,15 +150,14 @@ if DEBUG:
 
 
 # SQS
-
 SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
 
-SQS_ENROLMENT_QUEUE_NAME = os.getenv(
-    "SQS_ENROLMENT_QUEUE_NAME", 'directory-enrolment'
-)
-SQS_INVALID_ENROLMENT_QUEUE_NAME = os.getenv(
-    "SQS_INVALID_ENROLMENT_QUEUE_NAME", 'directory-enrolment-invalid'
-)
+SQS_ENROLMENT_QUEUE_NAME = os.environ[
+    "SQS_ENROLMENT_QUEUE_NAME"
+]
+SQS_INVALID_ENROLMENT_QUEUE_NAME = os.environ[
+    "SQS_INVALID_ENROLMENT_QUEUE_NAME"
+]
 
 # Long polling time (how long boto client waits for messages during single
 # receive_messages call), in seconds, max is 20
@@ -178,17 +168,19 @@ SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
 # queue, max is 43200 (12 hours)
 SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
-# Auth
+# CH
+COMPANIES_HOUSE_API_KEY = os.environ['COMPANIES_HOUSE_API_KEY']
 
-AUTH_USER_MODEL = 'user.User'
-ACCOUNT_USER_MODEL_USERNAME_FIELD = 'company_email'
-
-COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
-
-# Settings for Confirmation Emails
-CONFIRMATION_EMAIL_SUBJECT = os.getenv("CONFIRMATION_EMAIL_SUBJECT")
-CONFIRMATION_EMAIL_FROM = os.getenv("CONFIRMATION_EMAIL_FROM")
-CONFIRMATION_URL_TEMPLATE = os.getenv("CONFIRMATION_URL_TEMPLATE")
+# Settings for company email confirmation
+COMPANY_EMAIL_CONFIRMATION_SUBJECT = os.environ[
+    "COMPANY_EMAIL_CONFIRMATION_SUBJECT"
+]
+COMPANY_EMAIL_CONFIRMATION_FROM = os.environ[
+    "COMPANY_EMAIL_CONFIRMATION_FROM"
+]
+COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE = os.environ[
+    "COMPANY_EMAIL_CONFIRMATION_URL_TEMPLATE"
+]
 
 # Email
 EMAIL_HOST = os.environ["EMAIL_HOST"]
@@ -198,8 +190,9 @@ EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
 
-GOV_NOTIFY_SERVICE_ID = os.getenv('GOV_NOTIFY_SERVICE_ID')
-GOV_NOTIFY_API_KEY = os.getenv('GOV_NOTIFY_API_KEY')
-GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME = os.getenv(
+# Notify
+GOV_NOTIFY_SERVICE_ID = os.environ['GOV_NOTIFY_SERVICE_ID']
+GOV_NOTIFY_API_KEY = os.environ['GOV_NOTIFY_API_KEY']
+GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME = os.environ[
     'GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME'
-)
+]

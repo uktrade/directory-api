@@ -34,6 +34,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 'number': validated_data['data']['company_number'],
             }
             validated_user_data = {
+                'sso_id': validated_data['data']['sso_id'],
                 'company_email': validated_data['data']['company_email'],
                 'mobile_number': validated_data['data']['mobile_number'],
                 'referrer': validated_data['data']['referrer'],
@@ -54,8 +55,10 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def create_user(self, company_email, mobile_number, referrer, company):
+    def create_user(
+            self, sso_id, company_email, mobile_number, referrer, company):
         serializer = UserSerializer(data={
+            'sso_id': sso_id,
             'company_email': company_email,
             'referrer': referrer,
             'mobile_number': mobile_number,
