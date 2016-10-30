@@ -70,6 +70,17 @@ class QueueService:
         sqs (boto3.resource): SQS connection
     """
     queue_name = ''
+    __instance = None
+
+    def __new__(cls):
+        """
+        Implements singleton pattern to avoid creating new connection to SQS
+        each time the class is called.
+        """
+        if QueueService.__instance is None:
+            QueueService.__instance = object.__new__(cls)
+
+        return QueueService.__instance
 
     def __init__(self):
         if not self.queue_name:

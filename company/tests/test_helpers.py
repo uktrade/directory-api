@@ -1,4 +1,5 @@
 import http
+from unittest.mock import Mock
 
 import requests_mock
 from company import helpers
@@ -35,3 +36,22 @@ def test_get_companies_house_profile():
         )
         response = helpers.get_companies_house_profile('01234567')
     assert response.json() == profile
+
+
+def test_path_and_rename_instance_pk():
+    instance = Mock(pk=1)
+    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a.jpg')
+    assert actual == 'this/is/a/folder/1.jpg'
+
+
+def test_path_and_rename_no_instance():
+    instance = Mock(pk=None)
+    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a.jpg')
+    assert actual.startswith('this/is/a/folder/')
+    assert actual.endswith('.jpg')
+
+
+def test_path_and_rename_no_extension():
+    instance = Mock(pk=1)
+    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a')
+    assert actual == 'this/is/a/folder/1'

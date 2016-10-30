@@ -7,6 +7,9 @@ class CompanySerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
     sectors = serializers.JSONField(required=False)
+    logo = serializers.ImageField(
+        max_length=None, allow_empty_file=False, use_url=True, required=False
+    )
 
     class Meta(object):
         model = models.Company
