@@ -1,7 +1,7 @@
 from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
 
-from company.utils import path_and_rename
+from company import helpers
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
@@ -31,7 +31,7 @@ class Company(models.Model):
     )
     keywords = models.TextField(blank=True, null=True, default='')
     logo = models.FileField(
-        upload_to=path_and_rename('company_logos'),
+        upload_to=helpers.path_and_rename('company_logos'),
         blank=True,
         null=True
     )
