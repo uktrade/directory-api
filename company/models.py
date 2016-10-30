@@ -2,6 +2,7 @@ from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
 
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 
 class Company(models.Model):
@@ -14,13 +15,17 @@ class Company(models.Model):
     description = models.TextField(blank=True, null=True, default='')
     employees = models.CharField(
         max_length=20,
-        choices=choices.EMPLOYEES
+        choices=choices.EMPLOYEES,
+        blank=True,
+        null=True,
+        default=''
     )
     export_status = models.CharField(
         max_length=20,
         choices=choices.EXPORT_STATUSES,
         validators=[shared_validators.export_status_intention]
     )
+    keywords = models.TextField(blank=True, null=True, default='')
     logo = models.FileField(blank=True, null=True)
     name = models.CharField(max_length=255)
     number = models.CharField(
@@ -34,9 +39,7 @@ class Company(models.Model):
         blank=True,
         null=True,
     )
-    sectors = models.CharField(
-        max_length=8,
-        choices=choices.COMPANY_CLASSIFICATIONS,
+    sectors = JSONField(
         blank=True,
         null=True,
     )

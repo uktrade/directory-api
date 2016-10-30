@@ -49,7 +49,13 @@ class CompanyViewsTests(TestCase):
             'company', kwargs={'sso_id': user.sso_id}
         ))
 
-        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
+        expected = {
+            'id': str(company.id),
+            'logo': None,
+            'sectors': None,
+            'employees': '',
+            'keywords': '',
+        }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
@@ -87,7 +93,13 @@ class CompanyViewsTests(TestCase):
             reverse('company', kwargs={'sso_id': user.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
+        expected = {
+            'id': str(company.id),
+            'logo': None,
+            'sectors': None,
+            'employees': '',
+            'keywords': '',
+        }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
@@ -110,7 +122,13 @@ class CompanyViewsTests(TestCase):
             reverse('company', kwargs={'sso_id': user.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'id': str(company.id), 'logo': None, 'sectors': None}
+        expected = {
+            'id': str(company.id),
+            'logo': None,
+            'sectors': None,
+            'employees': '',
+            'keywords': '',
+        }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
