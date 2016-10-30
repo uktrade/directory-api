@@ -16,10 +16,6 @@ class EnrolmentCreateAPIView(CreateAPIView):
     serializer_class = serializers.EnrolmentSerializer
     http_method_names = ("post", )
 
-    def __init__(self, *args, **kwargs):
-        super(EnrolmentCreateAPIView, self).__init__(*args, **kwargs)
-        self.enrolment_queue = enrolment.queue.Enrolment()
-
     def create(self, request, *args, **kwargs):
         """Sends valid request data to enrolment SQS queue"""
         serializer = self.get_serializer(data={
@@ -27,7 +23,7 @@ class EnrolmentCreateAPIView(CreateAPIView):
         })
         serializer.is_valid(raise_exception=True)
 
-        self.enrolment_queue.send(
+        enrolment.queue.Enrolment().send(
             data=json.dumps(request.data, ensure_ascii=False)
         )
 
