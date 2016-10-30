@@ -6,19 +6,22 @@ from company import models, validators
 class CompanySerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
+    sectors = serializers.JSONField(required=False)
 
     class Meta(object):
         model = models.Company
         fields = (
             'description',
+            'employees',
             'export_status',
             'id',
+            'keywords',
+            'logo',
             'name',
             'number',
             'revenue',
-            'website',
             'sectors',
-            'logo',
+            'website',
         )
 
     def validate_website(self, value):
