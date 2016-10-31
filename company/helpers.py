@@ -1,3 +1,5 @@
+from django.utils.deconstruct import deconstructible
+
 import os
 import http
 import logging
@@ -24,15 +26,16 @@ def get_companies_house_profile(number):
     return companies_house_client(url)
 
 
-def path_and_rename(path):
-    def wrapper(instance, filename):
+@deconstructible
+class PathAndRename:
+
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
         _, ext = os.path.splitext(filename)
-        # get filename
-        prefix = str(instance.pk) if instance.pk else uuid4().hex
-        if ext:
-            filename = '{}{}'.format(prefix, ext)
-        else:
-            filename = prefix
-        # return the whole path to the file
-        return os.path.join(path, filename)
-    return wrapper
+        random_filename = '{}{}'.format(uuid4().hex, ext)
+        return os.path.join(self.path, random_filename)
+
+
+path_and_rename_logos = PathAndRename(sub_path="/company_logos")

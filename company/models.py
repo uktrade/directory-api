@@ -31,7 +31,7 @@ class Company(models.Model):
     )
     keywords = models.TextField(blank=True, null=True, default='')
     logo = models.FileField(
-        upload_to=helpers.path_and_rename('company_logos'),
+        upload_to=helpers.path_and_rename_logos,
         blank=True,
         null=True
     )
