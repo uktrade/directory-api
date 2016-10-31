@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from user import models
+from user import models, validators
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -31,3 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
 class ConfirmCompanyEmailSerializer(serializers.Serializer):
 
     confirmation_code = serializers.CharField()
+
+
+class UserEmailValidatorSerializer(serializers.Serializer):
+    company_email = serializers.CharField(validators=[
+        validators.email_unique,
+    ])

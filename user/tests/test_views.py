@@ -10,7 +10,11 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.models import User
-from user.tests import VALID_REQUEST_DATA
+from user.tests import (
+    VALID_REQUEST_DATA,
+    MockInvalidSerializer,
+    MockValidSerializer
+)
 
 
 class UserViewsTests(TestCase):
@@ -118,3 +122,25 @@ class UserViewsTests(TestCase):
         assert User.objects.get(
             sso_id=user.sso_id
         ).company_email_confirmed is True
+
+    @pytest.mark.django_db
+    @patch('user.views.UserEmailValidatorAPIView.get_serializer')
+    def test_user_email_validator_rejects_invalid_serializer(
+            self, mock_get_serializer):
+
+        client = APIClient()
+        serializer = MockInvalidSerializer(data={})
+        mock_get_serializer.return_value = serializer
+        response = client.get(reverse('validate-email-address'), {})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == serializer.errors
+
+    @pytest.mark.django_db
+    @patch('user.views.UserEmailValidatorAPIView.get_serializer')
+    def test_user_email_validator_accepts_valid_serializer(
+            self, mock_get_serializer):
+
+        client = APIClient()
+        mock_get_serializer.return_value = MockValidSerializer(data={})
+        response = client.get(reverse('validate-email-address'), {})
+        assert response.status_code == status.HTTP_200_OK

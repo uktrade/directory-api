@@ -1,12 +1,26 @@
 import json
 
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.serializers import UserSerializer, ConfirmCompanyEmailSerializer
+from user.serializers import (
+    ConfirmCompanyEmailSerializer,
+    UserEmailValidatorSerializer,
+    UserSerializer,
+)
 from user.models import User
+
+
+class UserEmailValidatorAPIView(GenericAPIView):
+
+    serializer_class = UserEmailValidatorSerializer
+
+    def get(self, request, *args, **kwargs):
+        validator = self.get_serializer(data=request.GET)
+        validator.is_valid(raise_exception=True)
+        return Response()
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
