@@ -6,7 +6,11 @@ from company.views import (
     CompanyNumberValidatorAPIView,
     CompanyRetrieveUpdateAPIView,
 )
-from user.views import UserRetrieveUpdateAPIView, ConfirmCompanyEmailAPIView
+from user.views import (
+    UserRetrieveUpdateAPIView,
+    ConfirmCompanyEmailAPIView,
+    UserEmailValidatorAPIView
+)
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 
 urlpatterns = [
@@ -49,6 +53,11 @@ urlpatterns = [
         r'validate-company-number/$',
         CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
+    ),
+    url(
+        r'validate-email-address/$',
+        UserEmailValidatorAPIView.as_view(),
+        name='validate-email-address'
     ),
     url(
         r'company/companies-house-profile/$',

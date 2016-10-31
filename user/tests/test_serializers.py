@@ -1,7 +1,7 @@
 import pytest
 
 from company.models import Company
-from user.serializers import UserSerializer
+from user import serializers, validators
 from user.tests import VALID_REQUEST_DATA
 
 
@@ -12,7 +12,7 @@ def test_user_serializer_defaults_to_empty_string():
         "company_email": "henry@example.com",
         "mobile_number": '07507605133',
     }
-    serializer = UserSerializer(data=data)
+    serializer = serializers.UserSerializer(data=data)
     assert serializer.is_valid()
 
     user = serializer.save()
@@ -31,7 +31,7 @@ def test_user_serializer_translates_none_to_empty_string():
         "referrer": None,
         "mobile_number": '07507605133',
     }
-    serializer = UserSerializer(data=data)
+    serializer = serializers.UserSerializer(data=data)
     assert serializer.is_valid()
     user = serializer.save()
 
@@ -42,7 +42,7 @@ def test_user_serializer_translates_none_to_empty_string():
 
 @pytest.mark.django_db
 def test_user_serializer_save():
-    serializer = UserSerializer(data=VALID_REQUEST_DATA)
+    serializer = serializers.UserSerializer(data=VALID_REQUEST_DATA)
     serializer.is_valid()
 
     user = serializer.save()
@@ -61,8 +61,15 @@ def test_user_with_company_serializer_save():
     company = Company.objects.create()
     data = VALID_REQUEST_DATA.copy()
     data['company'] = company.pk
-    serializer = UserSerializer(data=data)
+    serializer = serializers.UserSerializer(data=data)
     serializer.is_valid()
 
     user = serializer.save()
     assert user.company == company
+
+
+def test_email_unique_serializer_validators():
+    serializer = serializers.UserEmailValidatorSerializer()
+    field = serializer.get_fields()['company_email']
+
+    assert validators.email_unique in field.validators
