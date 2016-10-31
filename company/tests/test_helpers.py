@@ -1,5 +1,6 @@
 import http
 from unittest.mock import Mock
+from unittest import mock
 
 import requests_mock
 from company import helpers
@@ -36,6 +37,19 @@ def test_get_companies_house_profile():
         )
         response = helpers.get_companies_house_profile('01234567')
     assert response.json() == profile
+
+
+def test_path_and_rename_logos_name_is_uuid():
+    instance = Mock(pk=1)
+
+    with mock.patch('uuid.uuid4') as uuid_mock:
+        uuid_mock.hex.return_value = 'mocked_uuid_hex'
+        actual = helpers.path_and_rename_logos(instance, 'a.jpg')
+
+    assert actual.startswith('/company_logos')
+    # PK should not be in the filename
+    assert actual != '/company_logos/mocked_uuid_hex.jpg'
+    assert actual.endswith('.jpg')
 
 
 def test_path_and_rename_logos_instance_pk():
