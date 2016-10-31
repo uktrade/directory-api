@@ -38,20 +38,26 @@ def test_get_companies_house_profile():
     assert response.json() == profile
 
 
-def test_path_and_rename_instance_pk():
+def test_path_and_rename_logos_instance_pk():
     instance = Mock(pk=1)
-    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a.jpg')
-    assert actual == 'this/is/a/folder/1.jpg'
+    actual = helpers.path_and_rename_logos(instance, 'a.jpg')
 
-
-def test_path_and_rename_no_instance():
-    instance = Mock(pk=None)
-    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a.jpg')
-    assert actual.startswith('this/is/a/folder/')
+    assert actual.startswith('/company_logos')
+    # PK should not be in the filename
+    assert actual != '/company_logos/1.jpg'
     assert actual.endswith('.jpg')
 
 
-def test_path_and_rename_no_extension():
+def test_path_and_rename_logos_no_instance():
+    instance = Mock(pk=None)
+    actual = helpers.path_and_rename_logos(instance, 'a.jpg')
+
+    assert actual.startswith('/company_logos')
+    assert actual.endswith('.jpg')
+
+
+def test_path_and_rename_logos_no_extension():
     instance = Mock(pk=1)
-    actual = helpers.path_and_rename('this/is/a/folder')(instance, 'a')
-    assert actual == 'this/is/a/folder/1'
+    actual = helpers.path_and_rename_logos(instance, 'a')
+
+    assert actual.startswith('/company_logos')
