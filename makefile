@@ -77,17 +77,12 @@ docker_webserver_bash:
 	docker exec -it directoryapi_webserver_1 sh
 
 docker_queue_worker_bash:
-	docker exec -it directoryapi_queue_worker_1 sh
+	docker exec -it directoryapi_queue_worker_run_1 sh
 
 docker_psql:
 	docker-compose run postgres psql -h postgres -U debug
 
-DOCKER_SET_DEBUG_AWS_ACCESS_ENVS := \
-	export DIRECTORY_API_AWS_ACCESS_KEY_ID=test; \
-	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=test
-
 docker_test: docker_remove_all
-	$(DOCKER_SET_DEBUG_AWS_ACCESS_ENVS) && \
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	$(DOCKER_COMPOSE_CREATE_TEST_ENVS) && \

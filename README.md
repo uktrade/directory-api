@@ -32,34 +32,6 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 ### Host environment variables for docker-compose
 ``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make docker_test``, based on host environment variables with ``DIRECTORY_API_`` prefix.
 
-#### Web server and queue worker
-| Host environment variable | Docker environment variable  |
-| ------------- | ------------- |
-| DIRECTORY_API_SQS_REGION_NAME | SQS_REGION_NAME |
-| DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME | SQS_ENROLMENT_QUEUE_NAME |
-| DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME | SQS_INVALID_ENROLMENT_QUEUE_NAME |
-| DIRECTORY_API_SQS_WAIT_TIME | SQS_WAIT_TIME |
-| DIRECTORY_API_SQS_MAX_NUMBER_OF_MESSAGES | SQS_MAX_NUMBER_OF_MESSAGES |
-| DIRECTORY_API_SQS_VISIBILITY_TIMEOUT | SQS_VISIBILITY_TIMEOUT |
-| DIRECTORY_API_SECRET_KEY | SECRET_KEY |
-| DIRECTORY_API_DATABASE_URL | DATABASE_URL |
-| DIRECTORY_API_AWS_ACCESS_KEY_ID | AWS_ACCESS_KEY_ID |
-| DIRECTORY_API_AWS_SECRET_ACCESS_KEY | AWS_SECRET_ACCESS_KEY |
-| DIRECTORY_API_COMPANIES_HOUSE_API_KEY | COMPANIES_HOUSE_API_KEY |
-| DIRECTORY_API_GOV_NOTIFY_SERVICE_ID | GOV_NOTIFY_SERVICE_ID |
-| DIRECTORY_API_GOV_NOTIFY_API_KEY | GOV_NOTIFY_API_KEY |
-| DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME | GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME |
-| DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT | COMPANY_EMAIL_CONFIRMATION_SUBJECT |
-| DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM | COMPANY_EMAIL_CONFIRMATION_FROM |
-| DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL | COMPANY_EMAIL_CONFIRMATION_URL |
-
-#### Database
-| Host environment variable | Docker environment variable  |
-| ------------- | ------------- |
-| DIRECTORY_API_POSTGRES_USER | POSTGRES_USER |
-| DIRECTORY_API_POSTGRES_PASSWORD | POSTGRES_PASSWORD |
-| DIRECTORY_API_POSTGRES_DB | POSTGRES_DB |
-
 ## Debugging
 
 ### Setup debug environment
@@ -79,29 +51,6 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 ### Run debug tests
 
     $ make debug_test
-
-
-## Environment variables
-
-| Environment variable | Default value | Description 
-| ------------- | ------------- | ------------- | ------------- |
-| SQS_REGION_NAME | eu-west-1 | AWS region name |
-| SQS_ENROLMENT_QUEUE_NAME | directory-enrolment | AWS SQS enrolment queue name  |
-| SQS_INVALID_ENROLMENT_QUEUE_NAME | directory-enrolment-invalid | AWS SQS invalid messages queue name |
-| SQS_WAIT_TIME | 20 (max value) | [AWS SQS Long Polling](docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-long-polling.html) - how long to wait for messages on a single boto API call |
-| SQS_MAX_NUMBER_OF_MESSAGES | 10 (max value) | How many messages to receive on a single boto API call |
-| SQS_VISIBILITY_TIMEOUT | 21600 (6 hours, max value is 43200) | Time after which retrieved but not deleted messages will return to the queue |
-| SECRET_KEY | None | Django secret key |
-| DATABASE_URL | None | Postgres database url |
-| AWS_ACCESS_KEY_ID | None | AWS access key ID |
-| AWS_SECRET_ACCESS_KEY | None | AWS secret access key |
-| COMPANIES_HOUSE_API_KEY | None | Auth key used when communicating with Companies House API
-| GOV_NOTIFY_SERVICE_ID | None | Gov notify service id |
-| GOV_NOTIFY_API_KEY | None | Gov notify api key |
-| GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME | None | The template to use when sending the validation SMS |
-| COMPANY_EMAIL_CONFIRMATION_SUBJECT | None | Subject line to use when sending email confirmation to user |
-| COMPANY_EMAIL_CONFIRMATION_FROM | None | Email address to use in 'from' when sending confirmation to user |
-| COMPANY_EMAIL_CONFIRMATION_URL | None | Template to when sending confirmation to user |
 
 ## Architecture
 Web server -> Amazon SQS Queue -> Queue worker -> Database
