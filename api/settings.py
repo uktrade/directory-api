@@ -198,7 +198,7 @@ GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME = os.environ[
 ]
 
 # Public storage for company profile logo
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
