@@ -12,6 +12,7 @@ from user.views import (
     UserEmailValidatorAPIView
 )
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
+from buyer.views import BuyerCreateAPIView
 
 urlpatterns = [
     url(
@@ -63,6 +64,11 @@ urlpatterns = [
         r'company/companies-house-profile/$',
         CompaniesHouseProfileDetailsAPIView.as_view(),
         name='companies-house-profile',
+    ),
+    url(
+        r'buyer/$',
+        BuyerCreateAPIView.as_view(),
+        name='buyer-create',
     ),
 
 ]

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
+    'buyer.apps.BuyerConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
