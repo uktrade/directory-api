@@ -8,17 +8,19 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = (
-            'sso_id',
             'company',
             'company_email',
+            'company_email_confirmed',
+            'date_joined',
             'mobile_number',
             'referrer',
+            'sso_id',
             'terms_agreed',
-            'date_joined',
         )
         extra_kwargs = {
             'sso_id': {'required': True},
             'company': {'required': False},
+            'company_email_confirmed': {'required': False}
         }
 
     def validate_name(self, value):
