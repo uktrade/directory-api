@@ -75,59 +75,6 @@ class Worker:
             gc.collect()
 
     @staticmethod
-    def is_valid_enrolment(message_body):
-        """Returns True if message body is valid models.Enrolment
-
-        Args:
-            message_body (SQS.Message.body): SQS message body
-
-        Returns:
-            boolean: True if valid, False if not
-        """
-        serializer = serializers.EnrolmentSerializer(
-            data={'data': message_body}
-        )
-        return serializer.is_valid()
-
-    def process_message(self, message):
-        """Creates new models.Enrolment if message body is a valid
-        enrolment, otherwise sends it to the invalid enrolments queue
-
-        Args:
-            message (SQS.Message): message to process
-        """
-        logger.debug(
-            "Processing message '{}'".format(message.message_id)
-        )
-        if self.is_valid_enrolment(message.body):
-            try:
-                self.process_enrolment(
-                    json_payload=message.body,
-                    sqs_message_id=message.message_id,
-                )
-            except ValidationError:
-                logging.exception("Failed to process enrolment")
-            except IntegrityError as exc:
-                if self.is_postgres_unique_violation_error(exc):
-                    logging.warning(
-                        "Message '{}' has already been processed".format(
-                            message.message_id,
-                        )
-                    )
-                else:
-                    raise
-        else:
-            logger.error(
-                "Message '{}' body is not a valid enrolment, sending it to "
-                "invalid messages queue".format(
-                    message.message_id
-                )
-            )
-            self.invalid_enrolment_queue.send(data=message.body)
-
-        message.delete()
-
-    @staticmethod
     def is_postgres_unique_violation_error(exception):
         """Returns true if exception is psycopg2 UNIQUE_VIOLATION error
 
@@ -142,16 +89,46 @@ class Worker:
             exception.pgcode == UNIQUE_VIOLATION
         )
 
-    def process_enrolment(self, sqs_message_id, json_payload):
-        """Persist the message in enrolment.models.Enrolment
+    def process_message(self, message):
+        """Creates new models.Enrolment if message body is a valid
+        enrolment, otherwise sends it to the invalid enrolments queue
 
         Args:
-            sqs_message_id (str): SQS message ID
-            json_payload (str): The message body. A JSON payload.
+            message (SQS.Message): message to process
         """
         logger.debug(
-            "Saving new enrolment from message '{}'".format(sqs_message_id)
+            "Processing message '{}'".format(message.message_id)
         )
+
+        try:
+            self.save_enrolment(
+                sqs_message_id=message.message_id,
+                json_payload=message.body
+            )
+
+        except (ValidationError, IntegrityError) as exc:
+
+            if self.is_postgres_unique_violation_error(exc):
+                logging.warning(
+                    "Message '{}' has already been processed".format(
+                        message.message_id,
+                    )
+                )
+            else:
+                self.invalid_enrolment_queue.send(data=message.body)
+
+                logging.exception(
+                    "Failed to process message '{}'".format(
+                        message.message_id
+                    )
+                )
+
+        # Delete the message only if it was sucessfully processed or caught by
+        # the exceptions above, as otherwise we want to leave it in the queue
+        message.delete()
+
+    def save_enrolment(self, sqs_message_id, json_payload):
+        """Creates new enrolment.models.Enrolment from the message"""
 
         serializer = serializers.EnrolmentSerializer(data={
             'sqs_message_id': sqs_message_id,
@@ -159,4 +136,9 @@ class Worker:
         })
 
         serializer.is_valid(raise_exception=True)
+
+        logger.debug(
+            "Saving new enrolment from message '{}'".format(sqs_message_id)
+        )
+
         return serializer.save()
