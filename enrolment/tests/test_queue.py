@@ -1,4 +1,5 @@
 import json
+from unittest import mock
 
 import pytest
 from rest_framework.serializers import ValidationError
@@ -17,20 +18,27 @@ from company.models import Company
 
 class TestQueueWorker(MockBoto):
 
-    def test_is_valid_enrolment(self):
-        assert not enrolment.queue.Worker.is_valid_enrolment(
-            'not valid'
-        )
-        assert enrolment.queue.Worker.is_valid_enrolment(
-            VALID_REQUEST_DATA_JSON
-        )
-
     @pytest.mark.django_db
-    def test_process_message_creates_enrolment(self):
+    def test_process_message_deletes_message(self):
         """ Test processing a message creates a new .models.Enrolment object
         """
         worker = enrolment.queue.Worker()
-        worker.process_enrolment(
+        message = mock.Mock(
+            message_id='1',
+            body=VALID_REQUEST_DATA_JSON
+        )
+        worker.process_message(message)
+        instance = enrolment.models.Enrolment.objects.last()
+
+        assert instance.data == VALID_REQUEST_DATA
+        message.delete.assert_called_once_with()
+
+    @pytest.mark.django_db
+    def test_save_enrolment_creates_enrolment(self):
+        """ Test processing a message creates a new .models.Enrolment object
+        """
+        worker = enrolment.queue.Worker()
+        worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
@@ -39,9 +47,9 @@ class TestQueueWorker(MockBoto):
         assert instance.data == VALID_REQUEST_DATA
 
     @pytest.mark.django_db
-    def test_process_message_creates_user(self):
+    def test_save_enrolment_creates_user(self):
         worker = enrolment.queue.Worker()
-        worker.process_enrolment(
+        worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
@@ -52,9 +60,9 @@ class TestQueueWorker(MockBoto):
         assert instance.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
     @pytest.mark.django_db
-    def test_process_message_creates_company(self):
+    def test_save_enrolment_creates_company(self):
         worker = enrolment.queue.Worker()
-        worker.process_enrolment(
+        worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
@@ -65,10 +73,10 @@ class TestQueueWorker(MockBoto):
         assert instance.number == VALID_REQUEST_DATA['company_number']
 
     @pytest.mark.django_db
-    def test_process_message_sends_confirmation_email(self):
+    def test_save_enrolment_sends_confirmation_email(self):
         worker = enrolment.queue.Worker()
 
-        worker.process_enrolment(
+        worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
@@ -92,10 +100,10 @@ class TestQueueWorker(MockBoto):
         assert url in mail.outbox[0].body
 
     @pytest.mark.django_db
-    def test_process_message_saves_company_email_confirmation_code_to_db(self):
+    def test_save_enrolment_saves_company_email_confirmation_code_to_db(self):
         worker = enrolment.queue.Worker()
 
-        worker.process_enrolment(
+        worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
@@ -112,7 +120,7 @@ class TestQueueWorker(MockBoto):
         invalid_data = VALID_REQUEST_DATA.copy()
         invalid_data['company_number'] = None
         with pytest.raises(ValidationError):
-            worker.process_enrolment(
+            worker.save_enrolment(
                 sqs_message_id='1',
                 json_payload=json.dumps(invalid_data)
             )
@@ -123,7 +131,45 @@ class TestQueueWorker(MockBoto):
         invalid_data = VALID_REQUEST_DATA.copy()
         invalid_data['company_email'] = None
         with pytest.raises(ValidationError):
-            worker.process_enrolment(
+            worker.save_enrolment(
                 sqs_message_id='1',
                 json_payload=json.dumps(invalid_data)
             )
+
+    @pytest.mark.django_db
+    def test_process_message_validation_error_deletes_message(self):
+        worker = enrolment.queue.Worker()
+
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_email'] = None
+        # This raises validation error
+        invalid_message = mock.Mock(
+            message_id='1',
+            body=json.dumps(invalid_data)
+        )
+
+        worker.process_message(invalid_message)
+        invalid_message.delete.assert_called_once_with()
+
+    @pytest.mark.django_db
+    def test_process_message_uncaught_exception_leaves_message(self):
+        worker = enrolment.queue.Worker()
+
+        worker = enrolment.queue.Worker()
+        message = mock.Mock(
+            message_id='1',
+            body=VALID_REQUEST_DATA_JSON
+        )
+
+        try:
+            with mock.patch.object(
+                    enrolment.queue.Worker, 'save_enrolment'
+            ) as save_enrolment_mock:
+
+                save_enrolment_mock.side_effect = Exception('uncaught')
+
+                worker.process_message(message)
+        except:
+            pass
+
+        assert not message.delete.called
