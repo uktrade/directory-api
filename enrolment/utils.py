@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractproperty
 import signal
 
 from django.conf import settings
@@ -61,7 +62,7 @@ class AwsError:
         )
 
 
-class QueueService:
+class QueueService(metaclass=ABCMeta):
     """Enrolment data queue service
 
     Attributes:
@@ -69,24 +70,12 @@ class QueueService:
         queue_name (str): Name of the SQS queue
         sqs (boto3.resource): SQS connection
     """
-    queue_name = ''
-    __instance = None
-
-    def __new__(cls):
-        """
-        Implements singleton pattern to avoid creating new connection to SQS
-        each time the class is called.
-        """
-        if QueueService.__instance is None:
-            QueueService.__instance = object.__new__(cls)
-
-        return QueueService.__instance
-
     def __init__(self):
-        if not self.queue_name:
-            raise NotImplementedError("queue_name cannot be empty")
-
         self.initialise_sqs()
+
+    @abstractproperty
+    def queue_name(self):
+        raise NotImplementedError("queue_name must be implemented")
 
     def initialise_sqs(self):
         self._sqs = boto3.resource('sqs', region_name=settings.SQS_REGION_NAME)
@@ -183,3 +172,19 @@ class SignalReceiver:
 class ExitSignalReceiver(SignalReceiver):
     """Receiver for exit signals"""
     signals = (signal.SIGINT, signal.SIGTERM)
+
+
+singletons = {}
+
+
+class SingletonMixin:
+    def __new__(cls, *args, **kwargs):
+        if cls in singletons:
+            return singletons[cls]
+
+        self = object.__new__(cls)
+        cls.__init__(self, *args, **kwargs)
+
+        singletons[cls] = self
+
+        return self

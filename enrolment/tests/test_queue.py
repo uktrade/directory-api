@@ -152,6 +152,28 @@ class TestQueueWorker(MockBoto):
         invalid_message.delete.assert_called_once_with()
 
     @pytest.mark.django_db
+    def test_process_message_validation_error_sends_to_invalid(self):
+        worker = enrolment.queue.Worker()
+
+        invalid_data = VALID_REQUEST_DATA.copy()
+        invalid_data['company_email'] = None
+        # This raises validation error
+        invalid_message = mock.Mock(
+            message_id='1',
+            body=json.dumps(invalid_data)
+        )
+
+        with mock.patch.object(
+            enrolment.queue.InvalidEnrolment, 'send'
+        ) as invalid_queue_send_mock:
+
+            worker.process_message(invalid_message)
+
+        invalid_queue_send_mock.assert_called_once_with(
+            data=invalid_message.body
+        )
+
+    @pytest.mark.django_db
     def test_process_message_uncaught_exception_leaves_message(self):
         worker = enrolment.queue.Worker()
 
@@ -163,7 +185,7 @@ class TestQueueWorker(MockBoto):
 
         try:
             with mock.patch.object(
-                    enrolment.queue.Worker, 'save_enrolment'
+                enrolment.queue.Worker, 'save_enrolment'
             ) as save_enrolment_mock:
 
                 save_enrolment_mock.side_effect = Exception('uncaught')

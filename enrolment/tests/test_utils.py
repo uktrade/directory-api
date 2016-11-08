@@ -9,6 +9,14 @@ class OtherException(Exception):
     pass
 
 
+class ExampleQueueService(utils.SingletonMixin, utils.QueueService):
+    """SQS queue service for enrolment"""
+
+    @property
+    def queue_name(self):
+        return 'test'
+
+
 class TestService(MockBoto):
 
     def test_get_or_create_queue_non_existent_exception(self):
@@ -17,8 +25,7 @@ class TestService(MockBoto):
         NonExistentQueue exception should be handled by
         calling utils.Service.create_queue
         """
-        utils.QueueService.queue_name = 'test'
-        queue_service = utils.QueueService()
+        queue_service = ExampleQueueService()
 
         queue_service._sqs.get_queue_by_name.side_effect = ClientError(
             operation_name='GetQueueUrl',
@@ -38,8 +45,7 @@ class TestService(MockBoto):
 
         Exceptions other than NonExistentQueue should be propagated
         """
-        utils.QueueService.queue_name = 'test'
-        queue_service = utils.QueueService()
+        queue_service = ExampleQueueService()
 
         queue_service._sqs.get_queue_by_name.side_effect = OtherException
 
@@ -53,8 +59,7 @@ class TestService(MockBoto):
         """ Test utils.Service.receive reinitialises SQS connection on
         'SignatureDoesNotMatch' boto error
         """
-        queue_service = utils.QueueService()
-        queue_service.queue_name = 'test'
+        queue_service = ExampleQueueService()
 
         queue_service._sqs.get_queue_by_name.side_effect = ClientError(
             operation_name='ReceiveMessage',
