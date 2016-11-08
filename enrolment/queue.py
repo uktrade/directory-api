@@ -8,19 +8,25 @@ from django.db import IntegrityError
 from django.conf import settings
 
 from enrolment import serializers
-from enrolment.utils import ExitSignalReceiver, QueueService
+from enrolment.utils import ExitSignalReceiver, QueueService, SingletonMixin
 
 logger = logging.getLogger(__name__)
 
 
-class Enrolment(QueueService):
+class Enrolment(SingletonMixin, QueueService):
     """SQS queue service for enrolment"""
-    queue_name = settings.SQS_ENROLMENT_QUEUE_NAME
+
+    @property
+    def queue_name(self):
+        return settings.SQS_ENROLMENT_QUEUE_NAME
 
 
-class InvalidEnrolment(QueueService):
+class InvalidEnrolment(SingletonMixin, QueueService):
     """SQS queue service for invalid enrolment"""
-    queue_name = settings.SQS_INVALID_ENROLMENT_QUEUE_NAME
+
+    @property
+    def queue_name(self):
+        return settings.SQS_INVALID_ENROLMENT_QUEUE_NAME
 
 
 class Worker:
