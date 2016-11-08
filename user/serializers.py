@@ -39,3 +39,9 @@ class UserEmailValidatorSerializer(serializers.Serializer):
     company_email = serializers.CharField(validators=[
         validators.email_unique,
     ])
+
+
+class UserMobileNumberValidatorSerializer(serializers.Serializer):
+    mobile_number = serializers.CharField(validators=[
+        validators.mobile_number_unique,
+    ])

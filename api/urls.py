@@ -9,7 +9,8 @@ from company.views import (
 from user.views import (
     UserRetrieveUpdateAPIView,
     ConfirmCompanyEmailAPIView,
-    UserEmailValidatorAPIView
+    UserEmailValidatorAPIView,
+    UserMobileNumberValidatorAPIView,
 )
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 from buyer.views import BuyerCreateAPIView
@@ -51,14 +52,19 @@ urlpatterns = [
         name='confirm-company-email'
     ),
     url(
-        r'validate-company-number/$',
+        r'validate/company-number/$',
         CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
     ),
     url(
-        r'validate-email-address/$',
+        r'validate/email-address/$',
         UserEmailValidatorAPIView.as_view(),
         name='validate-email-address'
+    ),
+    url(
+        r'validate/phone-number/$',
+        UserMobileNumberValidatorAPIView.as_view(),
+        name='validate-phone-number'
     ),
     url(
         r'company/companies-house-profile/$',

@@ -5,17 +5,22 @@ from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.serializers import (
-    ConfirmCompanyEmailSerializer,
-    UserEmailValidatorSerializer,
-    UserSerializer,
-)
-from user.models import User
+from user import models, serializers
 
 
 class UserEmailValidatorAPIView(GenericAPIView):
 
-    serializer_class = UserEmailValidatorSerializer
+    serializer_class = serializers.UserEmailValidatorSerializer
+
+    def get(self, request, *args, **kwargs):
+        validator = self.get_serializer(data=request.GET)
+        validator.is_valid(raise_exception=True)
+        return Response()
+
+
+class UserMobileNumberValidatorAPIView(GenericAPIView):
+
+    serializer_class = serializers.UserMobileNumberValidatorSerializer
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -25,15 +30,15 @@ class UserEmailValidatorAPIView(GenericAPIView):
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
-    queryset = User.objects.all()
+    queryset = models.User.objects.all()
     lookup_field = 'sso_id'
-    serializer_class = UserSerializer
+    serializer_class = serializers.UserSerializer
 
 
 class ConfirmCompanyEmailAPIView(APIView):
 
     http_method_names = ("post", )
-    serializer_class = ConfirmCompanyEmailSerializer
+    serializer_class = serializers.ConfirmCompanyEmailSerializer
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
@@ -41,12 +46,12 @@ class ConfirmCompanyEmailAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = User.objects.get(
+            user = models.User.objects.get(
                 company_email_confirmation_code=serializer.data[
                     'confirmation_code'
                 ]
             )
-        except User.DoesNotExist:
+        except models.User.DoesNotExist:
             response_status_code = status.HTTP_400_BAD_REQUEST
             response_data = json.dumps({
                 "status_code": response_status_code,

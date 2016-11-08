@@ -73,3 +73,10 @@ def test_email_unique_serializer_validators():
     field = serializer.get_fields()['company_email']
 
     assert validators.email_unique in field.validators
+
+
+def test_mobile_number_unique_serializer_validators():
+    serializer = serializers.UserMobileNumberValidatorSerializer()
+    field = serializer.get_fields()['mobile_number']
+
+    assert validators.mobile_number_unique in field.validators
