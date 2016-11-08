@@ -5,7 +5,7 @@ from django.utils.crypto import get_random_string
 
 
 def generate_sms_verification_code():
-    return get_random_string(6).lower()
+    return get_random_string(length=6, allowed_chars='0123456789')
 
 
 def send_verification_code_via_sms(phone_number):
