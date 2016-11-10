@@ -82,25 +82,24 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-
+# Static files served with Whitenoise and AWS Cloudfront
+# http://whitenoise.evans.io/en/stable/django.html#instructions-for-amazon-cloudfront
+# http://whitenoise.evans.io/en/stable/django.html#restricting-cloudfront-to-static-files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 
-STATIC_URL = '/static/'
+STATIC_HOST = os.environ.get('STATIC_HOST', '')
+STATIC_URL = STATIC_HOST + '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(BASE_DIR, 'static'),
 )
-
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
-
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Application authorisation
 UI_SECRET = os.environ["UI_SECRET"]
