@@ -1,23 +1,68 @@
-from django.utils.deconstruct import deconstructible
-
-import os
-import http
+from datetime import datetime
+from functools import wraps
 import logging
-import requests
+import http
+import os
 from uuid import uuid4
 
-from django.conf import settings
+import requests
 
+from django.conf import settings
+from django.utils.deconstruct import deconstructible
+
+MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
+MESSAGE_NETWORK_ERROR = 'A network error occurred'
+MESSAGE_DATE_OF_CREATION_FAILED = 'Unable to get date of creation'
+COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
 
 logger = logging.getLogger(__name__)
 company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
 
+companies_house_session = requests.Session()
+
+
+def continue_on_network_error(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except requests.exceptions.RequestException:
+            logger.exception(MESSAGE_NETWORK_ERROR)
+    return inner
+
+
+def get_date_of_creation(number):
+    """
+    Returns the date a company was created on companies house.
+
+    Args:
+        number (str): companies house number
+
+    Returns:
+        datetime.date
+
+    Raises:
+        KeyError: The companies house api may change the name of it's fields.
+        requests.exceptions.HTTPError: companies house may return non-200.
+        requests.exceptions.RequestException: A network error could occur.
+        ValueError: The date format companies house returned may be unexpected.
+        ValueError: The companies house api may return invalid json.
+
+    """
+
+    response = get_companies_house_profile(number=number)
+    if not response.ok:
+        raise response.raise_for_status()
+    else:
+        raw = response.json()['date_of_creation']
+        return datetime.strptime(raw, COMPANIES_HOUSE_DATE_FORMAT).date()
+
 
 def companies_house_client(url):
     auth = requests.auth.HTTPBasicAuth(settings.COMPANIES_HOUSE_API_KEY, '')
-    response = requests.get(url=url, auth=auth)
+    response = companies_house_session.get(url=url, auth=auth)
     if response.status_code == http.client.UNAUTHORIZED:
-        logger.error('Auth failed with Companies House')
+        logger.error(MESSAGE_AUTH_FAILED)
     return response
 
 

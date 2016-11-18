@@ -80,7 +80,7 @@ class CompanyViewsTests(TestCase):
     def test_company_update_view_with_put(self):
         client = APIClient()
         company = Company.objects.create(
-            number='12345678',
+            number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0],
         )
         user = User.objects.create(
@@ -108,7 +108,7 @@ class CompanyViewsTests(TestCase):
     def test_company_update_view_with_patch(self):
         client = APIClient()
         company = Company.objects.create(
-            number='12345678',
+            number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0]
 
         )

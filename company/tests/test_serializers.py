@@ -22,7 +22,7 @@ def test_company_serializer_doesnt_accept_number_under_8_chars():
 @pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_over_8_chars():
     data = {
-        'number': "123456789",
+        'number': "012345678",
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
     }
