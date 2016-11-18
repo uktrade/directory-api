@@ -55,13 +55,7 @@ class Company(models.Model):
         max_length=255, blank=True, null=True,
         default=''
     )
-    date_of_creation = models.DateField(blank=True, null=True)
+    date_of_creation = models.DateField(blank=True, null=True, default=None)
 
     def __str__(self):
         return self.name
-
-    @helpers.continue_on_network_error
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.date_of_creation = helpers.get_date_of_creation(self.number)
-        return super().save(*args, **kwargs)

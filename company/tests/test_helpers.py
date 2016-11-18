@@ -5,12 +5,9 @@ from unittest import mock
 
 import pytest
 import requests_mock
-from requests.exceptions import (
-    RequestException,
-    HTTPError,
-    ConnectionError,
-)
+from requests.exceptions import HTTPError
 from requests import Response
+
 from company import helpers
 
 
@@ -98,32 +95,6 @@ def test_path_and_rename_logos_no_extension():
     assert actual.startswith('/company_logos')
 
 
-def test_continue_on_network_error_handles_network_errors(caplog):
-
-    @helpers.continue_on_network_error
-    def func(exception):
-        raise exception
-
-    for ExceptionClass in [RequestException, HTTPError, ConnectionError]:
-        try:
-            exception = ExceptionClass()
-            func(exception)
-        except ExceptionClass:
-            pytest.fail('should have ignored network error')
-        else:
-            log = caplog.records[0]
-            assert log.levelname == 'ERROR'
-            assert log.msg == helpers.MESSAGE_NETWORK_ERROR
-
-
-def test_continue_on_network_error_handles_non_network_errors():
-    @helpers.continue_on_network_error
-    def func():
-        raise Exception
-    with pytest.raises(Exception):
-        func()
-
-
 @mock.patch.object(helpers, 'get_companies_house_profile')
 def test_get_date_of_creation_response_ok(mock_get_companies_house_profile):
     mock_get_companies_house_profile.return_value = profile_api_200()
@@ -138,4 +109,4 @@ def test_get_date_of_creation_response_bad(mock_get_companies_house_profile):
     mock_get_companies_house_profile.return_value = profile_api_400()
 
     with pytest.raises(HTTPError):
-        result = helpers.get_date_of_creation('01234567')
+        helpers.get_date_of_creation('01234567')

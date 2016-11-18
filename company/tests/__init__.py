@@ -10,6 +10,7 @@ VALID_REQUEST_DATA = {
     "website": "http://example.com",
     "description": "Company description",
     "export_status": choices.EXPORT_STATUSES[1][0],
+    "date_of_creation": "2010-10-10",
     "revenue": '100000.00',
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)

@@ -25,6 +25,7 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
         'number': "012345678",
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -41,7 +42,8 @@ def test_company_serializer_defaults_to_empty_string():
     data = {
         'number': "01234567",
         'export_status': choices.EXPORT_STATUSES[1][0],
-        'name': 'Extreme corp'
+        'name': 'Extreme corp',
+        'date_of_creation': '2010-10-10',
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -65,6 +67,7 @@ def test_company_serializer_translates_none_to_empty_string():
         'website': None,
         'description': None,
         'export_status': choices.EXPORT_STATUSES[1][0],
+        'date_of_creation': '2010-10-10',
     }
     serializer = serializers.CompanySerializer(data=data)
     assert serializer.is_valid(), serializer.errors
@@ -99,4 +102,3 @@ def test_company_number_serializer_validators():
     field = serializer.get_fields()['number']
 
     assert validators.company_unique in field.validators
-    assert validators.company_active in field.validators

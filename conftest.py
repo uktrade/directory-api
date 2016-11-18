@@ -1,8 +1,7 @@
 import http
-from unittest.mock import patch
+import re
 
 import requests_mock
-import requests
 
 from company import helpers
 
@@ -16,7 +15,7 @@ def pytest_runtest_setup(item):
     companies_house_adapter = requests_mock.Adapter()
     companies_house_adapter.register_uri(
         'GET',
-        helpers.company_profile_url.format(number='01234567'),
+        re.compile('https://api.companieshouse.gov.uk/company/.*'),
         json=company_profile,
         status_code=http.client.OK,
     )

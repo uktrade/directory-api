@@ -1,5 +1,4 @@
 from datetime import datetime
-from functools import wraps
 import logging
 import http
 import os
@@ -12,23 +11,12 @@ from django.utils.deconstruct import deconstructible
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
-MESSAGE_DATE_OF_CREATION_FAILED = 'Unable to get date of creation'
 COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
 
 logger = logging.getLogger(__name__)
 company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
 
 companies_house_session = requests.Session()
-
-
-def continue_on_network_error(func):
-    @wraps(func)
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except requests.exceptions.RequestException:
-            logger.exception(MESSAGE_NETWORK_ERROR)
-    return inner
 
 
 def get_date_of_creation(number):

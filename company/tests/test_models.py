@@ -1,11 +1,8 @@
-from datetime import date
-from unittest.mock import patch, Mock
-
 import pytest
 
 from django.db import IntegrityError
 
-from company import helpers, models, tests
+from company import models, tests
 
 
 @pytest.mark.django_db
@@ -33,26 +30,3 @@ def test_company_enforces_unique_company_number():
     models.Company.objects.create(number="01234567")
     with pytest.raises(IntegrityError):
         models.Company.objects.create(number="01234567")
-
-
-@pytest.mark.django_db
-@patch.object(helpers, 'get_date_of_creation')
-def test_save_sets_date_of_creation_if_new_company(mock_get_date_of_creation):
-    mock_get_date_of_creation.return_value = expected = date(2000, 1, 1)
-
-    instance = models.Company.objects.create(number="01234567")
-
-    mock_get_date_of_creation.assert_called_once_with("01234567")
-    assert instance.date_of_creation == expected
-
-
-@pytest.mark.django_db
-@patch.object(helpers, 'get_date_of_creation',
-              Mock(return_value=date(2000, 1, 1)))
-def test_save_not_sets_date_of_creation_if_not_new_company():
-    instance = models.Company.objects.create(number="01234567")
-    instance.date_of_creation = date(2010, 1, 1)
-
-    instance.save()
-
-    assert instance.date_of_creation == date(2010, 1, 1)

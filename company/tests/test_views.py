@@ -55,6 +55,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -99,6 +100,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -128,6 +130,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
