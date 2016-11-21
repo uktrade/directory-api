@@ -23,7 +23,7 @@ class EnrolmentCreateAPIView(CreateAPIView):
         })
         serializer.is_valid(raise_exception=True)
 
-        enrolment.queue.Enrolment().send(
+        enrolment.queue.EnrolmentQueue().send(
             data=json.dumps(request.data, ensure_ascii=False)
         )
 

@@ -1,4 +1,3 @@
-import gc
 import logging
 
 from psycopg2.errorcodes import UNIQUE_VIOLATION
@@ -8,12 +7,13 @@ from django.db import IntegrityError
 from django.conf import settings
 
 from enrolment import serializers
-from enrolment.utils import ExitSignalReceiver, QueueService, SingletonMixin
+from api.utils import QueueService, QueueWorker, SingletonMixin
+
 
 logger = logging.getLogger(__name__)
 
 
-class Enrolment(SingletonMixin, QueueService):
+class EnrolmentQueue(SingletonMixin, QueueService):
     """SQS queue service for enrolment"""
 
     @property
@@ -21,7 +21,7 @@ class Enrolment(SingletonMixin, QueueService):
         return settings.SQS_ENROLMENT_QUEUE_NAME
 
 
-class InvalidEnrolment(SingletonMixin, QueueService):
+class InvalidEnrolmentQueue(SingletonMixin, QueueService):
     """SQS queue service for invalid enrolment"""
 
     @property
@@ -29,56 +29,19 @@ class InvalidEnrolment(SingletonMixin, QueueService):
         return settings.SQS_INVALID_ENROLMENT_QUEUE_NAME
 
 
-class Worker:
+class EnrolmentQueueWorker(QueueWorker):
     """Enrolment queue worker
 
     Attributes:
         exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
-        enrolment_queue (enrolment.queue.Enrolment): Enrolment
-            SQS queue service
-
-        invalid_enrolment_queue (enrolment.queue.InvalidEnrolment):
-            Invalid enrolment SQS queue service
+        enrolment_queue (EnrolmentQueue): Enrolment SQS queue service
+        invalid_enrolment_queue (InvalidEnrolmentQueue): Invalid messages queue
 
     """
     def __init__(self):
-        self.enrolment_queue = Enrolment()
-        self.invalid_enrolment_queue = InvalidEnrolment()
-        self.exit_signal_receiver = ExitSignalReceiver()
-
-    @property
-    def exit_signal_received(self):
-        """Returns True if exit signal was received"""
-        if self.exit_signal_receiver.received:
-            logger.warning(
-                "Exit signal received: {}".format(", ".join([
-                    str(sig) for sig in self.exit_signal_receiver.received
-                ]))
-            )
-            return True
-        else:
-            return False
-
-    def run(self):
-        """Runs worker until SIGTERM or SIGINT is received"""
-        while not self.exit_signal_received:
-            logger.info(
-                "Retrieving messages from '{}' queue".format(
-                    self.enrolment_queue.queue_name
-                )
-            )
-            messages = self.enrolment_queue.receive()
-
-            for message in messages:
-                self.process_message(message)
-
-                # exit cleanly when exit signal is received, unprocessed
-                # messages will return to the enrolment queue
-                if self.exit_signal_received:
-                    return
-
-            # Run a full garbage collection, as this is a long running process
-            gc.collect()
+        super(EnrolmentQueueWorker, self).__init__()
+        self.queue = EnrolmentQueue()
+        self.invalid_enrolment_queue = InvalidEnrolmentQueue()
 
     @staticmethod
     def is_postgres_unique_violation_error(exception):

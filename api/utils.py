@@ -1,10 +1,15 @@
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractproperty, abstractmethod
+import gc
+import logging
 import signal
 
 from django.conf import settings
 
 import boto3
 import botocore
+
+
+logger = logging.getLogger(__name__)
 
 
 class AwsErrorCodes:
@@ -63,7 +68,7 @@ class AwsError:
 
 
 class QueueService(metaclass=ABCMeta):
-    """Enrolment data queue service
+    """SQS queue service
 
     Attributes:
         queue (SQS.Queue): SQS queue
@@ -188,3 +193,62 @@ class SingletonMixin:
         singletons[cls] = self
 
         return self
+
+
+class QueueWorker(metaclass=ABCMeta):
+    """Consumes messages from SQS queue.
+
+    Attributes:
+        queue (api.utils.QueueService): SQS queue service
+        exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
+    """
+    queue = None
+
+    def __init__(self):
+        self.exit_signal_receiver = ExitSignalReceiver()
+
+    @property
+    def exit_signal_received(self):
+        """Returns True if exit signal was received"""
+        if self.exit_signal_receiver.received:
+            logger.warning(
+                "Exit signal received: {}".format(", ".join([
+                    str(sig) for sig in self.exit_signal_receiver.received
+                ]))
+            )
+            return True
+        else:
+            return False
+
+    def run(self):
+        """Runs worker until SIGTERM or SIGINT is received"""
+        if not self.queue:
+            raise NotImplementedError("self.queue must be specified")
+
+        while not self.exit_signal_received:
+            logger.info(
+                "Retrieving messages from '{}' queue".format(
+                    self.queue.queue_name
+                )
+            )
+            messages = self.queue.receive()
+
+            for message in messages:
+                self.process_message(message)
+
+                # exit cleanly when exit signal is received, unprocessed
+                # messages will return to the enrolment queue
+                if self.exit_signal_received:
+                    return
+
+            # Run a full garbage collection, as this is a long running process
+            gc.collect()
+
+    @abstractmethod
+    def process_message(self, message):
+        """Processes the queue message.
+
+        Args:
+            message (SQS.Message): message to process
+        """
+        raise NotImplementedError("process_message must be implemented")
