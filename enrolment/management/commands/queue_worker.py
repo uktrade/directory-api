@@ -25,7 +25,7 @@ class Command(BaseCommand):
             self.style.SUCCESS('Starting queue worker')
         )
 
-        enrolment.queue.Worker().run()
+        enrolment.queue.EnrolmentQueueWorker().run()
 
         self.stdout.write(
             self.style.SUCCESS('Queue worker finished running')
