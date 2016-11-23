@@ -23,11 +23,14 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.admin',
     "rest_framework",
     'rest_framework_swagger',
     "raven.contrib.django.raven_compat",
     'signature',
+    'superuser',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
@@ -38,6 +41,9 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -91,7 +97,7 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 
 STATIC_HOST = os.environ.get('STATIC_HOST', '')
-STATIC_URL = STATIC_HOST + '/static/'
+STATIC_URL = STATIC_HOST + '/api-static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Extra places for collectstatic to find static files.
@@ -206,3 +212,13 @@ AWS_AUTO_CREATE_BUCKET = True
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
+
+
+# Admin proxy
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_DOMAIN = os.environ['SESSION_COOKIE_DOMAIN']
+SESSION_COOKIE_NAME = 'api_session_id'
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
