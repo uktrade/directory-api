@@ -16,6 +16,7 @@ test:
 	$(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
 
 DJANGO_WEBSERVER := \
+	python manage.py collectstatic --noinput; \
 	python manage.py migrate; \
 	python manage.py runserver 0.0.0.0:$$PORT
 
@@ -135,6 +136,9 @@ debug_db:
 
 debug_test:
 	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
+
+debug_manage:
+	$(DEBUG_SET_ENV_VARS) && ./manage.py $(cmd)
 
 debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
