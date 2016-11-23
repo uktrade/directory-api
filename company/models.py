@@ -55,6 +55,7 @@ class Company(models.Model):
         max_length=255, blank=True, null=True,
         default=''
     )
+    date_of_creation = models.DateField(blank=True, null=True, default=None)
 
     def __str__(self):
         return self.name

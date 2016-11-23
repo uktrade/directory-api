@@ -55,6 +55,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -80,7 +81,7 @@ class CompanyViewsTests(TestCase):
     def test_company_update_view_with_put(self):
         client = APIClient()
         company = Company.objects.create(
-            number='12345678',
+            number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0],
         )
         user = User.objects.create(
@@ -99,6 +100,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -108,7 +110,7 @@ class CompanyViewsTests(TestCase):
     def test_company_update_view_with_patch(self):
         client = APIClient()
         company = Company.objects.create(
-            number='12345678',
+            number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0]
 
         )
@@ -128,6 +130,7 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'date_of_creation': '10 Oct 2000',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK

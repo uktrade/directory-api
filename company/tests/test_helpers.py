@@ -1,9 +1,27 @@
+from datetime import date
 import http
 from unittest.mock import Mock
 from unittest import mock
 
+import pytest
 import requests_mock
+from requests.exceptions import HTTPError
+from requests import Response
+
 from company import helpers
+
+
+def profile_api_400(*args, **kwargs):
+    response = Response()
+    response.status_code = http.client.BAD_REQUEST
+    return response
+
+
+def profile_api_200(*args, **kwargs):
+    response = Response()
+    response.status_code = http.client.OK
+    response.json = lambda: {'date_of_creation': '1987-12-31'}
+    return response
 
 
 def test_companies_house_client_consumes_auth(settings):
@@ -24,7 +42,7 @@ def test_companies_house_client_logs_unauth(caplog):
         helpers.companies_house_client('https://thing.com')
     log = caplog.records[0]
     assert log.levelname == 'ERROR'
-    assert log.msg == 'Auth failed with Companies House'
+    assert log.msg == helpers.MESSAGE_AUTH_FAILED
 
 
 def test_get_companies_house_profile():
@@ -75,3 +93,20 @@ def test_path_and_rename_logos_no_extension():
     actual = helpers.path_and_rename_logos(instance, 'a')
 
     assert actual.startswith('/company_logos')
+
+
+@mock.patch.object(helpers, 'get_companies_house_profile')
+def test_get_date_of_creation_response_ok(mock_get_companies_house_profile):
+    mock_get_companies_house_profile.return_value = profile_api_200()
+    result = helpers.get_date_of_creation('01234567')
+
+    mock_get_companies_house_profile.assert_called_once_with(number='01234567')
+    assert result == date(1987, 12, 31)
+
+
+@mock.patch.object(helpers, 'get_companies_house_profile')
+def test_get_date_of_creation_response_bad(mock_get_companies_house_profile):
+    mock_get_companies_house_profile.return_value = profile_api_400()
+
+    with pytest.raises(HTTPError):
+        helpers.get_date_of_creation('01234567')
