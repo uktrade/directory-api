@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     "raven.contrib.django.raven_compat",
     'signature',
+    'superuser',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
