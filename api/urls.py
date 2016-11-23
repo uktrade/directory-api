@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
+from django.contrib import admin
 
 from api.views import documentation, HealthCheckAPIView
 from company.views import (
@@ -15,7 +16,15 @@ from user.views import (
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 from buyer.views import BuyerCreateAPIView
 
+
+admin.autodiscover()
+
+
 urlpatterns = [
+    url(
+        r'^admin/',
+        include(admin.site.urls)
+    ),
     url(
         r'^$',
         HealthCheckAPIView.as_view(),
@@ -76,5 +85,4 @@ urlpatterns = [
         BuyerCreateAPIView.as_view(),
         name='buyer-create',
     ),
-
 ]
