@@ -62,7 +62,7 @@ class Company(models.Model):
         return self.name
 
 
-class SupplierCaseStudy(models.Model):
+class CompanyCaseStudy(models.Model):
     title = models.CharField(
         max_length=100,
     )
@@ -83,28 +83,24 @@ class SupplierCaseStudy(models.Model):
         blank=True,
         default='',
         upload_to=helpers.path_and_rename_supplier_case_study,
-        validators=[shared_company_validators.case_study_image_filesize],
     )
     image_two = models.FileField(
         null=True,
         blank=True,
         default='',
         upload_to=helpers.path_and_rename_supplier_case_study,
-        validators=[shared_company_validators.case_study_image_filesize],
     )
     image_three = models.FileField(
         null=True,
         blank=True,
         default='',
         upload_to=helpers.path_and_rename_supplier_case_study,
-        validators=[shared_company_validators.case_study_image_filesize],
     )
     video_one = models.FileField(
         null=True,
         blank=True,
         default='',
         upload_to=helpers.path_and_rename_supplier_case_study,
-        validators=[shared_company_validators.case_study_video_filesize],
     )
     testimonial = models.CharField(
         max_length=1000, null=True, blank=True, default=''
