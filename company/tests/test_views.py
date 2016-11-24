@@ -1,23 +1,22 @@
 import http
-from unittest.mock import patch
+from io import BytesIO
+from unittest.mock import patch, Mock
 from unittest import TestCase
 
 from directory_validators.constants import choices
 import pytest
-import requests_mock
 from rest_framework.test import APIClient
 from rest_framework import status
 
 from django.core.urlresolvers import reverse
 from django.test import Client
 
-from company.models import Company
+from company.models import Company, CompanyCaseStudy
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
     VALID_REQUEST_DATA,
 )
-from company.views import CompaniesHouseProfileDetailsAPIView
 from user.models import User
 
 
@@ -56,6 +55,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -101,6 +101,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -131,6 +132,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -156,38 +158,156 @@ class CompanyViewsTests(TestCase):
         response = self.client.get(reverse('validate-company-number'), {})
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.django_db
-    @patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
-    def test_companies_house_profile_details(
-            self, mock_get_serializer_class):
-        profile = {'name': 'Extreme corp'}
-        mock_get_serializer_class.return_value = MockValidSerializer
-        with requests_mock.mock() as mock:
-            mock.get(
-                'https://api.companieshouse.gov.uk/company/01234567',
-                status_code=http.client.OK,
-                json=profile
-            )
-            data = {'number': '01234567'}
-            response = self.client.get(
-                reverse('companies-house-profile'), data
-            )
-        assert response.status_code == http.client.OK
-        assert response.json() == profile
 
-    @pytest.mark.django_db
-    @patch.object(CompaniesHouseProfileDetailsAPIView, 'get_serializer_class')
-    def test_companies_house_profile_details_bad_request(
-            self, mock_get_serializer_class):
+def mock_save(self, name, content, max_length=None):
+    return Mock(url=content.name)
 
-        mock_get_serializer_class.return_value = MockValidSerializer
-        with requests_mock.mock() as mock:
-            mock.get(
-                'https://api.companieshouse.gov.uk/company/01234567',
-                status_code=http.client.BAD_REQUEST,
-            )
-            data = {'number': '01234567'}
-            response = self.client.get(
-                reverse('companies-house-profile'), data
-            )
-        assert response.status_code == http.client.BAD_REQUEST
+
+@pytest.fixture(scope='session')
+def image_one(tmpdir_factory):
+    return BytesIO(b'some text')
+
+
+@pytest.fixture(scope='session')
+def image_two(tmpdir_factory):
+    return BytesIO(b'some text')
+
+
+@pytest.fixture(scope='session')
+def image_three(tmpdir_factory):
+    return BytesIO(b'some text')
+
+
+@pytest.fixture(scope='session')
+def video(tmpdir_factory):
+    return BytesIO(b'some text')
+
+
+@pytest.fixture
+def case_study_data(image_one, image_two, image_three, video):
+    return {
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'year': '2010',
+        'keywords': 'good, great',
+        'image_one': image_one,
+        'image_two': image_two,
+        'image_three': image_three,
+        'video_one': video,
+        'testimonial': 'very nice',
+    }
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def company():
+    return Company.objects.create(**VALID_REQUEST_DATA)
+
+
+@pytest.fixture
+def supplier_case_study(case_study_data, company):
+    return CompanyCaseStudy.objects.create(
+        title=case_study_data['title'],
+        description=case_study_data['description'],
+        sector=case_study_data['sector'],
+        website=case_study_data['website'],
+        year=case_study_data['year'],
+        keywords=case_study_data['keywords'],
+        testimonial=case_study_data['testimonial'],
+        company=company,
+    )
+
+
+@pytest.fixture
+def user(company):
+    return User.objects.create(
+        sso_id=2,
+        company_email='someone@example.com',
+        company=company,
+    )
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_create(
+    case_study_data, api_client, user, company
+):
+    url = reverse('company-case-study', kwargs={'sso_id': user.sso_id})
+
+    response = api_client.post(url, case_study_data, format='multipart')
+    instance = CompanyCaseStudy.objects.get(pk=response.data['pk'])
+
+    assert response.status_code == http.client.CREATED
+    assert instance.testimonial == case_study_data['testimonial']
+    assert instance.website == case_study_data['website']
+    assert instance.company == company
+    assert instance.year == case_study_data['year']
+    assert instance.description == case_study_data['description']
+    assert instance.title == case_study_data['title']
+    assert instance.sector == case_study_data['sector']
+    assert instance.keywords == case_study_data['keywords']
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_update(supplier_case_study, user, api_client):
+    url = reverse(
+        'company-case-study-detail',
+        kwargs={'sso_id': user.sso_id, 'pk': supplier_case_study.pk}
+    )
+    data = {'year': '2015'}
+
+    assert supplier_case_study.year != data['year']
+
+    response = api_client.patch(url, data, format='multipart')
+    supplier_case_study.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert supplier_case_study.year == data['year']
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_delete(supplier_case_study, user, api_client):
+    pk = supplier_case_study.pk
+    url = reverse(
+        'company-case-study-detail', kwargs={'sso_id': user.sso_id, 'pk': pk}
+    )
+
+    response = api_client.delete(url)
+
+    assert response.status_code == http.client.NO_CONTENT
+    assert CompanyCaseStudy.objects.filter(pk=pk).exists() is False
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_case_study_get(
+        supplier_case_study, user, api_client
+):
+    pk = supplier_case_study.pk
+    url = reverse(
+        'company-case-study-detail', kwargs={'sso_id': user.sso_id, 'pk': pk}
+    )
+
+    response = api_client.get(url)
+    data = response.json()
+
+    assert response.status_code == http.client.OK
+    assert data['testimonial'] == supplier_case_study.testimonial
+    assert data['website'] == supplier_case_study.website
+    assert data['company'] == supplier_case_study.company.pk
+    assert data['year'] == supplier_case_study.year
+    assert data['description'] == supplier_case_study.description
+    assert data['title'] == supplier_case_study.title
+    assert data['sector'] == supplier_case_study.sector
+    assert data['keywords'] == supplier_case_study.keywords

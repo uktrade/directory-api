@@ -3,7 +3,7 @@ from django.contrib import admin
 
 from api.views import documentation, HealthCheckAPIView
 from company.views import (
-    CompaniesHouseProfileDetailsAPIView,
+    CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
     CompanyRetrieveUpdateAPIView,
 )
@@ -51,6 +51,20 @@ urlpatterns = [
         name='company'
     ),
     url(
+        r'^user/(?P<sso_id>[0-9]+)/company/case-study/$',
+        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
+        name='company-case-study',
+    ),
+    url(
+        r'^user/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
+        CompanyCaseStudyViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        }),
+        name='company-case-study-detail',
+    ),
+    url(
         r'user/(?P<sso_id>[0-9]+)/$',
         UserRetrieveUpdateAPIView.as_view(),
         name='user'
@@ -74,11 +88,6 @@ urlpatterns = [
         r'validate/phone-number/$',
         UserMobileNumberValidatorAPIView.as_view(),
         name='validate-phone-number'
-    ),
-    url(
-        r'company/companies-house-profile/$',
-        CompaniesHouseProfileDetailsAPIView.as_view(),
-        name='companies-house-profile',
     ),
     url(
         r'buyer/$',

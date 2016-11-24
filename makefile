@@ -9,7 +9,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
-PYTEST := pytest . --cov=. --cov-config=.coveragerc $(pytest_args)
+PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:

@@ -72,3 +72,7 @@ class PathAndRename:
 
 
 path_and_rename_logos = PathAndRename(sub_path="/company_logos")
+
+path_and_rename_supplier_case_study = PathAndRename(
+    sub_path="/supplier_case_study"
+)
