@@ -4,9 +4,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework import viewsets
 
-from django.http import HttpResponse
-
-from company import helpers, models, serializers
+from company import models, serializers
 
 
 class CompanyNumberValidatorAPIView(GenericAPIView):
@@ -41,7 +39,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return super().dispatch(*args, **kwargs)
 
     def get_serializer(self, *args, **kwargs):
-        if 'data' in  kwargs:
+        if 'data' in kwargs:
             kwargs['data']['company'] = self.company.pk
         return super().get_serializer(*args, **kwargs)
 

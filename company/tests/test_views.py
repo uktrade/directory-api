@@ -5,7 +5,6 @@ from unittest import TestCase
 
 from directory_validators.constants import choices
 import pytest
-import requests_mock
 from rest_framework.test import APIClient
 from rest_framework import status
 
@@ -56,6 +55,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -101,6 +101,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -131,6 +132,7 @@ class CompanyViewsTests(TestCase):
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
+            'supplier_case_studies': [],
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -182,16 +184,6 @@ def video(tmpdir_factory):
 
 
 @pytest.fixture
-def case_study_company_one():
-    pass
-
-
-@pytest.fixture
-def case_study_company_two():
-    pass
-
-
-@pytest.fixture
 def case_study_data(image_one, image_two, image_three, video):
     return {
         'title': 'a title',
@@ -199,7 +191,7 @@ def case_study_data(image_one, image_two, image_three, video):
         'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
         'website': 'http://www.example.com',
         'year': '2010',
-        'keywords': 'goog, great',
+        'keywords': 'good, great',
         'image_one': image_one,
         'image_two': image_two,
         'image_three': image_three,
