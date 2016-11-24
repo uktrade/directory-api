@@ -1,10 +1,11 @@
 from directory_validators.constants import choices
-from directory_validators import enrolment as shared_validators
-
-from company import helpers
+from directory_validators import company as shared_company_validators
+from directory_validators import enrolment as shared_enrolment_validators
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+
+from company import helpers
 
 
 class Company(models.Model):
@@ -27,7 +28,7 @@ class Company(models.Model):
     export_status = models.CharField(
         max_length=20,
         choices=choices.EXPORT_STATUSES,
-        validators=[shared_validators.export_status_intention]
+        validators=[shared_enrolment_validators.export_status_intention]
     )
     keywords = models.TextField(blank=True, null=True, default='')
     logo = models.FileField(
@@ -38,7 +39,7 @@ class Company(models.Model):
     name = models.CharField(max_length=255)
     number = models.CharField(
         max_length=8,
-        validators=[shared_validators.company_number],
+        validators=[shared_enrolment_validators.company_number],
         unique=True
     )
     revenue = models.DecimalField(
@@ -59,3 +60,56 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SupplierCaseStudy(models.Model):
+    title = models.CharField(
+        max_length=100,
+    )
+    description = models.CharField(
+        max_length=1000,
+    )
+    sector = models.CharField(
+        choices=choices.COMPANY_CLASSIFICATIONS,
+        max_length=100,
+    )
+    website = models.URLField(
+        max_length=255, null=True, blank=True,  default=''
+    )
+    year = models.CharField(max_length=4)
+    keywords = models.TextField(blank=True, null=True, default='')
+    image_one = models.FileField(
+        null=True,
+        blank=True,
+        default='',
+        upload_to=helpers.path_and_rename_supplier_case_study,
+        validators=[shared_company_validators.case_study_image_filesize],
+    )
+    image_two = models.FileField(
+        null=True,
+        blank=True,
+        default='',
+        upload_to=helpers.path_and_rename_supplier_case_study,
+        validators=[shared_company_validators.case_study_image_filesize],
+    )
+    image_three = models.FileField(
+        null=True,
+        blank=True,
+        default='',
+        upload_to=helpers.path_and_rename_supplier_case_study,
+        validators=[shared_company_validators.case_study_image_filesize],
+    )
+    video_one = models.FileField(
+        null=True,
+        blank=True,
+        default='',
+        upload_to=helpers.path_and_rename_supplier_case_study,
+        validators=[shared_company_validators.case_study_video_filesize],
+    )
+    testimonial = models.CharField(
+        max_length=1000, null=True, blank=True, default=''
+    )
+    company = models.ForeignKey(Company, related_name='supplier_case_studies')
+
+    def __str__(self):
+        return self.title
