@@ -13,7 +13,7 @@ EXPECTED_CSV_FIELDS = [
     'referrer', 'is_active', 'date_joined', 'terms_agreed',
     'company_id', 'company_name', 'description', 'employees',
     'export_status', 'keywords', 'logo', 'number', 'revenue', 'sectors',
-    'website', 'date_of_creation']
+    'website', 'date_of_creation', 'is_published']
 
 
 @pytest.fixture
@@ -60,7 +60,8 @@ def test_csv_correctly_exported_when_some_fields_empty():
                       company.employees, company.export_status,
                       company.keywords, str(company.logo),
                       company.number, company.revenue, '',
-                      company.website, company.date_of_creation]
+                      company.website, company.date_of_creation,
+                      str(company.is_published)]
     header = ','.join(EXPECTED_CSV_FIELDS)
     line1 = ','.join(user_values + company_values)
     assert csv_output.getvalue() == header + '\r\n' + line1 + '\r\n'
@@ -82,7 +83,8 @@ def test_csv_correctly_exported_with_all_fields_filled_in(company, user):
                       company.employees, company.export_status,
                       '"a,b,c"', str(company.logo),
                       company.number, company.revenue, '"[1,2,3]"',
-                      company.website, str(company.date_of_creation)]
+                      company.website, str(company.date_of_creation),
+                      str(company.is_published)]
     header = ','.join(EXPECTED_CSV_FIELDS)
     line1 = ','.join(user_values + company_values)
     assert csv_output.getvalue() == header + '\r\n' + line1 + '\r\n'
@@ -127,5 +129,5 @@ def test_csv_export_handles_user_with_no_company():
                    str(user.is_active), "2017-03-21 13:12:00+00:00",
                    str(user.terms_agreed)]
     header = ','.join(EXPECTED_CSV_FIELDS)
-    line1 = ','.join(user_values) + (12 * ',')  # empty company fields
+    line1 = ','.join(user_values) + (13 * ',')  # empty company fields
     assert csv_output.getvalue() == header + '\r\n' + line1 + '\r\n'
