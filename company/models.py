@@ -56,6 +56,7 @@ class Company(models.Model):
         default=''
     )
     date_of_creation = models.DateField(blank=True, null=True, default=None)
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

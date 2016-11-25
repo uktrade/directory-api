@@ -61,6 +61,22 @@ def case_study_data_optional_none(case_study_data):
 
 
 @pytest.mark.django_db
+def test_company_serializer_untouches_is_published():
+    data = {
+        'number': "01234567",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+    }
+    serializer = serializers.CompanySerializer(data=data)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.is_published is False
+
+
+@pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_under_8_chars():
     data = {'number': "1234567"}
     serializer = serializers.CompanySerializer(data=data)
