@@ -25,13 +25,15 @@ def export_users_to_csv():
     writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
     writer.writeheader()
     for user in queryset:
-        fields = {'company_id': user.company.id,
-                  'company_name': user.company.name}
+        fields = {}
+        if user.company:
+            fields['company_id'] = user.company.id
+            fields['company_name'] = user.company.name
+            fields.update({field: getattr(user.company, field)
+                           for field in company_fieldnames
+                           if field not in ['company_id', 'company_name']})
         fields.update({field: getattr(user, field)
                        for field in user_fieldnames})
-        fields.update({field: getattr(user.company, field)
-                       for field in company_fieldnames
-                       if field not in ['company_id', 'company_name']})
         writer.writerow(fields)
 
     return csv_output
