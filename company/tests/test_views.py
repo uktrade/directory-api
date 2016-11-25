@@ -1,3 +1,5 @@
+import datetime
+from decimal import Decimal
 import http
 from io import BytesIO
 from unittest.mock import patch, Mock
@@ -201,6 +203,19 @@ def case_study_data(image_one, image_two, image_three, video):
 
 
 @pytest.fixture
+def company_data():
+    return {
+        'number': '01234567',
+        'name': 'Test Company',
+        'website': 'http://example.com',
+        'description': 'Company description',
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'date_of_creation': '2010-10-10',
+        'revenue': '100000.00',
+    }
+
+
+@pytest.fixture
 def api_client():
     return APIClient()
 
@@ -259,6 +274,27 @@ def user(company):
         company_email='someone@example.com',
         company=company,
     )
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_update(
+    company_data, api_client, user, company
+):
+    url = reverse('company', kwargs={'sso_id': user.sso_id})
+
+    response = api_client.patch(url, company_data)
+    instance = Company.objects.get(number=response.data['number'])
+
+    assert response.status_code == http.client.OK
+    assert instance.number == '01234567'
+    assert instance.name == 'Test Company'
+    assert instance.website == 'http://example.com'
+    assert instance.description == 'Company description'
+    assert instance.export_status == choices.EXPORT_STATUSES[1][0]
+    assert instance.date_of_creation == datetime.date(2010, 10, 10)
+    assert instance.revenue == Decimal('100000.00')
 
 
 @pytest.mark.django_db
