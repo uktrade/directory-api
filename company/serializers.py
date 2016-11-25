@@ -38,7 +38,7 @@ class CompanySerializer(serializers.ModelSerializer):
         max_length=None, allow_empty_file=False, use_url=True, required=False
     )
     supplier_case_studies = CompanyCaseStudySerializer(
-        many=True, required=False
+        many=True, required=False, read_only=True
     )
 
     class Meta(object):
