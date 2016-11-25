@@ -1,10 +1,10 @@
 from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
 
-from company import helpers
-
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+
+from company import helpers
 
 
 class Company(models.Model):
@@ -56,6 +56,52 @@ class Company(models.Model):
         default=''
     )
     date_of_creation = models.DateField(blank=True, null=True, default=None)
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
+
+
+class CompanyCaseStudy(models.Model):
+    title = models.CharField(
+        max_length=100,
+    )
+    description = models.CharField(
+        max_length=1000,
+    )
+    sector = models.CharField(
+        choices=choices.COMPANY_CLASSIFICATIONS,
+        max_length=100,
+    )
+    website = models.URLField(
+        max_length=255, null=True, blank=True, default=''
+    )
+    year = models.CharField(max_length=4)
+    keywords = models.TextField()
+    image_one = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=helpers.path_and_rename_supplier_case_study,
+    )
+    image_two = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=helpers.path_and_rename_supplier_case_study,
+    )
+    image_three = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=helpers.path_and_rename_supplier_case_study,
+    )
+    video_one = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=helpers.path_and_rename_supplier_case_study,
+    )
+    testimonial = models.CharField(
+        max_length=1000, null=True, blank=True, default=''
+    )
+    company = models.ForeignKey(Company, related_name='supplier_case_studies')
+
+    def __str__(self):
+        return self.title

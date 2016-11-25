@@ -9,7 +9,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py migrate
 FLAKE8 := flake8 . --exclude=migrations
-PYTEST := pytest . --cov=. --cov-config=.coveragerc $(pytest_args)
+PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
@@ -56,7 +56,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export DIRECTORY_API_AWS_STORAGE_BUCKET_NAME=debug; \
-	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great.dev
+	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great.dev; \
+	export DIRECTORY_API_CSRF_COOKIE_SECURE=false; \
+	export DIRECTORY_API_SESSION_COOKIE_SECURE=false
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -119,7 +121,9 @@ DEBUG_SET_ENV_VARS := \
 	export GOV_NOTIFY_API_KEY=debug; \
 	export GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
 	export AWS_STORAGE_BUCKET_NAME=debug; \
-	export SESSION_COOKIE_DOMAIN=.trade.great.dev
+	export SESSION_COOKIE_DOMAIN=.trade.great.dev; \
+	export CSRF_COOKIE_SECURE=false; \
+	export SESSION_COOKIE_SECURE=false
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);

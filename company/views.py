@@ -1,21 +1,12 @@
-from rest_framework.generics import (
-    GenericAPIView, RetrieveUpdateAPIView, get_object_or_404
-)
 from rest_framework.response import Response
+from rest_framework import generics, viewsets
 
-from django.http import HttpResponse
-
-from company import helpers
-from user.models import User
-from company.serializers import (
-    CompanyNumberValidatorSerializer,
-    CompanySerializer
-)
+from company import models, pagination, serializers
 
 
-class CompanyNumberValidatorAPIView(GenericAPIView):
+class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
-    serializer_class = CompanyNumberValidatorSerializer
+    serializer_class = serializers.CompanyNumberValidatorSerializer
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -23,27 +14,39 @@ class CompanyNumberValidatorAPIView(GenericAPIView):
         return Response()
 
 
-class CompaniesHouseProfileDetailsAPIView(GenericAPIView):
+class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
-    serializer_class = CompanyNumberValidatorSerializer
+    serializer_class = serializers.CompanySerializer
 
-    def get(self, request, *args, **kwargs):
-        validator = self.get_serializer(data=request.GET)
-        validator.is_valid(raise_exception=True)
-        number = validator.validated_data['number']
-        profile_response = helpers.get_companies_house_profile(number)
-        return HttpResponse(
-            profile_response.text,
-            status=profile_response.status_code,
-            content_type='application/json'
+    def get_object(self):
+        return generics.get_object_or_404(
+            models.Company, users__sso_id=self.kwargs['sso_id']
         )
 
 
-class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CompanySerializer
+    queryset = models.Company.objects.filter(is_published=True)
+    pagination_class = pagination.CompanyPublicProfile
+    lookup_url_kwarg = 'companies_house_number'
+    lookup_field = 'number'
 
-    serializer_class = CompanySerializer
 
-    def get_object(self):
+class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
-        user = get_object_or_404(User, sso_id=self.kwargs['sso_id'])
-        return user.company
+    serializer_class = serializers.CompanyCaseStudySerializer
+    queryset = models.CompanyCaseStudy.objects.all()
+
+    def dispatch(self, *args, **kwargs):
+        self.company = generics.get_object_or_404(
+            models.Company, users__sso_id=kwargs['sso_id']
+        )
+        return super().dispatch(*args, **kwargs)
+
+    def get_serializer(self, *args, **kwargs):
+        if 'data' in kwargs:
+            kwargs['data']['company'] = self.company.pk
+        return super().get_serializer(*args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.filter(company=self.company)

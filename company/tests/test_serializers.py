@@ -3,7 +3,77 @@ import pytest
 from directory_validators.constants import choices
 
 from company.tests import VALID_REQUEST_DATA
-from company import serializers, validators
+from company import models, serializers, validators
+
+
+@pytest.fixture
+def company():
+    return models.Company.objects.create(**VALID_REQUEST_DATA)
+
+
+@pytest.fixture
+def company_case_study_one(company):
+    return models.CompanyCaseStudy.objects.create(
+        title='a title one',
+        description='a description one',
+        sector=choices.COMPANY_CLASSIFICATIONS[1][0],
+        website='http://www.example.com',
+        year='2010',
+        keywords='goog, great',
+        testimonial='very nice',
+        company=company,
+    )
+
+
+@pytest.fixture
+def company_case_study_two(company):
+    return models.CompanyCaseStudy.objects.create(
+        title='a title one',
+        description='a description one',
+        sector=choices.COMPANY_CLASSIFICATIONS[1][0],
+        website='http://www.example.com',
+        year='2010',
+        keywords='goog, great',
+        testimonial='very nice',
+        company=company,
+    )
+
+
+@pytest.fixture
+def case_study_data(company):
+    return {
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'year': '2010',
+        'keywords': 'good, great',
+        'testimonial': 'very nice',
+        'company': company.pk,
+    }
+
+
+@pytest.fixture
+def case_study_data_optional_none(case_study_data):
+    case_study_data['website'] = None
+    case_study_data['testimonial'] = None
+    return case_study_data
+
+
+@pytest.mark.django_db
+def test_company_serializer_untouches_is_published():
+    data = {
+        'number': "01234567",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+    }
+    serializer = serializers.CompanySerializer(data=data)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.is_published is False
 
 
 @pytest.mark.django_db
@@ -97,8 +167,44 @@ def test_company_serializer_save():
     assert company.export_status == VALID_REQUEST_DATA['export_status']
 
 
+@pytest.mark.django_db
+def test_company_serializer_nested_case_study(
+    company, company_case_study_one, company_case_study_two
+):
+    case_studies = [
+        serializers.CompanyCaseStudySerializer(company_case_study_one).data,
+        serializers.CompanyCaseStudySerializer(company_case_study_two).data,
+    ]
+    serializer = serializers.CompanySerializer(company)
+
+    assert len(serializer.data['supplier_case_studies']) == len(case_studies)
+    assert case_studies[0] in serializer.data['supplier_case_studies']
+    assert case_studies[1] in serializer.data['supplier_case_studies']
+
+
 def test_company_number_serializer_validators():
     serializer = serializers.CompanyNumberValidatorSerializer()
     field = serializer.get_fields()['number']
 
     assert validators.company_unique in field.validators
+
+
+@pytest.mark.django_db
+def test_company_case_study_ensure_string(case_study_data_optional_none):
+    serializer = serializers.CompanyCaseStudySerializer(
+        data=case_study_data_optional_none
+    )
+
+    assert serializer.is_valid()
+    assert serializer.validated_data['website'] == ''
+    assert serializer.validated_data['testimonial'] == ''
+
+
+@pytest.mark.django_db
+def test_company_case_study_excplicit_value(case_study_data):
+    serializer = serializers.CompanyCaseStudySerializer(data=case_study_data)
+
+    assert serializer.is_valid()
+    data = serializer.validated_data
+    assert data['website'] == case_study_data['website']
+    assert data['testimonial'] == case_study_data['testimonial']

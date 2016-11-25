@@ -3,8 +3,9 @@ from django.contrib import admin
 
 from api.views import documentation, HealthCheckAPIView
 from company.views import (
-    CompaniesHouseProfileDetailsAPIView,
+    CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
+    CompanyPublicProfileViewSet,
     CompanyRetrieveUpdateAPIView,
 )
 from user.views import (
@@ -51,9 +52,33 @@ urlpatterns = [
         name='company'
     ),
     url(
+        r'^user/(?P<sso_id>[0-9]+)/company/case-study/$',
+        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
+        name='company-case-study',
+    ),
+    url(
+        r'^user/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
+        CompanyCaseStudyViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        }),
+        name='company-case-study-detail',
+    ),
+    url(
         r'user/(?P<sso_id>[0-9]+)/$',
         UserRetrieveUpdateAPIView.as_view(),
         name='user'
+    ),
+    url(
+        r'company/public/(?P<companies_house_number>.*)/$',
+        CompanyPublicProfileViewSet.as_view({'get': 'retrieve'}),
+        name='company-public-profile-detail'
+    ),
+    url(
+        r'company/public/$',
+        CompanyPublicProfileViewSet.as_view({'get': 'list'}),
+        name='company-public-profile-list'
     ),
     url(
         r'enrolment/confirm/$',
@@ -74,11 +99,6 @@ urlpatterns = [
         r'validate/phone-number/$',
         UserMobileNumberValidatorAPIView.as_view(),
         name='validate-phone-number'
-    ),
-    url(
-        r'company/companies-house-profile/$',
-        CompaniesHouseProfileDetailsAPIView.as_view(),
-        name='companies-house-profile',
     ),
     url(
         r'buyer/$',
