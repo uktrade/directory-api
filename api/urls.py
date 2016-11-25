@@ -5,6 +5,7 @@ from api.views import documentation, HealthCheckAPIView
 from company.views import (
     CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
+    CompanyPublicProfileViewSet,
     CompanyRetrieveUpdateAPIView,
 )
 from user.views import (
@@ -68,6 +69,16 @@ urlpatterns = [
         r'user/(?P<sso_id>[0-9]+)/$',
         UserRetrieveUpdateAPIView.as_view(),
         name='user'
+    ),
+    url(
+        r'company/public/(?P<companies_house_number>.*)/$',
+        CompanyPublicProfileViewSet.as_view({'get': 'retrieve'}),
+        name='company-public-profile-detail'
+    ),
+    url(
+        r'company/public/$',
+        CompanyPublicProfileViewSet.as_view({'get': 'list'}),
+        name='company-public-profile-list'
     ),
     url(
         r'enrolment/confirm/$',
