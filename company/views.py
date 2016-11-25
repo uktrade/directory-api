@@ -1,13 +1,10 @@
-from rest_framework.generics import (
-    GenericAPIView, RetrieveUpdateAPIView, get_object_or_404
-)
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import generics, viewsets
 
 from company import models, serializers
 
 
-class CompanyNumberValidatorAPIView(GenericAPIView):
+class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
 
@@ -17,14 +14,21 @@ class CompanyNumberValidatorAPIView(GenericAPIView):
         return Response()
 
 
-class CompanyRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        return get_object_or_404(
+        return generics.get_object_or_404(
             models.Company, users__sso_id=self.kwargs['sso_id']
         )
+
+
+class CompanyPublicProfileRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = serializers.CompanySerializer
+    queryset = models.Company.objects.filter(is_published=True)
+    lookup_url_kwarg = 'companies_house_number'
+    lookup_field = 'number'
 
 
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
@@ -33,7 +37,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
     queryset = models.CompanyCaseStudy.objects.all()
 
     def dispatch(self, *args, **kwargs):
-        self.company = get_object_or_404(
+        self.company = generics.get_object_or_404(
             models.Company, users__sso_id=kwargs['sso_id']
         )
         return super().dispatch(*args, **kwargs)
