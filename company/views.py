@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, viewsets
 
-from company import models, serializers
+from company import models, pagination, serializers
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -24,9 +24,10 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         )
 
 
-class CompanyPublicProfileRetrieveAPIView(generics.RetrieveAPIView):
+class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = models.Company.objects.filter(is_published=True)
+    pagination_class = pagination.CompanyPublicProfile
     lookup_url_kwarg = 'companies_house_number'
     lookup_field = 'number'
 

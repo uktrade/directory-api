@@ -228,7 +228,7 @@ def public_profile():
 def private_profile():
     return Company.objects.create(
         number="0123456B",
-        name='public company',
+        name='private company',
         website="http://example.com",
         description="Company description",
         export_status=choices.EXPORT_STATUSES[1][0],
@@ -236,6 +236,7 @@ def private_profile():
         revenue='100000.00',
         is_published=False,
     )
+
 
 @pytest.fixture
 def supplier_case_study(case_study_data, company):
@@ -346,7 +347,7 @@ def test_company_profile_public_retrieve_public_profile(
     public_profile, api_client
 ):
     url = reverse(
-        'company-public-profile',
+        'company-public-profile-detail',
         kwargs={'companies_house_number': public_profile.number}
     )
     response = api_client.get(url)
@@ -361,9 +362,24 @@ def test_company_profile_public_404_private_profile(
     private_profile, api_client
 ):
     url = reverse(
-        'company-public-profile',
+        'company-public-profile-detail',
         kwargs={'companies_house_number': private_profile.number}
     )
     response = api_client.get(url)
 
     assert response.status_code == http.client.NOT_FOUND
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_profile_public_list_profiles(
+    private_profile, public_profile, api_client
+):
+    url = reverse('company-public-profile-list',)
+    response = api_client.get(url)
+
+    assert response.status_code == http.client.OK
+    data = response.json()
+
+    assert data['count'] == 1
+    assert data['results'][0]['id'] == str(public_profile.pk)
