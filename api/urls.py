@@ -13,6 +13,7 @@ from user.views import (
     ConfirmCompanyEmailAPIView,
     UserEmailValidatorAPIView,
     UserMobileNumberValidatorAPIView,
+    GeckoTotalRegisteredUsersView,
 )
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 from buyer.views import BuyerCreateAPIView
@@ -69,6 +70,11 @@ urlpatterns = [
         r'user/(?P<sso_id>[0-9]+)/$',
         UserRetrieveUpdateAPIView.as_view(),
         name='user'
+    ),
+    url(
+        r'user/gecko/registered$',
+        GeckoTotalRegisteredUsersView.as_view(),
+        name='gecko-registered-user-count'
     ),
     url(
         r'company/public/(?P<companies_house_number>.*)/$',

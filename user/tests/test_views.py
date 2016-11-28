@@ -166,3 +166,21 @@ class UserViewsTests(TestCase):
         mock_get_serializer.return_value = MockValidSerializer(data={})
         response = client.get(reverse('validate-phone-number'), {})
         assert response.status_code == status.HTTP_200_OK
+
+    @pytest.mark.django_db
+    def test_gecko_num_registered_user_view_returns_correct_json(self):
+        client = APIClient()
+        User.objects.create(**VALID_REQUEST_DATA)
+
+        response = client.get(reverse('gecko-registered-user-count'))
+
+        expected = {
+            "item": [
+                {
+                  "value": 1,
+                  "text": "Total registered users"
+                }
+              ]
+        }
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == expected
