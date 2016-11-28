@@ -4,8 +4,10 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.renderers import JSONRenderer
+from rest_framework.authentication import BasicAuthentication
 
-from user import models, serializers
+from user import models, serializers, gecko
 
 
 class UserEmailValidatorAPIView(GenericAPIView):
@@ -33,6 +35,16 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     queryset = models.User.objects.all()
     lookup_field = 'sso_id'
     serializer_class = serializers.UserSerializer
+
+
+class GeckoTotalRegisteredUsersView(APIView):
+
+    authentication_classes = (BasicAuthentication, )
+    renderer_classes = (JSONRenderer, )
+    http_method_names = ("get", )
+
+    def get(self, request, format=None):
+        return Response(gecko.total_registered_users())
 
 
 class ConfirmCompanyEmailAPIView(APIView):
