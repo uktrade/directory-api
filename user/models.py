@@ -24,7 +24,7 @@ class User(models.Model):
         unique=True,
     )
     company = models.ForeignKey(
-        Company, related_name='users', null=True
+        Company, related_name='users', null=False
     )
 
     company_email = models.EmailField(
