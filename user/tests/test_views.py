@@ -8,6 +8,7 @@ import pytest
 
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework.authentication import BasicAuthentication
 
 from user.models import User
 from user.tests import (
@@ -15,6 +16,7 @@ from user.tests import (
     MockInvalidSerializer,
     MockValidSerializer
 )
+from user.views import GeckoTotalRegisteredUsersView
 
 
 class UserViewsTests(TestCase):
@@ -172,7 +174,7 @@ class UserViewsTests(TestCase):
         client = APIClient()
         User.objects.create(**VALID_REQUEST_DATA)
 
-        response = client.get(reverse('gecko-registered-user-count'))
+        response = client.get(reverse('gecko-total-registered-users'))
 
         expected = {
             "item": [
@@ -184,3 +186,17 @@ class UserViewsTests(TestCase):
         }
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
+
+
+@pytest.mark.django_db
+def test_gecko_num_registered_user_view_requires_auth():
+    client = APIClient()
+
+    response = client.get(reverse('gecko-total-registered-users'))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_gecko_num_registered_user_view_uses_basic_auth():
+    auth_classes = GeckoTotalRegisteredUsersView.authentication_classes
+    assert BasicAuthentication in auth_classes

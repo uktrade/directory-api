@@ -72,9 +72,9 @@ urlpatterns = [
         name='user'
     ),
     url(
-        r'user/gecko/registered$',
+        r'user/gecko/total-registered/$',
         GeckoTotalRegisteredUsersView.as_view(),
-        name='gecko-registered-user-count'
+        name='gecko-total-registered-users'
     ),
     url(
         r'company/public/(?P<companies_house_number>.*)/$',
