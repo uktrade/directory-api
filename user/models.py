@@ -72,5 +72,8 @@ class User(TimeStampedModel):
         default=False
     )
 
+    class Meta:
+        ordering = ('-created', '-modified')
+
     def __str__(self):
         return self.company_email
