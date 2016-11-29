@@ -1,12 +1,12 @@
 from django.db import models
-
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from api.model_utils import TimeStampedModel
 from company.models import Company
 
 
-class User(models.Model):
+class User(TimeStampedModel):
 
     sso_id = models.PositiveIntegerField(
         _('sso user.sso_id'),
@@ -24,7 +24,7 @@ class User(models.Model):
         unique=True,
     )
     company = models.ForeignKey(
-        Company, related_name='users', null=False
+        Company, related_name='users', null=True
     )
 
     company_email = models.EmailField(

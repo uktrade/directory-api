@@ -4,10 +4,11 @@ from directory_validators import enrolment as shared_validators
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
+from api.model_utils import TimeStampedModel
 from company import helpers
 
 
-class Company(models.Model):
+class Company(TimeStampedModel):
 
     # NOTE: For various reasons owing to how django handles empty values
     # in strings and how DRF serializers handle validation,
@@ -62,7 +63,7 @@ class Company(models.Model):
         return self.name
 
 
-class CompanyCaseStudy(models.Model):
+class CompanyCaseStudy(TimeStampedModel):
     title = models.CharField(
         max_length=100,
     )
