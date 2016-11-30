@@ -211,3 +211,11 @@ def test_company_case_study_explicit_value(case_study_data):
     data = serializer.validated_data
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
+
+
+@pytest.mark.django_db
+def test_company_case_study_with_company(company_case_study_one):
+    serializer = serializers.CompanyCaseStudyWithCompanySerializer(
+        company_case_study_one
+    )
+    assert isinstance(serializer.data['company'], dict)

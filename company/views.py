@@ -35,8 +35,16 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
-    serializer_class = serializers.CompanyCaseStudySerializer
+    read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
+    write_serializer_class = serializers.CompanyCaseStudySerializer
     queryset = models.CompanyCaseStudy.objects.all()
+
+    def get_serializer_class(self):
+        # on read use nested serializer (to also expose company), on write use
+        # flat serializer (so request can refer to existing company pk).
+        if self.request.method == 'GET':
+            return self.read_serializer_class
+        return self.write_serializer_class
 
     def dispatch(self, *args, **kwargs):
         self.company = generics.get_object_or_404(
