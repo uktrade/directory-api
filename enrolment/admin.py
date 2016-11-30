@@ -5,4 +5,4 @@ from enrolment.models import Enrolment
 
 @admin.register(Enrolment)
 class EnrolmentAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('created', 'modified',)

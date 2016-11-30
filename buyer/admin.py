@@ -5,4 +5,4 @@ from buyer.models import Buyer
 
 @admin.register(Buyer)
 class BuyerAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('created', 'modified',)
