@@ -22,6 +22,16 @@ from company.tests import (
 from user.models import User
 
 
+default_public_profile_data = {
+    'name': 'private company',
+    'website': 'http://example.com',
+    'description': 'Company description',
+    'export_status': choices.EXPORT_STATUSES[1][0],
+    'date_of_creation': '2010-10-10',
+    'revenue': '100000.00',
+}
+
+
 class CompanyViewsTests(TestCase):
 
     def setUp(self):
@@ -226,31 +236,51 @@ def company():
 
 
 @pytest.fixture
-def public_profile():
-    return Company.objects.create(
-        number="0123456A",
-        name='public company',
-        website="http://example.com",
-        description="Company description",
-        export_status=choices.EXPORT_STATUSES[1][0],
-        date_of_creation="2010-10-10",
-        revenue='100000.00',
-        is_published=True,
-    )
+def private_profile():
+    company = Company(**default_public_profile_data)
+    company.number = '0123456A'
+    company.is_published = False
+    company.save()
+    return company
 
 
 @pytest.fixture
-def private_profile():
-    return Company.objects.create(
-        number="0123456B",
-        name='private company',
-        website="http://example.com",
-        description="Company description",
-        export_status=choices.EXPORT_STATUSES[1][0],
-        date_of_creation="2010-10-10",
-        revenue='100000.00',
-        is_published=False,
-    )
+def public_profile():
+    company = Company(**default_public_profile_data)
+    company.number = '0123456B'
+    company.is_published = True
+    company.save()
+    return company
+
+
+@pytest.fixture
+def public_profile_software():
+    company = Company(**default_public_profile_data)
+    company.number = '0123456C'
+    company.is_published = True
+    company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES']
+    company.save()
+    return company
+
+
+@pytest.fixture
+def public_profile_cars():
+    company = Company(**default_public_profile_data)
+    company.number = '0123456D'
+    company.is_published = True
+    company.sectors = ['AUTOMOTIVE']
+    company.save()
+    return company
+
+
+@pytest.fixture
+def public_profile_smart_cars():
+    company = Company(**default_public_profile_data)
+    company.number = '0123456E'
+    company.is_published = True
+    company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES', 'AUTOMOTIVE']
+    company.save()
+    return company
 
 
 @pytest.fixture
@@ -419,3 +449,44 @@ def test_company_profile_public_list_profiles(
 
     assert data['count'] == 1
     assert data['results'][0]['id'] == str(public_profile.pk)
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_profile_public_list_profiles_filter_single(
+    public_profile_software, public_profile_cars, public_profile_smart_cars,
+    api_client
+):
+    url = reverse('company-public-profile-list')
+
+    filter_one = {'sectors': 'SOFTWARE_AND_COMPUTER_SERVICES'}
+    parsed_one = api_client.get(url, filter_one).json()
+    parsed_one_ids = [int(item['id']) for item in parsed_one['results']]
+    assert parsed_one['count'] == 2
+    assert public_profile_software.pk in parsed_one_ids
+    assert public_profile_smart_cars.pk in parsed_one_ids
+    assert public_profile_cars.pk not in parsed_one_ids
+
+    filter_two = {'sectors': 'AUTOMOTIVE'}
+    parsed_two = api_client.get(url, filter_two).json()
+    parsed_two_ids = [int(item['id']) for item in parsed_two['results']]
+    assert parsed_two['count'] == 2
+    assert public_profile_cars.pk in parsed_two_ids
+    assert public_profile_smart_cars.pk in parsed_two_ids
+    assert public_profile_software.pk not in parsed_two_ids
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_profile_public_list_profiles_empty_filter(
+    public_profile_software, public_profile_cars, public_profile_smart_cars,
+    api_client
+):
+    url = reverse('company-public-profile-list')
+
+    parsed = api_client.get(url).json()
+    parsed_ids = [int(item['id']) for item in parsed['results']]
+    assert parsed['count'] == 3
+    assert public_profile_software.pk in parsed_ids
+    assert public_profile_smart_cars.pk in parsed_ids
+    assert public_profile_cars.pk in parsed_ids

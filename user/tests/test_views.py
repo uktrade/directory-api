@@ -1,6 +1,6 @@
 import json
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from django.core.urlresolvers import reverse
 
@@ -169,23 +169,26 @@ class UserViewsTests(TestCase):
         response = client.get(reverse('validate-phone-number'), {})
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.django_db
-    def test_gecko_num_registered_user_view_returns_correct_json(self):
-        client = APIClient()
-        User.objects.create(**VALID_REQUEST_DATA)
 
-        response = client.get(reverse('gecko-total-registered-users'))
+@pytest.mark.django_db
+@patch('rest_framework.permissions.IsAuthenticated.has_permission',
+       Mock(return_value=True))
+def test_gecko_num_registered_user_view_returns_correct_json():
+    client = APIClient()
+    User.objects.create(**VALID_REQUEST_DATA)
 
-        expected = {
-            "item": [
-                {
-                  "value": 1,
-                  "text": "Total registered users"
-                }
-              ]
-        }
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
+    response = client.get(reverse('gecko-total-registered-users'))
+
+    expected = {
+        "item": [
+            {
+              "value": 1,
+              "text": "Total registered users"
+            }
+          ]
+    }
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
 
 
 @pytest.mark.django_db
