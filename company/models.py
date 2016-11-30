@@ -3,6 +3,7 @@ from directory_validators import enrolment as shared_validators
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.utils.translation import ugettext_lazy as _
 
 from company import helpers
 
@@ -57,6 +58,13 @@ class Company(models.Model):
     )
     date_of_creation = models.DateField(blank=True, null=True, default=None)
     is_published = models.BooleanField(default=False)
+    letter_verification_code = models.CharField(
+        _('letter verification code'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default=''
+    )
 
     def __str__(self):
         return self.name
