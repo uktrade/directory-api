@@ -116,9 +116,12 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 
 # DRF
 REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'signature.permissions.SignaturePermission',
-    )
+    ),
 }
 # Sentry
 RAVEN_CONFIG = {
