@@ -196,8 +196,9 @@ def video(tmpdir_factory):
 
 
 @pytest.fixture
-def case_study_data(image_one, image_two, image_three, video):
+def case_study_data(image_one, image_two, image_three, video, company):
     return {
+        'company': company.pk,
         'title': 'a title',
         'description': 'a description',
         'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
@@ -399,12 +400,13 @@ def test_company_case_study_get(
     assert response.status_code == http.client.OK
     assert data['testimonial'] == supplier_case_study.testimonial
     assert data['website'] == supplier_case_study.website
-    assert data['company'] == supplier_case_study.company.pk
     assert data['year'] == supplier_case_study.year
     assert data['description'] == supplier_case_study.description
     assert data['title'] == supplier_case_study.title
     assert data['sector'] == supplier_case_study.sector
     assert data['keywords'] == supplier_case_study.keywords
+    assert isinstance(data['company'], dict)
+    assert data['company']['id'] == supplier_case_study.company.pk
 
 
 @pytest.mark.django_db

@@ -29,6 +29,11 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
         return value or ''
 
 
+class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
+    class Meta(CompanyCaseStudySerializer.Meta):
+        depth = 2
+
+
 class CompanySerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
