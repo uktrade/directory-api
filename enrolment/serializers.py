@@ -4,7 +4,7 @@ from django.db import transaction
 
 from enrolment import models
 from company.serializers import CompanySerializer
-from user.serializers import UserSerializer
+from supplier.serializers import SupplierSerializer
 
 
 class EnrolmentSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 'number': validated_data['data']['company_number'],
                 'date_of_creation': validated_data['data']['date_of_creation'],
             }
-            validated_user_data = {
+            validated_supplier_data = {
                 'sso_id': validated_data['data']['sso_id'],
                 'company_email': validated_data['data']['company_email'],
                 'mobile_number': validated_data['data']['mobile_number'],
@@ -45,7 +45,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 'missing key: "{key}"'.format(key=error)
             )
         company = self.create_company(**validated_company_data)
-        self.create_user(company=company, **validated_user_data)
+        self.create_supplier(company=company, **validated_supplier_data)
 
     def create_company(self, name, number, export_status, date_of_creation):
         serializer = CompanySerializer(data={
@@ -57,9 +57,9 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
-    def create_user(
+    def create_supplier(
             self, sso_id, company_email, mobile_number, referrer, company):
-        serializer = UserSerializer(data={
+        serializer = SupplierSerializer(data={
             'sso_id': sso_id,
             'company_email': company_email,
             'referrer': referrer,

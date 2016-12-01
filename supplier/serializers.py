@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from user import models, validators
+from supplier import models, validators
 
 
-class UserSerializer(serializers.ModelSerializer):
+class SupplierSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.User
+        model = models.Supplier
         fields = (
             'company',
             'company_email',
@@ -35,13 +35,13 @@ class ConfirmCompanyEmailSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
-class UserEmailValidatorSerializer(serializers.Serializer):
+class SupplierEmailValidatorSerializer(serializers.Serializer):
     company_email = serializers.CharField(validators=[
         validators.email_unique,
     ])
 
 
-class UserMobileNumberValidatorSerializer(serializers.Serializer):
+class SupplierMobileNumberValidatorSerializer(serializers.Serializer):
     mobile_number = serializers.CharField(validators=[
         validators.mobile_number_unique,
     ])

@@ -10,16 +10,16 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.authentication import BasicAuthentication
 
-from user.models import User
-from user.tests import (
+from supplier.models import Supplier
+from supplier.tests import (
     VALID_REQUEST_DATA,
     MockInvalidSerializer,
     MockValidSerializer
 )
-from user.views import GeckoTotalRegisteredUsersView
+from supplier.views import GeckoTotalRegisteredSuppliersView
 
 
-class UserViewsTests(TestCase):
+class SupplierViewsTests(TestCase):
 
     def setUp(self):
         self.signature_permission_mock = patch(
@@ -32,52 +32,54 @@ class UserViewsTests(TestCase):
         self.signature_permission_mock.stop()
 
     @pytest.mark.django_db
-    def test_user_retrieve_view(self):
+    def test_supplier_retrieve_view(self):
         client = APIClient()
-        user = User.objects.create(**VALID_REQUEST_DATA)
+        supplier = Supplier.objects.create(**VALID_REQUEST_DATA)
 
-        response = client.get(reverse('user', kwargs={'sso_id': user.sso_id}))
+        response = client.get(
+            reverse('supplier', kwargs={'sso_id': supplier.sso_id})
+        )
 
-        expected = {'sso_id': str(user.sso_id), 'company': None}
+        expected = {'sso_id': str(supplier.sso_id), 'company': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
 
     @pytest.mark.django_db
-    def test_user_update_view_with_put(self):
+    def test_supplier_update_view_with_put(self):
         client = APIClient()
-        user = User.objects.create(
+        supplier = Supplier.objects.create(
             sso_id=1,
             company_email='harry.potter@hogwarts.com')
 
         response = client.put(
-            reverse('user', kwargs={'sso_id': user.sso_id}),
+            reverse('supplier', kwargs={'sso_id': supplier.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'sso_id': str(user.sso_id), 'company': None}
+        expected = {'sso_id': str(supplier.sso_id), 'company': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
 
     @pytest.mark.django_db
-    def test_user_update_view_with_patch(self):
+    def test_supplier_update_view_with_patch(self):
         client = APIClient()
-        user = User.objects.create(
+        supplier = Supplier.objects.create(
             sso_id=1, company_email='harry.potter@hogwarts.com'
         )
 
         response = client.patch(
-            reverse('user', kwargs={'sso_id': user.sso_id}),
+            reverse('supplier', kwargs={'sso_id': supplier.sso_id}),
             VALID_REQUEST_DATA, format='json')
 
-        expected = {'sso_id': str(user.sso_id), 'company': None}
+        expected = {'sso_id': str(supplier.sso_id), 'company': None}
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
 
     @pytest.mark.django_db
     def test_confirm_company_email_view_invalid_confirmation_code(self):
-        user = User.objects.create(
+        supplier = Supplier.objects.create(
             sso_id=1,
             company_email='gargoyle@example.com',
             company_email_confirmation_code='123456789'
@@ -96,15 +98,15 @@ class UserViewsTests(TestCase):
             'Invalid company email confirmation code'
         )
 
-        assert User.objects.get(
-            sso_id=user.sso_id
+        assert Supplier.objects.get(
+            sso_id=supplier.sso_id
         ).company_email_confirmed is False
 
     @pytest.mark.django_db
     def test_confirm_company_email_view_valid_confirmation_code(self):
         company_email_confirmation_code = '123456789'
 
-        user = User.objects.create(
+        supplier = Supplier.objects.create(
             sso_id=1,
             company_email='gargoyle@example.com',
             company_email_confirmation_code=company_email_confirmation_code
@@ -121,13 +123,13 @@ class UserViewsTests(TestCase):
         assert response_data['status_code'] == status.HTTP_200_OK
         assert response_data['detail'] == "Company email confirmed"
 
-        assert User.objects.get(
-            sso_id=user.sso_id
+        assert Supplier.objects.get(
+            sso_id=supplier.sso_id
         ).company_email_confirmed is True
 
     @pytest.mark.django_db
-    @patch('user.views.UserEmailValidatorAPIView.get_serializer')
-    def test_user_email_validator_rejects_invalid_serializer(
+    @patch('supplier.views.SupplierEmailValidatorAPIView.get_serializer')
+    def test_supplier_email_validator_rejects_invalid_serializer(
             self, mock_get_serializer):
 
         client = APIClient()
@@ -138,8 +140,8 @@ class UserViewsTests(TestCase):
         assert response.json() == serializer.errors
 
     @pytest.mark.django_db
-    @patch('user.views.UserEmailValidatorAPIView.get_serializer')
-    def test_user_email_validator_accepts_valid_serializer(
+    @patch('supplier.views.SupplierEmailValidatorAPIView.get_serializer')
+    def test_supplier_email_validator_accepts_valid_serializer(
             self, mock_get_serializer):
 
         client = APIClient()
@@ -148,8 +150,10 @@ class UserViewsTests(TestCase):
         assert response.status_code == status.HTTP_200_OK
 
     @pytest.mark.django_db
-    @patch('user.views.UserMobileNumberValidatorAPIView.get_serializer')
-    def test_user_phone_number_validator_rejects_invalid_serializer(
+    @patch(
+        'supplier.views.SupplierMobileNumberValidatorAPIView.get_serializer'
+    )
+    def test_supplier_phone_number_validator_rejects_invalid_serializer(
             self, mock_get_serializer):
 
         client = APIClient()
@@ -160,8 +164,10 @@ class UserViewsTests(TestCase):
         assert response.json() == serializer.errors
 
     @pytest.mark.django_db
-    @patch('user.views.UserMobileNumberValidatorAPIView.get_serializer')
-    def test_user_phone_number_validator_accepts_valid_serializer(
+    @patch(
+        'supplier.views.SupplierMobileNumberValidatorAPIView.get_serializer'
+    )
+    def test_supplier_phone_number_validator_accepts_valid_serializer(
             self, mock_get_serializer):
 
         client = APIClient()
@@ -173,17 +179,17 @@ class UserViewsTests(TestCase):
 @pytest.mark.django_db
 @patch('rest_framework.permissions.IsAuthenticated.has_permission',
        Mock(return_value=True))
-def test_gecko_num_registered_user_view_returns_correct_json():
+def test_gecko_num_registered_supplier_view_returns_correct_json():
     client = APIClient()
-    User.objects.create(**VALID_REQUEST_DATA)
+    Supplier.objects.create(**VALID_REQUEST_DATA)
 
-    response = client.get(reverse('gecko-total-registered-users'))
+    response = client.get(reverse('gecko-total-registered-suppliers'))
 
     expected = {
         "item": [
             {
               "value": 1,
-              "text": "Total registered users"
+              "text": "Total registered suppliers"
             }
           ]
     }
@@ -192,14 +198,14 @@ def test_gecko_num_registered_user_view_returns_correct_json():
 
 
 @pytest.mark.django_db
-def test_gecko_num_registered_user_view_requires_auth():
+def test_gecko_num_registered_supplier_view_requires_auth():
     client = APIClient()
 
-    response = client.get(reverse('gecko-total-registered-users'))
+    response = client.get(reverse('gecko-total-registered-suppliers'))
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_gecko_num_registered_user_view_uses_basic_auth():
-    auth_classes = GeckoTotalRegisteredUsersView.authentication_classes
+def test_gecko_num_registered_supplier_view_uses_basic_auth():
+    auth_classes = GeckoTotalRegisteredSuppliersView.authentication_classes
     assert BasicAuthentication in auth_classes

@@ -11,7 +11,7 @@ from api.tests import MockBoto
 import enrolment.queue
 import enrolment.models
 from enrolment.tests import VALID_REQUEST_DATA, VALID_REQUEST_DATA_JSON
-from user.models import User
+from supplier.models import Supplier
 from company.models import Company
 
 
@@ -46,13 +46,13 @@ class TestQueueWorker(MockBoto):
         assert instance.data == VALID_REQUEST_DATA
 
     @pytest.mark.django_db
-    def test_save_enrolment_creates_user(self):
+    def test_save_enrolment_creates_supplier(self):
         worker = enrolment.queue.EnrolmentQueueWorker()
         worker.save_enrolment(
             sqs_message_id='1',
             json_payload=VALID_REQUEST_DATA_JSON
         )
-        instance = User.objects.last()
+        instance = Supplier.objects.last()
 
         assert instance.referrer == VALID_REQUEST_DATA['referrer']
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
@@ -81,8 +81,10 @@ class TestQueueWorker(MockBoto):
         )
 
         email = VALID_REQUEST_DATA['company_email']
-        user = User.objects.get()
-        company_email_confirmation_code = user.company_email_confirmation_code
+        supplier = Supplier.objects.get()
+        company_email_confirmation_code = (
+            supplier.company_email_confirmation_code
+        )
 
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == (
@@ -107,11 +109,11 @@ class TestQueueWorker(MockBoto):
             json_payload=VALID_REQUEST_DATA_JSON
         )
 
-        user = User.objects.get()
-        assert user.company_email_confirmation_code
+        supplier = Supplier.objects.get()
+        assert supplier.company_email_confirmation_code
         # 36 random chars
-        assert len(user.company_email_confirmation_code) == 36
-        assert user.company_email_confirmed is False
+        assert len(supplier.company_email_confirmation_code) == 36
+        assert supplier.company_email_confirmed is False
 
     @pytest.mark.django_db
     def test_save_company_handles_exception(self):
@@ -125,7 +127,7 @@ class TestQueueWorker(MockBoto):
             )
 
     @pytest.mark.django_db
-    def test_save_user_handles_exception(self):
+    def test_save_supplier_handles_exception(self):
         worker = enrolment.queue.EnrolmentQueueWorker()
         invalid_data = VALID_REQUEST_DATA.copy()
         invalid_data['company_email'] = None

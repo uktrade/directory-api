@@ -8,22 +8,12 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from user import models, serializers, gecko
+from supplier import models, serializers, gecko
 
 
-class UserEmailValidatorAPIView(GenericAPIView):
+class SupplierEmailValidatorAPIView(GenericAPIView):
 
-    serializer_class = serializers.UserEmailValidatorSerializer
-
-    def get(self, request, *args, **kwargs):
-        validator = self.get_serializer(data=request.GET)
-        validator.is_valid(raise_exception=True)
-        return Response()
-
-
-class UserMobileNumberValidatorAPIView(GenericAPIView):
-
-    serializer_class = serializers.UserMobileNumberValidatorSerializer
+    serializer_class = serializers.SupplierEmailValidatorSerializer
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -31,14 +21,24 @@ class UserMobileNumberValidatorAPIView(GenericAPIView):
         return Response()
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class SupplierMobileNumberValidatorAPIView(GenericAPIView):
 
-    queryset = models.User.objects.all()
+    serializer_class = serializers.SupplierMobileNumberValidatorSerializer
+
+    def get(self, request, *args, **kwargs):
+        validator = self.get_serializer(data=request.GET)
+        validator.is_valid(raise_exception=True)
+        return Response()
+
+
+class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+
+    queryset = models.Supplier.objects.all()
     lookup_field = 'sso_id'
-    serializer_class = serializers.UserSerializer
+    serializer_class = serializers.SupplierSerializer
 
 
-class GeckoTotalRegisteredUsersView(APIView):
+class GeckoTotalRegisteredSuppliersView(APIView):
 
     permission_classes = (IsAuthenticated, )
     authentication_classes = (BasicAuthentication, )
@@ -46,7 +46,7 @@ class GeckoTotalRegisteredUsersView(APIView):
     http_method_names = ("get", )
 
     def get(self, request, format=None):
-        return Response(gecko.total_registered_users())
+        return Response(gecko.total_registered_suppliers())
 
 
 class ConfirmCompanyEmailAPIView(APIView):
@@ -60,20 +60,20 @@ class ConfirmCompanyEmailAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = models.User.objects.get(
+            supplier = models.Supplier.objects.get(
                 company_email_confirmation_code=serializer.data[
                     'confirmation_code'
                 ]
             )
-        except models.User.DoesNotExist:
+        except models.Supplier.DoesNotExist:
             response_status_code = status.HTTP_400_BAD_REQUEST
             response_data = json.dumps({
                 "status_code": response_status_code,
                 "detail": "Invalid company email confirmation code"
             })
         else:
-            user.company_email_confirmed = True
-            user.save()
+            supplier.company_email_confirmed = True
+            supplier.save()
 
             response_status_code = status.HTTP_200_OK
             response_data = json.dumps({
