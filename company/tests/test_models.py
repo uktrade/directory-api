@@ -4,6 +4,10 @@ from directory_validators.constants import choices
 
 from django.db import IntegrityError
 
+from django_extensions.db.fields import (
+    ModificationDateTimeField, CreationDateTimeField
+)
+
 from company import models, tests
 
 
@@ -57,3 +61,29 @@ def test_company_case_study_non_required_fields(company):
     assert instance.image_two.name is None
     assert instance.image_three.name is None
     assert instance.video_one.name is None
+
+
+def test_company_model_has_update_create_timestamps():
+    field_names = models.Company._meta.get_all_field_names()
+
+    assert 'created' in field_names
+    created_field = models.Company._meta.get_field_by_name('created')[0]
+    assert created_field.__class__ is CreationDateTimeField
+
+    assert 'modified' in field_names
+    modified_field = models.Company._meta.get_field_by_name('modified')[0]
+    assert modified_field.__class__ is ModificationDateTimeField
+
+
+def test_company_case_study_model_has_update_create_timestamps():
+    field_names = models.CompanyCaseStudy._meta.get_all_field_names()
+
+    assert 'created' in field_names
+    created_field = models.CompanyCaseStudy._meta.get_field_by_name(
+        'created')[0]
+    assert created_field.__class__ is CreationDateTimeField
+
+    assert 'modified' in field_names
+    modified_field = models.CompanyCaseStudy._meta.get_field_by_name(
+        'modified')[0]
+    assert modified_field.__class__ is ModificationDateTimeField

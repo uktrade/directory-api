@@ -2,8 +2,10 @@ from directory_validators.constants import choices
 
 from django.db import models
 
+from api.model_utils import TimeStampedModel
 
-class Buyer(models.Model):
+
+class Buyer(TimeStampedModel):
 
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
