@@ -127,7 +127,7 @@ def test_company_serializer_defaults_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db
@@ -151,7 +151,7 @@ def test_company_serializer_translates_none_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db
@@ -167,7 +167,7 @@ def test_company_serializer_save():
     assert company.description == VALID_REQUEST_DATA['description']
     assert str(company.revenue) == VALID_REQUEST_DATA['revenue']
     assert company.export_status == VALID_REQUEST_DATA['export_status']
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db

@@ -43,7 +43,7 @@ class Company(TimeStampedModel):
         validators=[shared_validators.company_number],
         unique=True
     )
-    registered_address = JSONField(
+    contact_details = JSONField(
         blank=True,
         null=True,
     )

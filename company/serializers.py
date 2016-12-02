@@ -75,3 +75,9 @@ class CompanyNumberValidatorSerializer(serializers.Serializer):
     number = serializers.CharField(validators=[
         validators.company_unique,
     ])
+
+
+class VerifyCompanyWithCodeSerializer(serializers.Serializer):
+
+    sso_user_id = serializers.CharField()
+    code = serializers.CharField()

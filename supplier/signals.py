@@ -6,7 +6,8 @@ from django.template.loader import render_to_string
 
 
 def send_confirmation_email(sender, instance, created, *args, **kwargs):
-    if not created or not instance.company_email:
+    already_confirmed = instance.company_email_confirmed
+    if not created or not instance.company_email or already_confirmed:
         return
 
     if not instance.company_email_confirmation_code:

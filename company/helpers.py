@@ -76,3 +76,17 @@ path_and_rename_logos = PathAndRename(sub_path="/company_logos")
 path_and_rename_supplier_case_study = PathAndRename(
     sub_path="/supplier_case_study"
 )
+
+
+def get_stannp_recipient(registered_address):
+    recipient = {}
+    recipient['title'] = ''
+    recipient['firstname'] = ''
+    recipient['lastname'] = ''
+    recipient['address1'] = registered_address['address_line_1']
+    recipient['address2'] = registered_address['address_line_2']
+    recipient['city'] = registered_address['locality']
+    recipient['postcode'] = registered_address['postal_code']
+    recipient['country'] = registered_address['country']
+
+    return recipient
