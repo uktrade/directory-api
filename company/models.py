@@ -43,6 +43,10 @@ class Company(TimeStampedModel):
         validators=[shared_validators.company_number],
         unique=True
     )
+    registered_address = JSONField(
+        blank=True,
+        null=True,
+    )
     revenue = models.DecimalField(
         max_digits=13,
         decimal_places=2,
@@ -59,13 +63,14 @@ class Company(TimeStampedModel):
     )
     date_of_creation = models.DateField(blank=True, null=True, default=None)
     is_published = models.BooleanField(default=False)
-    letter_verification_code = models.CharField(
-        _('letter verification code'),
+    verification_code = models.CharField(
+        _('verification code'),
         max_length=255,
         blank=True,
         null=True,
         default=''
     )
+    verified_with_code = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
