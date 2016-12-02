@@ -150,7 +150,7 @@ debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
 migrations:
-	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment user company buyer
+	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment supplier company buyer
 
 debug: test_requirements debug_db debug_test
 

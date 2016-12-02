@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
+    'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
 ]
 
