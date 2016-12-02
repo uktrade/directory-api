@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework import generics, viewsets
 
 from company import filters, models, pagination, serializers
-from supplier.models import Supplier
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -21,8 +20,8 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return generics.get_object_or_404(
-            Supplier, sso_id=self.kwargs['sso_id']
-        ).company
+            models.Company, suppliers__sso_id=self.kwargs['sso_id']
+        )
 
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
@@ -50,8 +49,8 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     def dispatch(self, *args, **kwargs):
         self.company = generics.get_object_or_404(
-            Supplier, sso_id=kwargs['sso_id']
-        ).company
+            models.Company, suppliers__sso_id=kwargs['sso_id']
+        )
 
         return super().dispatch(*args, **kwargs)
 

@@ -4,10 +4,10 @@ import http
 import os
 from uuid import uuid4
 
-import requests
-
 from django.conf import settings
 from django.utils.deconstruct import deconstructible
+
+import requests
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
