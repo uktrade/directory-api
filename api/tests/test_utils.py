@@ -89,6 +89,7 @@ def test_gecko_basic_auth_uses_settings_for_auth(settings):
 
     assert auth_results[0].__class__ is User
     assert auth_results[0].username == username
+    assert auth_results[0].id is None  # do not save this user to db!
     assert auth_results[1] is None
 
 
