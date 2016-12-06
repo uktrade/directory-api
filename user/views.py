@@ -5,10 +5,10 @@ from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from user import models, serializers, gecko
+from api.utils import GeckoBasicAuthentication
 
 
 class UserEmailValidatorAPIView(GenericAPIView):
@@ -41,7 +41,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 class GeckoTotalRegisteredUsersView(APIView):
 
     permission_classes = (IsAuthenticated, )
-    authentication_classes = (BasicAuthentication, )
+    authentication_classes = (GeckoBasicAuthentication, )
     renderer_classes = (JSONRenderer, )
     http_method_names = ("get", )
 
