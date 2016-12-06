@@ -7,6 +7,7 @@ from company.views import (
     CompanyNumberValidatorAPIView,
     CompanyPublicProfileViewSet,
     CompanyRetrieveUpdateAPIView,
+    VerifyCompanyWithCodeAPIView,
 )
 from supplier.views import (
     SupplierRetrieveUpdateAPIView,
@@ -51,6 +52,11 @@ urlpatterns = [
         r'supplier/(?P<sso_id>[0-9]+)/company/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
+    ),
+    url(
+        r'supplier/(?P<sso_id>[0-9]+)/company/verify/$',
+        VerifyCompanyWithCodeAPIView.as_view(),
+        name='company-verify'
     ),
     url(
         r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/$',

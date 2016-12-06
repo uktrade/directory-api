@@ -1,6 +1,5 @@
-import json
-
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from company import filters, models, pagination, serializers
@@ -70,43 +69,29 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
     http_method_names = ("post", )
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
+    renderer_classes = (JSONRenderer, )
+
+    def dispatch(self, *args, **kwargs):
+        self.company = generics.get_object_or_404(
+            models.Company, suppliers__sso_id=kwargs['sso_id']
+        )
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
-
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(
+            data=request.data,
+            context={'expected_code': self.company.verification_code}
+        )
         serializer.is_valid(raise_exception=True)
 
-        try:
-            company = models.Company.objects.get(
-                suppliers__sso_id=serializer.data[
-                    'sso_user_id'
-                ]
-            )
-        except models.Company.DoesNotExist:
-            response_status_code = status.HTTP_400_BAD_REQUEST
-            response_data = json.dumps({
-                "status_code": response_status_code,
-                "detail": "Company not found"
-            })
-        else:
-            if company.verification_code == serializer.data['code']:
-                company.verified_with_code = True
-                company.save()
-
-                response_status_code = status.HTTP_200_OK
-                response_data = json.dumps({
-                    "status_code": response_status_code,
-                    "detail": "Company verified with code"
-                })
-            else:
-                response_status_code = status.HTTP_400_BAD_REQUEST
-                response_data = json.dumps({
-                    "status_code": response_status_code,
-                    "detail": "Invalid company verification code"
-                })
+        self.company.verified_with_code = True
+        self.company.save()
 
         return Response(
-            data=response_data,
-            status=response_status_code,
+            data={
+                "status_code": status.HTTP_200_OK,
+                "detail": "Company verified with code"
+            },
+            status=status.HTTP_200_OK,
         )

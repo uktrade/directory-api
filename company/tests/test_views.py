@@ -496,3 +496,48 @@ def test_company_profile_public_list_profiles_empty_filter(
     assert public_profile_software.pk in parsed_ids
     assert public_profile_smart_cars.pk in parsed_ids
     assert public_profile_cars.pk in parsed_ids
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_verify_company_with_code(api_client, settings):
+    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+
+    with patch('requests.post'):
+        company = Company.objects.create(**{
+            "number": "11234567",
+            "name": 'Test Company',
+            "website": "http://example.com",
+            "description": "Company description",
+            "export_status": choices.EXPORT_STATUSES[1][0],
+            "date_of_creation": "2010-10-10",
+            "revenue": '100000.00',
+            "contact_details": {
+                'title': 'test_title',
+                'firstname': 'test_firstname',
+                'lastname': 'test_lastname',
+                'address_line_1': 'test_address_line_1',
+                'address_line_2': 'test_address_line_2',
+                'locality': 'test_locality',
+                'postal_code': 'test_postal_code',
+                'country': 'test_country',
+            }
+        })
+
+    supplier = Supplier.objects.create(
+        sso_id=3,
+        company_email='test@example.com',
+        company=company,
+    )
+    company.refresh_from_db()
+    assert company.verification_code
+
+    url = reverse('company-verify', kwargs={'sso_id': supplier.sso_id})
+    response = api_client.post(
+        url, {'code': company.verification_code}, format='json'
+    )
+
+    assert response.status_code == http.client.OK
+
+    company.refresh_from_db()
+    assert company.verified_with_code is True

@@ -4,6 +4,7 @@ from company import models, validators
 
 
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.CompanyCaseStudy
         fields = (
@@ -30,12 +31,12 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
 
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
+
     class Meta(CompanyCaseStudySerializer.Meta):
         depth = 2
 
 
 class CompanySerializer(serializers.ModelSerializer):
-
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField()
     sectors = serializers.JSONField(required=False)
@@ -46,7 +47,7 @@ class CompanySerializer(serializers.ModelSerializer):
         many=True, required=False, read_only=True
     )
 
-    class Meta(object):
+    class Meta:
         model = models.Company
         fields = (
             'date_of_creation',
@@ -78,6 +79,10 @@ class CompanyNumberValidatorSerializer(serializers.Serializer):
 
 
 class VerifyCompanyWithCodeSerializer(serializers.Serializer):
-
-    sso_user_id = serializers.CharField()
     code = serializers.CharField()
+
+    def validate_code(self, value):
+        if value != self.context['expected_code']:
+            raise serializers.ValidationError(
+                "Invalid company verification code"
+            )

@@ -30,7 +30,7 @@ COMPANY_DATA = {
 
 
 @pytest.mark.django_db
-def test_sends_verification_letter_post_save(settings):
+def test_sends_verification_letter_post_save(settings, ):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with mock.patch('requests.post') as requests_mock:
