@@ -19,7 +19,7 @@ from company.tests import (
     MockValidSerializer,
     VALID_REQUEST_DATA,
 )
-from supplier.models import Supplier
+from user.models import User as Supplier
 
 
 default_public_profile_data = {

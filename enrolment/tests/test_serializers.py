@@ -8,7 +8,7 @@ from enrolment.serializers import EnrolmentSerializer
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.models import Enrolment
 from company.models import Company
-from supplier.models import Supplier
+from user.models import User as Supplier
 
 
 @pytest.mark.django_db

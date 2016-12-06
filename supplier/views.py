@@ -8,7 +8,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from supplier import models, serializers, gecko
+from supplier import serializers, gecko
+from user.models import User as Supplier
 
 
 class SupplierEmailValidatorAPIView(GenericAPIView):
@@ -33,7 +34,7 @@ class SupplierMobileNumberValidatorAPIView(GenericAPIView):
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
-    queryset = models.Supplier.objects.all()
+    queryset = Supplier.objects.all()
     lookup_field = 'sso_id'
     serializer_class = serializers.SupplierSerializer
 
@@ -60,12 +61,12 @@ class ConfirmCompanyEmailAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            supplier = models.Supplier.objects.get(
+            supplier = Supplier.objects.get(
                 company_email_confirmation_code=serializer.data[
                     'confirmation_code'
                 ]
             )
-        except models.Supplier.DoesNotExist:
+        except Supplier.DoesNotExist:
             response_status_code = status.HTTP_400_BAD_REQUEST
             response_data = json.dumps({
                 "status_code": response_status_code,

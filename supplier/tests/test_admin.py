@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 from freezegun import freeze_time
 
-from supplier.models import Supplier
+from user.models import User as Supplier
 from supplier.tests import VALID_REQUEST_DATA as SUPPLIER_DATA
 from company.models import Company
 from company.tests import VALID_REQUEST_DATA as COMPANY_DATA

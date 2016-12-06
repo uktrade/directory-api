@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
-from supplier import models, validators
+from supplier import validators
+from user.models import User as Supplier
 
 
 class SupplierSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.Supplier
+        model = Supplier
         fields = (
             'company',
             'company_email',

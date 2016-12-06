@@ -1,6 +1,6 @@
 import pytest
 
-from supplier.models import Supplier
+from user.models import User as Supplier
 from supplier.tests import VALID_REQUEST_DATA
 
 
