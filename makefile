@@ -59,7 +59,10 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great.dev; \
 	export DIRECTORY_API_CSRF_COOKIE_SECURE=false; \
 	export DIRECTORY_API_SESSION_COOKIE_SECURE=false; \
-	export GECKO_API_KEY=gecko
+	export GECKO_API_KEY=gecko; \
+	export DIRECTORY_API_STANNP_API_KEY=debug; \
+	export DIRECTORY_API_STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
+	export DIRECTORY_API_STANNP_TEST_MODE=true
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -125,7 +128,10 @@ DEBUG_SET_ENV_VARS := \
 	export SESSION_COOKIE_DOMAIN=.trade.great.dev; \
 	export CSRF_COOKIE_SECURE=false; \
 	export SESSION_COOKIE_SECURE=false; \
-	export GECKO_API_KEY=gecko
+	export GECKO_API_KEY=gecko; \
+	export STANNP_API_KEY=debug; \
+	export STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
+	export STANNP_TEST_MODE=true
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
@@ -152,7 +158,7 @@ debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
 migrations:
-	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment user company buyer
+	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations enrolment supplier company buyer
 
 debug: test_requirements debug_db debug_test
 

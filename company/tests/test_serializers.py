@@ -67,6 +67,16 @@ def test_company_serializer_untouches_is_published():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        }
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -96,6 +106,16 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        }
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -114,6 +134,16 @@ def test_company_serializer_defaults_to_empty_string():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Extreme corp',
         'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        }
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -127,7 +157,7 @@ def test_company_serializer_defaults_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db
@@ -139,6 +169,16 @@ def test_company_serializer_translates_none_to_empty_string():
         'description': None,
         'export_status': choices.EXPORT_STATUSES[1][0],
         'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        }
     }
     serializer = serializers.CompanySerializer(data=data)
     assert serializer.is_valid(), serializer.errors
@@ -151,7 +191,7 @@ def test_company_serializer_translates_none_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db
@@ -167,7 +207,7 @@ def test_company_serializer_save():
     assert company.description == VALID_REQUEST_DATA['description']
     assert str(company.revenue) == VALID_REQUEST_DATA['revenue']
     assert company.export_status == VALID_REQUEST_DATA['export_status']
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db

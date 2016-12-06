@@ -7,13 +7,14 @@ from company.views import (
     CompanyNumberValidatorAPIView,
     CompanyPublicProfileViewSet,
     CompanyRetrieveUpdateAPIView,
+    VerifyCompanyWithCodeAPIView,
 )
-from user.views import (
-    UserRetrieveUpdateAPIView,
+from supplier.views import (
+    SupplierRetrieveUpdateAPIView,
     ConfirmCompanyEmailAPIView,
-    UserEmailValidatorAPIView,
-    UserMobileNumberValidatorAPIView,
-    GeckoTotalRegisteredUsersView,
+    SupplierEmailValidatorAPIView,
+    SupplierMobileNumberValidatorAPIView,
+    GeckoTotalRegisteredSuppliersView,
 )
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
 from buyer.views import BuyerCreateAPIView
@@ -48,17 +49,22 @@ urlpatterns = [
         name='verification-sms',
     ),
     url(
-        r'user/(?P<sso_id>[0-9]+)/company/$',
+        r'supplier/(?P<sso_id>[0-9]+)/company/$',
         CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
     ),
     url(
-        r'^user/(?P<sso_id>[0-9]+)/company/case-study/$',
+        r'supplier/(?P<sso_id>[0-9]+)/company/verify/$',
+        VerifyCompanyWithCodeAPIView.as_view(),
+        name='company-verify'
+    ),
+    url(
+        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/$',
         CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
     ),
     url(
-        r'^user/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
+        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
         CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',
             'patch': 'partial_update',
@@ -67,14 +73,14 @@ urlpatterns = [
         name='company-case-study-detail',
     ),
     url(
-        r'user/(?P<sso_id>[0-9]+)/$',
-        UserRetrieveUpdateAPIView.as_view(),
-        name='user'
+        r'supplier/(?P<sso_id>[0-9]+)/$',
+        SupplierRetrieveUpdateAPIView.as_view(),
+        name='supplier'
     ),
     url(
-        r'user/gecko/total-registered/$',
-        GeckoTotalRegisteredUsersView.as_view(),
-        name='gecko-total-registered-users'
+        r'supplier/gecko/total-registered/$',
+        GeckoTotalRegisteredSuppliersView.as_view(),
+        name='gecko-total-registered-suppliers'
     ),
     url(
         r'company/public/(?P<companies_house_number>.*)/$',
@@ -98,12 +104,12 @@ urlpatterns = [
     ),
     url(
         r'validate/email-address/$',
-        UserEmailValidatorAPIView.as_view(),
+        SupplierEmailValidatorAPIView.as_view(),
         name='validate-email-address'
     ),
     url(
         r'validate/phone-number/$',
-        UserMobileNumberValidatorAPIView.as_view(),
+        SupplierMobileNumberValidatorAPIView.as_view(),
         name='validate-phone-number'
     ),
     url(

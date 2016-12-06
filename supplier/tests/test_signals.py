@@ -2,14 +2,14 @@ import pytest
 from django.conf import settings
 from django.core import mail
 
-from user.models import User
-from user.signals import send_confirmation_email
+from user.models import User as Supplier
+from supplier.signals import send_confirmation_email
 
 
 @pytest.mark.django_db
 def test_receiver_sets_company_email_confirmation_code():
-    sender = User
-    instance = User(sso_id=1, company_email='test@example.com')
+    sender = Supplier
+    instance = Supplier(sso_id=1, company_email='test@example.com')
 
     send_confirmation_email(sender, instance, created=True)
 
@@ -20,8 +20,8 @@ def test_receiver_sets_company_email_confirmation_code():
 
 @pytest.mark.django_db
 def test_receiver_doesnt_overwrite_confirmation_code_if_already_set():
-    sender = User
-    instance = User(
+    sender = Supplier
+    instance = Supplier(
         sso_id=1,
         company_email='test@example.com',
         company_email_confirmation_code='confirm'
@@ -34,9 +34,9 @@ def test_receiver_doesnt_overwrite_confirmation_code_if_already_set():
 
 @pytest.mark.django_db
 def test_receiver_sends_email():
-    sender = User
+    sender = Supplier
     email = 'test@example.com'
-    instance = User.objects.create(sso_id=1, company_email=email)
+    instance = Supplier.objects.create(sso_id=1, company_email=email)
     mail.outbox = []  # clear inbox for testing
 
     send_confirmation_email(sender, instance, created=True)
@@ -56,8 +56,8 @@ def test_receiver_sends_email():
 
 @pytest.mark.django_db
 def test_receiver_doesnt_send_email_on_update():
-    sender = User
-    instance = User.objects.create(
+    sender = Supplier
+    instance = Supplier.objects.create(
         sso_id=1,
         company_email='test@example.com')
     mail.outbox = []
@@ -69,8 +69,8 @@ def test_receiver_doesnt_send_email_on_update():
 
 @pytest.mark.django_db
 def test_receiver_doesnt_send_email_when_no_company_email():
-    sender = User
-    instance = User(sso_id=1, company_email='')
+    sender = Supplier
+    instance = Supplier(sso_id=1, company_email='')
 
     send_confirmation_email(sender, instance, created=True)
 

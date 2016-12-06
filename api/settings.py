@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
     'user.apps.UserConfig',
+    'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
 ]
 
@@ -225,6 +226,17 @@ SESSION_COOKIE_NAME = 'api_session_id'
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE') != 'false'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE') != 'false'
+
+# Verification letters sent with stannp.com
+FEATURE_VERIFICATION_LETTERS_ENABLED = os.getenv(
+    'FEATURE_VERIFICATION_LETTERS_ENABLED'
+) == 'true'
+
+STANNP_API_KEY = os.environ["STANNP_API_KEY"]
+STANNP_TEST_MODE = os.getenv('STANNP_TEST_MODE') != 'false'
+STANNP_VERIFICATION_LETTER_TEMPLATE_ID = os.environ[
+    "STANNP_VERIFICATION_LETTER_TEMPLATE_ID"
+]
 
 GECKO_API_KEY = os.environ['GECKO_API_KEY']
 # At present geckoboard's api assumes the password will always be X

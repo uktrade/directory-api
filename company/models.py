@@ -5,10 +5,11 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
+from api.model_utils import TimeStampedModel
 from company import helpers
 
 
-class Company(models.Model):
+class Company(TimeStampedModel):
 
     # NOTE: For various reasons owing to how django handles empty values
     # in strings and how DRF serializers handle validation,
@@ -42,6 +43,10 @@ class Company(models.Model):
         validators=[shared_validators.company_number],
         unique=True
     )
+    contact_details = JSONField(
+        blank=True,
+        null=True,
+    )
     revenue = models.DecimalField(
         max_digits=13,
         decimal_places=2,
@@ -58,19 +63,20 @@ class Company(models.Model):
     )
     date_of_creation = models.DateField(blank=True, null=True, default=None)
     is_published = models.BooleanField(default=False)
-    letter_verification_code = models.CharField(
-        _('letter verification code'),
+    verification_code = models.CharField(
+        _('verification code'),
         max_length=255,
         blank=True,
         null=True,
         default=''
     )
+    verified_with_code = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
 
-class CompanyCaseStudy(models.Model):
+class CompanyCaseStudy(TimeStampedModel):
     title = models.CharField(
         max_length=100,
     )

@@ -4,12 +4,13 @@ import datetime
 from django.contrib import admin
 from django.http import HttpResponse
 
-from user.models import User
+from user.models import User as Supplier
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+@admin.register(Supplier)
+class SupplierAdmin(admin.ModelAdmin):
 
+    readonly_fields = ('created', 'modified',)
     actions = ['download_csv']
 
     csv_fields = (
@@ -38,24 +39,28 @@ class UserAdmin(admin.ModelAdmin):
     )
 
     def download_csv(self, request, queryset):
-        """Generates CSV report of all users, with company details included."""
+        """
+        Generates CSV report of all suppliers, with company details included.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = (
-            'attachment; filename="find-a-buyer_users_{}.csv"'.format(
+            'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(
                 datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             )
         )
 
-        users = queryset.select_related('company').all().values(
+        suppliers = queryset.select_related('company').all().values(
             *self.csv_fields
         )
 
         writer = csv.DictWriter(response, fieldnames=self.csv_fields)
         writer.writeheader()
 
-        for user in users:
-            writer.writerow(user)
+        for supplier in suppliers:
+            writer.writerow(supplier)
 
         return response
 
-    download_csv.short_description = "Download CSV report for selected users"
+    download_csv.short_description = (
+        "Download CSV report for selected suppliers"
+    )

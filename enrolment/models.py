@@ -1,9 +1,10 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
+from api.model_utils import TimeStampedModel
 
-class Enrolment(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
+
+class Enrolment(TimeStampedModel):
     data = JSONField()
     # Unique constraint to achieve “exactly-once delivery” with Amazon SQS
     sqs_message_id = models.CharField(
