@@ -123,7 +123,8 @@ DEBUG_SET_ENV_VARS := \
 	export AWS_STORAGE_BUCKET_NAME=debug; \
 	export SESSION_COOKIE_DOMAIN=.trade.great.dev; \
 	export CSRF_COOKIE_SECURE=false; \
-	export SESSION_COOKIE_SECURE=false
+	export SESSION_COOKIE_SECURE=false; \
+	export GECKO_API_KEY=gecko
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);

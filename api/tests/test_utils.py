@@ -113,6 +113,7 @@ def test_gecko_basic_auth_raises_exception_on_incorrect_password(settings):
 
 def test_gecko_basic_auth_raises_exception_on_incorrect_credentials(settings):
     settings.GECKO_API_KEY = 'gecko_basic_auth_user'
+    settings.GECKO_API_PASS = 'X'
     auth_class = utils.GeckoBasicAuthentication()
 
     with pytest.raises(AuthenticationFailed):

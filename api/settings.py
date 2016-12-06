@@ -226,4 +226,6 @@ SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE') != 'false'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE') != 'false'
 
-GECKO_API_KEY = 'gecko'
+GECKO_API_KEY = os.environ['GECKO_API_KEY']
+# At present geckoboard's api assumes the password will always be X
+GECKO_API_PASS = os.getenv('GECKO_API_PASS', 'X')

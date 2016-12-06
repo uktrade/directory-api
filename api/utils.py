@@ -83,7 +83,9 @@ class GeckoBasicAuthentication(BasicAuthentication):
     class and absolutely nothing else."""
 
     def authenticate_credentials(self, userid, password):
-        if userid != settings.GECKO_API_KEY or password != 'X':
+        username_invalid = (userid != settings.GECKO_API_KEY)
+        password_invalid = (password != settings.GECKO_API_PASS)
+        if username_invalid or password_invalid:
             raise exceptions.AuthenticationFailed(
                 _('Invalid username/password.'))
         else:
