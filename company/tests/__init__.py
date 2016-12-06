@@ -5,13 +5,23 @@ from rest_framework import serializers
 
 
 VALID_REQUEST_DATA = {
-    "number": "01234567",
+    "number": "11234567",
     "name": 'Test Company',
     "website": "http://example.com",
     "description": "Company description",
     "export_status": choices.EXPORT_STATUSES[1][0],
     "date_of_creation": "2010-10-10",
     "revenue": '100000.00',
+    "contact_details": {
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
+    }
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 

@@ -2,7 +2,6 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 
 from company.stannp import stannp_client
-from company import helpers
 
 
 class NoCompanyAddressException(Exception):
@@ -28,6 +27,6 @@ def send_verification_letter(sender, instance, created, *args, **kwargs):
 
     stannp_client.send_letter(
         template=settings.STANNP_VERIFICATION_LETTER_TEMPLATE_ID,
-        recipient=helpers.get_stannp_recipient(instance.contact_details),
+        recipient=instance.contact_details,
         pages="Verification code: {}".format(instance.verification_code)
     )

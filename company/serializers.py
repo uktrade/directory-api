@@ -46,6 +46,7 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(
         many=True, required=False, read_only=True
     )
+    contact_details = serializers.JSONField(required=True)
 
     class Meta:
         model = models.Company
@@ -63,6 +64,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'sectors',
             'supplier_case_studies',
             'website',
+            'contact_details',
         )
 
     def validate_website(self, value):

@@ -33,6 +33,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 'name': validated_data['data']['company_name'],
                 'number': validated_data['data']['company_number'],
                 'date_of_creation': validated_data['data']['date_of_creation'],
+                'contact_details': validated_data['data']['contact_details'],
             }
             validated_supplier_data = {
                 'sso_id': validated_data['data']['sso_id'],
@@ -42,17 +43,21 @@ class EnrolmentSerializer(serializers.ModelSerializer):
             }
         except KeyError as error:
             raise serializers.ValidationError(
-                'missing key: "{key}"'.format(key=error)
+                'Missing key: "{key}"'.format(key=error)
             )
         company = self.create_company(**validated_company_data)
         self.create_supplier(company=company, **validated_supplier_data)
 
-    def create_company(self, name, number, export_status, date_of_creation):
+    def create_company(
+            self, name, number, export_status,
+            date_of_creation, contact_details
+    ):
         serializer = CompanySerializer(data={
             'name': name,
             'number': number,
             'export_status': export_status,
-            'date_of_creation': date_of_creation
+            'date_of_creation': date_of_creation,
+            'contact_details': contact_details,
         })
         serializer.is_valid(raise_exception=True)
         return serializer.save()

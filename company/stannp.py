@@ -11,21 +11,21 @@ class StannpClient():
         # but the item will never be dispatched and no charge will be taken.
         self.test_mode = test_mode
 
-    def post(self, url, payload):
+    def post(self, url, data):
         response = requests.post(
-            url, data=payload, auth=(self.api_key, '')
+            url, data=data, auth=(self.api_key, '')
         )
         return response.json()
 
-    def validate_address(self, address):
+    def validate_recipient(self, recipient):
         """
-        Validates an address.
+        Validates an recipient.
 
         https://www.stannp.com/direct-mail-api/recipients
         """
         return self.post(
             'https://dash.stannp.com/api/v1/recipients/validate',
-            payload=address
+            data=recipient
         )
 
     def send_letter(self, template, recipient, pages):
@@ -34,24 +34,24 @@ class StannpClient():
 
         https://www.stannp.com/direct-mail-api/letters
         """
-        payload = {}
+        data = {}
 
-        payload['recipient[title]'] = recipient['title']
-        payload['recipient[firstname]'] = recipient['firstname']
-        payload['recipient[lastname]'] = recipient['lastname']
-        payload['recipient[address1]'] = recipient['address1']
-        payload['recipient[address2]'] = recipient['address2']
-        payload['recipient[city]'] = recipient['city']
-        payload['recipient[postcode]'] = recipient['postcode']
-        payload['recipient[country]'] = recipient['country']
+        data['recipient[title]'] = recipient['title']
+        data['recipient[firstname]'] = recipient['firstname']
+        data['recipient[lastname]'] = recipient['lastname']
+        data['recipient[address1]'] = recipient['address_line_1']
+        data['recipient[address2]'] = recipient['address_line_2']
+        data['recipient[city]'] = recipient['locality']
+        data['recipient[postcode]'] = recipient['postal_code']
+        data['recipient[country]'] = recipient['country']
 
-        payload['template'] = template
-        payload['pages'] = pages
-        payload['test'] = self.test_mode
+        data['template'] = template
+        data['pages'] = pages
+        data['test'] = self.test_mode
 
         return self.post(
             'https://dash.stannp.com/api/v1/letters/create',
-            payload,
+            data,
         )
 
 
