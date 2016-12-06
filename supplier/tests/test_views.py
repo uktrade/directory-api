@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.authentication import BasicAuthentication
 
-from supplier.models import Supplier
+from user.models import User as Supplier
 from supplier.tests import (
     VALID_REQUEST_DATA,
     MockInvalidSerializer,

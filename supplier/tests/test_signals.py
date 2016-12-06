@@ -2,7 +2,7 @@ import pytest
 from django.conf import settings
 from django.core import mail
 
-from supplier.models import Supplier
+from user.models import User as Supplier
 from supplier.signals import send_confirmation_email
 
 

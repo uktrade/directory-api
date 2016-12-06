@@ -4,6 +4,7 @@ from company import models, validators
 
 
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.CompanyCaseStudy
         fields = (
@@ -30,12 +31,12 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
 
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
+
     class Meta(CompanyCaseStudySerializer.Meta):
         depth = 2
 
 
 class CompanySerializer(serializers.ModelSerializer):
-
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField()
     sectors = serializers.JSONField(required=False)
@@ -45,8 +46,9 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(
         many=True, required=False, read_only=True
     )
+    contact_details = serializers.JSONField(required=True)
 
-    class Meta(object):
+    class Meta:
         model = models.Company
         fields = (
             'date_of_creation',
@@ -62,6 +64,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'sectors',
             'supplier_case_studies',
             'website',
+            'contact_details',
         )
 
     def validate_website(self, value):
@@ -75,3 +78,13 @@ class CompanyNumberValidatorSerializer(serializers.Serializer):
     number = serializers.CharField(validators=[
         validators.company_unique,
     ])
+
+
+class VerifyCompanyWithCodeSerializer(serializers.Serializer):
+    code = serializers.CharField()
+
+    def validate_code(self, value):
+        if value != self.context['expected_code']:
+            raise serializers.ValidationError(
+                "Invalid company verification code"
+            )

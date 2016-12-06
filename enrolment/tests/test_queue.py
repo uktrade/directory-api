@@ -11,7 +11,7 @@ from api.tests import MockBoto
 import enrolment.queue
 import enrolment.models
 from enrolment.tests import VALID_REQUEST_DATA, VALID_REQUEST_DATA_JSON
-from supplier.models import Supplier
+from user.models import User as Supplier
 from company.models import Company
 
 

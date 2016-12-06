@@ -4,7 +4,7 @@ import datetime
 from django.contrib import admin
 from django.http import HttpResponse
 
-from supplier.models import Supplier
+from user.models import User as Supplier
 
 
 @admin.register(Supplier)

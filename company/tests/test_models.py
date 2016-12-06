@@ -34,7 +34,7 @@ def test_company_model_sets_string_fields_to_empty_by_default():
     assert company.name == ''
     assert company.website == ''
     assert company.description == ''
-    assert company.letter_verification_code == ''
+    assert company.verification_code == ''
 
 
 @pytest.mark.django_db
