@@ -11,12 +11,12 @@ from company.tests import VALID_REQUEST_DATA as COMPANY_DATA
 
 
 headers = (
-    'sso_id,name,mobile_number,company_email,company_email_confirmed,r'
-    'eferrer,is_active,date_joined,terms_agreed,company_id,company__na'
-    'me,company__description,company__employees,company__export_status'
-    ',company__keywords,company__logo,company__number,company__revenue'
-    ',company__sectors,company__website,company__date_of_creation,comp'
-    'any__is_published'
+    'sso_id,name,mobile_number,company_email,company_email_confirmed,'
+    'referrer,is_active,date_joined,company_id,company__name,'
+    'company__description,company__employees,company__export_status,'
+    'company__keywords,company__logo,company__number,company__revenue,'
+    'company__sectors,company__website,company__date_of_creation,'
+    'company__is_published'
 )
 
 
@@ -53,7 +53,7 @@ class DownloadCSVTestCase:
 
         row_one = (
             '1,,07505605132,gargoyle@example.com,False,google,True,'
-            '2017-03-21 13:12:00+00:00,True,{pk},Test Company,'
+            '2017-03-21 13:12:00+00:00,{pk},Test Company,'
             'Company description,,YES,,,01234567,100000.00,,'
             'http://example.com,2010-10-10,False'
         ).format(pk=supplier.company.pk)
@@ -100,15 +100,15 @@ class DownloadCSVTestCase:
 
         row_one = (
             '3,,07505605134,3@example.com,False,,True,'
-            '2012-01-14 12:00:00+00:00,False,{pk},,,,,,,01234568,,,,,False'
+            '2012-01-14 12:00:00+00:00,{pk},,,,,,,01234568,,,,,False'
         ).format(pk=supplier_three.company.pk)
         row_two = (
-            '2,,,2@example.com,False,,True,2012-01-14 12:00:00+00:00,False,'
+            '2,,,2@example.com,False,,True,2012-01-14 12:00:00+00:00,'
             '{pk},,,,,,,01234568,,,,,False'
         ).format(pk=supplier_two.company.pk)
         row_three = (
             '1,,07505605132,gargoyle@example.com,False,google,True,'
-            '2017-03-21 13:12:00+00:00,True,{pk},Test Company,'
+            '2017-03-21 13:12:00+00:00,{pk},Test Company,'
             'Company description,,YES,,,01234567,100000.00,,'
             'http://example.com,2010-10-10,False'
         ).format(pk=supplier_one.company.pk)

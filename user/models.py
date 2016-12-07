@@ -19,14 +19,9 @@ class User(TimeStampedModel):
         null=True,  # serializer validation requires both null & default
         default='',
     )
-    mobile_number = models.CharField(
-        max_length=20,
-        unique=True,
-    )
     company = models.ForeignKey(
         Company, related_name='suppliers', null=True
     )
-
     company_email = models.EmailField(
         _('company email'),
         unique=True
@@ -45,15 +40,6 @@ class User(TimeStampedModel):
         null=True,
         default=''
     )
-
-    referrer = models.CharField(
-        _('referrer'),
-        max_length=255,
-        blank=True,
-        null=True,
-        default='',  # serializer validation requires both null & default
-    )
-
     is_active = models.BooleanField(
         _('active'),
         default=True,
@@ -66,10 +52,12 @@ class User(TimeStampedModel):
         _('date joined'),
         default=timezone.now,
     )
-
-    terms_agreed = models.BooleanField(
-        _('terms_agreed'),
-        default=False
+    # deprecated in favour of company.models.Company.contact_details
+    mobile_number = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
     )
 
     class Meta:

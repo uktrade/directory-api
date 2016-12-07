@@ -13,6 +13,7 @@ VALID_REQUEST_DATA = {
     "date_of_creation": "2010-10-10",
     "revenue": '100000.00',
     "contact_details": {
+        "mobile_number": '07505605132',
         'title': 'test_title',
         'firstname': 'test_firstname',
         'lastname': 'test_lastname',

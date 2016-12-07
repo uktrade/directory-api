@@ -10,7 +10,6 @@ def test_supplier_serializer_defaults_to_empty_string():
     data = {
         "sso_id": '1',
         "company_email": "henry@example.com",
-        "mobile_number": '07507605133',
     }
     serializer = serializers.SupplierSerializer(data=data)
     assert serializer.is_valid()
@@ -20,24 +19,6 @@ def test_supplier_serializer_defaults_to_empty_string():
     # NOTE: This test is just for peace of mind that we handle
     # optional fields in a consistent manner
     assert supplier.name == ''
-    assert supplier.referrer == ''
-
-
-@pytest.mark.django_db
-def test_supplier_serializer_translates_none_to_empty_string():
-    data = {
-        "sso_id": '1',
-        "company_email": "henry@example.com",
-        "referrer": None,
-        "mobile_number": '07507605133',
-    }
-    serializer = serializers.SupplierSerializer(data=data)
-    assert serializer.is_valid()
-    supplier = serializer.save()
-
-    # NOTE: This test is just for peace of mind that we handle
-    # optional fields in a consistent manner
-    assert supplier.referrer == ''
 
 
 @pytest.mark.django_db
@@ -49,11 +30,9 @@ def test_supplier_serializer_save():
 
     assert supplier.sso_id == VALID_REQUEST_DATA['sso_id']
     assert supplier.company_email == VALID_REQUEST_DATA['company_email']
-    assert supplier.referrer == VALID_REQUEST_DATA['referrer']
     assert supplier.date_joined.year == 2017
     assert supplier.date_joined.month == 3
     assert supplier.date_joined.day == 21
-    assert supplier.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
 
 @pytest.mark.django_db
@@ -73,10 +52,3 @@ def test_email_unique_serializer_validators():
     field = serializer.get_fields()['company_email']
 
     assert validators.email_unique in field.validators
-
-
-def test_mobile_number_unique_serializer_validators():
-    serializer = serializers.SupplierMobileNumberValidatorSerializer()
-    field = serializer.get_fields()['mobile_number']
-
-    assert validators.mobile_number_unique in field.validators

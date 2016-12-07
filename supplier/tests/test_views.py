@@ -149,32 +149,6 @@ class SupplierViewsTests(TestCase):
         response = client.get(reverse('validate-email-address'), {})
         assert response.status_code == status.HTTP_200_OK
 
-    @pytest.mark.django_db
-    @patch(
-        'supplier.views.SupplierMobileNumberValidatorAPIView.get_serializer'
-    )
-    def test_supplier_phone_number_validator_rejects_invalid_serializer(
-            self, mock_get_serializer):
-
-        client = APIClient()
-        serializer = MockInvalidSerializer(data={})
-        mock_get_serializer.return_value = serializer
-        response = client.get(reverse('validate-phone-number'), {})
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == serializer.errors
-
-    @pytest.mark.django_db
-    @patch(
-        'supplier.views.SupplierMobileNumberValidatorAPIView.get_serializer'
-    )
-    def test_supplier_phone_number_validator_accepts_valid_serializer(
-            self, mock_get_serializer):
-
-        client = APIClient()
-        mock_get_serializer.return_value = MockValidSerializer(data={})
-        response = client.get(reverse('validate-phone-number'), {})
-        assert response.status_code == status.HTTP_200_OK
-
 
 @pytest.mark.django_db
 @patch('rest_framework.permissions.IsAuthenticated.has_permission',

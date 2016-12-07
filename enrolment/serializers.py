@@ -28,29 +28,25 @@ class EnrolmentSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create_nested_objects(self, validated_data):
         try:
-            validated_company_data = {
-                'export_status': validated_data['data']['export_status'],
-                'name': validated_data['data']['company_name'],
-                'number': validated_data['data']['company_number'],
-                'date_of_creation': validated_data['data']['date_of_creation'],
-                'contact_details': validated_data['data']['contact_details'],
-            }
-            validated_supplier_data = {
-                'sso_id': validated_data['data']['sso_id'],
-                'company_email': validated_data['data']['company_email'],
-                'mobile_number': validated_data['data']['mobile_number'],
-                'referrer': validated_data['data']['referrer'],
-            }
+            company = self.create_company(
+                export_status=validated_data['data']['export_status'],
+                name=validated_data['data']['company_name'],
+                number=validated_data['data']['company_number'],
+                date_of_creation=validated_data['data']['date_of_creation'],
+                contact_details=validated_data['data']['contact_details'],
+            )
+            self.create_supplier(
+                company=company,
+                sso_id=validated_data['data']['sso_id'],
+                company_email=validated_data['data']['company_email'],
+            )
         except KeyError as error:
             raise serializers.ValidationError(
                 'Missing key: "{key}"'.format(key=error)
             )
-        company = self.create_company(**validated_company_data)
-        self.create_supplier(company=company, **validated_supplier_data)
 
     def create_company(
-            self, name, number, export_status,
-            date_of_creation, contact_details
+        self, name, number, export_status, date_of_creation, contact_details
     ):
         serializer = CompanySerializer(data={
             'name': name,
@@ -63,12 +59,10 @@ class EnrolmentSerializer(serializers.ModelSerializer):
         return serializer.save()
 
     def create_supplier(
-            self, sso_id, company_email, mobile_number, referrer, company):
+            self, sso_id, company_email, company):
         serializer = SupplierSerializer(data={
             'sso_id': sso_id,
             'company_email': company_email,
-            'referrer': referrer,
-            'mobile_number': mobile_number,
             'company': company.pk,
         })
         serializer.is_valid(raise_exception=True)

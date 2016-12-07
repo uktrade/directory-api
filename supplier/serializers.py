@@ -13,10 +13,7 @@ class SupplierSerializer(serializers.ModelSerializer):
             'company_email',
             'company_email_confirmed',
             'date_joined',
-            'mobile_number',
-            'referrer',
             'sso_id',
-            'terms_agreed',
         )
         extra_kwargs = {
             'sso_id': {'required': True},
@@ -25,9 +22,6 @@ class SupplierSerializer(serializers.ModelSerializer):
         }
 
     def validate_name(self, value):
-        return value or ''
-
-    def validate_referrer(self, value):
         return value or ''
 
 
@@ -39,10 +33,4 @@ class ConfirmCompanyEmailSerializer(serializers.Serializer):
 class SupplierEmailValidatorSerializer(serializers.Serializer):
     company_email = serializers.CharField(validators=[
         validators.email_unique,
-    ])
-
-
-class SupplierMobileNumberValidatorSerializer(serializers.Serializer):
-    mobile_number = serializers.CharField(validators=[
-        validators.mobile_number_unique,
     ])
