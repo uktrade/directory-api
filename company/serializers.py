@@ -8,13 +8,13 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyCaseStudy
         fields = (
-            'pk',
             'company',
             'description',
             'image_one',
             'image_three',
             'image_two',
             'keywords',
+            'pk',
             'sector',
             'testimonial',
             'title',

@@ -54,9 +54,7 @@ class TestQueueWorker(MockBoto):
         )
         instance = Supplier.objects.last()
 
-        assert instance.referrer == VALID_REQUEST_DATA['referrer']
         assert instance.company_email == VALID_REQUEST_DATA['company_email']
-        assert instance.mobile_number == VALID_REQUEST_DATA['mobile_number']
 
     @pytest.mark.django_db
     def test_save_enrolment_creates_company(self):

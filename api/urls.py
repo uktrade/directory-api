@@ -13,7 +13,6 @@ from supplier.views import (
     SupplierRetrieveUpdateAPIView,
     ConfirmCompanyEmailAPIView,
     SupplierEmailValidatorAPIView,
-    SupplierMobileNumberValidatorAPIView,
     GeckoTotalRegisteredSuppliersView,
 )
 from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
@@ -106,11 +105,6 @@ urlpatterns = [
         r'validate/email-address/$',
         SupplierEmailValidatorAPIView.as_view(),
         name='validate-email-address'
-    ),
-    url(
-        r'validate/phone-number/$',
-        SupplierMobileNumberValidatorAPIView.as_view(),
-        name='validate-phone-number'
     ),
     url(
         r'buyer/$',

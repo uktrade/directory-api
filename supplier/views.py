@@ -22,16 +22,6 @@ class SupplierEmailValidatorAPIView(GenericAPIView):
         return Response()
 
 
-class SupplierMobileNumberValidatorAPIView(GenericAPIView):
-
-    serializer_class = serializers.SupplierMobileNumberValidatorSerializer
-
-    def get(self, request, *args, **kwargs):
-        validator = self.get_serializer(data=request.GET)
-        validator.is_valid(raise_exception=True)
-        return Response()
-
-
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     queryset = Supplier.objects.all()
