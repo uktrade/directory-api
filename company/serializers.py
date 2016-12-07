@@ -65,6 +65,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'supplier_case_studies',
             'website',
             'contact_details',
+            'verified_with_code',
         )
 
     def validate_website(self, value):
