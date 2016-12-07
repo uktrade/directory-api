@@ -1,6 +1,7 @@
 import json
+import base64
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from django.core.urlresolvers import reverse
 
@@ -8,7 +9,6 @@ import pytest
 
 from rest_framework import status
 from rest_framework.test import APIClient
-from rest_framework.authentication import BasicAuthentication
 
 from user.models import User as Supplier
 from supplier.tests import (
@@ -16,7 +16,6 @@ from supplier.tests import (
     MockInvalidSerializer,
     MockValidSerializer
 )
-from supplier.views import GeckoTotalRegisteredSuppliersView
 
 
 class SupplierViewsTests(TestCase):
@@ -151,11 +150,13 @@ class SupplierViewsTests(TestCase):
 
 
 @pytest.mark.django_db
-@patch('rest_framework.permissions.IsAuthenticated.has_permission',
-       Mock(return_value=True))
 def test_gecko_num_registered_supplier_view_returns_correct_json():
     client = APIClient()
     Supplier.objects.create(**VALID_REQUEST_DATA)
+    # Use basic auth with user=gecko and pass=X
+    encoded_creds = base64.b64encode(
+        'gecko:X'.encode('ascii')).decode("ascii")
+    client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
 
     response = client.get(reverse('gecko-total-registered-suppliers'))
 
@@ -180,6 +181,14 @@ def test_gecko_num_registered_supplier_view_requires_auth():
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_gecko_num_registered_supplier_view_uses_basic_auth():
-    auth_classes = GeckoTotalRegisteredSuppliersView.authentication_classes
-    assert BasicAuthentication in auth_classes
+@pytest.mark.django_db
+def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
+    client = APIClient()
+    # correct creds are gecko:X
+    encoded_creds = base64.b64encode(
+        'user:pass'.encode('ascii')).decode("ascii")
+    client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
+
+    response = client.get(reverse('gecko-total-registered-suppliers'))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
