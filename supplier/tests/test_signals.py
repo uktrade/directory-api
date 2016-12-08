@@ -46,11 +46,7 @@ def test_receiver_sends_email():
     assert mail_sent.subject == settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
     assert mail_sent.from_email == settings.COMPANY_EMAIL_CONFIRMATION_FROM
     assert mail_sent.to == [email]
-    company_email_confirmation_code = instance.company_email_confirmation_code
-    url = "{confirmation_url}?code={confirmation_code}".format(
-        confirmation_url=settings.COMPANY_EMAIL_CONFIRMATION_URL,
-        confirmation_code=company_email_confirmation_code
-    )
+    url = settings.COMPANY_EMAIL_CONFIRMATION_URL
     assert url in mail_sent.body
 
 

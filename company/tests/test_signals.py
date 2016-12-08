@@ -2,8 +2,6 @@ from unittest import mock
 
 import pytest
 
-from directory_validators.constants import choices
-
 from company.models import Company
 from company.tests import VALID_REQUEST_DATA
 
@@ -86,7 +84,7 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 @mock.patch('company.stannp.stannp_client')
 def test_does_not_send_if_letter_already_sent(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    company = Company.objects.create(
+    Company.objects.create(
         is_verification_letter_sent=True,
         verification_code='test',
         **VALID_REQUEST_DATA
@@ -106,4 +104,3 @@ def test_marks_letter_as_sent(mock_stannp_client, settings):
 
     company.refresh_from_db()
     assert company.is_verification_letter_sent is True
-    mock_stannp_client.assert_called()

@@ -16,12 +16,8 @@ def send_confirmation_email(sender, instance, created, *args, **kwargs):
 
     subject = settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
     from_email = settings.COMPANY_EMAIL_CONFIRMATION_FROM
-    confirmation_url = "{confirmation_url}?code={confirmation_code}".format(
-        confirmation_url=settings.COMPANY_EMAIL_CONFIRMATION_URL,
-        confirmation_code=instance.company_email_confirmation_code
-    )
 
-    context = {'confirmation_url': confirmation_url}
+    context = {'url': settings.COMPANY_EMAIL_CONFIRMATION_URL}
     text_body = render_to_string('confirmation_email.txt', context)
     html_body = render_to_string('confirmation_email.html', context)
 
