@@ -14,9 +14,7 @@ VALID_REQUEST_DATA = {
     "revenue": '100000.00',
     "contact_details": {
         "mobile_number": '07505605132',
-        'title': 'test_title',
-        'firstname': 'test_firstname',
-        'lastname': 'test_lastname',
+        'full_name': 'test_full_name',
         'address_line_1': 'test_address_line_1',
         'address_line_2': 'test_address_line_2',
         'locality': 'test_locality',

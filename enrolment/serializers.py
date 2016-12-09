@@ -27,18 +27,19 @@ class EnrolmentSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create_nested_objects(self, validated_data):
+        data = validated_data['data']
         try:
             company = self.create_company(
-                export_status=validated_data['data']['export_status'],
-                name=validated_data['data']['company_name'],
-                number=validated_data['data']['company_number'],
-                date_of_creation=validated_data['data']['date_of_creation'],
-                contact_details=validated_data['data']['contact_details'],
+                export_status=data['export_status'],
+                name=data['company_name'],
+                number=data['company_number'],
+                date_of_creation=data['date_of_creation'],
+                contact_details=data.get('contact_details', {}),
             )
             self.create_supplier(
                 company=company,
-                sso_id=validated_data['data']['sso_id'],
-                company_email=validated_data['data']['company_email'],
+                sso_id=data['sso_id'],
+                company_email=data['company_email'],
             )
         except KeyError as error:
             raise serializers.ValidationError(

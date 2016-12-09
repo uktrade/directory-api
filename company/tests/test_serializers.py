@@ -193,7 +193,7 @@ def test_company_serializer_defaults_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.verification_code == ''
+    assert len(company.verification_code) == 12
 
 
 @pytest.mark.django_db
@@ -227,7 +227,7 @@ def test_company_serializer_translates_none_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
-    assert company.verification_code == ''
+    assert len(company.verification_code) == 12
 
 
 @pytest.mark.django_db
@@ -243,7 +243,7 @@ def test_company_serializer_save():
     assert company.description == VALID_REQUEST_DATA['description']
     assert str(company.revenue) == VALID_REQUEST_DATA['revenue']
     assert company.export_status == VALID_REQUEST_DATA['export_status']
-    assert company.verification_code == ''
+    assert len(company.verification_code) == 12
 
 
 @pytest.mark.django_db
@@ -295,3 +295,54 @@ def test_company_case_study_with_company(company_case_study_one):
         company_case_study_one
     )
     assert isinstance(serializer.data['company'], dict)
+
+
+@pytest.mark.django_db
+def test_company_serializer_updates_contact_details():
+    data = {
+        'number': "01234567",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        }
+    }
+    create_serializer = serializers.CompanySerializer(data=data)
+
+    assert create_serializer.is_valid()
+    instance = create_serializer.save()
+
+    update_serializer = serializers.CompanySerializer(
+        instance,
+        data={
+            'contact_details': {
+                'postal_full_name': 'Jim'
+            }
+        },
+        partial=True
+    )
+
+    assert update_serializer.is_valid()
+    update_serializer.save()
+
+    instance.refresh_from_db()
+
+    assert instance.contact_details == {
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
+        'postal_full_name': 'Jim',
+    }

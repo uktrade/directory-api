@@ -1,11 +1,9 @@
+import datetime
 from unittest import mock
 
 import pytest
 
-from directory_validators.constants import choices
-
 from company.models import Company
-from company.signals import NoCompanyAddressException
 from company.tests import VALID_REQUEST_DATA
 
 
@@ -23,19 +21,18 @@ def test_sends_verification_letter_post_save(settings, ):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
-            'recipient[firstname]': 'test_firstname',
-            'recipient[country]': 'test_country',
             'test': True,
+            'recipient[country]': 'test_country',
+            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
-            'recipient[address2]': 'test_address_line_2',
-            'template': 'debug',
-            'recipient[postcode]': 'test_postal_code',
-            'recipient[title]': 'test_title',
+            'recipient[full_name]': 'test_full_name',
             'recipient[city]': 'test_locality',
-            'recipient[lastname]': 'test_lastname',
-            'pages': 'Verification code: {}'.format(
-                company.verification_code
-            ),
+            'recipient[company_name]': 'Test Company',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[title]': 'test_full_name',
+            'recipient[address2]': 'test_address_line_2',
+            'recipient[verification_code]': company.verification_code,
+            'template': 'debug'
         },
     )
 
@@ -53,19 +50,18 @@ def test_does_not_send_verification_letter_on_update(settings):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
-            'recipient[firstname]': 'test_firstname',
-            'recipient[country]': 'test_country',
             'test': True,
+            'recipient[country]': 'test_country',
+            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
-            'recipient[address2]': 'test_address_line_2',
-            'template': 'debug',
-            'recipient[postcode]': 'test_postal_code',
-            'recipient[title]': 'test_title',
+            'recipient[full_name]': 'test_full_name',
             'recipient[city]': 'test_locality',
-            'recipient[lastname]': 'test_lastname',
-            'pages': 'Verification code: {}'.format(
-                company.verification_code
-            ),
+            'recipient[company_name]': 'Test Company',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[title]': 'test_full_name',
+            'recipient[address2]': 'test_address_line_2',
+            'recipient[verification_code]': company.verification_code,
+            'template': 'debug'
         },
     )
 
@@ -84,16 +80,26 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 
 
 @pytest.mark.django_db
-def test_raises_exception_when_no_contact_details(settings):
+@mock.patch('company.stannp.stannp_client')
+def test_does_not_send_if_letter_already_sent(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+    Company.objects.create(
+        is_verification_letter_sent=True,
+        verification_code='test',
+        **VALID_REQUEST_DATA
+    )
 
-    with pytest.raises(NoCompanyAddressException):
-        Company.objects.create(**{
-            "number": "01234567",
-            "name": 'Test Company',
-            "website": "http://example.com",
-            "description": "Company description",
-            "export_status": choices.EXPORT_STATUSES[1][0],
-            "date_of_creation": "2010-10-10",
-            "revenue": '100000.00'
-        })
+    mock_stannp_client.assert_not_called()
+
+
+@pytest.mark.django_db
+@mock.patch('company.stannp.stannp_client')
+def test_marks_letter_as_sent(mock_stannp_client, settings):
+    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+    company = Company.objects.create(
+        verification_code='test',
+        **VALID_REQUEST_DATA
+    )
+
+    company.refresh_from_db()
+    assert company.is_verification_letter_sent is True

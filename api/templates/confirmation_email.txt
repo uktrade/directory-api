@@ -1,1 +1,1 @@
-Please follow this link to confirm your email address: {{ confirmation_url }}
+Please follow this link to go to your Find a Buyer profile: {{ url }}

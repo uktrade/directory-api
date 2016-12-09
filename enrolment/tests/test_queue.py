@@ -79,10 +79,6 @@ class TestQueueWorker(MockBoto):
         )
 
         email = VALID_REQUEST_DATA['company_email']
-        supplier = Supplier.objects.get()
-        company_email_confirmation_code = (
-            supplier.company_email_confirmation_code
-        )
 
         assert len(mail.outbox) == 1
         assert mail.outbox[0].subject == (
@@ -92,10 +88,7 @@ class TestQueueWorker(MockBoto):
             settings.COMPANY_EMAIL_CONFIRMATION_FROM
         )
         assert mail.outbox[0].to == [email]
-        url = "{confirmation_url}?code={confirmation_code}".format(
-            confirmation_url=settings.COMPANY_EMAIL_CONFIRMATION_URL,
-            confirmation_code=company_email_confirmation_code
-        )
+        url = settings.COMPANY_EMAIL_CONFIRMATION_URL
         assert url in mail.outbox[0].body
 
     @pytest.mark.django_db

@@ -68,7 +68,6 @@ class EnrolmentQueueWorker(QueueWorker):
         logger.debug(
             "Processing message '{}'".format(message.message_id)
         )
-
         try:
             self.save_enrolment(
                 sqs_message_id=message.message_id,

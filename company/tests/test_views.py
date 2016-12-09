@@ -71,6 +71,8 @@ class CompanyViewsTests(TestCase):
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
             'modified': '2016-11-23T11:21:10.977518Z',
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -119,6 +121,8 @@ class CompanyViewsTests(TestCase):
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
             'modified': '2016-11-23T11:21:10.977518Z',
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -152,6 +156,8 @@ class CompanyViewsTests(TestCase):
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
             'modified': '2016-11-23T11:21:10.977518Z',
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -568,9 +574,7 @@ def test_verify_company_with_code(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'title': 'test_title',
-                'firstname': 'test_firstname',
-                'lastname': 'test_lastname',
+                'full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
@@ -613,9 +617,7 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'title': 'test_title',
-                'firstname': 'test_firstname',
-                'lastname': 'test_lastname',
+                'full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
@@ -658,9 +660,7 @@ def test_verify_company_with_code_invalid_user(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'title': 'test_title',
-                'firstname': 'test_firstname',
-                'lastname': 'test_lastname',
+                'full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',

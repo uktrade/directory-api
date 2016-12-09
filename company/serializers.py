@@ -46,7 +46,7 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(
         many=True, required=False, read_only=True
     )
-    contact_details = serializers.JSONField(required=True)
+    contact_details = serializers.JSONField(required=False)
 
     class Meta:
         model = models.Company
@@ -66,6 +66,8 @@ class CompanySerializer(serializers.ModelSerializer):
             'website',
             'contact_details',
             'modified',
+            'verified_with_code',
+            'is_verification_letter_sent',
         )
         read_only_fields = ('modified',)
 
@@ -74,6 +76,13 @@ class CompanySerializer(serializers.ModelSerializer):
 
     def validate_description(self, value):
         return value or ''
+
+    def validate_contact_details(self, value):
+        if self.partial:
+            contact_details = self.instance.contact_details or {}
+            contact_details.update(value)
+            return contact_details
+        return value
 
 
 class CompanyNumberValidatorSerializer(serializers.Serializer):

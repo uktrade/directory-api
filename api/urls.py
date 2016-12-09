@@ -15,7 +15,7 @@ from supplier.views import (
     SupplierEmailValidatorAPIView,
     GeckoTotalRegisteredSuppliersView,
 )
-from enrolment.views import EnrolmentCreateAPIView, SendSMSVerificationAPIView
+from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
 
 
@@ -41,11 +41,6 @@ urlpatterns = [
         r'enrolment/$',
         EnrolmentCreateAPIView.as_view(),
         name='enrolment'
-    ),
-    url(
-        r'enrolment/verification-sms/$',
-        SendSMSVerificationAPIView.as_view(),
-        name='verification-sms',
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/company/$',
