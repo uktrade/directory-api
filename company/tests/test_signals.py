@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 
 import pytest
@@ -20,20 +21,17 @@ def test_sends_verification_letter_post_save(settings, ):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
-            'recipient[firstname]': 'test_firstname',
-            'recipient[country]': 'test_country',
-            'test': True,
+            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[company_name]': 'Test Company',
+            'recipient[country]': 'test_country',
+            'recipient[verification_code]': company.verification_code,
+            'test': True, 'recipient[title]': '',
             'recipient[address2]': 'test_address_line_2',
             'template': 'debug',
-            'recipient[postcode]': 'test_postal_code',
-            'recipient[title]': 'test_title',
-            'recipient[city]': 'test_locality',
-            'recipient[lastname]': 'test_lastname',
-            'pages': 'Verification code: {}'.format(
-                company.verification_code
-            ),
-        },
+            'recipient[city]': 'test_locality'
+        }
     )
 
 
@@ -50,19 +48,16 @@ def test_does_not_send_verification_letter_on_update(settings):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
-            'recipient[firstname]': 'test_firstname',
-            'recipient[country]': 'test_country',
-            'test': True,
+            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[company_name]': 'Test Company',
+            'recipient[country]': 'test_country',
+            'recipient[verification_code]': company.verification_code,
+            'test': True, 'recipient[title]': '',
             'recipient[address2]': 'test_address_line_2',
             'template': 'debug',
-            'recipient[postcode]': 'test_postal_code',
-            'recipient[title]': 'test_title',
-            'recipient[city]': 'test_locality',
-            'recipient[lastname]': 'test_lastname',
-            'pages': 'Verification code: {}'.format(
-                company.verification_code
-            ),
+            'recipient[city]': 'test_locality'
         },
     )
 

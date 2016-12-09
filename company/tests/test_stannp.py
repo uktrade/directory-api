@@ -39,24 +39,26 @@ def test_send_letter():
                 'locality': 'test_locality',
                 'postal_code': 'test_postal_code',
                 'country': 'test_country',
+                'custom_fields': [
+                    ('test_field_name1', 'test_value1'),
+                    ('test_field_name2', 'test_value2'),
+                ]
             },
-            pages='whatever'
         )
 
     mock_requests.assert_called_once_with(
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
-            'test': True,
-            'pages': 'whatever',
-            'recipient[postcode]': 'test_postal_code',
-            'recipient[lastname]': 'test_lastname',
-            'recipient[address1]': 'test_address_line_1',
-            'template': 'whatever',
-            'recipient[title]': 'test_title',
             'recipient[address2]': 'test_address_line_2',
-            'recipient[firstname]': 'test_firstname',
+            'recipient[test_field_name1]': 'test_value1',
+            'template': 'whatever',
+            'recipient[country]': 'test_country',
+            'recipient[postcode]': 'test_postal_code',
+            'test': True,
+            'recipient[title]': '',
+            'recipient[address1]': 'test_address_line_1',
             'recipient[city]': 'test_locality',
-            'recipient[country]': 'test_country'
+            'recipient[test_field_name2]': 'test_value2'
         }
     )
