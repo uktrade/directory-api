@@ -28,7 +28,7 @@ class StannpClient():
             data=recipient
         )
 
-    def send_letter(self, template, recipient, pages):
+    def send_letter(self, template, recipient):
         """
         Sends a letter.
 
@@ -36,17 +36,18 @@ class StannpClient():
         """
         data = {}
 
-        data['recipient[title]'] = recipient.get('title', '')
-        data['recipient[firstname]'] = recipient['firstname']
-        data['recipient[lastname]'] = recipient['lastname']
+        data['recipient[title]'] = recipient['full_name']
         data['recipient[address1]'] = recipient['address_line_1']
         data['recipient[address2]'] = recipient['address_line_2']
         data['recipient[city]'] = recipient['locality']
         data['recipient[postcode]'] = recipient['postal_code']
         data['recipient[country]'] = recipient['country']
 
+        # custom_fields = [('field_name', 'field_value')]
+        for field in recipient['custom_fields']:
+            data['recipient[{}]'.format(field[0])] = field[1]
+
         data['template'] = template
-        data['pages'] = pages
         data['test'] = self.test_mode
 
         return self.post(
