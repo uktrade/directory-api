@@ -7,6 +7,7 @@ from unittest import TestCase
 
 from directory_validators.constants import choices
 import pytest
+from freezegun import freeze_time
 from rest_framework.test import APIClient
 from rest_framework import status
 
@@ -46,6 +47,7 @@ class CompanyViewsTests(TestCase):
     def tearDown(self):
         self.signature_permission_mock.stop()
 
+    @freeze_time('2016-11-23T11:21:10.977518Z')
     @pytest.mark.django_db
     def test_company_retrieve_view(self):
         client = APIClient()
@@ -68,6 +70,7 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'modified': '2016-11-23T11:21:10.977518Z',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -89,6 +92,7 @@ class CompanyViewsTests(TestCase):
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @freeze_time('2016-11-23T11:21:10.977518Z')
     @pytest.mark.django_db
     def test_company_update_view_with_put(self):
         client = APIClient()
@@ -114,11 +118,13 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'modified': '2016-11-23T11:21:10.977518Z',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
 
+    @freeze_time('2016-11-23T11:21:10.977518Z')
     @pytest.mark.django_db
     def test_company_update_view_with_patch(self):
         client = APIClient()
@@ -145,10 +151,59 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'modified': '2016-11-23T11:21:10.977518Z',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
+
+    @freeze_time('2016-11-23T11:21:10.977518Z')
+    @pytest.mark.django_db
+    def test_company_update_view_with_put_ignores_modified(self):
+        client = APIClient()
+        company = Company.objects.create(
+            number='01234567',
+            export_status=choices.EXPORT_STATUSES[1][0],
+        )
+        supplier = Supplier.objects.create(
+            sso_id=1,
+            company_email='harry.potter@hogwarts.com',
+            company=company,
+        )
+        update_data = {'modified': '2013-03-09T23:28:53.977518Z'}
+        update_data.update(VALID_REQUEST_DATA)
+
+        response = client.put(
+            reverse('company', kwargs={'sso_id': supplier.sso_id}),
+            update_data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        # modified was not effected by the data we tried to pass
+        assert response.json()['modified'] == '2016-11-23T11:21:10.977518Z'
+
+    @freeze_time('2016-11-23T11:21:10.977518Z')
+    @pytest.mark.django_db
+    def test_company_update_view_with_patch_ignores_modified(self):
+        client = APIClient()
+        company = Company.objects.create(
+            number='01234567',
+            export_status=choices.EXPORT_STATUSES[1][0],
+        )
+        supplier = Supplier.objects.create(
+            sso_id=1,
+            company_email='harry.potter@hogwarts.com',
+            company=company,
+        )
+        update_data = {'modified': '2013-03-09T23:28:53.977518Z'}
+        update_data.update(VALID_REQUEST_DATA)
+
+        response = client.patch(
+            reverse('company', kwargs={'sso_id': supplier.sso_id}),
+            update_data, format='json')
+
+        assert response.status_code == status.HTTP_200_OK
+        # modified was not effected by the data we tried to pass
+        assert response.json()['modified'] == '2016-11-23T11:21:10.977518Z'
 
     @pytest.mark.django_db
     @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
