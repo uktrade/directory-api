@@ -36,7 +36,7 @@ class StannpClient():
         """
         data = {}
 
-        data['recipient[title]'] = recipient.get('full_name', '')
+        data['recipient[title]'] = recipient['full_name']
         data['recipient[address1]'] = recipient['address_line_1']
         data['recipient[address2]'] = recipient['address_line_2']
         data['recipient[city]'] = recipient['locality']

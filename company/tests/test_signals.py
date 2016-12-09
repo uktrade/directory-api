@@ -21,17 +21,19 @@ def test_sends_verification_letter_post_save(settings, ):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
+            'test': True,
+            'recipient[country]': 'test_country',
             'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
-            'recipient[postcode]': 'test_postal_code',
+            'recipient[full_name]': 'test_full_name',
+            'recipient[city]': 'test_locality',
             'recipient[company_name]': 'Test Company',
-            'recipient[country]': 'test_country',
-            'recipient[verification_code]': company.verification_code,
-            'test': True, 'recipient[title]': '',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[title]': 'test_full_name',
             'recipient[address2]': 'test_address_line_2',
-            'template': 'debug',
-            'recipient[city]': 'test_locality'
-        }
+            'recipient[verification_code]': company.verification_code,
+            'template': 'debug'
+        },
     )
 
 
@@ -48,16 +50,18 @@ def test_does_not_send_verification_letter_on_update(settings):
         'https://dash.stannp.com/api/v1/letters/create',
         auth=('debug', ''),
         data={
+            'test': True,
+            'recipient[country]': 'test_country',
             'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
             'recipient[address1]': 'test_address_line_1',
-            'recipient[postcode]': 'test_postal_code',
+            'recipient[full_name]': 'test_full_name',
+            'recipient[city]': 'test_locality',
             'recipient[company_name]': 'Test Company',
-            'recipient[country]': 'test_country',
-            'recipient[verification_code]': company.verification_code,
-            'test': True, 'recipient[title]': '',
+            'recipient[postcode]': 'test_postal_code',
+            'recipient[title]': 'test_full_name',
             'recipient[address2]': 'test_address_line_2',
-            'template': 'debug',
-            'recipient[city]': 'test_locality'
+            'recipient[verification_code]': company.verification_code,
+            'template': 'debug'
         },
     )
 

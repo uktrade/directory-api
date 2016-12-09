@@ -12,6 +12,7 @@ def send_verification_letter(sender, instance, *args, **kwargs):
 
     recipient = instance.contact_details.copy()
     recipient['custom_fields'] = [
+        ('full_name', recipient['full_name']),
         ('company_name', instance.name),
         ('verification_code', instance.verification_code),
         ('date', datetime.date.today().strftime('%d/%m/%Y'))
