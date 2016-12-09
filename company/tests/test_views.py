@@ -68,6 +68,8 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -114,6 +116,8 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -145,6 +149,8 @@ class CompanyViewsTests(TestCase):
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
+            'verified_with_code': False,
+            'is_verification_letter_sent': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK

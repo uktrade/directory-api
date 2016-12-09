@@ -5,6 +5,7 @@ import os
 from uuid import uuid4
 
 from django.conf import settings
+from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
 import requests
@@ -17,6 +18,12 @@ logger = logging.getLogger(__name__)
 company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
 
 companies_house_session = requests.Session()
+
+
+def generate_verification_code():
+    return get_random_string(
+        length=12, allowed_chars='0123456789'
+    )
 
 
 def get_date_of_creation(number):

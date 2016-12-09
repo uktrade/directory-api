@@ -68,9 +68,10 @@ class Company(TimeStampedModel):
         max_length=255,
         blank=True,
         null=True,
-        default=''
+        default=helpers.generate_verification_code,
     )
     verified_with_code = models.BooleanField(default=False)
+    is_verification_letter_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
