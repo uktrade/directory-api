@@ -1,7 +1,7 @@
 import pytest
 
 from company.models import Company
-from supplier import serializers, validators
+from supplier import serializers
 from supplier.tests import VALID_REQUEST_DATA
 
 
@@ -45,10 +45,3 @@ def test_supplier_with_company_serializer_save():
 
     supplier = serializer.save()
     assert supplier.company == company
-
-
-def test_email_unique_serializer_validators():
-    serializer = serializers.SupplierEmailValidatorSerializer()
-    field = serializer.get_fields()['company_email']
-
-    assert validators.email_unique in field.validators
