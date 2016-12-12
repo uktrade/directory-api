@@ -17,6 +17,9 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'pk',
             'sector',
             'testimonial',
+            'testimonial_name',
+            'testimonial_job_title',
+            'testimonial_company',
             'title',
             'video_one',
             'website',
@@ -27,6 +30,15 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
         return value or ''
 
     def validate_testimonial(self, value):
+        return value or ''
+
+    def validate_testimonial_name(self, value):
+        return value or ''
+
+    def validate_testimonial_job_title(self, value):
+        return value or ''
+
+    def validate_testimonial_company(self, value):
         return value or ''
 
 
