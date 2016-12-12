@@ -1,4 +1,3 @@
-import json
 import base64
 from unittest import TestCase
 from unittest.mock import patch
@@ -11,11 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.models import User as Supplier
-from supplier.tests import (
-    VALID_REQUEST_DATA,
-    MockInvalidSerializer,
-    MockValidSerializer
-)
+from supplier.tests import VALID_REQUEST_DATA
 
 
 class SupplierViewsTests(TestCase):
@@ -75,78 +70,6 @@ class SupplierViewsTests(TestCase):
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
-
-    @pytest.mark.django_db
-    def test_confirm_company_email_view_invalid_confirmation_code(self):
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='gargoyle@example.com',
-            company_email_confirmation_code='123456789'
-        )
-
-        client = APIClient()
-        response = client.post(
-            '/enrolment/confirm/',
-            data={'confirmation_code': 12345678}
-        )
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-        response_data = json.loads(response.data)
-        assert response_data['status_code'] == status.HTTP_400_BAD_REQUEST
-        assert response_data['detail'] == (
-            'Invalid company email confirmation code'
-        )
-
-        assert Supplier.objects.get(
-            sso_id=supplier.sso_id
-        ).company_email_confirmed is False
-
-    @pytest.mark.django_db
-    def test_confirm_company_email_view_valid_confirmation_code(self):
-        company_email_confirmation_code = '123456789'
-
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='gargoyle@example.com',
-            company_email_confirmation_code=company_email_confirmation_code
-        )
-
-        client = APIClient()
-        response = client.post(
-            '/enrolment/confirm/',
-            data={'confirmation_code': company_email_confirmation_code}
-        )
-        assert response.status_code == status.HTTP_200_OK
-
-        response_data = json.loads(response.data)
-        assert response_data['status_code'] == status.HTTP_200_OK
-        assert response_data['detail'] == "Company email confirmed"
-
-        assert Supplier.objects.get(
-            sso_id=supplier.sso_id
-        ).company_email_confirmed is True
-
-    @pytest.mark.django_db
-    @patch('supplier.views.SupplierEmailValidatorAPIView.get_serializer')
-    def test_supplier_email_validator_rejects_invalid_serializer(
-            self, mock_get_serializer):
-
-        client = APIClient()
-        serializer = MockInvalidSerializer(data={})
-        mock_get_serializer.return_value = serializer
-        response = client.get(reverse('validate-email-address'), {})
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == serializer.errors
-
-    @pytest.mark.django_db
-    @patch('supplier.views.SupplierEmailValidatorAPIView.get_serializer')
-    def test_supplier_email_validator_accepts_valid_serializer(
-            self, mock_get_serializer):
-
-        client = APIClient()
-        mock_get_serializer.return_value = MockValidSerializer(data={})
-        response = client.get(reverse('validate-email-address'), {})
-        assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db

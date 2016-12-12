@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from supplier import validators
 from user.models import User as Supplier
 
 
@@ -23,14 +22,3 @@ class SupplierSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         return value or ''
-
-
-class ConfirmCompanyEmailSerializer(serializers.Serializer):
-
-    confirmation_code = serializers.CharField()
-
-
-class SupplierEmailValidatorSerializer(serializers.Serializer):
-    company_email = serializers.CharField(validators=[
-        validators.email_unique,
-    ])
