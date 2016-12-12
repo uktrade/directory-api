@@ -1,4 +1,10 @@
+from datetime import datetime
+
 import pytest
+
+from freezegun import freeze_time
+
+from django.utils.timezone import UTC
 
 from directory_validators.constants import choices
 
@@ -84,6 +90,36 @@ def test_company_serializer_untouches_is_published():
     instance = serializer.save()
 
     assert instance.is_published is False
+
+
+@freeze_time("2016-01-09 12:16:11")
+@pytest.mark.django_db
+def test_company_serializer_doesnt_allow_changing_modified_timestamp():
+    data = {
+        'number': "01234567",
+        'export_status': choices.EXPORT_STATUSES[1][0],
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+        'contact_details': {
+            'title': 'test_title',
+            'firstname': 'test_firstname',
+            'lastname': 'test_lastname',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+        },
+        'modified': datetime(2013, 3, 4, 15, 3, 1, 987654),
+    }
+    serializer = serializers.CompanySerializer(data=data)
+    assert serializer.is_valid() is True
+
+    company = serializer.save()
+
+    # modified is the value of when the serializer save method was called
+    # instead of what we tried to update it to
+    assert company.modified == datetime(2016, 1, 9, 12, 16, 11, tzinfo=UTC())
 
 
 @pytest.mark.django_db

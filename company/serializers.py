@@ -65,9 +65,11 @@ class CompanySerializer(serializers.ModelSerializer):
             'supplier_case_studies',
             'website',
             'contact_details',
+            'modified',
             'verified_with_code',
             'is_verification_letter_sent',
         )
+        read_only_fields = ('modified',)
 
     def validate_website(self, value):
         return value or ''
