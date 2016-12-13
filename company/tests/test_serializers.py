@@ -303,10 +303,12 @@ def test_company_case_study_explicit_value(case_study_data):
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
     assert data['testimonial_name'] == case_study_data['testimonial_name']
-    assert data['testimonial_job_title'] == \
+    assert data['testimonial_job_title'] == (
         case_study_data['testimonial_job_title']
-    assert data['testimonial_company'] == \
+    )
+    assert data['testimonial_company'] == (
         case_study_data['testimonial_company']
+    )
 
 
 @pytest.mark.django_db
