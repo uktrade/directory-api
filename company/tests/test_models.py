@@ -56,9 +56,9 @@ def test_company_case_study_non_required_fields(company):
 
     assert instance.website == ''
     assert instance.testimonial == ''
-    assert instance.source_name == ''
-    assert instance.source_job_title == ''
-    assert instance.source_company == ''
+    assert instance.testimonial_name == ''
+    assert instance.testimonial_job_title == ''
+    assert instance.testimonial_company == ''
     assert instance.image_one.name is None
     assert instance.image_two.name is None
     assert instance.image_three.name is None

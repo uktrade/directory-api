@@ -119,13 +119,13 @@ class CompanyCaseStudy(TimeStampedModel):
     testimonial = models.CharField(
         max_length=1000, null=True, blank=True, default=''
     )
-    source_name = models.CharField(
+    testimonial_name = models.CharField(
         max_length=255, null=True, blank=True, default=''
     )
-    source_job_title = models.CharField(
+    testimonial_job_title = models.CharField(
         max_length=255, null=True, blank=True, default=''
     )
-    source_company = models.CharField(
+    testimonial_company = models.CharField(
         max_length=255, null=True, blank=True, default=''
     )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
