@@ -11,8 +11,6 @@ from company.views import (
 )
 from supplier.views import (
     SupplierRetrieveUpdateAPIView,
-    ConfirmCompanyEmailAPIView,
-    SupplierEmailValidatorAPIView,
     GeckoTotalRegisteredSuppliersView,
 )
 from enrolment.views import EnrolmentCreateAPIView
@@ -87,19 +85,9 @@ urlpatterns = [
         name='company-public-profile-list'
     ),
     url(
-        r'enrolment/confirm/$',
-        ConfirmCompanyEmailAPIView.as_view(),
-        name='confirm-company-email'
-    ),
-    url(
         r'validate/company-number/$',
         CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
-    ),
-    url(
-        r'validate/email-address/$',
-        SupplierEmailValidatorAPIView.as_view(),
-        name='validate-email-address'
     ),
     url(
         r'buyer/$',

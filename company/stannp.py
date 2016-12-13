@@ -35,8 +35,10 @@ class StannpClient():
         https://www.stannp.com/direct-mail-api/letters
         """
         data = {}
-
-        data['recipient[title]'] = recipient['full_name']
+        # we want to use postal_full_name on envelopes, but the API does not
+        # support that. The API expects {title} {first_name} {last_name}, so we
+        # put postal_full_name in title and leave the other fields blank.
+        data['recipient[title]'] = recipient['postal_full_name']
         data['recipient[address1]'] = recipient['address_line_1']
         data['recipient[address2]'] = recipient['address_line_2']
         data['recipient[city]'] = recipient['locality']
