@@ -73,6 +73,9 @@ class Company(TimeStampedModel):
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name_plural = 'companies'
+
     def __str__(self):
         return self.name
 
@@ -116,7 +119,19 @@ class CompanyCaseStudy(TimeStampedModel):
     testimonial = models.CharField(
         max_length=1000, null=True, blank=True, default=''
     )
+    testimonial_name = models.CharField(
+        max_length=255, null=True, blank=True, default=''
+    )
+    testimonial_job_title = models.CharField(
+        max_length=255, null=True, blank=True, default=''
+    )
+    testimonial_company = models.CharField(
+        max_length=255, null=True, blank=True, default=''
+    )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
+
+    class Meta:
+        verbose_name_plural = 'company case studies'
 
     def __str__(self):
         return self.title
