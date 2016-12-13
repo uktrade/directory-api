@@ -271,9 +271,9 @@ def case_study_data(image_one, image_two, image_three, video, company):
         'image_three': image_three,
         'video_one': video,
         'testimonial': 'very nice',
-        'testimonial_name': 'Lord Voldemort',
-        'testimonial_job_title': 'Evil overlord',
-        'testimonial_company': 'Death Eaters',
+        'source_name': 'Lord Voldemort',
+        'source_job_title': 'Evil overlord',
+        'source_company': 'Death Eaters',
     }
 
 
@@ -358,9 +358,9 @@ def supplier_case_study(case_study_data, company):
         year=case_study_data['year'],
         keywords=case_study_data['keywords'],
         testimonial=case_study_data['testimonial'],
-        testimonial_name=case_study_data['testimonial_name'],
-        testimonial_job_title=case_study_data['testimonial_job_title'],
-        testimonial_company=case_study_data['testimonial_company'],
+        source_name=case_study_data['source_name'],
+        source_job_title=case_study_data['source_job_title'],
+        source_company=case_study_data['source_company'],
         company=company,
     )
 
@@ -408,11 +408,9 @@ def test_company_case_study_create(
 
     assert response.status_code == http.client.CREATED
     assert instance.testimonial == case_study_data['testimonial']
-    assert instance.testimonial_name == case_study_data['testimonial_name']
-    assert instance.testimonial_job_title == \
-        case_study_data['testimonial_job_title']
-    assert instance.testimonial_company == \
-        case_study_data['testimonial_company']
+    assert instance.source_name == case_study_data['source_name']
+    assert instance.source_job_title == case_study_data['source_job_title']
+    assert instance.source_company == case_study_data['source_company']
     assert instance.website == case_study_data['website']
     assert instance.company == company
     assert instance.year == case_study_data['year']
@@ -475,11 +473,9 @@ def test_company_case_study_get(
 
     assert response.status_code == http.client.OK
     assert data['testimonial'] == supplier_case_study.testimonial
-    assert data['testimonial_name'] == supplier_case_study.testimonial_name
-    assert data['testimonial_job_title'] == \
-        supplier_case_study.testimonial_job_title
-    assert data['testimonial_company'] == \
-        supplier_case_study.testimonial_company
+    assert data['source_name'] == supplier_case_study.source_name
+    assert data['source_job_title'] == supplier_case_study.source_job_title
+    assert data['source_company'] == supplier_case_study.source_company
     assert data['website'] == supplier_case_study.website
     assert data['year'] == supplier_case_study.year
     assert data['description'] == supplier_case_study.description

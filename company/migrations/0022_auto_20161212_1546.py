@@ -14,17 +14,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='companycasestudy',
-            name='testimonial_company',
+            name='source_company',
             field=models.CharField(blank=True, default='', max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='companycasestudy',
-            name='testimonial_job_title',
+            name='source_job_title',
             field=models.CharField(blank=True, default='', max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='companycasestudy',
-            name='testimonial_name',
+            name='source_name',
             field=models.CharField(blank=True, default='', max_length=255, null=True),
         ),
     ]
