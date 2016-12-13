@@ -31,7 +31,7 @@ def test_send_letter():
         stannp_client.send_letter(
             template='whatever',
             recipient={
-                'full_name': 'test_full_name',
+                'postal_full_name': 'test_postal_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
@@ -54,7 +54,7 @@ def test_send_letter():
             'recipient[country]': 'test_country',
             'recipient[postcode]': 'test_postal_code',
             'test': True,
-            'recipient[title]': 'test_full_name',
+            'recipient[title]': 'test_postal_full_name',
             'recipient[address1]': 'test_address_line_1',
             'recipient[city]': 'test_locality',
             'recipient[test_field_name2]': 'test_value2'

@@ -586,7 +586,7 @@ def test_verify_company_with_code(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'full_name': 'test_full_name',
+                'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
@@ -629,7 +629,7 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'full_name': 'test_full_name',
+                'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
@@ -672,7 +672,7 @@ def test_verify_company_with_code_invalid_user(api_client, settings):
             "date_of_creation": "2010-10-10",
             "revenue": '100000.00',
             "contact_details": {
-                'full_name': 'test_full_name',
+                'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
                 'address_line_2': 'test_address_line_2',
                 'locality': 'test_locality',
