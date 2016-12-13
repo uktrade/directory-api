@@ -1,6 +1,9 @@
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
+
+import raven
 
 import enrolment.queue
 
@@ -19,14 +22,21 @@ class Command(BaseCommand):
         logger.addHandler(console)
 
     def handle(self, *args, **options):
-        self.setup_logging()
+        try:
+            self.setup_logging()
 
-        self.stdout.write(
-            self.style.SUCCESS('Starting queue worker')
-        )
+            self.stdout.write(
+                self.style.SUCCESS('Starting queue worker')
+            )
+            enrolment.queue.EnrolmentQueueWorker().run()
 
-        enrolment.queue.EnrolmentQueueWorker().run()
-
-        self.stdout.write(
-            self.style.SUCCESS('Queue worker finished running')
-        )
+            self.stdout.write(
+                self.style.SUCCESS('Queue worker finished running')
+            )
+        except:
+            sentry_dsn = settings.RAVEN_CONFIG['dsn']
+            if sentry_dsn:
+                logging.exception("Exception occurred, sending to Sentry:")
+                raven.Client(dsn=sentry_dsn).captureException()
+            else:
+                raise
