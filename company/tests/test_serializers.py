@@ -27,6 +27,9 @@ def company_case_study_one(company):
         year='2010',
         keywords='goog, great',
         testimonial='very nice',
+        testimonial_name='Lord Voldemort',
+        testimonial_job_title='Evil overlord',
+        testimonial_company='Death Eaters',
         company=company,
     )
 
@@ -41,6 +44,9 @@ def company_case_study_two(company):
         year='2010',
         keywords='goog, great',
         testimonial='very nice',
+        testimonial_name='Albus Dumbledore',
+        testimonial_job_title='Headmaster',
+        testimonial_company='Hogwarts',
         company=company,
     )
 
@@ -55,6 +61,9 @@ def case_study_data(company):
         'year': '2010',
         'keywords': 'good, great',
         'testimonial': 'very nice',
+        'testimonial_name': 'Lord Voldemort',
+        'testimonial_job_title': 'Evil overlord',
+        'testimonial_company': 'Death Eaters',
         'company': company.pk,
     }
 
@@ -63,6 +72,9 @@ def case_study_data(company):
 def case_study_data_optional_none(case_study_data):
     case_study_data['website'] = None
     case_study_data['testimonial'] = None
+    case_study_data['testimonial_name'] = None
+    case_study_data['testimonial_job_title'] = None
+    case_study_data['testimonial_company'] = None
     return case_study_data
 
 
@@ -277,6 +289,9 @@ def test_company_case_study_ensure_string(case_study_data_optional_none):
     assert serializer.is_valid()
     assert serializer.validated_data['website'] == ''
     assert serializer.validated_data['testimonial'] == ''
+    assert serializer.validated_data['testimonial_name'] == ''
+    assert serializer.validated_data['testimonial_job_title'] == ''
+    assert serializer.validated_data['testimonial_company'] == ''
 
 
 @pytest.mark.django_db
@@ -287,6 +302,13 @@ def test_company_case_study_explicit_value(case_study_data):
     data = serializer.validated_data
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
+    assert data['testimonial_name'] == case_study_data['testimonial_name']
+    assert data['testimonial_job_title'] == (
+        case_study_data['testimonial_job_title']
+    )
+    assert data['testimonial_company'] == (
+        case_study_data['testimonial_company']
+    )
 
 
 @pytest.mark.django_db
