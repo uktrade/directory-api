@@ -17,7 +17,8 @@ def send_verification_letter(sender, instance, *args, **kwargs):
         ('full_name', recipient['postal_full_name']),
         ('company_name', instance.name),
         ('verification_code', instance.verification_code),
-        ('date', datetime.date.today().strftime('%d/%m/%Y'))
+        ('date', datetime.date.today().strftime('%d/%m/%Y')),
+        ('company', instance.name),
     ]
 
     stannp_client.send_letter(
