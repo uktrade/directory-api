@@ -1,6 +1,10 @@
+from unittest import TestCase
+
 from django.test import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+
+import pytest
 
 from freezegun import freeze_time
 
@@ -12,19 +16,19 @@ from company.tests import VALID_REQUEST_DATA as COMPANY_DATA
 
 headers = (
     'sso_id,name,mobile_number,company_email,company_email_confirmed,'
-    'referrer,is_active,date_joined,company_id,company__name,'
-    'company__description,company__employees,company__export_status,'
-    'company__keywords,company__logo,company__number,company__revenue,'
-    'company__sectors,company__website,company__date_of_creation,'
-    'company__is_published'
+    'is_active,date_joined,company_id,company__name,company__description,'
+    'company__employees,company__export_status,company__keywords,'
+    'company__logo,company__number,company__revenue,company__sectors,'
+    'company__website,company__date_of_creation,company__is_published'
 )
 
 
-class DownloadCSVTestCase:
+@pytest.mark.django_db
+class DownloadCSVTestCase(TestCase):
 
     def setUp(self):
         superuser = User.objects.create_superuser(
-            suppliername='admin', email='admin@example.com', password='test'
+            username='admin', email='admin@example.com', password='test'
         )
         self.client = Client()
         self.client.force_login(superuser)
@@ -46,16 +50,15 @@ class DownloadCSVTestCase:
             )
         }
         response = self.client.post(
-            reverse('admin:supplier_supplier_changelist'),
+            reverse('admin:user_user_changelist'),
             data,
             follow=True
         )
 
         row_one = (
-            '1,,07505605132,gargoyle@example.com,False,google,True,'
-            '2017-03-21 13:12:00+00:00,{pk},Test Company,'
-            'Company description,,YES,,,01234567,100000.00,,'
-            'http://example.com,2010-10-10,False'
+            '1,,,gargoyle@example.com,False,True,2017-03-21 13:12:00+00:00,'
+            '1,Test Company,Company description,,YES,,,11234567,100000.00,'
+            ',http://example.com,2010-10-10,False'
         ).format(pk=supplier.company.pk)
 
         actual = str(response.content, 'utf-8').split('\r\n')
@@ -93,24 +96,23 @@ class DownloadCSVTestCase:
             )
         }
         response = self.client.post(
-            reverse('admin:supplier_supplier_changelist'),
+            reverse('admin:user_user_changelist'),
             data,
             follow=True
         )
 
         row_one = (
-            '3,,07505605134,3@example.com,False,,True,'
-            '2012-01-14 12:00:00+00:00,{pk},,,,,,,01234568,,,,,False'
+            '3,,07505605134,3@example.com,False,True,'
+            '2012-01-14 12:00:00+00:00,3,,,,,,,01234568,,,,,False'
         ).format(pk=supplier_three.company.pk)
         row_two = (
-            '2,,,2@example.com,False,,True,2012-01-14 12:00:00+00:00,'
-            '{pk},,,,,,,01234568,,,,,False'
+            '2,,,2@example.com,False,True,2012-01-14 12:00:00+00:00,3,,,'
+            ',,,,01234568,,,,,False'
         ).format(pk=supplier_two.company.pk)
         row_three = (
-            '1,,07505605132,gargoyle@example.com,False,google,True,'
-            '2017-03-21 13:12:00+00:00,{pk},Test Company,'
-            'Company description,,YES,,,01234567,100000.00,,'
-            'http://example.com,2010-10-10,False'
+            '1,,,gargoyle@example.com,False,True,2017-03-21 13:12:00+00:00,'
+            '2,Test Company,Company description,,YES,,,11234567,100000.00,'
+            ',http://example.com,2010-10-10,False'
         ).format(pk=supplier_one.company.pk)
 
         actual = str(response.content, 'utf-8').split('\r\n')
