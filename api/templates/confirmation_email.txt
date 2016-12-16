@@ -1,1 +1,5 @@
-Please follow this link to go to your Find a Buyer profile: {{ url }}
+You recently registered a trade profile for your company on the Find a Buyer service on great.gov.uk.
+
+Follow the link below to go to your profile and complete the details of your company to complete your trade profile.
+
+{{ url }}
