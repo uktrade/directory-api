@@ -15,11 +15,12 @@ from company.tests import VALID_REQUEST_DATA as COMPANY_DATA
 
 
 headers = (
-    'sso_id,name,mobile_number,company_email,company_email_confirmed,'
-    'is_active,date_joined,company_id,company__name,company__description,'
-    'company__employees,company__export_status,company__keywords,'
-    'company__logo,company__number,company__revenue,company__sectors,'
-    'company__website,company__date_of_creation,company__is_published'
+    'company__date_of_creation,company__description,company__employees,'
+    'company__export_status,company__is_published,company__keywords,'
+    'company__logo,company__name,company__number,company__revenue,'
+    'company__sectors,company__website,company_email,'
+    'company_email_confirmed,company_id,date_joined,is_active,'
+    'mobile_number,name,sso_id'
 )
 
 
@@ -56,9 +57,9 @@ class DownloadCSVTestCase(TestCase):
         )
 
         row_one = (
-            '1,,,gargoyle@example.com,False,True,2017-03-21 13:12:00+00:00,'
-            '1,Test Company,Company description,,YES,,,11234567,100000.00,'
-            ',http://example.com,2010-10-10,False'
+            '2010-10-10,Company description,,YES,False,,,Test Company,'
+            '11234567,100000.00,,http://example.com,gargoyle@example.com,'
+            'False,{pk},2017-03-21 13:12:00+00:00,True,,,1'
         ).format(pk=supplier.company.pk)
 
         actual = str(response.content, 'utf-8').split('\r\n')
@@ -102,17 +103,17 @@ class DownloadCSVTestCase(TestCase):
         )
 
         row_one = (
-            '3,,07505605134,3@example.com,False,True,'
-            '2012-01-14 12:00:00+00:00,3,,,,,,,01234568,,,,,False'
+            ',,,,False,,,,01234568,,,,3@example.com,False,{pk},'
+            '2012-01-14 12:00:00+00:00,True,07505605134,,3'
         ).format(pk=supplier_three.company.pk)
         row_two = (
-            '2,,,2@example.com,False,True,2012-01-14 12:00:00+00:00,3,,,'
-            ',,,,01234568,,,,,False'
+            ',,,,False,,,,01234568,,,,2@example.com,False,{pk},'
+            '2012-01-14 12:00:00+00:00,True,,,2'
         ).format(pk=supplier_two.company.pk)
         row_three = (
-            '1,,,gargoyle@example.com,False,True,2017-03-21 13:12:00+00:00,'
-            '2,Test Company,Company description,,YES,,,11234567,100000.00,'
-            ',http://example.com,2010-10-10,False'
+            '2010-10-10,Company description,,YES,False,,,Test Company,'
+            '11234567,100000.00,,http://example.com,gargoyle@example.com,'
+            'False,{pk},2017-03-21 13:12:00+00:00,True,,,1'
         ).format(pk=supplier_one.company.pk)
 
         actual = str(response.content, 'utf-8').split('\r\n')

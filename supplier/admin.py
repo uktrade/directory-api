@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from user.models import User as Supplier
+from company.models import Company
 
 
 @admin.register(Supplier)
@@ -13,27 +14,21 @@ class SupplierAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified',)
     actions = ['download_csv']
 
-    csv_fields = (
-        'sso_id',
-        'name',
-        'mobile_number',
-        'company_email',
-        'company_email_confirmed',
-        'is_active',
-        'date_joined',
-        'company_id',
-        'company__name',
-        'company__description',
-        'company__employees',
-        'company__export_status',
-        'company__keywords',
-        'company__logo',
-        'company__number',
-        'company__revenue',
-        'company__sectors',
-        'company__website',
-        'company__date_of_creation',
-        'company__is_published'
+    csv_excluded_fields = (
+        'id',
+        'company',
+        'created',
+        'modified',
+        'company_email_confirmation_code',
+        'company__supplier_case_studies',
+        'company__suppliers',
+        'company__verified_with_code',
+        'company__is_verification_letter_sent',
+        'company__contact_details',
+        'company__verification_code',
+        'company__created',
+        'company__modified',
+        'company__id',
     )
 
     def download_csv(self, request, queryset):
@@ -47,11 +42,17 @@ class SupplierAdmin(admin.ModelAdmin):
             )
         )
 
-        suppliers = queryset.select_related('company').all().values(
-            *self.csv_fields
-        )
+        fieldnames = [field for field in Supplier._meta.get_all_field_names()
+                      if field not in self.csv_excluded_fields]
+        fieldnames += ['company__' + field
+                       for field in Company._meta.get_all_field_names()
+                       if 'company__' + field not in self.csv_excluded_fields]
+        fieldnames = sorted(fieldnames)
 
-        writer = csv.DictWriter(response, fieldnames=self.csv_fields)
+        suppliers = queryset.select_related('company').all().values(
+            *fieldnames
+        )
+        writer = csv.DictWriter(response, fieldnames=fieldnames)
         writer.writeheader()
 
         for supplier in suppliers:
