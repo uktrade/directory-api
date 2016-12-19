@@ -264,7 +264,6 @@ def case_study_data(image_one, image_two, image_three, video, company):
         'description': 'a description',
         'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
         'website': 'http://www.example.com',
-        'year': '2010',
         'keywords': 'good, great',
         'image_one': image_one,
         'image_two': image_two,
@@ -355,7 +354,6 @@ def supplier_case_study(case_study_data, company):
         description=case_study_data['description'],
         sector=case_study_data['sector'],
         website=case_study_data['website'],
-        year=case_study_data['year'],
         keywords=case_study_data['keywords'],
         testimonial=case_study_data['testimonial'],
         testimonial_name=case_study_data['testimonial_name'],
@@ -417,7 +415,6 @@ def test_company_case_study_create(
     )
     assert instance.website == case_study_data['website']
     assert instance.company == company
-    assert instance.year == case_study_data['year']
     assert instance.description == case_study_data['description']
     assert instance.title == case_study_data['title']
     assert instance.sector == case_study_data['sector']
@@ -432,15 +429,15 @@ def test_company_case_study_update(supplier_case_study, supplier, api_client):
         'company-case-study-detail',
         kwargs={'sso_id': supplier.sso_id, 'pk': supplier_case_study.pk}
     )
-    data = {'year': '2015'}
+    data = {'title': '2015'}
 
-    assert supplier_case_study.year != data['year']
+    assert supplier_case_study.title != data['title']
 
     response = api_client.patch(url, data, format='multipart')
     supplier_case_study.refresh_from_db()
 
     assert response.status_code == http.client.OK
-    assert supplier_case_study.year == data['year']
+    assert supplier_case_study.title == data['title']
 
 
 @pytest.mark.django_db
@@ -485,7 +482,6 @@ def test_company_case_study_get(
         supplier_case_study.testimonial_company
     )
     assert data['website'] == supplier_case_study.website
-    assert data['year'] == supplier_case_study.year
     assert data['description'] == supplier_case_study.description
     assert data['title'] == supplier_case_study.title
     assert data['sector'] == supplier_case_study.sector
