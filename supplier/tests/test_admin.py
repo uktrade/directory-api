@@ -11,17 +11,24 @@ from freezegun import freeze_time
 from user.models import User as Supplier
 from supplier.tests import VALID_REQUEST_DATA as SUPPLIER_DATA
 from company.models import Company
-from company.tests import VALID_REQUEST_DATA as COMPANY_DATA
+from company.tests import VALID_REQUEST_DATA
 
 
 headers = (
-    'company__date_of_creation,company__description,company__employees,'
-    'company__export_status,company__is_published,company__keywords,'
-    'company__logo,company__name,company__number,company__revenue,'
-    'company__sectors,company__website,company_email,'
-    'company_email_confirmed,company_id,date_joined,is_active,'
-    'mobile_number,name,sso_id'
+    'company__contact_details,company__created,company__date_of_creation,'
+    'company__description,company__employees,'
+    'company__export_status,company__id,company__is_published,'
+    'company__is_verification_letter_sent,company__keywords,'
+    'company__logo,company__modified,company__name,company__number,'
+    'company__revenue,company__sectors,company__verified_with_code,'
+    'company__website,company_email,company_email_confirmed,'
+    'date_joined,is_active,mobile_number,name,sso_id'
 )
+
+
+COMPANY_DATA = VALID_REQUEST_DATA.copy()
+# Order in dict is unpredictable so for easier testing just 1 element
+COMPANY_DATA['contact_details'] = {'address_line_1': 'line_1'}
 
 
 @pytest.mark.django_db
@@ -57,10 +64,14 @@ class DownloadCSVTestCase(TestCase):
         )
 
         row_one = (
-            '2010-10-10,Company description,,YES,False,,,Test Company,'
-            '11234567,100000.00,,http://example.com,gargoyle@example.com,'
-            'False,{pk},2017-03-21 13:12:00+00:00,True,,,1'
-        ).format(pk=supplier.company.pk)
+            '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
+            'Company description,,YES,{pk},False,False,'
+            ',,2012-01-14 12:00:00+00:00,Test Company,11234567,100000.00,'
+            ',False,http://example.com,'
+            'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
+            'True,,,1'
+        ).format(
+            pk=supplier.company.pk, contact=COMPANY_DATA['contact_details'])
 
         actual = str(response.content, 'utf-8').split('\r\n')
 
@@ -103,18 +114,26 @@ class DownloadCSVTestCase(TestCase):
         )
 
         row_one = (
-            ',,,,False,,,,01234568,,,,3@example.com,False,{pk},'
+            ',2012-01-14 12:00:00+00:00,,,,,{pk},False,False,,,'
+            '2012-01-14 12:00:00+00:00,,01234568,,,'
+            'False,,3@example.com,False,'
             '2012-01-14 12:00:00+00:00,True,07505605134,,3'
         ).format(pk=supplier_three.company.pk)
         row_two = (
-            ',,,,False,,,,01234568,,,,2@example.com,False,{pk},'
+            ',2012-01-14 12:00:00+00:00,,,,,{pk},False,False,,,'
+            '2012-01-14 12:00:00+00:00,,01234568,,,'
+            'False,,2@example.com,False,'
             '2012-01-14 12:00:00+00:00,True,,,2'
         ).format(pk=supplier_two.company.pk)
         row_three = (
-            '2010-10-10,Company description,,YES,False,,,Test Company,'
-            '11234567,100000.00,,http://example.com,gargoyle@example.com,'
-            'False,{pk},2017-03-21 13:12:00+00:00,True,,,1'
-        ).format(pk=supplier_one.company.pk)
+            '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
+            'Company description,,YES,{pk},False,False,,,'
+            '2012-01-14 12:00:00+00:00,'
+            'Test Company,11234567,100000.00,,False,http://example.com,'
+            'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
+            'True,,,1'
+        ).format(pk=supplier_one.company.pk,
+                 contact=COMPANY_DATA['contact_details'])
 
         actual = str(response.content, 'utf-8').split('\r\n')
 

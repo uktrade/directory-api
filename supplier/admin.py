@@ -22,13 +22,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company_email_confirmation_code',
         'company__supplier_case_studies',
         'company__suppliers',
-        'company__verified_with_code',
-        'company__is_verification_letter_sent',
-        'company__contact_details',
         'company__verification_code',
-        'company__created',
-        'company__modified',
-        'company__id',
     )
 
     def download_csv(self, request, queryset):
@@ -42,11 +36,12 @@ class SupplierAdmin(admin.ModelAdmin):
             )
         )
 
-        fieldnames = [field for field in Supplier._meta.get_all_field_names()
-                      if field not in self.csv_excluded_fields]
-        fieldnames += ['company__' + field
-                       for field in Company._meta.get_all_field_names()
-                       if 'company__' + field not in self.csv_excluded_fields]
+        fieldnames = [field.name for field in Supplier._meta.get_fields()
+                      if field.name not in self.csv_excluded_fields]
+        fieldnames += ['company__' + field.name
+                       for field in Company._meta.get_fields()
+                       if 'company__' + field.name
+                       not in self.csv_excluded_fields]
         fieldnames = sorted(fieldnames)
 
         suppliers = queryset.select_related('company').all().values(

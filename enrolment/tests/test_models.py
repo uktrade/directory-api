@@ -6,7 +6,7 @@ from enrolment.models import Enrolment
 
 
 def test_enrolment_model_has_update_create_timestamps():
-    field_names = Enrolment._meta.get_all_field_names()
+    field_names = [field.name for field in Enrolment._meta.get_fields()]
 
     assert 'created' in field_names
     created_field = Enrolment._meta.get_field_by_name('created')[0]
