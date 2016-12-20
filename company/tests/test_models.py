@@ -49,7 +49,6 @@ def test_company_case_study_non_required_fields(company):
         title='a title',
         description='a description',
         sector=choices.COMPANY_CLASSIFICATIONS[1][0],
-        year='2010',
         keywords='good, great',
         company=company,
     )
