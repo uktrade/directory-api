@@ -66,6 +66,9 @@ class CompanyViewsTests(TestCase):
             'id': str(company.id),
             'logo': None,
             'sectors': None,
+            'twitter_url': '',
+            'facebook_url': '',
+            'linkedin_url': '',
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
@@ -118,6 +121,9 @@ class CompanyViewsTests(TestCase):
             'sectors': None,
             'employees': '',
             'keywords': '',
+            'twitter_url': '',
+            'facebook_url': '',
+            'linkedin_url': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
             'modified': '2016-11-23T11:21:10.977518Z',
@@ -158,6 +164,9 @@ class CompanyViewsTests(TestCase):
             'modified': '2016-11-23T11:21:10.977518Z',
             'verified_with_code': False,
             'is_verification_letter_sent': False,
+            'twitter_url': '',
+            'facebook_url': '',
+            'linkedin_url': '',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK

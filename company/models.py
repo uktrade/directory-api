@@ -73,6 +73,16 @@ class Company(TimeStampedModel):
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
 
+    twitter_url = models.URLField(
+        max_length=255, blank=True, null=True, default=''
+    )
+    facebook_url = models.URLField(
+        max_length=255, blank=True, null=True, default=''
+    )
+    linkedin_url = models.URLField(
+        max_length=255, blank=True, null=True, default=''
+    )
+
     class Meta:
         verbose_name_plural = 'companies'
 

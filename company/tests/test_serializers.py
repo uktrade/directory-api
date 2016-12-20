@@ -202,6 +202,9 @@ def test_company_serializer_defaults_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
+    assert company.twitter_url == ''
+    assert company.facebook_url == ''
+    assert company.linkedin_url == ''
     assert len(company.verification_code) == 12
 
 
@@ -212,6 +215,9 @@ def test_company_serializer_translates_none_to_empty_string():
         'name': "extreme corp",
         'website': None,
         'description': None,
+        'twitter_url': None,
+        'facebook_url': None,
+        'linkedin_url': None,
         'export_status': choices.EXPORT_STATUSES[1][0],
         'date_of_creation': '2010-10-10',
         'contact_details': {
@@ -236,6 +242,9 @@ def test_company_serializer_translates_none_to_empty_string():
     # consistent manner
     assert company.website == ''
     assert company.description == ''
+    assert company.twitter_url == ''
+    assert company.facebook_url == ''
+    assert company.linkedin_url == ''
     assert len(company.verification_code) == 12
 
 
