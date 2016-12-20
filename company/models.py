@@ -94,7 +94,6 @@ class CompanyCaseStudy(TimeStampedModel):
     website = models.URLField(
         max_length=255, null=True, blank=True, default=''
     )
-    year = models.CharField(max_length=4)
     keywords = models.TextField()
     image_one = models.FileField(
         null=True,
