@@ -23,7 +23,6 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'title',
             'video_one',
             'website',
-            'year',
         )
 
     def validate_website(self, value):
