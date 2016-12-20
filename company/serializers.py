@@ -79,6 +79,9 @@ class CompanySerializer(serializers.ModelSerializer):
             'modified',
             'verified_with_code',
             'is_verification_letter_sent',
+            'twitter_url',
+            'facebook_url',
+            'linkedin_url',
         )
         read_only_fields = ('modified',)
 
@@ -86,6 +89,15 @@ class CompanySerializer(serializers.ModelSerializer):
         return value or ''
 
     def validate_description(self, value):
+        return value or ''
+
+    def validate_twitter_url(self, value):
+        return value or ''
+
+    def validate_facebook_url(self, value):
+        return value or ''
+
+    def validate_linkedin_url(self, value):
         return value or ''
 
     def validate_contact_details(self, value):
