@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
+    'directory_constants',
 ]
 
 MIDDLEWARE_CLASSES = [
