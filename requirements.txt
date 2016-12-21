@@ -13,3 +13,4 @@ raven==5.19.0
 boto3==1.4.1
 git+https://git@github.com/alphagov/notifications-python-client.git@1.4.0#egg=notifications-python-client
 git+https://github.com/uktrade/directory-validators.git@1.2.0#egg=directory_validators
+git+https://github.com/uktrade/directory-constants.git@2.0.0#egg=directory_constants

@@ -1,4 +1,5 @@
 	{% load header_image from enrolment_email %}
+	{% load external_url from constants_tags %}
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -345,7 +346,12 @@
 																<tr>
 																	<td valign="top" bgcolor="#DEDEDE">
 
-
+																		<div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;">
+																			<div>You received this email because you set up an account on great.gov.uk</div>
+																			<div><a href="{% external_url 'terms' %}">See the privacy statement to see how we keep your data and privacy safe.</div>
+																			<div><a href="{% external_url 'feedback_sso' %}">Give feedback on this service</a></div>
+																			<div>Department for International Trade, 1 Victoria Street, London, SW1 H0ET</div>
+																		</div>
 
 																	</td>
 																</tr>
