@@ -3,6 +3,10 @@ from rest_framework import serializers
 from company import models, validators
 
 
+def ensure_string_value(instance, value):
+    return value or ''
+
+
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -23,22 +27,21 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'title',
             'video_one',
             'website',
+            'short_summary',
+            'image_one_caption',
+            'image_two_caption',
+            'image_three_caption',
         )
 
-    def validate_website(self, value):
-        return value or ''
-
-    def validate_testimonial(self, value):
-        return value or ''
-
-    def validate_testimonial_name(self, value):
-        return value or ''
-
-    def validate_testimonial_job_title(self, value):
-        return value or ''
-
-    def validate_testimonial_company(self, value):
-        return value or ''
+    validate_website = ensure_string_value
+    validate_testimonial = ensure_string_value
+    validate_testimonial_name = ensure_string_value
+    validate_testimonial_job_title = ensure_string_value
+    validate_testimonial_company = ensure_string_value
+    validate_short_summary = ensure_string_value
+    validate_image_one_caption = ensure_string_value
+    validate_image_two_caption = ensure_string_value
+    validate_image_three_caption = ensure_string_value
 
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
@@ -48,6 +51,7 @@ class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
+
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField()
     sectors = serializers.JSONField(required=False)
@@ -85,20 +89,11 @@ class CompanySerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('modified',)
 
-    def validate_website(self, value):
-        return value or ''
-
-    def validate_description(self, value):
-        return value or ''
-
-    def validate_twitter_url(self, value):
-        return value or ''
-
-    def validate_facebook_url(self, value):
-        return value or ''
-
-    def validate_linkedin_url(self, value):
-        return value or ''
+    validate_website = ensure_string_value
+    validate_description = ensure_string_value
+    validate_twitter_url = ensure_string_value
+    validate_facebook_url = ensure_string_value
+    validate_linkedin_url = ensure_string_value
 
     def validate_contact_details(self, value):
         if self.partial:
