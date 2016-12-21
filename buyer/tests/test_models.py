@@ -22,7 +22,7 @@ def test_buyer_name(buyer):
 
 
 def test_buyer_model_has_update_create_timestamps():
-    field_names = models.Buyer._meta.get_all_field_names()
+    field_names = [field.name for field in models.Buyer._meta.get_fields()]
 
     assert 'created' in field_names
     created_field = models.Buyer._meta.get_field_by_name('created')[0]

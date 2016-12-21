@@ -65,7 +65,7 @@ def test_company_case_study_non_required_fields(company):
 
 
 def test_company_model_has_update_create_timestamps():
-    field_names = models.Company._meta.get_all_field_names()
+    field_names = [field.name for field in models.Company._meta.get_fields()]
 
     assert 'created' in field_names
     created_field = models.Company._meta.get_field_by_name('created')[0]
@@ -77,7 +77,8 @@ def test_company_model_has_update_create_timestamps():
 
 
 def test_company_case_study_model_has_update_create_timestamps():
-    field_names = models.CompanyCaseStudy._meta.get_all_field_names()
+    field_names = [field.name
+                   for field in models.CompanyCaseStudy._meta.get_fields()]
 
     assert 'created' in field_names
     created_field = models.CompanyCaseStudy._meta.get_field_by_name(
