@@ -1,7 +1,27 @@
 import json
 
+import factory
+import factory.fuzzy
+
 from directory_validators.constants import choices
 from rest_framework import serializers
+
+from company.models import Company
+
+
+def ch_number():
+    """Generates company house numbers for company factory"""
+    for i in range(10000000, 99999999):
+        yield str(i)
+
+
+class CompanyFactory(factory.django.DjangoModelFactory):
+
+    number = factory.Iterator(ch_number())
+    name = factory.fuzzy.FuzzyText(length=12)
+
+    class Meta:
+        model = Company
 
 
 VALID_REQUEST_DATA = {
