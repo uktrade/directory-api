@@ -11,6 +11,10 @@ from company.models import Company
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
 
+    search_fields = (
+        'sso_id', 'name', 'mobile_number', 'company_email', 'company__name',
+        'company__description', 'company__number', 'company__website'
+    )
     readonly_fields = ('created', 'modified',)
     actions = ['download_csv']
 

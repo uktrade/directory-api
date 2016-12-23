@@ -62,6 +62,10 @@ def case_study_data(company):
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
         'company': company.pk,
+        'short_summary': 'Very nice',
+        'image_one_caption': 'Nice image one',
+        'image_two_caption': 'Nice image two',
+        'image_three_caption': 'Nice image three',
     }
 
 
@@ -72,6 +76,10 @@ def case_study_data_optional_none(case_study_data):
     case_study_data['testimonial_name'] = None
     case_study_data['testimonial_job_title'] = None
     case_study_data['testimonial_company'] = None
+    case_study_data['short_summary'] = None
+    case_study_data['image_one_caption'] = None
+    case_study_data['image_two_caption'] = None
+    case_study_data['image_three_caption'] = None
     return case_study_data
 
 
@@ -298,6 +306,10 @@ def test_company_case_study_ensure_string(case_study_data_optional_none):
     assert serializer.validated_data['testimonial_name'] == ''
     assert serializer.validated_data['testimonial_job_title'] == ''
     assert serializer.validated_data['testimonial_company'] == ''
+    assert serializer.validated_data['short_summary'] == ''
+    assert serializer.validated_data['image_one_caption'] == ''
+    assert serializer.validated_data['image_two_caption'] == ''
+    assert serializer.validated_data['image_three_caption'] == ''
 
 
 @pytest.mark.django_db

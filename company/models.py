@@ -94,6 +94,9 @@ class CompanyCaseStudy(TimeStampedModel):
     title = models.CharField(
         max_length=100,
     )
+    short_summary = models.CharField(
+        max_length=200, null=True, blank=True, default=''
+    )
     description = models.CharField(
         max_length=1000,
     )
@@ -119,6 +122,15 @@ class CompanyCaseStudy(TimeStampedModel):
         null=True,
         blank=True,
         upload_to=helpers.path_and_rename_supplier_case_study,
+    )
+    image_one_caption = models.CharField(
+        max_length=200, null=True, blank=True, default=''
+    )
+    image_two_caption = models.CharField(
+        max_length=200, null=True, blank=True, default=''
+    )
+    image_three_caption = models.CharField(
+        max_length=200, null=True, blank=True, default=''
     )
     video_one = models.FileField(
         null=True,
