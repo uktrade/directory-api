@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/change_form.html" %}
 {% load i18n admin_urls admin_static admin_modify %}
 
 {% block breadcrumbs %}
@@ -13,9 +13,23 @@
 <div id="content-main">
 	<form action="" method="post">
 		{% csrf_token %}
-		{{ form }}
+		{{ form.non_field_errors }}
+		<div>
+			<fieldset class="module aligned">
+				{% for field in form %}
+					<div class="form-row{% if field.errors %} errors{% endif %} field-{{ field.name }}">
+						<div>
+							<label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+							{{ field }}
+							{{ field.errors }}
+							<p class="help">{{ field.help_text|safe }}</p>
+						</div>
+					</div>
+				{% endfor %}
+			</fieldset>
 		<div class="submit-row">
 			<input type="submit" name="_save" class="default" value="Publish" />
+		</div>
 		</div>
 	</form>
 </div>

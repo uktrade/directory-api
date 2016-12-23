@@ -31,7 +31,7 @@ class CHNumbersForm(forms.Form):
 
 class PublishByCHNumberView(FormView):
     form_class = CHNumbersForm
-    template_name = 'admin_company_publish_form.html'
+    template_name = 'admin/company/publish_form.html'
     success_url = reverse_lazy('admin:company_company_changelist')
 
     def get_context_data(self, **kwargs):
