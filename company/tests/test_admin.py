@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from company.models import Company
-from company.admin import CHNumbersForm
+from company.admin import PublishByCompanyHouseNumberForm
 from company.tests import CompanyFactory
 
 
@@ -122,7 +122,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     data = {
         'company_numbers': '12345678,23456789,34567890'
     }
-    form = CHNumbersForm(data=data)
+    form = PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
     assert form.errors['company_numbers'] == [COMPANY_DOESNT_EXIST_MSG]
@@ -132,7 +132,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     data = {
         'company_numbers': '{num},23456789'.format(num=company.number)
     }
-    form = CHNumbersForm(data=data)
+    form = PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
     assert form.errors['company_numbers'] == [COMPANY_DOESNT_EXIST_MSG]
@@ -144,6 +144,6 @@ def test_companies_publish_form_handles_whitespace():
     data = '	{num1},{num2} , {num3},'.format(
         num1=companies[0].number, num2=companies[1].number,
         num3=companies[2].number)
-    form = CHNumbersForm(data={'company_numbers': data})
+    form = PublishByCompanyHouseNumberForm(data={'company_numbers': data})
 
     assert form.is_valid() is True

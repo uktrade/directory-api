@@ -7,7 +7,7 @@ from django import forms
 from company.models import Company, CompanyCaseStudy
 
 
-class CHNumbersForm(forms.Form):
+class PublishByCompanyHouseNumberForm(forms.Form):
     COMPANY_DOESNT_EXIST_MSG = (
         'Some companies in this data set are not in the db'
     )
@@ -18,26 +18,25 @@ class CHNumbersForm(forms.Form):
     )
 
     def clean_company_numbers(self):
-        ch_numbers = self.cleaned_data['company_numbers'].split(',')
-        ch_numbers = [num.strip() for num in ch_numbers if num.strip()]
+        numbers = self.cleaned_data['company_numbers'].split(',')
+        numbers = [number.strip() for number in numbers if number.strip()]
 
         number_of_companies = Company.objects.filter(
-            number__in=ch_numbers).count()
-        if number_of_companies != len(ch_numbers):
+            number__in=numbers).count()
+        if number_of_companies != len(numbers):
             raise forms.ValidationError(self.COMPANY_DOESNT_EXIST_MSG)
 
-        return ch_numbers
+        return numbers
 
 
 class PublishByCHNumberView(FormView):
-    form_class = CHNumbersForm
+    form_class = PublishByCompanyHouseNumberForm
     template_name = 'admin/company/publish_form.html'
     success_url = reverse_lazy('admin:company_company_changelist')
 
     def get_context_data(self, **kwargs):
         context = super(PublishByCHNumberView, self).get_context_data(**kwargs)
         context['title'] = 'Publish Companies'
-        context['opts'] = Company._meta
         return context
 
     def form_valid(self, form):
