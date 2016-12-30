@@ -1,11 +1,11 @@
 	{% load header_image from enrolment_email %}
 	{% load external_url from constants_tags %}
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta name="format-detection" content="telephone=no" /> <!-- disable auto telephone linking in iOS -->
 		<title>Exporting is Great</title>
 		<style type="text/css">
@@ -48,7 +48,7 @@
 			.imageContentText {margin-top: 10px;line-height:0;}
 			.imageContentText a {line-height:0;}
 			#invisibleIntroduction {display:none !important;} /* Removing the introduction text from the view */
-			/*FRAMEWORK HACKS & OVERRIDES */
+			/*FRAMEWORK HACKS AND OVERRIDES */
 			span[class=ios-color-hack] a {color:#275100!important;text-decoration:none!important;} /* Remove all link colors in IOS (below are duplicates based on the color preference) */
 			span[class=ios-color-hack2] a {color:#205478!important;text-decoration:none!important;}
 			span[class=ios-color-hack3] a {color:#8B8B8B!important;text-decoration:none!important;}
@@ -138,7 +138,7 @@
 			</style>
 		<![endif]-->
 	</head>
-	<body bgcolor="#DEDEDE" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0">
+	<body style="background-color: #DEDEDE; margin-left: 0; margin-top: 0;">
 
 		<!-- CENTER THE EMAIL // -->
 		<!--
@@ -151,7 +151,7 @@
 			apply necessary styling e.g. background-color.
 		-->
 		<center style="background-color:#DEDEDE;">
-			<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="table-layout: fixed;max-width:100% !important;width: 100% !important;min-width: 100% !important;">
+			<table border="0" cellpadding="0" cellspacing="0" width="100%" id="bodyTable" style="table-layout: fixed;max-width:100% !important;width: 100% !important;min-width: 100% !important; heigh: 100%;">
 				<tr>
 					<td align="center" valign="top" id="bodyCell">
 
@@ -226,7 +226,7 @@
 												<table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
 													<tr>
 														<td align="center" valign="top" width="500" class="flexibleContainerCell">
-                                                            <img src="{% header_image %}" style="height: 100px; margin: 20px;"/>
+                                                            <img src="{% header_image %}" style="height: 100px; margin: 20px;" alt="" />
 														</td>
 													</tr>
 												</table>
@@ -241,11 +241,7 @@
 
 
 							<!-- MODULE ROW // -->
-							<!--  The "mc:hideable" is a feature for MailChimp which allows
-								you to disable certain row. It works perfectly for our row structure.
-								http://kb.mailchimp.com/article/template-language-creating-editable-content-areas/
-							-->
-							<tr mc:hideable>
+							<tr>
 								<td align="center" valign="top">
 									<!-- CENTERING TABLE // -->
 									<table border="0" cellpadding="0" cellspacing="0" width="100%">
