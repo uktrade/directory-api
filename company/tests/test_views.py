@@ -409,7 +409,7 @@ def test_company_case_study_create(
     case_study_data, api_client, supplier, company
 ):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id
+    api_client.defaults['sso-id'] = supplier.sso_id
 
     url = reverse('company-case-study')
     response = api_client.post(url, case_study_data, format='multipart')
@@ -437,7 +437,7 @@ def test_company_case_study_create(
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(supplier_case_study, supplier, api_client):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id  # user is the owner
+    api_client.defaults['sso-id'] = supplier.sso_id  # user is the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -457,7 +457,7 @@ def test_company_case_study_update(supplier_case_study, supplier, api_client):
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_delete(supplier_case_study, supplier, api_client):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id  # user is the owner
+    api_client.defaults['sso-id'] = supplier.sso_id  # user is the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -474,7 +474,7 @@ def test_company_case_study_get(
         supplier_case_study, supplier, api_client
 ):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id  # user is the owner
+    api_client.defaults['sso-id'] = supplier.sso_id  # user is the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -507,7 +507,7 @@ def test_company_case_study_prevent_non_owner_update(
     supplier_case_study, supplier, api_client
 ):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id + 1 # user is not the owner
+    api_client.defaults['sso-id'] = supplier.sso_id + 1  # user not the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -525,7 +525,7 @@ def test_company_case_study_prevent_non_owner_delete(
     supplier_case_study, supplier, api_client
 ):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id + 1 # user is not the owner
+    api_client.defaults['sso-id'] = supplier.sso_id + 1  # user not the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -535,7 +535,6 @@ def test_company_case_study_prevent_non_owner_delete(
     assert response.status_code == http.client.FORBIDDEN
 
 
-
 @pytest.mark.django_db
 @patch('signature.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
@@ -543,7 +542,7 @@ def test_company_case_study_handles_unidentified_user_update(
     supplier_case_study, supplier, api_client
 ):
     # set headers to non-logged in
-    api_client.defaults['sso_id'] = {}
+    api_client.defaults['sso-id'] = {}
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -561,7 +560,7 @@ def test_company_case_study_handles_unidentified_user_delete(
     supplier_case_study, supplier, api_client
 ):
     # set headers to non-logged in
-    api_client.defaults['sso_id'] = {}
+    api_client.defaults['sso-id'] = {}
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})
@@ -578,7 +577,7 @@ def test_company_case_study_allow_non_owner_retrieve(
     supplier_case_study, supplier, api_client
 ):
     # set headers to identify requester
-    api_client.defaults['sso_id'] = supplier.sso_id + 1 # user is not the owner
+    api_client.defaults['sso-id'] = supplier.sso_id + 1  # user not the owner
 
     pk = supplier_case_study.pk
     url = reverse('company-case-study-detail', kwargs={'pk': pk})

@@ -52,7 +52,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         if self.request.method == 'POST':
             # on case study create, get the company using the user's sso id.
             company = generics.get_object_or_404(
-                models.Company, suppliers__sso_id=self.request.META['sso_id']
+                models.Company, suppliers__sso_id=self.request.META['sso-id']
             )
             kwargs['data']['company'] = company.pk
         return super().get_serializer(*args, **kwargs)
