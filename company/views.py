@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
-from company import filters, models, pagination, serializers
+from company import filters, models, pagination, permissions, serializers
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -39,30 +39,23 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
     write_serializer_class = serializers.CompanyCaseStudySerializer
     queryset = models.CompanyCaseStudy.objects.all()
+    permission_classes = [permissions.IsCaseStudyOwnerOrReadOnly]
 
     def get_serializer_class(self):
         # on read use nested serializer (to also expose company), on write use
         # flat serializer (so request can refer to existing company pk).
         if self.request.method == 'GET':
             return self.read_serializer_class
-
         return self.write_serializer_class
 
-    def dispatch(self, *args, **kwargs):
-        self.company = generics.get_object_or_404(
-            models.Company, suppliers__sso_id=kwargs['sso_id']
-        )
-
-        return super().dispatch(*args, **kwargs)
-
     def get_serializer(self, *args, **kwargs):
-        if 'data' in kwargs:
-            kwargs['data']['company'] = self.company.pk
-
+        if self.request.method == 'POST':
+            # on case study create, get the company using the user's sso id.
+            company = generics.get_object_or_404(
+                models.Company, suppliers__sso_id=self.request.META['sso_id']
+            )
+            kwargs['data']['company'] = company.pk
         return super().get_serializer(*args, **kwargs)
-
-    def get_queryset(self):
-        return self.queryset.filter(company=self.company)
 
 
 class VerifyCompanyWithCodeAPIView(views.APIView):
