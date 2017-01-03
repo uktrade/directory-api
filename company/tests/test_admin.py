@@ -13,12 +13,12 @@ from company.tests import CompanyFactory
 
 
 COMPANY_DOESNT_EXIST_MSG = (
-    'Some companies in this data set are not in the db'
+    'Some companies in this data set are not in the db: '
 )
 
 
 @pytest.mark.django_db
-class PublishCompaniesInCSVTestCase(TestCase):
+class PublishCompaniesTestCase(TestCase):
 
     def setUp(self):
         superuser = User.objects.create_superuser(
@@ -125,7 +125,8 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     form = PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
-    assert form.errors['company_numbers'] == [COMPANY_DOESNT_EXIST_MSG]
+    msg = COMPANY_DOESNT_EXIST_MSG + '12345678, 23456789, 34567890'
+    assert form.errors['company_numbers'] == [msg]
 
     # some exist, some don't
     company = CompanyFactory()
@@ -135,7 +136,8 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     form = PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
-    assert form.errors['company_numbers'] == [COMPANY_DOESNT_EXIST_MSG]
+    msg = COMPANY_DOESNT_EXIST_MSG + '23456789'
+    assert form.errors['company_numbers'] == [msg]
 
 
 @pytest.mark.django_db
