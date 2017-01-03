@@ -51,12 +51,12 @@ urlpatterns = [
         name='company-verify'
     ),
     url(
-        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/$',
+        r'^company/case-study/$',
         CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
     ),
     url(
-        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
+        r'^company/case-study/(?P<pk>[0-9]+)/$',
         CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',
             'patch': 'partial_update',
