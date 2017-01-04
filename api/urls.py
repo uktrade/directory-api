@@ -7,6 +7,7 @@ from company.views import (
     CompanyNumberValidatorAPIView,
     CompanyPublicProfileViewSet,
     CompanyRetrieveUpdateAPIView,
+    PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
 )
 from supplier.views import (
@@ -75,12 +76,17 @@ urlpatterns = [
         name='gecko-total-registered-suppliers'
     ),
     url(
-        r'company/public/(?P<companies_house_number>.*)/$',
+        r'public/case-study/(?P<pk>.*)/$',
+        PublicCaseStudyViewSet.as_view({'get': 'retrieve'}),
+        name='public-case-study-detail'
+    ),
+    url(
+        r'public/company/(?P<companies_house_number>.*)/$',
         CompanyPublicProfileViewSet.as_view({'get': 'retrieve'}),
         name='company-public-profile-detail'
     ),
     url(
-        r'company/public/$',
+        r'public/company/$',
         CompanyPublicProfileViewSet.as_view({'get': 'list'}),
         name='company-public-profile-list'
     ),

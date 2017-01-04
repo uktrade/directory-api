@@ -501,6 +501,37 @@ def test_company_case_study_get(
 
 @pytest.mark.django_db
 @patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_public_company_case_study_get(
+        supplier_case_study, supplier, api_client
+):
+    pk = supplier_case_study.pk
+    url = reverse(
+        'public-case-study-detail', kwargs={'pk': pk}
+    )
+
+    response = api_client.get(url)
+    data = response.json()
+
+    assert response.status_code == http.client.OK
+    assert data['testimonial'] == supplier_case_study.testimonial
+    assert data['testimonial_name'] == supplier_case_study.testimonial_name
+    assert data['testimonial_job_title'] == (
+        supplier_case_study.testimonial_job_title
+    )
+    assert data['testimonial_company'] == (
+        supplier_case_study.testimonial_company
+    )
+    assert data['website'] == supplier_case_study.website
+    assert data['description'] == supplier_case_study.description
+    assert data['title'] == supplier_case_study.title
+    assert data['sector'] == supplier_case_study.sector
+    assert data['keywords'] == supplier_case_study.keywords
+    assert isinstance(data['company'], dict)
+    assert data['company']['id'] == supplier_case_study.company.pk
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_retrieve_public_profile(
     public_profile, api_client
 ):
