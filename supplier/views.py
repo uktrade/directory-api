@@ -10,7 +10,6 @@ from user.models import User as Supplier
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-
     queryset = Supplier.objects.all()
     lookup_field = 'sso_id'
     serializer_class = serializers.SupplierSerializer

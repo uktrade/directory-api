@@ -65,6 +65,12 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(company=self.company)
 
 
+class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.CompanyCaseStudy.objects.all()
+    lookup_field = 'pk'
+    serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
+
+
 class VerifyCompanyWithCodeAPIView(views.APIView):
 
     http_method_names = ("post", )
