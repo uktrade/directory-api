@@ -3,10 +3,6 @@ from rest_framework import serializers
 from company import models, validators
 
 
-def ensure_string_value(instance, value):
-    return value or ''
-
-
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -33,16 +29,6 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'image_three_caption',
         )
 
-    validate_website = ensure_string_value
-    validate_testimonial = ensure_string_value
-    validate_testimonial_name = ensure_string_value
-    validate_testimonial_job_title = ensure_string_value
-    validate_testimonial_company = ensure_string_value
-    validate_short_summary = ensure_string_value
-    validate_image_one_caption = ensure_string_value
-    validate_image_two_caption = ensure_string_value
-    validate_image_three_caption = ensure_string_value
-
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 
@@ -68,6 +54,7 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = (
             'date_of_creation',
             'description',
+            'summary',
             'employees',
             'export_status',
             'id',
@@ -75,7 +62,6 @@ class CompanySerializer(serializers.ModelSerializer):
             'logo',
             'name',
             'number',
-            'revenue',
             'sectors',
             'supplier_case_studies',
             'website',
@@ -88,12 +74,6 @@ class CompanySerializer(serializers.ModelSerializer):
             'linkedin_url',
         )
         read_only_fields = ('modified',)
-
-    validate_website = ensure_string_value
-    validate_description = ensure_string_value
-    validate_twitter_url = ensure_string_value
-    validate_facebook_url = ensure_string_value
-    validate_linkedin_url = ensure_string_value
 
     def validate_contact_details(self, value):
         if self.partial:

@@ -111,11 +111,9 @@ def test_marks_letter_as_sent(mock_stannp_client, settings):
 @mock.patch('company.stannp.stannp_client')
 def test_unknown_address_not_send_letters(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    empty_values = [None, {}]
-    for index, empty_value in enumerate(empty_values):
-        data = VALID_REQUEST_DATA.copy()
-        data['number'] = '12345{index}'.format(index=index)
-        data['contact_details'] = empty_value
-        Company.objects.create(**data)
+    data = VALID_REQUEST_DATA.copy()
+    data['number'] = '123456'
+    data['contact_details'] = {}
+    Company.objects.create(**data)
 
-        mock_stannp_client.send_letter.assert_not_called()
+    mock_stannp_client.send_letter.assert_not_called()

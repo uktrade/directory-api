@@ -58,10 +58,10 @@ def test_company_case_study_non_required_fields(company):
     assert instance.testimonial_name == ''
     assert instance.testimonial_job_title == ''
     assert instance.testimonial_company == ''
-    assert instance.image_one.name is None
-    assert instance.image_two.name is None
-    assert instance.image_three.name is None
-    assert instance.video_one.name is None
+    assert instance.image_one.name is ''
+    assert instance.image_two.name is ''
+    assert instance.image_three.name is ''
+    assert instance.video_one.name is ''
 
 
 def test_company_model_has_update_create_timestamps():
