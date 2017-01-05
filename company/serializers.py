@@ -69,11 +69,12 @@ class CompanySerializer(serializers.ModelSerializer):
             'modified',
             'verified_with_code',
             'is_verification_letter_sent',
+            'is_published',
             'twitter_url',
             'facebook_url',
             'linkedin_url',
         )
-        read_only_fields = ('modified',)
+        read_only_fields = ('modified', 'is_published')
 
     def validate_contact_details(self, value):
         if self.partial:
