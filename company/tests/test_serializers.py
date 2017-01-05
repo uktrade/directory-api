@@ -69,20 +69,6 @@ def case_study_data(company):
     }
 
 
-@pytest.fixture
-def case_study_data_optional_none(case_study_data):
-    case_study_data['website'] = None
-    case_study_data['testimonial'] = None
-    case_study_data['testimonial_name'] = None
-    case_study_data['testimonial_job_title'] = None
-    case_study_data['testimonial_company'] = None
-    case_study_data['short_summary'] = None
-    case_study_data['image_one_caption'] = None
-    case_study_data['image_two_caption'] = None
-    case_study_data['image_three_caption'] = None
-    return case_study_data
-
-
 @pytest.mark.django_db
 def test_company_serializer_untouches_is_published():
     data = {
@@ -181,82 +167,6 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
 
 
 @pytest.mark.django_db
-def test_company_serializer_defaults_to_empty_string():
-    data = {
-        'number': "01234567",
-        'export_status': choices.EXPORT_STATUSES[1][0],
-        'name': 'Extreme corp',
-        'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        }
-    }
-    serializer = serializers.CompanySerializer(data=data)
-
-    assert serializer.is_valid(), serializer.errors
-
-    company = serializer.save()
-
-    # NOTE: These are fields that the registration form currently
-    # doesn't define and therefore might be empty.
-    # This test is just for peace of mind that we handle this in a
-    # consistent manner
-    assert company.website == ''
-    assert company.description == ''
-    assert company.twitter_url == ''
-    assert company.facebook_url == ''
-    assert company.linkedin_url == ''
-    assert len(company.verification_code) == 12
-
-
-@pytest.mark.django_db
-def test_company_serializer_translates_none_to_empty_string():
-    data = {
-        'number': "01234567",
-        'name': "extreme corp",
-        'website': None,
-        'description': None,
-        'twitter_url': None,
-        'facebook_url': None,
-        'linkedin_url': None,
-        'export_status': choices.EXPORT_STATUSES[1][0],
-        'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        }
-    }
-    serializer = serializers.CompanySerializer(data=data)
-    assert serializer.is_valid(), serializer.errors
-
-    company = serializer.save()
-
-    # NOTE: These are fields that the registration form currently
-    # doesn't define and therefore might be empty.
-    # This test is just for peace of mind that we handle this in a
-    # consistent manner
-    assert company.website == ''
-    assert company.description == ''
-    assert company.twitter_url == ''
-    assert company.facebook_url == ''
-    assert company.linkedin_url == ''
-    assert len(company.verification_code) == 12
-
-
-@pytest.mark.django_db
 def test_company_serializer_save():
     serializer = serializers.CompanySerializer(data=VALID_REQUEST_DATA)
     serializer.is_valid()
@@ -267,7 +177,6 @@ def test_company_serializer_save():
     assert company.number == VALID_REQUEST_DATA['number']
     assert company.website == VALID_REQUEST_DATA['website']
     assert company.description == VALID_REQUEST_DATA['description']
-    assert str(company.revenue) == VALID_REQUEST_DATA['revenue']
     assert company.export_status == VALID_REQUEST_DATA['export_status']
     assert len(company.verification_code) == 12
 
@@ -292,24 +201,6 @@ def test_company_number_serializer_validators():
     field = serializer.get_fields()['number']
 
     assert validators.company_unique in field.validators
-
-
-@pytest.mark.django_db
-def test_company_case_study_ensure_string(case_study_data_optional_none):
-    serializer = serializers.CompanyCaseStudySerializer(
-        data=case_study_data_optional_none
-    )
-
-    assert serializer.is_valid()
-    assert serializer.validated_data['website'] == ''
-    assert serializer.validated_data['testimonial'] == ''
-    assert serializer.validated_data['testimonial_name'] == ''
-    assert serializer.validated_data['testimonial_job_title'] == ''
-    assert serializer.validated_data['testimonial_company'] == ''
-    assert serializer.validated_data['short_summary'] == ''
-    assert serializer.validated_data['image_one_caption'] == ''
-    assert serializer.validated_data['image_two_caption'] == ''
-    assert serializer.validated_data['image_three_caption'] == ''
 
 
 @pytest.mark.django_db

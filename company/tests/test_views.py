@@ -1,5 +1,4 @@
 import datetime
-from decimal import Decimal
 import http
 from io import BytesIO
 from unittest.mock import patch, Mock
@@ -29,7 +28,6 @@ default_public_profile_data = {
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
     'date_of_creation': '2010-10-10',
-    'revenue': '100000.00',
 }
 
 
@@ -64,8 +62,9 @@ class CompanyViewsTests(TestCase):
 
         expected = {
             'id': str(company.id),
+            'summary': '',
             'logo': None,
-            'sectors': None,
+            'sectors': [],
             'twitter_url': '',
             'facebook_url': '',
             'linkedin_url': '',
@@ -76,6 +75,7 @@ class CompanyViewsTests(TestCase):
             'modified': '2016-11-23T11:21:10.977518Z',
             'verified_with_code': False,
             'is_verification_letter_sent': False,
+            'is_published': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -118,12 +118,14 @@ class CompanyViewsTests(TestCase):
         expected = {
             'id': str(company.id),
             'logo': None,
-            'sectors': None,
+            'sectors': [],
+            'summary': '',
             'employees': '',
             'keywords': '',
             'twitter_url': '',
             'facebook_url': '',
             'linkedin_url': '',
+            'is_published': False,
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
             'modified': '2016-11-23T11:21:10.977518Z',
@@ -156,7 +158,8 @@ class CompanyViewsTests(TestCase):
         expected = {
             'id': str(company.id),
             'logo': None,
-            'sectors': None,
+            'summary': '',
+            'sectors': [],
             'employees': '',
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
@@ -164,6 +167,7 @@ class CompanyViewsTests(TestCase):
             'modified': '2016-11-23T11:21:10.977518Z',
             'verified_with_code': False,
             'is_verification_letter_sent': False,
+            'is_published': False,
             'twitter_url': '',
             'facebook_url': '',
             'linkedin_url': '',
@@ -294,7 +298,6 @@ def company_data():
         'description': 'Company description',
         'export_status': choices.EXPORT_STATUSES[1][0],
         'date_of_creation': '2010-10-10',
-        'revenue': '100000.00',
     }
 
 
@@ -399,7 +402,6 @@ def test_company_update(
     assert instance.description == 'Company description'
     assert instance.export_status == choices.EXPORT_STATUSES[1][0]
     assert instance.date_of_creation == datetime.date(2010, 10, 10)
-    assert instance.revenue == Decimal('100000.00')
 
 
 @pytest.mark.django_db
@@ -628,7 +630,6 @@ def test_verify_company_with_code(api_client, settings):
             "description": "Company description",
             "export_status": choices.EXPORT_STATUSES[1][0],
             "date_of_creation": "2010-10-10",
-            "revenue": '100000.00',
             "contact_details": {
                 'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
@@ -671,7 +672,6 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
             "description": "Company description",
             "export_status": choices.EXPORT_STATUSES[1][0],
             "date_of_creation": "2010-10-10",
-            "revenue": '100000.00',
             "contact_details": {
                 'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',
@@ -714,7 +714,6 @@ def test_verify_company_with_code_invalid_user(api_client, settings):
             "description": "Company description",
             "export_status": choices.EXPORT_STATUSES[1][0],
             "date_of_creation": "2010-10-10",
-            "revenue": '100000.00',
             "contact_details": {
                 'postal_full_name': 'test_full_name',
                 'address_line_1': 'test_address_line_1',

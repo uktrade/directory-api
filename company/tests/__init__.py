@@ -30,7 +30,6 @@ VALID_REQUEST_DATA = {
     "description": "Company description",
     "export_status": choices.EXPORT_STATUSES[1][0],
     "date_of_creation": "2010-10-10",
-    "revenue": '100000.00',
     "contact_details": {
         "mobile_number": '07505605132',
         'postal_full_name': 'test_full_name',

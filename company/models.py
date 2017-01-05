@@ -11,19 +11,19 @@ from company import helpers
 
 class Company(TimeStampedModel):
 
-    # NOTE: For various reasons owing to how django handles empty values
-    # in strings and how DRF serializers handle validation,
-    # blank=True, null=True and default='' were necessary to keep
-    # behaviour consistent between not specifying a field and
-    # specifying it as None
+    summary = models.CharField(
+        max_length=250,
+        blank=True,
+        default=''
+    )
     description = models.TextField(
-        blank=True, null=True, default=''
+        blank=True,
+        default='',
     )
     employees = models.CharField(
         max_length=20,
         choices=choices.EMPLOYEES,
         blank=True,
-        null=True,
         default=''
     )
     export_status = models.CharField(
@@ -31,11 +31,14 @@ class Company(TimeStampedModel):
         choices=choices.EXPORT_STATUSES,
         validators=[shared_validators.export_status_intention]
     )
-    keywords = models.TextField(blank=True, null=True, default='')
+    keywords = models.TextField(
+        blank=True,
+        default='',
+    )
     logo = models.FileField(
         upload_to=helpers.path_and_rename_logos,
+        default='',
         blank=True,
-        null=True
     )
     name = models.CharField(max_length=255)
     number = models.CharField(
@@ -45,42 +48,45 @@ class Company(TimeStampedModel):
     )
     contact_details = JSONField(
         blank=True,
-        null=True,
-    )
-    revenue = models.DecimalField(
-        max_digits=13,
-        decimal_places=2,
-        blank=True,
-        null=True,
+        default={}
     )
     sectors = JSONField(
         blank=True,
-        null=True,
+        default=[],
     )
     website = models.URLField(
-        max_length=255, blank=True, null=True,
+        max_length=255,
+        blank=True,
         default=''
     )
-    date_of_creation = models.DateField(blank=True, null=True, default=None)
+    date_of_creation = models.DateField(
+        blank=True,
+        null=True,
+    )
     is_published = models.BooleanField(default=False)
     verification_code = models.CharField(
         _('verification code'),
         max_length=255,
         blank=True,
-        null=True,
         default=helpers.generate_verification_code,
     )
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
 
     twitter_url = models.URLField(
-        max_length=255, blank=True, null=True, default=''
+        max_length=255,
+        blank=True,
+        default=''
     )
     facebook_url = models.URLField(
-        max_length=255, blank=True, null=True, default=''
+        max_length=255,
+        blank=True,
+        default=''
     )
     linkedin_url = models.URLField(
-        max_length=255, blank=True, null=True, default=''
+        max_length=255,
+        blank=True,
+        default=''
     )
 
     class Meta:
@@ -95,7 +101,7 @@ class CompanyCaseStudy(TimeStampedModel):
         max_length=100,
     )
     short_summary = models.CharField(
-        max_length=200, null=True, blank=True, default=''
+        max_length=200, blank=True, default=''
     )
     description = models.CharField(
         max_length=1000,
@@ -105,49 +111,49 @@ class CompanyCaseStudy(TimeStampedModel):
         max_length=100,
     )
     website = models.URLField(
-        max_length=255, null=True, blank=True, default=''
+        max_length=255, blank=True, default=''
     )
     keywords = models.TextField()
     image_one = models.FileField(
-        null=True,
-        blank=True,
         upload_to=helpers.path_and_rename_supplier_case_study,
+        blank=True,
+        default='',
     )
     image_two = models.FileField(
-        null=True,
-        blank=True,
         upload_to=helpers.path_and_rename_supplier_case_study,
+        blank=True,
+        default='',
     )
     image_three = models.FileField(
-        null=True,
-        blank=True,
         upload_to=helpers.path_and_rename_supplier_case_study,
+        blank=True,
+        default='',
     )
     image_one_caption = models.CharField(
-        max_length=200, null=True, blank=True, default=''
+        max_length=200, blank=True, default=''
     )
     image_two_caption = models.CharField(
-        max_length=200, null=True, blank=True, default=''
+        max_length=200, blank=True, default=''
     )
     image_three_caption = models.CharField(
-        max_length=200, null=True, blank=True, default=''
+        max_length=200, blank=True, default=''
     )
     video_one = models.FileField(
-        null=True,
         blank=True,
+        default='',
         upload_to=helpers.path_and_rename_supplier_case_study,
     )
     testimonial = models.CharField(
-        max_length=1000, null=True, blank=True, default=''
+        max_length=1000, blank=True, default=''
     )
     testimonial_name = models.CharField(
-        max_length=255, null=True, blank=True, default=''
+        max_length=255, blank=True, default=''
     )
     testimonial_job_title = models.CharField(
-        max_length=255, null=True, blank=True, default=''
+        max_length=255, blank=True, default=''
     )
     testimonial_company = models.CharField(
-        max_length=255, null=True, blank=True, default=''
+        max_length=255, blank=True, default=''
     )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
 

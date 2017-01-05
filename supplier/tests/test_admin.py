@@ -20,7 +20,7 @@ headers = (
     'company__facebook_url,company__id,company__is_published,'
     'company__is_verification_letter_sent,company__keywords,'
     'company__linkedin_url,company__logo,company__modified,company__name,'
-    'company__number,company__revenue,company__sectors,'
+    'company__number,company__sectors,company__summary,'
     'company__twitter_url,company__verified_with_code,'
     'company__website,company_email,company_email_confirmed,'
     'date_joined,is_active,mobile_number,name,sso_id'
@@ -67,7 +67,7 @@ class DownloadCSVTestCase(TestCase):
         row_one = (
             '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
             'Company description,,YES,,{pk},False,False,'
-            ',,,2012-01-14 12:00:00+00:00,Test Company,11234567,100000.00,'
+            ',,,2012-01-14 12:00:00+00:00,Test Company,11234567,[],'
             ',,False,http://example.com,'
             'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
             'True,,,1'
@@ -115,14 +115,14 @@ class DownloadCSVTestCase(TestCase):
         )
 
         row_one = (
-            ',2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
-            '2012-01-14 12:00:00+00:00,,01234568,,,,'
+            '{{}},2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
+            '2012-01-14 12:00:00+00:00,,01234568,[],,,'
             'False,,3@example.com,False,'
             '2012-01-14 12:00:00+00:00,True,07505605134,,3'
         ).format(pk=supplier_three.company.pk)
         row_two = (
-            ',2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
-            '2012-01-14 12:00:00+00:00,,01234568,,,,'
+            '{{}},2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
+            '2012-01-14 12:00:00+00:00,,01234568,[],,,'
             'False,,2@example.com,False,'
             '2012-01-14 12:00:00+00:00,True,,,2'
         ).format(pk=supplier_two.company.pk)
@@ -130,7 +130,7 @@ class DownloadCSVTestCase(TestCase):
             '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
             'Company description,,YES,,{pk},False,False,,,,'
             '2012-01-14 12:00:00+00:00,'
-            'Test Company,11234567,100000.00,,,False,http://example.com,'
+            'Test Company,11234567,[],,,False,http://example.com,'
             'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
             'True,,,1'
         ).format(pk=supplier_one.company.pk,
