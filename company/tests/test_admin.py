@@ -192,11 +192,13 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         )
 
         row_one = (
-            '1,2012-01-14 12:00:00+00:00,{description},1,,,,,,,,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
             '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
         ).format(
+            company_id=case_study.company_id,
             description=case_study.description,
             title=case_study.title,
+            id=case_study.id,
 
         )
         actual = str(response.content, 'utf-8').split('\r\n')
@@ -205,8 +207,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[1] == row_one
 
     def test_download_csv_multiple_multiple_case_studies(self):
-        CompanyCaseStudyFactory.create_batch(3)
-
+        case_studies = CompanyCaseStudyFactory.create_batch(3)
         data = {
             'action': 'download_csv',
             '_selected_action': CompanyCaseStudy.objects.all().values_list(
@@ -219,31 +220,34 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             follow=True
         )
 
-        company_one = CompanyCaseStudy.objects.get(id=3)
         row_one = (
-            '3,2012-01-14 12:00:00+00:00,{description},3,,,,,,,,2012-01-14'
-            ' 12:00:00+00:00,,,,,,,{title},,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
         ).format(
-            description=company_one.description,
-            title=company_one.title
+            company_id=case_studies[2].company_id,
+            description=case_studies[2].description,
+            title=case_studies[2].title,
+            id=case_studies[2].id,
         )
 
-        company_two = CompanyCaseStudy.objects.get(id=2)
         row_two = (
-            '2,2012-01-14 12:00:00+00:00,{description},2,,,,,,,,2012-01-14'
-            ' 12:00:00+00:00,,,,,,,{title},,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
         ).format(
-            description=company_two.description,
-            title=company_two.title
+            company_id=case_studies[1].company_id,
+            description=case_studies[1].description,
+            title=case_studies[1].title,
+            id=case_studies[1].id,
         )
 
-        company_three = CompanyCaseStudy.objects.get(id=1)
         row_three = (
-            '1,2012-01-14 12:00:00+00:00,{description},1,,,,,,,,2012-01-14'
-            ' 12:00:00+00:00,,,,,,,{title},,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
         ).format(
-            description=company_three.description,
-            title=company_three.title
+            company_id=case_studies[0].company_id,
+            description=case_studies[0].description,
+            title=case_studies[0].title,
+            id=case_studies[0].id,
         )
 
         actual = str(response.content, 'utf-8').split('\r\n')
