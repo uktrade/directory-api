@@ -1,7 +1,11 @@
+import csv
+import datetime
+
 from django.contrib import admin
 from django.conf.urls import url
-from django.views.generic import FormView
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
+from django.views.generic import FormView
 from django import forms
 
 from company.models import Company, CompanyCaseStudy
@@ -55,27 +59,63 @@ class PublishByCompanyHouseNumberView(FormView):
 class CompanyAdmin(admin.ModelAdmin):
     search_fields = (
         'name', 'description', 'export_status', 'keywords', 'contact_details',
-        'sectors', 'website', 'verification_code'
+        'sectors', 'website', 'verification_code', 'number'
     )
     list_display = ('name', 'number', 'is_published')
-    list_filter = ('is_published',)
-    readonly_fields = ('created', 'modified',)
+    list_filter = ('is_published', )
+    readonly_fields = ('created', 'modified')
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
         additional_urls = [
-            url(r'^publish/$',
+            url(
+                r'^publish/$',
                 self.admin_site.admin_view(
-                    PublishByCompanyHouseNumberView.as_view()),
-                name="company_company_publish"),
+                    PublishByCompanyHouseNumberView.as_view()
+                ),
+                name="company_company_publish"
+            ),
         ]
         return additional_urls + urls
 
 
 @admin.register(CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
+
     search_fields = (
         'name', 'description', 'title', 'website', 'keywords', 'testimonial',
         'testimonial_company', 'testimonial_name',
     )
     readonly_fields = ('created', 'modified',)
+    actions = ['download_csv']
+
+    csv_excluded_fields = (, )
+
+    def download_csv(self, request, queryset):
+        """
+        Generates CSV report of selected case studies.
+        """
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = (
+            'attachment; filename="find-a-buyer_case_studies_{}.csv"'.format(
+                datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            )
+        )
+
+        field_names = sorted([
+            field.name for field in CompanyCaseStudy._meta.get_fields()
+            if field.name not in self.csv_excluded_fields
+        ])
+
+        case_studies = queryset.all().values(*field_names)
+        writer = csv.DictWriter(response, fieldnames=field_names)
+        writer.writeheader()
+
+        for case_study in case_studies:
+            writer.writerow(case_study)
+
+        return response
+
+    download_csv.short_description = (
+        "Download CSV report for selected case studies"
+    )
