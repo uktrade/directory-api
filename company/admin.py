@@ -86,10 +86,10 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
         'name', 'description', 'title', 'website', 'keywords', 'testimonial',
         'testimonial_company', 'testimonial_name',
     )
-    readonly_fields = ('created', 'modified',)
+    readonly_fields = ('created', 'modified')
     actions = ['download_csv']
 
-    csv_excluded_fields = (, )
+    csv_excluded_fields = ()
 
     def download_csv(self, request, queryset):
         """
