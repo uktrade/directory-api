@@ -46,10 +46,6 @@ class Company(TimeStampedModel):
         validators=[shared_validators.company_number],
         unique=True
     )
-    contact_details = JSONField(
-        blank=True,
-        default={}
-    )
     sectors = JSONField(
         blank=True,
         default=[],
@@ -72,7 +68,7 @@ class Company(TimeStampedModel):
     )
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
-
+    # social links
     twitter_url = models.URLField(
         max_length=255,
         blank=True,
@@ -86,7 +82,62 @@ class Company(TimeStampedModel):
     linkedin_url = models.URLField(
         max_length=255,
         blank=True,
-        default=''
+        default='',
+    )
+    # contact details
+    mobile_number = models.CharField(
+        blank=True,
+        default='',
+        max_length=15,
+    )
+    postal_full_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+    )
+    address_line_1 = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    address_line_2 = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    locality = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    country = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    postal_code = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    po_box = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    email_address = models.EmailField(
+        blank=True,
+        default='',
+    )
+    email_full_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+    )
+    # deprecated. use field level contact fields instead
+    contact_details = JSONField(
+        blank=True,
+        default={}
     )
 
     class Meta:

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from unittest import TestCase
 
 from django.test import Client
@@ -14,22 +15,7 @@ from company.models import Company
 from company.tests import VALID_REQUEST_DATA
 
 
-headers = (
-    'company__contact_details,company__created,company__date_of_creation,'
-    'company__description,company__employees,company__export_status,'
-    'company__facebook_url,company__id,company__is_published,'
-    'company__is_verification_letter_sent,company__keywords,'
-    'company__linkedin_url,company__logo,company__modified,company__name,'
-    'company__number,company__sectors,company__summary,'
-    'company__twitter_url,company__verified_with_code,'
-    'company__website,company_email,company_email_confirmed,'
-    'date_joined,is_active,mobile_number,name,sso_id'
-)
-
-
 COMPANY_DATA = VALID_REQUEST_DATA.copy()
-# Order in dict is unpredictable so for easier testing just 1 element
-COMPANY_DATA['contact_details'] = {'address_line_1': 'line_1'}
 
 
 @pytest.mark.django_db
@@ -64,44 +50,145 @@ class DownloadCSVTestCase(TestCase):
             follow=True
         )
 
-        row_one = (
-            '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
-            'Company description,,YES,,{pk},False,False,'
-            ',,,2012-01-14 12:00:00+00:00,Test Company,11234567,[],'
-            ',,False,http://example.com,'
-            'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
-            'True,,,1'
-        ).format(
-            pk=supplier.company.pk, contact=COMPANY_DATA['contact_details'])
-
+        expected_data = OrderedDict([
+            ('company__address_line_1', 'test_address_line_1'),
+            ('company__address_line_2', 'test_address_line_2'),
+            ('company__contact_details', '{}'),
+            ('company__country', 'test_country'),
+            ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_of_creation', '2010-10-10'),
+            ('company__description', 'Company description'),
+            ('company__email_address', ''),
+            ('company__email_full_name', ''),
+            ('company__employees', ''),
+            ('company__export_status', 'YES'),
+            ('company__facebook_url', ''),
+            ('company__id', str(supplier.company.pk)),
+            ('company__is_published', 'False'),
+            ('company__is_verification_letter_sent', 'False'),
+            ('company__keywords', ''),
+            ('company__linkedin_url', ''),
+            ('company__locality', 'test_locality'),
+            ('company__logo', ''),
+            ('company__mobile_number', '07505605132'),
+            ('company__modified', '2012-01-14 12:00:00+00:00'),
+            ('company__name', 'Test Company'),
+            ('company__number', '11234567'),
+            ('company__po_box', ''),
+            ('company__postal_code', 'test_postal_code'),
+            ('company__postal_full_name', 'test_full_name'),
+            ('company__sectors', '[]'),
+            ('company__summary', ''),
+            ('company__twitter_url', ''),
+            ('company__verified_with_code', 'False'),
+            ('company__website', 'http://example.com'),
+            ('company_email', 'gargoyle@example.com'),
+            ('company_email_confirmed', 'False'),
+            ('date_joined', '2017-03-21 13:12:00+00:00'),
+            ('is_active', 'True'),
+            ('mobile_number', ''),
+            ('name', ''),
+            ('sso_id', '1'),
+        ])
         actual = str(response.content, 'utf-8').split('\r\n')
 
-        assert actual[0] == headers
-        assert actual[1] == row_one
+        assert actual[0] == ','.join(expected_data.keys())
+        assert actual[1] == ','.join(expected_data.values())
 
     def test_download_csv_multiple_suppliers(self):
+        company_data2 = COMPANY_DATA.copy()
+        company_data2['number'] = '01234568'
+        supplier_data2 = SUPPLIER_DATA.copy()
+        supplier_data2.update({
+            'sso_id': 2,
+            'company_email': '2@example.com',
+        })
         company1 = Company.objects.create(**COMPANY_DATA)
-        company2 = Company.objects.create(number="01234568")
-        supplier_data2 = {
-            "sso_id": 2,
-            "company_email": "2@example.com"
-        }
-        supplier_data3 = {
-            "sso_id": 3,
-            "company_email": "3@example.com",
-            "mobile_number": "07505605134"
-        }
+        company2 = Company.objects.create(**company_data2)
+        Supplier.objects.create(company=company1, **SUPPLIER_DATA)
+        Supplier.objects.create(company=company2, **supplier_data2)
 
-        supplier_one = Supplier.objects.create(
-            company=company1, **SUPPLIER_DATA
-        )
-        supplier_two = Supplier.objects.create(
-            company=company2, **supplier_data2
-        )
-        supplier_three = Supplier.objects.create(
-            company=company2, **supplier_data3
-        )
+        supplier_one_expected_data = OrderedDict([
+            ('company__address_line_1', 'test_address_line_1'),
+            ('company__address_line_2', 'test_address_line_2'),
+            ('company__contact_details', '{}'),
+            ('company__country', 'test_country'),
+            ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_of_creation', '2010-10-10'),
+            ('company__description', 'Company description'),
+            ('company__email_address', ''),
+            ('company__email_full_name', ''),
+            ('company__employees', ''),
+            ('company__export_status', 'YES'),
+            ('company__facebook_url', ''),
+            ('company__id', str(company1.pk)),
+            ('company__is_published', 'False'),
+            ('company__is_verification_letter_sent', 'False'),
+            ('company__keywords', ''),
+            ('company__linkedin_url', ''),
+            ('company__locality', 'test_locality'),
+            ('company__logo', ''),
+            ('company__mobile_number', '07505605132'),
+            ('company__modified', '2012-01-14 12:00:00+00:00'),
+            ('company__name', 'Test Company'),
+            ('company__number', '11234567'),
+            ('company__po_box', ''),
+            ('company__postal_code', 'test_postal_code'),
+            ('company__postal_full_name', 'test_full_name'),
+            ('company__sectors', '[]'),
+            ('company__summary', ''),
+            ('company__twitter_url', ''),
+            ('company__verified_with_code', 'False'),
+            ('company__website', 'http://example.com'),
+            ('company_email', 'gargoyle@example.com'),
+            ('company_email_confirmed', 'False'),
+            ('date_joined', '2017-03-21 13:12:00+00:00'),
+            ('is_active', 'True'),
+            ('mobile_number', ''),
+            ('name', ''),
+            ('sso_id', '1'),
+        ])
 
+        supplier_two_expected_data = OrderedDict([
+            ('company__address_line_1', 'test_address_line_1'),
+            ('company__address_line_2', 'test_address_line_2'),
+            ('company__contact_details', '{}'),
+            ('company__country', 'test_country'),
+            ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_of_creation', '2010-10-10'),
+            ('company__description', 'Company description'),
+            ('company__email_address', ''),
+            ('company__email_full_name', ''),
+            ('company__employees', ''),
+            ('company__export_status', 'YES'),
+            ('company__facebook_url', ''),
+            ('company__id', str(company2.pk)),
+            ('company__is_published', 'False'),
+            ('company__is_verification_letter_sent', 'False'),
+            ('company__keywords', ''),
+            ('company__linkedin_url', ''),
+            ('company__locality', 'test_locality'),
+            ('company__logo', ''),
+            ('company__mobile_number', '07505605132'),
+            ('company__modified', '2012-01-14 12:00:00+00:00'),
+            ('company__name', 'Test Company'),
+            ('company__number', '01234568'),
+            ('company__po_box', ''),
+            ('company__postal_code', 'test_postal_code'),
+            ('company__postal_full_name', 'test_full_name'),
+            ('company__sectors', '[]'),
+            ('company__summary', ''),
+            ('company__twitter_url', ''),
+            ('company__verified_with_code', 'False'),
+            ('company__website', 'http://example.com'),
+            ('company_email', '2@example.com'),
+            ('company_email_confirmed', 'False'),
+            ('date_joined', '2017-03-21 13:12:00+00:00'),
+            ('is_active', 'True'),
+            ('mobile_number', ''),
+            ('name', ''),
+            ('sso_id', '2'),
+        ])
         data = {
             'action': 'download_csv',
             '_selected_action': Supplier.objects.all().values_list(
@@ -114,31 +201,7 @@ class DownloadCSVTestCase(TestCase):
             follow=True
         )
 
-        row_one = (
-            '{{}},2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
-            '2012-01-14 12:00:00+00:00,,01234568,[],,,'
-            'False,,3@example.com,False,'
-            '2012-01-14 12:00:00+00:00,True,07505605134,,3'
-        ).format(pk=supplier_three.company.pk)
-        row_two = (
-            '{{}},2012-01-14 12:00:00+00:00,,,,,,{pk},False,False,,,,'
-            '2012-01-14 12:00:00+00:00,,01234568,[],,,'
-            'False,,2@example.com,False,'
-            '2012-01-14 12:00:00+00:00,True,,,2'
-        ).format(pk=supplier_two.company.pk)
-        row_three = (
-            '{contact},2012-01-14 12:00:00+00:00,2010-10-10,'
-            'Company description,,YES,,{pk},False,False,,,,'
-            '2012-01-14 12:00:00+00:00,'
-            'Test Company,11234567,[],,,False,http://example.com,'
-            'gargoyle@example.com,False,2017-03-21 13:12:00+00:00,'
-            'True,,,1'
-        ).format(pk=supplier_one.company.pk,
-                 contact=COMPANY_DATA['contact_details'])
-
         actual = str(response.content, 'utf-8').split('\r\n')
-
-        assert actual[0] == headers
-        assert actual[1] == row_one
-        assert actual[2] == row_two
-        assert actual[3] == row_three
+        assert actual[0] == ','.join(supplier_one_expected_data.keys())
+        assert actual[1] == ','.join(supplier_two_expected_data.values())
+        assert actual[2] == ','.join(supplier_one_expected_data.values())
