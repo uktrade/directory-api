@@ -16,32 +16,32 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='address_line_1',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
             name='address_line_2',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
             name='country',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
             name='locality',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
             name='po_box',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
             name='postal_code',
-            field=models.CharField(blank=True, default='', max_length=200),
+            field=models.CharField(blank=True, default='', max_length=255),
         ),
         migrations.AddField(
             model_name='company',
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='mobile_number',
-            field=models.CharField(blank=True, default='', max_length=15),
+            field=models.CharField(blank=True, default='', max_length=100),
         ),
         migrations.AddField(
             model_name='company',

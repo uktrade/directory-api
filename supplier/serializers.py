@@ -10,14 +10,12 @@ class SupplierSerializer(serializers.ModelSerializer):
         fields = (
             'company',
             'company_email',
-            'company_email_confirmed',
             'date_joined',
             'sso_id',
         )
         extra_kwargs = {
             'sso_id': {'required': True},
             'company': {'required': False},
-            'company_email_confirmed': {'required': False}
         }
 
     def validate_name(self, value):

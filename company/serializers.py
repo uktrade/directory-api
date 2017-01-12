@@ -47,7 +47,7 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(
         many=True, required=False, read_only=True
     )
-    is_address_set = serializers.SerializerMethodField()
+    has_valid_address = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Company
@@ -82,12 +82,12 @@ class CompanySerializer(serializers.ModelSerializer):
             'mobile_number',
             'email_address',
             'email_full_name',
-            'is_address_set',
+            'has_valid_address',
         )
         read_only_fields = ('modified', 'is_published')
 
-    def get_is_address_set(self, obj):
-        return helpers.is_address_known(obj)
+    def get_has_valid_address(self, obj):
+        return obj.has_valid_address()
 
 
 class CompanyNumberValidatorSerializer(serializers.Serializer):

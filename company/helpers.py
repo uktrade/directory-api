@@ -20,19 +20,6 @@ company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
 companies_house_session = requests.Session()
 
 
-def is_address_known(company):
-    fields = [
-        'postal_full_name',
-        'address_line_1',
-        'address_line_2',
-        'locality',
-        'country',
-        'postal_code',
-        'po_box',
-    ]
-    return any(getattr(company, field) for field in fields)
-
-
 def generate_verification_code():
     return get_random_string(
         length=12, allowed_chars='0123456789'

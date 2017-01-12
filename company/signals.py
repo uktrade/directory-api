@@ -3,14 +3,13 @@ import datetime
 from django.conf import settings
 
 from company.stannp import stannp_client
-from company import helpers
 
 
 def send_verification_letter(sender, instance, *args, **kwargs):
     is_disabled = not settings.FEATURE_VERIFICATION_LETTERS_ENABLED
-    is_address_unknown = not helpers.is_address_known(instance)
+    has_invalid_address = not instance.has_valid_address()
     is_already_sent = instance.is_verification_letter_sent
-    if is_disabled or is_already_sent or is_address_unknown:
+    if is_disabled or is_already_sent or has_invalid_address:
         return
 
     recipient = {

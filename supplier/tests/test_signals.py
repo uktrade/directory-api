@@ -7,32 +7,6 @@ from supplier.signals import send_confirmation_email
 
 
 @pytest.mark.django_db
-def test_receiver_sets_company_email_confirmation_code():
-    sender = Supplier
-    instance = Supplier(sso_id=1, company_email='test@example.com')
-
-    send_confirmation_email(sender, instance, created=True)
-
-    assert instance.company_email_confirmation_code
-    # 36 random chars
-    assert len(instance.company_email_confirmation_code) == 36
-
-
-@pytest.mark.django_db
-def test_receiver_doesnt_overwrite_confirmation_code_if_already_set():
-    sender = Supplier
-    instance = Supplier(
-        sso_id=1,
-        company_email='test@example.com',
-        company_email_confirmation_code='confirm'
-    )
-
-    send_confirmation_email(sender, instance, created=True)
-
-    assert instance.company_email_confirmation_code == 'confirm'
-
-
-@pytest.mark.django_db
 def test_receiver_sends_email():
     sender = Supplier
     email = 'test@example.com'

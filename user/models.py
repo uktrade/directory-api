@@ -26,20 +26,6 @@ class User(TimeStampedModel):
         _('company email'),
         unique=True
     )
-    company_email_confirmed = models.BooleanField(
-        _('company email confirmed'),
-        default=False,
-        help_text=_(
-            'Designates whether the user has confirmed company_email address.'
-        ),
-    )
-    company_email_confirmation_code = models.CharField(
-        _('company email confirmation code'),
-        max_length=255,
-        blank=True,
-        null=True,
-        default=''
-    )
     is_active = models.BooleanField(
         _('active'),
         default=True,

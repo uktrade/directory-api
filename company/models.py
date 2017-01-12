@@ -88,7 +88,7 @@ class Company(TimeStampedModel):
     mobile_number = models.CharField(
         blank=True,
         default='',
-        max_length=15,
+        max_length=100,
     )
     postal_full_name = models.CharField(
         max_length=255,
@@ -96,32 +96,32 @@ class Company(TimeStampedModel):
         default='',
     )
     address_line_1 = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
     address_line_2 = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
     locality = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
     country = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
     postal_code = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
     po_box = models.CharField(
-        max_length=200,
+        max_length=255,
         blank=True,
         default='',
     )
@@ -145,6 +145,14 @@ class Company(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def has_valid_address(self):
+        required_address_fields = [
+            'postal_full_name',
+            'address_line_1',
+            'postal_code',
+        ]
+        return all(hasattr(self, field) for field in required_address_fields)
 
 
 class CompanyCaseStudy(TimeStampedModel):
