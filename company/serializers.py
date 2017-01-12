@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from company import helpers, models, validators
+from company import models, validators
 
 
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
