@@ -109,11 +109,11 @@ def test_marks_letter_as_sent(mock_stannp_client, settings):
 
 @pytest.mark.django_db
 @mock.patch('company.stannp.stannp_client')
+@mock.patch.object(Company, 'has_valid_address', mock.Mock(return_value=False))
 def test_unknown_address_not_send_letters(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     data = VALID_REQUEST_DATA.copy()
     data['number'] = '123456'
-    data['contact_details'] = {}
     Company.objects.create(**data)
 
     mock_stannp_client.send_letter.assert_not_called()

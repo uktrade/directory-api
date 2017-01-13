@@ -58,8 +58,10 @@ class PublishByCompanyHouseNumberView(FormView):
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
     search_fields = (
-        'name', 'description', 'export_status', 'keywords', 'contact_details',
-        'sectors', 'website', 'verification_code', 'number'
+        'name', 'description', 'export_status', 'keywords',
+        'sectors', 'website', 'verification_code', 'number',
+        'postal_full_name', 'address_line_1', 'address_line_2',
+        'locality', 'country', 'postal_code', 'po_box',
     )
     list_display = ('name', 'number', 'is_published')
     list_filter = ('is_published', )

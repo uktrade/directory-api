@@ -92,21 +92,6 @@ class TestQueueWorker(MockBoto):
         assert url in mail.outbox[0].body
 
     @pytest.mark.django_db
-    def test_save_enrolment_saves_company_email_confirmation_code_to_db(self):
-        worker = enrolment.queue.EnrolmentQueueWorker()
-
-        worker.save_enrolment(
-            sqs_message_id='1',
-            json_payload=VALID_REQUEST_DATA_JSON
-        )
-
-        supplier = Supplier.objects.get()
-        assert supplier.company_email_confirmation_code
-        # 36 random chars
-        assert len(supplier.company_email_confirmation_code) == 36
-        assert supplier.company_email_confirmed is False
-
-    @pytest.mark.django_db
     def test_save_company_handles_exception(self):
         worker = enrolment.queue.EnrolmentQueueWorker()
         invalid_data = VALID_REQUEST_DATA.copy()

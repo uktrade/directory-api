@@ -76,16 +76,14 @@ def test_company_serializer_untouches_is_published():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        }
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -103,16 +101,14 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        },
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
         'modified': datetime(2013, 3, 4, 15, 3, 1, 987654),
     }
     serializer = serializers.CompanySerializer(data=data)
@@ -145,16 +141,14 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
         'export_status': choices.EXPORT_STATUSES[1][0],
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        }
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
     }
     serializer = serializers.CompanySerializer(data=data)
 
@@ -226,54 +220,3 @@ def test_company_case_study_with_company(company_case_study_one):
         company_case_study_one
     )
     assert isinstance(serializer.data['company'], dict)
-
-
-@pytest.mark.django_db
-def test_company_serializer_updates_contact_details():
-    data = {
-        'number': "01234567",
-        'export_status': choices.EXPORT_STATUSES[1][0],
-        'name': 'Earnest Corp',
-        'date_of_creation': '2010-10-10',
-        'contact_details': {
-            'title': 'test_title',
-            'firstname': 'test_firstname',
-            'lastname': 'test_lastname',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        }
-    }
-    create_serializer = serializers.CompanySerializer(data=data)
-
-    assert create_serializer.is_valid()
-    instance = create_serializer.save()
-
-    update_serializer = serializers.CompanySerializer(
-        instance,
-        data={
-            'contact_details': {
-                'postal_full_name': 'Jim'
-            }
-        },
-        partial=True
-    )
-
-    assert update_serializer.is_valid()
-    update_serializer.save()
-
-    instance.refresh_from_db()
-
-    assert instance.contact_details == {
-        'title': 'test_title',
-        'firstname': 'test_firstname',
-        'lastname': 'test_lastname',
-        'address_line_1': 'test_address_line_1',
-        'address_line_2': 'test_address_line_2',
-        'locality': 'test_locality',
-        'postal_code': 'test_postal_code',
-        'country': 'test_country',
-        'postal_full_name': 'Jim',
-    }

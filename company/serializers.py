@@ -47,7 +47,7 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(
         many=True, required=False, read_only=True
     )
-    contact_details = serializers.JSONField(required=False)
+    has_valid_address = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Company
@@ -65,7 +65,6 @@ class CompanySerializer(serializers.ModelSerializer):
             'sectors',
             'supplier_case_studies',
             'website',
-            'contact_details',
             'modified',
             'verified_with_code',
             'is_verification_letter_sent',
@@ -73,15 +72,22 @@ class CompanySerializer(serializers.ModelSerializer):
             'twitter_url',
             'facebook_url',
             'linkedin_url',
+            'postal_full_name',
+            'address_line_1',
+            'address_line_2',
+            'locality',
+            'country',
+            'postal_code',
+            'po_box',
+            'mobile_number',
+            'email_address',
+            'email_full_name',
+            'has_valid_address',
         )
         read_only_fields = ('modified', 'is_published')
 
-    def validate_contact_details(self, value):
-        if self.partial:
-            contact_details = self.instance.contact_details or {}
-            contact_details.update(value)
-            return contact_details
-        return value
+    def get_has_valid_address(self, obj):
+        return obj.has_valid_address()
 
 
 class CompanyNumberValidatorSerializer(serializers.Serializer):

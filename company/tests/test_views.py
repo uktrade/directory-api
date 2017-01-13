@@ -69,6 +69,9 @@ class CompanyViewsTests(TestCase):
             'facebook_url': '',
             'linkedin_url': '',
             'employees': '',
+            'email_address': '',
+            'email_full_name': '',
+            'has_valid_address': True,
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
@@ -76,6 +79,7 @@ class CompanyViewsTests(TestCase):
             'verified_with_code': False,
             'is_verification_letter_sent': False,
             'is_published': False,
+            'po_box': '',
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -121,6 +125,9 @@ class CompanyViewsTests(TestCase):
             'sectors': [],
             'summary': '',
             'employees': '',
+            'email_address': '',
+            'email_full_name': '',
+            'has_valid_address': True,
             'keywords': '',
             'twitter_url': '',
             'facebook_url': '',
@@ -131,6 +138,8 @@ class CompanyViewsTests(TestCase):
             'modified': '2016-11-23T11:21:10.977518Z',
             'verified_with_code': False,
             'is_verification_letter_sent': False,
+            'mobile_number': '07505605132',
+            'po_box': ''
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -161,6 +170,9 @@ class CompanyViewsTests(TestCase):
             'summary': '',
             'sectors': [],
             'employees': '',
+            'email_address': '',
+            'email_full_name': '',
+            'has_valid_address': True,
             'keywords': '',
             'date_of_creation': '10 Oct 2000',
             'supplier_case_studies': [],
@@ -171,6 +183,7 @@ class CompanyViewsTests(TestCase):
             'twitter_url': '',
             'facebook_url': '',
             'linkedin_url': '',
+            'po_box': ''
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -624,20 +637,18 @@ def test_verify_company_with_code(api_client, settings):
 
     with patch('requests.post'):
         company = Company.objects.create(**{
-            "number": "11234567",
-            "name": 'Test Company',
-            "website": "http://example.com",
-            "description": "Company description",
-            "export_status": choices.EXPORT_STATUSES[1][0],
-            "date_of_creation": "2010-10-10",
-            "contact_details": {
-                'postal_full_name': 'test_full_name',
-                'address_line_1': 'test_address_line_1',
-                'address_line_2': 'test_address_line_2',
-                'locality': 'test_locality',
-                'postal_code': 'test_postal_code',
-                'country': 'test_country',
-            }
+            'number': '11234567',
+            'name': 'Test Company',
+            'website': 'http://example.com',
+            'description': 'Company description',
+            'export_status': choices.EXPORT_STATUSES[1][0],
+            'date_of_creation': '2010-10-10',
+            'postal_full_name': 'test_full_name',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
         })
 
     supplier = Supplier.objects.create(
@@ -666,20 +677,18 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
 
     with patch('requests.post'):
         company = Company.objects.create(**{
-            "number": "11234567",
-            "name": 'Test Company',
-            "website": "http://example.com",
-            "description": "Company description",
-            "export_status": choices.EXPORT_STATUSES[1][0],
-            "date_of_creation": "2010-10-10",
-            "contact_details": {
-                'postal_full_name': 'test_full_name',
-                'address_line_1': 'test_address_line_1',
-                'address_line_2': 'test_address_line_2',
-                'locality': 'test_locality',
-                'postal_code': 'test_postal_code',
-                'country': 'test_country',
-            }
+            'number': '11234567',
+            'name': 'Test Company',
+            'website': 'http://example.com',
+            'description': 'Company description',
+            'export_status': choices.EXPORT_STATUSES[1][0],
+            'date_of_creation': '2010-10-10',
+            'postal_full_name': 'test_full_name',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
         })
 
     supplier = Supplier.objects.create(
@@ -708,20 +717,18 @@ def test_verify_company_with_code_invalid_user(api_client, settings):
 
     with patch('requests.post'):
         company = Company.objects.create(**{
-            "number": "11234567",
-            "name": 'Test Company',
-            "website": "http://example.com",
-            "description": "Company description",
-            "export_status": choices.EXPORT_STATUSES[1][0],
-            "date_of_creation": "2010-10-10",
-            "contact_details": {
-                'postal_full_name': 'test_full_name',
-                'address_line_1': 'test_address_line_1',
-                'address_line_2': 'test_address_line_2',
-                'locality': 'test_locality',
-                'postal_code': 'test_postal_code',
-                'country': 'test_country',
-            }
+            'number': '11234567',
+            'name': 'Test Company',
+            'website': 'http://example.com',
+            'description': 'Company description',
+            'export_status': choices.EXPORT_STATUSES[1][0],
+            'date_of_creation': '2010-10-10',
+            'postal_full_name': 'test_full_name',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
         })
 
     Supplier.objects.create(
