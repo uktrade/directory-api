@@ -152,7 +152,7 @@ class Company(TimeStampedModel):
             'address_line_1',
             'postal_code',
         ]
-        return all(hasattr(self, field) for field in required_address_fields)
+        return all(getattr(self, field) for field in required_address_fields)
 
 
 class CompanyCaseStudy(TimeStampedModel):

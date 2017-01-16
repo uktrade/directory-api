@@ -7,13 +7,40 @@ from django.db import IntegrityError
 from django_extensions.db.fields import (
     ModificationDateTimeField, CreationDateTimeField
 )
-
 from company import models, tests
+from company.tests.factories import CompanyFactory
 
 
 @pytest.fixture
 def company():
     return models.Company.objects.create(**tests.VALID_REQUEST_DATA)
+
+
+@pytest.fixture
+def company_some_address_missing():
+    return CompanyFactory(
+        postal_full_name='Mr Fakingham',
+        address_line_1='',
+        postal_code='',
+    )
+
+
+@pytest.fixture
+def company_all_address_missing():
+    return CompanyFactory(
+        postal_full_name='',
+        address_line_1='',
+        postal_code='',
+    )
+
+
+@pytest.fixture
+def company_address_set():
+    return CompanyFactory(
+        postal_full_name='Mr Fakingham',
+        address_line_1='123 fake street',
+        postal_code='EM6 6EM',
+    )
 
 
 @pytest.mark.django_db
@@ -89,3 +116,18 @@ def test_company_case_study_model_has_update_create_timestamps():
     modified_field = models.CompanyCaseStudy._meta.get_field_by_name(
         'modified')[0]
     assert modified_field.__class__ is ModificationDateTimeField
+
+
+@pytest.mark.django_db
+def test_has_valid_address_some_values_missing(company_some_address_missing):
+    assert company_some_address_missing.has_valid_address() is False
+
+
+@pytest.mark.django_db
+def test_has_valid_address_all_values_missing(company_all_address_missing):
+    assert company_all_address_missing.has_valid_address() is False
+
+
+@pytest.mark.django_db
+def test_has_valid_address_all_values_present(company_address_set):
+    assert company_address_set.has_valid_address() is True
