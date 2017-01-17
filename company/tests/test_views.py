@@ -602,7 +602,7 @@ def test_company_profile_public_list_profiles_ordering(
     assert response.status_code == http.client.OK
 
     dates_modified = [company['modified'] for company in data['results']]
-    assert sorted(dates_modified) == dates_modified
+    assert sorted(dates_modified, reverse=True) == dates_modified
 
 
 @pytest.mark.django_db
