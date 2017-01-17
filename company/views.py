@@ -68,7 +68,9 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.CompanyCaseStudy.objects.all()
+    queryset = models.CompanyCaseStudy.objects.filter(
+        company__is_published=True
+    )
     lookup_field = 'pk'
     serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
 

@@ -332,7 +332,7 @@ def api_client():
 
 @pytest.fixture
 def company():
-    return Company.objects.create(**VALID_REQUEST_DATA)
+    return Company.objects.create(is_published=True, **VALID_REQUEST_DATA)
 
 
 @pytest.fixture
@@ -510,6 +510,52 @@ def test_company_case_study_create_not_an_image(
     response = api_client.post(url, case_study_data, format='multipart')
 
     assert response.status_code == http.client.BAD_REQUEST
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_create_company_not_published(
+    video, api_client, supplier
+):
+
+    company = Company.objects.create(
+        number='01234567',
+        export_status=choices.EXPORT_STATUSES[1][0],
+        is_published=False
+    )
+
+    supplier = Supplier.objects.create(
+        sso_id=1,
+        company_email='harry.potter@hogwarts.com',
+        company=company,
+    )
+
+    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+
+    case_study_data = {
+        'company': company.pk,
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'keywords': 'good, great',
+        'image_one': get_test_image(extension="PNG"),
+        'testimonial': 'very nice',
+        'testimonial_name': 'Lord Voldemort',
+        'testimonial_job_title': 'Evil overlord',
+        'testimonial_company': 'Death Eaters',
+    }
+    response = api_client.post(url, case_study_data, format='multipart')
+
+    assert response.status_code == http.client.CREATED
+
+    url = reverse(
+        'public-case-study-detail', kwargs={'pk': response.data['pk']}
+    )
+    response = api_client.get(url)
+
+    assert response.status_code == http.client.NOT_FOUND
 
 
 @pytest.mark.django_db
