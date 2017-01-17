@@ -1,9 +1,36 @@
+from django.conf import settings
+
 from rest_framework import serializers
 
 from company import models, validators
 
 
+class AllowedFormatImageField(serializers.ImageField):
+
+    def to_internal_value(self, data):
+        file = super().to_internal_value(data)
+
+        if file.image.format.upper() not in settings.ALLOWED_IMAGE_FORMATS:
+            raise serializers.ValidationError(
+                "Invalid image format, allowed formats: {}".format(
+                    ", ".join(settings.ALLOWED_IMAGE_FORMATS)
+                )
+            )
+
+        return file
+
+
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
+
+    image_one = AllowedFormatImageField(
+        max_length=None, allow_empty_file=False, use_url=True, required=False
+    )
+    image_two = AllowedFormatImageField(
+        max_length=None, allow_empty_file=False, use_url=True, required=False
+    )
+    image_three = AllowedFormatImageField(
+        max_length=None, allow_empty_file=False, use_url=True, required=False
+    )
 
     class Meta:
         model = models.CompanyCaseStudy
@@ -41,7 +68,7 @@ class CompanySerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField()
     sectors = serializers.JSONField(required=False)
-    logo = serializers.ImageField(
+    logo = AllowedFormatImageField(
         max_length=None, allow_empty_file=False, use_url=True, required=False
     )
     supplier_case_studies = CompanyCaseStudySerializer(

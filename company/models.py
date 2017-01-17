@@ -35,7 +35,7 @@ class Company(TimeStampedModel):
         blank=True,
         default='',
     )
-    logo = models.FileField(
+    logo = models.ImageField(
         upload_to=helpers.path_and_rename_logos,
         default='',
         blank=True,
@@ -173,17 +173,17 @@ class CompanyCaseStudy(TimeStampedModel):
         max_length=255, blank=True, default=''
     )
     keywords = models.TextField()
-    image_one = models.FileField(
+    image_one = models.ImageField(
         upload_to=helpers.path_and_rename_supplier_case_study,
         blank=True,
         default='',
     )
-    image_two = models.FileField(
+    image_two = models.ImageField(
         upload_to=helpers.path_and_rename_supplier_case_study,
         blank=True,
         default='',
     )
-    image_three = models.FileField(
+    image_three = models.ImageField(
         upload_to=helpers.path_and_rename_supplier_case_study,
         blank=True,
         default='',

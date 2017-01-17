@@ -289,3 +289,5 @@ STANNP_VERIFICATION_LETTER_TEMPLATE_ID = os.environ[
 GECKO_API_KEY = os.environ['GECKO_API_KEY']
 # At present geckoboard's api assumes the password will always be X
 GECKO_API_PASS = os.getenv('GECKO_API_PASS', 'X')
+
+ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
