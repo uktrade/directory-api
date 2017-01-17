@@ -85,7 +85,8 @@ class CompanyAdmin(admin.ModelAdmin):
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
     search_fields = (
-        'name', 'description', 'title', 'website', 'keywords', 'testimonial',
+        'company__name', 'company_id', 'description', 'short_summary',
+        'title', 'website', 'keywords', 'testimonial',
         'testimonial_company', 'testimonial_name',
     )
     readonly_fields = ('created', 'modified')
