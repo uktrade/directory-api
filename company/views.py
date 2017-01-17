@@ -27,7 +27,9 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
-    queryset = models.Company.objects.filter(is_published=True)
+    queryset = (
+        models.Company.objects.filter(is_published=True).order_by('modified')
+    )
     pagination_class = pagination.CompanyPublicProfile
     filter_class = filters.CompanyPublicProfileFilter
     lookup_url_kwarg = 'companies_house_number'
