@@ -591,6 +591,22 @@ def test_company_profile_public_list_profiles(
 
 @pytest.mark.django_db
 @patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_profile_public_list_profiles_ordering(
+    private_profile, public_profile, public_profile_software,
+    public_profile_cars, api_client
+):
+    url = reverse('company-public-profile-list')
+    response = api_client.get(url)
+
+    data = response.json()
+    assert response.status_code == http.client.OK
+
+    dates_modified = [company['modified'] for company in data['results']]
+    assert sorted(dates_modified) == dates_modified
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_filter_single(
     public_profile_software, public_profile_cars, public_profile_smart_cars,
     api_client
