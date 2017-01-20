@@ -16,6 +16,7 @@ from supplier.views import (
 )
 from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
+from contact.views import CreateMessageToSupplierAPIView
 
 
 admin.autodiscover()
@@ -84,6 +85,11 @@ urlpatterns = [
         r'public/company/(?P<companies_house_number>.*)/$',
         CompanyPublicProfileViewSet.as_view({'get': 'retrieve'}),
         name='company-public-profile-detail'
+    ),
+    url(
+        r'public/company/(?P<companies_house_number>.*)/contact/$',
+        CreateMessageToSupplierAPIView.as_view(),
+        name='company-public-profile-contact-create'
     ),
     url(
         r'public/company/$',
