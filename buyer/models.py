@@ -13,6 +13,8 @@ class Buyer(TimeStampedModel):
         choices=choices.COMPANY_CLASSIFICATIONS,
         max_length=255,
     )
+    company_name = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name

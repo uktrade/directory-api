@@ -37,6 +37,8 @@ class DownloadCSVTestCase(TestCase):
         )
 
         expected_data = OrderedDict([
+            ('company_name', str(buyer.company_name)),
+            ('country', str(buyer.country)),
             ('created', str(buyer.created)),
             ('email', buyer.email),
             ('id', str(buyer.id)),
@@ -52,6 +54,8 @@ class DownloadCSVTestCase(TestCase):
     def test_download_csv_multiple_buyers(self):
         buyers = BuyerFactory.create_batch(3)
         buyer_one_expected_data = OrderedDict([
+            ('company_name', str(buyers[0].company_name)),
+            ('country', str(buyers[0].country)),
             ('created', str(buyers[0].created)),
             ('email', buyers[0].email),
             ('id', str(buyers[0].id)),
@@ -60,6 +64,8 @@ class DownloadCSVTestCase(TestCase):
             ('sector', buyers[0].sector),
         ])
         buyer_two_expected_data = OrderedDict([
+            ('company_name', str(buyers[1].company_name)),
+            ('country', str(buyers[1].country)),
             ('created', str(buyers[1].created)),
             ('email', buyers[1].email),
             ('id', str(buyers[1].id)),
@@ -68,6 +74,8 @@ class DownloadCSVTestCase(TestCase):
             ('sector', buyers[1].sector),
         ])
         buyer_three_expected_data = OrderedDict([
+            ('company_name', str(buyers[2].company_name)),
+            ('country', str(buyers[2].country)),
             ('created', str(buyers[2].created)),
             ('email', buyers[2].email),
             ('id', str(buyers[2].id)),
