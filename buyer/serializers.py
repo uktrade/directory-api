@@ -8,7 +8,10 @@ class BuyerSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = models.Buyer
         fields = (
-            'name',
+            'comment',
+            'company_name',
+            'country',
             'email',
+            'name',
             'sector',
         )
