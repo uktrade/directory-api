@@ -87,11 +87,6 @@ urlpatterns = [
         name='company-public-profile-detail'
     ),
     url(
-        r'public/company/(?P<companies_house_number>.*)/contact/$',
-        CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact-create'
-    ),
-    url(
         r'public/company/$',
         CompanyPublicProfileViewSet.as_view({'get': 'list'}),
         name='company-public-profile-list'
@@ -105,5 +100,10 @@ urlpatterns = [
         r'buyer/$',
         BuyerCreateAPIView.as_view(),
         name='buyer-create',
+    ),
+    url(
+        r'/contact/supplier/$',
+        CreateMessageToSupplierAPIView.as_view(),
+        name='company-public-profile-contact-create'
     ),
 ]

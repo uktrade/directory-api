@@ -21,21 +21,21 @@ class MessageToSupplierSerializer(serializers.Serializer):
     body = serializers.CharField()
 
     @transaction.atomic
-    def save(self, validated_data):
+    def save(self, *kwargs):
         sender = self.get_or_create_buyer(
-            email=validated_data['sender_email'],
-            name=validated_data['sender_name'],
-            company_name=validated_data['sender_company_name'],
-            country=validated_data['sender_country'],
-            sector=validated_data['sector']
+            email=self.validated_data['sender_email'],
+            name=self.validated_data['sender_name'],
+            company_name=self.validated_data['sender_company_name'],
+            country=self.validated_data['sender_country'],
+            sector=self.validated_data['sector']
         )
         recipient = Company.objects.get(
-            number=validated_data['recipient_company_number']
+            number=self.validated_data['recipient_company_number']
         )
         return MessageToSupplier.objects.create(
             sender=sender,
             recipient=recipient,
-            sector=validated_data['sector']
+            sector=self.validated_data['sector']
         )
 
     def get_or_create_buyer(self, email, name, company_name, country, sector):
