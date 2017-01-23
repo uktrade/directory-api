@@ -11,6 +11,9 @@ buyer_request_data = {
     'email': 'jim@example.com',
     'name': 'Jim Exampleson',
     'sector': 'AEROSPACE',
+    'company_name': 'Example corp',
+    'country': 'China',
+    'comment': 'Good stuff.',
 }
 
 
