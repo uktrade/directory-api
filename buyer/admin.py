@@ -9,9 +9,9 @@ from buyer.models import Buyer
 
 @admin.register(Buyer)
 class BuyerAdmin(admin.ModelAdmin):
-    search_fields = ('email', 'name', 'sector')
+    search_fields = ('email', 'name', 'country')
     readonly_fields = ('created', 'modified')
-    list_display = ('name', 'email', 'sector', 'created')
+    list_display = ('name', 'email', 'sector', 'country', 'created')
     list_filter = ('sector', )
     actions = ['download_csv']
 
