@@ -4,4 +4,4 @@ from contact.serializers import MessageToSupplierSerializer
 
 
 class CreateMessageToSupplierAPIView(CreateAPIView):
-	serializer_class = MessageToSupplierSerializer
+    serializer_class = MessageToSupplierSerializer

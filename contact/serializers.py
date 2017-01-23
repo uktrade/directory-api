@@ -4,7 +4,6 @@ from rest_framework import serializers
 
 from directory_validators.constants import choices
 
-from buyer.models import Buyer
 from company.models import Company
 from contact.models import MessageToSupplier
 
@@ -22,32 +21,19 @@ class MessageToSupplierSerializer(serializers.Serializer):
 
     @transaction.atomic
     def save(self, *kwargs):
-        sender = self.get_or_create_buyer(
-            email=self.validated_data['sender_email'],
-            name=self.validated_data['sender_name'],
-            company_name=self.validated_data['sender_company_name'],
-            country=self.validated_data['sender_country'],
-            sector=self.validated_data['sector']
-        )
         recipient = Company.objects.get(
             number=self.validated_data['recipient_company_number']
         )
-        return MessageToSupplier.objects.create(
-            sender=sender,
-            recipient=recipient,
-            sector=self.validated_data['sector']
+        message_to_supplier = MessageToSupplier.objects.create(
+            sender_email=self.validated_data['sender_email'],
+            sender_name=self.validated_data['sender_name'],
+            sender_company_name=self.validated_data['sender_company_name'],
+            sender_country=self.validated_data['sender_country'],
+            sector=self.validated_data['sector'],
+            recipient=recipient
         )
 
-    def get_or_create_buyer(self, email, name, company_name, country, sector):
-        buyer, _ = Buyer.objects.get_or_create(
-            email=email,
-            name=name,
-            company_name=company_name,
-            country=country
+        message_to_supplier.send(
+            sender_subject=self.validated_data['subject'],
+            sender_body=self.validated_data['body'],
         )
-
-        # ED-817 - sector will be changed to a list, currently we overwrite
-        buyer.sector = sector
-        buyer.save()
-
-        return buyer

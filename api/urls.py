@@ -102,7 +102,7 @@ urlpatterns = [
         name='buyer-create',
     ),
     url(
-        r'/contact/supplier/$',
+        r'contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
         name='company-public-profile-contact-create'
     ),

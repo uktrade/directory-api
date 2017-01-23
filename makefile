@@ -62,7 +62,10 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_GECKO_API_KEY=gecko; \
 	export DIRECTORY_API_STANNP_API_KEY=debug; \
 	export DIRECTORY_API_STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
-	export DIRECTORY_API_STANNP_TEST_MODE=true
+	export DIRECTORY_API_STANNP_TEST_MODE=true; \
+	export DIRECTORY_API_CONTACT_SUPPLIER_SUBJECT=debug; \
+	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug
+
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -131,7 +134,9 @@ DEBUG_SET_ENV_VARS := \
 	export GECKO_API_KEY=gecko; \
 	export STANNP_API_KEY=debug; \
 	export STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
-	export STANNP_TEST_MODE=true
+	export STANNP_TEST_MODE=true; \
+	export CONTACT_SUPPLIER_SUBJECT=debug; \
+	export CONTACT_SUPPLIER_FROM_EMAIL=debug
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
@@ -173,5 +178,6 @@ heroku_deploy_demo:
 	docker push registry.heroku.com/directory-api-demo/web
 	docker build -t registry.heroku.com/directory-api-demo/worker -f Dockerfile-worker .
 	docker push registry.heroku.com/directory-api-demo/worker
+
 
 .PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy_dev heroku_deploy_demo

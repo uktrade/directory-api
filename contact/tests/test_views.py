@@ -1,9 +1,11 @@
 import http
 from unittest.mock import patch, Mock
 
-import pytest
-
+from django.conf import settings
+from django.core import mail
 from django.core.urlresolvers import reverse
+
+import pytest
 
 from contact import models, views
 from company.tests import factories
@@ -52,7 +54,20 @@ def test_message_to_supplier_deserialization(
     instance = models.MessageToSupplier.objects.last()
 
     assert response.status_code == http.client.CREATED
-    assert instance.sender.email == message_to_supplier_data['sender_email']
-    assert instance.sender.name == message_to_supplier_data['sender_name']
+    assert instance.sender_email == message_to_supplier_data['sender_email']
+    assert instance.sender_name == message_to_supplier_data['sender_name']
+    assert instance.sender_company_name == message_to_supplier_data[
+        'sender_company_name'
+    ]
+    assert instance.sender_country == message_to_supplier_data[
+        'sender_country'
+    ]
     assert instance.sector == message_to_supplier_data['sector']
     assert instance.recipient == company
+    assert instance.sent is True
+
+    assert len(mail.outbox) == 1
+    mail_sent = mail.outbox[0]
+    assert mail_sent.subject == settings.CONTACT_SUPPLIER_SUBJECT
+    assert mail_sent.from_email == settings.CONTACT_SUPPLIER_FROM_EMAIL
+    assert mail_sent.to == [instance.recipient.email_address]
