@@ -21,7 +21,7 @@ class MessageToSupplier(TimeStampedModel):
     recipient = models.ForeignKey(
         Company, related_name='messages', null=True
     )
-    sent = models.BooleanField(default=False)
+    is_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Message from {} to {}'.format(
@@ -29,7 +29,7 @@ class MessageToSupplier(TimeStampedModel):
         )
 
     def send(self, sender_body, sender_subject):
-        if self.sent:
+        if self.is_sent:
             return
 
         context = {
@@ -55,5 +55,5 @@ class MessageToSupplier(TimeStampedModel):
         message.attach_alternative(html_body, "text/html")
         message.send()
 
-        self.sent = True
+        self.is_sent = True
         self.save()

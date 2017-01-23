@@ -10,7 +10,5 @@ class BuyerSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'email',
-            'company_name',
-            'country',
-            'sector'
+            'sector',
         )

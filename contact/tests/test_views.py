@@ -64,7 +64,7 @@ def test_message_to_supplier_deserialization(
     ]
     assert instance.sector == message_to_supplier_data['sector']
     assert instance.recipient == company
-    assert instance.sent is True
+    assert instance.is_sent is True
 
     assert len(mail.outbox) == 1
     mail_sent = mail.outbox[0]

@@ -1,4 +1,5 @@
 from django.db import transaction
+import django.utils.html
 
 from rest_framework import serializers
 
@@ -19,6 +20,11 @@ class MessageToSupplierSerializer(serializers.Serializer):
     subject = serializers.CharField()
     body = serializers.CharField()
 
+    @staticmethod
+    def strip_tags_and_escape(string):
+        stripped = django.utils.html.strip_tags(string)
+        return django.utils.html.escape(stripped)
+
     @transaction.atomic
     def save(self, *kwargs):
         recipient = Company.objects.get(
@@ -34,6 +40,10 @@ class MessageToSupplierSerializer(serializers.Serializer):
         )
 
         message_to_supplier.send(
-            sender_subject=self.validated_data['subject'],
-            sender_body=self.validated_data['body'],
+            sender_subject=self.strip_tags_and_escape(
+                self.validated_data['subject']
+            ),
+            sender_body=self.strip_tags_and_escape(
+                self.validated_data['body']
+            ),
         )

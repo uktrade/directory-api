@@ -294,5 +294,8 @@ GECKO_API_PASS = os.getenv('GECKO_API_PASS', 'X')
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
 
 # Settings for email to supplier
-CONTACT_SUPPLIER_SUBJECT = os.environ["CONTACT_SUPPLIER_SUBJECT"]
-CONTACT_SUPPLIER_FROM_EMAIL = os.environ["CONTACT_SUPPLIER_FROM_EMAIL"]
+CONTACT_SUPPLIER_SUBJECT = os.getenv(
+    'CONTACT_SUPPLIER_SUBJECT',
+    'Someone is interested in your Find a Buyer profile'
+)
+CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
