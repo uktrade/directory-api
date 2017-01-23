@@ -10,7 +10,7 @@ from company.models import Company
 
 
 class MessageToSupplier(TimeStampedModel):
-    sender_email = models.EmailField(unique=True)
+    sender_email = models.EmailField(unique=False)
     sender_name = models.CharField(max_length=255)
     sender_company_name = models.CharField(max_length=255)
     sender_country = models.CharField(max_length=255)
