@@ -15,17 +15,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='buyer',
             name='comment',
-            field=models.TextField(blank=True, default=''),
+            field=models.TextField(default=''),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='buyer',
             name='company_name',
-            field=models.CharField(blank=True, default='', max_length=255),
+            field=models.CharField(default='', max_length=255),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='buyer',
             name='country',
-            field=models.CharField(blank=True, default='', max_length=255),
+            field=models.CharField(default='', max_length=255),
+            preserve_default=False,
         ),
         migrations.AlterField(
             model_name='buyer',

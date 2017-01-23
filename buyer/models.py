@@ -13,17 +13,9 @@ class Buyer(TimeStampedModel):
         choices=choices.COMPANY_CLASSIFICATIONS,
         max_length=255,
     )
-    company_name = models.CharField(
-        max_length=255,
-        default='',
-        blank=True,
-    )
-    country = models.CharField(
-        max_length=255,
-        default='',
-        blank=True,
-    )
-    comment = models.TextField(default='', blank=True)
+    company_name = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    comment = models.TextField()
 
     def __str__(self):
         return self.name
