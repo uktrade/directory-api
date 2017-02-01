@@ -7,7 +7,7 @@ from api.model_utils import TimeStampedModel
 
 class Buyer(TimeStampedModel):
 
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     name = models.CharField(max_length=255)
     sector = models.CharField(
         choices=choices.COMPANY_CLASSIFICATIONS,
