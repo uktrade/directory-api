@@ -7,7 +7,7 @@ from django.db import IntegrityError
 from django.conf import settings
 
 from enrolment import serializers
-from api.utils import QueueService, QueueWorker, SingletonMixin
+from api.queue import QueueService, QueueWorker, SingletonMixin
 
 
 logger = logging.getLogger(__name__)

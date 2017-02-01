@@ -5,7 +5,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import IsAuthenticated
 
 from supplier import serializers, gecko
-from api.utils import GeckoBasicAuthentication
+from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
 
 

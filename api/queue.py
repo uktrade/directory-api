@@ -4,11 +4,6 @@ import logging
 import signal
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
-
-from rest_framework import exceptions
-from rest_framework.authentication import BasicAuthentication
 
 import boto3
 import botocore
@@ -70,28 +65,6 @@ class AwsError:
             exception=exception,
             error_code=AwsError.codes.SIGNATURE_DOES_NOT_MATCH
         )
-
-
-class GeckoBasicAuthentication(BasicAuthentication):
-    """Authentication class that uses a username and password setting
-    instead of a django user
-
-    DRF's BasicAuthentication class uses the auth.User model for
-    authentication. Credentials created for gecko could therefore
-    be used to access other parts of the site. The purpose of this
-    class is to give gecko access to just views that use this
-    class and absolutely nothing else."""
-
-    def authenticate_credentials(self, userid, password):
-        username_invalid = (userid != settings.GECKO_API_KEY)
-        password_invalid = (password != settings.GECKO_API_PASS)
-        if username_invalid or password_invalid:
-            raise exceptions.AuthenticationFailed(
-                _('Invalid username/password.'))
-        else:
-            user = User(username=userid)
-
-        return (user, None)
 
 
 class QueueService(metaclass=ABCMeta):
@@ -226,7 +199,7 @@ class QueueWorker(metaclass=ABCMeta):
     """Consumes messages from SQS queue.
 
     Attributes:
-        queue (api.utils.QueueService): SQS queue service
+        queue (api.queue.QueueService): SQS queue service
         exit_signal_receiver (ExitSignalReceiver): Handles SIGTERM and SIGINT
     """
     queue = None
