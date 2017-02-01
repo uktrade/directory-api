@@ -15,6 +15,10 @@ class BuyerFactory(factory.django.DjangoModelFactory):
     email = factory.LazyAttribute(
         lambda buyer: '%s@example.com' % buyer.name)
     sector = factory.fuzzy.FuzzyChoice(SECTORS)
+    company_name = factory.fuzzy.FuzzyText(length=12)
+    country = factory.fuzzy.FuzzyChoice(
+        ['Germany', 'China', 'Japan', 'Neverland', 'Roman Empire'])
+    comment = factory.fuzzy.FuzzyText(length=50)
 
     class Meta:
         model = Buyer

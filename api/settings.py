@@ -299,3 +299,9 @@ CONTACT_SUPPLIER_SUBJECT = os.getenv(
     'Someone is interested in your Find a Buyer profile'
 )
 CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
+
+ZENDESK_SUBDOMAIN = os.environ['ZENDESK_SUBDOMAIN']
+ZENDESK_TOKEN = os.environ['ZENDESK_TOKEN']
+ZENDESK_EMAIL = os.environ['ZENDESK_EMAIL']
+ZENDESK_TICKET_SUBJECT = os.getenv(
+    'ZENDESK_TICKET_SUBJECT', 'Trade Profiles feedback')
