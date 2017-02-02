@@ -1,6 +1,7 @@
 from directory_validators.constants import choices
 
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 from api.model_utils import TimeStampedModel
 
@@ -13,6 +14,7 @@ class Buyer(TimeStampedModel):
         choices=choices.COMPANY_CLASSIFICATIONS,
         max_length=255,
     )
+    sectors = JSONField(default=[])
     company_name = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
 

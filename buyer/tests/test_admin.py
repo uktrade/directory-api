@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 from unittest import TestCase
 
@@ -45,6 +46,7 @@ class DownloadCSVTestCase(TestCase):
             ('modified', str(buyer.modified)),
             ('name', buyer.name),
             ('sector', buyer.sector),
+            ('sectors', json.dumps(buyer.sectors)),
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
 
@@ -62,6 +64,7 @@ class DownloadCSVTestCase(TestCase):
             ('modified', str(buyers[0].modified)),
             ('name', buyers[0].name),
             ('sector', buyers[0].sector),
+            ('sectors', json.dumps(buyers[0].sectors)),
         ])
         buyer_two_expected_data = OrderedDict([
             ('company_name', str(buyers[1].company_name)),
@@ -72,6 +75,7 @@ class DownloadCSVTestCase(TestCase):
             ('modified', str(buyers[1].modified)),
             ('name', buyers[1].name),
             ('sector', buyers[1].sector),
+            ('sectors', json.dumps(buyers[1].sectors)),
         ])
         buyer_three_expected_data = OrderedDict([
             ('company_name', str(buyers[2].company_name)),
@@ -82,6 +86,7 @@ class DownloadCSVTestCase(TestCase):
             ('modified', str(buyers[2].modified)),
             ('name', buyers[2].name),
             ('sector', buyers[2].sector),
+            ('sectors', json.dumps(buyers[2].sectors)),
         ])
 
         data = {

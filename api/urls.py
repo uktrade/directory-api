@@ -15,7 +15,7 @@ from supplier.views import (
     GeckoTotalRegisteredSuppliersView,
 )
 from enrolment.views import EnrolmentCreateAPIView
-from buyer.views import BuyerCreateAPIView
+from buyer.views import BuyerCreateUpdateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 
 
@@ -98,7 +98,7 @@ urlpatterns = [
     ),
     url(
         r'buyer/$',
-        BuyerCreateAPIView.as_view(),
+        BuyerCreateUpdateAPIView.as_view(),
         name='buyer-create',
     ),
     url(
