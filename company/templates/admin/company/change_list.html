@@ -11,11 +11,6 @@
             {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
           </a>
         </li>
-        <li>
-          <a href="{% url 'admin:company_company_publish' %}">
-            Publish companies
-          </a>
-        </li>
       {% endblock %}
     </ul>
   {% endif %}

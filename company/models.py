@@ -59,7 +59,14 @@ class Company(TimeStampedModel):
         blank=True,
         null=True,
     )
-    is_published = models.BooleanField(default=False)
+    is_published = models.BooleanField(
+        default=False,
+        help_text=(
+            'Companies are automatically published based on profile '
+            'completeness - they must have description or summary, be '
+            'verified, and have an email address.'
+        )
+    )
     verification_code = models.CharField(
         _('verification code'),
         max_length=255,
