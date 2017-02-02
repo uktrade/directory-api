@@ -64,7 +64,7 @@ class Company(TimeStampedModel):
         help_text=(
             'Companies are automatically published based on profile '
             'completeness - they must have description or summary, be '
-            'verified, and have en email address.'
+            'verified, and have an email address.'
         )
     )
     verification_code = models.CharField(
