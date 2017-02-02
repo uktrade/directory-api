@@ -5,6 +5,7 @@ import pytest
 
 from company.models import Company
 from company.tests import VALID_REQUEST_DATA
+from company.tests.factories import CompanyFactory
 
 
 @pytest.mark.django_db
@@ -117,3 +118,47 @@ def test_unknown_address_not_send_letters(mock_stannp_client, settings):
     Company.objects.create(**data)
 
     mock_stannp_client.send_letter.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_automatic_publish():
+
+    should_be_published = [
+        {
+            'description': 'description',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+        {
+            'summary': 'summary',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+    ]
+
+    should_be_unpublished = [
+        {
+            'description': '',
+            'summary': '',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+        {
+            'description': 'description',
+            'summary': 'summary',
+            'email_address': '',
+            'verified_with_code': True,
+        },
+        {
+            'description': 'description',
+            'summary': 'summary',
+            'email_address': 'jim@example.com',
+            'verified_with_code': False,
+        },
+    ]
+
+    for kwargs in should_be_published:
+        assert CompanyFactory.create(**kwargs).is_published is True
+
+    for kwargs in should_be_unpublished:
+        assert CompanyFactory.create(**kwargs).is_published is False

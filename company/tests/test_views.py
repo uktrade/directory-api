@@ -29,6 +29,8 @@ default_public_profile_data = {
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
     'date_of_creation': '2010-10-10',
+    'email_address': 'thing@example.com',
+    'verified_with_code': True,
 }
 
 
@@ -332,14 +334,18 @@ def api_client():
 
 @pytest.fixture
 def company():
-    return Company.objects.create(is_published=True, **VALID_REQUEST_DATA)
+    return Company.objects.create(
+        verified_with_code=True,
+        email_address='test@example.com',
+        **VALID_REQUEST_DATA
+    )
 
 
 @pytest.fixture
 def private_profile():
     company = Company(**default_public_profile_data)
     company.number = '0123456A'
-    company.is_published = False
+    company.verified_with_code = False
     company.save()
     return company
 
