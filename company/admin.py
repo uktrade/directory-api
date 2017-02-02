@@ -24,7 +24,7 @@ class CompanyAdmin(admin.ModelAdmin):
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
     search_fields = (
-        'company__name', 'company_id', 'description', 'short_summary',
+        'company__name', 'company__number', 'description', 'short_summary',
         'title', 'website', 'keywords', 'testimonial',
         'testimonial_company', 'testimonial_name',
     )

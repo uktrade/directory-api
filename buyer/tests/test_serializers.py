@@ -11,7 +11,6 @@ def test_buyer_deserialization():
         'sector': 'AEROSPACE',
         'company_name': 'Example corp',
         'country': 'China',
-        'comment': 'Good stuff.',
     }
 
     serializer = serializers.BuyerSerializer(data=data)
@@ -23,4 +22,3 @@ def test_buyer_deserialization():
     assert instance.sector == data['sector']
     assert instance.company_name == data['company_name']
     assert instance.country == data['country']
-    assert instance.comment == data['comment']
