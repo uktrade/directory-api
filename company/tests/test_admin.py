@@ -33,7 +33,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
     headers = (
         'company,created,description,id,image_one,image_one_caption,'
         'image_three,image_three_caption,image_two,image_two_caption,'
-        'keywords,modified,sector,short_summary,testimonial,'
+        'keywords,modified,sector,short_summary,slug,testimonial,'
         'testimonial_company,testimonial_job_title,testimonial_name,'
         'title,video_one,website'
     )
@@ -68,11 +68,12 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
         row_one = (
             '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
-            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
+            '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_study.company_id,
             description=case_study.description,
             title=case_study.title,
+            slug=case_study.slug,
             id=case_study.id,
 
         )
@@ -97,30 +98,33 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
         row_one = (
             '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
-            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
+            '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[2].company_id,
             description=case_studies[2].description,
+            slug=case_studies[2].slug,
             title=case_studies[2].title,
             id=case_studies[2].id,
         )
 
         row_two = (
             '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
-            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
+            '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[1].company_id,
             description=case_studies[1].description,
+            slug=case_studies[1].slug,
             title=case_studies[1].title,
             id=case_studies[1].id,
         )
 
         row_three = (
             '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
-            '2012-01-14 12:00:00+00:00,,,,,,,{title},,'
+            '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[0].company_id,
             description=case_studies[0].description,
+            slug=case_studies[0].slug,
             title=case_studies[0].title,
             id=case_studies[0].id,
         )
