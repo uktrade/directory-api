@@ -4,14 +4,15 @@ from io import BytesIO
 from unittest.mock import patch, Mock
 from unittest import TestCase
 
+from django.core.urlresolvers import reverse
+from django.test import Client
+
 from directory_validators.constants import choices
 import pytest
 from freezegun import freeze_time
 from rest_framework.test import APIClient
 from rest_framework import status
-
-from django.core.urlresolvers import reverse
-from django.test import Client
+from PIL import Image, ImageDraw
 
 from company.models import Company, CompanyCaseStudy
 from company.tests import (
@@ -28,6 +29,8 @@ default_public_profile_data = {
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
     'date_of_creation': '2010-10-10',
+    'email_address': 'thing@example.com',
+    'verified_with_code': True,
 }
 
 
@@ -61,25 +64,26 @@ class CompanyViewsTests(TestCase):
         ))
 
         expected = {
-            'id': str(company.id),
-            'summary': '',
-            'logo': None,
-            'sectors': [],
-            'twitter_url': '',
-            'facebook_url': '',
-            'linkedin_url': '',
-            'employees': '',
+            'date_of_creation': '10 Oct 2000',
             'email_address': '',
             'email_full_name': '',
+            'employees': '',
+            'facebook_url': '',
             'has_valid_address': True,
-            'keywords': '',
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
-            'is_verification_letter_sent': False,
+            'id': str(company.id),
             'is_published': False,
+            'is_verification_letter_sent': False,
+            'keywords': '',
+            'linkedin_url': '',
+            'logo': None,
+            'modified': '2016-11-23T11:21:10.977518Z',
             'po_box': '',
+            'sectors': [],
+            'slug': 'test-company',
+            'summary': '',
+            'supplier_case_studies': [],
+            'twitter_url': '',
+            'verified_with_code': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -120,26 +124,27 @@ class CompanyViewsTests(TestCase):
             VALID_REQUEST_DATA, format='json')
 
         expected = {
-            'id': str(company.id),
-            'logo': None,
-            'sectors': [],
-            'summary': '',
-            'employees': '',
+            'date_of_creation': '10 Oct 2000',
             'email_address': '',
             'email_full_name': '',
-            'has_valid_address': True,
-            'keywords': '',
-            'twitter_url': '',
+            'employees': '',
             'facebook_url': '',
-            'linkedin_url': '',
+            'has_valid_address': True,
+            'id': str(company.id),
             'is_published': False,
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
             'is_verification_letter_sent': False,
+            'keywords': '',
+            'linkedin_url': '',
+            'logo': None,
             'mobile_number': '07505605132',
-            'po_box': ''
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'po_box': '',
+            'sectors': [],
+            'slug': 'test-company',
+            'summary': '',
+            'supplier_case_studies': [],
+            'twitter_url': '',
+            'verified_with_code': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -165,25 +170,26 @@ class CompanyViewsTests(TestCase):
             VALID_REQUEST_DATA, format='json')
 
         expected = {
-            'id': str(company.id),
-            'logo': None,
-            'summary': '',
-            'sectors': [],
-            'employees': '',
+            'date_of_creation': '10 Oct 2000',
             'email_address': '',
             'email_full_name': '',
-            'has_valid_address': True,
-            'keywords': '',
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
-            'is_verification_letter_sent': False,
-            'is_published': False,
-            'twitter_url': '',
+            'employees': '',
             'facebook_url': '',
+            'has_valid_address': True,
+            'id': str(company.id),
+            'is_published': False,
+            'is_verification_letter_sent': False,
+            'keywords': '',
             'linkedin_url': '',
-            'po_box': ''
+            'logo': None,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'po_box': '',
+            'sectors': [],
+            'slug': 'test-company',
+            'summary': '',
+            'supplier_case_studies': [],
+            'twitter_url': '',
+            'verified_with_code': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -262,19 +268,29 @@ def mock_save(self, name, content, max_length=None):
     return Mock(url=content.name)
 
 
+def get_test_image(extension="PNG"):
+    image = Image.new("RGB", (300, 50))
+    draw = ImageDraw.Draw(image)
+    draw.text((0, 0), "This text is drawn on image")
+    byte_io = BytesIO()
+    image.save(byte_io, extension)
+    byte_io.seek(0)
+    return byte_io
+
+
 @pytest.fixture(scope='session')
 def image_one(tmpdir_factory):
-    return BytesIO(b'some text')
+    return get_test_image()
 
 
 @pytest.fixture(scope='session')
 def image_two(tmpdir_factory):
-    return BytesIO(b'some text')
+    return get_test_image()
 
 
 @pytest.fixture(scope='session')
 def image_three(tmpdir_factory):
-    return BytesIO(b'some text')
+    return get_test_image()
 
 
 @pytest.fixture(scope='session')
@@ -321,14 +337,18 @@ def api_client():
 
 @pytest.fixture
 def company():
-    return Company.objects.create(**VALID_REQUEST_DATA)
+    return Company.objects.create(
+        verified_with_code=True,
+        email_address='test@example.com',
+        **VALID_REQUEST_DATA
+    )
 
 
 @pytest.fixture
 def private_profile():
     company = Company(**default_public_profile_data)
     company.number = '0123456A'
-    company.is_published = False
+    company.verified_with_code = False
     company.save()
     return company
 
@@ -426,9 +446,9 @@ def test_company_case_study_create(
     url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
 
     response = api_client.post(url, case_study_data, format='multipart')
-    instance = CompanyCaseStudy.objects.get(pk=response.data['pk'])
-
     assert response.status_code == http.client.CREATED
+
+    instance = CompanyCaseStudy.objects.get(pk=response.data['pk'])
     assert instance.testimonial == case_study_data['testimonial']
     assert instance.testimonial_name == case_study_data['testimonial_name']
     assert instance.testimonial_job_title == (
@@ -443,6 +463,108 @@ def test_company_case_study_create(
     assert instance.title == case_study_data['title']
     assert instance.sector == case_study_data['sector']
     assert instance.keywords == case_study_data['keywords']
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_create_invalid_image(
+    api_client, supplier, company
+):
+    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+
+    case_study_data = {
+        'company': company.pk,
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'keywords': 'good, great',
+        'image_one': get_test_image(extension="BMP"),
+        'image_two': get_test_image(extension="TIFF"),
+        'image_three': get_test_image(extension="GIF"),
+        'testimonial': 'very nice',
+        'testimonial_name': 'Lord Voldemort',
+        'testimonial_job_title': 'Evil overlord',
+        'testimonial_company': 'Death Eaters',
+    }
+    response = api_client.post(url, case_study_data, format='multipart')
+
+    assert response.status_code == http.client.BAD_REQUEST
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_create_not_an_image(
+    video, api_client, supplier, company
+):
+    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+
+    case_study_data = {
+        'company': company.pk,
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'keywords': 'good, great',
+        'image_one': video,
+        'image_two': video,
+        'image_three': video,
+        'testimonial': 'very nice',
+        'testimonial_name': 'Lord Voldemort',
+        'testimonial_job_title': 'Evil overlord',
+        'testimonial_company': 'Death Eaters',
+    }
+    response = api_client.post(url, case_study_data, format='multipart')
+
+    assert response.status_code == http.client.BAD_REQUEST
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('django.core.files.storage.Storage.save', mock_save)
+def test_company_case_study_create_company_not_published(
+    video, api_client, supplier
+):
+
+    company = Company.objects.create(
+        number='01234567',
+        export_status=choices.EXPORT_STATUSES[1][0],
+        is_published=False
+    )
+
+    supplier = Supplier.objects.create(
+        sso_id=1,
+        company_email='harry.potter@hogwarts.com',
+        company=company,
+    )
+
+    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+
+    case_study_data = {
+        'company': company.pk,
+        'title': 'a title',
+        'description': 'a description',
+        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'website': 'http://www.example.com',
+        'keywords': 'good, great',
+        'image_one': get_test_image(extension="PNG"),
+        'testimonial': 'very nice',
+        'testimonial_name': 'Lord Voldemort',
+        'testimonial_job_title': 'Evil overlord',
+        'testimonial_company': 'Death Eaters',
+    }
+    response = api_client.post(url, case_study_data, format='multipart')
+
+    assert response.status_code == http.client.CREATED
+
+    url = reverse(
+        'public-case-study-detail', kwargs={'pk': response.data['pk']}
+    )
+    response = api_client.get(url)
+
+    assert response.status_code == http.client.NOT_FOUND
 
 
 @pytest.mark.django_db
@@ -587,6 +709,22 @@ def test_company_profile_public_list_profiles(
 
     assert data['count'] == 1
     assert data['results'][0]['id'] == str(public_profile.pk)
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_company_profile_public_list_profiles_ordering(
+    private_profile, public_profile, public_profile_software,
+    public_profile_cars, api_client
+):
+    url = reverse('company-public-profile-list')
+    response = api_client.get(url)
+
+    data = response.json()
+    assert response.status_code == http.client.OK
+
+    dates_modified = [company['modified'] for company in data['results']]
+    assert sorted(dates_modified, reverse=True) == dates_modified
 
 
 @pytest.mark.django_db

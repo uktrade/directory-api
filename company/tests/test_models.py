@@ -8,7 +8,7 @@ from django_extensions.db.fields import (
     ModificationDateTimeField, CreationDateTimeField
 )
 from company import models, tests
-from company.tests.factories import CompanyFactory
+from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 
 
 @pytest.fixture
@@ -51,6 +51,12 @@ def test_company_model_str():
 
 
 @pytest.mark.django_db
+def test_company_generates_slug():
+    instance = CompanyFactory.create(name='Example corp.')
+    assert instance.slug == 'example-corp'
+
+
+@pytest.mark.django_db
 def test_company_model_sets_string_fields_to_empty_by_default():
     company = models.Company.objects.create(number="01234567")
 
@@ -68,6 +74,13 @@ def test_company_enforces_unique_company_number():
     models.Company.objects.create(number="01234567")
     with pytest.raises(IntegrityError):
         models.Company.objects.create(number="01234567")
+
+
+@pytest.mark.django_db
+def test_company_case_study_slug():
+    case_study = CompanyCaseStudyFactory.create(title='Example case study.')
+
+    assert case_study.slug == 'example-case-study'
 
 
 @pytest.mark.django_db

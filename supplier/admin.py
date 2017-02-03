@@ -26,6 +26,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__supplier_case_studies',
         'company__suppliers',
         'company__verification_code',
+        'company__messages',
     )
 
     def download_csv(self, request, queryset):

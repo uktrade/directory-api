@@ -9,6 +9,8 @@ def test_buyer_deserialization():
         'email': 'jim@example.com',
         'name': 'Jim Exampleson',
         'sector': 'AEROSPACE',
+        'company_name': 'Example corp',
+        'country': 'China',
     }
 
     serializer = serializers.BuyerSerializer(data=data)
@@ -18,3 +20,5 @@ def test_buyer_deserialization():
     assert instance.email == data['email']
     assert instance.name == data['name']
     assert instance.sector == data['sector']
+    assert instance.company_name == data['company_name']
+    assert instance.country == data['country']
