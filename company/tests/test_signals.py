@@ -157,8 +157,16 @@ def test_automatic_publish():
         },
     ]
 
+    should_be_force_published = [
+        {**item, 'is_published': True}
+        for item in should_be_unpublished
+    ]
+
     for kwargs in should_be_published:
         assert CompanyFactory.create(**kwargs).is_published is True
 
     for kwargs in should_be_unpublished:
         assert CompanyFactory.create(**kwargs).is_published is False
+
+    for kwargs in should_be_force_published:
+        assert CompanyFactory.create(**kwargs).is_published is True
