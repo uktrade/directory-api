@@ -1,7 +1,7 @@
 [
   {
     "model": "company.company",
-    "pk": 2147483647,
+    "pk": 1,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -38,7 +38,7 @@
   },
   {
     "model": "company.companycasestudy",
-    "pk": 2147483647,
+    "pk": 1,
     "fields": {
       "created": "2016-12-22T14:46:30.658Z",
       "modified": "2016-12-22T14:46:30.658Z",
@@ -59,18 +59,18 @@
       "testimonial_name": "Mr Test",
       "testimonial_job_title": "QA",
       "testimonial_company": "DIT",
-      "company": 2147483647
+      "company": 1
     }
   },
   {
     "model": "user.user",
-    "pk": 2147483647,
+    "pk": 1,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483647,
+      "sso_id": 1,
       "name": "",
-      "company": 2147483647,
+      "company": 1,
       "company_email": "load_tests1@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -79,7 +79,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483623,
+    "pk": 25,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -116,13 +116,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483623,
+    "pk": 25,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483623,
+      "sso_id": 25,
       "name": "",
-      "company": 2147483623,
+      "company": 25,
       "company_email": "load_tests2@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -131,7 +131,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483624,
+    "pk": 24,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -168,13 +168,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483624,
+    "pk": 24,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483624,
+      "sso_id": 24,
       "name": "",
-      "company": 2147483624,
+      "company": 24,
       "company_email": "load_tests3@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -183,7 +183,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483625,
+    "pk": 23,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -220,13 +220,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483625,
+    "pk": 23,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483625,
+      "sso_id": 23,
       "name": "",
-      "company": 2147483625,
+      "company": 23,
       "company_email": "load_tests4@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -235,7 +235,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483626,
+    "pk": 22,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -272,13 +272,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483626,
+    "pk": 22,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483626,
+      "sso_id": 22,
       "name": "",
-      "company": 2147483626,
+      "company": 22,
       "company_email": "load_tests5@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -287,7 +287,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483627,
+    "pk": 21,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -324,13 +324,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483627,
+    "pk": 21,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483627,
+      "sso_id": 21,
       "name": "",
-      "company": 2147483627,
+      "company": 21,
       "company_email": "load_tests6@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -339,7 +339,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483628,
+    "pk": 20,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -376,13 +376,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483628,
+    "pk": 20,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483628,
+      "sso_id": 20,
       "name": "",
-      "company": 2147483628,
+      "company": 20,
       "company_email": "load_tests7@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -391,7 +391,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483629,
+    "pk": 19,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -428,13 +428,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483629,
+    "pk": 19,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483629,
+      "sso_id": 19,
       "name": "",
-      "company": 2147483629,
+      "company": 19,
       "company_email": "load_tests8@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -443,7 +443,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483630,
+    "pk": 18,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -480,13 +480,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483630,
+    "pk": 18,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483630,
+      "sso_id": 18,
       "name": "",
-      "company": 2147483630,
+      "company": 18,
       "company_email": "load_tests9@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -495,7 +495,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483631,
+    "pk": 17,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -532,13 +532,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483631,
+    "pk": 17,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483631,
+      "sso_id": 17,
       "name": "",
-      "company": 2147483631,
+      "company": 17,
       "company_email": "load_tests10@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -547,7 +547,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483632,
+    "pk": 16,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -584,13 +584,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483632,
+    "pk": 16,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483632,
+      "sso_id": 16,
       "name": "",
-      "company": 2147483632,
+      "company": 16,
       "company_email": "load_tests11@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -599,7 +599,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483633,
+    "pk": 15,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -636,13 +636,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483633,
+    "pk": 15,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483633,
+      "sso_id": 15,
       "name": "",
-      "company": 2147483633,
+      "company": 15,
       "company_email": "load_tests12@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -651,7 +651,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483634,
+    "pk": 14,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -688,13 +688,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483634,
+    "pk": 14,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483634,
+      "sso_id": 14,
       "name": "",
-      "company": 2147483634,
+      "company": 14,
       "company_email": "load_tests13@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -703,7 +703,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483635,
+    "pk": 13,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -740,13 +740,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483635,
+    "pk": 13,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483635,
+      "sso_id": 13,
       "name": "",
-      "company": 2147483635,
+      "company": 13,
       "company_email": "load_tests14@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -755,7 +755,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483636,
+    "pk": 12,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -792,13 +792,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483636,
+    "pk": 12,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483636,
+      "sso_id": 12,
       "name": "",
-      "company": 2147483636,
+      "company": 12,
       "company_email": "load_tests15@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -807,7 +807,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483637,
+    "pk": 11,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -844,13 +844,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483637,
+    "pk": 11,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483637,
+      "sso_id": 11,
       "name": "",
-      "company": 2147483637,
+      "company": 11,
       "company_email": "load_tests16@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -859,7 +859,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483638,
+    "pk": 10,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -896,13 +896,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483638,
+    "pk": 10,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483638,
+      "sso_id": 10,
       "name": "",
-      "company": 2147483638,
+      "company": 10,
       "company_email": "load_tests17@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -911,7 +911,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483639,
+    "pk": 9,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -948,13 +948,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483639,
+    "pk": 9,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483639,
+      "sso_id": 9,
       "name": "",
-      "company": 2147483639,
+      "company": 9,
       "company_email": "load_tests18@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -963,7 +963,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483640,
+    "pk": 8,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1000,13 +1000,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483640,
+    "pk": 8,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483640,
+      "sso_id": 8,
       "name": "",
-      "company": 2147483640,
+      "company": 8,
       "company_email": "load_tests19@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1015,7 +1015,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483641,
+    "pk": 7,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1052,13 +1052,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483641,
+    "pk": 7,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483641,
+      "sso_id": 7,
       "name": "",
-      "company": 2147483641,
+      "company": 7,
       "company_email": "load_tests20@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1067,7 +1067,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483642,
+    "pk": 6,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1104,13 +1104,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483642,
+    "pk": 6,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483642,
+      "sso_id": 6,
       "name": "",
-      "company": 2147483642,
+      "company": 6,
       "company_email": "load_tests21@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1119,7 +1119,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483643,
+    "pk": 5,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1156,13 +1156,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483643,
+    "pk": 5,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483643,
+      "sso_id": 5,
       "name": "",
-      "company": 2147483643,
+      "company": 5,
       "company_email": "load_tests22@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1171,7 +1171,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483644,
+    "pk": 4,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1208,13 +1208,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483644,
+    "pk": 4,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483644,
+      "sso_id": 4,
       "name": "",
-      "company": 2147483644,
+      "company": 4,
       "company_email": "load_tests23@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1223,7 +1223,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483645,
+    "pk": 3,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1260,13 +1260,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483645,
+    "pk": 3,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483645,
+      "sso_id": 3,
       "name": "",
-      "company": 2147483645,
+      "company": 3,
       "company_email": "load_tests24@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
@@ -1275,7 +1275,7 @@
   },
   {
     "model": "company.company",
-    "pk": 2147483646,
+    "pk": 2,
     "fields": {
       "created": "2017-01-05T16:20:54.870Z",
       "modified": "2017-01-05T16:29:18.699Z",
@@ -1312,13 +1312,13 @@
   },
   {
     "model": "user.user",
-    "pk": 2147483646,
+    "pk": 2,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
       "modified": "2017-01-06T17:12:40.094Z",
-      "sso_id": 2147483646,
+      "sso_id": 2,
       "name": "",
-      "company": 2147483646,
+      "company": 2,
       "company_email": "load_tests25@example.com",
       "is_active": true,
       "date_joined": "2017-01-06T17:12:40.092Z",
