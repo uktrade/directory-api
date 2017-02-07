@@ -114,8 +114,7 @@ def test_unknown_address_not_send_letters(mock_stannp_client, settings):
 
 
 @pytest.mark.django_db
-def test_automatic_publish():
-
+def test_automatic_publish_create():
     should_be_published = [
         {
             'description': 'description',
@@ -150,8 +149,85 @@ def test_automatic_publish():
         },
     ]
 
+    should_be_force_published = [
+        {**item, 'is_published': True}
+        for item in should_be_unpublished
+    ]
+
     for kwargs in should_be_published:
-        assert CompanyFactory.create(**kwargs).is_published is True
+        assert CompanyFactory(**kwargs).is_published is True
 
     for kwargs in should_be_unpublished:
-        assert CompanyFactory.create(**kwargs).is_published is False
+        assert CompanyFactory(**kwargs).is_published is False
+
+    for kwargs in should_be_force_published:
+        assert CompanyFactory(**kwargs).is_published is True
+
+
+@pytest.mark.django_db
+def test_automatic_publish_update():
+    should_be_published = [
+        {
+            'description': 'description',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+        {
+            'summary': 'summary',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+    ]
+
+    should_be_unpublished = [
+        {
+            'description': '',
+            'summary': '',
+            'email_address': 'thing@example.com',
+            'verified_with_code': True,
+        },
+        {
+            'description': 'description',
+            'summary': 'summary',
+            'email_address': '',
+            'verified_with_code': True,
+        },
+        {
+            'description': 'description',
+            'summary': 'summary',
+            'email_address': 'jim@example.com',
+            'verified_with_code': False,
+        },
+    ]
+
+    should_be_force_published = [
+        {**item, 'is_published': True}
+        for item in should_be_unpublished
+    ]
+
+    for kwargs in should_be_published:
+        company = CompanyFactory()
+        assert company.is_published is False
+        for field, value in kwargs.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is True
+
+    for kwargs in should_be_unpublished:
+        company = CompanyFactory()
+        assert company.is_published is False
+        for field, value in kwargs.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is False
+
+    for kwargs in should_be_force_published:
+        company = CompanyFactory()
+        assert company.is_published is False
+        for field, value in kwargs.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is True
