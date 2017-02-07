@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 
 from buyer import models, views
 
+
 buyer_request_data = {
     'email': 'jim@example.com',
     'name': 'Jim Exampleson',
