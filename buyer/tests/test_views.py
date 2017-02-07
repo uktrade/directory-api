@@ -6,10 +6,16 @@ import pytest
 from django.core.urlresolvers import reverse
 
 from buyer import models, views
-from buyer.tests.factories import BuyerFactory
 
 
-buyer_request_data = BuyerFactory.stub().__dict__
+buyer_request_data = {
+    'email': 'jim@example.com',
+    'name': 'Jim Exampleson',
+    'sector': 'AEROSPACE',
+    'company_name': 'Example corp',
+    'country': 'China',
+    'comment': 'Good stuff.',
+}
 
 
 @pytest.fixture

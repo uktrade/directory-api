@@ -1,12 +1,17 @@
 import pytest
 
 from buyer import serializers
-from buyer.tests.factories import BuyerFactory
 
 
 @pytest.mark.django_db
 def test_buyer_deserialization():
-    data = BuyerFactory.stub().__dict__
+    data = {
+        'email': 'jim@example.com',
+        'name': 'Jim Exampleson',
+        'sector': 'AEROSPACE',
+        'company_name': 'Example corp',
+        'country': 'China',
+    }
 
     serializer = serializers.BuyerSerializer(data=data)
 
