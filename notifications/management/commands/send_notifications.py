@@ -11,7 +11,6 @@ class Command(BaseCommand):
             '--type',
             action='store',
             dest='type',
-            default=None,
             help='Specifies the type of notifications to send'
         )
 
@@ -24,13 +23,12 @@ class Command(BaseCommand):
             notify_funcs = type_notifications_map[type_option]
         except KeyError:
             raise CommandError(
-                "%s is not a valid notification type", type_option)
+                "%s is not a valid notification type" % type_option)
         return [import_string(func) for func in notify_funcs]
 
     def handle(self, *args, **options):
-        try:
-            type_option = options['type']
-        except KeyError:
+        type_option = options.get('type')
+        if type_option is None:
             raise CommandError('--type option is required')
 
         for notify_function in self._get_notification_functions(type_option):
