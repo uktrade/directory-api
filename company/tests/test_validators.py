@@ -2,15 +2,15 @@ import pytest
 
 from rest_framework.serializers import ValidationError
 
-from company import models, validators
-from company.tests import VALID_REQUEST_DATA
+from company import validators
+from company.tests.factories import CompanyFactory
 
 
 @pytest.mark.django_db
 def test_company_unique_rejects_existing(client):
-    models.Company.objects.create(**VALID_REQUEST_DATA)
+    company = CompanyFactory()
     with pytest.raises(ValidationError):
-        validators.company_unique(VALID_REQUEST_DATA['number'])
+        validators.company_unique(company.number)
 
 
 @pytest.mark.django_db
