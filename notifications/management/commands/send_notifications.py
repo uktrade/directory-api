@@ -1,6 +1,6 @@
-from django.conf import settings
-from django.utils.module_loading import import_string
 from django.core.management.base import BaseCommand, CommandError
+
+from notifications import notifications
 
 
 class Command(BaseCommand):
@@ -14,22 +14,23 @@ class Command(BaseCommand):
             help='Specifies the type of notifications to send'
         )
 
-    def _get_notification_functions(self, type_option):
-        type_notifications_map = {
-            'daily': settings.DAILY_NOTIFICATIONS,
-            'weekly': settings.WEEKLY_NOTIFICATIONS,
-        }
-        try:
-            notify_funcs = type_notifications_map[type_option]
-        except KeyError:
-            raise CommandError(
-                "%s is not a valid notification type" % type_option)
-        return [import_string(func) for func in notify_funcs]
+    def run_daily(self):
+        notifications.no_case_studies()
+        notifications.hasnt_logged_in()
+        notifications.verification_code_not_given()
+
+    def run_weekly(self):
+        notifications.new_companies_in_sector()
 
     def handle(self, *args, **options):
         type_option = options.get('type')
         if type_option is None:
             raise CommandError('--type option is required')
+        elif type_option not in ['daily', 'weekly']:
+            raise CommandError(
+                "%s is not a valid notification type" % type_option)
 
-        for notify_function in self._get_notification_functions(type_option):
-            notify_function()
+        if type_option == 'daily':
+            self.run_daily()
+        elif type_option == 'weekly':
+            self.run_weekly()
