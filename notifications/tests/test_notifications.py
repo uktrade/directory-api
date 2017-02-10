@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import pytest
 
@@ -47,6 +47,27 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
     assert instance.supplier == supplier
     assert instance.category == 'no_case_studies'
     assert instance.date_sent == timezone.now()
+
+
+@freeze_time('2016-12-16 19:11')
+@pytest.mark.django_db
+def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
+    supplier1 = SupplierFactory(
+        date_joined=datetime(2016, 12, 8, 0, 0, 1))
+    supplier2 = SupplierFactory(
+        date_joined=datetime(2016, 12, 8, 23, 59, 59))
+    SupplierFactory(date_joined=datetime(2016, 12, 7, 23, 59, 59))
+    SupplierFactory(date_joined=datetime(2016, 12, 9, 0, 0, 1))
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.no_case_studies()
+
+    assert len(mail.outbox) == 1
+    assert sorted(mail.outbox[0].to) == sorted([
+        supplier1.company_email,
+        supplier2.company_email,
+    ])
+    assert SupplierEmailNotification.objects.all().count() == 2
 
 
 @pytest.mark.django_db
