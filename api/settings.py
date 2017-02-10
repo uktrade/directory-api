@@ -300,3 +300,5 @@ CONTACT_SUPPLIER_SUBJECT = os.getenv(
     'Someone is interested in your Find a Buyer profile'
 )
 CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
+
+VERIFICATION_CODE_NOT_GIVEN_SUBJECT = 'Verification code not input'
