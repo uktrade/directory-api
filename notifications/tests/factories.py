@@ -5,10 +5,13 @@ from notifications import models
 from supplier.tests.factories import SupplierFactory
 
 
-class SupplierNotificationsFactory(factory.django.DjangoModelFactory):
+CATEGORY_CHOICES = [i[0] for i in models.SUPPLIER_NOTIFICATION_CATEGORIES]
+
+
+class SupplierEmailNotificationFactory(factory.django.DjangoModelFactory):
 
     supplier = factory.SubFactory(SupplierFactory)
-    notification_type = factory.fuzzy.FuzzyChoice(models.NOTIFICATION_TYPES)
+    category = factory.fuzzy.FuzzyChoice(CATEGORY_CHOICES)
 
     class Meta:
-        model = models.SupplierNotifications
+        model = models.SupplierEmailNotification
