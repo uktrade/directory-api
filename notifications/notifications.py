@@ -6,14 +6,14 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from user.models import User as Supplier
-from notifications.models import SupplierNotifications
+from notifications.models import SupplierEmailNotification
 
 
 def no_case_studies():
     eight_days_ago = timezone.now() - timedelta(days=8)
     suppliers = Supplier.objects.filter(
         company__supplier_case_studies__isnull=True,
-        suppliernotifications__isnull=True,
+        supplieremailnotification__isnull=True,
         date_joined__year=eight_days_ago.year,
         date_joined__month=eight_days_ago.month,
         date_joined__day=eight_days_ago.day,
@@ -30,10 +30,10 @@ def no_case_studies():
     message.attach_alternative(html_body, "text/html")
     message.send()
     notification_objs = [
-        SupplierNotifications(supplier=supplier,
-                              notification_type='no_case_studies')
+        SupplierEmailNotification(supplier=supplier,
+                                  category='no_case_studies')
         for supplier in suppliers]
-    SupplierNotifications.objects.bulk_create(notification_objs)
+    SupplierEmailNotification.objects.bulk_create(notification_objs)
 
 
 def hasnt_logged_in():

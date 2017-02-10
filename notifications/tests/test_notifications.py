@@ -8,8 +8,8 @@ from django.core import mail
 from django.utils import timezone
 
 from notifications import notifications
-from notifications.models import SupplierNotifications
-from notifications.tests.factories import SupplierNotificationsFactory
+from notifications.models import SupplierEmailNotification
+from notifications.tests.factories import SupplierEmailNotificationFactory
 from supplier.tests.factories import SupplierFactory
 from company.tests.factories import CompanyCaseStudyFactory
 
@@ -24,7 +24,7 @@ def test_doesnt_send_case_study_email_when_user_has_case_studies():
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 0
-    assert SupplierNotifications.objects.all().count() == 0
+    assert SupplierEmailNotification.objects.all().count() == 0
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert
@@ -42,10 +42,10 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert SupplierNotifications.objects.all().count() == 1
-    instance = SupplierNotifications.objects.get()
+    assert SupplierEmailNotification.objects.all().count() == 1
+    instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
-    assert instance.notification_type == 'no_case_studies'
+    assert instance.category == 'no_case_studies'
     assert instance.date_sent == timezone.now()
 
 
@@ -53,15 +53,15 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 def test_doesnt_send_case_study_email_if_email_already_sent():
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)
-    SupplierNotificationsFactory(
-        supplier=supplier, notification_type='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=supplier, category='no_case_studies')
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 0
     # what we created in data setup, no new obj created
-    assert SupplierNotifications.objects.all().count() == 1
+    assert SupplierEmailNotification.objects.all().count() == 1
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert
@@ -73,8 +73,8 @@ def test_sends_case_study_email_to_expected_users():
     SupplierFactory.create_batch(3, date_joined=twelve_days_ago)
     for supplier in suppliers[:4]:
         CompanyCaseStudyFactory(company=supplier.company)
-    SupplierNotificationsFactory(
-        supplier=suppliers[9], notification_type='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[9], category='no_case_studies')
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
@@ -87,10 +87,10 @@ def test_sends_case_study_email_to_expected_users():
         suppliers[7].company_email,
         suppliers[8].company_email,
     ])
-    objs = SupplierNotifications.objects.all()
+    objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 6  # 5 + 1 created in setup
     for notification in objs:
-        assert notification.notification_type == 'no_case_studies'
+        assert notification.category == 'no_case_studies'
         assert notification.date_sent == timezone.now()
     assert sorted(objs.values_list('supplier', flat=True)) == [
         supplier.id for supplier in suppliers[4:]]
