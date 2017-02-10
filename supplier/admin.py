@@ -27,7 +27,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__suppliers',
         'company__verification_code',
         'company__messages',
-        'suppliernotifications',
+        'supplieremailnotification',
     )
 
     def download_csv(self, request, queryset):
