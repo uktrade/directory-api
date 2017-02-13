@@ -13,10 +13,11 @@ def no_case_studies():
         days=settings.NO_CASE_STUDIES_DAYS)
     suppliers = Supplier.objects.filter(
         company__supplier_case_studies__isnull=True,
-        supplieremailnotification__isnull=True,
         date_joined__year=days_ago.year,
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
+    ).exclude(
+        supplieremailnotification__category='no_case_studies',
     )
     text_body = render_to_string('no_case_studies_email.txt', {})
     html_body = render_to_string('no_case_studies_email.html', {})

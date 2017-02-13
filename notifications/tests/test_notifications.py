@@ -90,18 +90,22 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
 
 
 @pytest.mark.django_db
-def test_doesnt_send_case_study_email_if_email_already_sent():
+def test_doesnt_send_case_study_email_if_case_study_email_already_sent():
     eight_days_ago = timezone.now() - timedelta(days=8)
-    supplier = SupplierFactory(date_joined=eight_days_ago)
+    suppliers = SupplierFactory.create_batch(
+        2, date_joined=eight_days_ago)
     SupplierEmailNotificationFactory(
-        supplier=supplier, category='no_case_studies')
+        supplier=suppliers[0], category='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[1], category='hasnt_logged_in')
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 0
-    # what we created in data setup, no new obj created
-    assert SupplierEmailNotification.objects.all().count() == 1
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [suppliers[1].company_email]
+    # what we created in data setup + 1 new
+    assert SupplierEmailNotification.objects.all().count() == 3
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert
@@ -115,6 +119,8 @@ def test_sends_case_study_email_to_expected_users():
         CompanyCaseStudyFactory(company=supplier.company)
     SupplierEmailNotificationFactory(
         supplier=suppliers[9], category='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[8], category='hasnt_logged_in')
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
@@ -126,9 +132,4 @@ def test_sends_case_study_email_to_expected_users():
     assert mail.outbox[3].to == [suppliers[7].company_email]
     assert mail.outbox[4].to == [suppliers[8].company_email]
     objs = SupplierEmailNotification.objects.all()
-    assert objs.count() == 6  # 5 + 1 created in setup
-    for notification in objs:
-        assert notification.category == 'no_case_studies'
-        assert notification.date_sent == timezone.now()
-    assert sorted(objs.values_list('supplier', flat=True)) == [
-        supplier.id for supplier in suppliers[4:]]
+    assert objs.count() == 7  # 5 + 2 created in setup
