@@ -62,11 +62,9 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
 
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 1
-    assert sorted(mail.outbox[0].to) == sorted([
-        supplier1.company_email,
-        supplier2.company_email,
-    ])
+    assert len(mail.outbox) == 2
+    assert mail.outbox[0].to == [supplier1.company_email]
+    assert mail.outbox[1].to == [supplier2.company_email]
     assert SupplierEmailNotification.objects.all().count() == 2
 
 
@@ -117,14 +115,12 @@ def test_sends_case_study_email_to_expected_users():
 
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 1
-    assert sorted(mail.outbox[0].to) == sorted([
-        suppliers[4].company_email,
-        suppliers[5].company_email,
-        suppliers[6].company_email,
-        suppliers[7].company_email,
-        suppliers[8].company_email,
-    ])
+    assert len(mail.outbox) == 5
+    assert mail.outbox[0].to == [suppliers[4].company_email]
+    assert mail.outbox[1].to == [suppliers[5].company_email]
+    assert mail.outbox[2].to == [suppliers[6].company_email]
+    assert mail.outbox[3].to == [suppliers[7].company_email]
+    assert mail.outbox[4].to == [suppliers[8].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 6  # 5 + 1 created in setup
     for notification in objs:

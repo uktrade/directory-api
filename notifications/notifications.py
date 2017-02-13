@@ -18,17 +18,17 @@ def no_case_studies():
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
     )
-    supplier_emails = suppliers.values_list('company_email', flat=True)
     text_body = render_to_string('no_case_studies_email.txt', {})
     html_body = render_to_string('no_case_studies_email.html', {})
 
-    message = EmailMultiAlternatives(
-        subject=settings.NO_CASE_STUDIES_SUBJECT,
-        body=text_body,
-        to=supplier_emails,
-    )
-    message.attach_alternative(html_body, "text/html")
-    message.send()
+    for supplier in suppliers:
+        message = EmailMultiAlternatives(
+            subject=settings.NO_CASE_STUDIES_SUBJECT,
+            body=text_body,
+            to=[supplier.company_email],
+        )
+        message.attach_alternative(html_body, "text/html")
+        message.send()
 
     notification_objs = [
         SupplierEmailNotification(supplier=supplier,
