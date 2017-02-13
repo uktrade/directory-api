@@ -44,6 +44,8 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == (
         'Get seen by more international buyers by improving your profile')
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier

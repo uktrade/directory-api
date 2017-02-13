@@ -19,10 +19,11 @@ def no_case_studies():
     ).exclude(
         supplieremailnotification__category='no_case_studies',
     )
-    text_body = render_to_string('no_case_studies_email.txt', {})
-    html_body = render_to_string('no_case_studies_email.html', {})
 
     for supplier in suppliers:
+        context = {'full_name': supplier.name}
+        text_body = render_to_string('no_case_studies_email.txt', context)
+        html_body = render_to_string('no_case_studies_email.html', context)
         message = EmailMultiAlternatives(
             subject=settings.NO_CASE_STUDIES_SUBJECT,
             body=text_body,
