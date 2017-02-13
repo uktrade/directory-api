@@ -1,16 +1,16 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.utils import timezone
 
 from user.models import User as Supplier
 from notifications.models import SupplierEmailNotification
 
 
 def no_case_studies():
-    days_ago = timezone.now() - timedelta(days=settings.NO_CASE_STUDIES_DAYS)
+    days_ago = datetime.utcnow() - timedelta(
+        days=settings.NO_CASE_STUDIES_DAYS)
     suppliers = Supplier.objects.filter(
         company__supplier_case_studies__isnull=True,
         supplieremailnotification__isnull=True,
