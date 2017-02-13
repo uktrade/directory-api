@@ -71,6 +71,23 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
 
 
 @pytest.mark.django_db
+def test_case_study_email_uses_setting_to_establish_no_of_days(settings):
+    settings.NO_CASE_STUDIES_DAYS = 1
+    one_day_ago = timezone.now() - timedelta(days=1)
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    SupplierFactory(date_joined=eight_days_ago)
+    supplier = SupplierFactory(
+        date_joined=one_day_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.no_case_studies()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [supplier.company_email]
+    assert SupplierEmailNotification.objects.all().count() == 1
+
+
+@pytest.mark.django_db
 def test_doesnt_send_case_study_email_if_email_already_sent():
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)

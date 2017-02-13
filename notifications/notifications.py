@@ -10,13 +10,13 @@ from notifications.models import SupplierEmailNotification
 
 
 def no_case_studies():
-    eight_days_ago = timezone.now() - timedelta(days=8)
+    days_ago = timezone.now() - timedelta(days=settings.NO_CASE_STUDIES_DAYS)
     suppliers = Supplier.objects.filter(
         company__supplier_case_studies__isnull=True,
         supplieremailnotification__isnull=True,
-        date_joined__year=eight_days_ago.year,
-        date_joined__month=eight_days_ago.month,
-        date_joined__day=eight_days_ago.day,
+        date_joined__year=days_ago.year,
+        date_joined__month=days_ago.month,
+        date_joined__day=days_ago.day,
     )
     supplier_emails = suppliers.values_list('company_email', flat=True)
     text_body = render_to_string('no_case_studies_email.txt', {})
