@@ -303,6 +303,6 @@ CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
 
 NO_CASE_STUDIES_SUBJECT = os.getenv(
     "NO_CASE_STUDIES_SUBJECT",
-    "No case studies created"
+    "Get seen by more international buyers by improving your profile"
 )
 NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))

@@ -42,6 +42,8 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].subject == (
+        'Get seen by more international buyers by improving your profile')
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
@@ -69,8 +71,9 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
 
 
 @pytest.mark.django_db
-def test_case_study_email_uses_setting_to_establish_no_of_days(settings):
+def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
     settings.NO_CASE_STUDIES_DAYS = 1
+    settings.NO_CASE_STUDIES_SUBJECT = 'bla bla'
     one_day_ago = timezone.now() - timedelta(days=1)
     eight_days_ago = timezone.now() - timedelta(days=8)
     SupplierFactory(date_joined=eight_days_ago)
@@ -82,6 +85,7 @@ def test_case_study_email_uses_setting_to_establish_no_of_days(settings):
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].subject == 'bla bla'
     assert SupplierEmailNotification.objects.all().count() == 1
 
 
