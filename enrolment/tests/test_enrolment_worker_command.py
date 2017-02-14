@@ -25,7 +25,7 @@ class TestQueueWorkerCommand(MockBoto):
             for x in range(100)
         ]
         worker_process = multiprocessing.Process(
-            target=call_command, args=('queue_worker', )
+            target=call_command, args=('enrolment_worker', )
         )
         worker_process.start()
         # wait for worker to process some messages
@@ -44,7 +44,7 @@ class TestQueueWorkerCommand(MockBoto):
         worker = enrolment.queue.EnrolmentQueueWorker()
         worker.queue._queue.receive_messages.return_value = []
         worker_process = multiprocessing.Process(
-            target=call_command, args=('queue_worker', )
+            target=call_command, args=('enrolment_worker', )
         )
         worker_process.start()
         # wait for worker to start

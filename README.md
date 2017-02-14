@@ -46,7 +46,7 @@ Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/
 ### Run debug queue worker
 Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set
 
-    $ make debug_queue_worker
+    $ make debug_enrolment_worker
 
 ### Run debug tests
 
