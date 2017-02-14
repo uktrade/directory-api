@@ -20,6 +20,7 @@ from company.tests import (
     MockValidSerializer,
     VALID_REQUEST_DATA,
 )
+from company.tests.factories import CompanyFactory
 from user.models import User as Supplier
 
 
@@ -29,6 +30,8 @@ default_public_profile_data = {
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
     'date_of_creation': '2010-10-10',
+    'email_address': 'thing@example.com',
+    'verified_with_code': True,
 }
 
 
@@ -50,7 +53,8 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     def test_company_retrieve_view(self):
         client = APIClient()
-        company = Company.objects.create(**VALID_REQUEST_DATA)
+        company = CompanyFactory(
+            name='Test Company', date_of_creation=datetime.date(2000, 10, 10))
         supplier = Supplier.objects.create(
             sso_id=1,
             company_email='harry.potter@hogwarts.com',
@@ -62,34 +66,46 @@ class CompanyViewsTests(TestCase):
         ))
 
         expected = {
-            'id': str(company.id),
-            'summary': '',
-            'logo': None,
-            'sectors': [],
-            'twitter_url': '',
-            'facebook_url': '',
-            'linkedin_url': '',
-            'employees': '',
-            'email_address': '',
-            'email_full_name': '',
+            'date_of_creation': '2000-10-10',
+            'email_address': company.email_address,
+            'email_full_name': company.email_full_name,
+            'employees': company.employees,
+            'facebook_url': company.facebook_url,
             'has_valid_address': True,
-            'keywords': '',
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
-            'is_verification_letter_sent': False,
+            'id': str(company.id),
             'is_published': False,
-            'po_box': '',
+            'is_verification_letter_sent': False,
+            'keywords': company.keywords,
+            'linkedin_url': company.linkedin_url,
+            'logo': None,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'po_box': company.po_box,
+            'sectors': company.sectors,
+            'slug': 'test-company',
+            'summary': company.summary,
+            'supplier_case_studies': [],
+            'twitter_url': company.twitter_url,
+            'verified_with_code': False,
+            'country': company.country,
+            'mobile_number': company.mobile_number,
+            'address_line_1': company.address_line_1,
+            'address_line_2': company.address_line_2,
+            'postal_full_name': company.postal_full_name,
+            'number': company.number,
+            'website': company.website,
+            'description': company.description,
+            'export_status': company.export_status,
+            'locality': company.locality,
+            'name': 'Test Company',
+            'postal_code': company.postal_code,
         }
-        expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected
 
     @pytest.mark.django_db
     def test_company_retrieve_view_404(self):
         client = APIClient()
-        company = Company.objects.create(**VALID_REQUEST_DATA)
+        company = CompanyFactory()
         Supplier.objects.create(
             sso_id=1,
             company_email='harry.potter@hogwarts.com',
@@ -106,7 +122,7 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     def test_company_update_view_with_put(self):
         client = APIClient()
-        company = Company.objects.create(
+        company = CompanyFactory(
             number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0],
         )
@@ -121,26 +137,25 @@ class CompanyViewsTests(TestCase):
             VALID_REQUEST_DATA, format='json')
 
         expected = {
-            'id': str(company.id),
-            'logo': None,
-            'sectors': [],
-            'summary': '',
-            'employees': '',
-            'email_address': '',
-            'email_full_name': '',
+            'email_address': company.email_address,
+            'email_full_name': company.email_full_name,
+            'employees': company.employees,
+            'facebook_url': company.facebook_url,
             'has_valid_address': True,
-            'keywords': '',
-            'twitter_url': '',
-            'facebook_url': '',
-            'linkedin_url': '',
+            'id': str(company.id),
             'is_published': False,
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
             'is_verification_letter_sent': False,
-            'mobile_number': '07505605132',
-            'po_box': ''
+            'keywords': company.keywords,
+            'linkedin_url': company.linkedin_url,
+            'logo': None,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'po_box': company.po_box,
+            'sectors': company.sectors,
+            'slug': 'test-company',
+            'summary': company.summary,
+            'supplier_case_studies': [],
+            'twitter_url': company.twitter_url,
+            'verified_with_code': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -150,10 +165,9 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     def test_company_update_view_with_patch(self):
         client = APIClient()
-        company = Company.objects.create(
+        company = CompanyFactory(
             number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0]
-
         )
         supplier = Supplier.objects.create(
             sso_id=1,
@@ -166,25 +180,25 @@ class CompanyViewsTests(TestCase):
             VALID_REQUEST_DATA, format='json')
 
         expected = {
-            'id': str(company.id),
-            'logo': None,
-            'summary': '',
-            'sectors': [],
-            'employees': '',
-            'email_address': '',
-            'email_full_name': '',
+            'email_address': company.email_address,
+            'email_full_name': company.email_full_name,
+            'employees': company.employees,
+            'facebook_url': company.facebook_url,
             'has_valid_address': True,
-            'keywords': '',
-            'date_of_creation': '10 Oct 2000',
-            'supplier_case_studies': [],
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'verified_with_code': False,
-            'is_verification_letter_sent': False,
+            'id': str(company.id),
             'is_published': False,
-            'twitter_url': '',
-            'facebook_url': '',
-            'linkedin_url': '',
-            'po_box': ''
+            'is_verification_letter_sent': False,
+            'keywords': company.keywords,
+            'linkedin_url': company.linkedin_url,
+            'logo': None,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'po_box': company.po_box,
+            'sectors': company.sectors,
+            'slug': 'test-company',
+            'summary': company.summary,
+            'supplier_case_studies': [],
+            'twitter_url': company.twitter_url,
+            'verified_with_code': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -194,7 +208,7 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     def test_company_update_view_with_put_ignores_modified(self):
         client = APIClient()
-        company = Company.objects.create(
+        company = CompanyFactory(
             number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0],
         )
@@ -218,7 +232,7 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     def test_company_update_view_with_patch_ignores_modified(self):
         client = APIClient()
-        company = Company.objects.create(
+        company = CompanyFactory(
             number='01234567',
             export_status=choices.EXPORT_STATUSES[1][0],
         )
@@ -332,14 +346,18 @@ def api_client():
 
 @pytest.fixture
 def company():
-    return Company.objects.create(is_published=True, **VALID_REQUEST_DATA)
+    return Company.objects.create(
+        verified_with_code=True,
+        email_address='test@example.com',
+        **VALID_REQUEST_DATA
+    )
 
 
 @pytest.fixture
 def private_profile():
     company = Company(**default_public_profile_data)
     company.number = '0123456A'
-    company.is_published = False
+    company.verified_with_code = False
     company.save()
     return company
 

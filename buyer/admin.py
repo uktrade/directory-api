@@ -15,6 +15,8 @@ class BuyerAdmin(admin.ModelAdmin):
     list_filter = ('sectors', )
     actions = ['download_csv']
 
+    csv_excluded_fields = ('buyeremailnotification', )
+
     def download_csv(self, request, queryset):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = (
@@ -24,7 +26,8 @@ class BuyerAdmin(admin.ModelAdmin):
         )
 
         fieldnames = sorted(
-            [field.name for field in Buyer._meta.get_fields()]
+            [field.name for field in Buyer._meta.get_fields()
+             if field.name not in self.csv_excluded_fields]
         )
 
         buyers = queryset.all().values(*fieldnames)

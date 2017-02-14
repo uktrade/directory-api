@@ -1,6 +1,6 @@
-from django.conf import settings
-
 from rest_framework import serializers
+
+from django.conf import settings
 
 from company import models, validators
 
@@ -38,23 +38,25 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'company',
             'description',
             'image_one',
+            'image_one_caption',
             'image_three',
+            'image_three_caption',
             'image_two',
+            'image_two_caption',
             'keywords',
             'pk',
             'sector',
+            'short_summary',
+            'slug',
             'testimonial',
-            'testimonial_name',
-            'testimonial_job_title',
             'testimonial_company',
+            'testimonial_job_title',
+            'testimonial_name',
             'title',
             'video_one',
             'website',
-            'short_summary',
-            'image_one_caption',
-            'image_two_caption',
-            'image_three_caption',
         )
+        read_only_fields = ('slug',)
 
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
@@ -79,39 +81,40 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Company
         fields = (
-            'date_of_creation',
-            'description',
-            'summary',
-            'employees',
-            'export_status',
-            'id',
-            'keywords',
-            'logo',
-            'name',
-            'number',
-            'sectors',
-            'supplier_case_studies',
-            'website',
-            'modified',
-            'verified_with_code',
-            'is_verification_letter_sent',
-            'is_published',
-            'twitter_url',
-            'facebook_url',
-            'linkedin_url',
-            'postal_full_name',
             'address_line_1',
             'address_line_2',
-            'locality',
             'country',
-            'postal_code',
-            'po_box',
-            'mobile_number',
+            'date_of_creation',
+            'description',
             'email_address',
             'email_full_name',
+            'employees',
+            'export_status',
+            'facebook_url',
             'has_valid_address',
+            'id',
+            'is_published',
+            'is_verification_letter_sent',
+            'keywords',
+            'linkedin_url',
+            'locality',
+            'logo',
+            'mobile_number',
+            'modified',
+            'name',
+            'number',
+            'po_box',
+            'postal_code',
+            'postal_full_name',
+            'sectors',
+            'slug',
+            'summary',
+            'supplier_case_studies',
+            'twitter_url',
+            'verified_with_code',
+            'website',
         )
-        read_only_fields = ('modified', 'is_published')
+        read_only_fields = ('modified', 'is_published', 'slug')
 
     def get_has_valid_address(self, obj):
         return obj.has_valid_address()

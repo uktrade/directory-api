@@ -5,19 +5,12 @@ from django_extensions.db.fields import (
 )
 
 from buyer import models
-
-
-@pytest.fixture
-def buyer():
-    return models.Buyer.objects.create(
-        email='jim@example.com',
-        name='Jim Exampleson',
-        sector='AEROSPACE',
-    )
+from buyer.tests.factories import BuyerFactory
 
 
 @pytest.mark.django_db
-def test_buyer_name(buyer):
+def test_buyer_name():
+    buyer = BuyerFactory()
     assert str(buyer) == buyer.name
 
 

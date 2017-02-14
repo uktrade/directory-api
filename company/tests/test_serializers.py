@@ -10,11 +10,12 @@ from directory_validators.constants import choices
 
 from company.tests import VALID_REQUEST_DATA
 from company import models, serializers, validators
+from company.tests.factories import CompanyFactory
 
 
 @pytest.fixture
 def company():
-    return models.Company.objects.create(**VALID_REQUEST_DATA)
+    return CompanyFactory()
 
 
 @pytest.fixture

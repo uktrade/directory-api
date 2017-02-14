@@ -3,6 +3,7 @@ from directory_validators import enrolment as shared_validators
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from api.model_utils import TimeStampedModel
@@ -59,7 +60,14 @@ class Company(TimeStampedModel):
         blank=True,
         null=True,
     )
-    is_published = models.BooleanField(default=False)
+    is_published = models.BooleanField(
+        default=False,
+        help_text=(
+            'Companies are automatically published based on profile '
+            'completeness - they must have description or summary, be '
+            'verified, and have an email address.'
+        )
+    )
     verification_code = models.CharField(
         _('verification code'),
         max_length=255,
@@ -139,6 +147,7 @@ class Company(TimeStampedModel):
         blank=True,
         default={}
     )
+    slug = models.SlugField()
 
     class Meta:
         verbose_name_plural = 'companies'
@@ -153,6 +162,10 @@ class Company(TimeStampedModel):
             'postal_code',
         ]
         return all(getattr(self, field) for field in required_address_fields)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)[:50]
+        return super().save(*args, **kwargs)
 
 
 class CompanyCaseStudy(TimeStampedModel):
@@ -216,8 +229,14 @@ class CompanyCaseStudy(TimeStampedModel):
     )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
 
+    slug = models.SlugField()
+
     class Meta:
         verbose_name_plural = 'company case studies'
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)[:50]
+        return super().save(*args, **kwargs)

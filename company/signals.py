@@ -36,3 +36,12 @@ def send_verification_letter(sender, instance, *args, **kwargs):
 
     instance.is_verification_letter_sent = True
     instance.save()
+
+
+def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
+    if not instance.is_published:
+        instance.is_published = bool(
+            (instance.description or instance.summary) and
+            instance.email_address and
+            instance.verified_with_code
+        )

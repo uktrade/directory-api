@@ -10,6 +10,7 @@ from buyer import models, views
 from buyer.tests.factories import BuyerFactory
 
 
+
 buyer_request_data = {
     'email': 'jim@example.com',
     'name': 'Jim Exampleson',
