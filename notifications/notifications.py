@@ -8,7 +8,6 @@ from user.models import User as Supplier
 from notifications import models, constants
 
 
-
 def no_case_studies():
     days_ago = datetime.utcnow() - timedelta(
         days=settings.NO_CASE_STUDIES_DAYS)
@@ -42,7 +41,7 @@ def hasnt_logged_in():
 
 
 def verification_code_not_given():
-    eight_days_ago = timezone.now() - timedelta(days=8)
+    eight_days_ago = datetime.utcnow() - timedelta(days=8)
     suppliers = Supplier.objects.filter(
         company__verified_with_code=False,
         supplieremailnotification__isnull=True,
@@ -63,8 +62,8 @@ def verification_code_not_given():
     message.send()
 
     notification_objs = [
-        SupplierEmailNotification(supplier=supplier,
-                                  category='verification_code_not_given')
+        models.SupplierEmailNotification(
+            supplier=supplier, category='verification_code_not_given')
         for supplier in suppliers
     ]
     models.SupplierEmailNotification.objects.bulk_create(notification_objs)
