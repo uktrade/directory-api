@@ -5,7 +5,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from user.models import User as Supplier
-from notifications.models import SupplierEmailNotification
+from notifications import models, constants
 
 
 def no_case_studies():
@@ -17,7 +17,7 @@ def no_case_studies():
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
     ).exclude(
-        supplieremailnotification__category='no_case_studies',
+        supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
 
     for supplier in suppliers:
@@ -31,8 +31,8 @@ def no_case_studies():
         )
         message.attach_alternative(html_body, "text/html")
         message.send()
-        SupplierEmailNotification.objects.create(
-            supplier=supplier, category='no_case_studies')
+        models.SupplierEmailNotification.objects.create(
+            supplier=supplier, category=constants.NO_CASE_STUDIES)
 
 
 def hasnt_logged_in():
