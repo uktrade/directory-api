@@ -300,3 +300,12 @@ CONTACT_SUPPLIER_SUBJECT = os.getenv(
     'Someone is interested in your Find a Buyer profile'
 )
 CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
+
+# Celery
+if os.getenv('CELERY_ENABLED') == 'true':
+    CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
+    CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
+    CELERY_ACCEPT_CONTENT = ['application/json']
+    CELERY_TASK_SERIALIZER = 'json'
+    CELERY_RESULT_SERIALIZER = 'json'
+    CELERY_TIMEZONE = 'UTC'
