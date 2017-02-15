@@ -1,18 +1,3 @@
-from datetime import timedelta, datetime
-
-import pytest
-
-from freezegun import freeze_time
-
-from django.core import mail
-from django.utils import timezone
-
-from notifications import notifications
-from notifications.models import SupplierEmailNotification
-from notifications.tests.factories import SupplierEmailNotificationFactory
-from supplier.tests.factories import SupplierFactory
-
-
 @pytest.mark.django_db
 def test_doesnt_send_ver_code_email_when_user_has_input_ver_code():
     eight_days_ago = timezone.now() - timedelta(days=8)

@@ -1,5 +1,6 @@
 import http
 import re
+import logging
 
 import pytest
 import requests_mock
@@ -28,6 +29,8 @@ def pytest_runtest_setup(item):
         'https://api.companieshouse.gov.uk',
         companies_house_adapter
     )
+    # Make factory boy reasonably verbose instead of insanely verbose
+    logging.getLogger("factory").setLevel(logging.WARN)
 
 
 @pytest.fixture()
