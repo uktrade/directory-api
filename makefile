@@ -81,14 +81,14 @@ docker_debug: docker_remove_all
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
 	docker-compose build && \
-	docker-compose run -d --no-deps queue_worker && \
+	docker-compose run -d --no-deps enrolment_worker && \
 	docker-compose run --service-ports webserver make django_webserver
 
 docker_webserver_bash:
 	docker exec -it directoryapi_webserver_1 sh
 
-docker_queue_worker_bash:
-	docker exec -it directoryapi_queue_worker_run_1 sh
+docker_enrolment_worker_bash:
+	docker exec -it directoryapi_enrolment_worker_run_1 sh
 
 docker_psql:
 	docker-compose run postgres psql -h postgres -U debug
@@ -141,8 +141,8 @@ DEBUG_SET_ENV_VARS := \
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
 
-debug_queue_worker:
-	$(DEBUG_SET_ENV_VARS); ./manage.py queue_worker
+debug_enrolment_worker:
+	$(DEBUG_SET_ENV_VARS); ./manage.py enrolment_worker
 
 DEBUG_CREATE_DB := \
 	psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$$DB_NAME'" | \
@@ -170,14 +170,8 @@ debug: test_requirements debug_db debug_test
 heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
-	docker build -t registry.heroku.com/directory-api-dev/worker -f Dockerfile-worker .
-	docker push registry.heroku.com/directory-api-dev/worker
-
-heroku_deploy_demo:
-	docker build -t registry.heroku.com/directory-api-demo/web .
-	docker push registry.heroku.com/directory-api-demo/web
-	docker build -t registry.heroku.com/directory-api-demo/worker -f Dockerfile-worker .
-	docker push registry.heroku.com/directory-api-demo/worker
+	docker build -t registry.heroku.com/directory-api-dev/enrolment_worker -f Dockerfile-enrolment_worker .
+	docker push registry.heroku.com/directory-api-dev/enrolment_worker
 
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy_dev heroku_deploy_demo
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev
