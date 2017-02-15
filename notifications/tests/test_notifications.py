@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from unittest.mock import patch
 
 import pytest
 
@@ -108,6 +109,27 @@ def test_doesnt_send_case_study_email_if_case_study_email_already_sent():
     assert mail.outbox[0].to == [suppliers[1].company_email]
     # what we created in data setup + 1 new
     assert SupplierEmailNotification.objects.all().count() == 3
+
+
+@pytest.mark.django_db
+def test_if_email_send_fails_previous_info_still_written_to_db():
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    suppliers = SupplierFactory.create_batch(3, date_joined=eight_days_ago)
+    send_method = 'django.core.mail.EmailMultiAlternatives.send'
+
+    def mocked_send(self):
+        # This will be the last email that will be sent to
+        if self.to == [suppliers[0].company_email]:
+            raise Exception
+
+    with patch(send_method, mocked_send):
+        try:
+            notifications.no_case_studies()
+        except:
+            pass
+
+    # should have created the two objects before the email exception
+    assert SupplierEmailNotification.objects.all().count() == 2
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert

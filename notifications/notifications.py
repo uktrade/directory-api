@@ -31,13 +31,8 @@ def no_case_studies():
         )
         message.attach_alternative(html_body, "text/html")
         message.send()
-
-    notification_objs = [
-        SupplierEmailNotification(supplier=supplier,
-                                  category='no_case_studies')
-        for supplier in suppliers
-    ]
-    SupplierEmailNotification.objects.bulk_create(notification_objs)
+        SupplierEmailNotification.objects.create(
+            supplier=supplier, category='no_case_studies')
 
 
 def hasnt_logged_in():
