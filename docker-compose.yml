@@ -5,6 +5,10 @@ services:
     image: postgres:9.5.2
     env_file: ./docker/.env-postgres
 
+  redis:
+    image: redis:3.2
+    ports: ["6379:6379"]
+
   webserver:
     build:
       context: .
@@ -28,5 +32,17 @@ services:
     working_dir: /usr/src/app
     entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
     command: ./docker/cmd-enrolment_worker.sh
+    env_file: ./docker/.env
+    restart: "always"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-celery_worker
+    depends_on: [redis]
+    links: [postgres, redis]
+    working_dir: /usr/src/app
+    entrypoint: dockerize -wait tcp://redis:6379 -timeout 20s
+    command: ./docker/cmd-celery_worker.sh
     env_file: ./docker/.env
     restart: "always"
