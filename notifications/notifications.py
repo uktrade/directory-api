@@ -44,29 +44,29 @@ def verification_code_not_given():
     eight_days_ago = datetime.utcnow() - timedelta(days=8)
     suppliers = Supplier.objects.filter(
         company__verified_with_code=False,
-        supplieremailnotification__isnull=True,
         date_joined__year=eight_days_ago.year,
         date_joined__month=eight_days_ago.month,
         date_joined__day=eight_days_ago.day,
+    ).exclude(
+        supplieremailnotification__category=constants.
+        VERIFICATION_CODE_NOT_GIVEN,
     )
-    supplier_emails = suppliers.values_list('company_email', flat=True)
-    text_body = render_to_string('verification_code_not_given_email.txt', {})
-    html_body = render_to_string('verification_code_not_given_email.html', {})
 
-    message = EmailMultiAlternatives(
-        subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-        body=text_body,
-        to=supplier_emails,
-    )
-    message.attach_alternative(html_body, "text/html")
-    message.send()
-
-    notification_objs = [
-        models.SupplierEmailNotification(
-            supplier=supplier, category='verification_code_not_given')
-        for supplier in suppliers
-    ]
-    models.SupplierEmailNotification.objects.bulk_create(notification_objs)
+    for supplier in suppliers:
+        context = {'full_name': supplier.name}
+        text_body = render_to_string(
+            'verification_code_not_given_email.txt', context)
+        html_body = render_to_string(
+            'verification_code_not_given_email.html', context)
+        message = EmailMultiAlternatives(
+            subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
+            body=text_body,
+            to=[supplier.company_email],
+        )
+        message.attach_alternative(html_body, "text/html")
+        message.send()
+        models.SupplierEmailNotification.objects.create(
+            supplier=supplier, category=constants.VERIFICATION_CODE_NOT_GIVEN)
 
 
 def new_companies_in_sector():

@@ -112,7 +112,7 @@ def test_doesnt_send_case_study_email_if_case_study_email_already_sent():
 
 
 @pytest.mark.django_db
-def test_if_email_send_fails_previous_info_still_written_to_db():
+def test_if_case_study_email_send_fails_previous_info_still_written_to_db():
     eight_days_ago = timezone.now() - timedelta(days=8)
     suppliers = SupplierFactory.create_batch(3, date_joined=eight_days_ago)
     send_method = 'django.core.mail.EmailMultiAlternatives.send'
@@ -196,6 +196,8 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
     assert mail.outbox[0].to == [supplier.company_email]
     assert (mail.outbox[0].subject ==
             settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
@@ -219,13 +221,9 @@ def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
 
     notifications.verification_code_not_given()
 
-    assert len(mail.outbox) == 1
-    assert sorted(mail.outbox[0].to) == sorted([
-        supplier1.company_email,
-        supplier2.company_email,
-    ])
-    assert (mail.outbox[0].subject ==
-            settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
+    assert len(mail.outbox) == 2
+    assert mail.outbox[0].to == [supplier1.company_email]
+    assert mail.outbox[1].to == [supplier2.company_email]
     assert SupplierEmailNotification.objects.all().count() == 2
 
 
@@ -251,3 +249,81 @@ def test_doesnt_send_ver_code_email_if_email_already_sent():
     assert len(mail.outbox) == 0
     # what we created in data setup, no new obj created
     assert SupplierEmailNotification.objects.all().count() == 3
+
+
+@pytest.mark.django_db
+def test_ver_code_email_uses_settings_for_no_of_days_and_subject(settings):
+    settings.VERIFICATION_CODE_NOT_GIVEN_DAYS = 1
+    settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT = 'bla bla'
+    one_day_ago = timezone.now() - timedelta(days=1)
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    SupplierFactory(
+        company__verified_with_code=False, date_joined=eight_days_ago)
+    supplier = SupplierFactory(
+        company__verified_with_code=False, date_joined=one_day_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.verification_code_not_given()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].subject == 'bla bla'
+    assert SupplierEmailNotification.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_if_ver_code_email_send_fails_previous_info_still_written_to_db():
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    suppliers = SupplierFactory.create_batch(
+        3, company__verified_with_code=False, date_joined=eight_days_ago)
+    send_method = 'django.core.mail.EmailMultiAlternatives.send'
+
+    def mocked_send(self):
+        # This will be the last email that will be sent to
+        if self.to == [suppliers[0].company_email]:
+            raise Exception
+
+    with patch(send_method, mocked_send):
+        try:
+            notifications.verification_code_not_given()
+        except:
+            pass
+
+    # should have created the two objects before the email exception
+    assert SupplierEmailNotification.objects.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_sends_ver_code_email_to_expected_users():
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    twelve_days_ago = timezone.now() - timedelta(days=12)
+    sixteen_days_ago = timezone.now() - timedelta(days=16)
+    SupplierFactory.create_batch(
+        3, company__verified_with_code=True, date_joined=eight_days_ago)
+    suppliers8 = SupplierFactory.create_batch(
+        3, company__verified_with_code=False, date_joined=eight_days_ago)
+    SupplierFactory.create_batch(
+        3, company__verified_with_code=False, date_joined=twelve_days_ago)
+    suppliers16 = SupplierFactory.create_batch(
+        3, company__verified_with_code=False, date_joined=sixteen_days_ago)
+    SupplierFactory.create_batch(
+        3, company__verified_with_code=True, date_joined=sixteen_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=suppliers8[2], category='verification_code_not_given')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers16[2], category='verification_code_not_given')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers8[1], category='hasnt_logged_in')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers16[1], category='hasnt_logged_in')
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.verification_code_not_given()
+
+    assert len(mail.outbox) == 4
+    assert mail.outbox[0].to == [suppliers8[0].company_email]
+    assert mail.outbox[1].to == [suppliers8[1].company_email]
+    assert mail.outbox[2].to == [suppliers16[0].company_email]
+    assert mail.outbox[3].to == [suppliers16[1].company_email]
+    objs = SupplierEmailNotification.objects.all()
+    assert objs.count() == 8  # 4 + 4 created in setup
