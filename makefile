@@ -174,6 +174,12 @@ debug_manage:
 debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
+dumpdata:
+	$(DEBUG_SET_ENV_VARS) $(printf "\033c") && ./manage.py dumpdata contact enrolment supplier company buyer auth.user --indent 4 > fixtures/development.json
+
+loaddata:
+	$(DEBUG_SET_ENV_VARS) && ./manage.py loaddata fixtures/development.json
+
 migrations:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment supplier company buyer
 
