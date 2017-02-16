@@ -309,3 +309,9 @@ if os.getenv('CELERY_ENABLED') == 'true':
     CELERY_TASK_SERIALIZER = 'json'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_TIMEZONE = 'UTC'
+
+NO_CASE_STUDIES_SUBJECT = os.getenv(
+    "NO_CASE_STUDIES_SUBJECT",
+    "Get seen by more international buyers by improving your profile"
+)
+NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))

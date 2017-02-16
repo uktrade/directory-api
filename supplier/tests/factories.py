@@ -2,6 +2,7 @@ import factory
 import factory.fuzzy
 
 from user.models import User as Supplier
+from company.tests.factories import CompanyFactory
 
 
 class SupplierFactory(factory.django.DjangoModelFactory):
@@ -9,6 +10,7 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     name = factory.fuzzy.FuzzyText(length=12)
     company_email = factory.LazyAttribute(
         lambda supplier: '%s@example.com' % supplier.name)
+    company = factory.SubFactory(CompanyFactory)
 
     class Meta:
         model = Supplier
