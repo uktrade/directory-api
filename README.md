@@ -43,10 +43,16 @@ Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/
 
     $ make debug_webserver
 
-### Run debug queue worker
+### Run debug enrolment worker
 Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set
 
     $ make debug_enrolment_worker
+
+### Run debug celery worker
+Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
+
+    $ make debug_celery_worker
+
 
 ### Run debug tests
 
