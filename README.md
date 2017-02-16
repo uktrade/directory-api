@@ -84,3 +84,17 @@ Web server and Queue worker use same Docker image with different ``CMD``, see [`
     2. Else if it happened before making another polling call or during processing messages, it will exit gracefully.
         1. Processing of the current message will finish.
         2. Retrieved, but not deleted messages will reappear in the queue after ``$SQS_VISIBILITY_TIMEOUT``
+
+### Development data
+
+For development efficiency a dummy company can be loaded into the database from `fixtures/development.json`. To do this run:
+
+```bash
+make loaddata
+```
+
+To update `fixtures/development.json` with the current contents of the database run:
+
+`make dumpdata`
+
+Then check the contents of `fixtures/development.json`.
