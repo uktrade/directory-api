@@ -64,7 +64,11 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
 	export DIRECTORY_API_STANNP_TEST_MODE=true; \
 	export DIRECTORY_API_CONTACT_SUPPLIER_SUBJECT=debug; \
-	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug
+	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug; \
+	export DIRECTORY_API_REDIS_HOST=debug; \
+	export DIRECTORY_API_REDIS_PORT=debug; \
+	export DIRECTORY_API_CELERY_BROKER_URL=debug; \
+	export DIRECTORY_API_CELERY_RESULT_BACKEND=debug
 
 
 DOCKER_REMOVE_ALL := \
@@ -81,14 +85,15 @@ docker_debug: docker_remove_all
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
 	docker-compose build && \
-	docker-compose run -d --no-deps queue_worker && \
+	docker-compose run -d --no-deps enrolment_worker && \
+	docker-compose run -d --no-deps celery_beat_worker && \
 	docker-compose run --service-ports webserver make django_webserver
 
 docker_webserver_bash:
 	docker exec -it directoryapi_webserver_1 sh
 
-docker_queue_worker_bash:
-	docker exec -it directoryapi_queue_worker_run_1 sh
+docker_enrolment_worker_bash:
+	docker exec -it directoryapi_enrolment_worker_run_1 sh
 
 docker_psql:
 	docker-compose run postgres psql -h postgres -U debug
@@ -136,13 +141,20 @@ DEBUG_SET_ENV_VARS := \
 	export STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
 	export STANNP_TEST_MODE=true; \
 	export CONTACT_SUPPLIER_SUBJECT=debug; \
-	export CONTACT_SUPPLIER_FROM_EMAIL=debug
+	export CONTACT_SUPPLIER_FROM_EMAIL=debug; \
+	export REDIS_HOST=debug; \
+	export REDIS_PORT=debug; \
+	export CELERY_BROKER_URL=debug; \
+	export CELERY_RESULT_BACKEND=debug
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
 
-debug_queue_worker:
-	$(DEBUG_SET_ENV_VARS); ./manage.py queue_worker
+debug_enrolment_worker:
+	$(DEBUG_SET_ENV_VARS); ./manage.py enrolment_worker
+
+debug_celery_beat_worker:
+	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api worker -l info
 
 DEBUG_CREATE_DB := \
 	psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$$DB_NAME'" | \
@@ -162,6 +174,12 @@ debug_manage:
 debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
+dumpdata:
+	$(DEBUG_SET_ENV_VARS) $(printf "\033c") && ./manage.py dumpdata contact enrolment supplier company buyer auth.user --indent 4 > fixtures/development.json
+
+loaddata:
+	$(DEBUG_SET_ENV_VARS) && ./manage.py loaddata fixtures/development.json
+
 migrations:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment supplier company buyer
 
@@ -170,14 +188,10 @@ debug: test_requirements debug_db debug_test
 heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
-	docker build -t registry.heroku.com/directory-api-dev/worker -f Dockerfile-worker .
-	docker push registry.heroku.com/directory-api-dev/worker
-
-heroku_deploy_demo:
-	docker build -t registry.heroku.com/directory-api-demo/web .
-	docker push registry.heroku.com/directory-api-demo/web
-	docker build -t registry.heroku.com/directory-api-demo/worker -f Dockerfile-worker .
-	docker push registry.heroku.com/directory-api-demo/worker
+	docker build -t registry.heroku.com/directory-api-dev/enrolment_worker -f Dockerfile-enrolment_worker .
+	docker push registry.heroku.com/directory-api-dev/enrolment_worker
+	docker build -t registry.heroku.com/directory-api-dev/celery_beat_worker -f Dockerfile-celery_beat_worker .
+	docker push registry.heroku.com/directory-api-dev/celery_beat_worker
 
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_queue_worker_bash docker_psql docker_test debug_webserver debug_queue_worker debug_db debug_test debug heroku_deploy_dev heroku_deploy_demo
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev

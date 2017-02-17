@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     "rest_framework",
     'rest_framework_swagger',
+    'django_celery_beat',
     "raven.contrib.django.raven_compat",
     'signature',
     'superuser',
@@ -319,3 +320,15 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS', '8'))
 VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
+
+# Redis
+REDIS_HOST = os.environ['REDIS_HOST']
+REDIS_PORT = os.environ['REDIS_PORT']
+
+# Celery
+CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
+CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

@@ -43,10 +43,16 @@ Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/
 
     $ make debug_webserver
 
-### Run debug queue worker
+### Run debug enrolment worker
 Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variables to be set
 
-    $ make debug_queue_worker
+    $ make debug_enrolment_worker
+
+### Run debug celery worker
+Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
+
+    $ make debug_celery_beat_worker
+
 
 ### Run debug tests
 
@@ -78,3 +84,17 @@ Web server and Queue worker use same Docker image with different ``CMD``, see [`
     2. Else if it happened before making another polling call or during processing messages, it will exit gracefully.
         1. Processing of the current message will finish.
         2. Retrieved, but not deleted messages will reappear in the queue after ``$SQS_VISIBILITY_TIMEOUT``
+
+### Development data
+
+For development efficiency a dummy company can be loaded into the database from `fixtures/development.json`. To do this run:
+
+```bash
+make loaddata
+```
+
+To update `fixtures/development.json` with the current contents of the database run:
+
+`make dumpdata`
+
+Then check the contents of `fixtures/development.json`.
