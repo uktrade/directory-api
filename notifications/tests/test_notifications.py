@@ -246,7 +246,7 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     )
     SupplierEmailNotificationFactory(
         supplier=supplier17,
-        category='verification_code_2nd_reminder',
+        category='verification_code_2nd_email',
         date_sent=(timezone.now() - timedelta(days=1))
     )
     mail.outbox = []  # reset after emails sent by signals
@@ -263,7 +263,8 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     assert SupplierEmailNotification.objects.all().count() == 5
     instance = SupplierEmailNotification.objects.exclude(
         pk=email_notification.pk).get(supplier=supplier16)
-    assert instance.category == 'verification_code_2nd_reminder'
+    assert instance.category == 'verification_code_2nd_email'
+    assert instance.date_sent == timezone.now()
 
 
 @freeze_time('2016-12-16 19:11')
@@ -330,7 +331,7 @@ def test_doesnt_send_ver_code_email_if_email_already_sent():
     SupplierEmailNotificationFactory(
         supplier=supplier1, category='verification_code_not_given')
     SupplierEmailNotificationFactory(
-        supplier=supplier2, category='verification_code_2nd_reminder')
+        supplier=supplier2, category='verification_code_2nd_email')
     SupplierEmailNotificationFactory(
         supplier=supplier2, category='verification_code_not_given',
         date_sent=eight_days_ago)
@@ -457,7 +458,7 @@ def test_sends_ver_code_email_to_expected_users():
     SupplierEmailNotificationFactory(
         supplier=suppliers8[2], category='verification_code_not_given')
     SupplierEmailNotificationFactory(
-        supplier=suppliers16[2], category='verification_code_2nd_reminder')
+        supplier=suppliers16[2], category='verification_code_2nd_email')
     for supplier in suppliers16:
         SupplierEmailNotificationFactory(
             supplier=supplier, category='verification_code_not_given',

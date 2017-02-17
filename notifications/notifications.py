@@ -83,14 +83,14 @@ def verification_code_not_given():
         date_joined__day=days_ago.day,
     ).exclude(
         supplieremailnotification__category=constants.
-        VERIFICATION_CODE_2ND_REMINDER,
+        VERIFICATION_CODE_2ND_EMAIL,
     )
     _send_email_notifications(
         suppliers,
         'verification_code_not_given_2nd_email.txt',
         'verification_code_not_given_2nd_email.html',
         settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
-        constants.VERIFICATION_CODE_2ND_REMINDER
+        constants.VERIFICATION_CODE_2ND_EMAIL
     )
 
 
