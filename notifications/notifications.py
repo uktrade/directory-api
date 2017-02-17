@@ -8,7 +8,7 @@ from user.models import User as Supplier
 from notifications import models, constants
 
 
-def _send_email_notifications(
+def send_email_notifications(
     suppliers, text_template, html_template, subject, notification_category
 ):
     """Helper for sending notification emails"""
@@ -38,7 +38,7 @@ def no_case_studies():
     ).exclude(
         supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
-    _send_email_notifications(
+    send_email_notifications(
         suppliers,
         'no_case_studies_email.txt',
         'no_case_studies_email.html',
@@ -65,7 +65,7 @@ def verification_code_not_given():
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_NOT_GIVEN,
     )
-    _send_email_notifications(
+    send_email_notifications(
         suppliers,
         'verification_code_not_given_email.txt',
         'verification_code_not_given_email.html',
@@ -85,7 +85,7 @@ def verification_code_not_given():
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_2ND_EMAIL,
     )
-    _send_email_notifications(
+    send_email_notifications(
         suppliers,
         'verification_code_not_given_2nd_email.txt',
         'verification_code_not_given_2nd_email.html',
