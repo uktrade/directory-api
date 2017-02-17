@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     "rest_framework",
     'rest_framework_swagger',
+    'django_celery_beat',
     "raven.contrib.django.raven_compat",
     'signature',
     'superuser',
@@ -301,17 +302,20 @@ CONTACT_SUPPLIER_SUBJECT = os.getenv(
 )
 CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
 
-# Celery
-if os.getenv('CELERY_ENABLED') == 'true':
-    CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
-    CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
-    CELERY_ACCEPT_CONTENT = ['application/json']
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
-    CELERY_TIMEZONE = 'UTC'
-
 NO_CASE_STUDIES_SUBJECT = os.getenv(
     "NO_CASE_STUDIES_SUBJECT",
     "Get seen by more international buyers by improving your profile"
 )
 NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))
+
+# Redis
+REDIS_HOST = os.environ['REDIS_HOST']
+REDIS_PORT = os.environ['REDIS_PORT']
+
+# Celery
+CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
+CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

@@ -51,7 +51,7 @@ Requires ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY`` environment variabl
 ### Run debug celery worker
 Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
 
-    $ make debug_celery_worker
+    $ make debug_celery_beat_worker
 
 
 ### Run debug tests
