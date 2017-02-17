@@ -8,6 +8,25 @@ from user.models import User as Supplier
 from notifications import models, constants
 
 
+def _send_email_notifications(
+    suppliers, text_template, html_template, subject, notification_category
+):
+    """Helper for sending notification emails"""
+    for supplier in suppliers:
+        context = {'full_name': supplier.name}
+        text_body = render_to_string(text_template, context)
+        html_body = render_to_string(html_template, context)
+        message = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            to=[supplier.company_email],
+        )
+        message.attach_alternative(html_body, "text/html")
+        message.send()
+        models.SupplierEmailNotification.objects.create(
+            supplier=supplier, category=notification_category)
+
+
 def no_case_studies():
     days_ago = datetime.utcnow() - timedelta(
         days=settings.NO_CASE_STUDIES_DAYS)
@@ -19,20 +38,13 @@ def no_case_studies():
     ).exclude(
         supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
-
-    for supplier in suppliers:
-        context = {'full_name': supplier.name}
-        text_body = render_to_string('no_case_studies_email.txt', context)
-        html_body = render_to_string('no_case_studies_email.html', context)
-        message = EmailMultiAlternatives(
-            subject=settings.NO_CASE_STUDIES_SUBJECT,
-            body=text_body,
-            to=[supplier.company_email],
-        )
-        message.attach_alternative(html_body, "text/html")
-        message.send()
-        models.SupplierEmailNotification.objects.create(
-            supplier=supplier, category=constants.NO_CASE_STUDIES)
+    _send_email_notifications(
+        suppliers,
+        'no_case_studies_email.txt',
+        'no_case_studies_email.html',
+        settings.NO_CASE_STUDIES_SUBJECT,
+        constants.NO_CASE_STUDIES
+    )
 
 
 def hasnt_logged_in():
@@ -41,6 +53,7 @@ def hasnt_logged_in():
 
 
 def verification_code_not_given():
+    # 1st email (after 8 days)
     days_ago = datetime.utcnow() - timedelta(
         days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS)
     suppliers = Supplier.objects.filter(
@@ -52,23 +65,15 @@ def verification_code_not_given():
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_NOT_GIVEN,
     )
+    _send_email_notifications(
+        suppliers,
+        'verification_code_not_given_email.txt',
+        'verification_code_not_given_email.html',
+        settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
+        constants.VERIFICATION_CODE_NOT_GIVEN
+    )
 
-    for supplier in suppliers:
-        context = {'full_name': supplier.name}
-        text_body = render_to_string(
-            'verification_code_not_given_email.txt', context)
-        html_body = render_to_string(
-            'verification_code_not_given_email.html', context)
-        message = EmailMultiAlternatives(
-            subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-            body=text_body,
-            to=[supplier.company_email],
-        )
-        message.attach_alternative(html_body, "text/html")
-        message.send()
-        models.SupplierEmailNotification.objects.create(
-            supplier=supplier, category=constants.VERIFICATION_CODE_NOT_GIVEN)
-
+    # 2nd email (after 16 days)
     days_ago = datetime.utcnow() - timedelta(
         days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL)
     suppliers = Supplier.objects.filter(
@@ -78,24 +83,15 @@ def verification_code_not_given():
         date_joined__day=days_ago.day,
     ).exclude(
         supplieremailnotification__category=constants.
-        VERIFICATION_CODE_NOT_GIVEN,
+        VERIFICATION_CODE_2ND_REMINDER,
     )
-
-    for supplier in suppliers:
-        context = {'full_name': supplier.name}
-        text_body = render_to_string(
-            'verification_code_not_given_2nd_email.txt', context)
-        html_body = render_to_string(
-            'verification_code_not_given_2nd_email.html', context)
-        message = EmailMultiAlternatives(
-            subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-            body=text_body,
-            to=[supplier.company_email],
-        )
-        message.attach_alternative(html_body, "text/html")
-        message.send()
-        models.SupplierEmailNotification.objects.create(
-            supplier=supplier, category=constants.VERIFICATION_CODE_NOT_GIVEN)
+    _send_email_notifications(
+        suppliers,
+        'verification_code_not_given_2nd_email.txt',
+        'verification_code_not_given_2nd_email.html',
+        settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
+        constants.VERIFICATION_CODE_2ND_REMINDER
+    )
 
 
 def new_companies_in_sector():

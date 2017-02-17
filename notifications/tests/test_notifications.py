@@ -167,18 +167,25 @@ def test_doesnt_send_ver_code_email_when_user_has_input_ver_code():
         company__verified_with_code=True, date_joined=eight_days_ago)
     SupplierFactory(
         company__verified_with_code=True, date_joined=sixteen_days_ago)
+    supplier_with_reminder = SupplierFactory(
+        company__verified_with_code=True, date_joined=sixteen_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=supplier_with_reminder,
+        category='verification_code_not_given',
+        date_sent=eight_days_ago
+    )
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
 
     assert len(mail.outbox) == 0
-    assert SupplierEmailNotification.objects.all().count() == 0
+    # just the one created in setup
+    assert SupplierEmailNotification.objects.all().count() == 1
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert
 @pytest.mark.django_db
 def test_sends_ver_code_email_when_not_input_for_8_days(settings):
-    # TODO: for 16 days
     seven_days_ago = timezone.now() - timedelta(days=7)
     eight_days_ago = timezone.now() - timedelta(days=8)
     nine_days_ago = timezone.now() - timedelta(days=9)
@@ -186,8 +193,13 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
         company__verified_with_code=False, date_joined=seven_days_ago)
     supplier = SupplierFactory(
         company__verified_with_code=False, date_joined=eight_days_ago)
-    SupplierFactory(
+    supplier_with_reminder = SupplierFactory(
         company__verified_with_code=False, date_joined=nine_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=supplier_with_reminder,
+        category='verification_code_not_given',
+        date_sent=(timezone.now() - timedelta(days=1))
+    )
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
@@ -198,9 +210,9 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
             settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert SupplierEmailNotification.objects.all().count() == 1
-    instance = SupplierEmailNotification.objects.get()
-    assert instance.supplier == supplier
+    # 1 created + 1 from setup
+    assert SupplierEmailNotification.objects.all().count() == 2
+    instance = SupplierEmailNotification.objects.get(supplier=supplier)
     assert instance.category == 'verification_code_not_given'
     assert instance.date_sent == timezone.now()
 
@@ -211,27 +223,47 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     fifteen_days_ago = timezone.now() - timedelta(days=15)
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     seventeen_days_ago = timezone.now() - timedelta(days=17)
-    SupplierFactory(
+    supplier15 = SupplierFactory(
         company__verified_with_code=False, date_joined=fifteen_days_ago)
-    supplier = SupplierFactory(
+    supplier16 = SupplierFactory(
         company__verified_with_code=False, date_joined=sixteen_days_ago)
-    SupplierFactory(
+    supplier17 = SupplierFactory(
         company__verified_with_code=False, date_joined=seventeen_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=supplier15,
+        category='verification_code_not_given',
+        date_sent=(timezone.now() - timedelta(days=7))
+    )
+    email_notification = SupplierEmailNotificationFactory(
+        supplier=supplier16,
+        category='verification_code_not_given',
+        date_sent=(timezone.now() - timedelta(days=8))
+    )
+    SupplierEmailNotificationFactory(
+        supplier=supplier17,
+        category='verification_code_not_given',
+        date_sent=(timezone.now() - timedelta(days=9))
+    )
+    SupplierEmailNotificationFactory(
+        supplier=supplier17,
+        category='verification_code_2nd_reminder',
+        date_sent=(timezone.now() - timedelta(days=1))
+    )
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
 
     assert len(mail.outbox) == 1
-    assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].to == [supplier16.company_email]
     assert (mail.outbox[0].subject ==
             settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
-    assert supplier.name in mail.outbox[0].body
-    assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert SupplierEmailNotification.objects.all().count() == 1
-    instance = SupplierEmailNotification.objects.get()
-    assert instance.supplier == supplier
-    assert instance.category == 'verification_code_not_given'
-    assert instance.date_sent == timezone.now()
+    assert supplier16.name in mail.outbox[0].body
+    assert supplier16.name in mail.outbox[0].alternatives[0][0]
+    # 1 created + 4 in set up
+    assert SupplierEmailNotification.objects.all().count() == 5
+    instance = SupplierEmailNotification.objects.exclude(
+        pk=email_notification.pk).get(supplier=supplier16)
+    assert instance.category == 'verification_code_2nd_reminder'
 
 
 @freeze_time('2016-12-16 19:11')
@@ -266,6 +298,16 @@ def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
     supplier2 = SupplierFactory(
         company__verified_with_code=False,
         date_joined=datetime(2016, 11, 30, 23, 59, 59))
+    SupplierEmailNotificationFactory(
+        supplier=supplier1,
+        category='verification_code_not_given',
+        date_sent=datetime(2016, 11, 8, 23, 59, 59)
+    )
+    SupplierEmailNotificationFactory(
+        supplier=supplier2,
+        category='verification_code_not_given',
+        date_sent=datetime(2016, 11, 8, 23, 59, 59)
+    )
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
@@ -273,7 +315,8 @@ def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
     assert len(mail.outbox) == 2
     assert mail.outbox[0].to == [supplier1.company_email]
     assert mail.outbox[1].to == [supplier2.company_email]
-    assert SupplierEmailNotification.objects.all().count() == 2
+    # 2 created + 2 in set up
+    assert SupplierEmailNotification.objects.all().count() == 4
 
 
 @pytest.mark.django_db
@@ -287,7 +330,7 @@ def test_doesnt_send_ver_code_email_if_email_already_sent():
     SupplierEmailNotificationFactory(
         supplier=supplier1, category='verification_code_not_given')
     SupplierEmailNotificationFactory(
-        supplier=supplier2, category='verification_code_not_given')
+        supplier=supplier2, category='verification_code_2nd_reminder')
     SupplierEmailNotificationFactory(
         supplier=supplier2, category='verification_code_not_given',
         date_sent=eight_days_ago)
@@ -327,13 +370,16 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
     settings
 ):
     settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = 1
-    settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT = 'bla bla'
+    settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = 'bla bla'
     one_day_ago = timezone.now() - timedelta(days=1)
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     SupplierFactory(
         company__verified_with_code=False, date_joined=sixteen_days_ago)
     supplier = SupplierFactory(
         company__verified_with_code=False, date_joined=one_day_ago)
+    SupplierEmailNotificationFactory(
+        supplier=supplier, category='verification_code_not_given',
+        date_sent=(timezone.now() - timedelta(days=8)))
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
@@ -341,7 +387,8 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == 'bla bla'
-    assert SupplierEmailNotification.objects.all().count() == 1
+    # 1 created + 1 in set up
+    assert SupplierEmailNotification.objects.all().count() == 2
 
 
 @pytest.mark.django_db
@@ -371,6 +418,10 @@ def test_if_ver_code_email_send_fails_previous_info_still_written_to_db_16():
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     suppliers = SupplierFactory.create_batch(
         3, company__verified_with_code=False, date_joined=sixteen_days_ago)
+    for supplier in suppliers:
+        SupplierEmailNotificationFactory(
+            supplier=supplier, category='verification_code_not_given',
+            date_sent=(timezone.now() - timedelta(days=8)))
     send_method = 'django.core.mail.EmailMultiAlternatives.send'
 
     def mocked_send(self):
@@ -384,8 +435,8 @@ def test_if_ver_code_email_send_fails_previous_info_still_written_to_db_16():
         except:
             pass
 
-    # should have created the two objects before the email exception
-    assert SupplierEmailNotification.objects.all().count() == 2
+    # 2 created (before email exception on 3rd) + 3 in set up
+    assert SupplierEmailNotification.objects.all().count() == 5
 
 
 @pytest.mark.django_db
@@ -406,7 +457,11 @@ def test_sends_ver_code_email_to_expected_users():
     SupplierEmailNotificationFactory(
         supplier=suppliers8[2], category='verification_code_not_given')
     SupplierEmailNotificationFactory(
-        supplier=suppliers16[2], category='verification_code_not_given')
+        supplier=suppliers16[2], category='verification_code_2nd_reminder')
+    for supplier in suppliers16:
+        SupplierEmailNotificationFactory(
+            supplier=supplier, category='verification_code_not_given',
+            date_sent=eight_days_ago)
     SupplierEmailNotificationFactory(
         supplier=suppliers8[1], category='hasnt_logged_in')
     SupplierEmailNotificationFactory(
@@ -421,4 +476,4 @@ def test_sends_ver_code_email_to_expected_users():
     assert mail.outbox[2].to == [suppliers16[1].company_email]
     assert mail.outbox[3].to == [suppliers16[0].company_email]
     objs = SupplierEmailNotification.objects.all()
-    assert objs.count() == 8  # 4 + 4 created in setup
+    assert objs.count() == 11  # 4 + 7 created in setup
