@@ -149,5 +149,20 @@
         "company": 32,
         "slug": "example-company"
     }
+},
+{
+    "model": "user.user",
+    "pk": 26,
+    "fields": {
+        "created": "2017-02-17T12:34:35.193Z",
+        "modified": "2017-02-17T12:34:35.193Z",
+        "sso_id": 2,
+        "name": "example user",
+        "company": 32,
+        "company_email": "dev@example.com",
+        "is_active": true,
+        "date_joined": "2017-02-17T12:34:35.193Z",
+        "mobile_number": null
+    }
 }
 ]
