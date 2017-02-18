@@ -302,11 +302,18 @@ CONTACT_SUPPLIER_SUBJECT = os.getenv(
 )
 CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
 
+# Automated email settings
 NO_CASE_STUDIES_SUBJECT = os.getenv(
     "NO_CASE_STUDIES_SUBJECT",
     "Get seen by more international buyers by improving your profile"
 )
 NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))
+
+HASNT_LOGGED_IN_SUBJECT = os.getenv(
+    "HASNT_LOGGED_IN_SUBJECT",
+    "Not logged in for 30 days"
+)
+HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
 
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',

@@ -478,3 +478,140 @@ def test_sends_ver_code_email_to_expected_users():
     assert mail.outbox[3].to == [suppliers16[0].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 11  # 4 + 7 created in setup
+
+
+@pytest.mark.django_db
+def test_doesnt_send_log_in_email_when_user_has_logged_in():
+    SupplierFactory(last_login=timezone.now())
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 0
+    assert SupplierEmailNotification.objects.all().count() == 0
+
+
+@freeze_time()  # so no time passes between obj creation and timestamp assert
+@pytest.mark.django_db
+def test_sends_log_in_email_only_when_not_logged_in_for_30_days():
+    twenty_nine_days_ago = timezone.now() - timedelta(days=29)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    thirty_one_days_ago = timezone.now() - timedelta(days=31)
+    SupplierFactory(last_login=twenty_nine_days_ago)
+    supplier = SupplierFactory(last_login=thirty_days_ago)
+    SupplierFactory(last_login=thirty_one_days_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].subject == 'Not logged in for 30 days'
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
+    assert SupplierEmailNotification.objects.all().count() == 1
+    instance = SupplierEmailNotification.objects.get()
+    assert instance.supplier == supplier
+    assert instance.category == 'hasnt_logged_in'
+    assert instance.date_sent == timezone.now()
+
+
+@freeze_time('2016-12-31 19:11')
+@pytest.mark.django_db
+def test_sends_log_in_email_when_30_days_ago_but_not_to_the_minute():
+    supplier1 = SupplierFactory(
+        last_login=datetime(2016, 12, 1, 0, 0, 1),
+    )
+    supplier2 = SupplierFactory(
+        last_login=datetime(2016, 12, 1, 23, 59, 59)
+    )
+    SupplierFactory(last_login=datetime(2016, 11, 30, 23, 59, 59))
+    SupplierFactory(last_login=datetime(2016, 12, 2, 0, 0, 1))
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 2
+    assert mail.outbox[0].to == [supplier1.company_email]
+    assert mail.outbox[1].to == [supplier2.company_email]
+    assert SupplierEmailNotification.objects.all().count() == 2
+
+
+@pytest.mark.django_db
+def test_log_in_email_uses_settings_for_no_of_days_and_subject(settings):
+    settings.HASNT_LOGGED_IN_DAYS = 1
+    settings.HASNT_LOGGED_IN_SUBJECT = 'bla bla'
+    one_day_ago = timezone.now() - timedelta(days=1)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    SupplierFactory(last_login=thirty_days_ago)
+    supplier = SupplierFactory(last_login=one_day_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [supplier.company_email]
+    assert mail.outbox[0].subject == 'bla bla'
+    assert SupplierEmailNotification.objects.all().count() == 1
+
+
+@pytest.mark.django_db
+def test_doesnt_send_log_in_email_if_log_in_email_already_sent():
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    suppliers = SupplierFactory.create_batch(
+        2, last_login=thirty_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[0], category='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[1], category='hasnt_logged_in')
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [suppliers[0].company_email]
+    # 2 in data setup + 1 new
+    assert SupplierEmailNotification.objects.all().count() == 3
+
+
+@pytest.mark.django_db
+def test_if_log_in_email_send_fails_previous_info_still_written_to_db():
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    suppliers = SupplierFactory.create_batch(3, last_login=thirty_days_ago)
+    send_method = 'django.core.mail.EmailMultiAlternatives.send'
+
+    def mocked_send(self):
+        # This will be the last email that will be sent to
+        if self.to == [suppliers[0].company_email]:
+            raise Exception
+
+    with patch(send_method, mocked_send):
+        try:
+            notifications.hasnt_logged_in()
+        except:
+            pass
+
+    # should have created the two objects before the email exception
+    assert SupplierEmailNotification.objects.all().count() == 2
+
+
+@freeze_time()  # so no time passes between obj creation and timestamp assert
+@pytest.mark.django_db
+def test_sends_log_in_email_to_expected_users():
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    twelve_days_ago = timezone.now() - timedelta(days=12)
+    suppliers = SupplierFactory.create_batch(3, last_login=thirty_days_ago)
+    SupplierFactory.create_batch(3, last_login=twelve_days_ago)
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[1], category='no_case_studies')
+    SupplierEmailNotificationFactory(
+        supplier=suppliers[0], category='hasnt_logged_in')
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 2
+    assert mail.outbox[0].to == [suppliers[1].company_email]
+    assert mail.outbox[1].to == [suppliers[2].company_email]
+    objs = SupplierEmailNotification.objects.all()
+    assert objs.count() == 4  # 2 + 2 created in setup

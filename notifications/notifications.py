@@ -48,8 +48,22 @@ def no_case_studies():
 
 
 def hasnt_logged_in():
-    # TODO: ED-921
-    pass
+    days_ago = datetime.utcnow() - timedelta(
+        days=settings.HASNT_LOGGED_IN_DAYS)
+    suppliers = Supplier.objects.filter(
+        last_login__year=days_ago.year,
+        last_login__month=days_ago.month,
+        last_login__day=days_ago.day,
+    ).exclude(
+        supplieremailnotification__category=constants.HASNT_LOGGED_IN,
+    )
+    send_email_notifications(
+        suppliers,
+        'hasnt_logged_in_email.txt',
+        'hasnt_logged_in_email.html',
+        settings.HASNT_LOGGED_IN_SUBJECT,
+        constants.HASNT_LOGGED_IN
+    )
 
 
 def verification_code_not_given():
