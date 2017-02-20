@@ -68,7 +68,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_REDIS_HOST=debug; \
 	export DIRECTORY_API_REDIS_PORT=debug; \
 	export DIRECTORY_API_CELERY_BROKER_URL=debug; \
-	export DIRECTORY_API_CELERY_RESULT_BACKEND=debug
+	export DIRECTORY_API_CELERY_RESULT_BACKEND=debug; \
+	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage
 
 
 DOCKER_REMOVE_ALL := \
@@ -145,7 +146,8 @@ DEBUG_SET_ENV_VARS := \
 	export REDIS_HOST=debug; \
 	export REDIS_PORT=debug; \
 	export CELERY_BROKER_URL=debug; \
-	export CELERY_RESULT_BACKEND=debug
+	export CELERY_RESULT_BACKEND=debug; \
+	export STORAGE_CLASS_NAME=local-storage
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);

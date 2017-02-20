@@ -18,6 +18,7 @@ from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 
+from django.conf import settings
 
 admin.autodiscover()
 
@@ -107,3 +108,12 @@ urlpatterns = [
         name='company-public-profile-contact-create'
     ),
 ]
+
+if settings.STORAGE_CLASS_NAME == 'local-storage':
+    urlpatterns += [
+        url(
+            r'^media/(?P<path>.*)$',
+            'django.views.static.serve',
+            {'document_root': settings.MEDIA_ROOT}
+        ),
+    ]
