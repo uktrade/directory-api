@@ -4,8 +4,16 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
+from directory_sso_api_client.client import DirectorySSOAPIClient
+
 from user.models import User as Supplier
 from notifications import models, constants
+
+
+sso_api_client = DirectorySSOAPIClient(
+    base_url=settings.SSO_API_CLIENT_BASE_URL,
+    api_key=settings.SSO_API_CLIENT_KEY,
+)
 
 
 def send_email_notifications(
