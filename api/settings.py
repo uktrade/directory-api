@@ -100,15 +100,19 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
-
 STATIC_HOST = os.environ.get('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# S3 storage does not use these settings, needed only for dev local storage
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
@@ -260,7 +264,12 @@ GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME = os.environ[
 ]
 
 # Public storage for company profile logo
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGE_CLASSES = {
+    'default': 'storages.backends.s3boto3.S3Boto3Storage',
+    'local-storage': 'django.core.files.storage.FileSystemStorage',
+}
+STORAGE_CLASS_NAME = os.getenv('STORAGE_CLASS_NAME', 'default')
+DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
