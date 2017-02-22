@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -13,6 +13,10 @@ from notifications.models import SupplierEmailNotification
 from notifications.tests.factories import SupplierEmailNotificationFactory
 from supplier.tests.factories import SupplierFactory
 from company.tests.factories import CompanyCaseStudyFactory
+
+
+LAST_LOGIN_API_METHOD = (
+    'directory_sso_api_client.user.UserAPIClient.get_last_login')
 
 
 @pytest.mark.django_db
@@ -480,93 +484,104 @@ def test_sends_ver_code_email_to_expected_users():
     assert objs.count() == 11  # 4 + 7 created in setup
 
 
+@freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
-def test_doesnt_send_log_in_email_when_user_has_logged_in():
-    SupplierFactory(last_login=timezone.now())
+def test_sends_log_in_email_when_not_logged_in_for_30_days():
+    suppliers = SupplierFactory.create_batch(3)
+    mocked_json = [
+        {'id': suppliers[1].sso_id, 'last_login': '2017-01-01T21:04:39Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
     mail.outbox = []  # reset after emails sent by signals
 
-    notifications.hasnt_logged_in()
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
+
+    mocked_api.assert_called_once_with(
+        start=datetime(2017, 1, 1, 0, 0, 0, 0),
+        end=datetime(2017, 1, 1, 23, 59, 59, 999999)
+    )
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [suppliers[1].company_email]
+    assert mail.outbox[0].subject == 'Not logged in for 30 days'
+    assert suppliers[1].name in mail.outbox[0].body
+    assert suppliers[1].name in mail.outbox[0].alternatives[0][0]
+    assert SupplierEmailNotification.objects.all().count() == 1
+    instance = SupplierEmailNotification.objects.get()
+    assert instance.supplier == suppliers[1]
+    assert instance.category == 'hasnt_logged_in'
+    assert instance.date_sent == timezone.now()
+
+
+@freeze_time('2016-12-09 12:30:00')
+@pytest.mark.django_db
+def test_doesnt_send_log_in_email_when_api_returns_no_users():
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=[])
+        )
+    )
+    mail.outbox = []  # reset after emails sent by signals
+
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
 
     assert len(mail.outbox) == 0
     assert SupplierEmailNotification.objects.all().count() == 0
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
-@pytest.mark.django_db
-def test_sends_log_in_email_only_when_not_logged_in_for_30_days():
-    twenty_nine_days_ago = timezone.now() - timedelta(days=29)
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    thirty_one_days_ago = timezone.now() - timedelta(days=31)
-    SupplierFactory(last_login=twenty_nine_days_ago)
-    supplier = SupplierFactory(last_login=thirty_days_ago)
-    SupplierFactory(last_login=thirty_one_days_ago)
-    mail.outbox = []  # reset after emails sent by signals
-
-    notifications.hasnt_logged_in()
-
-    assert len(mail.outbox) == 1
-    assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == 'Not logged in for 30 days'
-    assert supplier.name in mail.outbox[0].body
-    assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert SupplierEmailNotification.objects.all().count() == 1
-    instance = SupplierEmailNotification.objects.get()
-    assert instance.supplier == supplier
-    assert instance.category == 'hasnt_logged_in'
-    assert instance.date_sent == timezone.now()
-
-
-@freeze_time('2016-12-31 19:11')
-@pytest.mark.django_db
-def test_sends_log_in_email_when_30_days_ago_but_not_to_the_minute():
-    supplier1 = SupplierFactory(
-        last_login=datetime(2016, 12, 1, 0, 0, 1),
-    )
-    supplier2 = SupplierFactory(
-        last_login=datetime(2016, 12, 1, 23, 59, 59)
-    )
-    SupplierFactory(last_login=datetime(2016, 11, 30, 23, 59, 59))
-    SupplierFactory(last_login=datetime(2016, 12, 2, 0, 0, 1))
-    mail.outbox = []  # reset after emails sent by signals
-
-    notifications.hasnt_logged_in()
-
-    assert len(mail.outbox) == 2
-    assert mail.outbox[0].to == [supplier1.company_email]
-    assert mail.outbox[1].to == [supplier2.company_email]
-    assert SupplierEmailNotification.objects.all().count() == 2
-
-
+@freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
 def test_log_in_email_uses_settings_for_no_of_days_and_subject(settings):
     settings.HASNT_LOGGED_IN_DAYS = 1
     settings.HASNT_LOGGED_IN_SUBJECT = 'bla bla'
-    one_day_ago = timezone.now() - timedelta(days=1)
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    SupplierFactory(last_login=thirty_days_ago)
-    supplier = SupplierFactory(last_login=one_day_ago)
+    supplier = SupplierFactory()
+    mocked_json = [
+        {'id': supplier.sso_id, 'last_login': '2017-03-31T01:54:15Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
     mail.outbox = []  # reset after emails sent by signals
 
-    notifications.hasnt_logged_in()
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
 
+    mocked_api.assert_called_once_with(
+        start=datetime(2017, 3, 31, 0, 0, 0, 0),
+        end=datetime(2017, 3, 31, 23, 59, 59, 999999),
+    )
     assert len(mail.outbox) == 1
-    assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == 'bla bla'
-    assert SupplierEmailNotification.objects.all().count() == 1
 
 
+@freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
 def test_doesnt_send_log_in_email_if_log_in_email_already_sent():
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    suppliers = SupplierFactory.create_batch(
-        2, last_login=thirty_days_ago)
+    suppliers = SupplierFactory.create_batch(2)
     SupplierEmailNotificationFactory(
         supplier=suppliers[0], category='no_case_studies')
     SupplierEmailNotificationFactory(
         supplier=suppliers[1], category='hasnt_logged_in')
+    mocked_json = [
+        {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
+        {'id': suppliers[1].sso_id, 'last_login': '2017-03-02T13:18:15Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
     mail.outbox = []  # reset after emails sent by signals
 
-    notifications.hasnt_logged_in()
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [suppliers[0].company_email]
@@ -574,20 +589,31 @@ def test_doesnt_send_log_in_email_if_log_in_email_already_sent():
     assert SupplierEmailNotification.objects.all().count() == 3
 
 
+@freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
 def test_if_log_in_email_send_fails_previous_info_still_written_to_db():
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    suppliers = SupplierFactory.create_batch(3, last_login=thirty_days_ago)
+    suppliers = SupplierFactory.create_batch(3)
+    mocked_json = [
+        {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
+        {'id': suppliers[1].sso_id, 'last_login': '2017-03-02T13:18:15Z'},
+        {'id': suppliers[2].sso_id, 'last_login': '2017-03-02T15:43:15Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
     send_method = 'django.core.mail.EmailMultiAlternatives.send'
 
     def mocked_send(self):
         # This will be the last email that will be sent to
-        if self.to == [suppliers[0].company_email]:
+        if self.to == [suppliers[2].company_email]:
             raise Exception
 
     with patch(send_method, mocked_send):
         try:
-            notifications.hasnt_logged_in()
+            with patch(LAST_LOGIN_API_METHOD, mocked_api):
+                notifications.hasnt_logged_in()
         except:
             pass
 
@@ -595,20 +621,28 @@ def test_if_log_in_email_send_fails_previous_info_still_written_to_db():
     assert SupplierEmailNotification.objects.all().count() == 2
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
 def test_sends_log_in_email_to_expected_users():
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    twelve_days_ago = timezone.now() - timedelta(days=12)
-    suppliers = SupplierFactory.create_batch(3, last_login=thirty_days_ago)
-    SupplierFactory.create_batch(3, last_login=twelve_days_ago)
+    suppliers = SupplierFactory.create_batch(4)
+    mocked_json = [
+        {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
+        {'id': suppliers[1].sso_id, 'last_login': '2017-03-02T13:18:15Z'},
+        {'id': suppliers[2].sso_id, 'last_login': '2017-03-02T15:43:15Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
     SupplierEmailNotificationFactory(
         supplier=suppliers[1], category='no_case_studies')
     SupplierEmailNotificationFactory(
         supplier=suppliers[0], category='hasnt_logged_in')
     mail.outbox = []  # reset after emails sent by signals
 
-    notifications.hasnt_logged_in()
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
 
     assert len(mail.outbox) == 2
     assert mail.outbox[0].to == [suppliers[1].company_email]

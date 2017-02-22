@@ -58,10 +58,15 @@ def no_case_studies():
 def hasnt_logged_in():
     days_ago = datetime.utcnow() - timedelta(
         days=settings.HASNT_LOGGED_IN_DAYS)
+    start_datetime = days_ago.replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    end_datetime = days_ago.replace(
+        hour=23, minute=59, second=59, microsecond=999999)
+    login_data = sso_api_client.user.get_last_login(
+        start=start_datetime, end=end_datetime).json()
+    supplier_ids = [supplier['id'] for supplier in login_data]
     suppliers = Supplier.objects.filter(
-        last_login__year=days_ago.year,
-        last_login__month=days_ago.month,
-        last_login__day=days_ago.day,
+        sso_id__in=supplier_ids
     ).exclude(
         supplieremailnotification__category=constants.HASNT_LOGGED_IN,
     )
