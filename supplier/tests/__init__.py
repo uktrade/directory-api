@@ -7,7 +7,6 @@ VALID_REQUEST_DATA = {
     "sso_id": 1,
     "company_email": "gargoyle@example.com",
     "date_joined": "2017-03-21T13:12:00Z",
-    "last_login": "2017-03-24T12:00:00Z",
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 

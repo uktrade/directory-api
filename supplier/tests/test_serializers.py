@@ -33,9 +33,6 @@ def test_supplier_serializer_save():
     assert supplier.date_joined.year == 2017
     assert supplier.date_joined.month == 3
     assert supplier.date_joined.day == 21
-    assert supplier.last_login.year == 2017
-    assert supplier.last_login.month == 3
-    assert supplier.last_login.day == 24
 
 
 @pytest.mark.django_db

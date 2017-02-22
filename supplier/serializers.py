@@ -11,7 +11,6 @@ class SupplierSerializer(serializers.ModelSerializer):
             'company',
             'company_email',
             'date_joined',
-            'last_login',
             'sso_id',
         )
         extra_kwargs = {

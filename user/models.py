@@ -38,10 +38,6 @@ class User(TimeStampedModel):
         _('date joined'),
         default=timezone.now,
     )
-    last_login = models.DateTimeField(
-        _('last login'),
-        null=True,
-    )
     # deprecated in favour of company.models.Company.contact_details
     mobile_number = models.CharField(
         max_length=20,
