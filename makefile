@@ -195,5 +195,15 @@ heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/celery_beat_worker -f Dockerfile-celery_beat_worker .
 	docker push registry.heroku.com/directory-api-dev/celery_beat_worker
 
+smoke_tests:
+	cd $(mktemp -d) && \
+	git clone https://github.com/uktrade/directory-tests && \
+	cd directory-tests && \
+	pip install virtualenv && \
+	virtualenv venv && \
+	source venv/bin/activate && \
+	make requirements && \
+	make test_smoke
+
 
 .PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev
