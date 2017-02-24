@@ -89,6 +89,7 @@ class DownloadCSVTestCase(TestCase):
             ('mobile_number', ''),
             ('name', ''),
             ('sso_id', '1'),
+            ('unsubscribed', 'False'),
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
 
@@ -147,6 +148,7 @@ class DownloadCSVTestCase(TestCase):
             ('mobile_number', ''),
             ('name', ''),
             ('sso_id', '1'),
+            ('unsubscribed', 'False'),
         ])
 
         supplier_two_expected_data = OrderedDict([
@@ -188,6 +190,7 @@ class DownloadCSVTestCase(TestCase):
             ('mobile_number', ''),
             ('name', ''),
             ('sso_id', '2'),
+            ('unsubscribed', 'False'),
         ])
         data = {
             'action': 'download_csv',

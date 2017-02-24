@@ -13,6 +13,7 @@ from company.views import (
 from supplier.views import (
     SupplierRetrieveUpdateAPIView,
     GeckoTotalRegisteredSuppliersView,
+    UnsubscribeSupplierAPIView
 )
 from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
@@ -71,6 +72,11 @@ urlpatterns = [
         r'supplier/(?P<sso_id>[0-9]+)/$',
         SupplierRetrieveUpdateAPIView.as_view(),
         name='supplier'
+    ),
+    url(
+        r'supplier/(?P<sso_id>[0-9]+)/unsubscribe/$',
+        UnsubscribeSupplierAPIView.as_view(),
+        name='unsubscribe-supplier'
     ),
     url(
         r'supplier/gecko/total-registered/$',
