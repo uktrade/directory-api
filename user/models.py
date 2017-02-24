@@ -45,6 +45,13 @@ class User(TimeStampedModel):
         null=True,
         blank=True,
     )
+    unsubscribed = models.BooleanField(
+        _('unsubscribed'),
+        default=False,
+        help_text=_(
+            'Designates whether this user should receive notifications'
+        ),
+    )
 
     class Meta:
         ordering = ('-created', '-modified')
