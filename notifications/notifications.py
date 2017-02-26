@@ -43,6 +43,7 @@ def no_case_studies():
         date_joined__year=days_ago.year,
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
+        unsubscribed=False,
     ).exclude(
         supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
@@ -88,6 +89,7 @@ def verification_code_not_given():
         date_joined__year=days_ago.year,
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
+        unsubscribed=False,
     ).exclude(
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_NOT_GIVEN,
@@ -108,6 +110,7 @@ def verification_code_not_given():
         date_joined__year=days_ago.year,
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
+        unsubscribed=False,
     ).exclude(
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_2ND_EMAIL,

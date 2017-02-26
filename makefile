@@ -181,13 +181,13 @@ debug_shell:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py shell
 
 dumpdata:
-	$(DEBUG_SET_ENV_VARS) $(printf "\033c") && ./manage.py dumpdata contact enrolment supplier company buyer auth.user --indent 4 > fixtures/development.json
+	$(DEBUG_SET_ENV_VARS) $(printf "\033c") && ./manage.py dumpdata contact enrolment user company buyer notifications --indent 4 > fixtures/development.json
 
 loaddata:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py loaddata fixtures/development.json
 
 migrations:
-	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment supplier company buyer
+	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment user company buyer notifications
 
 debug: test_requirements debug_db debug_test
 
@@ -198,6 +198,16 @@ heroku_deploy_dev:
 	docker push registry.heroku.com/directory-api-dev/enrolment_worker
 	docker build -t registry.heroku.com/directory-api-dev/celery_beat_worker -f Dockerfile-celery_beat_worker .
 	docker push registry.heroku.com/directory-api-dev/celery_beat_worker
+
+smoke_tests:
+	cd $(mktemp -d) && \
+	git clone https://github.com/uktrade/directory-tests && \
+	cd directory-tests && \
+	pip install virtualenv && \
+	virtualenv venv && \
+	source venv/bin/activate && \
+	make requirements && \
+	make test_smoke
 
 
 .PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev

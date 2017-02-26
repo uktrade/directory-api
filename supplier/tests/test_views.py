@@ -1,6 +1,7 @@
 import base64
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
+import http
 
 from django.core.urlresolvers import reverse
 
@@ -115,3 +116,32 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
     response = client.get(reverse('gecko-total-registered-suppliers'))
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_unsubscribe_supplier():
+    supplier = Supplier.objects.create(
+        sso_id=3,
+        company_email='test@example.com',
+        unsubscribed=False,
+    )
+
+    response = APIClient().post(
+        reverse('unsubscribe-supplier', kwargs={'sso_id': supplier.sso_id})
+    )
+
+    assert response.status_code == http.client.OK
+    supplier.refresh_from_db()
+    assert supplier.unsubscribed is True
+
+
+@pytest.mark.django_db
+@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+def test_unsubscribe_supplier_does_not_exist():
+
+    response = APIClient().post(
+        reverse('unsubscribe-supplier', kwargs={'sso_id': 0})
+    )
+
+    assert response.status_code == http.client.NOT_FOUND
