@@ -1,3 +1,21 @@
-Dear {{ full_name }}
+{% extends "email.txt" %}
 
-It's been 8 days and you still have no case studies.
+{% block heading %}Find a Buyer service{% endblock %}
+{% block to %}{{ full_name|default:"User" }}{% endblock %}
+
+{% block body %}
+You recently published a profile for your company on the Find a buyer service.
+
+You can add new case studies or projects to your company’s profile at any time.
+
+Companies with case studies can be found more easily on search engines. We will also display profiles with case studies more prominently to international buyers.
+
+Log in to your Find a buyer profile to add case studies at: {{ url }}
+If you have a problem using the service let us know at: [LINK: zendesk]
+{% endblock %}
+
+{% block action %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
