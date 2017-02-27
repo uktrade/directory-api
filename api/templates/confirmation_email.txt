@@ -1,5 +1,16 @@
-You recently registered a trade profile for your company on the Find a Buyer service on great.gov.uk.
+{% extends "email.txt" %}
 
-Follow the link below to go to your profile and complete the details of your company to complete your trade profile.
+{% block heading %}Find a Buyer service{% endblock %}
+{% block to %}{{ full_name|default:"User" }}{% endblock %}
 
-{{ url }}
+{% block body %}
+Thank you for signing up to the the Find a supplier service.
+
+Please complete your registration by verifying your email address and details at: {{ url }}.
+{% endblock %}
+
+{% block action %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
