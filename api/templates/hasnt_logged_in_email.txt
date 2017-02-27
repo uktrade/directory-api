@@ -1,0 +1,3 @@
+Dear {{ full_name }}
+
+It's been 30 days and you haven't logged in.
