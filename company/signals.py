@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.utils import timezone
 
 from company.stannp import stannp_client
 
@@ -45,3 +46,10 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
             instance.email_address and
             instance.verified_with_code
         )
+
+
+def fill_in_verification_date(sender, instance, *args, **kwargs):
+    was_verified = sender.objects.filter(
+        pk=instance.pk, verified_with_code=True).exists()
+    if instance.verified_with_code and not was_verified:
+        instance.verification_date = timezone.now()
