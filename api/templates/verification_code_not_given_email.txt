@@ -1,3 +1,21 @@
-Dear {{ full_name }}
+{% extends "email.txt" %}
 
-It's been 8 days and you still have not input your verification code.
+{% block heading %}Find a Buyer service{% endblock %}
+
+{% block body %}
+You recently created a profile for your company on the Find a buyer service and requested we send you a verification code.
+
+You can enter the verification at {{ verification_url|default:"http://great.gov.uk/verify" }}.
+
+Your profile will not be visible to international buyers until you have verified your company’s profile.
+
+If you have not received your verification code, let us know as soon as you can so that we can send you a new code. We will also take measures to prevent unlawful use of the original code.
+{% endblock %}
+
+{% block action %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+
