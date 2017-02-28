@@ -11,7 +11,7 @@ You can add new case studies or projects to your company’s profile at any time
 Companies with case studies can be found more easily on search engines. We will also display profiles with case studies more prominently to international buyers.
 
 Log in to your Find a buyer profile to add case studies at: {{ url }}
-If you have a problem using the service let us know at: [LINK: zendesk]
+If you have a problem using the service let us know at: {{ zendesk_url }}
 {% endblock %}
 
 {% block action %}
