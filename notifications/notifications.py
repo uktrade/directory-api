@@ -4,8 +4,16 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
+from directory_sso_api_client.client import DirectorySSOAPIClient
+
 from user.models import User as Supplier
 from notifications import models, constants
+
+
+sso_api_client = DirectorySSOAPIClient(
+    base_url=settings.SSO_API_CLIENT_BASE_URL,
+    api_key=settings.SSO_API_CLIENT_KEY,
+)
 
 
 def send_email_notifications(
@@ -49,8 +57,27 @@ def no_case_studies():
 
 
 def hasnt_logged_in():
-    # TODO: ED-921
-    pass
+    days_ago = datetime.utcnow() - timedelta(
+        days=settings.HASNT_LOGGED_IN_DAYS)
+    start_datetime = days_ago.replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    end_datetime = days_ago.replace(
+        hour=23, minute=59, second=59, microsecond=999999)
+    login_data = sso_api_client.user.get_last_login(
+        start=start_datetime, end=end_datetime).json()
+    supplier_ids = [supplier['id'] for supplier in login_data]
+    suppliers = Supplier.objects.filter(
+        sso_id__in=supplier_ids
+    ).exclude(
+        supplieremailnotification__category=constants.HASNT_LOGGED_IN,
+    )
+    send_email_notifications(
+        suppliers,
+        'hasnt_logged_in_email.txt',
+        'hasnt_logged_in_email.html',
+        settings.HASNT_LOGGED_IN_SUBJECT,
+        constants.HASNT_LOGGED_IN
+    )
 
 
 def verification_code_not_given():
