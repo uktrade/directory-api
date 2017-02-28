@@ -21,7 +21,11 @@ def send_email_notifications(
 ):
     """Helper for sending notification emails"""
     for supplier in suppliers:
-        context = {'full_name': supplier.name}
+        context = {
+            'full_name': supplier.name,
+            'verification_url': settings.VERIFICATION_CODE_URL,
+            'zendesk_url': settings.ZENDESK_URL,
+        }
         text_body = render_to_string(text_template, context)
         html_body = render_to_string(html_template, context)
         message = EmailMultiAlternatives(

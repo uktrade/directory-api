@@ -49,13 +49,31 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == (
         'Get seen by more international buyers by improving your profile')
-    assert supplier.name in mail.outbox[0].body
-    assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
     assert instance.category == 'no_case_studies'
     assert instance.date_sent == timezone.now()
+
+
+@freeze_time()  # so no time passes between obj creation and timestamp assert
+@pytest.mark.django_db
+def test_case_study_email_has_expected_vars_in_template(settings):
+    settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
+    settings.ZENDESK_URL = 'http://help.zendesk.com'
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    supplier = SupplierFactory(date_joined=eight_days_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.no_case_studies()
+
+    assert len(mail.outbox) == 1
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].alternatives[0][0]
+    assert 'http://help.zendesk.com' in mail.outbox[0].body
+    assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
 
 @freeze_time('2016-12-16 19:11')
@@ -212,13 +230,32 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
     assert mail.outbox[0].to == [supplier.company_email]
     assert (mail.outbox[0].subject ==
             settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
-    assert supplier.name in mail.outbox[0].body
-    assert supplier.name in mail.outbox[0].alternatives[0][0]
     # 1 created + 1 from setup
     assert SupplierEmailNotification.objects.all().count() == 2
     instance = SupplierEmailNotification.objects.get(supplier=supplier)
     assert instance.category == 'verification_code_not_given'
     assert instance.date_sent == timezone.now()
+
+
+@freeze_time()  # so no time passes between obj creation and timestamp assert
+@pytest.mark.django_db
+def test_ver_code_email_has_expected_vars_in_template(settings):
+    settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
+    settings.ZENDESK_URL = 'http://help.zendesk.com'
+    eight_days_ago = timezone.now() - timedelta(days=8)
+    supplier = SupplierFactory(
+        company__verified_with_code=False, date_joined=eight_days_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.verification_code_not_given()
+
+    assert len(mail.outbox) == 1
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].alternatives[0][0]
+    assert 'http://help.zendesk.com' in mail.outbox[0].body
+    assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
 
 @freeze_time()  # so no time passes between obj creation and timestamp assert
@@ -261,14 +298,33 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     assert mail.outbox[0].to == [supplier16.company_email]
     assert (mail.outbox[0].subject ==
             settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
-    assert supplier16.name in mail.outbox[0].body
-    assert supplier16.name in mail.outbox[0].alternatives[0][0]
     # 1 created + 4 in set up
     assert SupplierEmailNotification.objects.all().count() == 5
     instance = SupplierEmailNotification.objects.exclude(
         pk=email_notification.pk).get(supplier=supplier16)
     assert instance.category == 'verification_code_2nd_email'
     assert instance.date_sent == timezone.now()
+
+
+@freeze_time()  # so no time passes between obj creation and timestamp assert
+@pytest.mark.django_db
+def test_ver_code_email2_has_expected_vars_in_template(settings):
+    settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
+    settings.ZENDESK_URL = 'http://help.zendesk.com'
+    sixteen_days_ago = timezone.now() - timedelta(days=16)
+    supplier = SupplierFactory(
+        company__verified_with_code=False, date_joined=sixteen_days_ago)
+    mail.outbox = []  # reset after emails sent by signals
+
+    notifications.verification_code_not_given()
+
+    assert len(mail.outbox) == 1
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].alternatives[0][0]
+    assert 'http://help.zendesk.com' in mail.outbox[0].body
+    assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
 
 @freeze_time('2016-12-16 19:11')
@@ -515,6 +571,34 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
     assert instance.supplier == suppliers[1]
     assert instance.category == 'hasnt_logged_in'
     assert instance.date_sent == timezone.now()
+
+
+@freeze_time('2017-01-31 17:13:34')
+@pytest.mark.django_db
+def test_log_in_email_has_expected_vars_in_template(settings):
+    settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
+    settings.ZENDESK_URL = 'http://help.zendesk.com'
+    supplier = SupplierFactory()
+    mocked_json = [
+        {'id': supplier.sso_id, 'last_login': '2017-01-01T21:04:39Z'},
+    ]
+    mocked_api = MagicMock(
+        return_value=MagicMock(
+            json=MagicMock(return_value=mocked_json)
+        )
+    )
+    mail.outbox = []  # reset after emails sent by signals
+
+    with patch(LAST_LOGIN_API_METHOD, mocked_api):
+        notifications.hasnt_logged_in()
+
+    assert len(mail.outbox) == 1
+    assert supplier.name in mail.outbox[0].body
+    assert supplier.name in mail.outbox[0].alternatives[0][0]
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
+    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].alternatives[0][0]
+    assert 'http://help.zendesk.com' in mail.outbox[0].body
+    assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
 
 @freeze_time('2016-12-09 12:30:00')

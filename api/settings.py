@@ -337,6 +337,13 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS = int(os.getenv(
 VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
 
+VERIFICATION_CODE_URL = os.getenv(
+    "VERIFICATION_CODE_URL", "http://great.gov.uk/verify")
+ZENDESK_URL = os.getenv(
+    "ZENDESK_URL",
+    "https://contact-us.export.great.gov.uk/feedback/directory/"
+)
+
 # Redis
 REDIS_HOST = os.environ['REDIS_HOST']
 REDIS_PORT = os.environ['REDIS_PORT']
