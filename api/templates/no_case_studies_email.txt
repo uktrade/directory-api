@@ -1,7 +1,6 @@
 {% extends "email.txt" %}
 
 {% block heading %}Find a Buyer service{% endblock %}
-{% block to %}{{ full_name|default:"User" }}{% endblock %}
 
 {% block body %}
 You recently published a profile for your company on the Find a buyer service.
