@@ -20,8 +20,6 @@ You received this email because you set up an account on great.gov.uk.
 Additional footer content here
 {% endblock %}
 
-If you no longer wish to receive our emails you can unsubscribe here: [LINK HERE]
-
 https://www.linkedin.com/company/department-for-international-trade
 https://twitter.com/tradegovuk
 
