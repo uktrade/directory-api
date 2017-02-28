@@ -22,8 +22,8 @@ Additional footer content here
 
 If you no longer wish to receive our emails you can unsubscribe here: [LINK HERE]
 
-[LinkedIn]
-[Twitter]
+https://www.linkedin.com/company/department-for-international-trade
+https://twitter.com/tradegovuk
 
 HM Government
 http://great.gov.uk
