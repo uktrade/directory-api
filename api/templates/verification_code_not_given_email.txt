@@ -5,7 +5,7 @@
 {% block body %}
 You recently created a profile for your company on the Find a buyer service and requested we send you a verification code.
 
-You can enter the verification at {{ verfication_url|default:"http://great.gov.uk/verify" }}.
+You can enter the verification at {{ verification_url|default:"http://great.gov.uk/verify" }}.
 
 Your profile will not be visible to international buyers until you have verified your company’s profile.
 
