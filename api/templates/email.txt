@@ -1,0 +1,29 @@
+{% load external_url from constants_tags %}
+
+Exporting is GREAT
+great.gov.uk
+
+{% block heading %}Heading{% endblock %}
+--------------------------------------
+
+Dear {{ full_name|default:"User" }},
+
+
+{% block body %}
+Body content here.
+{% endblock %}
+
+--------------------------------------
+You received this email because you set up an account on great.gov.uk. 
+
+{% block footer %}
+Additional footer content here
+{% endblock %}
+
+https://www.linkedin.com/company/department-for-international-trade
+https://twitter.com/tradegovuk
+
+HM Government
+http://great.gov.uk
+Department for International Trade, 1 Victoria Street, London, SW1 H0ET
+
