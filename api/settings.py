@@ -317,12 +317,22 @@ NO_CASE_STUDIES_SUBJECT = os.getenv(
     "Get seen by more international buyers by improving your profile"
 )
 NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))
+NO_CASE_STUDIES_URL = os.getenv(
+    "NO_CASE_STUDIES_URL",
+    "https://find-a-buyer.export.great.gov.uk/company/case-study/edit/"
+)
 
 HASNT_LOGGED_IN_SUBJECT = os.getenv(
     "HASNT_LOGGED_IN_SUBJECT",
     "Not logged in for 30 days"
 )
 HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
+HASNT_LOGGED_IN_URL = os.getenv(
+    "HASNT_LOGGED_IN_URL",
+    "https://sso.trade.great.gov.uk/accounts/login/?next={next}/".format(
+        next="https://find-a-buyer.export.great.gov.uk/"
+    )
+)
 
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
@@ -336,6 +346,13 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS', '8'))
 VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
+VERIFICATION_CODE_URL = os.getenv(
+    "VERIFICATION_CODE_URL", "http://great.gov.uk/verify")
+
+ZENDESK_URL = os.getenv(
+    "ZENDESK_URL",
+    "https://contact-us.export.great.gov.uk/feedback/directory/"
+)
 
 # Redis
 REDIS_HOST = os.environ['REDIS_HOST']
