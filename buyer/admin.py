@@ -12,7 +12,7 @@ class BuyerAdmin(admin.ModelAdmin):
     search_fields = ('email', 'name', 'country')
     readonly_fields = ('created', 'modified')
     list_display = ('name', 'email', 'sector', 'country', 'created')
-    list_filter = ('sector', )
+    list_filter = ('sectors', )
     actions = ['download_csv']
 
     csv_excluded_fields = ('buyeremailnotification', )
