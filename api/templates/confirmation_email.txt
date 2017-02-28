@@ -1,7 +1,6 @@
 {% extends "email.txt" %}
 
 {% block heading %}Find a Buyer service{% endblock %}
-{% block to %}{{ full_name|default:"User" }}{% endblock %}
 
 {% block body %}
 Thank you for signing up to the the Find a supplier service.
