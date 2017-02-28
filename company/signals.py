@@ -49,7 +49,5 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
 
 
 def fill_in_verification_date(sender, instance, *args, **kwargs):
-    was_verified = sender.objects.filter(
-        pk=instance.pk, verified_with_code=True).exists()
-    if instance.verified_with_code and not was_verified:
+    if instance.verified_with_code and not instance.verification_date:
         instance.verification_date = timezone.now()
