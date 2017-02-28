@@ -112,7 +112,7 @@
 				<tr>
 					<td style="font-size:14px; padding:20px 20px 20px 20px;" valign="top" align="left">
 						<h1>{% block heading %}Exporting is GREAT{% endblock %}</h1>
-						<p>Dear {% block to %}User{% endblock %},</p>
+						<p>Dear {{ full_name|default:"User" }},</p>
 						<br>
 						
 						{% block body %}

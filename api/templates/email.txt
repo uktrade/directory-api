@@ -6,7 +6,7 @@ great.gov.uk
 {% block heading %}Heading{% endblock %}
 --------------------------------------
 
-Dear {% block to %}User{% endblock %},
+Dear {{ full_name|default:"User" }},
 
 
 {% block body %}
