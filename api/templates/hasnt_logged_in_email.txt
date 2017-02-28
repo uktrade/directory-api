@@ -1,3 +1,4 @@
 Dear {{ full_name }}
 
-It's been 30 days and you haven't logged in.
+It's been 30 days and you haven't logged in. Please do so: {{ login_url }}
+Zendesk: {{ zendesk_url }}

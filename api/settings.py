@@ -343,6 +343,16 @@ ZENDESK_URL = os.getenv(
     "ZENDESK_URL",
     "https://contact-us.export.great.gov.uk/feedback/directory/"
 )
+CASE_STUDY_URL = os.getenv(
+    "CASE_STUDY_URL",
+    "https://find-a-buyer.export.great.gov.uk/company/case-study/edit/"
+)
+LOGIN_URL = os.getenv(
+    "LOGIN_URL",
+    "https://sso.trade.great.gov.uk/accounts/login/?next={next}/".format(
+        next="https://find-a-buyer.export.great.gov.uk/"
+    )
+)
 
 # Redis
 REDIS_HOST = os.environ['REDIS_HOST']
