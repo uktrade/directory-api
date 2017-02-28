@@ -25,8 +25,8 @@ def send_email_notifications(
         context = {
             'full_name': supplier.name,
             'zendesk_url': settings.ZENDESK_URL,
+            **extra_context
         }
-        context.update(extra_context)
         text_body = render_to_string(text_template, context)
         html_body = render_to_string(html_template, context)
         message = EmailMultiAlternatives(
@@ -58,7 +58,7 @@ def no_case_studies():
         'no_case_studies_email.html',
         settings.NO_CASE_STUDIES_SUBJECT,
         constants.NO_CASE_STUDIES,
-        {'case_study_url': settings.CASE_STUDY_URL}
+        {'case_study_url': settings.NO_CASE_STUDIES_URL}
     )
 
 
@@ -83,7 +83,7 @@ def hasnt_logged_in():
         'hasnt_logged_in_email.html',
         settings.HASNT_LOGGED_IN_SUBJECT,
         constants.HASNT_LOGGED_IN,
-        {'login_url': settings.LOGIN_URL}
+        {'login_url': settings.HASNT_LOGGED_IN_URL}
     )
 
 

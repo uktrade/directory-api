@@ -59,7 +59,7 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 @freeze_time()  # so no time passes between obj creation and timestamp assert
 @pytest.mark.django_db
 def test_case_study_email_has_expected_vars_in_template(settings):
-    settings.CASE_STUDY_URL = 'http://great.gov.uk/case-studies/add'
+    settings.NO_CASE_STUDIES_URL = 'http://great.gov.uk/case-studies/add'
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)
@@ -577,7 +577,7 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
 def test_log_in_email_has_expected_vars_in_template(settings):
-    settings.LOGIN_URL = 'http://great.gov.uk/looooogin'
+    settings.HASNT_LOGGED_IN_URL = 'http://great.gov.uk/looooogin'
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     supplier = SupplierFactory()
     mocked_json = [
