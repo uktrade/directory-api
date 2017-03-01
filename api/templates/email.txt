@@ -5,6 +5,7 @@ Exporting is GREAT
 
 {% block heading %}Heading{% endblock %}
 --------------------------------------
+{% block sub_heading %}{% endblock %}
 
 Dear {{ full_name|default:"User" }},
 
