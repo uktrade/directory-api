@@ -1,7 +1,7 @@
 {% load external_url from constants_tags %}
 
 Exporting is GREAT
-great.gov.uk
+
 
 {% block heading %}Heading{% endblock %}
 --------------------------------------
