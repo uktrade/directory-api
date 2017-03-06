@@ -97,9 +97,9 @@ def verification_code_not_given():
         days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS)
     suppliers = Supplier.objects.filter(
         company__verified_with_code=False,
-        company__verification_date__year=days_ago.year,
-        company__verification_date__month=days_ago.month,
-        company__verification_date__day=days_ago.day,
+        company__date_verification_letter_sent__year=days_ago.year,
+        company__date_verification_letter_sent__month=days_ago.month,
+        company__date_verification_letter_sent__day=days_ago.day,
         unsubscribed=False,
     ).exclude(
         supplieremailnotification__category=constants.
@@ -119,9 +119,9 @@ def verification_code_not_given():
         days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL)
     suppliers = Supplier.objects.filter(
         company__verified_with_code=False,
-        company__verification_date__year=days_ago.year,
-        company__verification_date__month=days_ago.month,
-        company__verification_date__day=days_ago.day,
+        company__date_verification_letter_sent__year=days_ago.year,
+        company__date_verification_letter_sent__month=days_ago.month,
+        company__date_verification_letter_sent__day=days_ago.day,
         unsubscribed=False,
     ).exclude(
         supplieremailnotification__category=constants.

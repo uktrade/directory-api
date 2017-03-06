@@ -188,13 +188,13 @@ def test_doesnt_send_ver_code_email_when_user_has_input_ver_code():
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     SupplierFactory(
         company__verified_with_code=True,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     SupplierFactory(
         company__verified_with_code=True,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     supplier_with_reminder = SupplierFactory(
         company__verified_with_code=True,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     SupplierEmailNotificationFactory(
         supplier=supplier_with_reminder,
         category='verification_code_not_given',
@@ -217,13 +217,13 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
     nine_days_ago = timezone.now() - timedelta(days=9)
     SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=seven_days_ago)
+        company__date_verification_letter_sent=seven_days_ago)
     supplier = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     supplier_with_reminder = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=nine_days_ago)
+        company__date_verification_letter_sent=nine_days_ago)
     SupplierEmailNotificationFactory(
         supplier=supplier_with_reminder,
         category='verification_code_not_given',
@@ -251,6 +251,7 @@ def test_ver_code_email_has_expected_vars_in_template(settings):
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(
+        company__date_verification_letter_sent=eight_days_ago,
         company__verified_with_code=False, date_joined=eight_days_ago)
     mail.outbox = []  # reset after emails sent by signals
 
@@ -273,13 +274,13 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     seventeen_days_ago = timezone.now() - timedelta(days=17)
     supplier15 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=fifteen_days_ago)
+        company__date_verification_letter_sent=fifteen_days_ago)
     supplier16 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     supplier17 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=seventeen_days_ago)
+        company__date_verification_letter_sent=seventeen_days_ago)
     SupplierEmailNotificationFactory(
         supplier=supplier15,
         category='verification_code_not_given',
@@ -323,6 +324,7 @@ def test_ver_code_email2_has_expected_vars_in_template(settings):
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     supplier = SupplierFactory(
+        company__date_verification_letter_sent=sixteen_days_ago,
         company__verified_with_code=False, date_joined=sixteen_days_ago)
     mail.outbox = []  # reset after emails sent by signals
 
@@ -342,12 +344,13 @@ def test_ver_code_email2_has_expected_vars_in_template(settings):
 def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
     settings
 ):
+    supplier2_verification_sent = datetime(2016, 12, 8, 23, 59, 59)
     supplier1 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=datetime(2016, 12, 8, 0, 0, 1))
+        company__date_verification_letter_sent=datetime(2016, 12, 8, 0, 0, 1))
     supplier2 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=datetime(2016, 12, 8, 23, 59, 59))
+        company__date_verification_letter_sent=supplier2_verification_sent)
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
@@ -363,12 +366,13 @@ def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
 def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
     settings
 ):
+    supplier2_verification_sent = datetime(2016, 11, 30, 23, 59, 59)
     supplier1 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=datetime(2016, 11, 30, 0, 0, 1))
+        company__date_verification_letter_sent=datetime(2016, 11, 30, 0, 0, 1))
     supplier2 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=datetime(2016, 11, 30, 23, 59, 59))
+        company__date_verification_letter_sent=supplier2_verification_sent)
     SupplierEmailNotificationFactory(
         supplier=supplier1,
         category='verification_code_not_given',
@@ -396,10 +400,10 @@ def test_doesnt_send_ver_code_email_if_email_already_sent():
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     supplier1 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     supplier2 = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     SupplierEmailNotificationFactory(
         supplier=supplier1, category='verification_code_not_given')
     SupplierEmailNotificationFactory(
@@ -426,10 +430,10 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
     eight_days_ago = timezone.now() - timedelta(days=8)
     SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     supplier = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=one_day_ago)
+        company__date_verification_letter_sent=one_day_ago)
     mail.outbox = []  # reset after emails sent by signals
 
     notifications.verification_code_not_given()
@@ -450,10 +454,10 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     supplier = SupplierFactory(
         company__verified_with_code=False,
-        company__verification_date=one_day_ago)
+        company__date_verification_letter_sent=one_day_ago)
     SupplierEmailNotificationFactory(
         supplier=supplier, category='verification_code_not_given',
         date_sent=(timezone.now() - timedelta(days=8)))
@@ -473,7 +477,7 @@ def test_if_ver_code_email_send_fails_previous_info_still_written_to_db_8():
     eight_days_ago = timezone.now() - timedelta(days=8)
     suppliers = SupplierFactory.create_batch(
         3, company__verified_with_code=False,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     send_method = 'django.core.mail.EmailMultiAlternatives.send'
 
     def mocked_send(self):
@@ -496,7 +500,7 @@ def test_if_ver_code_email_send_fails_previous_info_still_written_to_db_16():
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     suppliers = SupplierFactory.create_batch(
         3, company__verified_with_code=False,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     for supplier in suppliers:
         SupplierEmailNotificationFactory(
             supplier=supplier, category='verification_code_not_given',
@@ -525,19 +529,19 @@ def test_sends_ver_code_email_to_expected_users():
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     SupplierFactory.create_batch(
         3, company__verified_with_code=True,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     suppliers8 = SupplierFactory.create_batch(
         3, company__verified_with_code=False,
-        company__verification_date=eight_days_ago)
+        company__date_verification_letter_sent=eight_days_ago)
     SupplierFactory.create_batch(
         3, company__verified_with_code=False,
-        company__verification_date=twelve_days_ago)
+        company__date_verification_letter_sent=twelve_days_ago)
     suppliers16 = SupplierFactory.create_batch(
         3, company__verified_with_code=False,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     SupplierFactory.create_batch(
         3, company__verified_with_code=True,
-        company__verification_date=sixteen_days_ago)
+        company__date_verification_letter_sent=sixteen_days_ago)
     SupplierEmailNotificationFactory(
         supplier=suppliers8[2], category='verification_code_not_given')
     SupplierEmailNotificationFactory(

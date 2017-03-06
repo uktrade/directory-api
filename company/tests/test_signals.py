@@ -1,7 +1,10 @@
 import datetime
 from unittest import mock
 
+from freezegun import freeze_time
 import pytest
+
+from django.utils import timezone
 
 from company.tests.factories import CompanyFactory
 
@@ -91,6 +94,7 @@ def test_does_not_send_if_letter_already_sent(mock_stannp_client, settings):
 
 
 @pytest.mark.django_db
+@freeze_time()
 @mock.patch('company.stannp.stannp_client')
 def test_marks_letter_as_sent(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
@@ -98,6 +102,7 @@ def test_marks_letter_as_sent(mock_stannp_client, settings):
 
     company.refresh_from_db()
     assert company.is_verification_letter_sent is True
+    assert company.date_verification_letter_sent == timezone.now()
 
 
 @pytest.mark.django_db

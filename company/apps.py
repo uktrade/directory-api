@@ -16,7 +16,3 @@ class CompanyConfig(AppConfig):
             receiver=signals.publish_companies_that_meet_criteria,
             sender='company.Company'
         )
-        pre_save.connect(
-            receiver=signals.fill_in_verification_date,
-            sender='company.Company'
-        )

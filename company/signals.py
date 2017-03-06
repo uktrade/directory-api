@@ -36,6 +36,7 @@ def send_verification_letter(sender, instance, *args, **kwargs):
     )
 
     instance.is_verification_letter_sent = True
+    instance.date_verification_letter_sent = timezone.now()
     instance.save()
 
 
@@ -46,8 +47,3 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
             instance.email_address and
             instance.verified_with_code
         )
-
-
-def fill_in_verification_date(sender, instance, *args, **kwargs):
-    if instance.verified_with_code and not instance.verification_date:
-        instance.verification_date = timezone.now()

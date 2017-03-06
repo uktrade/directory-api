@@ -1,14 +1,8 @@
-from datetime import datetime
-from unittest.mock import patch, Mock
-
 import pytest
-
-from freezegun import freeze_time
 
 from directory_validators.constants import choices
 
 from django.db import IntegrityError
-from django.utils import timezone
 
 from django_extensions.db.fields import (
     ModificationDateTimeField, CreationDateTimeField
@@ -120,47 +114,3 @@ def test_has_valid_address_all_values_present():
         postal_code='EM6 6EM',
     )
     assert company.has_valid_address() is True
-
-
-@pytest.mark.django_db
-@freeze_time()
-@patch('company.stannp.stannp_client', Mock())
-def test_verification_date_automatically_filled_in_on_verification(settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    company = CompanyFactory()
-    # check verification flags correctly set on company create
-    assert company.is_verification_letter_sent is True
-    assert company.verified_with_code is False
-    assert company.verification_date is None
-
-    company.verified_with_code = True
-    company.save()
-
-    assert company.verification_date == timezone.now()
-
-
-@pytest.mark.django_db
-@freeze_time()
-def test_verification_date_automatically_filled_in_on_verified_create():
-    company = CompanyFactory(
-        is_verification_letter_sent=True,
-        verified_with_code=True
-    )
-    assert company.verification_date == timezone.now()
-
-
-@pytest.mark.django_db
-def test_verification_date_doesnt_change_once_set():
-    with freeze_time("2015-05-15"):
-        company = CompanyFactory(
-            is_verification_letter_sent=True,
-            verified_with_code=True,
-        )
-        assert company.verification_date == timezone.make_aware(
-            datetime(2015, 5, 15, 0, 0, 0, 0))
-
-    with freeze_time("2016-06-16"):
-        company.save()
-
-    assert company.verification_date == timezone.make_aware(
-        datetime(2015, 5, 15, 0, 0, 0, 0))
