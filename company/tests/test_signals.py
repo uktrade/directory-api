@@ -236,3 +236,27 @@ def test_automatic_publish_update():
         company.save()
         company.refresh_from_db()
         assert company.is_published is True
+
+
+@pytest.mark.django_db
+def test_store_date_published_unpublished_company():
+    company = CompanyFactory(is_published=False)
+
+    assert company.date_published is None
+
+
+@pytest.mark.django_db
+@freeze_time()
+def test_store_date_published_published_company_without_date():
+    company = CompanyFactory(is_published=True, date_published=None)
+
+    assert company.date_published == timezone.now()
+
+
+@pytest.mark.django_db
+def test_store_date_published_published_company_with_date():
+    expected_date = timezone.now()
+
+    company = CompanyFactory(is_published=True, date_published=expected_date)
+
+    assert company.date_published == expected_date

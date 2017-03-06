@@ -47,3 +47,8 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
             instance.email_address and
             instance.verified_with_code
         )
+
+
+def store_date_published(sender, instance, *args, **kwargs):
+    if instance.is_published and not instance.date_published:
+        instance.date_published = timezone.now()

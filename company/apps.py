@@ -16,3 +16,7 @@ class CompanyConfig(AppConfig):
             receiver=signals.publish_companies_that_meet_criteria,
             sender='company.Company'
         )
+        pre_save.connect(
+            receiver=signals.store_date_published,
+            sender='company.Company'
+        )
