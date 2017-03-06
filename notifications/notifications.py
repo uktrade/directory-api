@@ -17,11 +17,16 @@ sso_api_client = DirectorySSOAPIClient(
 
 
 def send_email_notifications(
-    suppliers, text_template, html_template, subject, notification_category
+    suppliers, text_template, html_template, subject,
+    notification_category, extra_context
 ):
     """Helper for sending notification emails"""
     for supplier in suppliers:
-        context = {'full_name': supplier.name}
+        context = {
+            'full_name': supplier.name,
+            'zendesk_url': settings.ZENDESK_URL,
+            **extra_context
+        }
         text_body = render_to_string(text_template, context)
         html_body = render_to_string(html_template, context)
         message = EmailMultiAlternatives(
@@ -52,7 +57,8 @@ def no_case_studies():
         'no_case_studies_email.txt',
         'no_case_studies_email.html',
         settings.NO_CASE_STUDIES_SUBJECT,
-        constants.NO_CASE_STUDIES
+        constants.NO_CASE_STUDIES,
+        {'case_study_url': settings.NO_CASE_STUDIES_URL}
     )
 
 
@@ -76,11 +82,16 @@ def hasnt_logged_in():
         'hasnt_logged_in_email.txt',
         'hasnt_logged_in_email.html',
         settings.HASNT_LOGGED_IN_SUBJECT,
-        constants.HASNT_LOGGED_IN
+        constants.HASNT_LOGGED_IN,
+        {'login_url': settings.HASNT_LOGGED_IN_URL}
     )
 
 
 def verification_code_not_given():
+    extra_context = {
+        'verification_url': settings.VERIFICATION_CODE_URL,
+    }
+
     # 1st email (after 8 days)
     days_ago = datetime.utcnow() - timedelta(
         days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS)
@@ -99,7 +110,8 @@ def verification_code_not_given():
         'verification_code_not_given_email.txt',
         'verification_code_not_given_email.html',
         settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-        constants.VERIFICATION_CODE_NOT_GIVEN
+        constants.VERIFICATION_CODE_NOT_GIVEN,
+        extra_context
     )
 
     # 2nd email (after 16 days)
@@ -120,7 +132,8 @@ def verification_code_not_given():
         'verification_code_not_given_2nd_email.txt',
         'verification_code_not_given_2nd_email.html',
         settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
-        constants.VERIFICATION_CODE_2ND_EMAIL
+        constants.VERIFICATION_CODE_2ND_EMAIL,
+        extra_context
     )
 
 

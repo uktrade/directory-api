@@ -1,0 +1,151 @@
+{% load header_image from enrolment_email %}
+{% load external_url from constants_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Exporting is GREAT{% endblock %}</title>
+	<style type="text/css">
+
+	/* CLIENT-SPECIFIC STYLES (left from full template)
+	 **************************/
+
+	/* Prevent Webkit and Windows Mobile platforms from changing default font sizes.*/
+	body { width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; margin:0; padding:0; }
+
+	/* Some sensible defaults for images, Bring inline: Yes. */
+	img {outline:none; text-decoration:none; -ms-interpolation-mode: bicubic;}
+	a img {border:none;}
+
+	/* Hotmail header color reset, Bring inline: Yes. */
+	h1, h2, h3, h4, h5, h6 {color: black !important;}
+	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {color: blue !important;}
+
+	/* Preferably not the same color as the normal header link color.  There is limited support for psuedo classes in email clients, this was added just for good measure. */
+	h1 a:active, h2 a:active,  h3 a:active, h4 a:active, h5 a:active, h6 a:active {
+		color: red !important; 
+	}
+
+	/* Preferably not the same color as the normal header link color. There is limited support for psuedo classes in email clients, this was added just for good measure. */
+	h1 a:visited, h2 a:visited,  h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
+		color: purple !important; 
+	}
+
+	/* Outlook 07, 10 Padding issue fix, Bring inline: No.*/
+	table td {border-collapse: collapse;}
+
+	/* Remove spacing around Outlook 07, 10 tables, Bring inline: Yes */
+	table { border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; }
+
+	
+	/* EMAIL SPECIFIC
+	 ********************/
+	a { 
+		color: #B00D23 !important; 
+		white-space: nowrap;
+	}
+	
+	h1 {
+		color: #B00D23 !important;
+		line-height: 25px;
+		font-family: Arial, sans-serif;
+		font-size: 22px;
+		margin: 0 0 40px 0;
+	}
+	
+	p { margin: 0 0 10px 0; }
+	
+	p, td {
+		color: #1E1348; 
+		font-family: Arial, sans-serif; 
+		font-size: 100%;
+		line-height: 1.2em;
+	}
+	
+	p.action a {
+		background-color: #00549F; 
+		color: #FFFFFF !important; 
+		font-family: Helvetica,Arial,sans-serif; 
+		font-size: 20px;
+		line-height: 50px;
+		padding: 20px;
+		text-decoration: none; 
+	}
+	
+	@media only screen and (max-width: 640px) {
+		table { width: auto; }
+		table table { width: 100%; }
+	}
+</style>
+
+
+</head>
+<body bgcolor="#1E1348">
+	<img src="http://l.email.service.trade.gov.uk/rts/open.aspx?tp=i-H8B-Q1q-7E7-2DcaF-1c-0-3E-G-2DcaF-1Lsmyd" style="display:none" width="1" height="1">
+
+	<center>
+		&nbsp;
+		<table width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
+			<thead>
+				<tr>
+					<td style="font-size:10px; padding:20px 20px 0px 20px;">
+						<img alt="Exporting is Great logo" style="display:block; margin:10px 0 20px 0;" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/exporting-is-great-flag.jpg" width="140" height="74">
+					</td>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<tr>
+					<td style="font-size:14px; padding:20px 20px 20px 20px;" valign="top" align="left">
+						<h1>{% block heading %}Exporting is GREAT{% endblock %}</h1>
+						<p>Dear {{ full_name|default:"User" }},</p>
+						<br>
+						
+						{% block body %}
+						<p>Content here.</p>
+						{% endblock %}
+
+					</td>
+				</tr>
+			</tbody>
+			
+			<tfoot>
+				<tr>
+					<td>
+						<hr style="color:#B00D23; height:2px; border-style:solid;">
+					</td>
+				</tr>
+				<tr>
+					<td style="font-size:11px; padding:20px 20px 20px 20px;">
+						<table cellspacing="0" cellpadding="0" border="0" width="100%">
+							<tr>
+								<td>
+									<img alt="HM Government logo" style="display:block; margin-bottom:10px;" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/HM_Government.png" width="194" height="71">
+											
+										<p><a href="http://l.email.service.trade.gov.uk/rts/go2.aspx?h=265780&amp;tp=i-H9D-Q1q-7E7-2DcaF-1c-0-3E-1C0W-G-2DcaF-1Ae9eF" style="font-weight:bold; color:#12044B !important;">great.gov.uk</a></p>
+										<br>
+										<br>
+								</td>
+								<td align="right" valign="top">
+									<a href="https://www.linkedin.com/company/department-for-international-trade"><img alt="Linked In" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/socialbuttons/sm-great-link-icon.gif" width="42" height="32" style="margin-bottom:10px;"></a>
+									<a href="https://twitter.com/tradegovuk"><img alt="Twitter" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/socialbuttons/sm-great-tw-icon.gif" width="43" height="32" style="margin-bottom:10px;"></a>
+									</td>
+								</tr>
+							</table>
+					
+							{% block footer %}
+							<p>Additional footer content here</p>
+							{% endblock %}
+							
+							<br>
+							<p>Department for International Trade, 1 Victoria Street, London, SW1 H0ET</p>
+						</td>
+					</tr>
+			</tfoot>
+		</table>
+	</center>
+
+
+</body>
+</html>
