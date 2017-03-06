@@ -63,9 +63,9 @@ class CompanyAdmin(admin.ModelAdmin):
         'postal_full_name', 'address_line_1', 'address_line_2',
         'locality', 'country', 'postal_code', 'po_box',
     )
-    list_display = ('name', 'number', 'is_published')
-    list_filter = ('is_published', )
-    readonly_fields = ('created', 'modified')
+    list_display = ('name', 'number', 'is_published', 'verified_with_code')
+    list_filter = ('is_published', 'verified_with_code')
+    readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
