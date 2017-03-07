@@ -2,6 +2,8 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
+from django.db.models import Case, When, Value, BooleanField
+
 from company import filters, models, pagination, serializers
 
 
@@ -28,7 +30,15 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
-        models.Company.objects.filter(is_published=True).order_by('-modified')
+        models.Company.objects
+        .filter(is_published=True)
+        .annotate(
+            has_case_studies=Case(
+               When(supplier_case_studies__isnull=True, then=Value(False)),
+               default=Value(True),
+               output_field=BooleanField())
+        )
+        .order_by('-has_case_studies', '-modified')
     )
     pagination_class = pagination.CompanyPublicProfile
     filter_class = filters.CompanyPublicProfileFilter
