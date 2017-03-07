@@ -1,31 +1,48 @@
-from company.tests.factories import CompanyCaseStudyFactory, CompanyFactory
+from datetime import datetime, timedelta
+
+from freezegun import freeze_time
+
+from django.utils import timezone
+
+from company.tests.factories import CompanyFactory
 
 
-def test_company_slug_generate(migration):
+@freeze_time()
+def test_populate_company_populate_verification_date(migration):
     app = 'company'
     model_name = 'Company'
-    name = '0033_auto_20170203_1137'
+    name = '0037_auto_20170306_1154'
     migration.before(app, name).get_model(app, model_name)
 
-    company = CompanyFactory.create(name='An example corp.')
+    now = timezone.make_aware(datetime.utcnow()._date_to_freeze())
+    company_three_date = now - timedelta(days=1)
+    company_four_date = now - timedelta(days=2)
 
-    migration.apply('company', '0034_add_slugs')
+    company_one = CompanyFactory.create(
+        verified_with_code=False,
+        date_verification_letter_sent=None,
+    )
+    company_two = CompanyFactory.create(
+        verified_with_code=True,
+        date_verification_letter_sent=None
+    )
+    company_three = CompanyFactory.create(
+        verified_with_code=False,
+        date_verification_letter_sent=company_three_date,
+    )
+    company_four = CompanyFactory.create(
+        verified_with_code=True,
+        date_verification_letter_sent=company_four_date,
+    )
 
-    company.refresh_from_db()
+    migration.apply('company', '0038_auto_20170306_1200')
 
-    assert company.slug == 'an-example-corp'
+    for company in [company_one, company_two, company_three, company_four]:
+        company.refresh_from_db()
 
-
-def test_company_case_study_slug_generate(migration):
-    app = 'company'
-    model_name = 'CompanyCaseStudy'
-    name = '0033_auto_20170203_1137'
-    migration.before(app, name).get_model(app, model_name)
-
-    case_study = CompanyCaseStudyFactory.create(title='A case study')
-
-    migration.apply('company', '0034_add_slugs')
-
-    case_study.refresh_from_db()
-
-    assert case_study.slug == 'a-case-study'
+    # dates should not be updated
+    assert company_one.date_verification_letter_sent is None
+    assert company_three.date_verification_letter_sent == company_three_date
+    assert company_four.date_verification_letter_sent == company_four_date
+    # dates should be updated
+    assert company_two.date_verification_letter_sent == now

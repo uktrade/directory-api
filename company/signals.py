@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.utils import timezone
 
 from company.stannp import stannp_client
 
@@ -35,6 +36,7 @@ def send_verification_letter(sender, instance, *args, **kwargs):
     )
 
     instance.is_verification_letter_sent = True
+    instance.date_verification_letter_sent = timezone.now()
     instance.save()
 
 
