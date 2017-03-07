@@ -27,3 +27,13 @@ class BuyerEmailNotification(models.Model):
             email=self.buyer.email,
             category=self.category,
         )
+
+
+class AnonymousUnsubscribe(models.Model):
+    """
+    For allowing anonymous FAS users to unsubscribe from notifications. FAB
+    suppliers are unsubscribed via `User.ubsubscribed`.
+
+    """
+
+    email = models.EmailField(unique=True)
