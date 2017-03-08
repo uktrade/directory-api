@@ -76,6 +76,7 @@ class Company(TimeStampedModel):
     )
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
+    date_verification_letter_sent = models.DateTimeField(null=True)
     # social links
     twitter_url = models.URLField(
         max_length=255,
