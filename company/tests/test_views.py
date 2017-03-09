@@ -379,6 +379,14 @@ def public_profile_with_case_study():
 
 
 @pytest.fixture
+def public_profile_with_case_studies():
+    company = CompanyFactory(is_published=True)
+    CompanyCaseStudyFactory(company=company)
+    CompanyCaseStudyFactory(company=company)
+    return company
+
+
+@pytest.fixture
 def public_profile_software():
     company = Company(**default_public_profile_data)
     company.number = '0123456C'
@@ -731,7 +739,8 @@ def test_company_profile_public_list_profiles(
 @patch('signature.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_ordering(
     private_profile, public_profile, public_profile_software,
-    public_profile_with_case_study, public_profile_cars, api_client
+    public_profile_with_case_study, public_profile_with_case_studies,
+    public_profile_cars, api_client
 ):
     url = reverse('company-public-profile-list')
     response = api_client.get(url)
@@ -740,6 +749,7 @@ def test_company_profile_public_list_profiles_ordering(
     assert response.status_code == http.client.OK
 
     expected_sorted_ids = [
+        public_profile_with_case_studies.id,
         public_profile_with_case_study.id,
         public_profile_cars.id,
         public_profile_software.id,
