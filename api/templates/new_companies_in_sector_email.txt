@@ -1,0 +1,28 @@
+{% extends "email.txt" %}
+{% load header_image from enrolment_email %}
+{% load external_url from constants_tags %}
+
+{% block heading %}Find a Buyer service{% endblock %}
+
+{% block body %}
+You asked to be notified when new UK companies in your industry join the Find a Supplier service.
+Check out these new companies that have joined since your last visit:
+
+{# TODO: wrap this in a loop to output the dynamic values properly and delete the duplicate dummy content #}
+{{ name|default:"Company name" }}
+	{{ description|default:"Company description" }}
+	{{ profile }}
+
+{{ name|default:"Company name" }}
+	{{ description|default:"Company description" }}
+	{{ profile }}
+	
+
+See all the UK companies in your industry by visiting {{ url|default:"https://trade.great.gov.uk/industries" }}
+{% endblock %}
+
+{% block action %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

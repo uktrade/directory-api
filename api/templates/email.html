@@ -20,11 +20,11 @@
 
 	/* Hotmail header color reset, Bring inline: Yes. */
 	h1, h2, h3, h4, h5, h6 {color: black !important;}
-	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {color: blue !important;}
+	h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {color: #B00D23 !important;}
 
-	/* Preferably not the same color as the normal header link color.  There is limited support for psuedo classes in email clients, this was added just for good measure. */
+	/* There is limited support for psuedo classes in email clients, this was added just for good measure. */
 	h1 a:active, h2 a:active,  h3 a:active, h4 a:active, h5 a:active, h6 a:active {
-		color: red !important; 
+		color: #B00D23 !important; 
 	}
 
 	/* Preferably not the same color as the normal header link color. There is limited support for psuedo classes in email clients, this was added just for good measure. */
@@ -41,7 +41,7 @@
 	
 	/* EMAIL SPECIFIC
 	 ********************/
-	a { 
+	a, a:active, a:visited { 
 		color: #B00D23 !important; 
 		white-space: nowrap;
 	}
@@ -98,7 +98,10 @@
 			<tbody>
 				<tr>
 					<td style="font-size:14px; padding:20px 20px 20px 20px;" valign="top" align="left">
-						<h1>{% block heading %}Exporting is GREAT{% endblock %}</h1>
+						<h1 style="color:#B00D23;">{% block heading %}Exporting is GREAT{% endblock %}</h1>
+						
+						{% block sub_heading %}{% endblock %}
+						
 						<p>Dear {{ full_name|default:"User" }},</p>
 						<br>
 						
@@ -113,7 +116,7 @@
 			<tfoot>
 				<tr>
 					<td>
-						<hr style="color:#B00D23; height:2px; border-style:solid;">
+						<hr style="background-color:#B00D23; color:#B00D23; height:2px; border-style:solid;">
 					</td>
 				</tr>
 				<tr>
