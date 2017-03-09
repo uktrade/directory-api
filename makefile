@@ -172,7 +172,7 @@ debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
 
 debug_test:
-	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
+	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(PYTEST)
 
 debug_manage:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py $(cmd)
@@ -203,11 +203,6 @@ smoke_tests:
 	cd $(mktemp -d) && \
 	git clone https://github.com/uktrade/directory-tests && \
 	cd directory-tests && \
-	pip install virtualenv && \
-	virtualenv venv && \
-	source venv/bin/activate && \
-	make requirements && \
-	make test_smoke
+	make docker_smoke_test
 
-
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev smoke_tests

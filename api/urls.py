@@ -10,6 +10,9 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
 )
+from notifications.views import (
+    AnonymousUnsubscribeCreateAPIView
+)
 from supplier.views import (
     SupplierRetrieveUpdateAPIView,
     GeckoTotalRegisteredSuppliersView,
@@ -112,6 +115,11 @@ urlpatterns = [
         r'contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
         name='company-public-profile-contact-create'
+    ),
+    url(
+        r'notifications/anonymous-unsubscribe/$',
+        AnonymousUnsubscribeCreateAPIView.as_view(),
+        name='anonymous-unsubscribe'
     ),
 ]
 

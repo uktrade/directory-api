@@ -68,6 +68,7 @@ class Company(TimeStampedModel):
             'verified, and have an email address.'
         )
     )
+    date_published = models.DateField(null=True)
     verification_code = models.CharField(
         _('verification code'),
         max_length=255,
