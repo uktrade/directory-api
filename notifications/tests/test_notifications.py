@@ -760,3 +760,11 @@ def test_sends_log_in_email_to_expected_users():
     assert mail.outbox[1].to == [suppliers[2].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 4  # 2 + 2 created in setup
+
+
+def test_new_companies_in_sector():
+    # set frequency to 3 day
+    # create buyer interested in AEROSPACE
+    # create supplier for AEROSPACE that was published 3 days ago ... expect inclusion
+    # create supplier for AEROSPACE that was published 4 days ago ... expect exclusion
+    # create supplier for SOFTWARE that was published 3 days ago ... expect exclusion

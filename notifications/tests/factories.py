@@ -21,10 +21,10 @@ class SupplierEmailNotificationFactory(factory.django.DjangoModelFactory):
         model = models.SupplierEmailNotification
 
 
-class BuyerEmailNotificationFactory(factory.django.DjangoModelFactory):
+class AnonymousEmailNotificationFactory(factory.django.DjangoModelFactory):
 
-    buyer = factory.SubFactory(BuyerFactory)
+    email = factory.Sequence(lambda n: '%d@example.com' % n)
     category = factory.fuzzy.FuzzyChoice(BUYER_CATEGORY_CHOICES)
 
     class Meta:
-        model = models.BuyerEmailNotification
+        model = models.AnonymousEmailNotification

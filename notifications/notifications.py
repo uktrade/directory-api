@@ -5,9 +5,12 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from directory_sso_api_client.client import DirectorySSOAPIClient
+from directory_validators.constants import choices
 
-from user.models import User as Supplier
+from buyer.models import Buyer
+from company.models import Company
 from notifications import models, constants
+from user.models import User as Supplier
 
 
 sso_api_client = DirectorySSOAPIClient(
@@ -17,27 +20,35 @@ sso_api_client = DirectorySSOAPIClient(
 
 
 def send_email_notifications(
-    suppliers, text_template, html_template, subject,
+    recipient_name, recipient_email, text_template, html_template, subject,
     notification_category, extra_context
 ):
-    """Helper for sending notification emails"""
-    for supplier in suppliers:
-        context = {
-            'full_name': supplier.name,
-            'zendesk_url': settings.ZENDESK_URL,
-            **extra_context
-        }
-        text_body = render_to_string(text_template, context)
-        html_body = render_to_string(html_template, context)
-        message = EmailMultiAlternatives(
-            subject=subject,
-            body=text_body,
-            to=[supplier.company_email],
-        )
-        message.attach_alternative(html_body, "text/html")
-        message.send()
-        models.SupplierEmailNotification.objects.create(
-            supplier=supplier, category=notification_category)
+    context = {
+        'full_name': recipient_name,
+        'zendesk_url': settings.ZENDESK_URL,
+        **extra_context
+    }
+    text_body = render_to_string(text_template, context)
+    html_body = render_to_string(html_template, context)
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        to=[recipient_email],
+    )
+    message.attach_alternative(html_body, "text/html")
+    message.send()
+
+
+def record_supplier_notification_sent(supplier, category):
+    models.SupplierEmailNotification.objects.create(
+        supplier=supplier, category=category,
+    )
+
+
+def record_anonymous_notification_sent(email, category):
+    models.AnonymousEmailNotification.objects.create(
+        email=email, category=category,
+    )
 
 
 def no_case_studies():
@@ -52,14 +63,18 @@ def no_case_studies():
     ).exclude(
         supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
-    send_email_notifications(
-        suppliers,
-        'no_case_studies_email.txt',
-        'no_case_studies_email.html',
-        settings.NO_CASE_STUDIES_SUBJECT,
-        constants.NO_CASE_STUDIES,
-        {'case_study_url': settings.NO_CASE_STUDIES_URL}
-    )
+    notification_category = constants.NO_CASE_STUDIES
+    for supplier in suppliers:
+        send_email_notifications(
+            recipient_name=supplier.name,
+            recipient_email=supplier.company_email,
+            text_template='no_case_studies_email.txt',
+            html_template='no_case_studies_email.html',
+            subject=settings.NO_CASE_STUDIES_SUBJECT,
+            notification_category=notification_category,
+            extra_context={'case_study_url': settings.NO_CASE_STUDIES_URL},
+        )
+        record_supplier_notification_sent(supplier, notification_category)
 
 
 def hasnt_logged_in():
@@ -77,14 +92,18 @@ def hasnt_logged_in():
     ).exclude(
         supplieremailnotification__category=constants.HASNT_LOGGED_IN,
     )
-    send_email_notifications(
-        suppliers,
-        'hasnt_logged_in_email.txt',
-        'hasnt_logged_in_email.html',
-        settings.HASNT_LOGGED_IN_SUBJECT,
-        constants.HASNT_LOGGED_IN,
-        {'login_url': settings.HASNT_LOGGED_IN_URL}
-    )
+    notification_category = constants.HASNT_LOGGED_IN
+    for supplier in suppliers:
+        send_email_notifications(
+            recipient_name=supplier.name,
+            recipient_email=supplier.company_email,
+            text_template='hasnt_logged_in_email.txt',
+            html_template='hasnt_logged_in_email.html',
+            subject=settings.HASNT_LOGGED_IN_SUBJECT,
+            notification_category=notification_category,
+            extra_context={'login_url': settings.HASNT_LOGGED_IN_URL},
+        )
+        record_supplier_notification_sent(supplier, notification_category)
 
 
 def verification_code_not_given():
@@ -105,14 +124,18 @@ def verification_code_not_given():
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_NOT_GIVEN,
     )
-    send_email_notifications(
-        suppliers,
-        'verification_code_not_given_email.txt',
-        'verification_code_not_given_email.html',
-        settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-        constants.VERIFICATION_CODE_NOT_GIVEN,
-        extra_context
-    )
+    notification_category = constants.VERIFICATION_CODE_NOT_GIVEN
+    for supplier in suppliers:
+        send_email_notifications(
+            recipient_name=supplier.name,
+            recipient_email=supplier.company_email,
+            text_template='verification_code_not_given_email.txt',
+            html_template='verification_code_not_given_email.html',
+            subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
+            notification_category=notification_category,
+            extra_context=extra_context,
+        )
+        record_supplier_notification_sent(supplier, notification_category)
 
     # 2nd email (after 16 days)
     days_ago = datetime.utcnow() - timedelta(
@@ -127,16 +150,38 @@ def verification_code_not_given():
         supplieremailnotification__category=constants.
         VERIFICATION_CODE_2ND_EMAIL,
     )
-    send_email_notifications(
-        suppliers,
-        'verification_code_not_given_2nd_email.txt',
-        'verification_code_not_given_2nd_email.html',
-        settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
-        constants.VERIFICATION_CODE_2ND_EMAIL,
-        extra_context
-    )
+    notification_category = constants.VERIFICATION_CODE_2ND_EMAIL
+    for supplier in suppliers:
+        send_email_notifications(
+            recipient_name=supplier.name,
+            recipient_email=supplier.company_email,
+            text_template='verification_code_not_given_2nd_email.txt',
+            html_template='verification_code_not_given_2nd_email.html',
+            subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
+            notification_category=notification_category,
+            extra_context=extra_context,
+        )
+        record_supplier_notification_sent(supplier, notification_category)
 
 
 def new_companies_in_sector():
-    # TODO: ED-919
-    pass
+    days = settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS
+    date_published = datetime.utcnow() - timedelta(days=days)
+    notification_category = constants.NEW_COMPANIES_IN_SECTOR
+    for industry in choices.COMPANY_CLASSIFICATIONS:
+        companies = Company.objects.filter(
+            sectors__contains=industry, date_published=date_published,
+        )
+        for buyer in Buyer.objects.filter(sector=industry):
+            send_email_notifications(
+                recipient_name=buyer.name,
+                recipient_email=buyer.email,
+                text_template='new_companies_in_sector_email.txt',
+                html_template='new_companies_in_sector_email.html',
+                subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
+                notification_category=notification_category,
+                extra_context=extra_context,
+            )
+            record_anonymous_notification_sent(
+                email=buyer.email, category=notification_category
+            )

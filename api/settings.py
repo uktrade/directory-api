@@ -348,6 +348,14 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
 VERIFICATION_CODE_URL = os.getenv(
     "VERIFICATION_CODE_URL", "http://great.gov.uk/verify")
+NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = int(os.getenv(
+    'NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS',
+    '7'
+))
+NEW_COMPANIES_IN_SECTOR_SUBJECT = os.getenv(
+    'NEW_COMPANIES_IN_SECTOR_SUBJECT',
+    'New companies added to your sector'
+)
 
 ZENDESK_URL = os.getenv(
     "ZENDESK_URL",
