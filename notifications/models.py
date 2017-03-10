@@ -17,7 +17,7 @@ class SupplierEmailNotification(models.Model):
 
 
 class AnonymousEmailNotification(models.Model):
-    email = models.CharField(max_length=255)
+    email = models.EmailField()
     category = models.CharField(
         max_length=255, choices=constants.BUYER_NOTIFICATION_CATEGORIES
     )
