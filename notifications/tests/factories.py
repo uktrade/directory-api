@@ -3,7 +3,6 @@ import factory.fuzzy
 
 from notifications import models, constants
 from supplier.tests.factories import SupplierFactory
-from buyer.tests.factories import BuyerFactory
 
 
 SUPPLIER_CATEGORY_CHOICES = [

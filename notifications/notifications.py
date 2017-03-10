@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import timedelta, datetime
 
 from django.conf import settings
@@ -5,7 +6,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from directory_sso_api_client.client import DirectorySSOAPIClient
-from directory_validators.constants import choices
 
 from buyer.models import Buyer
 from company.models import Company
@@ -166,20 +166,24 @@ def verification_code_not_given():
 
 def new_companies_in_sector():
     days = settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS
-    date_published = datetime.utcnow() - timedelta(days=days)
     notification_category = constants.NEW_COMPANIES_IN_SECTOR
     profile_url_template = settings.FAS_COMPANY_PROFILE_URL
     unsubscribed_emails = (
         models.AnonymousUnsubscribe.objects.all()
         .values_list('email', flat=True)
     )
-    for industry, label in choices.COMPANY_CLASSIFICATIONS:
-        companies = Company.objects.filter(
-            sectors__contains='"{value}"'.format(value=industry),
-            date_published__year=date_published.year,
-            date_published__month=date_published.month,
-            date_published__day=date_published.day,
-        )
+    date_published = datetime.utcnow() - timedelta(days=days)
+    companies_per_sector = defaultdict(list)
+    companies_from_date_published = Company.objects.filter(
+        date_published__year=date_published.year,
+        date_published__month=date_published.month,
+        date_published__day=date_published.day,
+    )
+    for company in companies_from_date_published:
+        for industry in company.sectors:
+            companies_per_sector[industry].append(company)
+
+    for industry, companies in companies_per_sector.items():
         extra_context = {
             'company_list_url': settings.FAS_COMPANY_LIST_URL,
             'companies': [

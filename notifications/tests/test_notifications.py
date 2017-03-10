@@ -10,8 +10,11 @@ from django.utils import timezone
 
 from buyer.tests.factories import BuyerFactory
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
-from notifications import notifications
-from notifications.models import SupplierEmailNotification
+from notifications import constants, notifications
+from notifications.models import (
+    AnonymousEmailNotification,
+    SupplierEmailNotification,
+)
 from notifications.tests.factories import (
     AnonymousUnsubscribeFactory,
     SupplierEmailNotificationFactory,
@@ -791,24 +794,27 @@ def test_new_companies_in_sector(settings):
     notifications.new_companies_in_sector()
 
     assert len(mail.outbox) == 3
+    email_one = next(e for e in mail.outbox if buyer_one.email in e.to)
+    email_two = next(e for e in mail.outbox if buyer_two.email in e.to)
+    email_three = next(e for e in mail.outbox if buyer_three.email in e.to)
 
-    assert mail.outbox[0].to == [buyer_one.email]
-    assert mail.outbox[0].subject == 'test subject'
-    assert company_one.name in mail.outbox[0].body
-    assert company_two.name not in mail.outbox[0].body
-    assert company_three.name not in mail.outbox[0].body
+    assert email_one.to == [buyer_one.email]
+    assert email_one.subject == 'test subject'
+    assert company_one.name in email_one.body
+    assert company_two.name not in email_one.body
+    assert company_three.name not in email_one.body
 
-    assert mail.outbox[1].to == [buyer_two.email]
-    assert mail.outbox[1].subject == 'test subject'
-    assert company_one.name in mail.outbox[1].body
-    assert company_two.name not in mail.outbox[1].body
-    assert company_three.name not in mail.outbox[1].body
+    assert email_two.to == [buyer_two.email]
+    assert email_two.subject == 'test subject'
+    assert company_one.name in email_two.body
+    assert company_two.name not in email_two.body
+    assert company_three.name not in email_two.body
 
-    assert mail.outbox[2].to == [buyer_three.email]
-    assert mail.outbox[2].subject == 'test subject'
-    assert company_one.name not in mail.outbox[2].body
-    assert company_two.name not in mail.outbox[2].body
-    assert company_three.name in mail.outbox[2].body
+    assert email_three.to == [buyer_three.email]
+    assert email_three.subject == 'test subject'
+    assert company_one.name not in email_three.body
+    assert company_two.name not in email_three.body
+    assert company_three.name in email_three.body
 
 
 @freeze_time()
@@ -818,11 +824,10 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
-    days_ago_four = datetime.utcnow() - timedelta(days=4)
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     buyer_two = BuyerFactory.create(sector='AEROSPACE')
     AnonymousUnsubscribeFactory(email=buyer_two.email)
- 
+
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
 
     mail.outbox = []  # reset after emails sent by signals
@@ -831,3 +836,24 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
     assert len(mail.outbox) == 1
 
     assert mail.outbox[0].to == [buyer_one.email]
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_records_notification(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    notification_record = AnonymousEmailNotification.objects.first()
+    assert AnonymousEmailNotification.objects.count() == 1
+    assert notification_record.email == buyer_one.email
+    assert notification_record.category == constants.NEW_COMPANIES_IN_SECTOR
