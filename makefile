@@ -72,7 +72,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
 	export DIRECTORY_API_SSO_API_CLIENT_KEY=api_signature_debug; \
 	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/;\
-	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7
+	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
+	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
+	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}
 
 
 DOCKER_REMOVE_ALL := \
@@ -153,7 +155,9 @@ DEBUG_SET_ENV_VARS := \
 	export STORAGE_CLASS_NAME=local-storage; \
 	export SSO_API_CLIENT_KEY=api_signature_debug; \
 	export SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
-	export NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7
+	export NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
+	export FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
+	export FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}
 
 
 debug_webserver:

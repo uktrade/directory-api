@@ -8,17 +8,13 @@
 You asked to be notified when new UK companies in your industry join the Find a Supplier service.
 Check out these new companies that have joined since your last visit:
 
-{# TODO: wrap this in a loop to output the dynamic values properly and delete the duplicate dummy content #}
-{{ name|default:"Company name" }}
-	{{ description|default:"Company description" }}
-	{{ profile }}
+{% for company in companies %}
+	{{ company.instance.name }} - {{ company.instance.description }}
+	View profile: {{ company.profile_url }}
+{% endfor %}
 
-{{ name|default:"Company name" }}
-	{{ description|default:"Company description" }}
-	{{ profile }}
-	
+See all the UK companies in your industry: {{ company_list_url }}
 
-See all the UK companies in your industry by visiting {{ url|default:"https://trade.great.gov.uk/industries" }}
 {% endblock %}
 
 {% block action %}

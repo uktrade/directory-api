@@ -8,11 +8,12 @@ from freezegun import freeze_time
 from django.core import mail
 from django.utils import timezone
 
+from buyer.tests.factories import BuyerFactory
+from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 from notifications import notifications
 from notifications.models import SupplierEmailNotification
 from notifications.tests.factories import SupplierEmailNotificationFactory
 from supplier.tests.factories import SupplierFactory
-from company.tests.factories import CompanyCaseStudyFactory
 
 
 LAST_LOGIN_API_METHOD = (
@@ -762,9 +763,46 @@ def test_sends_log_in_email_to_expected_users():
     assert objs.count() == 4  # 2 + 2 created in setup
 
 
-def test_new_companies_in_sector():
-    # set frequency to 3 day
-    # create buyer interested in AEROSPACE
-    # create supplier for AEROSPACE that was published 3 days ago ... expect inclusion
-    # create supplier for AEROSPACE that was published 4 days ago ... expect exclusion
-    # create supplier for SOFTWARE that was published 3 days ago ... expect exclusion
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    days_ago_four = datetime.utcnow() - timedelta(days=4)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    buyer_two = BuyerFactory.create(sector='AEROSPACE')
+    buyer_three = BuyerFactory.create(sector='CONSTRUCTION')
+    company_one = CompanyFactory(
+        sectors=['AEROSPACE'], date_published=days_ago_three,
+    )
+    company_two = CompanyFactory(
+        sectors=['AEROSPACE'], date_published=days_ago_four,
+    )
+    company_three = CompanyFactory(
+        sectors=['CONSTRUCTION'], date_published=days_ago_three,
+    )
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 3
+
+    assert mail.outbox[0].to == [buyer_one.email]
+    assert mail.outbox[0].subject == 'test subject'
+    assert company_one.name in mail.outbox[0].body
+    assert company_two.name not in mail.outbox[0].body
+    assert company_three.name not in mail.outbox[0].body
+
+    assert mail.outbox[1].to == [buyer_two.email]
+    assert mail.outbox[1].subject == 'test subject'
+    assert company_one.name in mail.outbox[1].body
+    assert company_two.name not in mail.outbox[1].body
+    assert company_three.name not in mail.outbox[1].body
+
+    assert mail.outbox[2].to == [buyer_three.email]
+    assert mail.outbox[2].subject == 'test subject'
+    assert company_one.name not in mail.outbox[2].body
+    assert company_two.name not in mail.outbox[2].body
+    assert company_three.name in mail.outbox[2].body

@@ -26,10 +26,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    "rest_framework",
+    'rest_framework',
     'rest_framework_swagger',
     'django_celery_beat',
-    "raven.contrib.django.raven_compat",
+    'raven.contrib.django.raven_compat',
     'signature',
     'superuser',
     'enrolment.apps.EnrolmentConfig',
@@ -118,10 +118,10 @@ for static_dir in STATICFILES_DIRS:
         os.makedirs(static_dir)
 
 # Application authorisation
-UI_SECRET = os.environ["UI_SECRET"]
+UI_SECRET = os.environ['UI_SECRET']
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ["SECRET_KEY"]
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # DRF
 REST_FRAMEWORK = {
@@ -134,7 +134,7 @@ REST_FRAMEWORK = {
 }
 # Sentry
 RAVEN_CONFIG = {
-    "dsn": os.getenv("SENTRY_DSN"),
+    'dsn': os.getenv('SENTRY_DSN'),
 }
 
 # Logging for development
@@ -216,45 +216,45 @@ else:
 
 
 # SQS
-SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
+SQS_REGION_NAME = os.getenv('SQS_REGION_NAME', 'eu-west-1')
 
 SQS_ENROLMENT_QUEUE_NAME = os.environ[
-    "SQS_ENROLMENT_QUEUE_NAME"
+    'SQS_ENROLMENT_QUEUE_NAME'
 ]
 SQS_INVALID_ENROLMENT_QUEUE_NAME = os.environ[
-    "SQS_INVALID_ENROLMENT_QUEUE_NAME"
+    'SQS_INVALID_ENROLMENT_QUEUE_NAME'
 ]
 
 # Long polling time (how long boto client waits for messages during single
 # receive_messages call), in seconds, max is 20
-SQS_WAIT_TIME = int(os.getenv("SQS_WAIT_TIME", 20))
+SQS_WAIT_TIME = int(os.getenv('SQS_WAIT_TIME', 20))
 # Number of messages retrieved at once, max is 10
-SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
+SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv('SQS_MAX_NUMBER_OF_MESSAGES', 10))
 # Time after which retrieved, but not deleted message will reappear in the
 # queue, max is 43200 (12 hours)
-SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
+SQS_VISIBILITY_TIMEOUT = int(os.getenv('SQS_VISIBILITY_TIMEOUT', 21600))
 
 # CH
 COMPANIES_HOUSE_API_KEY = os.environ['COMPANIES_HOUSE_API_KEY']
 
 # Settings for company email confirmation
 COMPANY_EMAIL_CONFIRMATION_SUBJECT = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_SUBJECT"
+    'COMPANY_EMAIL_CONFIRMATION_SUBJECT'
 ]
 COMPANY_EMAIL_CONFIRMATION_FROM = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_FROM"
+    'COMPANY_EMAIL_CONFIRMATION_FROM'
 ]
 COMPANY_EMAIL_CONFIRMATION_URL = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_URL"
+    'COMPANY_EMAIL_CONFIRMATION_URL'
 ]
 
 # Email
-EMAIL_HOST = os.environ["EMAIL_HOST"]
-EMAIL_PORT = os.environ["EMAIL_PORT"]
-EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
+DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 
 # Notify
 GOV_NOTIFY_SERVICE_ID = os.environ['GOV_NOTIFY_SERVICE_ID']
@@ -292,10 +292,10 @@ FEATURE_VERIFICATION_LETTERS_ENABLED = os.getenv(
     'FEATURE_VERIFICATION_LETTERS_ENABLED'
 ) == 'true'
 
-STANNP_API_KEY = os.environ["STANNP_API_KEY"]
+STANNP_API_KEY = os.environ['STANNP_API_KEY']
 STANNP_TEST_MODE = os.getenv('STANNP_TEST_MODE') != 'false'
 STANNP_VERIFICATION_LETTER_TEMPLATE_ID = os.environ[
-    "STANNP_VERIFICATION_LETTER_TEMPLATE_ID"
+    'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
 ]
 
 GECKO_API_KEY = os.environ['GECKO_API_KEY']
@@ -313,24 +313,24 @@ CONTACT_SUPPLIER_FROM_EMAIL = os.environ['CONTACT_SUPPLIER_FROM_EMAIL']
 
 # Automated email settings
 NO_CASE_STUDIES_SUBJECT = os.getenv(
-    "NO_CASE_STUDIES_SUBJECT",
-    "Get seen by more international buyers by improving your profile"
+    'NO_CASE_STUDIES_SUBJECT',
+    'Get seen by more international buyers by improving your profile'
 )
 NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))
 NO_CASE_STUDIES_URL = os.getenv(
-    "NO_CASE_STUDIES_URL",
-    "https://find-a-buyer.export.great.gov.uk/company/case-study/edit/"
+    'NO_CASE_STUDIES_URL',
+    'https://find-a-buyer.export.great.gov.uk/company/case-study/edit/'
 )
 
 HASNT_LOGGED_IN_SUBJECT = os.getenv(
-    "HASNT_LOGGED_IN_SUBJECT",
-    "Not logged in for 30 days"
+    'HASNT_LOGGED_IN_SUBJECT',
+    'Not logged in for 30 days'
 )
 HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
 HASNT_LOGGED_IN_URL = os.getenv(
-    "HASNT_LOGGED_IN_URL",
-    "https://sso.trade.great.gov.uk/accounts/login/?next={next}/".format(
-        next="https://find-a-buyer.export.great.gov.uk/"
+    'HASNT_LOGGED_IN_URL',
+    'https://sso.trade.great.gov.uk/accounts/login/?next={next}/'.format(
+        next='https://find-a-buyer.export.great.gov.uk/'
     )
 )
 
@@ -347,7 +347,7 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS = int(os.getenv(
 VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
 VERIFICATION_CODE_URL = os.getenv(
-    "VERIFICATION_CODE_URL", "http://great.gov.uk/verify")
+    'VERIFICATION_CODE_URL', 'http://great.gov.uk/verify')
 NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = int(os.getenv(
     'NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS',
     '7'
@@ -358,8 +358,8 @@ NEW_COMPANIES_IN_SECTOR_SUBJECT = os.getenv(
 )
 
 ZENDESK_URL = os.getenv(
-    "ZENDESK_URL",
-    "https://contact-us.export.great.gov.uk/feedback/directory/"
+    'ZENDESK_URL',
+    'https://contact-us.export.great.gov.uk/feedback/directory/'
 )
 
 # Redis
@@ -375,5 +375,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 # SSO API Client
-SSO_API_CLIENT_BASE_URL = os.environ["SSO_API_CLIENT_BASE_URL"]
-SSO_API_CLIENT_KEY = os.environ["SSO_API_CLIENT_KEY"]
+SSO_API_CLIENT_BASE_URL = os.environ['SSO_API_CLIENT_BASE_URL']
+SSO_API_CLIENT_KEY = os.environ['SSO_API_CLIENT_KEY']
+
+# FAS
+FAS_COMPANY_LIST_URL = os.environ['FAS_COMPANY_LIST_URL']
+FAS_COMPANY_PROFILE_URL = os.environ['FAS_COMPANY_PROFILE_URL']
