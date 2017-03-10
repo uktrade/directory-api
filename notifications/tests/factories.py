@@ -28,3 +28,10 @@ class AnonymousEmailNotificationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.AnonymousEmailNotification
+
+
+class AnonymousUnsubscribeFactory(factory.django.DjangoModelFactory):
+    email = factory.Sequence(lambda n: '%d@example.com' % n)
+
+    class Meta:
+        model = models.AnonymousUnsubscribe

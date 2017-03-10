@@ -12,7 +12,10 @@ from buyer.tests.factories import BuyerFactory
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 from notifications import notifications
 from notifications.models import SupplierEmailNotification
-from notifications.tests.factories import SupplierEmailNotificationFactory
+from notifications.tests.factories import (
+    AnonymousUnsubscribeFactory,
+    SupplierEmailNotificationFactory,
+)
 from supplier.tests.factories import SupplierFactory
 
 
@@ -806,3 +809,25 @@ def test_new_companies_in_sector(settings):
     assert company_one.name not in mail.outbox[2].body
     assert company_two.name not in mail.outbox[2].body
     assert company_three.name in mail.outbox[2].body
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_exclude_unsbscribed(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    days_ago_four = datetime.utcnow() - timedelta(days=4)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    buyer_two = BuyerFactory.create(sector='AEROSPACE')
+    AnonymousUnsubscribeFactory(email=buyer_two.email)
+ 
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].to == [buyer_one.email]

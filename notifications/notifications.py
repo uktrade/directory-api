@@ -169,6 +169,10 @@ def new_companies_in_sector():
     date_published = datetime.utcnow() - timedelta(days=days)
     notification_category = constants.NEW_COMPANIES_IN_SECTOR
     profile_url_template = settings.FAS_COMPANY_PROFILE_URL
+    unsubscribed_emails = (
+        models.AnonymousUnsubscribe.objects.all()
+        .values_list('email', flat=True)
+    )
     for industry, label in choices.COMPANY_CLASSIFICATIONS:
         companies = Company.objects.filter(
             sectors__contains='"{value}"'.format(value=industry),
@@ -187,8 +191,12 @@ def new_companies_in_sector():
                 for company in companies
             ]
         }
-        # remove buyers that have unsubscribed
-        for buyer in Buyer.objects.filter(sector=industry):
+        buyers = (
+            Buyer.objects
+            .filter(sector=industry)
+            .exclude(email__in=unsubscribed_emails)
+        )
+        for buyer in buyers:
             send_email_notifications(
                 recipient_name=buyer.name,
                 recipient_email=buyer.email,
