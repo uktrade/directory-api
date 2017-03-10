@@ -35,14 +35,27 @@ services:
     env_file: ./docker/.env
     restart: "always"
 
-  celery_beat_worker:
+  celery_beat_scheduler:
     build:
       context: .
-      dockerfile: Dockerfile-celery_beat_worker
+      dockerfile: Dockerfile-celery_beat_scheduler
     depends_on: [redis]
     links: [postgres, redis]
     working_dir: /usr/src/app
     entrypoint: dockerize -wait tcp://redis:6379 -timeout 20s
-    command: ./docker/cmd-celery_beat_worker.sh
+    command: ./docker/cmd-celery_beat_scheduler.sh
+    env_file: ./docker/.env
+    restart: "always"
+
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-celery_worker
+    depends_on: [redis]
+    links: [postgres, redis]
+    working_dir: /usr/src/app
+    entrypoint: dockerize -wait tcp://redis:6379 -timeout 20s
+    command: ./docker/cmd-celery_worker.sh
     env_file: ./docker/.env
     restart: "always"
