@@ -3,7 +3,6 @@ import factory.fuzzy
 
 from notifications import models, constants
 from supplier.tests.factories import SupplierFactory
-from buyer.tests.factories import BuyerFactory
 
 
 SUPPLIER_CATEGORY_CHOICES = [
@@ -21,10 +20,17 @@ class SupplierEmailNotificationFactory(factory.django.DjangoModelFactory):
         model = models.SupplierEmailNotification
 
 
-class BuyerEmailNotificationFactory(factory.django.DjangoModelFactory):
+class AnonymousEmailNotificationFactory(factory.django.DjangoModelFactory):
 
-    buyer = factory.SubFactory(BuyerFactory)
+    email = factory.Sequence(lambda n: '%d@example.com' % n)
     category = factory.fuzzy.FuzzyChoice(BUYER_CATEGORY_CHOICES)
 
     class Meta:
-        model = models.BuyerEmailNotification
+        model = models.AnonymousEmailNotification
+
+
+class AnonymousUnsubscribeFactory(factory.django.DjangoModelFactory):
+    email = factory.Sequence(lambda n: '%d@example.com' % n)
+
+    class Meta:
+        model = models.AnonymousUnsubscribe

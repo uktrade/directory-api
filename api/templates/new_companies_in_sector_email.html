@@ -1,5 +1,5 @@
 {% extends "email.html" %}
-{% load header_image from enrolment_email %}
+{% load company_profile_url from notifications_tags %}
 {% load external_url from constants_tags %}
 
 {% block heading %}Find a Buyer service{% endblock %}
@@ -8,25 +8,20 @@
 <p>You asked to be notified when new UK companies in your industry join the Find a Supplier service.</p>
 <p>Check out these new companies that have joined since your last visit:</p>
 
-
 <dl>
-	{# TODO: wrap this in a loop to output the dynamic values properly and delete the duplicate dummy content #}
-	<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;text-transform: uppercase;">{{ name|default:"Company name" }}</dt>
-	<dd style="margin: 0;padding: 10px 15px;">
-		{{ description|default:"Company description" }}
-		<br>
-		<a href="{{ profile|default:"#" }}" style="line-height: 2.5em;">View profile</a>
-	</dd>
-	
-	<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;text-transform: uppercase;">{{ name|default:"Company name"  }}</dt>
-	<dd style="margin: 0;padding: 10px 15px;">
-		{{ description|default:"Company description" }}
-		<br>
-		<a href="{{ profile|default:"#" }}" style="line-height: 2.5em;">View profile</a>
-	</dd>
+	{% for company in companies %}
+		<div>
+			<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.name }}</dt>
+			<dd style="margin: 0;padding: 10px 15px;">
+				{{ company.description }}
+				<br>
+				<a href="{{ company.number|company_profile_url }}" style="line-height: 2.5em;">View profile</a>
+			</dd>
+		</div>
+	{% endfor %}
 </dl>
 
-<p>See all the <a href="{{ url }}">UK companies in your industry</a>.</p>
+<p>See all the <a href="{{ company_list_url }}">UK companies in your industry</a>.</p>
 {% endblock %}
 
 {% block action %}

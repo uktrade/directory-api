@@ -8,11 +8,18 @@ from freezegun import freeze_time
 from django.core import mail
 from django.utils import timezone
 
-from notifications import notifications
-from notifications.models import SupplierEmailNotification
-from notifications.tests.factories import SupplierEmailNotificationFactory
+from buyer.tests.factories import BuyerFactory
+from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from notifications import constants, notifications
+from notifications.models import (
+    AnonymousEmailNotification,
+    SupplierEmailNotification,
+)
+from notifications.tests.factories import (
+    AnonymousUnsubscribeFactory,
+    SupplierEmailNotificationFactory,
+)
 from supplier.tests.factories import SupplierFactory
-from company.tests.factories import CompanyCaseStudyFactory
 
 
 LAST_LOGIN_API_METHOD = (
@@ -760,3 +767,141 @@ def test_sends_log_in_email_to_expected_users():
     assert mail.outbox[1].to == [suppliers[2].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 4  # 2 + 2 created in setup
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    days_ago_four = datetime.utcnow() - timedelta(days=4)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    buyer_two = BuyerFactory.create(sector='AEROSPACE')
+    buyer_three = BuyerFactory.create(sector='CONSTRUCTION')
+    company_one = CompanyFactory(
+        sectors=['AEROSPACE'], date_published=days_ago_three,
+    )
+    company_two = CompanyFactory(
+        sectors=['AEROSPACE'], date_published=days_ago_four,
+    )
+    company_three = CompanyFactory(
+        sectors=['CONSTRUCTION'], date_published=days_ago_three,
+    )
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 3
+    email_one = next(e for e in mail.outbox if buyer_one.email in e.to)
+    email_two = next(e for e in mail.outbox if buyer_two.email in e.to)
+    email_three = next(e for e in mail.outbox if buyer_three.email in e.to)
+
+    assert email_one.to == [buyer_one.email]
+    assert email_one.subject == 'test subject'
+    assert company_one.name in email_one.body
+    assert company_two.name not in email_one.body
+    assert company_three.name not in email_one.body
+
+    assert email_two.to == [buyer_two.email]
+    assert email_two.subject == 'test subject'
+    assert company_one.name in email_two.body
+    assert company_two.name not in email_two.body
+    assert company_three.name not in email_two.body
+
+    assert email_three.to == [buyer_three.email]
+    assert email_three.subject == 'test subject'
+    assert company_one.name not in email_three.body
+    assert company_two.name not in email_three.body
+    assert company_three.name in email_three.body
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_exclude_unsbscribed(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    buyer_two = BuyerFactory.create(sector='AEROSPACE')
+    AnonymousUnsubscribeFactory(email=buyer_two.email)
+
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].to == [buyer_one.email]
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_records_notification(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    notification_record = AnonymousEmailNotification.objects.first()
+    assert AnonymousEmailNotification.objects.count() == 1
+    assert notification_record.email == buyer_one.email
+    assert notification_record.category == constants.NEW_COMPANIES_IN_SECTOR
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_single_email_per_buyer(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer = BuyerFactory.create(sector='AEROSPACE', email='jim@example.com')
+    BuyerFactory.create(sector='AIRPORTS', email='jim@example.com')
+
+    company_one = CompanyFactory(
+        sectors=['AEROSPACE'], date_published=days_ago_three
+    )
+    company_two = CompanyFactory(
+        sectors=['AIRPORTS'], date_published=days_ago_three
+    )
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [buyer.email]
+    assert company_one.name in mail.outbox[0].body
+    assert company_two.name in mail.outbox[0].body
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_company_multiple_sectors(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    BuyerFactory.create(sector='AEROSPACE', email='jim@example.com')
+    BuyerFactory.create(sector='AIRPORTS', email='jim@example.com')
+
+    company_one = CompanyFactory(
+        sectors=['AEROSPACE', 'AIRPORTS'], date_published=days_ago_three
+    )
+    company_two = CompanyFactory(
+        sectors=['AIRPORTS'], date_published=days_ago_three
+    )
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].body.count(company_one.name) == 1
+    assert mail.outbox[0].body.count(company_two.name) == 1
