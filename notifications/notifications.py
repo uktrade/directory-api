@@ -1,4 +1,3 @@
-from collections import defaultdict
 from datetime import timedelta, datetime
 
 from django.conf import settings
@@ -7,9 +6,7 @@ from django.template.loader import render_to_string
 
 from directory_sso_api_client.client import DirectorySSOAPIClient
 
-from buyer.models import Buyer
-from company.models import Company
-from notifications import models, constants
+from notifications import constants, helpers, models
 from user.models import User as Supplier
 
 
@@ -165,51 +162,25 @@ def verification_code_not_given():
 
 
 def new_companies_in_sector():
-    days = settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS
     notification_category = constants.NEW_COMPANIES_IN_SECTOR
-    profile_url_template = settings.FAS_COMPANY_PROFILE_URL
-    unsubscribed_emails = (
-        models.AnonymousUnsubscribe.objects.all()
-        .values_list('email', flat=True)
-    )
-    date_published = datetime.utcnow() - timedelta(days=days)
-    companies_per_sector = defaultdict(list)
-    companies_from_date_published = Company.objects.filter(
-        date_published__year=date_published.year,
-        date_published__month=date_published.month,
-        date_published__day=date_published.day,
-    )
-    for company in companies_from_date_published:
-        for industry in company.sectors:
-            companies_per_sector[industry].append(company)
-
-    for industry, companies in companies_per_sector.items():
+    companies_grouped_by_industry = helpers.group_new_companies_by_industry()
+    for subscriber in helpers.get_anonymous_subscribers():
         extra_context = {
+            'companies': set(),
             'company_list_url': settings.FAS_COMPANY_LIST_URL,
-            'companies': [
-                {
-                    'url': profile_url_template.format(number=company.number),
-                    'instance': company,
-
-                }
-                for company in companies
-            ]
         }
-        buyers = (
-            Buyer.objects
-            .filter(sector=industry)
-            .exclude(email__in=unsubscribed_emails)
+        for industry in subscriber['industries']:
+            companies = companies_grouped_by_industry[industry]
+            extra_context['companies'].update(companies)
+        send_email_notifications(
+            recipient_name=subscriber['name'],
+            recipient_email=subscriber['email'],
+            text_template='new_companies_in_sector_email.txt',
+            html_template='new_companies_in_sector_email.html',
+            subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
+            notification_category=notification_category,
+            extra_context=extra_context,
         )
-        for buyer in buyers:
-            send_email_notifications(
-                recipient_name=buyer.name,
-                recipient_email=buyer.email,
-                text_template='new_companies_in_sector_email.txt',
-                html_template='new_companies_in_sector_email.html',
-                subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
-                notification_category=notification_category,
-                extra_context=extra_context,
-            )
-            record_anonymous_notification_sent(
-                email=buyer.email, category=notification_category
-            )
+        record_anonymous_notification_sent(
+            email=subscriber['email'], category=notification_category
+        )
