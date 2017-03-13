@@ -1,4 +1,20 @@
-Dear {{ full_name }}
+{% extends "email.txt" %}
 
-It's been 30 days and you haven't logged in. Please do so: {{ login_url }}
-Zendesk: {{ zendesk_url }}
+{% block heading %}Find a Buyer service{% endblock %}
+
+{% block body %}
+You haven’t updated the profile for your company on the Find a buyer service recently.
+
+International buyers visit the site every day to look for UK companies to buy goods and services from. The Department for International Trade is currently promoting the service to international buyers around the world.
+
+To make the most of your profile, it’s worth having another look to see whether you could add new information, case studies and images.
+
+Log in to your Find a buyer to improve your profile: {{ login_url }}
+If you have a problem using the service let us know at: {{ zendesk_url }}
+{% endblock %}
+
+{% block action %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
