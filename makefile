@@ -92,7 +92,8 @@ docker_debug: docker_remove_all
 	docker-compose pull && \
 	docker-compose build && \
 	docker-compose run -d --no-deps enrolment_worker && \
-	docker-compose run -d --no-deps celery_beat_worker && \
+	docker-compose run -d --no-deps celery_beat_scheduler && \
+	docker-compose run -d --no-deps celery_worker && \
 	docker-compose run --service-ports webserver make django_webserver
 
 docker_webserver_bash:
@@ -166,7 +167,10 @@ debug_webserver:
 debug_enrolment_worker:
 	$(DEBUG_SET_ENV_VARS); ./manage.py enrolment_worker
 
-debug_celery_beat_worker:
+debug_celery_beat_scheduler:
+	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api beat -l info -S django
+
+debug_celery_beat_scheduler:
 	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api worker -l info
 
 DEBUG_CREATE_DB := \
@@ -179,7 +183,7 @@ debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
 
 debug_test:
-	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(PYTEST)
+	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
 
 debug_manage:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py $(cmd)
@@ -203,8 +207,10 @@ heroku_deploy_dev:
 	docker push registry.heroku.com/directory-api-dev/web
 	docker build -t registry.heroku.com/directory-api-dev/enrolment_worker -f Dockerfile-enrolment_worker .
 	docker push registry.heroku.com/directory-api-dev/enrolment_worker
-	docker build -t registry.heroku.com/directory-api-dev/celery_beat_worker -f Dockerfile-celery_beat_worker .
-	docker push registry.heroku.com/directory-api-dev/celery_beat_worker
+	docker build -t registry.heroku.com/directory-api-dev/celery_beat_scheduler -f Dockerfile-celery_beat_scheduler .
+	docker push registry.heroku.com/directory-api-dev/celery_beat_scheduler
+	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
+	docker push registry.heroku.com/directory-api-dev/celery_worker
 
 smoke_tests:
 	cd $(mktemp -d) && \
