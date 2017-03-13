@@ -6,7 +6,7 @@ from api.model_utils import TimeStampedModel
 
 class Enrolment(TimeStampedModel):
     data = JSONField()
-    # Unique constraint to achieve “exactly-once delivery” with Amazon SQS
+    # Unique constraint to achieve 'exactly-once delivery' with Amazon SQS
     sqs_message_id = models.CharField(
         max_length=255, blank=False, null=True, unique=True,
     )
