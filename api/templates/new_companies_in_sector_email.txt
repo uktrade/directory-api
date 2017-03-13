@@ -1,5 +1,5 @@
 {% extends "email.txt" %}
-{% load header_image from enrolment_email %}
+{% load company_profile_url from notifications_tags %}
 {% load external_url from constants_tags %}
 
 {% block heading %}Find a Buyer service{% endblock %}
@@ -9,8 +9,8 @@ You asked to be notified when new UK companies in your industry join the Find a 
 Check out these new companies that have joined since your last visit:
 
 {% for company in companies %}
-	{{ company.instance.name }} - {{ company.instance.description }}
-	View profile: {{ company.profile_url }}
+	{{ company.name }} - {{ company.description }}
+	View profile: {{ company.number|company_profile_url }}
 {% endfor %}
 
 See all the UK companies in your industry: {{ company_list_url }}

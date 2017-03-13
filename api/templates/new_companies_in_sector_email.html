@@ -1,5 +1,5 @@
 {% extends "email.html" %}
-{% load header_image from enrolment_email %}
+{% load company_profile_url from notifications_tags %}
 {% load external_url from constants_tags %}
 
 {% block heading %}Find a Buyer service{% endblock %}
@@ -11,11 +11,11 @@
 <dl>
 	{% for company in companies %}
 		<div>
-			<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.instance.name }}</dt>
+			<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.name }}</dt>
 			<dd style="margin: 0;padding: 10px 15px;">
-				{{ company.instance.description }}
+				{{ company.description }}
 				<br>
-				<a href="{{ company.profile_url }}" style="line-height: 2.5em;">View profile</a>
+				<a href="{{ company.number|company_profile_url }}" style="line-height: 2.5em;">View profile</a>
 			</dd>
 		</div>
 	{% endfor %}
