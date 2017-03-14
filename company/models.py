@@ -144,11 +144,6 @@ class Company(TimeStampedModel):
         blank=True,
         default='',
     )
-    # deprecated. use field level contact fields instead
-    contact_details = JSONField(
-        blank=True,
-        default={}
-    )
     slug = models.SlugField()
 
     class Meta:
