@@ -1,4 +1,4 @@
-	{% load header_image from enrolment_email %}
+	{% load email_image from enrolment_email %}
 	{% load external_url from constants_tags %}
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml">
@@ -226,7 +226,7 @@
 												<table border="0" cellpadding="0" cellspacing="0" width="500" class="flexibleContainer">
 													<tr>
 														<td align="left" valign="top" width="500" class="flexibleContainerCell">
-                                                            <img src="{% header_image %}" style="margin: 20px;" alt="" />
+                                                            <img src="{% email_image 'exporting_is_great.png' %}" style="margin: 20px;" alt="" />
 														</td>
 													</tr>
 												</table>
