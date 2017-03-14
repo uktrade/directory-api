@@ -8,6 +8,7 @@ from redlock import Redlock
 distributed_lock_manager = Redlock([
     {
         "host": settings.REDIS_HOST,
+        "password": settings.REDIS_PASSWORD,
         "port": settings.REDIS_PORT,
         "db": 0
     },
