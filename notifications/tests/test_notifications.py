@@ -741,7 +741,7 @@ def test_if_log_in_email_send_fails_previous_info_still_written_to_db():
 
 @freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
-def test_sends_log_in_email_to_expected_users():
+def test_sends_log_in_email_to_expected_users(settings):
     suppliers = SupplierFactory.create_batch(4)
     mocked_json = [
         {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
@@ -767,6 +767,7 @@ def test_sends_log_in_email_to_expected_users():
     assert mail.outbox[1].to == [suppliers[2].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 4  # 2 + 2 created in setup
+    assert settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL in mail.outbox[0].body
 
 
 @freeze_time()
@@ -802,7 +803,6 @@ def test_new_companies_in_sector(settings):
     assert email_one.subject == 'test subject'
     assert company_one.name in email_one.body
     assert company_two.name not in email_one.body
-    assert company_three.name not in email_one.body
 
     assert email_two.to == [buyer_two.email]
     assert email_two.subject == 'test subject'
@@ -901,7 +901,12 @@ def test_new_companies_in_sector_company_multiple_sectors(settings):
 
     mail.outbox = []  # reset after emails sent by signals
     notifications.new_companies_in_sector()
+    unsubscribe_url = (
+        'http://buyer.trade.great.dev:8001/unsubscribe?email='
+        'jim%40example.com%3A2Kkc4EAEos2htrZXeLj73CSVBWA'
+    )
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].body.count(company_one.name) == 1
     assert mail.outbox[0].body.count(company_two.name) == 1
+    assert unsubscribe_url in mail.outbox[0].body

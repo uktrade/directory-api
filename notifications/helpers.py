@@ -1,6 +1,8 @@
+import urllib
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from django.core.signing import Signer
 from django.conf import settings
 
 from buyer.models import Buyer
@@ -63,3 +65,10 @@ def get_anonymous_subscribers():
             }
         subscribers[buyer.email]['industries'].append(buyer.sector)
     return list(subscribers.values())
+
+
+def get_anonymous_unsubscribe_url(email):
+    return '{base_url}?{querystring}'.format(
+        base_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
+        querystring=urllib.parse.urlencode({'email': Signer().sign(email)}),
+    )
