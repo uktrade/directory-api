@@ -171,7 +171,7 @@ debug_enrolment_worker:
 debug_celery_beat_scheduler:
 	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api beat -l info -S django
 
-debug_celery_beat_scheduler:
+debug_celery_worker:
 	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api worker -l info
 
 DEBUG_CREATE_DB := \
