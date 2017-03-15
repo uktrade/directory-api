@@ -66,6 +66,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_CONTACT_SUPPLIER_SUBJECT=debug; \
 	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug; \
 	export DIRECTORY_API_REDIS_HOST=debug; \
+	export DIRECTORY_API_REDIS_PASSWORD=debug; \
 	export DIRECTORY_API_REDIS_PORT=debug; \
 	export DIRECTORY_API_CELERY_BROKER_URL=debug; \
 	export DIRECTORY_API_CELERY_RESULT_BACKEND=debug; \
@@ -203,6 +204,7 @@ migrations:
 debug: test_requirements debug_db debug_test
 
 heroku_deploy_dev:
+	docker login --email=$HEROKU_EMAIL --username=$HEROKU_EMAIL --password=$HEROKU_API_KEY registry.heroku.com
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
 	docker build -t registry.heroku.com/directory-api-dev/enrolment_worker -f Dockerfile-enrolment_worker .
