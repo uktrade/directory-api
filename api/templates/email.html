@@ -1,4 +1,4 @@
-{% load header_image from enrolment_email %}
+{% load email_image from enrolment_email %}
 {% load external_url from constants_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -90,7 +90,7 @@
 			<thead>
 				<tr>
 					<td style="font-size:10px; padding:20px 20px 0px 20px;">
-						<img alt="Exporting is Great logo" style="display:block; margin:10px 0 20px 0;" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/exporting-is-great-flag.jpg" width="140" height="74">
+						<img alt="Exporting is Great logo" style="display:block; margin:10px 0 20px 0;" src="{% email_image 'EiG-logo-email.png' %}" width="144" height="74">
 					</td>
 				</tr>
 			</thead>
@@ -124,15 +124,15 @@
 						<table cellspacing="0" cellpadding="0" border="0" width="100%">
 							<tr>
 								<td>
-									<img alt="HM Government logo" style="display:block; margin-bottom:10px;" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/HM_Government.png" width="194" height="71">
+									<img alt="HM Government logo" style="display:block; margin-bottom:10px;" src="{% email_image 'HM-Government-logo-email.png' %}" width="203" height="70">
 											
 										<p><a href="http://l.email.service.trade.gov.uk/rts/go2.aspx?h=265780&amp;tp=i-H9D-Q1q-7E7-2DcaF-1c-0-3E-1C0W-G-2DcaF-1Ae9eF" style="font-weight:bold; color:#12044B !important;">great.gov.uk</a></p>
 										<br>
 										<br>
 								</td>
 								<td align="right" valign="top">
-									<a href="https://www.linkedin.com/company/department-for-international-trade"><img alt="Linked In" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/socialbuttons/sm-great-link-icon.gif" width="42" height="32" style="margin-bottom:10px;"></a>
-									<a href="https://twitter.com/tradegovuk"><img alt="Twitter" src="http://wpm.ccmp.eu/wpm/100058/ImageLibrary/images/socialbuttons/sm-great-tw-icon.gif" width="43" height="32" style="margin-bottom:10px;"></a>
+									<a href="https://www.linkedin.com/company/department-for-international-trade"><img alt="Linked In" src="{% email_image 'linkedin-email.png' %}" width="30" height="30" style="margin-bottom:10px;"></a>
+									<a href="https://twitter.com/tradegovuk"><img alt="Twitter" src="{% email_image 'twitter-email.png' %}" width="30" height="30" style="margin-bottom:10px;"></a>
 									</td>
 								</tr>
 							</table>
