@@ -18,11 +18,12 @@ sso_api_client = DirectorySSOAPIClient(
 
 def send_email_notifications(
     recipient_name, recipient_email, text_template, html_template, subject,
-    notification_category, extra_context
+    notification_category, extra_context, unsubscribe_url
 ):
     context = {
         'full_name': recipient_name,
         'zendesk_url': settings.ZENDESK_URL,
+        'unsubscribe_url': unsubscribe_url,
         **extra_context
     }
     text_body = render_to_string(text_template, context)
@@ -70,6 +71,7 @@ def no_case_studies():
             subject=settings.NO_CASE_STUDIES_SUBJECT,
             notification_category=notification_category,
             extra_context={'case_study_url': settings.NO_CASE_STUDIES_URL},
+            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -99,6 +101,7 @@ def hasnt_logged_in():
             subject=settings.HASNT_LOGGED_IN_SUBJECT,
             notification_category=notification_category,
             extra_context={'login_url': settings.HASNT_LOGGED_IN_URL},
+            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -131,6 +134,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
             notification_category=notification_category,
             extra_context=extra_context,
+            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -157,6 +161,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
             notification_category=notification_category,
             extra_context=extra_context,
+            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -165,6 +170,7 @@ def new_companies_in_sector():
     notification_category = constants.NEW_COMPANIES_IN_SECTOR
     companies_grouped_by_industry = helpers.group_new_companies_by_industry()
     for subscriber in helpers.get_anonymous_subscribers():
+        email = subscriber['email']
         extra_context = {
             'companies': set(),
             'company_list_url': settings.FAS_COMPANY_LIST_URL,
@@ -174,13 +180,14 @@ def new_companies_in_sector():
             extra_context['companies'].update(companies)
         send_email_notifications(
             recipient_name=subscriber['name'],
-            recipient_email=subscriber['email'],
+            recipient_email=email,
             text_template='new_companies_in_sector_email.txt',
             html_template='new_companies_in_sector_email.html',
             subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
             notification_category=notification_category,
             extra_context=extra_context,
+            unsubscribe_url=helpers.get_anonymous_unsubscribe_url(email),
         )
         record_anonymous_notification_sent(
-            email=subscriber['email'], category=notification_category
+            email=email, category=notification_category
         )
