@@ -365,7 +365,7 @@ ZENDESK_URL = os.getenv(
 # Redis
 REDIS_HOST = os.getenv('REDIS_HOST')
 REDIS_PORT = os.getenv('REDIS_PORT')
-REDIS_PORT = os.getenv('REDIS_PASSWORD')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 
 # Celery
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
