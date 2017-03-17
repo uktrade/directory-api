@@ -324,7 +324,7 @@ NO_CASE_STUDIES_URL = os.getenv(
 
 HASNT_LOGGED_IN_SUBJECT = os.getenv(
     "HASNT_LOGGED_IN_SUBJECT",
-    "Not logged in for 30 days"
+    "Update your Find a buyer profile"
 )
 HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
 HASNT_LOGGED_IN_URL = os.getenv(

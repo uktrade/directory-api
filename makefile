@@ -154,6 +154,7 @@ DEBUG_SET_ENV_VARS := \
 	export CONTACT_SUPPLIER_FROM_EMAIL=debug; \
 	export REDIS_HOST=debug; \
 	export REDIS_PORT=debug; \
+	export REDIS_PASSWORD=debug; \
 	export CELERY_BROKER_URL=debug; \
 	export CELERY_RESULT_BACKEND=debug; \
 	export STORAGE_CLASS_NAME=local-storage; \
