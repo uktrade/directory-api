@@ -6,6 +6,7 @@ import pytest
 from freezegun import freeze_time
 
 from django.core import mail
+from django.conf import settings
 from django.utils import timezone
 
 from buyer.tests.factories import BuyerFactory
@@ -598,7 +599,7 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
     )
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [suppliers[1].company_email]
-    assert mail.outbox[0].subject == 'Not logged in for 30 days'
+    assert mail.outbox[0].subject == settings.HASNT_LOGGED_IN_SUBJECT
     assert suppliers[1].name in mail.outbox[0].body
     assert suppliers[1].name in mail.outbox[0].alternatives[0][0]
     assert SupplierEmailNotification.objects.all().count() == 1
