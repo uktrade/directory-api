@@ -7,7 +7,11 @@ from django.conf import settings
 
 from buyer.models import Buyer
 from company.models import Company
-from notifications.models import AnonymousUnsubscribe
+from notifications.models import (
+    AnonymousUnsubscribe,
+    AnonymousEmailNotification,
+)
+from notifications import constants
 
 
 def group_new_companies_by_industry():
@@ -36,10 +40,11 @@ def group_new_companies_by_industry():
     return companies_by_industry
 
 
-def get_anonymous_subscribers():
+def get_new_companies_anonymous_subscribers():
     """
     An email can subscribe to multiple industries. This removes duplicate
-    email addresses and groups industries.
+    email addresses and groups industries. Excludes subscribers that have
+    already received "new companies in industry" email today.
 
     :returns list:
         [
@@ -52,9 +57,16 @@ def get_anonymous_subscribers():
 
     """
 
-    exclude_emails = (
-        AnonymousUnsubscribe.objects.all().values_list('email', flat=True)
+    unsubscribers = AnonymousUnsubscribe.objects.all()
+    notifications_sent_today = AnonymousEmailNotification.objects.filter(
+        category=constants.NEW_COMPANIES_IN_SECTOR,
+        date_sent__date=datetime.today().date()
     )
+    exclude_emails = (
+        list(unsubscribers.values_list('email', flat=True)) +
+        list(notifications_sent_today.values_list('email', flat=True))
+    )
+
     subscribers = {}
     for buyer in Buyer.objects.exclude(email__in=exclude_emails):
         if buyer.email not in subscribers:

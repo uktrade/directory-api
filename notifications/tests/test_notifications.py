@@ -17,6 +17,7 @@ from notifications.models import (
 )
 from notifications.tests.factories import (
     AnonymousUnsubscribeFactory,
+    AnonymousEmailNotificationFactory,
     SupplierEmailNotificationFactory,
 )
 from supplier.tests.factories import SupplierFactory
@@ -827,6 +828,50 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     buyer_two = BuyerFactory.create(sector='AEROSPACE')
     AnonymousUnsubscribeFactory(email=buyer_two.email)
+
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].to == [buyer_one.email]
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_exclude_already_sent_today(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    buyer_two = BuyerFactory.create(sector='AEROSPACE')
+    # date implicitly set by the model on save
+    AnonymousEmailNotificationFactory(email=buyer_two.email)
+
+    CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 1
+
+    assert mail.outbox[0].to == [buyer_one.email]
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_include_already_sent_yesteryday(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    days_ago_three = datetime.utcnow() - timedelta(days=3)
+    buyer_one = BuyerFactory.create(sector='AEROSPACE')
+    notification = AnonymousEmailNotificationFactory(email=buyer_one.email)
+    notification.date_sent = datetime.today().date() - timedelta(days=1)
+    notification.save()
 
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
 
