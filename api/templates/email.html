@@ -141,7 +141,9 @@
 							
 							<br>
 							<p>Department for International Trade, 1 Victoria Street, London, SW1 H0ET</p>
-							<p><a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+							{% if unsubscribe_url %}
+								<p><a href="{{ unsubscribe_url }}">Unsubscribe</a></p>
+							{% endif %}
 						</td>
 					</tr>
 			</tfoot>
