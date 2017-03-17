@@ -177,7 +177,8 @@ def verification_code_not_given():
 def new_companies_in_sector():
     notification_category = constants.NEW_COMPANIES_IN_SECTOR
     companies_grouped_by_industry = helpers.group_new_companies_by_industry()
-    for subscriber in helpers.get_anonymous_subscribers():
+
+    for subscriber in helpers.get_new_companies_anonymous_subscribers():
         email = subscriber['email']
         extra_context = {
             'companies': set(),
