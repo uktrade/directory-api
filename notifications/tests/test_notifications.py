@@ -842,15 +842,17 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
 
 @freeze_time()
 @pytest.mark.django_db
-def test_new_companies_in_sector_exclude_already_sent_today(settings):
+def test_new_companies_in_sector_exclude_already_sent_recently(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     buyer_two = BuyerFactory.create(sector='AEROSPACE')
-    # date implicitly set by the model on save
-    AnonymousEmailNotificationFactory(email=buyer_two.email)
+
+    notification = AnonymousEmailNotificationFactory(email=buyer_two.email)
+    notification.date_sent = days_ago_three
+    notification.save()
 
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
 
@@ -864,14 +866,15 @@ def test_new_companies_in_sector_exclude_already_sent_today(settings):
 
 @freeze_time()
 @pytest.mark.django_db
-def test_new_companies_in_sector_include_already_sent_yesteryday(settings):
+def test_new_companies_in_sector_include_already_sent_long_time_ago(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
+    days_ago_four = datetime.utcnow() - timedelta(days=4)
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     notification = AnonymousEmailNotificationFactory(email=buyer_one.email)
-    notification.date_sent = datetime.today().date() - timedelta(days=1)
+    notification.date_sent = days_ago_four
     notification.save()
 
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)

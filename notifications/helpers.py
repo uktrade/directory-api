@@ -44,7 +44,8 @@ def get_new_companies_anonymous_subscribers():
     """
     An email can subscribe to multiple industries. This removes duplicate
     email addresses and groups industries. Excludes subscribers that have
-    already received "new companies in industry" email today.
+    already received "new companies in industry" email within configured
+    time period.
 
     :returns list:
         [
@@ -58,13 +59,14 @@ def get_new_companies_anonymous_subscribers():
     """
 
     unsubscribers = AnonymousUnsubscribe.objects.all()
-    notifications_sent_today = AnonymousEmailNotification.objects.filter(
+    delta = timedelta(days=settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS)
+    notifications_sent_recently = AnonymousEmailNotification.objects.filter(
         category=constants.NEW_COMPANIES_IN_SECTOR,
-        date_sent__date=datetime.today().date()
+        date_sent__date__gte=datetime.utcnow() - delta
     )
     exclude_emails = (
         list(unsubscribers.values_list('email', flat=True)) +
-        list(notifications_sent_today.values_list('email', flat=True))
+        list(notifications_sent_recently.values_list('email', flat=True))
     )
 
     subscribers = {}
