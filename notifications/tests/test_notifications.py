@@ -842,6 +842,20 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
 
 @freeze_time()
 @pytest.mark.django_db
+def test_new_companies_in_sector_exclude_suppliers_without_companies(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    BuyerFactory.create(sector='AEROSPACE')
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 0
+
+
+@freeze_time()
+@pytest.mark.django_db
 def test_new_companies_in_sector_exclude_already_sent_recently(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
