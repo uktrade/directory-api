@@ -180,23 +180,24 @@ def new_companies_in_sector():
 
     for subscriber in helpers.get_new_companies_anonymous_subscribers():
         email = subscriber['email']
-        extra_context = {
-            'companies': set(),
-            'company_list_url': settings.FAS_COMPANY_LIST_URL,
-        }
+        companies = set()
         for industry in subscriber['industries']:
-            companies = companies_grouped_by_industry[industry]
-            extra_context['companies'].update(companies)
-        send_email_notifications(
-            recipient_name=subscriber['name'],
-            recipient_email=email,
-            text_template='new_companies_in_sector_email.txt',
-            html_template='new_companies_in_sector_email.html',
-            subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
-            notification_category=notification_category,
-            extra_context=extra_context,
-            unsubscribe_url=helpers.get_anonymous_unsubscribe_url(email),
-        )
-        record_anonymous_notification_sent(
-            email=email, category=notification_category
-        )
+            companies.update(companies_grouped_by_industry[industry])
+        if companies:
+            extra_context = {
+                'companies': companies,
+                'company_list_url': settings.FAS_COMPANY_LIST_URL,
+            }
+            send_email_notifications(
+                recipient_name=subscriber['name'],
+                recipient_email=email,
+                text_template='new_companies_in_sector_email.txt',
+                html_template='new_companies_in_sector_email.html',
+                subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
+                notification_category=notification_category,
+                extra_context=extra_context,
+                unsubscribe_url=helpers.get_anonymous_unsubscribe_url(email),
+            )
+            record_anonymous_notification_sent(
+                email=email, category=notification_category
+            )
