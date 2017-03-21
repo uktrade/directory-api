@@ -77,7 +77,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
 	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}; \
 	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
-	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe
+	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe/
 
 
 DOCKER_REMOVE_ALL := \

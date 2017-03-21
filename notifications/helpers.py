@@ -83,6 +83,6 @@ def get_new_companies_anonymous_subscribers():
 
 def get_anonymous_unsubscribe_url(email):
     return '{base_url}?{querystring}'.format(
-        base_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
+        base_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
         querystring=urllib.parse.urlencode({'email': Signer().sign(email)}),
     )
