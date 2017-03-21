@@ -71,7 +71,7 @@ def no_case_studies():
             subject=settings.NO_CASE_STUDIES_SUBJECT,
             notification_category=notification_category,
             extra_context={'case_study_url': settings.NO_CASE_STUDIES_URL},
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -109,7 +109,7 @@ def hasnt_logged_in():
             subject=settings.HASNT_LOGGED_IN_SUBJECT,
             notification_category=notification_category,
             extra_context={'login_url': settings.HASNT_LOGGED_IN_URL},
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -142,7 +142,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
             notification_category=notification_category,
             extra_context=extra_context,
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -169,7 +169,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
             notification_category=notification_category,
             extra_context=extra_context,
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 

@@ -769,7 +769,7 @@ def test_sends_log_in_email_to_expected_users(settings):
     assert mail.outbox[1].to == [suppliers[2].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 4  # 2 + 2 created in setup
-    assert settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL in mail.outbox[0].body
+    assert settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL in mail.outbox[0].body
 
 
 @freeze_time()
@@ -965,7 +965,7 @@ def test_new_companies_in_sector_company_multiple_sectors(settings):
     mail.outbox = []  # reset after emails sent by signals
     notifications.new_companies_in_sector()
     unsubscribe_url = (
-        'http://buyer.trade.great.dev:8001/unsubscribe?email='
+        'http://supplier.trade.great.dev:8005/unsubscribe?email='
         'jim%40example.com%3A2Kkc4EAEos2htrZXeLj73CSVBWA'
     )
 
