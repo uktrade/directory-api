@@ -7,7 +7,7 @@ clean:
 test_requirements:
 	pip install -r requirements_test.txt
 
-DJANGO_MIGRATE := python manage.py migrate
+DJANGO_MIGRATE := python manage.py migrate --noinput
 FLAKE8 := flake8 . --exclude=migrations
 PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
