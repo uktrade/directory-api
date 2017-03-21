@@ -336,7 +336,7 @@ HASNT_LOGGED_IN_URL = os.getenv(
 
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
-    'Verification code not input',
+    'Please verify your company’s Find a buyer profile',
 )
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = os.getenv(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
@@ -354,7 +354,7 @@ NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = int(os.getenv(
 ))
 NEW_COMPANIES_IN_SECTOR_SUBJECT = os.getenv(
     'NEW_COMPANIES_IN_SECTOR_SUBJECT',
-    'New companies added to your sector'
+    'Find a supplier service - New UK companies in your industry now available'
 )
 
 ZENDESK_URL = os.getenv(
