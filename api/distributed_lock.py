@@ -18,7 +18,10 @@ distributed_lock_manager = Redlock([
 @contextmanager
 def distributed_lock(lock_name, milliseconds_to_wait=1000):
     try:
-        lock = distributed_lock_manager.lock(lock_name, milliseconds_to_wait)
-        yield lock
+        lock_acquired = distributed_lock_manager.lock(
+            lock_name, milliseconds_to_wait
+        )
+        yield lock_acquired
     finally:
-        distributed_lock_manager.unlock(lock)
+        if lock_acquired is not False:
+            distributed_lock_manager.unlock(lock_acquired)
