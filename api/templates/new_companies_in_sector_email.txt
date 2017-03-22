@@ -2,7 +2,7 @@
 {% load company_profile_url from notifications_tags %}
 {% load external_url from constants_tags %}
 
-{% block heading %}Find a Buyer service{% endblock %}
+{% block heading %}Find a Supplier{% endblock %}
 
 {% block body %}
 You asked to be notified when new UK companies in your industry join the Find a Supplier service.
