@@ -769,7 +769,7 @@ def test_sends_log_in_email_to_expected_users(settings):
     assert mail.outbox[1].to == [suppliers[2].company_email]
     objs = SupplierEmailNotification.objects.all()
     assert objs.count() == 4  # 2 + 2 created in setup
-    assert settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL in mail.outbox[0].body
+    assert settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL in mail.outbox[0].body
 
 
 @freeze_time()
@@ -842,15 +842,31 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
 
 @freeze_time()
 @pytest.mark.django_db
-def test_new_companies_in_sector_exclude_already_sent_today(settings):
+def test_new_companies_in_sector_exclude_suppliers_without_companies(settings):
+    settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
+    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+
+    BuyerFactory.create(sector='AEROSPACE')
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.new_companies_in_sector()
+
+    assert len(mail.outbox) == 0
+
+
+@freeze_time()
+@pytest.mark.django_db
+def test_new_companies_in_sector_exclude_already_sent_recently(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     buyer_two = BuyerFactory.create(sector='AEROSPACE')
-    # date implicitly set by the model on save
-    AnonymousEmailNotificationFactory(email=buyer_two.email)
+
+    notification = AnonymousEmailNotificationFactory(email=buyer_two.email)
+    notification.date_sent = days_ago_three
+    notification.save()
 
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
 
@@ -864,14 +880,15 @@ def test_new_companies_in_sector_exclude_already_sent_today(settings):
 
 @freeze_time()
 @pytest.mark.django_db
-def test_new_companies_in_sector_include_already_sent_yesteryday(settings):
+def test_new_companies_in_sector_include_already_sent_long_time_ago(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
+    days_ago_four = datetime.utcnow() - timedelta(days=4)
     buyer_one = BuyerFactory.create(sector='AEROSPACE')
     notification = AnonymousEmailNotificationFactory(email=buyer_one.email)
-    notification.date_sent = datetime.today().date() - timedelta(days=1)
+    notification.date_sent = days_ago_four
     notification.save()
 
     CompanyFactory(sectors=['AEROSPACE'], date_published=days_ago_three)
@@ -948,7 +965,7 @@ def test_new_companies_in_sector_company_multiple_sectors(settings):
     mail.outbox = []  # reset after emails sent by signals
     notifications.new_companies_in_sector()
     unsubscribe_url = (
-        'http://buyer.trade.great.dev:8001/unsubscribe?email='
+        'http://supplier.trade.great.dev:8005/unsubscribe?email='
         'jim%40example.com%3A2Kkc4EAEos2htrZXeLj73CSVBWA'
     )
 

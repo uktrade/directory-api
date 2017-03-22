@@ -3,7 +3,7 @@
 {% block heading %}Find a Buyer service{% endblock %}
 
 {% block body %}
-You recently created a profile for your company on the Find a Buyer service, and we sent you a verification code by post 8 days ago.
+You recently created a profile for your company on the Find a Buyer service, and we sent you a verification code by post 16 days ago.
 
 You can enter the code at {{ verification_url|default:"http://great.gov.uk/verify" }}.
 

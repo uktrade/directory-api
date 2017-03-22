@@ -71,7 +71,7 @@ def no_case_studies():
             subject=settings.NO_CASE_STUDIES_SUBJECT,
             notification_category=notification_category,
             extra_context={'case_study_url': settings.NO_CASE_STUDIES_URL},
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -109,7 +109,7 @@ def hasnt_logged_in():
             subject=settings.HASNT_LOGGED_IN_SUBJECT,
             notification_category=notification_category,
             extra_context={'login_url': settings.HASNT_LOGGED_IN_URL},
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -142,7 +142,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
             notification_category=notification_category,
             extra_context=extra_context,
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -169,7 +169,7 @@ def verification_code_not_given():
             subject=settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL,
             notification_category=notification_category,
             extra_context=extra_context,
-            unsubscribe_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
+            unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
 
@@ -180,23 +180,24 @@ def new_companies_in_sector():
 
     for subscriber in helpers.get_new_companies_anonymous_subscribers():
         email = subscriber['email']
-        extra_context = {
-            'companies': set(),
-            'company_list_url': settings.FAS_COMPANY_LIST_URL,
-        }
+        companies = set()
         for industry in subscriber['industries']:
-            companies = companies_grouped_by_industry[industry]
-            extra_context['companies'].update(companies)
-        send_email_notifications(
-            recipient_name=subscriber['name'],
-            recipient_email=email,
-            text_template='new_companies_in_sector_email.txt',
-            html_template='new_companies_in_sector_email.html',
-            subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
-            notification_category=notification_category,
-            extra_context=extra_context,
-            unsubscribe_url=helpers.get_anonymous_unsubscribe_url(email),
-        )
-        record_anonymous_notification_sent(
-            email=email, category=notification_category
-        )
+            companies.update(companies_grouped_by_industry[industry])
+        if companies:
+            extra_context = {
+                'companies': companies,
+                'company_list_url': settings.FAS_COMPANY_LIST_URL,
+            }
+            send_email_notifications(
+                recipient_name=subscriber['name'],
+                recipient_email=email,
+                text_template='new_companies_in_sector_email.txt',
+                html_template='new_companies_in_sector_email.html',
+                subject=settings.NEW_COMPANIES_IN_SECTOR_SUBJECT,
+                notification_category=notification_category,
+                extra_context=extra_context,
+                unsubscribe_url=helpers.get_anonymous_unsubscribe_url(email),
+            )
+            record_anonymous_notification_sent(
+                email=email, category=notification_category
+            )
