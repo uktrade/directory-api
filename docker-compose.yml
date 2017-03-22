@@ -5,10 +5,6 @@ services:
     image: postgres:9.5.2
     env_file: ./docker/.env-postgres
 
-  redis:
-    image: redis:3.2
-    ports: ["6379:6379"]
-
   webserver:
     build:
       context: .
@@ -27,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-enrolment_worker
-    depends_on: [webserver]
+    depends_on: [postgres]
     links: [postgres]
     working_dir: /usr/src/app
     entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
@@ -39,10 +35,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-celery_beat_scheduler
-    depends_on: [redis]
-    links: [postgres, redis]
+    depends_on: [postgres]
+    links: [postgres]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://redis:6379 -timeout 20s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
     command: ./docker/cmd-celery_beat_scheduler.sh
     env_file: ./docker/.env
     restart: "always"
@@ -52,10 +48,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-celery_worker
-    depends_on: [redis]
-    links: [postgres, redis]
+    depends_on: [postgres]
+    links: [postgres]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://redis:6379 -timeout 20s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
     command: ./docker/cmd-celery_worker.sh
     env_file: ./docker/.env
     restart: "always"

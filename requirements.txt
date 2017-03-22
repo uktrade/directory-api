@@ -6,13 +6,13 @@ django-rest-swagger==2.0.6
 django-storages==1.5.1
 django-filter==1.0.1
 django-celery-beat==1.0.1
+django-redis==4.7.0
 Pillow==3.4.2
 whitenoise==3.2.2
 gunicorn==19.5.0
 psycopg2==2.6.1
 raven==5.19.0
 boto3==1.4.1
-redlock-py==1.0.8
 celery==4.0.2
 git+https://git@github.com/alphagov/notifications-python-client.git@1.4.0#egg=notifications-python-client
 git+https://github.com/uktrade/directory-validators.git@1.3.2#egg=directory_validators
