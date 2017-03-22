@@ -1,31 +1,39 @@
+from django.core.cache import cache
+
 from api.celery import app
-from api.distributed_lock import distributed_lock
 from notifications import notifications
+
+
+def lock_acquired(lock_name):
+    """ Returns False if the lock was already set in the last 24 hours
+
+    Multiple celery beat schedulers are running at the same time, which
+    results in duplicated scheduled tasks. Cache-lock mechanism is used to
+    assure that only one task gets executed. Lock expires after 24 hours
+
+    """
+    return cache.add(lock_name, 'acquired', 86400)
 
 
 @app.task
 def no_case_studies():
-    with distributed_lock('no_case_studies') as lock_acquired:
-        if lock_acquired:
-            notifications.no_case_studies()
+    if lock_acquired('no_case_studies'):
+        notifications.no_case_studies()
 
 
 @app.task
 def hasnt_logged_in():
-    with distributed_lock('hasnt_logged_in') as lock_acquired:
-        if lock_acquired:
-            notifications.hasnt_logged_in()
+    if lock_acquired('hasnt_logged_in'):
+        notifications.hasnt_logged_in()
 
 
 @app.task
 def verification_code_not_given():
-    with distributed_lock('verification_code_not_given') as lock_acquired:
-        if lock_acquired:
-            notifications.verification_code_not_given()
+    if lock_acquired('verification_code_not_given'):
+        notifications.verification_code_not_given()
 
 
 @app.task
 def new_companies_in_sector():
-    with distributed_lock('new_companies_in_sector') as lock_acquired:
-        if lock_acquired:
-            notifications.new_companies_in_sector()
+    if lock_acquired('new_companies_in_sector'):
+        notifications.new_companies_in_sector()

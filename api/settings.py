@@ -81,6 +81,17 @@ DATABASES = {
     'default': dj_database_url.config()
 }
 
+# Caches
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -329,7 +340,7 @@ HASNT_LOGGED_IN_SUBJECT = os.getenv(
 HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
 HASNT_LOGGED_IN_URL = os.getenv(
     "HASNT_LOGGED_IN_URL",
-    "https://sso.trade.great.gov.uk/accounts/login/?next={next}/".format(
+    "https://sso.trade.great.gov.uk/accounts/login/?next={next}".format(
         next="https://find-a-buyer.export.great.gov.uk/"
     )
 )
@@ -362,14 +373,9 @@ ZENDESK_URL = os.getenv(
     "https://contact-us.export.great.gov.uk/feedback/directory/"
 )
 
-# Redis
-REDIS_HOST = os.getenv('REDIS_HOST')
-REDIS_PORT = os.getenv('REDIS_PORT')
-REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
-
 # Celery
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = os.getenv('REDIS_URL')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
