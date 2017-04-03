@@ -25,3 +25,23 @@ def test_email_unsubscribe_missing():
     html = render_to_string('email.html', {})
 
     assert UNSUBSCRIBE_LABEL not in html
+
+
+def test_new_companies_in_sector_email_utm(settings):
+    template_names = [
+        'new_companies_in_sector_email.html',
+        'new_companies_in_sector_email.txt',
+    ]
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+    context = {
+        'companies': [
+            {
+                'number': 1234
+            }
+        ],
+        'utm_params': 'thing=abc'
+    }
+
+    for template_name in template_names:
+        html = render_to_string(template_name, context)
+        assert 'http://profile/1234?thing=abc' in html

@@ -332,17 +332,26 @@ NO_CASE_STUDIES_URL = os.getenv(
     "NO_CASE_STUDIES_URL",
     "https://find-a-buyer.export.great.gov.uk/company/case-study/edit/"
 )
+NO_CASE_STUDIES_UTM = os.getenv(
+    "NO_CASE_STUDIES_UTM",
+    "utm_source=system mails&utm_campaign=case study creation&utm_medium=email"
+)
 
 HASNT_LOGGED_IN_SUBJECT = os.getenv(
     "HASNT_LOGGED_IN_SUBJECT",
     "Update your Find a buyer profile"
 )
 HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
+
 HASNT_LOGGED_IN_URL = os.getenv(
     "HASNT_LOGGED_IN_URL",
     "https://sso.trade.great.gov.uk/accounts/login/?next={next}".format(
         next="https://find-a-buyer.export.great.gov.uk/"
     )
+)
+HASNT_LOGGED_IN_UTM = os.getenv(
+    "HASNT_LOGGED_IN_UTM",
+    "utm_source=system emails&utm_campaign=Dormant User&utm_medium=email"
 )
 
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = os.getenv(
@@ -366,6 +375,12 @@ NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = int(os.getenv(
 NEW_COMPANIES_IN_SECTOR_SUBJECT = os.getenv(
     'NEW_COMPANIES_IN_SECTOR_SUBJECT',
     'Find a supplier service - New UK companies in your industry now available'
+)
+NEW_COMPANIES_IN_SECTOR_UTM = os.getenv(
+    "NEW_COMPANIES_IN_SECTOR_UTM", (
+        "utm_source=system%20emails&utm_campaign="
+        "Companies%20in%20a%20sector&utm_medium=email"
+    )
 )
 
 ZENDESK_URL = os.getenv(

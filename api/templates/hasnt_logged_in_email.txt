@@ -9,7 +9,7 @@ International buyers visit the site every day to look for UK companies to buy go
 
 To make the most of your profile, it’s worth having another look to see whether you could add new information, case studies and images.
 
-Log in to your Find a buyer to improve your profile: {{ login_url }}
+Log in to your Find a buyer to improve your profile: {{ login_url }}&{{ utm_params }}
 If you have a problem using the service let us know at: {{ zendesk_url }}
 {% endblock %}
 
