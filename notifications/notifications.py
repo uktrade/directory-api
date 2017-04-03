@@ -50,6 +50,10 @@ def record_anonymous_notification_sent(email, category):
 
 
 def no_case_studies():
+    extra_context = {
+        'case_study_url': settings.NO_CASE_STUDIES_URL,
+        'utm_params': settings.NO_CASE_STUDIES_UTM,
+    }
     days_ago = datetime.utcnow() - timedelta(
         days=settings.NO_CASE_STUDIES_DAYS)
     suppliers = Supplier.objects.filter(
@@ -70,7 +74,7 @@ def no_case_studies():
             html_template='no_case_studies_email.html',
             subject=settings.NO_CASE_STUDIES_SUBJECT,
             notification_category=notification_category,
-            extra_context={'case_study_url': settings.NO_CASE_STUDIES_URL},
+            extra_context=extra_context,
             unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
@@ -99,7 +103,10 @@ def hasnt_logged_in():
     ).exclude(
         supplieremailnotification__category=notification_category,
     )
-
+    extra_context = {
+        'login_url': settings.HASNT_LOGGED_IN_URL,
+        'utm_params': settings.HASNT_LOGGED_IN_UTM,
+    }
     for supplier in suppliers:
         send_email_notifications(
             recipient_name=supplier.name,
@@ -108,7 +115,7 @@ def hasnt_logged_in():
             html_template='hasnt_logged_in_email.html',
             subject=settings.HASNT_LOGGED_IN_SUBJECT,
             notification_category=notification_category,
-            extra_context={'login_url': settings.HASNT_LOGGED_IN_URL},
+            extra_context=extra_context,
             unsubscribe_url=settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL,
         )
         record_supplier_notification_sent(supplier, notification_category)
@@ -187,6 +194,7 @@ def new_companies_in_sector():
             extra_context = {
                 'companies': companies,
                 'company_list_url': settings.FAS_COMPANY_LIST_URL,
+                'utm_params': settings.NEW_COMPANIES_IN_SECTOR_UTM,
             }
             send_email_notifications(
                 recipient_name=subscriber['name'],

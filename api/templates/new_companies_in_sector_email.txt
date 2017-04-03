@@ -10,10 +10,10 @@ Check out these new companies that have joined since your last visit:
 
 {% for company in companies %}
 	{{ company.name }} - {{ company.description }}
-	View profile: {{ company.number|company_profile_url }}
+	View profile: {{ company.number|company_profile_url }}?{{ utm_params }}
 {% endfor %}
 
-See all the UK companies in your industry: {{ company_list_url }}
+See all the UK companies in your industry: {{ company_list_url }}?{{ utm_params }}
 
 {% endblock %}
 

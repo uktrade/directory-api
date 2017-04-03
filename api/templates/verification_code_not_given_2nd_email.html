@@ -5,7 +5,7 @@
 
 {% block body %}
 <p>You recently created a profile for your company on the Find a Buyer service, and we sent you a verification code by post 16 days ago.</p>
-<p>You can enter the code at <a href="{{ verification_url }}" target="_blank">{{ verification_url|default:"http://great.gov.uk/verify" }}</a>.</p>
+<p>You can enter the code at <a href="{{ verification_url }}?{{ utm_params }}" target="_blank">{{ verification_url|default:"http://great.gov.uk/verify" }}</a>.</p>
 <p>Your profile will not be visible to international buyers until you have verified your company’s profile.</p>
 <p>If you have not received your verification code, <a href="{{ zendesk_url }}" target="_blank">let us know</a> so that we can send you a new code.</p>
 {% endblock %}

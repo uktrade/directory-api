@@ -69,6 +69,7 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 @pytest.mark.django_db
 def test_case_study_email_has_expected_vars_in_template(settings):
     settings.NO_CASE_STUDIES_URL = 'http://great.gov.uk/case-studies/add'
+    settings.NO_CASE_STUDIES_UTM = 'utm=1'
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)
@@ -79,8 +80,8 @@ def test_case_study_email_has_expected_vars_in_template(settings):
     assert len(mail.outbox) == 1
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert 'http://great.gov.uk/case-studies/add' in mail.outbox[0].body
-    assert ('http://great.gov.uk/case-studies/add'
+    assert 'http://great.gov.uk/case-studies/add?utm=1' in mail.outbox[0].body
+    assert ('http://great.gov.uk/case-studies/add?utm=1'
             in mail.outbox[0].alternatives[0][0])
     assert 'http://help.zendesk.com' in mail.outbox[0].body
     assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
@@ -257,6 +258,7 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
 @pytest.mark.django_db
 def test_ver_code_email_has_expected_vars_in_template(settings):
     settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
+    expected_url = 'http://great.gov.uk/verrrrify'
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(
@@ -269,8 +271,8 @@ def test_ver_code_email_has_expected_vars_in_template(settings):
     assert len(mail.outbox) == 1
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
-    assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].alternatives[0][0]
+    assert expected_url in mail.outbox[0].body
+    assert expected_url in mail.outbox[0].alternatives[0][0]
     assert 'http://help.zendesk.com' in mail.outbox[0].body
     assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
@@ -612,7 +614,9 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
 def test_log_in_email_has_expected_vars_in_template(settings):
-    settings.HASNT_LOGGED_IN_URL = 'http://great.gov.uk/looooogin'
+    settings.HASNT_LOGGED_IN_URL = 'http://great.gov.uk/looooogin?next=a'
+    settings.HASNT_LOGGED_IN_UTM = 'utm=1'
+    expected_url = 'http://great.gov.uk/looooogin?next=a&utm=1'
     settings.ZENDESK_URL = 'http://help.zendesk.com'
     supplier = SupplierFactory()
     mocked_json = [
@@ -631,8 +635,8 @@ def test_log_in_email_has_expected_vars_in_template(settings):
     assert len(mail.outbox) == 1
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert 'http://great.gov.uk/looooogin' in mail.outbox[0].body
-    assert 'http://great.gov.uk/looooogin' in mail.outbox[0].alternatives[0][0]
+    assert expected_url in mail.outbox[0].body
+    assert expected_url in mail.outbox[0].alternatives[0][0]
     assert 'http://help.zendesk.com' in mail.outbox[0].body
     assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
