@@ -999,3 +999,36 @@ def test_new_companies_in_sector_company_multiple_sectors(settings):
     assert mail.outbox[0].body.count(company_one.name) == 1
     assert mail.outbox[0].body.count(company_two.name) == 1
     assert unsubscribe_url in mail.outbox[0].body
+
+
+@pytest.mark.django_db
+def test_supplier_unsubscribed():
+    supplier = SupplierFactory()
+
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.supplier_unsubscribed(supplier)
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == [supplier.company_email]
+    assert supplier.name in mail.outbox[0].body
+
+    notification_record = SupplierEmailNotification.objects.first()
+    assert SupplierEmailNotification.objects.count() == 1
+    assert notification_record.supplier == supplier
+    assert notification_record.category == constants.UNSUBSCRIBED
+
+
+@pytest.mark.django_db
+def test_anonymous_unsubscribed():
+    mail.outbox = []  # reset after emails sent by signals
+    notifications.anonymous_unsubscribed(
+        recipient_email='jim@example.com'
+    )
+
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == ['jim@example.com']
+
+    notification_record = AnonymousEmailNotification.objects.first()
+    assert AnonymousEmailNotification.objects.count() == 1
+    assert notification_record.email == 'jim@example.com'
+    assert notification_record.category == constants.UNSUBSCRIBED

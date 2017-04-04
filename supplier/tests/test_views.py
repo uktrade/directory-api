@@ -14,6 +14,15 @@ from user.models import User as Supplier
 from supplier.tests import VALID_REQUEST_DATA
 
 
+@pytest.fixture
+def supplier():
+    return Supplier.objects.create(
+        sso_id=3,
+        company_email='test@example.com',
+        unsubscribed=False,
+    )
+
+
 class SupplierViewsTests(TestCase):
 
     def setUp(self):
@@ -120,13 +129,7 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_unsubscribe_supplier():
-    supplier = Supplier.objects.create(
-        sso_id=3,
-        company_email='test@example.com',
-        unsubscribed=False,
-    )
-
+def test_unsubscribe_supplier(supplier):
     response = APIClient().post(
         reverse('unsubscribe-supplier', kwargs={'sso_id': supplier.sso_id})
     )
@@ -145,3 +148,16 @@ def test_unsubscribe_supplier_does_not_exist():
     )
 
     assert response.status_code == http.client.NOT_FOUND
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@patch('notifications.notifications.supplier_unsubscribed')
+def test_unsubscribe_supplier_email_confirmation(
+    mock_supplier_unsubscribed, supplier
+):
+    APIClient().post(
+        reverse('unsubscribe-supplier', kwargs={'sso_id': supplier.sso_id})
+    )
+
+    mock_supplier_unsubscribed.assert_called_once_with(supplier=supplier)

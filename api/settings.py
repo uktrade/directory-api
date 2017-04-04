@@ -383,10 +383,13 @@ NEW_COMPANIES_IN_SECTOR_UTM = os.getenv(
         "Companies%20in%20a%20sector&utm_medium=email"
     )
 )
-
 ZENDESK_URL = os.getenv(
     "ZENDESK_URL",
     "https://contact-us.export.great.gov.uk/feedback/directory/"
+)
+UNSUBSCRIBED_SUBJECT = os.getenv(
+    "UNSUBSCRIBED_SUBJECT",
+    "Find a buyer service - unsubscribed from marketing emails"
 )
 
 # Celery

@@ -160,3 +160,19 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
             utm_params=settings.NEW_COMPANIES_IN_SECTOR_UTM,
             companies=self.companies,
         )
+
+
+class SupplierUbsubscribed(SupplierNotificationBase):
+    html_template = 'unsubscribed-supplier.html'
+    category = constants.UNSUBSCRIBED
+    subject = settings.UNSUBSCRIBED_SUBJECT
+    text_template = 'unsubscribed-supplier.txt'
+    unsubscribe_url = None
+
+
+class AnonymousSubscriberUbsubscribed(AnonymousSubscriberNotificationBase):
+    html_template = 'unsubscribed-anonymous-subscriber.html'
+    category = constants.UNSUBSCRIBED
+    subject = settings.UNSUBSCRIBED_SUBJECT
+    text_template = 'unsubscribed-anonymous-subscriber.txt'
+    unsubscribe_url = None

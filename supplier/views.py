@@ -8,6 +8,7 @@ from rest_framework import generics, status
 from supplier import serializers, gecko
 from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
+from notifications import notifications
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
@@ -42,7 +43,7 @@ class UnsubscribeSupplierAPIView(APIView):
 
         self.supplier.unsubscribed = True
         self.supplier.save()
-
+        notifications.supplier_unsubscribed(supplier=self.supplier)
         return Response(
             data={
                 "status_code": status.HTTP_200_OK,
