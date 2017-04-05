@@ -9,7 +9,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py migrate --noinput
 FLAKE8 := flake8 . --exclude=migrations,.venv
-PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
+PYTEST := pytest /home/richtier/workspace/directory-api/notifications/tests/test_views.py --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 
 test:
@@ -36,7 +36,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_PORT=8000; \
 	export DIRECTORY_API_DEBUG=true; \
 	export DIRECTORY_API_SECRET_KEY=debug; \
-	export DIRECTORY_API_UI_SECRET=debug; \
+	export DIRECTORY_API_sigauth_SECRET=debug; \
 	export DIRECTORY_API_POSTGRES_USER=debug; \
 	export DIRECTORY_API_POSTGRES_PASSWORD=debug; \
 	export DIRECTORY_API_POSTGRES_DB=directory_api_debug; \
@@ -117,7 +117,7 @@ docker_build:
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
-	export UI_SECRET=debug; \
+	export sigauth_SECRET=debug; \
 	export PORT=8000; \
 	export DEBUG=true; \
 	export DB_NAME=directory_api_debug; \

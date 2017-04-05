@@ -41,7 +41,7 @@ class CompanyViewsTests(TestCase):
         self.client = Client()
 
         self.signature_permission_mock = patch(
-            'signature.permissions.SignaturePermission.has_permission'
+            'sigauth.permissions.SignaturePermission.has_permission'
         )
 
         self.signature_permission_mock.start()
@@ -442,7 +442,7 @@ def supplier(company):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
     company_data, api_client, supplier, company
@@ -462,7 +462,7 @@ def test_company_update(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
     case_study_data, api_client, supplier, company
@@ -490,7 +490,7 @@ def test_company_case_study_create(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
     api_client, supplier, company
@@ -518,7 +518,7 @@ def test_company_case_study_create_invalid_image(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
     video, api_client, supplier, company
@@ -546,7 +546,7 @@ def test_company_case_study_create_not_an_image(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_company_not_published(
     video, api_client, supplier
@@ -592,7 +592,7 @@ def test_company_case_study_create_company_not_published(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(supplier_case_study, supplier, api_client):
     url = reverse(
@@ -611,7 +611,7 @@ def test_company_case_study_update(supplier_case_study, supplier, api_client):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_delete(supplier_case_study, supplier, api_client):
     pk = supplier_case_study.pk
@@ -628,7 +628,7 @@ def test_company_case_study_delete(supplier_case_study, supplier, api_client):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_case_study_get(
         supplier_case_study, supplier, api_client
 ):
@@ -661,7 +661,7 @@ def test_company_case_study_get(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_public_company_case_study_get(
         supplier_case_study, supplier, api_client
 ):
@@ -692,7 +692,7 @@ def test_public_company_case_study_get(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_retrieve_public_profile(
     public_profile, api_client
 ):
@@ -707,7 +707,7 @@ def test_company_profile_public_retrieve_public_profile(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_404_private_profile(
     private_profile, api_client
 ):
@@ -721,7 +721,7 @@ def test_company_profile_public_404_private_profile(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles(
     private_profile, public_profile, api_client
 ):
@@ -736,7 +736,7 @@ def test_company_profile_public_list_profiles(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_ordering(
     private_profile, public_profile, public_profile_software,
     public_profile_with_case_study, public_profile_with_case_studies,
@@ -760,7 +760,7 @@ def test_company_profile_public_list_profiles_ordering(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_filter_single(
     public_profile_software, public_profile_cars, public_profile_smart_cars,
     api_client
@@ -785,7 +785,7 @@ def test_company_profile_public_list_profiles_filter_single(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_empty_filter(
     public_profile_software, public_profile_cars, public_profile_smart_cars,
     api_client
@@ -801,7 +801,7 @@ def test_company_profile_public_list_profiles_empty_filter(
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_verify_company_with_code(api_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
@@ -841,7 +841,7 @@ def test_verify_company_with_code(api_client, settings):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_verify_company_with_code_invalid_code(api_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
@@ -881,7 +881,7 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_verify_company_with_code_invalid_user(api_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 

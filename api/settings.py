@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_celery_beat',
     "raven.contrib.django.raven_compat",
-    'signature',
     'superuser',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',
@@ -128,9 +127,6 @@ for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
 
-# Application authorisation
-UI_SECRET = os.getenv("UI_SECRET")
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -140,7 +136,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'signature.permissions.SignaturePermission',
+        'sigauth.permissions.SignaturePermission',
     ),
 }
 # Sentry
@@ -412,3 +408,7 @@ FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
     'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
 )
+
+
+# directory signature auth
+sigauth_SECRET = os.getenv("sigauth_SECRET")

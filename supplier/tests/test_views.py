@@ -18,7 +18,7 @@ class SupplierViewsTests(TestCase):
 
     def setUp(self):
         self.signature_permission_mock = patch(
-            'signature.permissions.SignaturePermission.has_permission'
+            'sigauth.permissions.SignaturePermission.has_permission'
         )
 
         self.signature_permission_mock.start()
@@ -119,7 +119,7 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_unsubscribe_supplier():
     supplier = Supplier.objects.create(
         sso_id=3,
@@ -137,7 +137,7 @@ def test_unsubscribe_supplier():
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignaturePermission.has_permission', Mock)
+@patch('sigauth.permissions.SignaturePermission.has_permission', Mock)
 def test_unsubscribe_supplier_does_not_exist():
 
     response = APIClient().post(
