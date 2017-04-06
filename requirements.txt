@@ -1,5 +1,5 @@
 dj-database-url==0.4.1
-Django==1.9.10
+Django==1.9.13
 django_extensions==1.6.7
 djangorestframework==3.4.7
 django-rest-swagger==2.0.6
