@@ -42,7 +42,7 @@ def company(message_to_supplier_data):
 
 @pytest.mark.django_db
 @patch(
-    'sigauth.permissions.SignaturePermission.has_permission',
+    'signature.permissions.SignatureCheckPermission.has_permission',
     Mock(return_value=True)
 )
 def test_message_to_supplier_deserialization(

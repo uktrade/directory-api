@@ -16,7 +16,7 @@ class CompanyViewsTests(TestCase):
     def setUp(self):
         self.rf = RequestFactory()
         self.signature_permission_mock = mock.patch(
-            'sigauth.permissions.SignaturePermission.has_permission'
+            'signature.permissions.SignatureCheckPermission.has_permission'
         )
 
         self.signature_permission_mock.start()

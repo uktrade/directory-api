@@ -130,13 +130,16 @@ for static_dir in STATICFILES_DIRS:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+# Application authorisation
+UI_SECRET = os.getenv("UI_SECRET")
+
 # DRF
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'sigauth.permissions.SignaturePermission',
+        'signature.permissions.SignatureCheckPermission',
     ),
 }
 # Sentry
@@ -408,7 +411,3 @@ FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
     'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
 )
-
-
-# directory signature auth
-sigauth_SECRET = os.getenv("sigauth_SECRET")

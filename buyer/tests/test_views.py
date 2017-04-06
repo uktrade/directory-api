@@ -24,7 +24,7 @@ def create_buyer_request(rf):
 
 
 @pytest.mark.django_db
-@patch('sigauth.permissions.SignaturePermission.has_permission',
+@patch('signature.permissions.SignatureCheckPermission.has_permission',
        Mock(return_value=True))
 def test_create_buyer_deserialization(create_buyer_request):
     response = views.BuyerCreateAPIView.as_view()(create_buyer_request)
