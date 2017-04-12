@@ -1,17 +1,16 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 
 import pytest
 
 from freezegun import freeze_time
 
 from django.core import mail
-from django.conf import settings
 from django.utils import timezone
 
 from buyer.tests.factories import BuyerFactory
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
-from notifications import constants, notifications
+from notifications import constants, email, notifications
 from notifications.models import (
     AnonymousEmailNotification,
     SupplierEmailNotification,
@@ -41,9 +40,10 @@ def test_doesnt_send_case_study_email_when_user_has_case_studies():
     assert SupplierEmailNotification.objects.all().count() == 0
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
 def test_sends_case_study_email_only_when_registered_8_days_ago():
+    expected_subject = email.NoCaseStudiesNotification.subject
     seven_days_ago = timezone.now() - timedelta(days=7)
     eight_days_ago = timezone.now() - timedelta(days=8)
     nine_days_ago = timezone.now() - timedelta(days=9)
@@ -56,8 +56,7 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == (
-        'Get seen by more international buyers by improving your profile')
+    assert mail.outbox[0].subject == expected_subject
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
@@ -65,12 +64,14 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
     assert instance.date_sent == timezone.now()
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
+@patch('notifications.email.NoCaseStudiesNotification.zendesk_url',
+       PropertyMock(return_value='http://help.zendesk.com'))
 def test_case_study_email_has_expected_vars_in_template(settings):
     settings.NO_CASE_STUDIES_URL = 'http://great.gov.uk/case-studies/add'
     settings.NO_CASE_STUDIES_UTM = 'utm=1'
-    settings.ZENDESK_URL = 'http://help.zendesk.com'
+
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)
     mail.outbox = []  # reset after emails sent by signals
@@ -109,7 +110,7 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
 @pytest.mark.django_db
 def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
     settings.NO_CASE_STUDIES_DAYS = 1
-    settings.NO_CASE_STUDIES_SUBJECT = 'bla bla'
+    expected_subject = email.NoCaseStudiesNotification.subject
     one_day_ago = timezone.now() - timedelta(days=1)
     eight_days_ago = timezone.now() - timedelta(days=8)
     SupplierFactory(date_joined=eight_days_ago)
@@ -121,7 +122,7 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == 'bla bla'
+    assert mail.outbox[0].subject == expected_subject
     assert SupplierEmailNotification.objects.all().count() == 1
 
 
@@ -165,7 +166,7 @@ def test_if_case_study_email_send_fails_previous_info_still_written_to_db():
     assert SupplierEmailNotification.objects.all().count() == 2
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
 def test_sends_case_study_email_to_expected_users():
     eight_days_ago = timezone.now() - timedelta(days=8)
@@ -219,9 +220,10 @@ def test_doesnt_send_ver_code_email_when_user_has_input_ver_code():
     assert SupplierEmailNotification.objects.all().count() == 1
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
 def test_sends_ver_code_email_when_not_input_for_8_days(settings):
+    expected_subject = email.VerificationWaitingNotification.subject
     seven_days_ago = timezone.now() - timedelta(days=7)
     eight_days_ago = timezone.now() - timedelta(days=8)
     nine_days_ago = timezone.now() - timedelta(days=9)
@@ -245,8 +247,7 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert (mail.outbox[0].subject ==
-            settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
+    assert mail.outbox[0].subject == expected_subject
     # 1 created + 1 from setup
     assert SupplierEmailNotification.objects.all().count() == 2
     instance = SupplierEmailNotification.objects.get(supplier=supplier)
@@ -254,12 +255,13 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
     assert instance.date_sent == timezone.now()
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
+@patch('notifications.email.VerificationWaitingNotification.zendesk_url',
+       PropertyMock(return_value='http://help.zendesk.com'))
 def test_ver_code_email_has_expected_vars_in_template(settings):
     settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
     expected_url = 'http://great.gov.uk/verrrrify'
-    settings.ZENDESK_URL = 'http://help.zendesk.com'
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(
         company__date_verification_letter_sent=eight_days_ago,
@@ -277,9 +279,10 @@ def test_ver_code_email_has_expected_vars_in_template(settings):
     assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
 def test_sends_ver_code_email_when_not_input_for_16_days(settings):
+    expected_subject = email.VerificationStillWaitingNotification.subject
     fifteen_days_ago = timezone.now() - timedelta(days=15)
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     seventeen_days_ago = timezone.now() - timedelta(days=17)
@@ -318,8 +321,7 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier16.company_email]
-    assert (mail.outbox[0].subject ==
-            settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT)
+    assert mail.outbox[0].subject == expected_subject
     # 1 created + 4 in set up
     assert SupplierEmailNotification.objects.all().count() == 5
     instance = SupplierEmailNotification.objects.exclude(
@@ -328,11 +330,12 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     assert instance.date_sent == timezone.now()
 
 
-@freeze_time()  # so no time passes between obj creation and timestamp assert
+@freeze_time()
 @pytest.mark.django_db
+@patch('notifications.email.VerificationStillWaitingNotification.zendesk_url',
+       PropertyMock(return_value='http://help.zendesk.com'))
 def test_ver_code_email2_has_expected_vars_in_template(settings):
     settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
-    settings.ZENDESK_URL = 'http://help.zendesk.com'
     sixteen_days_ago = timezone.now() - timedelta(days=16)
     supplier = SupplierFactory(
         company__date_verification_letter_sent=sixteen_days_ago,
@@ -435,6 +438,7 @@ def test_doesnt_send_ver_code_email_if_email_already_sent():
 def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
     settings
 ):
+    expected_subject = email.VerificationWaitingNotification.subject
     settings.VERIFICATION_CODE_NOT_GIVEN_DAYS = 1
     settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT = 'bla bla'
     one_day_ago = timezone.now() - timedelta(days=1)
@@ -451,7 +455,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == 'bla bla'
+    assert mail.outbox[0].subject == expected_subject
     assert SupplierEmailNotification.objects.all().count() == 1
 
 
@@ -459,6 +463,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
 def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
     settings
 ):
+    expected_subject = email.VerificationStillWaitingNotification.subject
     settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = 1
     settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = 'bla bla'
     one_day_ago = timezone.now() - timedelta(days=1)
@@ -478,7 +483,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
 
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == 'bla bla'
+    assert mail.outbox[0].subject == expected_subject
     # 1 created + 1 in set up
     assert SupplierEmailNotification.objects.all().count() == 2
 
@@ -581,6 +586,7 @@ def test_sends_ver_code_email_to_expected_users():
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
 def test_sends_log_in_email_when_not_logged_in_for_30_days():
+    expected_subject = email.HasNotLoggedInRecentlyNotification.subject
     suppliers = SupplierFactory.create_batch(3)
     mocked_json = [
         {'id': suppliers[1].sso_id, 'last_login': '2017-01-01T21:04:39Z'},
@@ -601,7 +607,7 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
     )
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [suppliers[1].company_email]
-    assert mail.outbox[0].subject == settings.HASNT_LOGGED_IN_SUBJECT
+    assert mail.outbox[0].subject == expected_subject
     assert suppliers[1].name in mail.outbox[0].body
     assert suppliers[1].name in mail.outbox[0].alternatives[0][0]
     assert SupplierEmailNotification.objects.all().count() == 1
@@ -613,11 +619,12 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days():
 
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
+@patch('notifications.email.HasNotLoggedInRecentlyNotification.zendesk_url',
+       PropertyMock(return_value='http://help.zendesk.com'))
 def test_log_in_email_has_expected_vars_in_template(settings):
     settings.HASNT_LOGGED_IN_URL = 'http://great.gov.uk/looooogin?next=a'
     settings.HASNT_LOGGED_IN_UTM = 'utm=1'
     expected_url = 'http://great.gov.uk/looooogin?next=a&utm=1'
-    settings.ZENDESK_URL = 'http://help.zendesk.com'
     supplier = SupplierFactory()
     mocked_json = [
         {'id': supplier.sso_id, 'last_login': '2017-01-01T21:04:39Z'},
@@ -662,7 +669,7 @@ def test_doesnt_send_log_in_email_when_api_returns_no_users():
 @pytest.mark.django_db
 def test_log_in_email_uses_settings_for_no_of_days_and_subject(settings):
     settings.HASNT_LOGGED_IN_DAYS = 1
-    settings.HASNT_LOGGED_IN_SUBJECT = 'bla bla'
+    expected_subject = email.HasNotLoggedInRecentlyNotification.subject
     supplier = SupplierFactory()
     mocked_json = [
         {'id': supplier.sso_id, 'last_login': '2017-03-31T01:54:15Z'},
@@ -682,7 +689,7 @@ def test_log_in_email_uses_settings_for_no_of_days_and_subject(settings):
         end=datetime(2017, 3, 31, 23, 59, 59, 999999),
     )
     assert len(mail.outbox) == 1
-    assert mail.outbox[0].subject == 'bla bla'
+    assert mail.outbox[0].subject == expected_subject
 
 
 @freeze_time('2017-04-01 12:00:00')
@@ -780,7 +787,7 @@ def test_sends_log_in_email_to_expected_users(settings):
 @pytest.mark.django_db
 def test_new_companies_in_sector(settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
-    settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
+    expected_subject = email.NewCompaniesInSectorNotification.subject
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
     days_ago_four = datetime.utcnow() - timedelta(days=4)
@@ -806,18 +813,18 @@ def test_new_companies_in_sector(settings):
     email_three = next(e for e in mail.outbox if buyer_three.email in e.to)
 
     assert email_one.to == [buyer_one.email]
-    assert email_one.subject == 'test subject'
+    assert email_one.subject == expected_subject
     assert company_one.name in email_one.body
     assert company_two.name not in email_one.body
 
     assert email_two.to == [buyer_two.email]
-    assert email_two.subject == 'test subject'
+    assert email_two.subject == expected_subject
     assert company_one.name in email_two.body
     assert company_two.name not in email_two.body
     assert company_three.name not in email_two.body
 
     assert email_three.to == [buyer_three.email]
-    assert email_three.subject == 'test subject'
+    assert email_three.subject == expected_subject
     assert company_one.name not in email_three.body
     assert company_two.name not in email_three.body
     assert company_three.name in email_three.body
