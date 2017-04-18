@@ -131,7 +131,7 @@ for static_dir in STATICFILES_DIRS:
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Application authorisation
-UI_SECRET = os.getenv("UI_SECRET")
+API_CLIENT_KEY = os.getenv("API_CLIENT_KEY")
 
 # DRF
 REST_FRAMEWORK = {
@@ -139,7 +139,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'signature.permissions.SignatureCheckPermission',
+        'api.signature.SignatureCheckPermission',
     ),
 }
 # Sentry

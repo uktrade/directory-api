@@ -10,7 +10,7 @@ from notifications import models
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignatureCheckPermission.has_permission', Mock)
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_create_anonymous_unsubscribe_create_bad_signature(client):
     url = reverse('anonymous-unsubscribe')
     response = client.post(url, {'email': 'test@example.com'})
@@ -19,7 +19,7 @@ def test_create_anonymous_unsubscribe_create_bad_signature(client):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignatureCheckPermission.has_permission', Mock)
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_create_anonymous_unsubscribe_create_good_signature(client):
     url = reverse('anonymous-unsubscribe')
     email = 'test@example.com'
@@ -30,7 +30,7 @@ def test_create_anonymous_unsubscribe_create_good_signature(client):
 
 
 @pytest.mark.django_db
-@patch('signature.permissions.SignatureCheckPermission.has_permission', Mock)
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_create_anonymous_unsubscribe_multiple_times(client):
     url = reverse('anonymous-unsubscribe')
     email = 'test@example.com'
