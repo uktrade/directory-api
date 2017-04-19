@@ -9,21 +9,19 @@
 <p>Check out these new companies that have joined since your last visit:</p>
 
 <dl>
-	{% for company in companies %}
-		{% if forloop.counter <= 5 %}
-			<div>
-				<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.name }}</dt>
-				<dd style="margin: 0;padding: 10px 15px;">
-					{% if company.summary %}
-						{{ company.summary|linebreaks }}
-					{% elif company.description %}
-						{{ company.description|truncatechars:200|linebreaks }}
-					{% endif %}
-					<br>
-					<a href="{{ company.number|company_profile_url }}?{{ utm_params }}" style="line-height: 2.5em;">View profile</a>
-				</dd>
-			</div>
-		{% endif %}
+	{% for company in companies|slice:":5" %}
+		<div>
+			<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.name }}</dt>
+			<dd style="margin: 0;padding: 10px 15px;">
+				{% if company.summary %}
+					{{ company.summary|linebreaks }}
+				{% elif company.description %}
+					{{ company.description|truncatechars:200|linebreaks }}
+				{% endif %}
+				<br>
+				<a href="{{ company.number|company_profile_url }}?{{ utm_params }}" style="line-height: 2.5em;">View profile</a>
+			</dd>
+		</div>
 	{% endfor %}
 </dl>
 
