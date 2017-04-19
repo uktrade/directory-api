@@ -9,7 +9,13 @@ You asked to be notified when new UK companies in your industry join the Find a 
 Check out these new companies that have joined since your last visit:
 
 {% for company in companies %}
-	{{ company.name }} - {{ company.description }}
+	{{ company.name }} - 
+	{% if company.summary %}
+		{{ company.summary }}
+	{% elif company.description %}
+		{{ company.description|truncatechars:200 }}
+	{% endif %}
+	
 	View profile: {{ company.number|company_profile_url }}?{{ utm_params }}
 {% endfor %}
 
