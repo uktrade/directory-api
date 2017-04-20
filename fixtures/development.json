@@ -55,17 +55,6 @@
         "po_box": "",
         "email_address": "jim@example.com",
         "email_full_name": "thing",
-        "contact_details": {
-            "email_full_name": "Jim",
-            "locality": "Brighton",
-            "email_address": "jimmy@ad.com",
-            "address_line_2": "125-135 Preston Road",
-            "country": "England",
-            "postal_code": "BN1 6AF",
-            "address_line_1": "First Floor, Telecom House",
-            "po_box": "",
-            "postal_full_name": "jim face"
-        },
         "slug": "example-company-limited"
     }
 },
