@@ -12,7 +12,7 @@ from user.models import User as Supplier
 
 sso_api_client = DirectorySSOAPIClient(
     base_url=settings.SSO_API_CLIENT_BASE_URL,
-    api_key=settings.SSO_API_CLIENT_KEY,
+    api_key=settings.SSO_SIGNATURE_SECRET,
 )
 
 
