@@ -26,6 +26,6 @@ https://twitter.com/tradegovuk
 
 HM Government
 http://great.gov.uk
-Department for International Trade, 1 Victoria Street, London, SW1 H0ET
+Department for International Trade, 3 Whitehall Pl, Westminster, London SW1A
 
 Unsubscribe: {{ unsubscribe_url }}
