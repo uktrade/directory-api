@@ -42,7 +42,7 @@ def test_doesnt_send_case_study_email_when_user_has_case_studies():
 
 @freeze_time()
 @pytest.mark.django_db
-def test_sends_case_study_email_only_when_registered_8_days_ago():
+def test_sends_case_study_email_only_when_registered_8_days_ago(settings):
     expected_subject = email.NoCaseStudiesNotification.subject
     seven_days_ago = timezone.now() - timedelta(days=7)
     eight_days_ago = timezone.now() - timedelta(days=8)
@@ -57,6 +57,7 @@ def test_sends_case_study_email_only_when_registered_8_days_ago():
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == expected_subject
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert SupplierEmailNotification.objects.all().count() == 1
     instance = SupplierEmailNotification.objects.get()
     assert instance.supplier == supplier
@@ -79,6 +80,7 @@ def test_case_study_email_has_expected_vars_in_template(settings):
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert 'http://great.gov.uk/case-studies/add?utm=1' in mail.outbox[0].body
@@ -90,7 +92,9 @@ def test_case_study_email_has_expected_vars_in_template(settings):
 
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
-def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
+def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute(
+    settings
+):
     supplier1 = SupplierFactory(
         date_joined=datetime(2016, 12, 8, 0, 0, 1))
     supplier2 = SupplierFactory(
@@ -102,7 +106,9 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute():
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 2
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert mail.outbox[0].to == [supplier1.company_email]
+    assert mail.outbox[1].from_email == settings.FAB_FROM_EMAIL
     assert mail.outbox[1].to == [supplier2.company_email]
     assert SupplierEmailNotification.objects.all().count() == 2
 
@@ -121,13 +127,16 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == expected_subject
     assert SupplierEmailNotification.objects.all().count() == 1
 
 
 @pytest.mark.django_db
-def test_doesnt_send_case_study_email_if_case_study_email_already_sent():
+def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
+    settings
+):
     eight_days_ago = timezone.now() - timedelta(days=8)
     suppliers = SupplierFactory.create_batch(
         2, date_joined=eight_days_ago)
@@ -140,6 +149,7 @@ def test_doesnt_send_case_study_email_if_case_study_email_already_sent():
     notifications.no_case_studies()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert mail.outbox[0].to == [suppliers[1].company_email]
     # what we created in data setup + 1 new
     assert SupplierEmailNotification.objects.all().count() == 3
@@ -248,6 +258,7 @@ def test_sends_ver_code_email_when_not_input_for_8_days(settings):
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [supplier.company_email]
     assert mail.outbox[0].subject == expected_subject
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     # 1 created + 1 from setup
     assert SupplierEmailNotification.objects.all().count() == 2
     instance = SupplierEmailNotification.objects.get(supplier=supplier)
@@ -271,6 +282,7 @@ def test_ver_code_email_has_expected_vars_in_template(settings):
     notifications.verification_code_not_given()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert expected_url in mail.outbox[0].body
@@ -320,6 +332,7 @@ def test_sends_ver_code_email_when_not_input_for_16_days(settings):
     notifications.verification_code_not_given()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert mail.outbox[0].to == [supplier16.company_email]
     assert mail.outbox[0].subject == expected_subject
     # 1 created + 4 in set up
@@ -345,6 +358,7 @@ def test_ver_code_email2_has_expected_vars_in_template(settings):
     notifications.verification_code_not_given()
 
     assert len(mail.outbox) == 1
+    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
     assert supplier.name in mail.outbox[0].body
     assert supplier.name in mail.outbox[0].alternatives[0][0]
     assert 'http://great.gov.uk/verrrrify' in mail.outbox[0].body
@@ -849,6 +863,7 @@ def test_new_companies_in_sector_exclude_unsbscribed(settings):
     assert len(mail.outbox) == 1
 
     assert mail.outbox[0].to == [buyer_one.email]
+    assert mail.outbox[0].from_email == settings.FAS_FROM_EMAIL
 
 
 @freeze_time()

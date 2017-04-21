@@ -22,6 +22,7 @@ class NotificationBase(abc.ABC):
     text_template = None
     unsubscribe_url = None
     zendesk_url = settings.ZENDESK_URL
+    from_email = None
 
     def get_context_data(self, **kwargs):
         return {
@@ -42,6 +43,7 @@ class NotificationBase(abc.ABC):
             subject=self.subject,
             body=text_body,
             to=[self.recipient.email],
+            from_email=self.from_email,
         )
         message.attach_alternative(html_body, "text/html")
         message.send()
@@ -57,6 +59,8 @@ class NotificationBase(abc.ABC):
 
 
 class SupplierNotificationBase(NotificationBase):
+    from_email = settings.FAB_FROM_EMAIL
+
     def __init__(self, supplier):
         self.supplier = supplier
 
@@ -74,6 +78,8 @@ class SupplierNotificationBase(NotificationBase):
 
 
 class AnonymousSubscriberNotificationBase(NotificationBase):
+    from_email = settings.FAS_FROM_EMAIL
+
     def __init__(self, subscriber):
         self.subscriber = subscriber
 
