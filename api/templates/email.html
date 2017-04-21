@@ -90,7 +90,9 @@
 			<thead>
 				<tr>
 					<td style="font-size:10px; padding:20px 20px 0px 20px;">
-						<img alt="Exporting is Great logo" style="display:block; margin:10px 0 20px 0;" src="{% email_image 'EiG-logo-email.png' %}" width="144" height="74">
+						{% block logo %}
+							<img alt="" style="display:block; margin:10px 0 20px 0;" src="{% email_image 'EiG-logo-email.png' %}" width="144" height="74">
+						{% endblock %}
 					</td>
 				</tr>
 			</thead>
