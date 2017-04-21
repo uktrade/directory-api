@@ -1,4 +1,5 @@
 import abc
+from collections import namedtuple
 
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
@@ -7,33 +8,26 @@ from django.template.loader import render_to_string
 from notifications import constants, helpers, models
 
 
-class Recipient:
-
-    def __init__(self, name, email):
-        self.email = email
-        self.name = name
+Recipient = namedtuple('Recipient', ['email', 'name'])
 
 
 class NotificationBase(abc.ABC):
-    html_template = None
-    category = None
-    recipient = None
-    subject = None
-    text_template = None
-    unsubscribe_url = None
+    category = abc.abstractproperty()
+    from_email = abc.abstractproperty()
+    html_template = abc.abstractproperty()
+    recipient = abc.abstractproperty()
+    subject = abc.abstractproperty()
+    text_template = abc.abstractproperty()
+    unsubscribe_url = abc.abstractproperty()
     zendesk_url = settings.ZENDESK_URL
-    from_email = None
 
     def get_context_data(self, **kwargs):
         return {
             'full_name': self.recipient.name,
             'zendesk_url': self.zendesk_url,
-            'unsubscribe_url': self.get_unsubscribe_url(),
+            'unsubscribe_url': self.unsubscribe_url,
             **kwargs
         }
-
-    def get_unsubscribe_url(self):
-        return self.unsubscribe_url
 
     def send(self):
         context = self.get_context_data()
@@ -48,10 +42,6 @@ class NotificationBase(abc.ABC):
         message.attach_alternative(html_body, "text/html")
         message.send()
         self.record_sent()
-
-    @abc.abstractproperty
-    def recipient(self):
-        pass
 
     @abc.abstractmethod
     def record_sent(self):
@@ -97,7 +87,6 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
 
 class NoCaseStudiesNotification(SupplierNotificationBase):
-
     html_template = 'no_case_studies_email.html'
     category = constants.NO_CASE_STUDIES
     subject = settings.NO_CASE_STUDIES_SUBJECT
@@ -112,7 +101,6 @@ class NoCaseStudiesNotification(SupplierNotificationBase):
 
 
 class HasNotLoggedInRecentlyNotification(SupplierNotificationBase):
-
     html_template = 'hasnt_logged_in_email.html'
     category = constants.HASNT_LOGGED_IN
     subject = settings.HASNT_LOGGED_IN_SUBJECT
@@ -127,7 +115,6 @@ class HasNotLoggedInRecentlyNotification(SupplierNotificationBase):
 
 
 class VerificationWaitingNotification(SupplierNotificationBase):
-
     html_template = 'verification_code_not_given_email.html'
     category = constants.VERIFICATION_CODE_NOT_GIVEN
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT
@@ -141,7 +128,6 @@ class VerificationWaitingNotification(SupplierNotificationBase):
 
 
 class VerificationStillWaitingNotification(SupplierNotificationBase):
-
     html_template = 'verification_code_not_given_2nd_email.html'
     category = constants.VERIFICATION_CODE_2ND_EMAIL
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL
@@ -155,7 +141,6 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
 
 
 class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
-
     html_template = 'new_companies_in_sector_email.html'
     category = constants.NEW_COMPANIES_IN_SECTOR
     subject = settings.NEW_COMPANIES_IN_SECTOR_SUBJECT
@@ -165,7 +150,8 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
         self.companies = companies
         super().__init__(subscriber=subscriber)
 
-    def get_unsubscribe_url(self):
+    @property
+    def unsubscribe_url(self):
         return helpers.get_anonymous_unsubscribe_url(self.recipient.email)
 
     def get_context_data(self):
