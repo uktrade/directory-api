@@ -8,7 +8,7 @@ from contact.models import MessageToSupplier
 
 
 @admin.register(MessageToSupplier)
-class MessageToSupplier(admin.ModelAdmin):
+class MessageToSupplierAdmin(admin.ModelAdmin):
     search_fields = (
         'sender_email', 'sender_name', 'sender_company_name',
         'sender_country', 'sector', 'recipient__name',
