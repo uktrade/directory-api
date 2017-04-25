@@ -14,7 +14,7 @@
 <p>Check out these new companies that have joined since your last visit:</p>
 
 <dl>
-	{% for company in companies|slice:":5" %}
+	{% for company in companies %}
 		<div>
 			<dt style="background-color: #00549e;color: #ffffff;padding: 10px 15px;">{{ company.name }}</dt>
 			<dd style="margin: 0;padding: 10px 15px;">
