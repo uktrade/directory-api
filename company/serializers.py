@@ -134,3 +134,7 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Invalid company verification code"
             )
+
+
+class CompanySearchSerializer(serializers.Serializer):
+    term = serializers.CharField()

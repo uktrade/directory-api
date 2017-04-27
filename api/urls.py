@@ -6,6 +6,7 @@ from company.views import (
     CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
     CompanyPublicProfileViewSet,
+    CompanySearchAPIView,
     CompanyRetrieveUpdateAPIView,
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
@@ -127,6 +128,12 @@ urlpatterns = [
         AnonymousUnsubscribeCreateAPIView.as_view(),
         name='anonymous-unsubscribe'
     ),
+    url(
+        r'company/search/$',
+        CompanySearchAPIView.as_view(),
+        name='company-search'
+    ),
+
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
