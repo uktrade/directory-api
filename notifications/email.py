@@ -158,7 +158,7 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
         return super().get_context_data(
             company_list_url=settings.FAS_COMPANY_LIST_URL,
             utm_params=settings.NEW_COMPANIES_IN_SECTOR_UTM,
-            companies=self.companies,
+            companies=list(self.companies)[:5],  # show only 5: ED-1228
         )
 
 
