@@ -15,9 +15,10 @@ from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
 from supplier.views import (
-    SupplierRetrieveUpdateAPIView,
     GeckoTotalRegisteredSuppliersView,
-    UnsubscribeSupplierAPIView
+    SupplierRetrieveExternalAPIView,
+    SupplierRetrieveUpdateAPIView,
+    UnsubscribeSupplierAPIView,
 )
 from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
@@ -73,7 +74,7 @@ urlpatterns = [
         name='company-case-study-detail',
     ),
     url(
-        r'supplier/(?P<sso_id>[0-9]+)/$',
+        r'^supplier/(?P<sso_id>[0-9]+)/$',
         SupplierRetrieveUpdateAPIView.as_view(),
         name='supplier'
     ),
@@ -101,6 +102,11 @@ urlpatterns = [
         r'public/company/$',
         CompanyPublicProfileViewSet.as_view({'get': 'list'}),
         name='company-public-profile-list'
+    ),
+    url(
+        r'^api/external/supplier/(?P<sso_id>[0-9]+)/$',
+        SupplierRetrieveExternalAPIView.as_view(),
+        name='public-protected-supplier-details'
     ),
     url(
         r'validate/company-number/$',

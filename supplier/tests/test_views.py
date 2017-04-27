@@ -11,7 +11,19 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.models import User as Supplier
-from supplier.tests import VALID_REQUEST_DATA
+from supplier.tests import factories, VALID_REQUEST_DATA
+
+
+@pytest.fixture
+def supplier():
+    return factories.SupplierFactory(
+        company_email='jim@example.com',
+        company__number='01234567',
+        company__sectors=['AEROSPACE'],
+        name='Jim Example',
+        sso_id=123,
+        company__export_status='YES',
+    )
 
 
 class SupplierViewsTests(TestCase):
@@ -145,3 +157,35 @@ def test_unsubscribe_supplier_does_not_exist():
     )
 
     assert response.status_code == http.client.NOT_FOUND
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_public_supplier_details_get(supplier):
+    url = reverse(
+        'public-protected-supplier-details',
+        kwargs={'sso_id': supplier.sso_id}
+    )
+    response = APIClient().get(url)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        'company_email': 'jim@example.com',
+        'company_number': '01234567',
+        'company_industries': ['AEROSPACE'],
+        'name': 'Jim Example',
+        'sso_id': 123,
+        'company_export_status': 'YES',
+    }
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_public_supplier_details_post(supplier):
+    url = reverse(
+        'public-protected-supplier-details',
+        kwargs={'sso_id': supplier.sso_id}
+    )
+    response = APIClient().post(url)
+
+    assert response.status_code == 405
