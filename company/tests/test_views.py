@@ -918,3 +918,20 @@ def test_verify_company_with_code_invalid_user(api_client, settings):
 
     company.refresh_from_db()
     assert company.verified_with_code is False
+
+
+@patch('company.views.CompanySearchAPIView.get_search_results')
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_search(mock_get_search_results, api_client):
+    mock_get_search_results.return_value = expected_value = {
+        'hits': {
+            'total': 2,
+            'hits': [None, None],
+        },
+    }
+    data = {'term': 'bones'}
+    response = api_client.get(reverse('company-search'), data=data)
+
+    assert response.status_code == 200
+    assert response.json() == expected_value
+    mock_get_search_results.assert_called_once_with(term='bones')
