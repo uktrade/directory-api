@@ -1,9 +1,9 @@
-from notifications import models, serializers
+from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
 
 from django.db.utils import IntegrityError
 
-from rest_framework.generics import CreateAPIView
-from rest_framework.response import Response
+from notifications import models, notifications, serializers
 
 
 class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
@@ -17,3 +17,9 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
         # if email has already unsubscribed integrity error happens
         except IntegrityError:
             return Response()
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        notifications.anonymous_unsubscribed(
+            recipient_email=instance.email
+        )
