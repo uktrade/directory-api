@@ -104,3 +104,14 @@ def new_companies_in_sector():
                 subscriber=subscriber, companies=companies
             )
             notification.send()
+
+
+def supplier_unsubscribed(supplier):
+    notification = email.SupplierUbsubscribed(supplier)
+    notification.send()
+
+
+def anonymous_unsubscribed(recipient_email):
+    recipient = {'email': recipient_email, 'name': None}
+    notification = email.AnonymousSubscriberUbsubscribed(recipient)
+    notification.send()

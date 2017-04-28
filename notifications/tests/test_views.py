@@ -39,3 +39,18 @@ def test_create_anonymous_unsubscribe_multiple_times(client):
     response = client.post(url, {'email': Signer().sign(email)})
 
     assert response.status_code == http.client.OK
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@patch('notifications.notifications.anonymous_unsubscribed')
+def test_create_anonymous_unsubscribe_email_confirmation(
+    mock_anonymous_unsubscribed, client
+):
+    url = reverse('anonymous-unsubscribe')
+    email = 'test@example.com'
+    client.post(url, {'email': Signer().sign(email)})
+
+    mock_anonymous_unsubscribed.assert_called_once_with(
+        recipient_email=email
+    )
