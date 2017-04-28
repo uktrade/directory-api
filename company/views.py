@@ -116,3 +116,27 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class CompanySearchAPIView(views.APIView):
+
+    http_method_names = ("get", )
+    # `serializer_class` is used for deserializing the search query,
+    # but not for serializing the search results.
+    serializer_class = serializers.CompanySearchSerializer
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        search_results = self.get_search_results(
+            term=serializer.data['term']
+        )
+        return Response(
+            data=search_results,
+            status=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def get_search_results(term):
+        # TODO: query elasticsearch and retrurn the results
+        return {}
