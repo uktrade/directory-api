@@ -75,7 +75,10 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
 	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe/; \
 	export DIRECTORY_API_FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
-	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk
+	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
+	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=debug; \
+	export DIRECTORY_API_AWS_ACCESS_KEY_ID=debug; \
+	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=debug
 
 
 DOCKER_REMOVE_ALL := \
@@ -162,7 +165,10 @@ DEBUG_SET_ENV_VARS := \
 	export FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
 	export FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe; \
 	export FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
-	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk
+	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
+	export ELASTICSEARCH_ENDPOINT=debug; \
+	export AWS_ACCESS_KEY_ID=debug; \
+	export AWS_SECRET_ACCESS_KEY=debug
 
 
 debug_webserver:

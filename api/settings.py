@@ -2,6 +2,10 @@ import os
 
 import dj_database_url
 
+from elasticsearch import Elasticsearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -415,4 +419,21 @@ FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
 # FAB
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
     'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
+)
+
+# Elasticsearch
+elasticsearch_client = Elasticsearch(
+    hosts=[{
+        'host': os.getenv("ELASTICSEARCH_ENDPOINT"),
+        'port': int(os.getenv("ELASTICSEARCH_PORT", 443))
+    }],
+    http_auth=AWS4Auth(
+        os.getenv("AWS_ACCESS_KEY_ID"),
+        os.getenv("AWS_SECRET_ACCESS_KEY"),
+        os.getenv("ELASTICSEARCH_AWS_REGION", 'eu-west-1'),
+        'es'
+    ),
+    use_ssl=os.getenv("ELASTICSEARCH_USE_SSL", True),
+    verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS", True),
+    connection_class=RequestsHttpConnection
 )
