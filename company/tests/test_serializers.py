@@ -221,3 +221,11 @@ def test_company_case_study_with_company(company_case_study_one):
         company_case_study_one
     )
     assert isinstance(serializer.data['company'], dict)
+
+
+def test_company_search_serializer():
+    serializer = serializers.CompanySearchSerializer(
+        data={'page': 1, 'size': 10, 'term': 'thing'}
+    )
+
+    assert serializer.is_valid() is True

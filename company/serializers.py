@@ -138,3 +138,5 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 class CompanySearchSerializer(serializers.Serializer):
     term = serializers.CharField()
+    page = serializers.IntegerField()
+    size = serializers.IntegerField()

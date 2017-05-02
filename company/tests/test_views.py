@@ -929,9 +929,11 @@ def test_company_search(mock_get_search_results, api_client):
             'hits': [None, None],
         },
     }
-    data = {'term': 'bones'}
+    data = {'term': 'bones', 'page': 1, 'size': 10}
     response = api_client.get(reverse('company-search'), data=data)
 
     assert response.status_code == 200
     assert response.json() == expected_value
-    mock_get_search_results.assert_called_once_with(term='bones')
+    mock_get_search_results.assert_called_once_with(
+        term='bones', page=1, size=10,
+    )
