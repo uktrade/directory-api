@@ -10,6 +10,11 @@ class FormattedDate(field.Date):
         date = super()._deserialize(*args, **kwargs)
         return date.strftime(self.date_format)
 
+    def to_dict(self, *args, **kwargs):
+        value = super().to_dict(*args, **kwargs)
+        del value['date_format']
+        return value
+
 
 class CompanyDocType(DocType):
     date_of_creation = FormattedDate(date_format='%Y-%m-%d')
