@@ -3,30 +3,21 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.core import management
 
 from elasticsearch_dsl import Index, analyzer
 
 from company.search import CompanyDocType
 
 
-def add_company_search_index(apps, schema_editor):
+def add_company_search_index_and_populate(apps, schema_editor):
     companies = Index('companies')
-    companies.doc_type(CompanyDocType)
 
-    english_analyzer = analyzer(
-        'english_analyzer',
-        tokenizer="standard",
-        filter=[
-            "english_possessive_stemmer",
-            "lowercase",
-            "english_stop",
-            "english_keywords",
-            "english_stemmer"
-        ]
-    )
-    companies.analyzer(english_analyzer)
-
-    companies.create()
+    if not companies.exists():
+        companies.doc_type(CompanyDocType)
+        companies.analyzer(analyzer('english'))
+        companies.create()
+        management.call_command('populate_elasticsearch')
 
 
 def remove_company_search_index(apps, schema_editor):
@@ -42,6 +33,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            add_company_search_index, remove_company_search_index
+            add_company_search_index_and_populate,
+            remove_company_search_index
         )
     ]
