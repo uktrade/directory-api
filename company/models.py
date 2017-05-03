@@ -7,11 +7,11 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from api.model_utils import TimeStampedModel
-from company import helpers
+from company import helpers, search
 
 
 class Company(TimeStampedModel):
-
+    to_doc_type = search.company_model_to_doc_type
     summary = models.CharField(
         max_length=250,
         blank=True,
