@@ -73,7 +73,10 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe/; \
 	export DIRECTORY_API_FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
 	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
-	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=debug; \
+	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=elasticsearch; \
+	export DIRECTORY_API_ELASTICSEARCH_PORT=9200; \
+	export DIRECTORY_API_ELASTICSEARCH_USE_SSL=false; \
+	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=debug
 
@@ -160,7 +163,10 @@ DEBUG_SET_ENV_VARS := \
 	export FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe; \
 	export FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
 	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
-	export ELASTICSEARCH_ENDPOINT=debug; \
+	export ELASTICSEARCH_ENDPOINT=localhost; \
+	export ELASTICSEARCH_PORT=9200; \
+	export ELASTICSEARCH_USE_SSL=false; \
+	export ELASTICSEARCH_VERIFY_CERTS=false; \
 	export AWS_ACCESS_KEY_ID=debug; \
 	export AWS_SECRET_ACCESS_KEY=debug
 
