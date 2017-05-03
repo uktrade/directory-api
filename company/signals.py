@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from company.stannp import stannp_client
+from company import search
 
 
 def send_verification_letter(sender, instance, *args, **kwargs):
@@ -52,3 +53,9 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
 def store_date_published(sender, instance, *args, **kwargs):
     if instance.is_published and not instance.date_published:
         instance.date_published = timezone.now()
+
+
+def save_to_elasticsearch(sender, instance, *args, **kwargs):
+    if instance.is_published:
+        doc_type = search.company_model_to_doc_type(instance)
+        doc_type.save()

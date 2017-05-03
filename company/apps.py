@@ -12,6 +12,10 @@ class CompanyConfig(AppConfig):
             receiver=signals.send_verification_letter,
             sender='company.Company'
         )
+        post_save.connect(
+            receiver=signals.save_to_elasticsearch,
+            sender='company.Company'
+        )
         pre_save.connect(
             receiver=signals.publish_companies_that_meet_criteria,
             sender='company.Company'

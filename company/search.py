@@ -8,7 +8,8 @@ class FormattedDate(field.Date):
 
     def _deserialize(self, *args, **kwargs):
         date = super()._deserialize(*args, **kwargs)
-        return date.strftime(self.date_format)
+        if date:
+            return date.strftime(self.date_format)
 
     def to_dict(self, *args, **kwargs):
         value = super().to_dict(*args, **kwargs)
