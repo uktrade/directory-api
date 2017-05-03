@@ -44,9 +44,6 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug; \
 	export DIRECTORY_API_COMPANIES_HOUSE_API_KEY=debug; \
-	export DIRECTORY_API_GOV_NOTIFY_SERVICE_ID=debug; \
-	export DIRECTORY_API_GOV_NOTIFY_API_KEY=debug; \
-	export DIRECTORY_API_GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
 	export DIRECTORY_API_EMAIL_HOST=debug; \
 	export DIRECTORY_API_EMAIL_PORT=debug; \
 	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
@@ -75,7 +72,10 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
 	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe/; \
 	export DIRECTORY_API_FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
-	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk
+	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
+	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=debug; \
+	export DIRECTORY_API_AWS_ACCESS_KEY_ID=debug; \
+	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=debug
 
 
 DOCKER_REMOVE_ALL := \
@@ -137,9 +137,6 @@ DEBUG_SET_ENV_VARS := \
 	export COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
 	export COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export COMPANIES_HOUSE_API_KEY=debug; \
-	export GOV_NOTIFY_SERVICE_ID=debug; \
-	export GOV_NOTIFY_API_KEY=debug; \
-	export GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME=1; \
 	export AWS_STORAGE_BUCKET_NAME=debug; \
 	export SESSION_COOKIE_DOMAIN=.trade.great.dev; \
 	export CSRF_COOKIE_SECURE=false; \
@@ -162,7 +159,10 @@ DEBUG_SET_ENV_VARS := \
 	export FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
 	export FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe; \
 	export FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
-	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk
+	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
+	export ELASTICSEARCH_ENDPOINT=debug; \
+	export AWS_ACCESS_KEY_ID=debug; \
+	export AWS_SECRET_ACCESS_KEY=debug
 
 
 debug_webserver:

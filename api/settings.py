@@ -2,6 +2,11 @@ import os
 
 import dj_database_url
 
+from elasticsearch import RequestsHttpConnection
+from elasticsearch_dsl.connections import connections
+from requests_aws4auth import AWS4Auth
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -268,13 +273,6 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 FAS_FROM_EMAIL = os.getenv("FAS_FROM_EMAIL")
 FAB_FROM_EMAIL = os.getenv("FAB_FROM_EMAIL")
 
-# Notify
-GOV_NOTIFY_SERVICE_ID = os.getenv('GOV_NOTIFY_SERVICE_ID')
-GOV_NOTIFY_API_KEY = os.getenv('GOV_NOTIFY_API_KEY')
-GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME = os.environ[
-    'GOV_NOTIFY_SERVICE_VERIFICATION_TEMPLATE_NAME'
-]
-
 # Public storage for company profile logo
 STORAGE_CLASSES = {
     'default': 'storages.backends.s3boto3.S3Boto3Storage',
@@ -415,4 +413,22 @@ FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
 # FAB
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
     'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
+)
+
+# Initialise default Elasticsearch connection
+connections.create_connection(
+    alias='default',
+    hosts=[{
+        'host': os.getenv("ELASTICSEARCH_ENDPOINT"),
+        'port': int(os.getenv("ELASTICSEARCH_PORT", 443))
+    }],
+    http_auth=AWS4Auth(
+        os.getenv("AWS_ACCESS_KEY_ID"),
+        os.getenv("AWS_SECRET_ACCESS_KEY"),
+        os.getenv("ELASTICSEARCH_AWS_REGION", 'eu-west-1'),
+        'es'
+    ),
+    use_ssl=os.getenv("ELASTICSEARCH_USE_SSL", True),
+    verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS", True),
+    connection_class=RequestsHttpConnection
 )
