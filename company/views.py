@@ -129,7 +129,9 @@ class CompanySearchAPIView(views.APIView):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
         search_results = self.get_search_results(
-            term=serializer.data['term']
+            term=serializer.data['term'],
+            page=serializer.data['page'],
+            size=serializer.data['size'],
         )
         return Response(
             data=search_results,
@@ -137,6 +139,6 @@ class CompanySearchAPIView(views.APIView):
         )
 
     @staticmethod
-    def get_search_results(term):
+    def get_search_results(term, page, size):
         # TODO: query elasticsearch and retrurn the results
         return {}
