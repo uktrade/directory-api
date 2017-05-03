@@ -260,3 +260,17 @@ def test_store_date_published_published_company_with_date():
     company = CompanyFactory(is_published=True, date_published=expected_date)
 
     assert company.date_published == expected_date
+
+
+@pytest.mark.django_db
+def test_save_to_elasticsearch_published(mock_elasticsearch_company_save):
+    CompanyFactory(is_published=True)
+
+    assert mock_elasticsearch_company_save.call_count == 1
+
+
+@pytest.mark.django_db
+def test_save_to_elasticsearch_unpublished(mock_elasticsearch_company_save):
+    CompanyFactory(is_published=False)
+
+    assert mock_elasticsearch_company_save.call_count == 0

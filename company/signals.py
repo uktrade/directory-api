@@ -52,3 +52,8 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
 def store_date_published(sender, instance, *args, **kwargs):
     if instance.is_published and not instance.date_published:
         instance.date_published = timezone.now()
+
+
+def save_to_elasticsearch(sender, instance, *args, **kwargs):
+    if instance.is_published:
+        instance.to_doc_type().save()
