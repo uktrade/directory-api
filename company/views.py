@@ -4,7 +4,7 @@ from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
 
-from company import filters, models, pagination, serializers
+from company import filters, models, pagination, search, serializers
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -140,5 +140,8 @@ class CompanySearchAPIView(views.APIView):
 
     @staticmethod
     def get_search_results(term, page, size):
-        # TODO: query elasticsearch and retrurn the results
-        return {}
+        start = (page - 1) * size
+        end = start + size
+        search_object = search.CompanyDocType.search()
+        response = search_object.query('match', _all=term)[start:end].execute()
+        return response.to_dict()

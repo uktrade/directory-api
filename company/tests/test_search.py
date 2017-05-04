@@ -20,6 +20,7 @@ def test_company_doc_type():
     expected = {
         'date_of_creation': '2000-10-10',
         'description': company.description,
+        'employees': company.employees,
         'facebook_url': company.facebook_url,
         'pk': str(company.pk),
         'keywords': company.keywords,
