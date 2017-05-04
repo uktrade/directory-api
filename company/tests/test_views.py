@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client
 
 from directory_validators.constants import choices
+from elasticsearch_dsl.connections import connections
 import pytest
 from freezegun import freeze_time
 from rest_framework.test import APIClient
@@ -937,3 +938,37 @@ def test_company_search(mock_get_search_results, api_client):
     mock_get_search_results.assert_called_once_with(
         term='bones', page=1, size=10,
     )
+
+
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_paginate_first_page(api_client):
+    # [page number, expected_start]
+    params = [
+        [1, 0],
+        [2, 5],
+        [3, 10],
+        [4, 15],
+        [5, 20],
+        [6, 25],
+        [7, 30],
+        [8, 35],
+        [9, 40],
+    ]
+    es = connections.get_connection('default')
+    for page, expected_start in params:
+        with patch.object(es, 'search', return_value={}) as mock_search:
+            data = {'term': 'bones', 'page': page, 'size': 5}
+            api_client.get(reverse('company-search'), data=data)
+            mock_search.assert_called_once_with(
+                body={
+                    'size': 5,
+                    'from': expected_start,
+                    'query': {
+                        'match': {
+                            '_all': 'bones'
+                        }
+                    }
+                },
+                doc_type=['company_doc_type'],
+                index=['company']
+            )
