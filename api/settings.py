@@ -428,7 +428,7 @@ connections.create_connection(
         os.getenv("ELASTICSEARCH_AWS_REGION", 'eu-west-1'),
         'es'
     ),
-    use_ssl=os.getenv("ELASTICSEARCH_USE_SSL", True),
-    verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS", True),
+    use_ssl=os.getenv("ELASTICSEARCH_USE_SSL") != 'false',
+    verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS") != 'false',
     connection_class=RequestsHttpConnection
 )

@@ -5,14 +5,28 @@ services:
     image: postgres:9.5.2
     env_file: ./docker/.env-postgres.test
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.1.2
+    environment:
+      # Set memory
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      # Disable security
+      xpack.security.enabled: "false"
+      xpack.monitoring.enabled: "false"
+      xpack.graph.enabled: "false"
+      xpack.watcher.enabled: "false"
+      # Run in development mode to ignore bootstrap checks
+      transport.host: "localhost"
+    ports: ["9200:9200"]
+
   sut:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on: [postgres]
-    links: [postgres]
+    depends_on: [postgres, elasticsearch]
+    links: [postgres, elasticsearch]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
     command: ./docker/cmd-test.sh
     env_file: ./docker/.env.test
     restart: "no"
