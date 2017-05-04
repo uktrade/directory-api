@@ -8,10 +8,15 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.1.2
     environment:
+      # Set memory
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      # Disable security
       xpack.security.enabled: "false"
       xpack.monitoring.enabled: "false"
       xpack.graph.enabled: "false"
       xpack.watcher.enabled: "false"
+      # Run in development mode to ignore bootstrap checks
+      transport.host: "localhost"
     ports: ["9200:9200"]
 
   webserver:
@@ -22,7 +27,7 @@ services:
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 120s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
     command: ./docker/cmd-webserver.sh
     ports: ["8000:8000"]
     env_file: ./docker/.env
@@ -35,7 +40,7 @@ services:
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 120s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
     command: ./docker/cmd-enrolment_worker.sh
     env_file: ./docker/.env
     restart: "always"
@@ -47,7 +52,7 @@ services:
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 120s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
     command: ./docker/cmd-celery_beat_scheduler.sh
     env_file: ./docker/.env
     restart: "always"
@@ -60,7 +65,7 @@ services:
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 120s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
     command: ./docker/cmd-celery_worker.sh
     env_file: ./docker/.env
     restart: "always"
