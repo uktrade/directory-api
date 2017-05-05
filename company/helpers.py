@@ -8,16 +8,25 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
+from directory_validators.constants import choices
 import requests
+
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
 COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
+SECTOR_CHOICES = dict(choices.COMPANY_CLASSIFICATIONS)
 
 logger = logging.getLogger(__name__)
 company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
 
 companies_house_session = requests.Session()
+
+
+def get_sector_label(sectors_value):
+    if not sectors_value:
+        return sectors_value
+    return SECTOR_CHOICES.get(sectors_value)
 
 
 def generate_verification_code():
