@@ -24,8 +24,6 @@ companies_house_session = requests.Session()
 
 
 def get_sector_label(sectors_value):
-    if not sectors_value:
-        return sectors_value
     return SECTOR_CHOICES.get(sectors_value)
 
 
