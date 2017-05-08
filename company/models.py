@@ -1,8 +1,9 @@
 from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
 
-from django.db import models
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
@@ -151,6 +152,10 @@ class Company(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def public_profile_url(self):
+        return settings.FAS_COMPANY_PROFILE_URL.format(number=self.number)
 
     def has_valid_address(self):
         required_address_fields = [
