@@ -1,4 +1,7 @@
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import (
+    RetrieveAPIView,
+    RetrieveUpdateAPIView,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
@@ -9,6 +12,12 @@ from supplier import serializers, gecko
 from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
 from notifications import notifications
+
+
+class SupplierRetrieveExternalAPIView(RetrieveAPIView):
+    queryset = Supplier.objects.all()
+    lookup_field = 'sso_id'
+    serializer_class = serializers.ExternalSupplierSerializer
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):

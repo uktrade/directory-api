@@ -80,7 +80,6 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_AWS_SECRET_ACCESS_KEY=debug
 
-
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
 	grep -e directoryapi_ | \
@@ -170,7 +169,6 @@ DEBUG_SET_ENV_VARS := \
 	export AWS_ACCESS_KEY_ID=debug; \
 	export AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console
-
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);

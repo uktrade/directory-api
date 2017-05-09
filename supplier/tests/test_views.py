@@ -11,15 +11,18 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.models import User as Supplier
-from supplier.tests import VALID_REQUEST_DATA
+from supplier.tests import factories, VALID_REQUEST_DATA
 
 
 @pytest.fixture
 def supplier():
-    return Supplier.objects.create(
-        sso_id=3,
-        company_email='test@example.com',
-        unsubscribed=False,
+    return factories.SupplierFactory(
+        company_email='jim@example.com',
+        company__number='01234567',
+        company__sectors=['AEROSPACE'],
+        name='Jim Example',
+        sso_id=123,
+        company__export_status='YES',
     )
 
 
@@ -161,3 +164,38 @@ def test_unsubscribe_supplier_email_confirmation(
     )
 
     mock_supplier_unsubscribed.assert_called_once_with(supplier=supplier)
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_public_supplier_details_get(supplier, settings):
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+
+    url = reverse(
+        'external-supplier-details',
+        kwargs={'sso_id': supplier.sso_id}
+    )
+    response = APIClient().get(url)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        'company_email': 'jim@example.com',
+        'company_number': '01234567',
+        'company_industries': ['AEROSPACE'],
+        'name': 'Jim Example',
+        'sso_id': 123,
+        'company_export_status': 'YES',
+        'profile_url': 'http://profile/01234567',
+    }
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_public_supplier_details_post(supplier):
+    url = reverse(
+        'external-supplier-details',
+        kwargs={'sso_id': supplier.sso_id}
+    )
+    response = APIClient().post(url)
+
+    assert response.status_code == 405

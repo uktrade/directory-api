@@ -3,6 +3,31 @@ from rest_framework import serializers
 from user.models import User as Supplier
 
 
+class ExternalSupplierSerializer(serializers.ModelSerializer):
+
+    company_number = serializers.ReadOnlyField(source='company.number')
+    company_export_status = serializers.ReadOnlyField(
+        source='company.export_status'
+    )
+    company_industries = serializers.ReadOnlyField(source='company.sectors')
+    profile_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Supplier
+        fields = (
+            'company_email',
+            'company_export_status',
+            'company_industries',
+            'company_number',
+            'name',
+            'profile_url',
+            'sso_id',
+        )
+
+    def get_profile_url(self, obj):
+        return obj.company.public_profile_url
+
+
 class SupplierSerializer(serializers.ModelSerializer):
 
     class Meta:

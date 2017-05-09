@@ -114,3 +114,12 @@ def test_has_valid_address_all_values_present():
         postal_code='EM6 6EM',
     )
     assert company.has_valid_address() is True
+
+
+@pytest.mark.django_db
+def test_public_profile_url(settings):
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+
+    company = CompanyFactory(number='1234567')
+
+    assert company.public_profile_url == 'http://profile/1234567'
