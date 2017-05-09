@@ -172,7 +172,7 @@ def test_public_supplier_details_get(supplier, settings):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
 
     url = reverse(
-        'public-protected-supplier-details',
+        'external-supplier-details',
         kwargs={'sso_id': supplier.sso_id}
     )
     response = APIClient().get(url)
@@ -193,7 +193,7 @@ def test_public_supplier_details_get(supplier, settings):
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_public_supplier_details_post(supplier):
     url = reverse(
-        'public-protected-supplier-details',
+        'external-supplier-details',
         kwargs={'sso_id': supplier.sso_id}
     )
     response = APIClient().post(url)

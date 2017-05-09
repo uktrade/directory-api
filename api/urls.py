@@ -74,9 +74,9 @@ urlpatterns = [
         name='company-case-study-detail',
     ),
     url(
-        r'public/supplier/(?P<sso_id>[0-9]+)/$',
+        r'external/supplier/(?P<sso_id>[0-9]+)/$',
         SupplierRetrieveExternalAPIView.as_view(),
-        name='public-protected-supplier-details'
+        name='external-supplier-details'
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/$',
