@@ -264,6 +264,12 @@ COMPANY_EMAIL_CONFIRMATION_URL = os.environ[
 ]
 
 # Email
+EMAIL_BACKED_CLASSES = {
+    'default': 'django.core.mail.backends.smtp.EmailBackend',
+    'console': 'django.core.mail.backends.console.EmailBackend'
+}
+EMAIL_BACKED_CLASS_NAME = os.getenv('EMAIL_BACKEND_CLASS_NAME', 'default')
+EMAIL_BACKEND = EMAIL_BACKED_CLASSES[EMAIL_BACKED_CLASS_NAME]
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")

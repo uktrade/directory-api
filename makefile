@@ -167,7 +167,8 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_USE_SSL=false; \
 	export ELASTICSEARCH_VERIFY_CERTS=false; \
 	export AWS_ACCESS_KEY_ID=debug; \
-	export AWS_SECRET_ACCESS_KEY=debug
+	export AWS_SECRET_ACCESS_KEY=debug; \
+	export EMAIL_BACKEND_CLASS_NAME=console
 
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
