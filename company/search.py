@@ -1,5 +1,7 @@
 from elasticsearch_dsl import field, DocType
 
+from company import helpers
+
 
 class FormattedDate(field.Date):
     def __init__(self, date_format, *args, **kwargs):
@@ -29,7 +31,8 @@ class CompanyDocType(DocType):
     modified = FormattedDate(date_format='%Y-%m-%dT%H:%M:%S.%fZ')
     name = field.Text()
     number = field.Text()
-    sectors = field.Text()
+    sectors = field.Text(multi=True)
+    sectors_label = field.Text(multi=True)
     slug = field.Text()
     summary = field.Text()
     twitter_url = field.Text()
@@ -65,9 +68,10 @@ def company_model_to_doc_type(company):
         keywords=company.keywords,
         linkedin_url=company.linkedin_url,
         modified=company.modified,
+        sectors=company.sectors,
+        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         name=company.name,
         number=company.number,
-        sectors=company.sectors,
         slug=company.slug,
         summary=company.summary,
         twitter_url=company.twitter_url,

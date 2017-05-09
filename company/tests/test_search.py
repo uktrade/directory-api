@@ -12,6 +12,7 @@ from company.tests import factories
 def test_company_doc_type():
     company = factories.CompanyFactory(
         date_of_creation=datetime.date(2000, 10, 10),
+        sectors=['AEROSPACE', 'AIRPORTS']
     )
     case_study = factories.CompanyCaseStudyFactory(company=company)
 
@@ -29,6 +30,7 @@ def test_company_doc_type():
         'name': company.name,
         'number': company.number,
         'sectors': company.sectors,
+        'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,
         'summary': company.summary,
         'supplier_case_studies': [
