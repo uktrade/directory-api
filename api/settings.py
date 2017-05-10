@@ -429,8 +429,8 @@ connections.create_connection(
         'port': int(os.getenv("ELASTICSEARCH_PORT", 443))
     }],
     http_auth=AWS4Auth(
-        os.getenv("AWS_ACCESS_KEY_ID"),
-        os.getenv("AWS_SECRET_ACCESS_KEY"),
+        os.getenv("ELASTICSEARCH_AWS_ACCESS_KEY_ID"),
+        os.getenv("ELASTICSEARCH_AWS_SECRET_ACCESS_KEY"),
         os.getenv("ELASTICSEARCH_AWS_REGION", 'eu-west-1'),
         'es'
     ),
