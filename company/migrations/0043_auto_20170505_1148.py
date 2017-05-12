@@ -16,7 +16,7 @@ def noop(*args, **kwargs):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0041_add_search_index'),
+        ('company', '0042_auto_20170505_1148'),
     ]
 
     operations = [
