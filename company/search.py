@@ -67,7 +67,7 @@ def company_model_to_doc_type(company):
         pk=str(company.pk),
         keywords=company.keywords,
         linkedin_url=company.linkedin_url,
-        logo=company.logo,
+        logo=company.logo.url if company.logo else '',
         modified=company.modified,
         sectors=company.sectors,
         sectors_label=[helpers.get_sector_label(v) for v in company.sectors],

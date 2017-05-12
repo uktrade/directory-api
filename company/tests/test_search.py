@@ -26,7 +26,7 @@ def test_company_doc_type():
         'pk': str(company.pk),
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
-        'logo': company.logo,
+        'logo': '',
         'modified': '2016-11-23T11:21:10.977518Z',
         'name': company.name,
         'number': company.number,
