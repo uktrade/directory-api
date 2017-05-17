@@ -5,7 +5,7 @@ from user.models import User
 
 
 class Command(BaseCommand):
-    """Pass the sso_id create in directory-sso."""
+    """Pass the sso_id created in directory-sso."""
 
     help = 'Used to create a supplier and company for integration tests.'
 
