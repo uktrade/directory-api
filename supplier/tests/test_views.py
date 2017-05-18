@@ -19,6 +19,7 @@ def supplier():
     return factories.SupplierFactory(
         company_email='jim@example.com',
         company__number='01234567',
+        company__name='foo ltd',
         company__sectors=['AEROSPACE'],
         name='Jim Example',
         sso_id=123,
@@ -181,6 +182,7 @@ def test_public_supplier_details_get(supplier, settings):
     assert response.json() == {
         'company_email': 'jim@example.com',
         'company_number': '01234567',
+        'company_name': 'foo ltd',
         'company_industries': ['AEROSPACE'],
         'name': 'Jim Example',
         'sso_id': 123,

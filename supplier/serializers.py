@@ -6,6 +6,7 @@ from user.models import User as Supplier
 class ExternalSupplierSerializer(serializers.ModelSerializer):
 
     company_number = serializers.ReadOnlyField(source='company.number')
+    company_name = serializers.ReadOnlyField(source='company.name')
     company_export_status = serializers.ReadOnlyField(
         source='company.export_status'
     )
@@ -19,6 +20,7 @@ class ExternalSupplierSerializer(serializers.ModelSerializer):
             'company_export_status',
             'company_industries',
             'company_number',
+            'company_name',
             'name',
             'profile_url',
             'sso_id',
