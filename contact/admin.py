@@ -1,9 +1,8 @@
-import csv
 import datetime
 
 from django.contrib import admin
-from django.http import HttpResponse
 
+from buyer.admin import generate_csv
 from contact.models import MessageToSupplier
 
 
@@ -22,32 +21,19 @@ class MessageToSupplierAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     actions = ['download_csv']
     csv_excluded_fields = ()
+    csv_filename = 'find-a-buyer_message_to_supplier_{}.csv'.format(
+                datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 
     def download_csv(self, request, queryset):
         """
         Generates CSV report of selected case studies.
         """
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = (
-            'attachment; '
-            'filename="find-a-buyer_message_to_supplier_{}.csv"'.format(
-                datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-            )
+        return generate_csv(
+            model=self.model,
+            queryset=queryset,
+            filename=self.csv_filename,
+            excluded_fields=self.csv_excluded_fields
         )
-
-        field_names = sorted([
-            field.name for field in MessageToSupplier._meta.get_fields()
-            if field.name not in self.csv_excluded_fields
-        ])
-
-        case_studies = queryset.all().values(*field_names)
-        writer = csv.DictWriter(response, fieldnames=field_names)
-        writer.writeheader()
-
-        for case_study in case_studies:
-            writer.writerow(case_study)
-
-        return response
 
     download_csv.short_description = (
         "Download CSV report for selected messages to suppliers"
