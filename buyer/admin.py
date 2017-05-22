@@ -20,12 +20,12 @@ def generate_csv(model, queryset, filename, excluded_fields):
          if field.name not in excluded_fields]
     )
 
-    buyers = queryset.all().values(*fieldnames)
+    objects = queryset.all().values(*fieldnames)
     writer = csv.DictWriter(response, fieldnames=fieldnames)
     writer.writeheader()
 
-    for buyer in buyers:
-        writer.writerow(buyer)
+    for obj in objects:
+        writer.writerow(objects)
 
     return response
 
