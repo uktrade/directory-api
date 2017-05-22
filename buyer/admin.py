@@ -25,7 +25,7 @@ def generate_csv(model, queryset, filename, excluded_fields):
     writer.writeheader()
 
     for obj in objects:
-        writer.writerow(objects)
+        writer.writerow(obj)
 
     return response
 
