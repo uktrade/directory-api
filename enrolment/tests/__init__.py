@@ -7,6 +7,7 @@ VALID_REQUEST_DATA = {
     "sso_id": 1,
     "company_number": "01234567",
     "company_email": "test@example.com",
+    "contact_email_address": "contact@example.com",
     "company_name": "Test Corp",
     "referrer": "company_email",
     "export_status": choices.EXPORT_STATUSES[1][0],

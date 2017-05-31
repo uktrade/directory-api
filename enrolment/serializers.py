@@ -34,6 +34,7 @@ class EnrolmentSerializer(serializers.ModelSerializer):
                 name=data['company_name'],
                 number=data['company_number'],
                 date_of_creation=data['date_of_creation'],
+                email_address=data['contact_email_address'],
             )
             self.create_supplier(
                 company=company,
@@ -46,13 +47,14 @@ class EnrolmentSerializer(serializers.ModelSerializer):
             )
 
     def create_company(
-        self, name, number, export_status, date_of_creation
+        self, name, number, export_status, date_of_creation, email_address
     ):
         serializer = CompanySerializer(data={
             'name': name,
             'number': number,
             'export_status': export_status,
             'date_of_creation': date_of_creation,
+            'email_address': email_address,
         })
         serializer.is_valid(raise_exception=True)
         return serializer.save()
