@@ -40,7 +40,7 @@ class CompanyViewsTests(TestCase):
 
     @pytest.mark.django_db
     def test_enrolment_viewset_create_no_queue(self):
-        with self.settings(SQS_ENROLMENT_QUEUE_ENABLED=False):
+        with self.settings(FEATURE_SQS_ENROLMENT_QUEUE_ENABLED=False):
 
             client = APIClient()
             response = client.post(
@@ -57,7 +57,7 @@ class CompanyViewsTests(TestCase):
 
     @pytest.mark.django_db
     def test_enrolment_viewset_create_invalid_data_no_queue(self):
-        with self.settings(SQS_ENROLMENT_QUEUE_ENABLED=False):
+        with self.settings(FEATURE_SQS_ENROLMENT_QUEUE_ENABLED=False):
             client = APIClient()
             invalid_data = VALID_REQUEST_DATA.copy()
             del invalid_data['company_number']
