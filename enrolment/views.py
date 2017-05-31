@@ -32,12 +32,14 @@ class EnrolmentCreateAPIView(CreateAPIView):
             enrolment.queue.EnrolmentQueue().send(
                 data=json.dumps(request.data, ensure_ascii=False)
             )
+            status_code = status.HTTP_202_ACCEPTED
         else:
             self.create_nested_objects(request.data)
+            status_code = status.HTTP_201_CREATED
 
         return Response(
             data=serializer.data,
-            status=status.HTTP_202_ACCEPTED,
+            status=status_code,
             headers=self.get_success_headers(serializer.data)
         )
 
