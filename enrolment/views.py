@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -23,12 +24,17 @@ class EnrolmentCreateAPIView(CreateAPIView):
         })
         serializer.is_valid(raise_exception=True)
 
-        enrolment.queue.EnrolmentQueue().send(
-            data=json.dumps(request.data, ensure_ascii=False)
-        )
+        if settings.FEATURE_SQS_ENROLMENT_QUEUE_ENABLED:
+            enrolment.queue.EnrolmentQueue().send(
+                data=json.dumps(request.data, ensure_ascii=False)
+            )
+            status_code = status.HTTP_202_ACCEPTED
+        else:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
 
         return Response(
             data=serializer.data,
-            status=status.HTTP_202_ACCEPTED,
+            status=status_code,
             headers=self.get_success_headers(serializer.data)
         )
