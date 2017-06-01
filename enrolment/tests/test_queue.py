@@ -68,6 +68,9 @@ class TestQueueWorker(MockBoto):
         assert instance.name == VALID_REQUEST_DATA['company_name']
         assert instance.export_status == VALID_REQUEST_DATA['export_status']
         assert instance.number == VALID_REQUEST_DATA['company_number']
+        assert instance.email_address == (
+            VALID_REQUEST_DATA['contact_email_address']
+        )
 
     @pytest.mark.django_db
     def test_save_enrolment_sends_confirmation_email(self):
