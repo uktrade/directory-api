@@ -2,6 +2,7 @@ import csv
 import datetime
 
 from django.contrib import admin
+from django.db.models import BooleanField, Case, When, Value
 from django.http import HttpResponse
 
 from user.models import User as Supplier
@@ -47,11 +48,18 @@ class SupplierAdmin(admin.ModelAdmin):
                        for field in Company._meta.get_fields()
                        if 'company__' + field.name
                        not in self.csv_excluded_fields]
+        fieldnames.append('company__has_case_study')
         fieldnames = sorted(fieldnames)
 
-        suppliers = queryset.select_related('company').all().values(
-            *fieldnames
-        )
+        suppliers = queryset.select_related('company').all().annotate(
+            company__has_case_study=Case(
+                When(company__supplier_case_studies__isnull=False,
+                     then=Value(True)
+                     ),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        ).values(*fieldnames)
         writer = csv.DictWriter(response, fieldnames=fieldnames)
         writer.writeheader()
 

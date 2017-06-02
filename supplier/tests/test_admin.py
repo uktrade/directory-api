@@ -11,7 +11,7 @@ from freezegun import freeze_time
 
 from user.models import User as Supplier
 from supplier.tests import VALID_REQUEST_DATA as SUPPLIER_DATA
-from company.models import Company
+from company.models import Company, CompanyCaseStudy
 from company.tests import VALID_REQUEST_DATA
 
 
@@ -64,6 +64,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__employees', ''),
             ('company__export_status', 'YES'),
             ('company__facebook_url', ''),
+            ('company__has_case_study', 'False'),
             ('company__id', str(supplier.company.pk)),
             ('company__is_published', 'False'),
             ('company__is_verification_letter_sent', 'False'),
@@ -107,6 +108,11 @@ class DownloadCSVTestCase(TestCase):
         })
         company1 = Company.objects.create(**COMPANY_DATA)
         company2 = Company.objects.create(**company_data2)
+        CompanyCaseStudy.objects.create(
+            title='foo',
+            description='bar',
+            company=company1
+        )
         Supplier.objects.create(company=company1, **SUPPLIER_DATA)
         Supplier.objects.create(company=company2, **supplier_data2)
 
@@ -124,6 +130,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__employees', ''),
             ('company__export_status', 'YES'),
             ('company__facebook_url', ''),
+            ('company__has_case_study', 'True'),
             ('company__id', str(company1.pk)),
             ('company__is_published', 'False'),
             ('company__is_verification_letter_sent', 'False'),
@@ -167,6 +174,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__employees', ''),
             ('company__export_status', 'YES'),
             ('company__facebook_url', ''),
+            ('company__has_case_study', 'False'),
             ('company__id', str(company2.pk)),
             ('company__is_published', 'False'),
             ('company__is_verification_letter_sent', 'False'),
