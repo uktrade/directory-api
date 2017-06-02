@@ -53,10 +53,9 @@ class SupplierAdmin(admin.ModelAdmin):
 
         suppliers = queryset.select_related('company').all().annotate(
             company__has_case_study=Case(
-                When(
-                    company__supplier_case_studies__isnull=False,
+                When(company__supplier_case_studies__isnull=False,
                      then=Value(True)
-                ),
+                     ),
                 default=Value(False),
                 output_field=BooleanField()
             )
