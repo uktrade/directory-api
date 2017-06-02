@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.db.models import BooleanField, Case, When, Value
 from django.http import HttpResponse
 
+from company.utils import send_letter
 from user.models import User as Supplier
 from company.models import Company
 
@@ -17,7 +18,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__description', 'company__number', 'company__website'
     )
     readonly_fields = ('created', 'modified',)
-    actions = ['download_csv']
+    actions = ['download_csv', 'resend_letter']
 
     csv_excluded_fields = (
         'id',
@@ -71,3 +72,7 @@ class SupplierAdmin(admin.ModelAdmin):
     download_csv.short_description = (
         "Download CSV report for selected suppliers"
     )
+
+    def resend_letter(self, request, queryset):
+        for supplier in queryset.select_related('company').all():
+            send_letter(supplier.company)

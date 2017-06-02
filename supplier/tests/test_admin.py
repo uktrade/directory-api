@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from unittest import TestCase
+from unittest.mock import patch
 
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -219,3 +220,39 @@ class DownloadCSVTestCase(TestCase):
         assert actual[0] == ','.join(supplier_one_expected_data.keys())
         assert actual[1] == ','.join(supplier_two_expected_data.values())
         assert actual[2] == ','.join(supplier_one_expected_data.values())
+
+
+@pytest.mark.django_db
+class ResendLetterTestCase(TestCase):
+
+    def setUp(self):
+        superuser = User.objects.create_superuser(
+            username='admin', email='admin@example.com', password='test'
+        )
+        self.client = Client()
+        self.client.force_login(superuser)
+
+        self.freezer = freeze_time("2012-01-14 12:00:00")
+        self.freezer.start()
+
+    def tearDown(self):
+        self.freezer.stop()
+
+    @patch('supplier.admin.send_letter')
+    def test_download_csv(self, mocked_send_letter):
+        company = Company.objects.create(**COMPANY_DATA)
+        supplier = Supplier.objects.create(company=company, **SUPPLIER_DATA)
+
+        data = {
+            'action': 'resend_letter',
+            '_selected_action': Supplier.objects.all().values_list(
+                'pk', flat=True
+            )
+        }
+        self.client.post(
+            reverse('admin:user_user_changelist'),
+            data,
+            follow=True
+        )
+
+        assert mocked_send_letter.called_once_with(supplier.company)
