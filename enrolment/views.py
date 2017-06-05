@@ -24,14 +24,14 @@ class EnrolmentCreateAPIView(CreateAPIView):
         })
         serializer.is_valid(raise_exception=True)
 
-        if settings.FEATURE_SQS_ENROLMENT_QUEUE_ENABLED:
+        if settings.FEATURE_SYNCHRONOUS_PROFILE_CREATION:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+        else:
             enrolment.queue.EnrolmentQueue().send(
                 data=json.dumps(request.data, ensure_ascii=False)
             )
             status_code = status.HTTP_202_ACCEPTED
-        else:
-            serializer.save()
-            status_code = status.HTTP_201_CREATED
 
         return Response(
             data=serializer.data,

@@ -1,4 +1,3 @@
-import http
 from unittest import mock
 
 import pytest
@@ -30,23 +29,22 @@ class CompanyViewsTests(TestCase):
     @pytest.mark.django_db
     @mock.patch('boto3.resource')
     def test_enrolment_viewset_create(self, boto_mock):
-        client = APIClient()
-        response = client.post(
-            '/enrolment/', VALID_REQUEST_DATA, format='json'
-        )
-
-        assert response.status_code == http.client.ACCEPTED
-        assert not models.Enrolment.objects.all().exists()
+        with self.settings(FEATURE_SYNCHRONOUS_PROFILE_CREATION=False):
+            client = APIClient()
+            response = client.post(
+                '/enrolment/', VALID_REQUEST_DATA, format='json'
+            )
+            assert response.status_code == status.HTTP_202_ACCEPTED
+            assert not models.Enrolment.objects.all().exists()
 
     @pytest.mark.django_db
     def test_enrolment_viewset_create_no_queue(self):
-        with self.settings(FEATURE_SQS_ENROLMENT_QUEUE_ENABLED=False):
+        with self.settings(FEATURE_SYNCHRONOUS_PROFILE_CREATION=True):
 
             client = APIClient()
             response = client.post(
                 '/enrolment/', VALID_REQUEST_DATA, format='json'
             )
-
             assert response.status_code == status.HTTP_201_CREATED
             assert Company.objects.filter(
                 number=VALID_REQUEST_DATA['company_number']
@@ -57,7 +55,7 @@ class CompanyViewsTests(TestCase):
 
     @pytest.mark.django_db
     def test_enrolment_viewset_create_invalid_data_no_queue(self):
-        with self.settings(FEATURE_SQS_ENROLMENT_QUEUE_ENABLED=False):
+        with self.settings(FEATURE_SYNCHRONOUS_PROFILE_CREATION=True):
             client = APIClient()
             invalid_data = VALID_REQUEST_DATA.copy()
             del invalid_data['company_number']
