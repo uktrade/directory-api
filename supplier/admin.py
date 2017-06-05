@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.db.models import BooleanField, Case, When, Value
 from django.http import HttpResponse
 
-from company.utils import send_letter
+from company.utils import send_verification_letter
 from user.models import User as Supplier
 from company.models import Company
 
@@ -74,5 +74,7 @@ class SupplierAdmin(admin.ModelAdmin):
     )
 
     def resend_letter(self, request, queryset):
-        for supplier in queryset.select_related('company').all():
-            send_letter(supplier.company)
+        for supplier in queryset.select_related('company').exclude(
+                company__verified_with_code=True
+        ):
+            send_verification_letter(supplier.company)

@@ -9,7 +9,7 @@ class CompanyConfig(AppConfig):
 
     def ready(self):
         post_save.connect(
-            receiver=signals.send_verification_letter,
+            receiver=signals.send_first_verification_letter,
             sender='company.Company'
         )
         post_save.connect(

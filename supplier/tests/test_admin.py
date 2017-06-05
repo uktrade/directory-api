@@ -238,7 +238,7 @@ class ResendLetterTestCase(TestCase):
     def tearDown(self):
         self.freezer.stop()
 
-    @patch('supplier.admin.send_letter')
+    @patch('supplier.admin.send_verification_letter')
     def test_download_csv(self, mocked_send_letter):
         company = Company.objects.create(**COMPANY_DATA)
         supplier = Supplier.objects.create(company=company, **SUPPLIER_DATA)

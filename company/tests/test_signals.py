@@ -82,7 +82,7 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_letter')
+@mock.patch('company.signals.send_verification_letter')
 def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     CompanyFactory(
@@ -95,7 +95,7 @@ def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
 
 @pytest.mark.django_db
 @freeze_time()
-@mock.patch('company.signals.send_letter')
+@mock.patch('company.signals.send_verification_letter')
 def test_letter_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     company = CompanyFactory(verification_code='test')
@@ -104,7 +104,7 @@ def test_letter_sent(mock_send_letter, settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_letter')
+@mock.patch('company.signals.send_verification_letter')
 @mock.patch(
     'company.models.Company.has_valid_address',
     mock.Mock(return_value=False)

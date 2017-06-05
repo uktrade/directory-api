@@ -6,7 +6,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from company.tests.factories import CompanyFactory
-from company.utils import send_letter
+from company.utils import send_verification_letter
 
 
 @pytest.mark.django_db
@@ -14,7 +14,7 @@ from company.utils import send_letter
 @mock.patch('company.utils.stannp_client')
 def test_send_letter(mock_stannp_client):
     company = CompanyFactory(verification_code='test')
-    send_letter(company)
+    send_verification_letter(company)
     mock_stannp_client.send_letter.assert_called_with(
         recipient={
             'postal_full_name': company.postal_full_name,

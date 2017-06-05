@@ -6,7 +6,7 @@ from django.utils import timezone
 from company.stannp import stannp_client
 
 
-def send_letter(company):
+def send_verification_letter(company):
     recipient = {
         'postal_full_name': company.postal_full_name,
         'address_line_1': company.address_line_1,
