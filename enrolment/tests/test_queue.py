@@ -74,6 +74,7 @@ class TestQueueWorker(MockBoto):
 
     @pytest.mark.django_db
     def test_save_enrolment_sends_confirmation_email(self):
+        settings.FEATURE_SYNCHRONOUS_PROFILE_CREATION = False
         worker = enrolment.queue.EnrolmentQueueWorker()
 
         worker.save_enrolment(
