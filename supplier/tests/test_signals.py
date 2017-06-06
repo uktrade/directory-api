@@ -1,5 +1,4 @@
 import pytest
-from django.conf import settings as dsettings
 from django.core import mail
 
 from user.models import User as Supplier
@@ -18,8 +17,8 @@ def test_receiver_sends_email(settings):
 
     assert len(mail.outbox) == 1
     mail_sent = mail.outbox[0]
-    assert mail_sent.subject == dsettings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
-    assert mail_sent.from_email == dsettings.COMPANY_EMAIL_CONFIRMATION_FROM
+    assert mail_sent.subject == settings.COMPANY_EMAIL_CONFIRMATION_SUBJECT
+    assert mail_sent.from_email == settings.COMPANY_EMAIL_CONFIRMATION_FROM
     assert mail_sent.to == [email]
     url = settings.COMPANY_EMAIL_CONFIRMATION_URL
     assert url in mail_sent.body

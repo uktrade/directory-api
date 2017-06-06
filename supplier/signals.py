@@ -4,8 +4,8 @@ from django.template.loader import render_to_string
 
 
 def send_confirmation_email(sender, instance, created, *args, **kwargs):
-    if not created or not instance.company_email or \
-            settings.FEATURE_SYNCHRONOUS_PROFILE_CREATION:
+    sync_creation = settings.FEATURE_SYNCHRONOUS_PROFILE_CREATION
+    if not created or not instance.company_email or sync_creation:
         return
 
     context = {'url': settings.COMPANY_EMAIL_CONFIRMATION_URL}
