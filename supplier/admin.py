@@ -1,7 +1,7 @@
 import csv
 import datetime
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import BooleanField, Case, When, Value
 from django.http import HttpResponse
 
@@ -78,3 +78,8 @@ class SupplierAdmin(admin.ModelAdmin):
                 company__verified_with_code=True
         ):
             send_verification_letter(supplier.company)
+
+        messages.success(
+            request,
+            "Verification letter resent for {} users".format(queryset.count())
+        )
