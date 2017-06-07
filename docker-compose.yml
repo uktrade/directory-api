@@ -33,18 +33,6 @@ services:
     env_file: ./docker/.env
     restart: "always"
 
-  enrolment_worker:
-    build:
-      context: .
-      dockerfile: Dockerfile-enrolment_worker
-    depends_on: [postgres, elasticsearch]
-    links: [postgres, elasticsearch]
-    working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 20s -wait http://elasticsearch:9200 -timeout 30s
-    command: ./docker/cmd-enrolment_worker.sh
-    env_file: ./docker/.env
-    restart: "always"
-
   celery_beat_scheduler:
     build:
       context: .
