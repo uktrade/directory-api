@@ -109,6 +109,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.SessionStorage'
+
 # Static files served with Whitenoise and AWS Cloudfront
 # http://whitenoise.evans.io/en/stable/django.html#instructions-for-amazon-cloudfront
 # http://whitenoise.evans.io/en/stable/django.html#restricting-cloudfront-to-static-files
