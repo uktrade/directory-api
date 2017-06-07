@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
     'contact.apps.ContactConfig',
+    'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
     'directory_constants',
 ]
