@@ -74,12 +74,26 @@ class SupplierAdmin(admin.ModelAdmin):
     )
 
     def resend_letter(self, request, queryset):
-        for supplier in queryset.select_related('company').exclude(
+        total_selected_users = queryset.count()
+        not_verified_users_queryset = queryset.select_related(
+            'company'
+        ).exclude(
                 company__verified_with_code=True
-        ):
+        )
+        not_verified_users_count = not_verified_users_queryset.count()
+
+        for supplier in not_verified_users_queryset:
             send_verification_letter(supplier.company)
 
         messages.success(
             request,
-            "Verification letter resent for {} users".format(queryset.count())
+            'Verification letter resent to {} users'.format(
+                not_verified_users_count
+            )
+        )
+        messages.warning(
+            request,
+            '{} users skipped'.format(
+                total_selected_users - not_verified_users_count
+            )
         )
