@@ -23,6 +23,7 @@ from supplier.views import (
 from enrolment.views import EnrolmentCreateAPIView
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
+from exportopportunity.views import ExportOpportunityCreateAPIView
 
 from django.conf import settings
 
@@ -133,6 +134,13 @@ urlpatterns = [
         CompanySearchAPIView.as_view(),
         name='company-search'
     ),
+
+    url(
+        r'export-opportunity/$',
+        ExportOpportunityCreateAPIView.as_view(),
+        name='export-opportunity-create'
+    ),
+
 
 ]
 
