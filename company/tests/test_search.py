@@ -34,6 +34,7 @@ def test_company_doc_type():
         'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,
         'summary': company.summary,
+        'has_single_sector': False,
         'supplier_case_studies': [
             {
                 'description': case_study.description,
@@ -59,3 +60,15 @@ def test_company_doc_type():
 
     assert doc.to_dict() == expected
     assert doc.meta.id == company.pk
+
+
+@pytest.mark.django_db
+def test_company_doc_type_single_sector():
+    company = factories.CompanyFactory(
+        date_of_creation=datetime.date(2000, 10, 10),
+        sectors=['AEROSPACE']
+    )
+
+    doc = search.company_model_to_doc_type(company)
+
+    assert doc.to_dict()['has_single_sector'] is True

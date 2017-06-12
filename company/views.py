@@ -6,6 +6,8 @@ from django.db.models import Case, Count, When, Value, BooleanField
 
 from company import filters, models, pagination, search, serializers
 
+from elasticsearch_dsl.query import Q, SF
+
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
@@ -140,8 +142,28 @@ class CompanySearchAPIView(views.APIView):
 
     @staticmethod
     def get_search_results(term, page, size):
+        """Search companies by term
+
+        Wildcard search of companies by provided term. The position of
+        companies that have only one sector is increased.
+
+        Arguments:
+            term {str} -- Search term to match on
+            page {int} -- Page number to query
+            size {int} -- Number of results per page
+
+        Returns:
+            dict -- Companies that match the term
+
+        """
+
         start = (page - 1) * size
         end = start + size
-        search_object = search.CompanyDocType.search()
-        response = search_object.query('match', _all=term)[start:end].execute()
-        return response.to_dict()
+        query = search.CompanyDocType.search().query(
+            'function_score',
+            query=Q('match', _all=term),
+            functions=[
+                SF('field_value_factor', field='has_single_sector')
+            ]
+        )
+        return query[start:end].execute().to_dict()
