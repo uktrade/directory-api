@@ -110,6 +110,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 # Static files served with Whitenoise and AWS Cloudfront
 # http://whitenoise.evans.io/en/stable/django.html#instructions-for-amazon-cloudfront
 # http://whitenoise.evans.io/en/stable/django.html#restricting-cloudfront-to-static-files
@@ -230,25 +232,6 @@ else:
         },
     }
 
-
-# SQS
-SQS_REGION_NAME = os.getenv("SQS_REGION_NAME", 'eu-west-1')
-
-SQS_ENROLMENT_QUEUE_NAME = os.environ[
-    "SQS_ENROLMENT_QUEUE_NAME"
-]
-SQS_INVALID_ENROLMENT_QUEUE_NAME = os.environ[
-    "SQS_INVALID_ENROLMENT_QUEUE_NAME"
-]
-
-# Long polling time (how long boto client waits for messages during single
-# receive_messages call), in seconds, max is 20
-SQS_WAIT_TIME = int(os.getenv("SQS_WAIT_TIME", 20))
-# Number of messages retrieved at once, max is 10
-SQS_MAX_NUMBER_OF_MESSAGES = int(os.getenv("SQS_MAX_NUMBER_OF_MESSAGES", 10))
-# Time after which retrieved, but not deleted message will reappear in the
-# queue, max is 43200 (12 hours)
-SQS_VISIBILITY_TIMEOUT = int(os.getenv("SQS_VISIBILITY_TIMEOUT", 21600))
 
 # CH
 COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
@@ -410,10 +393,6 @@ CELERY_BROKER_POOL_LIMIT = int(os.getenv('CELERY_BROKER_POOL_LIMIT', '5'))
 # SSO API Client
 SSO_API_CLIENT_BASE_URL = os.getenv("SSO_API_CLIENT_BASE_URL")
 SSO_SIGNATURE_SECRET = os.getenv("SSO_SIGNATURE_SECRET")
-
-# Synchronous profile creation
-FEATURE_SYNCHRONOUS_PROFILE_CREATION = os.getenv(
-    "FEATURE_SYNCHRONOUS_PROFILE_CREATION") == 'true'
 
 # FAS
 FAS_COMPANY_LIST_URL = os.getenv('FAS_COMPANY_LIST_URL')

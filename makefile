@@ -40,8 +40,6 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_POSTGRES_USER=debug; \
 	export DIRECTORY_API_POSTGRES_PASSWORD=debug; \
 	export DIRECTORY_API_POSTGRES_DB=directory_api_debug; \
-	export DIRECTORY_API_SQS_ENROLMENT_QUEUE_NAME=debug; \
-	export DIRECTORY_API_SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug; \
 	export DIRECTORY_API_COMPANIES_HOUSE_API_KEY=debug; \
 	export DIRECTORY_API_EMAIL_HOST=debug; \
@@ -96,16 +94,12 @@ docker_debug: docker_remove_all
 	$(DOCKER_COMPOSE_CREATE_ENVS) && \
 	docker-compose pull && \
 	docker-compose build && \
-	docker-compose run -d --no-deps enrolment_worker && \
 	docker-compose run -d --no-deps celery_beat_scheduler && \
 	docker-compose run -d --no-deps celery_worker && \
 	docker-compose run --service-ports webserver make django_webserver
 
 docker_webserver_bash:
 	docker exec -it directoryapi_webserver_1 sh
-
-docker_enrolment_worker_bash:
-	docker exec -it directoryapi_enrolment_worker_run_1 sh
 
 docker_psql:
 	docker-compose run postgres psql -h postgres -U debug
@@ -130,8 +124,6 @@ DEBUG_SET_ENV_VARS := \
 	export DB_USER=debug; \
 	export DB_PASSWORD=debug; \
 	export DATABASE_URL=postgres://debug:debug@localhost:5432/directory_api_debug; \
-	export SQS_ENROLMENT_QUEUE_NAME=debug; \
-	export SQS_INVALID_ENROLMENT_QUEUE_NAME=debug; \
 	export EMAIL_HOST=debug; \
 	export EMAIL_PORT=debug; \
 	export EMAIL_HOST_USER=debug; \
@@ -176,9 +168,6 @@ DEBUG_SET_ENV_VARS := \
 debug_webserver:
 	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER);
 
-debug_enrolment_worker:
-	$(DEBUG_SET_ENV_VARS); ./manage.py enrolment_worker
-
 debug_celery_beat_scheduler:
 	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api beat -l info -S django
 
@@ -193,6 +182,9 @@ DEBUG_CREATE_DB := \
 
 debug_db:
 	$(DEBUG_SET_ENV_VARS) && $(DEBUG_CREATE_DB)
+
+debug_pytest:
+	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(PYTEST)
 
 debug_test:
 	$(DEBUG_SET_ENV_VARS) && $(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST)
@@ -218,8 +210,6 @@ heroku_deploy_dev:
 	docker login --email=$$HEROKU_EMAIL --username=$$HEROKU_EMAIL --password=$$HEROKU_API_KEY registry.heroku.com
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
-	docker build -t registry.heroku.com/directory-api-dev/enrolment_worker -f Dockerfile-enrolment_worker .
-	docker push registry.heroku.com/directory-api-dev/enrolment_worker
 	docker build -t registry.heroku.com/directory-api-dev/celery_beat_scheduler -f Dockerfile-celery_beat_scheduler .
 	docker push registry.heroku.com/directory-api-dev/celery_beat_scheduler
 	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
@@ -231,4 +221,4 @@ smoke_tests:
 	cd directory-tests && \
 	make docker_smoke_test
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_enrolment_worker_bash docker_psql docker_test debug_webserver debug_enrolment_worker debug_db debug_test debug heroku_deploy_dev smoke_tests
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests

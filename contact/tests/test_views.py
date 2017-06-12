@@ -1,13 +1,12 @@
-import http
+from collections import OrderedDict
 from unittest.mock import patch, Mock
 
-from django.conf import settings
-from django.core import mail
 from django.core.urlresolvers import reverse
 
 import pytest
+from rest_framework import status
 
-from contact import models, views
+from contact import views
 from company.tests import factories
 
 
@@ -45,29 +44,22 @@ def company(message_to_supplier_data):
     'api.signature.SignatureCheckPermission.has_permission',
     Mock(return_value=True)
 )
+@patch('contact.views.message_to_supplier')
 def test_message_to_supplier_deserialization(
-    create_message_to_supplier_request, message_to_supplier_data, company
+    mock_message_to_supplier,
+    create_message_to_supplier_request,
 ):
     response = views.CreateMessageToSupplierAPIView.as_view()(
         create_message_to_supplier_request
     )
-    instance = models.MessageToSupplier.objects.last()
 
-    assert response.status_code == http.client.CREATED
-    assert instance.sender_email == message_to_supplier_data['sender_email']
-    assert instance.sender_name == message_to_supplier_data['sender_name']
-    assert instance.sender_company_name == message_to_supplier_data[
-        'sender_company_name'
-    ]
-    assert instance.sender_country == message_to_supplier_data[
-        'sender_country'
-    ]
-    assert instance.sector == message_to_supplier_data['sector']
-    assert instance.recipient == company
-    assert instance.is_sent is True
-
-    assert len(mail.outbox) == 1
-    mail_sent = mail.outbox[0]
-    assert mail_sent.subject == settings.CONTACT_SUPPLIER_SUBJECT
-    assert mail_sent.from_email == settings.CONTACT_SUPPLIER_FROM_EMAIL
-    assert mail_sent.to == [instance.recipient.email_address]
+    mock_message_to_supplier.delay.assert_called_once_with(
+        data=OrderedDict([('recipient_company_number', '12345678'),
+                          ('sender_email', 'test@sender.email'),
+                          ('sender_name', 'test sender name'),
+                          ('sender_company_name', 'test sender company name'),
+                          ('sender_country', 'test country'),
+                          ('sector', 'AEROSPACE'), ('subject', 'test subject'),
+                          ('body', 'test body')])
+    )
+    assert response.status_code == status.HTTP_202_ACCEPTED
