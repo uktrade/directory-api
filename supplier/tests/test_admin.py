@@ -238,10 +238,21 @@ class ResendLetterTestCase(TestCase):
     def tearDown(self):
         self.freezer.stop()
 
+    @patch('supplier.admin.messages')
     @patch('supplier.admin.send_verification_letter')
-    def test_download_csv(self, mocked_send_letter):
+    def test_resend_letter(self, mocked_send_letter, mocked_messages):
         company = Company.objects.create(**COMPANY_DATA)
         supplier = Supplier.objects.create(company=company, **SUPPLIER_DATA)
+
+        # already verified supplier
+        other_company_data = COMPANY_DATA.copy()
+        other_supplier_data = SUPPLIER_DATA.copy()
+        other_company_data['number'] = '12345678'
+        other_company_data['verified_with_code'] = True
+        other_supplier_data['sso_id'] = 2
+        other_supplier_data['company_email'] = 'test@foo.com'
+        other_company = Company.objects.create(**other_company_data)
+        Supplier.objects.create(company=other_company, **other_supplier_data)
 
         data = {
             'action': 'resend_letter',
@@ -249,10 +260,18 @@ class ResendLetterTestCase(TestCase):
                 'pk', flat=True
             )
         }
-        self.client.post(
+        response = self.client.post(
             reverse('admin:user_user_changelist'),
             data,
             follow=True
         )
 
         assert mocked_send_letter.called_once_with(supplier.company)
+        assert mocked_messages.success.called_once_with(
+            response.request,
+            'Verification letter resent to 1 users'
+        )
+        assert mocked_messages.warning.called_once_with(
+            response.request,
+            '1 users skipped'
+        )
