@@ -28,6 +28,7 @@ class CompanyDocType(DocType):
     keywords = field.Text()
     linkedin_url = field.Text()
     logo = field.Text()
+    has_single_sector = field.Boolean()
     modified = FormattedDate(date_format='%Y-%m-%dT%H:%M:%S.%fZ')
     name = field.Text()
     number = field.Text()
@@ -77,6 +78,7 @@ def company_model_to_doc_type(company):
         summary=company.summary,
         twitter_url=company.twitter_url,
         website=company.website,
+        has_single_sector=len(company.sectors) == 1,
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({

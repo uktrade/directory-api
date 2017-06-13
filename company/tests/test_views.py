@@ -964,10 +964,21 @@ def test_company_paginate_first_page(api_client):
                     'size': 5,
                     'from': expected_start,
                     'query': {
-                        'match': {
-                            '_all': 'bones'
+                        'function_score': {
+                            'query': {
+                                'match': {
+                                    '_all': 'bones'
+                                }
+                            },
+                            'functions': [
+                                {
+                                    'field_value_factor': {
+                                        'field': 'has_single_sector'
+                                    }
+                                }
+                            ],
                         }
-                    }
+                    },
                 },
                 doc_type=['company_doc_type'],
                 index=['company']
