@@ -1,28 +1,29 @@
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from enrolment.models import Enrolment
+from django.db import transaction
+
 from enrolment import serializers
+from supplier.serializers import SupplierSerializer
 
 
-class EnrolmentCreateAPIView(CreateAPIView):
+class EnrolmentCreateAPIView(APIView):
 
-    model = Enrolment
-    serializer_class = serializers.EnrolmentSerializer
     http_method_names = ("post", )
+    company_serializer_class = serializers.CompanyEnrolmentSerializer
+    supplier_serializer_class = SupplierSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data={
-            'data': request.body
-        })
-        serializer.is_valid(raise_exception=True)
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        company_serializer = self.company_serializer_class(data=request.data)
+        company_serializer.is_valid(raise_exception=True)
+        company = company_serializer.save()
 
-        serializer.save()
-        status_code = status.HTTP_201_CREATED
-
-        return Response(
-            data=serializer.data,
-            status=status_code,
-            headers=self.get_success_headers(serializer.data)
+        supplier_serializer = self.supplier_serializer_class(
+            data={'company': company.id, **request.data}
         )
+        supplier_serializer.is_valid(raise_exception=True)
+        supplier_serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)

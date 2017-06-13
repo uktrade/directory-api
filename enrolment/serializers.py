@@ -1,73 +1,21 @@
 from rest_framework import serializers
 
-from django.db import transaction
-
-from enrolment import models
-from company.serializers import CompanySerializer
-from supplier.serializers import SupplierSerializer
+from company.models import Company
 
 
-class EnrolmentSerializer(serializers.ModelSerializer):
+class CompanyEnrolmentSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='name')
+    company_number = serializers.CharField(source='number')
+    contact_email_address = serializers.EmailField(source='email_address')
 
-    id = serializers.CharField(read_only=True)
-    data = serializers.JSONField(binary=True)
-
-    class Meta(object):
-        model = models.Enrolment
-        fields = (
-            'created',
-            'data',
-            'id',
-        )
-
-    def create(self, validated_data):
-        instance = super().create(validated_data)
-        self.create_nested_objects(validated_data)
-        return instance
-
-    @transaction.atomic
-    def create_nested_objects(self, validated_data):
-        data = validated_data['data']
-        try:
-            company = self.create_company(
-                export_status=data['export_status'],
-                name=data['company_name'],
-                number=data['company_number'],
-                date_of_creation=data['date_of_creation'],
-                email_address=data['contact_email_address'],
-            )
-            self.create_supplier(
-                company=company,
-                sso_id=data['sso_id'],
-                company_email=data['company_email'],
-            )
-        except KeyError as error:
-            raise serializers.ValidationError(
-                'Missing key: "{key}"'.format(key=error)
-            )
-
-    def create_company(
-        self, name, number, export_status, date_of_creation, email_address
-    ):
-        serializer = CompanySerializer(data={
-            'name': name,
-            'number': number,
-            'export_status': export_status,
-            'date_of_creation': date_of_creation,
-            'email_address': email_address,
-        })
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
-
-    def create_supplier(
-            self, sso_id, company_email, company):
-        serializer = SupplierSerializer(data={
-            'sso_id': sso_id,
-            'company_email': company_email,
-            'company': company.pk,
-        })
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
+    class Meta:
+        model = Company
+        fields = [
+            'export_status',
+            'company_name',
+            'company_number',
+            'contact_email_address',
+        ]
 
 
 class SMSVerificationSerializer(serializers.Serializer):
