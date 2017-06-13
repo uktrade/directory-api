@@ -16,7 +16,3 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'company_number',
             'contact_email_address',
         ]
-
-
-class SMSVerificationSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(max_length=20)
