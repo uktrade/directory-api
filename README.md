@@ -5,6 +5,11 @@
 
 [![CircleCI](https://circleci.com/gh/uktrade/directory-api/tree/master.svg?style=svg)](https://circleci.com/gh/uktrade/directory-api/tree/master)
 
+## Coverage
+
+[![codecov](https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg)](https://codecov.io/gh/uktrade/directory-api)
+
+
 ## Requirements
 [Docker >= 1.10](https://docs.docker.com/engine/installation/) 
 [Docker Compose >= 1.8](https://docs.docker.com/compose/install/)
