@@ -1,5 +1,6 @@
 from rest_framework.generics import (
     RetrieveAPIView,
+    ListAPIView,
     RetrieveUpdateAPIView,
 )
 from rest_framework.response import Response
@@ -18,6 +19,16 @@ class SupplierRetrieveExternalAPIView(RetrieveAPIView):
     queryset = Supplier.objects.all()
     lookup_field = 'sso_id'
     serializer_class = serializers.ExternalSupplierSerializer
+
+
+class SupplierSSOListExternalAPIView(ListAPIView):
+    queryset = Supplier.objects.all()
+
+    def get(self, request):
+        # normally DRF loops over the queryset and calls the serializer on each
+        # supplier- which is much less performant than calling `values_list`
+        sso_ids = self.queryset.values_list('sso_id', flat=True)
+        return Response(data=sso_ids)
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):

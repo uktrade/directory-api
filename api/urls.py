@@ -18,6 +18,7 @@ from supplier.views import (
     GeckoTotalRegisteredSuppliersView,
     SupplierRetrieveExternalAPIView,
     SupplierRetrieveUpdateAPIView,
+    SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
 )
 from enrolment.views import EnrolmentCreateAPIView
@@ -78,6 +79,11 @@ urlpatterns = [
         r'external/supplier/(?P<sso_id>[0-9]+)/$',
         SupplierRetrieveExternalAPIView.as_view(),
         name='external-supplier-details'
+    ),
+    url(
+        r'external/supplier-sso/$',
+        SupplierSSOListExternalAPIView.as_view(),
+        name='external-supplier-sso-list'
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/$',
