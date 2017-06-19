@@ -201,3 +201,19 @@ def test_public_supplier_details_post(supplier):
     response = APIClient().post(url)
 
     assert response.status_code == 405
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_external_supplier_sso_list():
+
+    suppliers = factories.SupplierFactory.create_batch(3)
+    url = reverse('external-supplier-sso-list')
+    response = APIClient().get(url)
+
+    assert response.status_code == 200
+    assert response.json() == [
+        suppliers[2].sso_id,
+        suppliers[1].sso_id,
+        suppliers[0].sso_id,
+    ]
