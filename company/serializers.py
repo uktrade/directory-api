@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from directory_validators import company as shared_validators
 from django.conf import settings
 
 from company import models, validators
@@ -77,6 +78,13 @@ class CompanySerializer(serializers.ModelSerializer):
         many=True, required=False, read_only=True
     )
     has_valid_address = serializers.SerializerMethodField()
+    keywords = serializers.CharField(
+        validators=[
+            shared_validators.keywords_word_limit,
+            shared_validators.keywords_special_characters
+        ],
+        required=False
+    )
 
     class Meta:
         model = models.Company
