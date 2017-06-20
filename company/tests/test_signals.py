@@ -7,6 +7,7 @@ import pytest
 from django.utils import timezone
 
 from company.tests.factories import CompanyFactory
+from enrolment.tests.factories import TrustedSourceSignupCodeFactory
 
 
 @pytest.mark.django_db
@@ -272,3 +273,35 @@ def test_save_to_elasticsearch_unpublished(mock_elasticsearch_company_save):
     CompanyFactory(is_published=False)
 
     assert mock_elasticsearch_company_save.call_count == 0
+
+
+@pytest.mark.django_db
+def test_deactivate_trusted_source_signup_code_single_code():
+    trusted_source_signup_code = TrustedSourceSignupCodeFactory.create(
+        company_number='00000001'
+    )
+    assert trusted_source_signup_code.is_active is True
+
+    CompanyFactory(is_published=False, number='00000001')
+
+    trusted_source_signup_code.refresh_from_db()
+    assert trusted_source_signup_code.is_active is False
+
+
+@pytest.mark.django_db
+def test_deactivate_trusted_source_signup_code_multiple_codes():
+    trusted_source_signup_code_one = TrustedSourceSignupCodeFactory.create(
+        company_number='00000001'
+    )
+    trusted_source_signup_code_two = TrustedSourceSignupCodeFactory.create(
+        company_number='00000001'
+    )
+    assert trusted_source_signup_code_one.is_active is True
+    assert trusted_source_signup_code_two.is_active is True
+
+    CompanyFactory(is_published=False, number='00000001')
+
+    trusted_source_signup_code_one.refresh_from_db()
+    trusted_source_signup_code_two.refresh_from_db()
+    assert trusted_source_signup_code_one.is_active is False
+    assert trusted_source_signup_code_two.is_active is False
