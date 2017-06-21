@@ -39,4 +39,5 @@ class TrustedSourceSignupCode(TimeStampedModel):
 
     @property
     def enrolment_link(self):
-        return settings.FAB_TRUSTED_SOURCE_ENROLMENT_LINK.format(code=self.code)
+        link_template = settings.FAB_TRUSTED_SOURCE_ENROLMENT_LINK
+        return link_template.format(code=self.code)

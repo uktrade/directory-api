@@ -1,6 +1,4 @@
-import codecs
 import csv
-import datetime
 
 from django import forms
 from django.conf.urls import url
@@ -9,9 +7,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django.http import HttpResponse
 
-from buyer.admin import generate_csv
 from enrolment.models import TrustedSourceSignupCode
-from enrolment import helpers
 
 from io import TextIOWrapper
 
@@ -24,10 +20,12 @@ class GenerateEnrolmentCodesForm(forms.Form):
 class GenerateEnrolmentCodesFormView(FormView):
     form_class = GenerateEnrolmentCodesForm
     template_name = 'admin/enrolment/company_csv_upload_form.html'
-    success_url = reverse_lazy('admin:enrolment_trustedsourcesignupcode_changelist')
+    success_url = reverse_lazy(
+        'admin:enrolment_trustedsourcesignupcode_changelist'
+    )
 
     def form_valid(self, form):
-        csv_file =  TextIOWrapper(
+        csv_file = TextIOWrapper(
             self.request.FILES['csv_file'].file,
             encoding='utf-8'
         )
@@ -38,7 +36,11 @@ class GenerateEnrolmentCodesFormView(FormView):
         next(reader, None)  # skip the headers
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="thinng.csv"'
+        response['Content-Disposition'] = (
+            'attachment; filename="signup links for {}.csv"'.format(
+                form.cleaned_data['generated_for']
+            )
+        )
 
         writer = csv.writer(response)
         writer.writerow(['Company number', "Email", "Link"])
@@ -64,7 +66,7 @@ class TrustedSourceSignupCodeAdmin(admin.ModelAdmin):
         'generated_for',
         'generated_by',
     )
-    list_display = ('company_number', 'email_address','generated_for')
+    list_display = ('company_number', 'email_address', 'generated_for')
     list_filter = ('is_active', 'generated_for')
 
     def get_urls(self):
