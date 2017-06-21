@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from company.models import Company
+from enrolment import models
 
 
 class CompanyEnrolmentSerializer(serializers.ModelSerializer):
@@ -15,4 +16,15 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'company_name',
             'company_number',
             'contact_email_address',
+        ]
+
+
+class TrustedSourceSignupCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TrustedSourceSignupCode
+        fields = [
+            'company_number',
+            'email_address',
+            'generated_for',
+            'is_active',
         ]

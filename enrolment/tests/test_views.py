@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from django.core.urlresolvers import reverse
 
 from company.models import Company
-from enrolment.tests import VALID_REQUEST_DATA
+from enrolment.tests import factories, VALID_REQUEST_DATA
 from user.models import User as Supplier
 
 
@@ -72,3 +72,48 @@ def test_enrolment_create_supplier_exception_rollback(mock_create):
 
     assert Company.objects.count() == 0
     assert Supplier.objects.count() == 0
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_trusted_source_signup_retrieve():
+    api_client = APIClient()
+    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create()
+
+    url = reverse(
+        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_trusted_source_signup_retrieve_inactive_token():
+    api_client = APIClient()
+    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create(
+        is_active=False
+    )
+
+    url = reverse(
+        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_trusted_source_signup_unsafe():
+    api_client = APIClient()
+    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create()
+
+    url = reverse(
+        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
+    )
+
+    for method in [api_client.post, api_client.patch, api_client.delete]:
+        response = method(url)
+        assert response.status_code == 405

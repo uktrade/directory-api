@@ -1,5 +1,8 @@
+import datetime
+
 from django.contrib import admin
 
+from api.utils import generate_csv
 from notifications import models
 
 
@@ -13,6 +16,28 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
     list_filter = ('category',)
     date_hierarchy = 'date_sent'
 
+    actions = ['download_csv']
+    csv_excluded_fields = ()
+    csv_filename = 'find-a-buyer_supplier_email_notifications_{}.csv'.format(
+        datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    )
+
+    def download_csv(self, request, queryset):
+        """
+        Generates CSV report of selected case studies.
+        """
+
+        return generate_csv(
+            model=self.model,
+            queryset=queryset,
+            filename=self.csv_filename,
+            excluded_fields=self.csv_excluded_fields
+        )
+
+    download_csv.short_description = (
+        "Download CSV report for selected notifications"
+    )
+
     def company_name(self, obj):
         return obj.supplier.company.name
 
@@ -24,3 +49,25 @@ class AnonymousEmailNotificationAdmin(admin.ModelAdmin):
     list_display = ('email', 'category', 'date_sent')
     list_filter = ('category',)
     date_hierarchy = 'date_sent'
+
+    actions = ['download_csv']
+    csv_excluded_fields = ()
+    csv_filename = 'find-a-buyer_anonymous_email_notifications_{}.csv'.format(
+        datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    )
+
+    def download_csv(self, request, queryset):
+        """
+        Generates CSV report of selected case studies.
+        """
+
+        return generate_csv(
+            model=self.model,
+            queryset=queryset,
+            filename=self.csv_filename,
+            excluded_fields=self.csv_excluded_fields
+        )
+
+    download_csv.short_description = (
+        "Download CSV report for selected notifications"
+    )
