@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import admin
 
-from buyer.admin import generate_csv
+from api.utils import generate_csv
 from contact.models import MessageToSupplier
 
 

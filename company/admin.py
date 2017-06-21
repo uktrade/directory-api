@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django import forms
 
-from buyer.admin import generate_csv
+from api.utils import generate_csv
 from company.models import Company, CompanyCaseStudy
 
 
