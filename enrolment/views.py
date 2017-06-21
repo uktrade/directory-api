@@ -1,10 +1,11 @@
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from django.db import transaction
 
-from enrolment import serializers
+from enrolment import models, serializers
 from supplier.serializers import SupplierSerializer
 
 
@@ -27,3 +28,10 @@ class EnrolmentCreateAPIView(APIView):
         supplier_serializer.save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+
+class TrustedSourceSignupCodeRetrieveView(RetrieveAPIView):
+    http_method_names = ("get", )
+    queryset = models.TrustedSourceSignupCode.objects.filter(is_active=True)
+    serializer_class = serializers.TrustedSourceSignupCodeSerializer
+    lookup_field = 'code'
