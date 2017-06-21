@@ -1,3 +1,5 @@
+import codecs
+import csv
 import datetime
 
 from django import forms
@@ -5,23 +7,52 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
+from django.http import HttpResponse
 
 from buyer.admin import generate_csv
 from enrolment.models import TrustedSourceSignupCode
+from enrolment import helpers
+
+from io import TextIOWrapper
 
 
-class CompanyCsvUploadForm(forms.Form):
+class GenerateEnrolmentCodesForm(forms.Form):
     csv_file = forms.FileField()
     generated_for = forms.CharField(max_length=1000)
 
 
-class CompanyCsvUploadFormView(FormView):
-    form_class = CompanyCsvUploadForm
+class GenerateEnrolmentCodesFormView(FormView):
+    form_class = GenerateEnrolmentCodesForm
     template_name = 'admin/enrolment/company_csv_upload_form.html'
     success_url = reverse_lazy('admin:enrolment_trustedsourcesignupcode_changelist')
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        csv_file =  TextIOWrapper(
+            self.request.FILES['csv_file'].file,
+            encoding='utf-8'
+        )
+        dialect = csv.Sniffer().sniff(csv_file.read(1024))
+        csv_file.seek(0)
+
+        reader = csv.reader(csv_file, dialect=dialect)
+        next(reader, None)  # skip the headers
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="thinng.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Company number', "Email", "Link"])
+        for row in reader:
+            code = TrustedSourceSignupCode.objects.create(
+                company_number=row[0],
+                email_address=row[1],
+                generated_for=form.cleaned_data['generated_for'],
+                generated_by=self.request.user,
+            )
+            writer.writerow([
+                code.company_number, code.email_address, code.enrolment_link,
+            ])
+        return response
 
 
 @admin.register(TrustedSourceSignupCode)
@@ -42,7 +73,7 @@ class TrustedSourceSignupCodeAdmin(admin.ModelAdmin):
             url(
                 r'^generate-trusted-source-upload/$',
                 self.admin_site.admin_view(
-                    CompanyCsvUploadFormView.as_view()
+                    GenerateEnrolmentCodesFormView.as_view()
                 ),
                 name="generate_trusted_source_upload"
             ),
