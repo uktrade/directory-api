@@ -405,6 +405,9 @@ FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
     'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
 )
+FAB_TRUSTED_SOURCE_ENROLMENT_LINK = os.environ[
+    'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
+]
 
 # Initialise default Elasticsearch connection
 connections.create_connection(
