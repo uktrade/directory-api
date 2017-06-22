@@ -55,7 +55,7 @@ urlpatterns = [
         name='enrolment'
     ),
     url(
-        r'trusted-source-signup-code/(?P<code>.*)/$',
+        r'trusted-code/(?P<code>.*)/$',
         TrustedSourceSignupCodeRetrieveView.as_view(),
         name='trusted-source-signup-code'
     ),
