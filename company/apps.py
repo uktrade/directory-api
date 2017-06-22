@@ -24,7 +24,3 @@ class CompanyConfig(AppConfig):
             receiver=signals.store_date_published,
             sender='company.Company'
         )
-        pre_save.connect(
-            receiver=signals.deactivate_trusted_source_signup_code,
-            sender='company.Company'
-        )

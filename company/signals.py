@@ -31,13 +31,3 @@ def store_date_published(sender, instance, *args, **kwargs):
 def save_to_elasticsearch(sender, instance, *args, **kwargs):
     if instance.is_published:
         instance.to_doc_type().save()
-
-
-def deactivate_trusted_source_signup_code(sender, instance, *args, **kwargs):
-    # django throws "AppRegistreyNotReady" if model imported at module level
-    from enrolment.models import TrustedSourceSignupCode
-    if not instance.pk:
-        queryset = TrustedSourceSignupCode.objects.filter(
-            company_number=instance.number
-        )
-        queryset.update(is_active=False)
