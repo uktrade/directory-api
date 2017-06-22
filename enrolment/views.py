@@ -27,6 +27,11 @@ class EnrolmentCreateAPIView(APIView):
         supplier_serializer.is_valid(raise_exception=True)
         supplier_serializer.save()
 
+        signup_codes = models.TrustedSourceSignupCode.objects.filter(
+            company_number=company.number
+        )
+        signup_codes.update(is_active=False)
+
         return Response(status=status.HTTP_201_CREATED)
 
 

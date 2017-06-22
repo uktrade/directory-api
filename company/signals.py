@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.utils import timezone
 
-
-from .utils import send_verification_letter
+from company.utils import send_verification_letter
 
 
 def send_first_verification_letter(sender, instance, *args, **kwargs):

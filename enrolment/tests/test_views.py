@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 
 from company.models import Company
 from enrolment.tests import factories, VALID_REQUEST_DATA
+from enrolment.tests.factories import TrustedSourceSignupCodeFactory
 from user.models import User as Supplier
 
 
@@ -90,6 +91,24 @@ def test_trusted_source_signup_retrieve():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_enrolment_create_disables_signup_code_single_code():
+    trusted_source_signup_code = TrustedSourceSignupCodeFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number']
+    )
+    assert trusted_source_signup_code.is_active is True
+
+    api_client = APIClient()
+    url = reverse('enrolment')
+    response = api_client.post(url, VALID_REQUEST_DATA, format='json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    trusted_source_signup_code.refresh_from_db()
+    assert trusted_source_signup_code.is_active is False
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_trusted_source_signup_retrieve_inactive_token():
     api_client = APIClient()
     trusted_source_code = factories.TrustedSourceSignupCodeFactory.create(
@@ -117,3 +136,25 @@ def test_trusted_source_signup_unsafe():
     for method in [api_client.post, api_client.patch, api_client.delete]:
         response = method(url)
         assert response.status_code == 405
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_enrolment_create_disables_signup_code_multiple_codes():
+    trusted_source_signup_code_one = TrustedSourceSignupCodeFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number']
+    )
+    trusted_source_signup_code_two = TrustedSourceSignupCodeFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number']
+    )
+    assert trusted_source_signup_code_one.is_active is True
+    assert trusted_source_signup_code_two.is_active is True
+
+    api_client = APIClient()
+    url = reverse('enrolment')
+    api_client.post(url, VALID_REQUEST_DATA, format='json')
+
+    trusted_source_signup_code_one.refresh_from_db()
+    trusted_source_signup_code_two.refresh_from_db()
+    assert trusted_source_signup_code_one.is_active is False
+    assert trusted_source_signup_code_two.is_active is False
