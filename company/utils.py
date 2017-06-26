@@ -37,9 +37,7 @@ def send_verification_letter(company):
     company.save()
 
 
-
-
-def populate_elasticserach(CompanyModel):
+def populate_elasticsearch(CompanyModel):
     companies = Index('companies')
     if not companies.exists():
         companies.doc_type(CompanyDocType)

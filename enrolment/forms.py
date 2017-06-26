@@ -8,9 +8,9 @@ from django.db import transaction
 from enrolment import models
 
 
-class PreVerifiedCompanyModelForm(forms.ModelForm):
+class PreVerifiedEnrolmentModelForm(forms.ModelForm):
     class Meta:
-        model = models.PreVerifiedCompany
+        model = models.PreVerifiedEnrolment
         fields = [
             'company_number',
             'email_address',
@@ -38,7 +38,7 @@ class GeneratePreVerifiedCompanies(forms.Form):
         next(reader, None)  # skip the headers
         row_errors = []
         for i, row in enumerate(reader):
-            form = PreVerifiedCompanyModelForm(data={
+            form = PreVerifiedEnrolmentModelForm(data={
                 'company_number': row[0],
                 'email_address': row[1],
                 'generated_for': self.cleaned_data['generated_for'],

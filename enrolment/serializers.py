@@ -19,12 +19,14 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        queryset = models.PreVerifiedCompany.objects.filter(
+        queryset = models.PreVerifiedEnrolment.objects.filter(
             company_number=validated_data['number'],
             email_address=validated_data['email_address'],
             is_active=True
         )
-        validated_data['verified_with_trade_association'] = queryset.exists()
+        validated_data['verified_with_preverified_enrolment'] = (
+            queryset.exists()
+        )
         company = super().create(validated_data)
         queryset.update(is_active=False)
         return company

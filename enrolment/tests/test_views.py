@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from company.models import Company
 from enrolment.tests import VALID_REQUEST_DATA
-from enrolment.tests.factories import PreVerifiedCompanyFactory
+from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from user.models import User as Supplier
 
 
@@ -77,12 +77,12 @@ def test_enrolment_create_supplier_exception_rollback(mock_create):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_enrolment_create_disables_signup_code_single_code():
-    trusted_source_signup_code = PreVerifiedCompanyFactory.create(
+def test_enrolment_create_disables_single_preverified_enrolment():
+    preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
-    assert trusted_source_signup_code.is_active is True
+    assert preverified_enrolment.is_active is True
 
     api_client = APIClient()
     url = reverse('enrolment')
@@ -91,24 +91,24 @@ def test_enrolment_create_disables_signup_code_single_code():
     assert response.status_code == status.HTTP_201_CREATED
 
     company = Company.objects.last()
-    trusted_source_signup_code.refresh_from_db()
-    assert trusted_source_signup_code.is_active is False
+    preverified_enrolment.refresh_from_db()
+    assert preverified_enrolment.is_active is False
     assert company.verified_with_trade_association is True
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_enrolment_create_disables_signup_code_multiple_codes():
-    trusted_source_signup_code_one = PreVerifiedCompanyFactory.create(
+def test_enrolment_create_disables_multiple_preverified_enrolment():
+    preverified_enrolment_one = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
-    trusted_source_signup_code_two = PreVerifiedCompanyFactory.create(
+    preverified_enrolment_two = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
-    assert trusted_source_signup_code_one.is_active is True
-    assert trusted_source_signup_code_two.is_active is True
+    assert preverified_enrolment_one.is_active is True
+    assert preverified_enrolment_two.is_active is True
 
     api_client = APIClient()
     url = reverse('enrolment')
@@ -116,21 +116,21 @@ def test_enrolment_create_disables_signup_code_multiple_codes():
 
     company = Company.objects.last()
 
-    trusted_source_signup_code_one.refresh_from_db()
-    trusted_source_signup_code_two.refresh_from_db()
-    assert trusted_source_signup_code_one.is_active is False
-    assert trusted_source_signup_code_two.is_active is False
+    preverified_enrolment_one.refresh_from_db()
+    preverified_enrolment_two.refresh_from_db()
+    assert preverified_enrolment_one.is_active is False
+    assert preverified_enrolment_two.is_active is False
     assert company.verified_with_trade_association is True
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_enrolment_create_signup_code_single_code_different_email():
-    trusted_source_signup_code = PreVerifiedCompanyFactory.create(
+def test_enrolment_create_preverified_enrolment_different_email():
+    preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address='jim@thing.com',
     )
-    assert trusted_source_signup_code.is_active is True
+    assert preverified_enrolment.is_active is True
 
     api_client = APIClient()
     url = reverse('enrolment')
@@ -139,6 +139,6 @@ def test_enrolment_create_signup_code_single_code_different_email():
     assert response.status_code == status.HTTP_201_CREATED
 
     company = Company.objects.last()
-    trusted_source_signup_code.refresh_from_db()
-    assert trusted_source_signup_code.is_active is True
+    preverified_enrolment.refresh_from_db()
+    assert preverified_enrolment.is_active is True
     assert company.verified_with_trade_association is False

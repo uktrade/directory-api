@@ -3,14 +3,16 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 
-from enrolment.models import PreVerifiedCompany
+from enrolment.models import PreVerifiedEnrolment
 from enrolment import forms
 
 
 class GeneratePreVerifiedCompaniesFormView(FormView):
     form_class = forms.GeneratePreVerifiedCompanies
     template_name = 'admin/enrolment/company_csv_upload_form.html'
-    success_url = reverse_lazy('admin:enrolment_preverifiedcompany_changelist')
+    success_url = reverse_lazy(
+        'admin:enrolment_preverifiedenrolment_changelist'
+    )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -18,8 +20,8 @@ class GeneratePreVerifiedCompaniesFormView(FormView):
         return kwargs
 
 
-@admin.register(PreVerifiedCompany)
-class PreVerifiedCompanyAdmin(admin.ModelAdmin):
+@admin.register(PreVerifiedEnrolment)
+class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
     search_fields = (
         'company_number',
         'email_address',
@@ -30,7 +32,7 @@ class PreVerifiedCompanyAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'generated_for')
 
     def get_urls(self):
-        urls = super(PreVerifiedCompanyAdmin, self).get_urls()
+        urls = super(PreVerifiedEnrolmentAdmin, self).get_urls()
         additional_urls = [
             url(
                 r'^pre-verify-companies/$',

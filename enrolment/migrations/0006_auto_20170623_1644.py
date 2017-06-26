@@ -17,24 +17,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='PreVerifiedCompany',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, null=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, null=True, verbose_name='modified')),
-                ('company_number', models.CharField(max_length=8, validators=[django.core.validators.RegexValidator(code='invalid_company_number', message='Company number must be 8 characters', regex='^[A-Za-z0-9]{8}$')])),
-                ('email_address', models.EmailField(max_length=254)),
-                ('generated_for', models.CharField(help_text='The trade organisation the code was created for.', max_length=1000)),
-                ('is_active', models.BooleanField(default=True)),
-                ('generated_by', models.ForeignKey(help_text='The admin account that created the code.', null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'abstract': False,
-                'get_latest_by': 'modified',
-                'ordering': ('-modified', '-created'),
-            },
-        ),
         migrations.RemoveField(
             model_name='trustedsourcesignupcode',
             name='generated_by',

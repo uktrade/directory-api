@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client
 
-from enrolment.models import PreVerifiedCompany
+from enrolment.models import PreVerifiedEnrolment
 
 
 @pytest.fixture()
@@ -54,15 +54,15 @@ def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
     )
 
     assert response.status_code == 302
-    assert PreVerifiedCompany.objects.count() == 2
+    assert PreVerifiedEnrolment.objects.count() == 2
 
-    verified_one = PreVerifiedCompany.objects.get(company_number='11111111')
+    verified_one = PreVerifiedEnrolment.objects.get(company_number='11111111')
     assert verified_one.company_number == '11111111'
     assert verified_one.email_address == 'fred@example.com'
     assert verified_one.generated_for == 'COOL LTD'
     assert verified_one.generated_by == superuser
 
-    verified_two = PreVerifiedCompany.objects.get(company_number='11111112')
+    verified_two = PreVerifiedEnrolment.objects.get(company_number='11111112')
     assert verified_two.company_number == '11111112'
     assert verified_two.email_address == 'jim@example.com'
     assert verified_two.generated_for == 'COOL LTD'
@@ -101,4 +101,4 @@ def test_upload_enrolment_form_rolls_back(superuser_client, csv_invalid_rows):
     )
 
     assert response.status_code == 200
-    assert PreVerifiedCompany.objects.count() == 0
+    assert PreVerifiedEnrolment.objects.count() == 0

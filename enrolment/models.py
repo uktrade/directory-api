@@ -4,7 +4,7 @@ from directory_validators import enrolment as shared_validators
 from api.model_utils import TimeStampedModel
 
 
-class PreVerifiedCompany(TimeStampedModel):
+class PreVerifiedEnrolment(TimeStampedModel):
     company_number = models.CharField(
         max_length=8,
         validators=[shared_validators.company_number],
