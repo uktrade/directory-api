@@ -8,9 +8,9 @@ from django.db import transaction
 from enrolment import models
 
 
-class TrustedSourceSignupCodeModelForm(forms.ModelForm):
+class PreVerifiedCompanyModelForm(forms.ModelForm):
     class Meta:
-        model = models.TrustedSourceSignupCode
+        model = models.PreVerifiedCompany
         fields = [
             'company_number',
             'email_address',
@@ -19,13 +19,11 @@ class TrustedSourceSignupCodeModelForm(forms.ModelForm):
         ]
 
 
-class GenerateEnrolmentCodesForm(forms.Form):
+class GeneratePreVerifiedCompanies(forms.Form):
     generated_for = forms.CharField(max_length=1000)
     csv_file = forms.FileField()
-    generated_codes = None
 
     def __init__(self, user, *args, **kwargs):
-        self.generated_codes = []
         self.user = user
         super().__init__(*args, **kwargs)
 
@@ -40,7 +38,7 @@ class GenerateEnrolmentCodesForm(forms.Form):
         next(reader, None)  # skip the headers
         row_errors = []
         for i, row in enumerate(reader):
-            form = TrustedSourceSignupCodeModelForm(data={
+            form = PreVerifiedCompanyModelForm(data={
                 'company_number': row[0],
                 'email_address': row[1],
                 'generated_for': self.cleaned_data['generated_for'],
@@ -52,7 +50,7 @@ class GenerateEnrolmentCodesForm(forms.Form):
                     number=i+2,
                 ))
             else:
-                self.generated_codes.append(form.save())
+                form.save()
         if row_errors:
             raise forms.ValidationError(row_errors)
         return self.cleaned_data['csv_file']

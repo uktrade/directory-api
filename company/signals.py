@@ -5,12 +5,14 @@ from company.utils import send_verification_letter
 
 
 def send_first_verification_letter(sender, instance, *args, **kwargs):
-    is_disabled = not settings.FEATURE_VERIFICATION_LETTERS_ENABLED
-    has_invalid_address = not instance.has_valid_address()
-    is_already_sent = instance.is_verification_letter_sent
-    if is_disabled or is_already_sent or has_invalid_address:
+    skip_send_if_any_true = [
+        not settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
+        instance.is_verification_letter_sent,
+        instance.verified_with_trade_association,
+        not instance.has_valid_address(),
+    ]
+    if any(skip_send_if_any_true):
         return
-
     send_verification_letter(company=instance)
 
 

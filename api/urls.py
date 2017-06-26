@@ -21,10 +21,8 @@ from supplier.views import (
     SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
 )
-from enrolment.views import (
-    EnrolmentCreateAPIView,
-    TrustedSourceSignupCodeRetrieveView,
-)
+from enrolment.views import EnrolmentCreateAPIView
+
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity.views import ExportOpportunityCreateAPIView
@@ -53,11 +51,6 @@ urlpatterns = [
         r'enrolment/$',
         EnrolmentCreateAPIView.as_view(),
         name='enrolment'
-    ),
-    url(
-        r'trusted-code/(?P<code>.*)/$',
-        TrustedSourceSignupCodeRetrieveView.as_view(),
-        name='trusted-source-signup-code'
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/company/$',

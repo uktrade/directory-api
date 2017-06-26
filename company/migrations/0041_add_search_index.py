@@ -24,7 +24,6 @@ def remove_company_search_index(apps, schema_editor):
     companies = Index('companies')
     companies.delete()
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -32,8 +31,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # calling rebuild elasticserach index uses the Company model. Once new
+        # fields are added to the Company model, but the schema has not yet
+        # been migrated then the "rebuild elasticserach index" will fail
         migrations.RunPython(
-            add_company_search_index_and_populate,
-            remove_company_search_index
+            migrations.RunPython.noop, migrations.RunPython.noop
         )
     ]

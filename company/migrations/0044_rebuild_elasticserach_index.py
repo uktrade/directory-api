@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            add_company_search_index_and_populate,
-            noop
-        )
+        # calling rebuild elasticserach index uses the Company model. Once new
+        # fields are added to the Company model, but the schema has not yet
+        # been migrated then the "rebuild elasticserach index" will fail
+        migrations.RunPython(noop, noop)
     ]

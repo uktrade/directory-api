@@ -7,8 +7,8 @@ from rest_framework.test import APIClient
 from django.core.urlresolvers import reverse
 
 from company.models import Company
-from enrolment.tests import factories, VALID_REQUEST_DATA
-from enrolment.tests.factories import TrustedSourceSignupCodeFactory
+from enrolment.tests import VALID_REQUEST_DATA
+from enrolment.tests.factories import PreVerifiedCompanyFactory
 from user.models import User as Supplier
 
 
@@ -77,23 +77,10 @@ def test_enrolment_create_supplier_exception_rollback(mock_create):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_trusted_source_signup_retrieve():
-    api_client = APIClient()
-    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create()
-
-    url = reverse(
-        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
-    )
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_enrolment_create_disables_signup_code_single_code():
-    trusted_source_signup_code = TrustedSourceSignupCodeFactory.create(
-        company_number=VALID_REQUEST_DATA['company_number']
+    trusted_source_signup_code = PreVerifiedCompanyFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number'],
+        email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
     assert trusted_source_signup_code.is_active is True
 
@@ -103,49 +90,22 @@ def test_enrolment_create_disables_signup_code_single_code():
 
     assert response.status_code == status.HTTP_201_CREATED
 
+    company = Company.objects.last()
     trusted_source_signup_code.refresh_from_db()
     assert trusted_source_signup_code.is_active is False
-
-
-@pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_trusted_source_signup_retrieve_inactive_token():
-    api_client = APIClient()
-    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create(
-        is_active=False
-    )
-
-    url = reverse(
-        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
-    )
-
-    response = api_client.get(url)
-    assert response.status_code == 404
-
-
-@pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_trusted_source_signup_unsafe():
-    api_client = APIClient()
-    trusted_source_code = factories.TrustedSourceSignupCodeFactory.create()
-
-    url = reverse(
-        'trusted-source-signup-code', kwargs={'code': trusted_source_code.code}
-    )
-
-    for method in [api_client.post, api_client.patch, api_client.delete]:
-        response = method(url)
-        assert response.status_code == 405
+    assert company.verified_with_trade_association is True
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_enrolment_create_disables_signup_code_multiple_codes():
-    trusted_source_signup_code_one = TrustedSourceSignupCodeFactory.create(
-        company_number=VALID_REQUEST_DATA['company_number']
+    trusted_source_signup_code_one = PreVerifiedCompanyFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number'],
+        email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
-    trusted_source_signup_code_two = TrustedSourceSignupCodeFactory.create(
-        company_number=VALID_REQUEST_DATA['company_number']
+    trusted_source_signup_code_two = PreVerifiedCompanyFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number'],
+        email_address=VALID_REQUEST_DATA['contact_email_address'],
     )
     assert trusted_source_signup_code_one.is_active is True
     assert trusted_source_signup_code_two.is_active is True
@@ -154,7 +114,31 @@ def test_enrolment_create_disables_signup_code_multiple_codes():
     url = reverse('enrolment')
     api_client.post(url, VALID_REQUEST_DATA, format='json')
 
+    company = Company.objects.last()
+
     trusted_source_signup_code_one.refresh_from_db()
     trusted_source_signup_code_two.refresh_from_db()
     assert trusted_source_signup_code_one.is_active is False
     assert trusted_source_signup_code_two.is_active is False
+    assert company.verified_with_trade_association is True
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_enrolment_create_signup_code_single_code_different_email():
+    trusted_source_signup_code = PreVerifiedCompanyFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number'],
+        email_address='jim@thing.com',
+    )
+    assert trusted_source_signup_code.is_active is True
+
+    api_client = APIClient()
+    url = reverse('enrolment')
+    response = api_client.post(url, VALID_REQUEST_DATA, format='json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    company = Company.objects.last()
+    trusted_source_signup_code.refresh_from_db()
+    assert trusted_source_signup_code.is_active is True
+    assert company.verified_with_trade_association is False
