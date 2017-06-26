@@ -1,8 +1,11 @@
 import datetime
 
+from elasticsearch_dsl import Index, analyzer
+
 from django.conf import settings
 from django.utils import timezone
 
+from company.search import CompanyDocType
 from company.stannp import stannp_client
 
 
@@ -32,3 +35,15 @@ def send_verification_letter(company):
     company.is_verification_letter_sent = True
     company.date_verification_letter_sent = timezone.now()
     company.save()
+
+
+
+
+def populate_elasticserach(CompanyModel):
+    companies = Index('companies')
+    if not companies.exists():
+        companies.doc_type(CompanyDocType)
+        companies.analyzer(analyzer('english'))
+        companies.create()
+        for company in CompanyModel.objects.filter(is_published=True):
+            company.to_doc_type().save()
