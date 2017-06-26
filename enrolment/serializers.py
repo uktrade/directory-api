@@ -30,3 +30,14 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
         company = super().create(validated_data)
         queryset.update(is_active=False)
         return company
+
+
+class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PreVerifiedEnrolment
+        fields = [
+            'company_number',
+            'email_address',
+            'generated_for',
+            'is_active',
+        ]

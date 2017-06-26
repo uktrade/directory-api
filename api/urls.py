@@ -21,8 +21,10 @@ from supplier.views import (
     SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
 )
-from enrolment.views import EnrolmentCreateAPIView
-
+from enrolment.views import (
+    EnrolmentCreateAPIView,
+    PreVerifiedEnrolmentRetrieveView,
+)
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity.views import ExportOpportunityCreateAPIView
@@ -48,9 +50,14 @@ urlpatterns = [
         documentation
     ),
     url(
-        r'enrolment/$',
+        r'^enrolment/$',
         EnrolmentCreateAPIView.as_view(),
         name='enrolment'
+    ),
+    url(
+        r'^pre-verified-enrolment/$',
+        PreVerifiedEnrolmentRetrieveView.as_view(),
+        name='pre-verified-enrolment',
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/company/$',
