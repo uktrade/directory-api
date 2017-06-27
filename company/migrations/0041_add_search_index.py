@@ -3,21 +3,13 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from django.core import management
 
-from elasticsearch_dsl import Index, analyzer
-
-from company.search import CompanyDocType
+from company import utils
 
 
 def add_company_search_index_and_populate(apps, schema_editor):
-    companies = Index('companies')
-
-    if not companies.exists():
-        companies.doc_type(CompanyDocType)
-        companies.analyzer(analyzer('english'))
-        companies.create()
-        management.call_command('populate_elasticsearch')
+    Company = apps.get_model('company', 'Company')
+    utils.populate_elasticsearch(Company)
 
 
 def remove_company_search_index(apps, schema_editor):
@@ -33,7 +25,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            add_company_search_index_and_populate,
-            remove_company_search_index
+            add_company_search_index_and_populate, remove_company_search_index
         )
     ]

@@ -5,13 +5,14 @@ from company.utils import send_verification_letter
 
 
 def send_first_verification_letter(sender, instance, *args, **kwargs):
-    is_disabled = not settings.FEATURE_VERIFICATION_LETTERS_ENABLED
-    has_invalid_address = not instance.has_valid_address()
-    is_already_sent = instance.is_verification_letter_sent
-    if is_disabled or is_already_sent or has_invalid_address:
-        return
-
-    send_verification_letter(company=instance)
+    should_send_letter = all([
+        settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
+        not instance.is_verification_letter_sent,
+        not instance.verified_with_preverified_enrolment,
+        instance.has_valid_address(),
+    ])
+    if should_send_letter:
+        send_verification_letter(company=instance)
 
 
 def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):

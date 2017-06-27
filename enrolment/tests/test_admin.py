@@ -3,11 +3,10 @@ import pytest
 import io
 
 from django.contrib.auth.models import User
-from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 from django.test import Client
 
-from enrolment.models import TrustedSourceSignupCode
+from enrolment.models import PreVerifiedEnrolment
 
 
 @pytest.fixture()
@@ -42,78 +41,60 @@ def csv_invalid_rows():
     writer.writerow(['11111111', 'fred@example.com'])
     writer.writerow(['11111112', 'jimATexample.com'])
     writer.writerow(['', 'jim@example.com'])
+    writer.writerow(['11111111', 'fred@example.com'])
     file_object.seek(0)
     return file_object
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('lineterminator', ['\n', '\r\n'])
-def test_upload_enrolment_form_generates_csv(lineterminator, superuser_client):
-    csv_file = build_csv_file(lineterminator=lineterminator)
-    response = superuser_client.post(
-        reverse('admin:generate_trusted_source_upload'),
-        {'generated_for': 'COOL LTD', 'csv_file': csv_file}
-    )
-
-    assert response.status_code == 200
-
-    code_one = TrustedSourceSignupCode.objects.get(company_number='11111111')
-    code_two = TrustedSourceSignupCode.objects.get(company_number='11111112')
-
-    buffer = io.StringIO(response.content.decode())
-    reader = csv.reader(buffer)
-    rows = list(reader)
-
-    assert rows[0] == ['Company number', 'Email', 'Link']
-    assert rows[1] == ['11111111', 'fred@example.com', code_one.enrolment_link]
-    assert rows[2] == ['11111112', 'jim@example.com', code_two.enrolment_link]
-
-
-@pytest.mark.django_db
-def test_upload_enrolment_form_saves_code(superuser_client, superuser):
+def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
     csv_file = build_csv_file(lineterminator='\r\n')
     response = superuser_client.post(
-        reverse('admin:generate_trusted_source_upload'),
+        reverse('admin:pre-verify-companies'),
         {'generated_for': 'COOL LTD', 'csv_file': csv_file}
     )
 
-    assert response.status_code == 200
-    assert TrustedSourceSignupCode.objects.count() == 2
+    assert response.status_code == 302
+    assert PreVerifiedEnrolment.objects.count() == 2
 
-    code_one = TrustedSourceSignupCode.objects.get(company_number='11111111')
-    assert code_one.company_number == '11111111'
-    assert code_one.email_address == 'fred@example.com'
-    assert code_one.generated_for == 'COOL LTD'
-    assert code_one.generated_by == superuser
-    assert Signer().unsign(code_one.code) == 'fred@example.com'
+    verified_one = PreVerifiedEnrolment.objects.get(company_number='11111111')
+    assert verified_one.company_number == '11111111'
+    assert verified_one.email_address == 'fred@example.com'
+    assert verified_one.generated_for == 'COOL LTD'
+    assert verified_one.generated_by == superuser
 
-    code_two = TrustedSourceSignupCode.objects.get(company_number='11111112')
-    assert code_two.company_number == '11111112'
-    assert code_two.email_address == 'jim@example.com'
-    assert code_two.generated_for == 'COOL LTD'
-    assert code_two.generated_by == superuser
-    assert Signer().unsign(code_two.code) == 'jim@example.com'
+    verified_two = PreVerifiedEnrolment.objects.get(company_number='11111112')
+    assert verified_two.company_number == '11111112'
+    assert verified_two.email_address == 'jim@example.com'
+    assert verified_two.generated_for == 'COOL LTD'
+    assert verified_two.generated_by == superuser
 
 
 @pytest.mark.django_db
 def test_upload_enrolment_form_shows_erros(superuser_client, csv_invalid_rows):
-    expected_errors_one = (
+    expected_error_one = (
         b'[Row 3] {&quot;email_address&quot;: '
         b'[&quot;Enter a valid email address.&quot;]}'
     )
-    expected_errors_two = (
+    expected_error_two = (
          b'[Row 4] {&quot;company_number&quot;: '
          b'[&quot;This field is required.&quot;]}'
     )
+    expected_error_three = (
+        b'[Row 5] {&quot;__all__&quot;: '
+        b'[&quot;Pre verified enrolment with this Company number and Email '
+        b'address already exists.&quot;]'
+    )
 
     response = superuser_client.post(
-        reverse('admin:generate_trusted_source_upload'),
+        reverse('admin:pre-verify-companies'),
         {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
     )
 
     assert response.status_code == 200
-    assert expected_errors_one in response.content
-    assert expected_errors_two in response.content
+    assert expected_error_one in response.content
+    assert expected_error_two in response.content
+    assert expected_error_three in response.content
 
 
 @pytest.mark.django_db
@@ -122,9 +103,9 @@ def test_upload_enrolment_form_rolls_back(superuser_client, csv_invalid_rows):
     # to return the csv to the trade organisation with the validation errors,
     # and only when all rows are valid so we want to save them all
     response = superuser_client.post(
-        reverse('admin:generate_trusted_source_upload'),
+        reverse('admin:pre-verify-companies'),
         {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
     )
 
     assert response.status_code == 200
-    assert TrustedSourceSignupCode.objects.count() == 0
+    assert PreVerifiedEnrolment.objects.count() == 0

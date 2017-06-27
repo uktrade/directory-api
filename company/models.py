@@ -76,6 +76,7 @@ class Company(TimeStampedModel):
         blank=True,
         default=helpers.generate_verification_code,
     )
+    verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
     date_verification_letter_sent = models.DateTimeField(null=True)

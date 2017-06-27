@@ -18,10 +18,23 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'contact_email_address',
         ]
 
+    def create(self, validated_data):
+        queryset = models.PreVerifiedEnrolment.objects.filter(
+            company_number=validated_data['number'],
+            email_address=validated_data['email_address'],
+            is_active=True
+        )
+        validated_data['verified_with_preverified_enrolment'] = (
+            queryset.exists()
+        )
+        company = super().create(validated_data)
+        queryset.update(is_active=False)
+        return company
 
-class TrustedSourceSignupCodeSerializer(serializers.ModelSerializer):
+
+class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TrustedSourceSignupCode
+        model = models.PreVerifiedEnrolment
         fields = [
             'company_number',
             'email_address',

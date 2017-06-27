@@ -4,8 +4,8 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label='enrolment' %}">Trusted source signup codes</a>
-&rsaquo; <a href="{% url 'admin:generate_trusted_source_upload' %}">Generate source signup codes</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='enrolment' %}">Pre-verified enrolments</a>
+&rsaquo; <a href="{% url 'admin:pre-verify-companies' %}">Add pre-verified enrolment</a>
 &rsaquo; {{ title }}
 </div>
 {% endblock %}

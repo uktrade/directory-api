@@ -23,7 +23,7 @@ from supplier.views import (
 )
 from enrolment.views import (
     EnrolmentCreateAPIView,
-    TrustedSourceSignupCodeRetrieveView,
+    PreVerifiedEnrolmentRetrieveView,
 )
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
@@ -50,14 +50,14 @@ urlpatterns = [
         documentation
     ),
     url(
-        r'enrolment/$',
+        r'^enrolment/$',
         EnrolmentCreateAPIView.as_view(),
         name='enrolment'
     ),
     url(
-        r'trusted-code/(?P<code>.*)/$',
-        TrustedSourceSignupCodeRetrieveView.as_view(),
-        name='trusted-source-signup-code'
+        r'^pre-verified-enrolment/$',
+        PreVerifiedEnrolmentRetrieveView.as_view(),
+        name='pre-verified-enrolment',
     ),
     url(
         r'supplier/(?P<sso_id>[0-9]+)/company/$',

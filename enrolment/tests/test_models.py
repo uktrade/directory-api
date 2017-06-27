@@ -1,42 +1,24 @@
 import pytest
-from django.core.signing import Signer
+
+from django.db.utils import IntegrityError
 
 from enrolment import models
 from enrolment.tests import factories
 
 
 def test_trusted_source_signup_code_str():
-    instance = models.TrustedSourceSignupCode(code='123456')
+    instance = models.PreVerifiedEnrolment(email_address='jim@example.com')
 
-    assert str(instance) == '123456'
-
-
-@pytest.mark.django_db
-def test_trusted_source_signup_code_generates_code_on_create():
-    code = factories.TrustedSourceSignupCodeFactory.create(
-        email_address='fred@example.com'
-    )
-
-    assert Signer().unsign(code.code) == 'fred@example.com'
+    assert str(instance) == 'jim@example.com'
 
 
 @pytest.mark.django_db
-def test_trusted_source_signup_code_not_generates_code_on_update():
-    code = factories.TrustedSourceSignupCodeFactory.create(
-        email_address='fred@example.com'
+def test_unique_together():
+    factories.PreVerifiedEnrolmentFactory(
+        company_number='1111111', email_address='1@a.com'
     )
 
-    value_before_update = code.code
-    code.save()
-    code.refresh_from_db()
-
-    assert code.code == value_before_update
-
-
-@pytest.mark.django_db
-def test_trusted_source_signup_code_enrolment_link(settings):
-    settings.FAB_TRUSTED_SOURCE_ENROLMENT_LINK = 'http://thing.com/{code}/'
-    code = factories.TrustedSourceSignupCodeFactory.build(
-        code='123'
-    )
-    assert code.enrolment_link == 'http://thing.com/123/'
+    with pytest.raises(IntegrityError):
+        factories.PreVerifiedEnrolmentFactory(
+            company_number='1111111', email_address='1@a.com'
+        )

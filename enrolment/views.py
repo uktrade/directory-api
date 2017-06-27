@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 from enrolment import models, serializers
 from supplier.serializers import SupplierSerializer
@@ -17,7 +18,9 @@ class EnrolmentCreateAPIView(APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        company_serializer = self.company_serializer_class(data=request.data)
+        company_serializer = self.company_serializer_class(
+            data=request.data
+        )
         company_serializer.is_valid(raise_exception=True)
         company = company_serializer.save()
 
@@ -27,16 +30,17 @@ class EnrolmentCreateAPIView(APIView):
         supplier_serializer.is_valid(raise_exception=True)
         supplier_serializer.save()
 
-        signup_codes = models.TrustedSourceSignupCode.objects.filter(
-            company_number=company.number
-        )
-        signup_codes.update(is_active=False)
-
         return Response(status=status.HTTP_201_CREATED)
 
 
-class TrustedSourceSignupCodeRetrieveView(RetrieveAPIView):
+class PreVerifiedEnrolmentRetrieveView(RetrieveAPIView):
     http_method_names = ("get", )
-    queryset = models.TrustedSourceSignupCode.objects.filter(is_active=True)
-    serializer_class = serializers.TrustedSourceSignupCodeSerializer
-    lookup_field = 'code'
+    queryset = models.PreVerifiedEnrolment.objects.filter(is_active=True)
+    serializer_class = serializers.PreVerifiedEnrolmentSerializer
+
+    def get_object(self):
+        return get_object_or_404(
+            self.get_queryset(),
+            email_address=self.request.GET.get('email_address'),
+            company_number=self.request.GET.get('company_number'),
+        )
