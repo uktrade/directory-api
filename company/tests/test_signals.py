@@ -129,6 +129,9 @@ def test_automatic_publish_create():
             'email_address': 'thing@example.com',
             'verified_with_code': True,
         },
+        {
+            'verified_with_preverified_enrolment': True
+        }
     ]
 
     should_be_unpublished = [
@@ -150,6 +153,9 @@ def test_automatic_publish_create():
             'email_address': 'jim@example.com',
             'verified_with_code': False,
         },
+        {
+            'verified_with_preverified_enrolment': False
+        }
     ]
 
     should_be_force_published = [
@@ -180,6 +186,9 @@ def test_automatic_publish_update():
             'email_address': 'thing@example.com',
             'verified_with_code': True,
         },
+        {
+            'verified_with_preverified_enrolment': True
+        }
     ]
 
     should_be_unpublished = [
@@ -201,6 +210,9 @@ def test_automatic_publish_update():
             'email_address': 'jim@example.com',
             'verified_with_code': False,
         },
+        {
+            'verified_with_preverified_enrolment': False
+        }
     ]
 
     should_be_force_published = [
