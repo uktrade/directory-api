@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.db import transaction
-from django.shortcuts import Http404
+from django.shortcuts import get_object_or_404
 
 from enrolment import models, serializers
 from supplier.serializers import SupplierSerializer
@@ -39,14 +39,8 @@ class PreVerifiedEnrolmentRetrieveView(RetrieveAPIView):
     serializer_class = serializers.PreVerifiedEnrolmentSerializer
 
     def get_object(self):
-        queryset = self.get_queryset().filter(
+        return get_object_or_404(
+            self.get_queryset(),
             email_address=self.request.GET.get('email_address'),
             company_number=self.request.GET.get('company_number'),
         )
-        # an email+number pair can be pre-verified multiple times because e.g.,
-        # multiple trade organisations vouched for the same company. If there
-        # are multiple, we just need the first one.
-        preverified_enrolment = queryset.first()
-        if not preverified_enrolment:
-            raise Http404()
-        return preverified_enrolment

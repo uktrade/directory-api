@@ -8,7 +8,6 @@ class PreVerifiedEnrolment(TimeStampedModel):
     company_number = models.CharField(
         max_length=8,
         validators=[shared_validators.company_number],
-        # can be in multiple trade organisations, so don't enforce uniqueness
     )
     email_address = models.EmailField()
     generated_for = models.CharField(
@@ -25,3 +24,6 @@ class PreVerifiedEnrolment(TimeStampedModel):
 
     def __str__(self):
         return self.email_address
+
+    class Meta:
+        unique_together = ['company_number', 'email_address']
