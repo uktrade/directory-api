@@ -17,11 +17,10 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
 
 def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
     if not instance.is_published:
-        instance.is_published = bool(
+        preverified_enrolment = instance.verified_with_preverified_enrolment
+        instance.is_published = preverified_enrolment or bool(
             (instance.description or instance.summary) and
-            instance.email_address and
-            instance.verified_with_code
-        )
+            instance.email_address and instance.verified_with_code)
 
 
 def store_date_published(sender, instance, *args, **kwargs):
