@@ -19,6 +19,7 @@ coreschema==0.0.4         # via coreapi
 dj-database-url==0.4.1
 django-celery-beat==1.0.1
 django-filter==1.0.1
+django-pglocks==1.0.2
 django-redis==4.7.0
 django-rest-swagger==2.0.6
 django-storages==1.5.1
