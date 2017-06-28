@@ -7,7 +7,7 @@ clean:
 test_requirements:
 	pip install -r requirements_test.txt
 
-DJANGO_MIGRATE := python manage.py migrate --noinput
+DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
 FLAKE8 := flake8 . --exclude=migrations,.venv
 PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
@@ -21,7 +21,7 @@ test:
 
 DJANGO_WEBSERVER := \
 	python manage.py collectstatic --noinput; \
-	python manage.py migrate --noinput; \
+	python manage.py distributed_migrate --noinput; \
 	python manage.py runserver 0.0.0.0:$$PORT
 
 django_webserver:
