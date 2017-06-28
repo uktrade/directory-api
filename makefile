@@ -7,7 +7,7 @@ clean:
 test_requirements:
 	pip install -r requirements_test.txt
 
-DJANGO_MIGRATE := python manage.py migrate --noinput
+DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
 FLAKE8 := flake8 . --exclude=migrations,.venv
 PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
@@ -21,7 +21,7 @@ test:
 
 DJANGO_WEBSERVER := \
 	python manage.py collectstatic --noinput; \
-	python manage.py migrate --noinput; \
+	python manage.py distributed_migrate --noinput; \
 	python manage.py runserver 0.0.0.0:$$PORT
 
 django_webserver:
@@ -226,4 +226,12 @@ smoke_tests:
 	cd directory-tests && \
 	make docker_smoke_test
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests
+compile_requirements:
+	python3 -m piptools compile requirements.ini
+
+compile_test_requirements:
+	python3 -m piptools compile requirements_test.ini
+
+compile_all_requirements: compile_requirements compile_test_requirements
+
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
