@@ -81,7 +81,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
-	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/
+	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/; \
+	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
+	export DIRECTORY_API_SSO_SIGNATURE_SECRET=proxy_signature_debug
 
 
 DOCKER_REMOVE_ALL := \
@@ -167,7 +169,9 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
-	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/
+	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/; \
+	export SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
+	export SSO_SIGNATURE_SECRET=proxy_signature_debug
 
 
 debug_webserver:
