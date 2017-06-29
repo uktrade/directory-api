@@ -55,7 +55,7 @@ class CompanyDocType(DocType):
     )
 
     class Meta:
-        index = 'company'
+        index = 'companies'
 
 
 def company_model_to_doc_type(company):
