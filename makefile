@@ -223,11 +223,11 @@ heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
 	docker push registry.heroku.com/directory-api-dev/celery_worker
 
-smoke_tests:
+integration_tests:
 	cd $(mktemp -d) && \
 	git clone https://github.com/uktrade/directory-tests && \
 	cd directory-tests && \
-	make docker_smoke_test
+	make docker_integration_tests
 
 compile_requirements:
 	python3 -m piptools compile requirements.ini
