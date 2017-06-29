@@ -18,3 +18,4 @@ deployment:
     commands:
       - make heroku_deploy_dev
       - make smoke_tests
+      - make functional_tests
