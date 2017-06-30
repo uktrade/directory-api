@@ -981,5 +981,5 @@ def test_company_paginate_first_page(api_client):
                     },
                 },
                 doc_type=['company_doc_type'],
-                index=['company']
+                index=['companies']
             )

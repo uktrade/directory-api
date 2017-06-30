@@ -85,6 +85,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
 	export DIRECTORY_API_SSO_SIGNATURE_SECRET=proxy_signature_debug
 
+docker_test_env_files:
+	$(DOCKER_SET_DEBUG_ENV_VARS) && \
+	$(DOCKER_COMPOSE_CREATE_TEST_ENVS)
 
 DOCKER_REMOVE_ALL := \
 	docker ps -a | \
@@ -224,11 +227,11 @@ heroku_deploy_dev:
 	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
 	docker push registry.heroku.com/directory-api-dev/celery_worker
 
-smoke_tests:
+integration_tests:
 	cd $(mktemp -d) && \
 	git clone https://github.com/uktrade/directory-tests && \
 	cd directory-tests && \
-	make docker_smoke_test
+	make docker_integration_tests
 
 compile_requirements:
 	python3 -m piptools compile requirements.ini
