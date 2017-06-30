@@ -87,3 +87,11 @@ def mock_elasticsearch_company_save():
     stub = patch('company.search.CompanyDocType.save')
     yield stub.start()
     stub.stop()
+
+
+@pytest.fixture
+def requests_mocker():
+    mocker = requests_mock.mock()
+    mocker.start()
+    yield mocker
+    mocker.stop()

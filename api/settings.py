@@ -427,3 +427,7 @@ connections.create_connection(
     verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS") != 'false',
     connection_class=RequestsHttpConnection
 )
+
+# SSO
+SSO_API_CLIENT_BASE_URL = os.environ['SSO_API_CLIENT_BASE_URL']
+SSO_SIGNATURE_SECRET = os.environ['SSO_SIGNATURE_SECRET']
