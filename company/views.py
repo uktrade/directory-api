@@ -1,15 +1,18 @@
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
+from rest_framework.permissions import IsAuthenticated
 
 from django.db.models import Case, Count, When, Value, BooleanField
 
+from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
+    permission_classes = [SignatureCheckPermission, IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -18,13 +21,11 @@ class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-
     serializer_class = serializers.CompanySerializer
+    permission_classes = [SignatureCheckPermission, IsAuthenticated]
 
     def get_object(self):
-        return generics.get_object_or_404(
-            models.Company, suppliers__sso_id=self.kwargs['sso_id']
-        )
+        return self.request.user.company
 
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
@@ -50,8 +51,9 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
-    write_serializer_class = serializers.CompanyCaseStudySerializer
+    permission_classes = [SignatureCheckPermission, IsAuthenticated]
     queryset = models.CompanyCaseStudy.objects.all()
+    write_serializer_class = serializers.CompanyCaseStudySerializer
 
     def get_serializer_class(self):
         # on read use nested serializer (to also expose company), on write use
@@ -61,21 +63,13 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
         return self.write_serializer_class
 
-    def dispatch(self, *args, **kwargs):
-        self.company = generics.get_object_or_404(
-            models.Company, suppliers__sso_id=kwargs['sso_id']
-        )
-
-        return super().dispatch(*args, **kwargs)
-
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
-            kwargs['data']['company'] = self.company.pk
-
+            kwargs['data']['company'] = self.request.user.company_id
         return super().get_serializer(*args, **kwargs)
 
     def get_queryset(self):
-        return self.queryset.filter(company=self.company)
+        return self.queryset.filter(company_id=self.request.user.company_id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -91,23 +85,19 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     http_method_names = ("post", )
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer, )
-
-    def dispatch(self, *args, **kwargs):
-        self.company = generics.get_object_or_404(
-            models.Company, suppliers__sso_id=kwargs['sso_id']
-        )
-        return super().dispatch(*args, **kwargs)
+    permission_classes = [SignatureCheckPermission, IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
-            context={'expected_code': self.company.verification_code}
+            context={'expected_code': company.verification_code}
         )
         serializer.is_valid(raise_exception=True)
 
-        self.company.verified_with_code = True
-        self.company.save()
+        company.verified_with_code = True
+        company.save()
 
         return Response(
             data={

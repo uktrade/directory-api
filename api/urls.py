@@ -44,7 +44,6 @@ urlpatterns = [
         HealthCheckAPIView.as_view(),
         name='health-check'
     ),
-
     url(
         r'^docs/$',
         documentation
@@ -60,48 +59,9 @@ urlpatterns = [
         name='pre-verified-enrolment',
     ),
     url(
-        r'supplier/(?P<sso_id>[0-9]+)/company/$',
-        CompanyRetrieveUpdateAPIView.as_view(),
-        name='company'
-    ),
-    url(
-        r'supplier/(?P<sso_id>[0-9]+)/company/verify/$',
-        VerifyCompanyWithCodeAPIView.as_view(),
-        name='company-verify'
-    ),
-    url(
-        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/$',
-        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
-        name='company-case-study',
-    ),
-    url(
-        r'^supplier/(?P<sso_id>[0-9]+)/company/case-study/(?P<pk>[0-9]+)/$',
-        CompanyCaseStudyViewSet.as_view({
-            'get': 'retrieve',
-            'patch': 'partial_update',
-            'delete': 'destroy',
-        }),
-        name='company-case-study-detail',
-    ),
-    url(
-        r'external/supplier/(?P<sso_id>[0-9]+)/$',
-        SupplierRetrieveExternalAPIView.as_view(),
-        name='external-supplier-details'
-    ),
-    url(
         r'external/supplier-sso/$',
         SupplierSSOListExternalAPIView.as_view(),
         name='external-supplier-sso-list'
-    ),
-    url(
-        r'supplier/(?P<sso_id>[0-9]+)/$',
-        SupplierRetrieveUpdateAPIView.as_view(),
-        name='supplier'
-    ),
-    url(
-        r'supplier/(?P<sso_id>[0-9]+)/unsubscribe/$',
-        UnsubscribeSupplierAPIView.as_view(),
-        name='unsubscribe-supplier'
     ),
     url(
         r'supplier/gecko/total-registered/$',
@@ -148,14 +108,51 @@ urlpatterns = [
         CompanySearchAPIView.as_view(),
         name='company-search'
     ),
-
     url(
         r'export-opportunity/$',
         ExportOpportunityCreateAPIView.as_view(),
         name='export-opportunity-create'
     ),
 
-
+    url(
+        r'^supplier/company/$',
+        CompanyRetrieveUpdateAPIView.as_view(),
+        name='company'
+    ),
+    url(
+        r'supplier/verify/$',
+        VerifyCompanyWithCodeAPIView.as_view(),
+        name='company-verify'
+    ),
+    url(
+        r'^supplier/company/case-study/$',
+        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
+        name='company-case-study',
+    ),
+    url(
+        r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
+        CompanyCaseStudyViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        }),
+        name='company-case-study-detail',
+    ),
+    url(
+        r'supplier/$',
+        SupplierRetrieveUpdateAPIView.as_view(),
+        name='supplier'
+    ),
+    url(
+        r'^supplier/unsubscribe/$',
+        UnsubscribeSupplierAPIView.as_view(),
+        name='unsubscribe-supplier'
+    ),
+    url(
+        r'external/supplier/company/$',
+        SupplierRetrieveExternalAPIView.as_view(),
+        name='external-supplier-details'
+    ),
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':

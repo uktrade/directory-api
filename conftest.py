@@ -5,11 +5,13 @@ import logging
 
 import pytest
 import requests_mock
+from rest_framework.test import APIClient
 
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 
 from company import helpers
+from supplier.tests.factories import SupplierFactory
 
 
 def pytest_runtest_setup(item):
@@ -95,3 +97,36 @@ def requests_mocker():
     mocker.start()
     yield mocker
     mocker.stop()
+
+
+@pytest.fixture
+def authed_supplier():
+    """
+    This fixture is used by sso_request_active_user fixture to ensure that
+    supplier.authentication.SSOAuthentication authenticates this user.
+
+    """
+
+    return SupplierFactory.create(sso_id=999)
+
+
+@pytest.fixture
+def sso_request_active_user(authed_supplier, requests_mocker):
+    return requests_mocker.get(
+        'http://sso.trade.great.dev:8004/api/v1/session-user/?session_key=123',
+        json={'id': authed_supplier.sso_id}
+    )
+
+
+@pytest.fixture
+def authed_client(sso_request_active_user):
+    """
+    supplier.authentication.SSOAuthentication passes the session header "123"
+    to sso, but the sso_request_active_user fixture will ensure that the
+    authed_supplier fixture is instead returned - resulting in authed_supplier
+    being added to `request.user`.
+
+    """
+
+    client = APIClient(HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
+    return client

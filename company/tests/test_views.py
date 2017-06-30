@@ -2,10 +2,8 @@ import datetime
 import http
 from io import BytesIO
 from unittest.mock import patch, Mock
-from unittest import TestCase
 
 from django.core.urlresolvers import reverse
-from django.test import Client
 
 from directory_validators.constants import choices
 from elasticsearch_dsl.connections import connections
@@ -36,245 +34,185 @@ default_public_profile_data = {
 }
 
 
-class CompanyViewsTests(TestCase):
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_retrieve_view(authed_client, authed_supplier):
+    company = CompanyFactory(
+        name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
 
-    def setUp(self):
-        self.client = Client()
+    response = authed_client.get(reverse('company'))
 
-        self.signature_permission_mock = patch(
-            'api.signature.SignatureCheckPermission.has_permission'
-        )
+    expected = {
+        'date_of_creation': '2000-10-10',
+        'email_address': company.email_address,
+        'email_full_name': company.email_full_name,
+        'employees': company.employees,
+        'facebook_url': company.facebook_url,
+        'has_valid_address': True,
+        'id': str(company.id),
+        'is_published': False,
+        'is_verification_letter_sent': False,
+        'keywords': company.keywords,
+        'linkedin_url': company.linkedin_url,
+        'logo': None,
+        'modified': '2016-11-23T11:21:10.977518Z',
+        'po_box': company.po_box,
+        'sectors': company.sectors,
+        'slug': 'test-company',
+        'summary': company.summary,
+        'supplier_case_studies': [],
+        'twitter_url': company.twitter_url,
+        'verified_with_code': False,
+        'verified_with_preverified_enrolment': False,
+        'country': company.country,
+        'mobile_number': company.mobile_number,
+        'address_line_1': company.address_line_1,
+        'address_line_2': company.address_line_2,
+        'postal_full_name': company.postal_full_name,
+        'number': company.number,
+        'website': company.website,
+        'description': company.description,
+        'export_status': company.export_status,
+        'locality': company.locality,
+        'name': 'Test Company',
+        'postal_code': company.postal_code,
+    }
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
 
-        self.signature_permission_mock.start()
 
-    def tearDown(self):
-        self.signature_permission_mock.stop()
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@pytest.mark.django_db
+def test_company_update_with_put(authed_client, authed_supplier):
+    company = CompanyFactory(
+        number='01234567',
+        export_status=choices.EXPORT_STATUSES[1][0],
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
 
-    @freeze_time('2016-11-23T11:21:10.977518Z')
-    @pytest.mark.django_db
-    def test_company_retrieve_view(self):
-        client = APIClient()
-        company = CompanyFactory(
-            name='Test Company', date_of_creation=datetime.date(2000, 10, 10))
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
+    response = authed_client.put(
+        reverse('company'), VALID_REQUEST_DATA, format='json'
+    )
 
-        response = client.get(reverse(
-            'company', kwargs={'sso_id': supplier.sso_id}
-        ))
+    expected = {
+        'email_address': company.email_address,
+        'email_full_name': company.email_full_name,
+        'employees': company.employees,
+        'facebook_url': company.facebook_url,
+        'has_valid_address': True,
+        'id': str(company.id),
+        'is_published': False,
+        'is_verification_letter_sent': False,
+        'keywords': company.keywords,
+        'linkedin_url': company.linkedin_url,
+        'logo': None,
+        'modified': '2016-11-23T11:21:10.977518Z',
+        'po_box': company.po_box,
+        'sectors': company.sectors,
+        'slug': 'test-company',
+        'summary': company.summary,
+        'supplier_case_studies': [],
+        'twitter_url': company.twitter_url,
+        'verified_with_code': False,
+        'verified_with_preverified_enrolment': False,
+    }
+    expected.update(VALID_REQUEST_DATA)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
 
-        expected = {
-            'date_of_creation': '2000-10-10',
-            'email_address': company.email_address,
-            'email_full_name': company.email_full_name,
-            'employees': company.employees,
-            'facebook_url': company.facebook_url,
-            'has_valid_address': True,
-            'id': str(company.id),
-            'is_published': False,
-            'is_verification_letter_sent': False,
-            'keywords': company.keywords,
-            'linkedin_url': company.linkedin_url,
-            'logo': None,
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'po_box': company.po_box,
-            'sectors': company.sectors,
-            'slug': 'test-company',
-            'summary': company.summary,
-            'supplier_case_studies': [],
-            'twitter_url': company.twitter_url,
-            'verified_with_code': False,
-            'verified_with_preverified_enrolment': False,
-            'country': company.country,
-            'mobile_number': company.mobile_number,
-            'address_line_1': company.address_line_1,
-            'address_line_2': company.address_line_2,
-            'postal_full_name': company.postal_full_name,
-            'number': company.number,
-            'website': company.website,
-            'description': company.description,
-            'export_status': company.export_status,
-            'locality': company.locality,
-            'name': 'Test Company',
-            'postal_code': company.postal_code,
-        }
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
 
-    @pytest.mark.django_db
-    def test_company_retrieve_view_404(self):
-        client = APIClient()
-        company = CompanyFactory()
-        Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@pytest.mark.django_db
+def test_company_update_with_patch(authed_client, authed_supplier):
+    company = CompanyFactory(
+        number='01234567',
+        export_status=choices.EXPORT_STATUSES[1][0]
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
 
-        response = client.get(reverse(
-            'company', kwargs={'sso_id': 0}
-        ))
+    response = authed_client.patch(
+        reverse('company'), VALID_REQUEST_DATA, format='json'
+    )
 
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+    expected = {
+        'email_address': company.email_address,
+        'email_full_name': company.email_full_name,
+        'employees': company.employees,
+        'facebook_url': company.facebook_url,
+        'has_valid_address': True,
+        'id': str(company.id),
+        'is_published': False,
+        'is_verification_letter_sent': False,
+        'keywords': company.keywords,
+        'linkedin_url': company.linkedin_url,
+        'logo': None,
+        'modified': '2016-11-23T11:21:10.977518Z',
+        'po_box': company.po_box,
+        'sectors': company.sectors,
+        'slug': 'test-company',
+        'summary': company.summary,
+        'supplier_case_studies': [],
+        'twitter_url': company.twitter_url,
+        'verified_with_code': False,
+        'verified_with_preverified_enrolment': False,
+    }
+    expected.update(VALID_REQUEST_DATA)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
 
-    @freeze_time('2016-11-23T11:21:10.977518Z')
-    @pytest.mark.django_db
-    def test_company_update_view_with_put(self):
-        client = APIClient()
-        company = CompanyFactory(
-            number='01234567',
-            export_status=choices.EXPORT_STATUSES[1][0],
-        )
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
 
-        response = client.put(
-            reverse('company', kwargs={'sso_id': supplier.sso_id}),
-            VALID_REQUEST_DATA, format='json')
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@pytest.mark.django_db
+def test_company_not_update_modified(authed_client, authed_supplier):
+    company = CompanyFactory(
+        number='01234567',
+        export_status=choices.EXPORT_STATUSES[1][0],
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
 
-        expected = {
-            'email_address': company.email_address,
-            'email_full_name': company.email_full_name,
-            'employees': company.employees,
-            'facebook_url': company.facebook_url,
-            'has_valid_address': True,
-            'id': str(company.id),
-            'is_published': False,
-            'is_verification_letter_sent': False,
-            'keywords': company.keywords,
-            'linkedin_url': company.linkedin_url,
-            'logo': None,
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'po_box': company.po_box,
-            'sectors': company.sectors,
-            'slug': 'test-company',
-            'summary': company.summary,
-            'supplier_case_studies': [],
-            'twitter_url': company.twitter_url,
-            'verified_with_code': False,
-            'verified_with_preverified_enrolment': False,
-        }
-        expected.update(VALID_REQUEST_DATA)
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
-
-    @freeze_time('2016-11-23T11:21:10.977518Z')
-    @pytest.mark.django_db
-    def test_company_update_view_with_patch(self):
-        client = APIClient()
-        company = CompanyFactory(
-            number='01234567',
-            export_status=choices.EXPORT_STATUSES[1][0]
-        )
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
-
-        response = client.patch(
-            reverse('company', kwargs={'sso_id': supplier.sso_id}),
-            VALID_REQUEST_DATA, format='json')
-
-        expected = {
-            'email_address': company.email_address,
-            'email_full_name': company.email_full_name,
-            'employees': company.employees,
-            'facebook_url': company.facebook_url,
-            'has_valid_address': True,
-            'id': str(company.id),
-            'is_published': False,
-            'is_verification_letter_sent': False,
-            'keywords': company.keywords,
-            'linkedin_url': company.linkedin_url,
-            'logo': None,
-            'modified': '2016-11-23T11:21:10.977518Z',
-            'po_box': company.po_box,
-            'sectors': company.sectors,
-            'slug': 'test-company',
-            'summary': company.summary,
-            'supplier_case_studies': [],
-            'twitter_url': company.twitter_url,
-            'verified_with_code': False,
-            'verified_with_preverified_enrolment': False,
-        }
-        expected.update(VALID_REQUEST_DATA)
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
-
-    @freeze_time('2016-11-23T11:21:10.977518Z')
-    @pytest.mark.django_db
-    def test_company_update_view_with_put_ignores_modified(self):
-        client = APIClient()
-        company = CompanyFactory(
-            number='01234567',
-            export_status=choices.EXPORT_STATUSES[1][0],
-        )
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
-        update_data = {'modified': '2013-03-09T23:28:53.977518Z'}
-        update_data.update(VALID_REQUEST_DATA)
-
-        response = client.put(
-            reverse('company', kwargs={'sso_id': supplier.sso_id}),
-            update_data, format='json')
-
+    data = {
+        **VALID_REQUEST_DATA,
+        'modified': '2013-03-09T23:28:53.977518Z'
+    }
+    for method in [authed_client.put, authed_client.patch]:
+        response = method(reverse('company'), data, format='json')
         assert response.status_code == status.HTTP_200_OK
         # modified was not effected by the data we tried to pass
         assert response.json()['modified'] == '2016-11-23T11:21:10.977518Z'
 
-    @freeze_time('2016-11-23T11:21:10.977518Z')
-    @pytest.mark.django_db
-    def test_company_update_view_with_patch_ignores_modified(self):
-        client = APIClient()
-        company = CompanyFactory(
-            number='01234567',
-            export_status=choices.EXPORT_STATUSES[1][0],
-        )
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com',
-            company=company,
-        )
-        update_data = {'modified': '2013-03-09T23:28:53.977518Z'}
-        update_data.update(VALID_REQUEST_DATA)
 
-        response = client.patch(
-            reverse('company', kwargs={'sso_id': supplier.sso_id}),
-            update_data, format='json')
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+def test_company_number_validator_rejects_invalid_data(
+    mock_get_serializer, authed_client
+):
+    serializer = MockInvalidSerializer(data={})
+    mock_get_serializer.return_value = serializer
+    response = authed_client.get(reverse('validate-company-number'), {})
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == serializer.errors
 
-        assert response.status_code == status.HTTP_200_OK
-        # modified was not effected by the data we tried to pass
-        assert response.json()['modified'] == '2016-11-23T11:21:10.977518Z'
 
-    @pytest.mark.django_db
-    @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-    def test_company_number_validator_rejects_invalid_serializer(
-            self, mock_get_serializer):
-
-        serializer = MockInvalidSerializer(data={})
-        mock_get_serializer.return_value = serializer
-        response = self.client.get(reverse('validate-company-number'), {})
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == serializer.errors
-
-    @pytest.mark.django_db
-    @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-    def test_company_number_validator_accepts_valid_serializer(
-            self, mock_get_serializer):
-
-        mock_get_serializer.return_value = MockValidSerializer(data={})
-        response = self.client.get(reverse('validate-company-number'), {})
-        assert response.status_code == status.HTTP_200_OK
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+def test_company_number_validator_accepts_valid_data(
+    mock_get_serializer, authed_client
+):
+    mock_get_serializer.return_value = MockValidSerializer(data={})
+    response = authed_client.get(reverse('validate-company-number'), {})
+    assert response.status_code == status.HTTP_200_OK
 
 
 def mock_save(self, name, content, max_length=None):
@@ -449,11 +387,12 @@ def supplier(company):
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
-    company_data, api_client, supplier, company
+    company_data, authed_client, authed_supplier, company
 ):
-    url = reverse('company', kwargs={'sso_id': supplier.sso_id})
+    authed_supplier.company = company
+    authed_supplier.save()
 
-    response = api_client.patch(url, company_data)
+    response = authed_client.patch(reverse('company'), company_data)
     instance = Company.objects.get(number=response.data['number'])
 
     assert response.status_code == http.client.OK
@@ -469,11 +408,14 @@ def test_company_update(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
-    case_study_data, api_client, supplier, company
+    case_study_data, authed_client, authed_supplier, company
 ):
-    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+    authed_supplier.company = company
+    authed_supplier.save()
 
-    response = api_client.post(url, case_study_data, format='multipart')
+    response = authed_client.post(
+        reverse('company-case-study'), case_study_data, format='multipart'
+    )
     assert response.status_code == http.client.CREATED
 
     instance = CompanyCaseStudy.objects.get(pk=response.data['pk'])
@@ -497,9 +439,10 @@ def test_company_case_study_create(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
-    api_client, supplier, company
+    authed_client, authed_supplier, company
 ):
-    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+    authed_supplier.company = company
+    authed_supplier.save()
 
     case_study_data = {
         'company': company.pk,
@@ -516,7 +459,9 @@ def test_company_case_study_create_invalid_image(
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = api_client.post(url, case_study_data, format='multipart')
+    response = authed_client.post(
+        reverse('company-case-study'), case_study_data, format='multipart'
+    )
 
     assert response.status_code == http.client.BAD_REQUEST
 
@@ -525,9 +470,10 @@ def test_company_case_study_create_invalid_image(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
-    video, api_client, supplier, company
+    video, authed_client, authed_supplier, company
 ):
-    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+    authed_supplier.company = company
+    authed_supplier.save()
 
     case_study_data = {
         'company': company.pk,
@@ -544,7 +490,9 @@ def test_company_case_study_create_not_an_image(
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = api_client.post(url, case_study_data, format='multipart')
+    response = authed_client.post(
+        reverse('company-case-study'), case_study_data, format='multipart'
+    )
 
     assert response.status_code == http.client.BAD_REQUEST
 
@@ -553,7 +501,7 @@ def test_company_case_study_create_not_an_image(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_company_not_published(
-    video, api_client, supplier
+    video, authed_client, authed_supplier
 ):
 
     company = Company.objects.create(
@@ -561,14 +509,8 @@ def test_company_case_study_create_company_not_published(
         export_status=choices.EXPORT_STATUSES[1][0],
         is_published=False
     )
-
-    supplier = Supplier.objects.create(
-        sso_id=1,
-        company_email='harry.potter@hogwarts.com',
-        company=company,
-    )
-
-    url = reverse('company-case-study', kwargs={'sso_id': supplier.sso_id})
+    authed_supplier.company = company
+    authed_supplier.save()
 
     case_study_data = {
         'company': company.pk,
@@ -583,14 +525,16 @@ def test_company_case_study_create_company_not_published(
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = api_client.post(url, case_study_data, format='multipart')
+    response = authed_client.post(
+        reverse('company-case-study'), case_study_data, format='multipart'
+    )
 
     assert response.status_code == http.client.CREATED
 
     url = reverse(
         'public-case-study-detail', kwargs={'pk': response.data['pk']}
     )
-    response = api_client.get(url)
+    response = authed_client.get(url)
 
     assert response.status_code == http.client.NOT_FOUND
 
@@ -598,16 +542,20 @@ def test_company_case_study_create_company_not_published(
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_update(supplier_case_study, supplier, api_client):
+def test_company_case_study_update(
+    supplier_case_study, authed_supplier, authed_client
+):
+    authed_supplier.company = supplier_case_study.company
+    authed_supplier.save()
+
     url = reverse(
-        'company-case-study-detail',
-        kwargs={'sso_id': supplier.sso_id, 'pk': supplier_case_study.pk}
+        'company-case-study-detail', kwargs={'pk': supplier_case_study.pk}
     )
     data = {'title': '2015'}
 
     assert supplier_case_study.title != data['title']
 
-    response = api_client.patch(url, data, format='multipart')
+    response = authed_client.patch(url, data, format='multipart')
     supplier_case_study.refresh_from_db()
 
     assert response.status_code == http.client.OK
@@ -617,15 +565,18 @@ def test_company_case_study_update(supplier_case_study, supplier, api_client):
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_delete(supplier_case_study, supplier, api_client):
+def test_company_case_study_delete(
+    supplier_case_study, authed_supplier, authed_client
+):
+    authed_supplier.company = supplier_case_study.company
+    authed_supplier.save()
+
     pk = supplier_case_study.pk
     url = reverse(
-        'company-case-study-detail', kwargs={
-            'sso_id': supplier.sso_id, 'pk': pk
-        }
+        'company-case-study-detail', kwargs={'pk': pk}
     )
 
-    response = api_client.delete(url)
+    response = authed_client.delete(url)
 
     assert response.status_code == http.client.NO_CONTENT
     assert CompanyCaseStudy.objects.filter(pk=pk).exists() is False
@@ -634,16 +585,16 @@ def test_company_case_study_delete(supplier_case_study, supplier, api_client):
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_case_study_get(
-        supplier_case_study, supplier, api_client
+    supplier_case_study, authed_supplier, authed_client
 ):
-    pk = supplier_case_study.pk
+    authed_supplier.company = supplier_case_study.company
+    authed_supplier.save()
+
     url = reverse(
-        'company-case-study-detail', kwargs={
-            'sso_id': supplier.sso_id, 'pk': pk
-        }
+        'company-case-study-detail', kwargs={'pk': supplier_case_study.pk}
     )
 
-    response = api_client.get(url)
+    response = authed_client.get(url)
     data = response.json()
 
     assert response.status_code == http.client.OK
@@ -806,7 +757,7 @@ def test_company_profile_public_list_profiles_empty_filter(
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_verify_company_with_code(api_client, settings):
+def test_verify_company_with_code(authed_client, authed_supplier, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with patch('requests.post'):
@@ -825,16 +776,14 @@ def test_verify_company_with_code(api_client, settings):
             'country': 'test_country',
         })
 
-    supplier = Supplier.objects.create(
-        sso_id=3,
-        company_email='test@example.com',
-        company=company,
-    )
+    authed_supplier.company = company
+    authed_supplier.save()
+
     company.refresh_from_db()
     assert company.verification_code
 
-    url = reverse('company-verify', kwargs={'sso_id': supplier.sso_id})
-    response = api_client.post(
+    url = reverse('company-verify')
+    response = authed_client.post(
         url, {'code': company.verification_code}, format='json'
     )
 
@@ -846,7 +795,9 @@ def test_verify_company_with_code(api_client, settings):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_verify_company_with_code_invalid_code(api_client, settings):
+def test_verify_company_with_code_invalid_code(
+    authed_client, authed_supplier, settings
+):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with patch('requests.post'):
@@ -865,60 +816,16 @@ def test_verify_company_with_code_invalid_code(api_client, settings):
             'country': 'test_country',
         })
 
-    supplier = Supplier.objects.create(
-        sso_id=3,
-        company_email='test@example.com',
-        company=company,
-    )
+    authed_supplier.company = company
+    authed_supplier.save()
+
     company.refresh_from_db()
     assert company.verification_code
-
-    url = reverse('company-verify', kwargs={'sso_id': supplier.sso_id})
-    response = api_client.post(
-        url, {'code': 'invalid'}, format='json'
+    response = authed_client.post(
+         reverse('company-verify'), {'code': 'invalid'}, format='json'
     )
 
     assert response.status_code == http.client.BAD_REQUEST
-
-    company.refresh_from_db()
-    assert company.verified_with_code is False
-
-
-@pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_verify_company_with_code_invalid_user(api_client, settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
-    with patch('requests.post'):
-        company = Company.objects.create(**{
-            'number': '11234567',
-            'name': 'Test Company',
-            'website': 'http://example.com',
-            'description': 'Company description',
-            'export_status': choices.EXPORT_STATUSES[1][0],
-            'date_of_creation': '2010-10-10',
-            'postal_full_name': 'test_full_name',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        })
-
-    Supplier.objects.create(
-        sso_id=3,
-        company_email='test@example.com',
-        company=company,
-    )
-    company.refresh_from_db()
-    assert company.verification_code
-
-    url = reverse('company-verify', kwargs={'sso_id': 12345})
-    response = api_client.post(
-        url, {'code': company.verification_code}, format='json'
-    )
-
-    assert response.status_code == http.client.NOT_FOUND
 
     company.refresh_from_db()
     assert company.verified_with_code is False

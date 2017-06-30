@@ -3,20 +3,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from supplier.authentication import SSOAuthentication
-from supplier.tests import factories
-
-
-@pytest.fixture
-def supplier():
-    return factories.SupplierFactory.create()
-
-
-@pytest.fixture
-def sso_request_active_user(requests_mocker, supplier):
-    return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/api/v1/session-user/?session_key=123',
-        json={'id': supplier.sso_id}
-    )
 
 
 @pytest.fixture
@@ -44,14 +30,12 @@ class MyView(APIView):
 
 
 @pytest.mark.django_db
-def test_sso_authentication_good_session_id(
-    sso_request_active_user, rf, supplier
-):
+def test_sso_authentication_good_session_id(sso_request_active_user, rf):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = MyView.as_view()(request)
 
     assert response.status_code == 200
-    assert request.user == supplier
+    assert request.user.sso_id == 999  # see sso_request_active_user fixture
 
 
 @pytest.mark.django_db
@@ -65,7 +49,7 @@ def test_sso_authentication_bad_session_format(rf):
 
 @pytest.mark.django_db
 def test_sso_authentication_bad_session_value(
-    sso_request_invalid_session_id, rf, supplier
+    sso_request_invalid_session_id, rf
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = MyView.as_view()(request)
@@ -76,7 +60,7 @@ def test_sso_authentication_bad_session_value(
 
 @pytest.mark.django_db
 def test_sso_authentication_good_session_id_missing_supplier(
-    sso_request_deleted_user, rf, supplier
+    sso_request_deleted_user, rf
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = MyView.as_view()(request)
