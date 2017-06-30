@@ -1,6 +1,46 @@
 [
 {
     "model": "company.company",
+    "pk": 31,
+    "fields": {
+        "created": "2017-01-11T17:00:46.714Z",
+        "modified": "2017-02-15T11:43:30.654Z",
+        "summary": "summary summary summary summary",
+        "description": "company that is good and what not",
+        "employees": "11-50",
+        "export_status": "YES",
+        "keywords": "goog, jaj",
+        "logo": "",
+        "name": "Great organisation",
+        "number": "09466003",
+        "sectors": [
+            "AEROSPACE",
+            "AIRPORTS"
+        ],
+        "website": "http://www.google.com",
+        "date_of_creation": "2015-03-02",
+        "is_published": true,
+        "verification_code": "743081437077",
+        "verified_with_code": true,
+        "is_verification_letter_sent": false,
+        "twitter_url": "http://www.twitter.com/asdasd",
+        "facebook_url": "http://www.facebook.com/asdasd",
+        "linkedin_url": "http://www.linkedin.com/asdasd",
+        "mobile_number": "",
+        "postal_full_name": "jim",
+        "address_line_1": "First Floor, Telecom House",
+        "address_line_2": "125-135 Preston Road",
+        "locality": "Brighton",
+        "country": "England",
+        "postal_code": "BN1 6AF",
+        "po_box": "",
+        "email_address": "jim@example.com",
+        "email_full_name": "thing",
+        "slug": "example-company-limited"
+    }
+},
+{
+    "model": "company.company",
     "pk": 32,
     "fields": {
         "created": "2017-01-11T17:00:46.714Z",
@@ -9,7 +49,7 @@
         "description": "description description description description description",
         "employees": "11-50",
         "export_status": "YES",
-        "keywords": "goog, jaj",
+        "keywords": "goog, jaj organisation",
         "logo": "",
         "name": "Example Company Limited",
         "number": "09466004",

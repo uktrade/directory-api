@@ -6,7 +6,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from company.tests.factories import CompanyFactory
-from company.utils import send_verification_letter
+from company import models, utils
 
 
 @pytest.mark.django_db
@@ -14,7 +14,7 @@ from company.utils import send_verification_letter
 @mock.patch('company.utils.stannp_client')
 def test_send_letter(mock_stannp_client):
     company = CompanyFactory(verification_code='test')
-    send_verification_letter(company)
+    utils.send_verification_letter(company)
     mock_stannp_client.send_letter.assert_called_with(
         recipient={
             'postal_full_name': company.postal_full_name,
@@ -37,3 +37,15 @@ def test_send_letter(mock_stannp_client):
     company.refresh_from_db()
     assert company.is_verification_letter_sent
     assert company.date_verification_letter_sent == timezone.now()
+
+
+@pytest.mark.django_db
+@mock.patch.object(utils, 'Index')
+def test_populate_elasticsearch(mock_index):
+    CompanyFactory.create()
+
+    utils.populate_elasticsearch(models.Company)
+
+    mock_index.assert_called_with('companies')
+    assert mock_index().delete.call_count == 1
+    assert mock_index().create.call_count == 1

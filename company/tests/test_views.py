@@ -964,19 +964,8 @@ def test_company_paginate_first_page(api_client):
                     'size': 5,
                     'from': expected_start,
                     'query': {
-                        'function_score': {
-                            'query': {
-                                'match': {
-                                    '_all': 'bones'
-                                }
-                            },
-                            'functions': [
-                                {
-                                    'field_value_factor': {
-                                        'field': 'has_single_sector'
-                                    }
-                                }
-                            ],
+                        'match': {
+                            '_all': 'bones'
                         }
                     },
                 },
