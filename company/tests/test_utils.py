@@ -41,10 +41,10 @@ def test_send_letter(mock_stannp_client):
 
 @pytest.mark.django_db
 @mock.patch.object(utils, 'Index')
-def test_populate_elasticsearch(mock_index):
+def test_rebuild_and_populate_elasticsearch_index(mock_index):
     CompanyFactory.create()
 
-    utils.populate_elasticsearch(models.Company)
+    utils.rebuild_and_populate_elasticsearch_index(models.Company)
 
     mock_index.assert_called_with('companies')
     assert mock_index().delete.call_count == 1

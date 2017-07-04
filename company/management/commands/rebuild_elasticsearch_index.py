@@ -11,9 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         companies = Index('companies')
-        companies.delete(ignore=404)
-
         companies.doc_type(CompanyDocType)
         companies.analyzer(analyzer('english'))
+        companies.delete(ignore=404)
         companies.create()
         management.call_command('populate_elasticsearch')

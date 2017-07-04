@@ -37,11 +37,11 @@ def send_verification_letter(company):
     company.save()
 
 
-def populate_elasticsearch(CompanyModel):
+def rebuild_and_populate_elasticsearch_index(CompanyModel):
     companies = Index('companies')
-    companies.delete(ignore=404)
     companies.doc_type(CompanyDocType)
     companies.analyzer(analyzer('english'))
+    companies.delete(ignore=404)
     companies.create()
     for company in CompanyModel.objects.filter(is_published=True):
         company_model_to_doc_type(company).save()
