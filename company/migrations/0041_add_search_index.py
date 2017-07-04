@@ -9,7 +9,7 @@ from company import utils
 
 def add_company_search_index_and_populate(apps, schema_editor):
     Company = apps.get_model('company', 'Company')
-    utils.populate_elasticsearch(Company)
+    utils.rebuild_and_populate_elasticsearch_index(Company)
 
 
 def remove_company_search_index(apps, schema_editor):

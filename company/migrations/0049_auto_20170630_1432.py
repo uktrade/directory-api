@@ -10,7 +10,7 @@ from company import utils
 
 def rebuild_company_index(apps, schema_editor):
     Company = apps.get_model('company', 'Company')
-    utils.populate_elasticsearch(Company)
+    utils.rebuild_and_populate_elasticsearch_index(Company)
 
 
 class Migration(migrations.Migration):
