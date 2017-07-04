@@ -6,8 +6,6 @@ from django.db.models import Case, Count, When, Value, BooleanField
 
 from company import filters, models, pagination, search, serializers
 
-from elasticsearch_dsl.query import Q, SF
-
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
@@ -159,11 +157,6 @@ class CompanySearchAPIView(views.APIView):
 
         start = (page - 1) * size
         end = start + size
-        query = search.CompanyDocType.search().query(
-            'function_score',
-            query=Q('match', _all=term),
-            functions=[
-                SF('field_value_factor', field='has_single_sector')
-            ]
-        )
-        return query[start:end].execute().to_dict()
+        search_object = search.CompanyDocType.search()
+        response = search_object.query('match', _all=term)[start:end].execute()
+        return response.to_dict()
