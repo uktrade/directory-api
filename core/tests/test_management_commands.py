@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.core.management import call_command
 
@@ -7,5 +7,5 @@ from django.core.management import call_command
 @patch('core.management.commands.distributed_migrate.advisory_lock')
 def test_distributed_migration(mocked_advisory_lock, mocked_handle):
     call_command('distributed_migrate')
-    mocked_advisory_lock.assert_called_once_with('migrations')
-    assert mocked_handle.called
+    assert mocked_advisory_lock.call_args == call('migrations', shared=True)
+    assert mocked_handle.call_count == 1
