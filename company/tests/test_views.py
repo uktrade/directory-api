@@ -87,6 +87,7 @@ class CompanyViewsTests(TestCase):
             'supplier_case_studies': [],
             'twitter_url': company.twitter_url,
             'verified_with_code': False,
+            'verified_with_preverified_enrolment': False,
             'country': company.country,
             'mobile_number': company.mobile_number,
             'address_line_1': company.address_line_1,
@@ -157,6 +158,7 @@ class CompanyViewsTests(TestCase):
             'supplier_case_studies': [],
             'twitter_url': company.twitter_url,
             'verified_with_code': False,
+            'verified_with_preverified_enrolment': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
@@ -200,6 +202,7 @@ class CompanyViewsTests(TestCase):
             'supplier_case_studies': [],
             'twitter_url': company.twitter_url,
             'verified_with_code': False,
+            'verified_with_preverified_enrolment': False,
         }
         expected.update(VALID_REQUEST_DATA)
         assert response.status_code == status.HTTP_200_OK
