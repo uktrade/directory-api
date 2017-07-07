@@ -9,5 +9,5 @@ class Command(MigrateCommand):
 
     def handle(self, *args, **options):
         """Execute command."""
-        with advisory_lock('migrations'):
+        with advisory_lock('migrations', shared=True):
             super().handle(*args, **options)
