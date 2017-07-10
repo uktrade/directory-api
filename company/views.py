@@ -11,6 +11,7 @@ from company import filters, models, pagination, search, serializers
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
+    permission_classes = [SignatureCheckPermission]
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
