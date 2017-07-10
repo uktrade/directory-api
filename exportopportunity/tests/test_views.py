@@ -1,11 +1,12 @@
 from unittest.mock import patch, Mock
 
+from directory_constants.constants import choices
 from rest_framework import status
 import pytest
 
 from django.core.urlresolvers import reverse
 
-from exportopportunity import constants, models
+from exportopportunity import models
 
 
 @pytest.mark.django_db
@@ -14,10 +15,10 @@ def test_export_opportunity_create(authed_client):
     assert models.ExportOpportunity.objects.count() == 0
 
     data = {
-        'type_of_enquiry': constants.OPEN_ENDED,
+        'type_of_enquiry': choices.OPEN_ENDED,
         'open_ended_description': 'foobar',
-        'business_model': constants.DISTRIBUTION,
-        'subsector': constants.CATERING,
+        'business_model': choices.DISTRIBUTION,
+        'subsector': choices.CATERING,
         'bid_value': 'badzillions',
         'bid_timing': '2017-09-09',
         'full_name': 'Testo Useri',
