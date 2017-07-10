@@ -13,8 +13,6 @@ from exportopportunity import constants, models
 def test_export_opportunity_create(authed_client):
     assert models.ExportOpportunity.objects.count() == 0
 
-    response = authed_client.post(reverse('export-opportunity-create'))
-
     data = {
         'type_of_enquiry': constants.OPEN_ENDED,
         'open_ended_description': 'foobar',
