@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     "rest_framework",
-    'rest_framework_swagger',
     'django_celery_beat',
     "raven.contrib.django.raven_compat",
     'superuser',

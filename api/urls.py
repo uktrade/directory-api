@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from api.views import documentation, HealthCheckAPIView
+from api.views import HealthCheckAPIView
 from company.views import (
     CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
@@ -43,10 +43,6 @@ urlpatterns = [
         r'^$',
         HealthCheckAPIView.as_view(),
         name='health-check'
-    ),
-    url(
-        r'^docs/$',
-        documentation
     ),
     url(
         r'^enrolment/$',
