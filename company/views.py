@@ -6,13 +6,11 @@ from django.db.models import Case, Count, When, Value, BooleanField
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
-from supplier.permissions import IsSSOAuthenticated
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
-    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -22,7 +20,6 @@ class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
-    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def get_object(self):
         return self.request.user.company
@@ -42,6 +39,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
         )
         .order_by('-has_case_studies', '-modified')
     )
+    permission_classes = [SignatureCheckPermission]
     pagination_class = pagination.CompanyPublicProfile
     filter_class = filters.CompanyPublicProfileFilter
     lookup_url_kwarg = 'companies_house_number'
@@ -51,7 +49,6 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
-    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
     queryset = models.CompanyCaseStudy.objects.all()
     write_serializer_class = serializers.CompanyCaseStudySerializer
 
@@ -77,6 +74,7 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
         company__is_published=True
     )
     lookup_field = 'pk'
+    permission_classes = [SignatureCheckPermission]
     serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
 
 
@@ -85,7 +83,6 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     http_method_names = ("post", )
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer, )
-    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
@@ -114,6 +111,7 @@ class CompanySearchAPIView(views.APIView):
     # `serializer_class` is used for deserializing the search query,
     # but not for serializing the search results.
     serializer_class = serializers.CompanySearchSerializer
+    permission_classes = [SignatureCheckPermission]
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)

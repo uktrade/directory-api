@@ -152,6 +152,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'api.signature.SignatureCheckPermission',
+        'supplier.permissions.IsAuthenticatedSSO',
     ),
 }
 
