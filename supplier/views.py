@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import (
     RetrieveAPIView,
     ListAPIView,
@@ -6,11 +7,11 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 
 from supplier import serializers, gecko
+from supplier.permissions import IsSSOAuthenticated
 from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
 from notifications import notifications
@@ -19,7 +20,7 @@ from api.signature import SignatureCheckPermission
 
 class SupplierRetrieveExternalAPIView(RetrieveAPIView):
     lookup_field = 'sso_id'
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
     queryset = Supplier.objects.all()
     serializer_class = serializers.ExternalSupplierSerializer
 
@@ -43,7 +44,7 @@ class SupplierSSOListExternalAPIView(ListAPIView):
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     lookup_field = 'sso_id'
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
     queryset = Supplier.objects.all()
     serializer_class = serializers.SupplierSerializer
 
@@ -69,7 +70,7 @@ class GeckoTotalRegisteredSuppliersView(APIView):
 class UnsubscribeSupplierAPIView(APIView):
 
     http_method_names = ("post", )
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""

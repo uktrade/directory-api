@@ -53,9 +53,6 @@ class User(TimeStampedModel):
         ),
     )
 
-    def is_authenticated(self):
-        return True
-
     class Meta:
         ordering = ('-created', '-modified')
 

@@ -1,18 +1,18 @@
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
-from rest_framework.permissions import IsAuthenticated
 
 from django.db.models import Case, Count, When, Value, BooleanField
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
+from supplier.permissions import IsSSOAuthenticated
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -22,7 +22,7 @@ class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def get_object(self):
         return self.request.user.company
@@ -51,7 +51,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
     queryset = models.CompanyCaseStudy.objects.all()
     write_serializer_class = serializers.CompanyCaseStudySerializer
 
@@ -85,7 +85,7 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     http_method_names = ("post", )
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer, )
-    permission_classes = [SignatureCheckPermission, IsAuthenticated]
+    permission_classes = [SignatureCheckPermission, IsSSOAuthenticated]
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
