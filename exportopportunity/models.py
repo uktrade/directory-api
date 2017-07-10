@@ -2,7 +2,7 @@ from django.db import models
 
 from api.model_utils import TimeStampedModel
 
-from . import constants as choices
+from directory_constants.constants import choices
 
 
 class ExportOpportunity(TimeStampedModel):
