@@ -4,6 +4,7 @@ from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
 
+from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
 
@@ -18,13 +19,10 @@ class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        return generics.get_object_or_404(
-            models.Company, suppliers__sso_id=self.kwargs['sso_id']
-        )
+        return self.request.user.company
 
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
@@ -41,6 +39,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
         )
         .order_by('-has_case_studies', '-modified')
     )
+    permission_classes = [SignatureCheckPermission]
     pagination_class = pagination.CompanyPublicProfile
     filter_class = filters.CompanyPublicProfileFilter
     lookup_url_kwarg = 'companies_house_number'
@@ -50,8 +49,8 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
-    write_serializer_class = serializers.CompanyCaseStudySerializer
     queryset = models.CompanyCaseStudy.objects.all()
+    write_serializer_class = serializers.CompanyCaseStudySerializer
 
     def get_serializer_class(self):
         # on read use nested serializer (to also expose company), on write use
@@ -61,21 +60,13 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
         return self.write_serializer_class
 
-    def dispatch(self, *args, **kwargs):
-        self.company = generics.get_object_or_404(
-            models.Company, suppliers__sso_id=kwargs['sso_id']
-        )
-
-        return super().dispatch(*args, **kwargs)
-
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
-            kwargs['data']['company'] = self.company.pk
-
+            kwargs['data']['company'] = self.request.user.company_id
         return super().get_serializer(*args, **kwargs)
 
     def get_queryset(self):
-        return self.queryset.filter(company=self.company)
+        return self.queryset.filter(company_id=self.request.user.company_id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -83,6 +74,7 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
         company__is_published=True
     )
     lookup_field = 'pk'
+    permission_classes = [SignatureCheckPermission]
     serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
 
 
@@ -92,22 +84,17 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer, )
 
-    def dispatch(self, *args, **kwargs):
-        self.company = generics.get_object_or_404(
-            models.Company, suppliers__sso_id=kwargs['sso_id']
-        )
-        return super().dispatch(*args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
-            context={'expected_code': self.company.verification_code}
+            context={'expected_code': company.verification_code}
         )
         serializer.is_valid(raise_exception=True)
 
-        self.company.verified_with_code = True
-        self.company.save()
+        company.verified_with_code = True
+        company.save()
 
         return Response(
             data={
@@ -124,6 +111,7 @@ class CompanySearchAPIView(views.APIView):
     # `serializer_class` is used for deserializing the search query,
     # but not for serializing the search results.
     serializer_class = serializers.CompanySearchSerializer
+    permission_classes = [SignatureCheckPermission]
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)

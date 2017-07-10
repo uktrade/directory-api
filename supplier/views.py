@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import (
     RetrieveAPIView,
     ListAPIView,
@@ -6,8 +7,8 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics, status
+from rest_framework import status
+from rest_framework.generics import get_object_or_404
 
 from supplier import serializers, gecko
 from api.auth import GeckoBasicAuthentication
@@ -16,9 +17,16 @@ from notifications import notifications
 
 
 class SupplierRetrieveExternalAPIView(RetrieveAPIView):
-    queryset = Supplier.objects.all()
     lookup_field = 'sso_id'
+    queryset = Supplier.objects.all()
     serializer_class = serializers.ExternalSupplierSerializer
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, sso_id=self.request.user.sso_id)
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class SupplierSSOListExternalAPIView(ListAPIView):
@@ -32,9 +40,16 @@ class SupplierSSOListExternalAPIView(ListAPIView):
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = Supplier.objects.all()
     lookup_field = 'sso_id'
+    queryset = Supplier.objects.all()
     serializer_class = serializers.SupplierSerializer
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, sso_id=self.request.user.sso_id)
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class GeckoTotalRegisteredSuppliersView(APIView):
@@ -52,18 +67,11 @@ class UnsubscribeSupplierAPIView(APIView):
 
     http_method_names = ("post", )
 
-    def dispatch(self, *args, **kwargs):
-        self.supplier = generics.get_object_or_404(
-            Supplier, sso_id=kwargs['sso_id']
-        )
-        return super().dispatch(*args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
-
-        self.supplier.unsubscribed = True
-        self.supplier.save()
-        notifications.supplier_unsubscribed(supplier=self.supplier)
+        self.request.user.unsubscribed = True
+        self.request.user.save()
+        notifications.supplier_unsubscribed(supplier=self.request.user)
         return Response(
             data={
                 "status_code": status.HTTP_200_OK,

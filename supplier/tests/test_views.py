@@ -1,5 +1,4 @@
 import base64
-from unittest import TestCase
 from unittest.mock import patch, Mock
 import http
 
@@ -12,6 +11,7 @@ from rest_framework.test import APIClient
 
 from user.models import User as Supplier
 from supplier.tests import factories, VALID_REQUEST_DATA
+from supplier import serializers
 
 
 @pytest.fixture
@@ -27,63 +27,26 @@ def supplier():
     )
 
 
-class SupplierViewsTests(TestCase):
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_supplier_retrieve(authed_client, authed_supplier):
+    response = authed_client.get(reverse('supplier'))
 
-    def setUp(self):
-        self.signature_permission_mock = patch(
-            'api.signature.SignatureCheckPermission.has_permission'
-        )
+    expected = serializers.SupplierSerializer(authed_supplier).data
 
-        self.signature_permission_mock.start()
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
 
-    def tearDown(self):
-        self.signature_permission_mock.stop()
 
-    @pytest.mark.django_db
-    def test_supplier_retrieve_view(self):
-        client = APIClient()
-        supplier = Supplier.objects.create(**VALID_REQUEST_DATA)
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_supplier_update(authed_client, authed_supplier):
+    response = authed_client.patch(
+        reverse('supplier'), {'company_email': 'a@b.co'}, format='json'
+    )
 
-        response = client.get(
-            reverse('supplier', kwargs={'sso_id': supplier.sso_id})
-        )
-
-        expected = {'sso_id': str(supplier.sso_id), 'company': None}
-        expected.update(VALID_REQUEST_DATA)
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
-
-    @pytest.mark.django_db
-    def test_supplier_update_view_with_put(self):
-        client = APIClient()
-        supplier = Supplier.objects.create(
-            sso_id=1,
-            company_email='harry.potter@hogwarts.com')
-
-        response = client.put(
-            reverse('supplier', kwargs={'sso_id': supplier.sso_id}),
-            VALID_REQUEST_DATA, format='json')
-
-        expected = {'sso_id': str(supplier.sso_id), 'company': None}
-        expected.update(VALID_REQUEST_DATA)
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
-
-    @pytest.mark.django_db
-    def test_supplier_update_view_with_patch(self):
-        client = APIClient()
-        supplier = Supplier.objects.create(
-            sso_id=1, company_email='harry.potter@hogwarts.com'
-        )
-
-        response = client.patch(
-            reverse('supplier', kwargs={'sso_id': supplier.sso_id}),
-            VALID_REQUEST_DATA, format='json')
-
-        expected = {'sso_id': str(supplier.sso_id), 'company': None}
-        expected.update(VALID_REQUEST_DATA)
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == expected
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['company_email'] == 'a@b.co'
 
 
 @pytest.mark.django_db
@@ -133,87 +96,59 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_unsubscribe_supplier(supplier):
-    response = APIClient().post(
-        reverse('unsubscribe-supplier', kwargs={'sso_id': supplier.sso_id})
-    )
+def test_unsubscribe_supplier(authed_client, authed_supplier):
+    response = authed_client.post(reverse('unsubscribe-supplier'))
 
+    authed_supplier.refresh_from_db()
     assert response.status_code == http.client.OK
-    supplier.refresh_from_db()
-    assert supplier.unsubscribed is True
-
-
-@pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_unsubscribe_supplier_does_not_exist():
-
-    response = APIClient().post(
-        reverse('unsubscribe-supplier', kwargs={'sso_id': 0})
-    )
-
-    assert response.status_code == http.client.NOT_FOUND
+    assert authed_supplier.unsubscribed is True
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('notifications.notifications.supplier_unsubscribed')
 def test_unsubscribe_supplier_email_confirmation(
-    mock_supplier_unsubscribed, supplier
+    mock_supplier_unsubscribed, authed_client, authed_supplier
 ):
-    APIClient().post(
-        reverse('unsubscribe-supplier', kwargs={'sso_id': supplier.sso_id})
-    )
+    authed_client.post(reverse('unsubscribe-supplier'))
 
-    mock_supplier_unsubscribed.assert_called_once_with(supplier=supplier)
+    mock_supplier_unsubscribed.assert_called_once_with(
+        supplier=authed_supplier
+    )
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_get(supplier, settings):
+def test_public_supplier_details_get(authed_client, authed_supplier, settings):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+    expected = serializers.ExternalSupplierSerializer(authed_supplier).data
 
-    url = reverse(
-        'external-supplier-details',
-        kwargs={'sso_id': supplier.sso_id}
-    )
-    response = APIClient().get(url)
+    response = authed_client.get(reverse('external-supplier-details'))
 
     assert response.status_code == 200
-    assert response.json() == {
-        'company_email': 'jim@example.com',
-        'company_number': '01234567',
-        'company_name': 'foo ltd',
-        'company_industries': ['AEROSPACE'],
-        'name': 'Jim Example',
-        'sso_id': 123,
-        'company_export_status': 'YES',
-        'profile_url': 'http://profile/01234567',
-    }
+    assert response.json() == expected
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_post(supplier):
-    url = reverse(
-        'external-supplier-details',
-        kwargs={'sso_id': supplier.sso_id}
-    )
-    response = APIClient().post(url)
+def test_public_supplier_details_post(authed_client):
+    response = authed_client.post(reverse('external-supplier-details'))
 
     assert response.status_code == 405
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_external_supplier_sso_list():
+def test_external_supplier_sso_list(authed_client, authed_supplier):
 
     suppliers = factories.SupplierFactory.create_batch(3)
     url = reverse('external-supplier-sso-list')
-    response = APIClient().get(url)
+    response = authed_client.get(url)
 
     assert response.status_code == 200
     assert response.json() == [
         suppliers[2].sso_id,
         suppliers[1].sso_id,
         suppliers[0].sso_id,
+        authed_supplier.sso_id,
     ]

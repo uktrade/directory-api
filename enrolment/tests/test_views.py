@@ -98,16 +98,15 @@ def test_enrolment_create_disables_single_preverified_enrolment():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_enrolment_create_preverified_enrolment_different_email():
+def test_enrolment_create_preverified_enrolment_different_email(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address='jim@thing.com',
     )
     assert preverified_enrolment.is_active is True
 
-    api_client = APIClient()
     url = reverse('enrolment')
-    response = api_client.post(url, VALID_REQUEST_DATA, format='json')
+    response = authed_client.post(url, VALID_REQUEST_DATA, format='json')
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -119,37 +118,35 @@ def test_enrolment_create_preverified_enrolment_different_email():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_preverified_enrolment_retrieve_not_found():
+def test_preverified_enrolment_retrieve_not_found(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address='jim@thing.com',
     )
 
-    api_client = APIClient()
     url = reverse('pre-verified-enrolment')
     params = {
         'email_address': preverified_enrolment.email_address,
         'company_number': '1122',
     }
-    response = api_client.get(url, params)
+    response = authed_client.get(url, params)
 
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_preverified_enrolment_retrieve_found():
+def test_preverified_enrolment_retrieve_found(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
         email_address=VALID_REQUEST_DATA['contact_email_address']
     )
 
-    api_client = APIClient()
     url = reverse('pre-verified-enrolment')
     params = {
         'email_address': preverified_enrolment.email_address,
         'company_number': preverified_enrolment.company_number,
     }
-    response = api_client.get(url, params)
+    response = authed_client.get(url, params)
 
     assert response.status_code == 200

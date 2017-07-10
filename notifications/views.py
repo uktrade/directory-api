@@ -3,6 +3,7 @@ from rest_framework.response import Response
 
 from django.db.utils import IntegrityError
 
+from api.signature import SignatureCheckPermission
 from notifications import models, notifications, serializers
 
 
@@ -10,6 +11,7 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
 
     model = models.AnonymousUnsubscribe
     serializer_class = serializers.AnonymousUnsubscribeSerializer
+    permission_classes = [SignatureCheckPermission]
 
     def create(self, *args, **kwargs):
         try:

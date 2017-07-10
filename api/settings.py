@@ -147,10 +147,16 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'supplier.authentication.SSOAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'api.signature.SignatureCheckPermission',
+        'supplier.permissions.IsAuthenticatedSSO',
     ),
 }
+
+
 # Sentry
 RAVEN_CONFIG = {
     "dsn": os.getenv("SENTRY_DSN"),
