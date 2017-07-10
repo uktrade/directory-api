@@ -1,0 +1,17 @@
+Dear Post,
+
+An international buyer has submitted the following export opportunity lead via trade.great.gov.uk:
+
+Company name: {{ opportunity.company_name }}
+Enquity type: {{ opportunity.opportunity.type_of_enquiry }}
+Description: {{ opportunity.open_ended_description }}
+Business model: {{ opportunity.business_model }}
+Subsector: {{ opportunity.subsector }}
+Bid value: {{ opportunity.bid_value} }
+Bid timing: {{ opportunity.bid_timing }}
+Contact name: {{ opportunity.full_name }}
+Contact email address: {{ opportunity.email_address }}
+
+kind regards,
+
+Your trade.great.gov.uk friends
