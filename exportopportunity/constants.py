@@ -8,17 +8,17 @@ CATERING = 'catering'
 MANUFACTURING = 'manufacturing'
 
 TYPE_OF_ENQUIRIES = (
-    SPECIFIC, 'Specific',
-    OPEN_ENDED, 'Open-ended'
+    (SPECIFIC, 'Specific'),
+    (OPEN_ENDED, 'Open-ended')
 )
 BUSINESS_MODELS = (
-    DISTRIBUTION, 'Distribution',
-    WHOLESALE, 'Wholesale',
-    RETAIL, 'Retail'
+    (DISTRIBUTION, 'Distribution'),
+    (WHOLESALE, 'Wholesale'),
+    (RETAIL, 'Retail')
 )
 SUBSECTOR_SELECTION = (
-    RETAIL, 'Retail',
-    HOSPITALITY, 'Hospitality',
-    CATERING, 'Catering',
-    MANUFACTURING, 'Manufacturing'
+    (RETAIL, 'Retail'),
+    (HOSPITALITY, 'Hospitality'),
+    (CATERING, 'Catering'),
+    (MANUFACTURING, 'Manufacturing')
 )
