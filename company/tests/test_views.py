@@ -195,11 +195,11 @@ def test_company_not_update_modified(authed_client, authed_supplier):
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_rejects_invalid_data(
-    mock_get_serializer, authed_client
+    mock_get_serializer, client
 ):
     serializer = MockInvalidSerializer(data={})
     mock_get_serializer.return_value = serializer
-    response = authed_client.get(reverse('validate-company-number'), {})
+    response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == serializer.errors
 
@@ -208,10 +208,10 @@ def test_company_number_validator_rejects_invalid_data(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_accepts_valid_data(
-    mock_get_serializer, authed_client
+    mock_get_serializer, client
 ):
     mock_get_serializer.return_value = MockValidSerializer(data={})
-    response = authed_client.get(reverse('validate-company-number'), {})
+    response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_200_OK
 
 
