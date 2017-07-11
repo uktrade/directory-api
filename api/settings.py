@@ -147,7 +147,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'supplier.authentication.SSOAuthentication',
+        'supplier.authentication.SessionAuthenticationSSO',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'api.signature.SignatureCheckPermission',

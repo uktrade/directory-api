@@ -10,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 
-from supplier import serializers, gecko
+from supplier import authentication, serializers, gecko
 from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
 from notifications import notifications
@@ -43,6 +43,10 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     lookup_field = 'sso_id'
     queryset = Supplier.objects.all()
     serializer_class = serializers.SupplierSerializer
+    authentication_classes = [
+        authentication.SessionAuthenticationSSO,
+        authentication.Oauth2AuthenticationSSO,
+    ]
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
