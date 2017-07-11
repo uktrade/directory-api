@@ -1,14 +1,9 @@
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import (
-    RetrieveAPIView,
-    ListAPIView,
-    RetrieveUpdateAPIView,
-)
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
-from rest_framework.generics import get_object_or_404
 
 from supplier import authentication, serializers, gecko
 from api.auth import GeckoBasicAuthentication
@@ -16,17 +11,12 @@ from user.models import User as Supplier
 from notifications import notifications
 
 
-class SupplierRetrieveExternalAPIView(RetrieveAPIView):
-    lookup_field = 'sso_id'
-    queryset = Supplier.objects.all()
+class SupplierRetrieveExternalAPIView(APIView):
     serializer_class = serializers.ExternalSupplierSerializer
 
-    def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
-        obj = get_object_or_404(queryset, sso_id=self.request.user.sso_id)
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-        return obj
+    def get(self, request):
+        serializer = self.serializer_class(request.user.supplier)
+        return Response(serializer.data)
 
 
 class SupplierSSOListExternalAPIView(ListAPIView):
@@ -40,8 +30,6 @@ class SupplierSSOListExternalAPIView(ListAPIView):
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    lookup_field = 'sso_id'
-    queryset = Supplier.objects.all()
     serializer_class = serializers.SupplierSerializer
     authentication_classes = [
         authentication.SessionAuthenticationSSO,
@@ -49,11 +37,7 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     ]
 
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
-        obj = get_object_or_404(queryset, sso_id=self.request.user.sso_id)
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-        return obj
+        return self.request.user.supplier
 
 
 class GeckoTotalRegisteredSuppliersView(APIView):
@@ -73,9 +57,10 @@ class UnsubscribeSupplierAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
-        self.request.user.unsubscribed = True
-        self.request.user.save()
-        notifications.supplier_unsubscribed(supplier=self.request.user)
+        supplier = self.request.user.supplier
+        supplier.unsubscribed = True
+        supplier.save()
+        notifications.supplier_unsubscribed(supplier=supplier)
         return Response(
             data={
                 "status_code": status.HTTP_200_OK,

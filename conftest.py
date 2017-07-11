@@ -114,7 +114,10 @@ def authed_supplier():
 def sso_session_request_active_user(authed_supplier, requests_mocker):
     return requests_mocker.get(
         'http://sso.trade.great.dev:8004/api/v1/session-user/?session_key=123',
-        json={'id': authed_supplier.sso_id}
+        json={
+            'id': authed_supplier.sso_id,
+            'email': authed_supplier.company_email
+        }
     )
 
 
@@ -124,7 +127,7 @@ def authed_client(sso_session_request_active_user):
     supplier.authentication.SessionAuthenticationSSO passes the session header
     "123" to sso, but the sso_session_request_active_user fixture will ensure
     that the authed_supplier fixture is instead returned - resulting in
-    authed_supplier being added to `request.user`.
+    authed_supplier being added to `request.user.supplier`.
 
     """
 

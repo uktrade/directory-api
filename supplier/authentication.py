@@ -1,7 +1,6 @@
 from rest_framework import authentication, exceptions
 
 from supplier import helpers
-from user.models import User as Supplier
 
 
 class SessionAuthenticationSSO(authentication.BaseAuthentication):
@@ -29,12 +28,9 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
         response = helpers.sso_api_client.user.get_session_user(session_id)
         if not response.ok:
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
-        sso_id = response.json()['id']
-        try:
-            user = Supplier.objects.get(sso_id=sso_id)
-        except Supplier.DoesNotExist:
-            raise exceptions.AuthenticationFailed(self.message_does_not_exist)
-        return (user, session_id)
+        sso_data = response.json()
+        sso_user = helpers.SSOUser(id=sso_data['id'], email=sso_data['email'])
+        return (sso_user, session_id)
 
     def authenticate_header(self, request):
         return self.keyword
@@ -60,12 +56,10 @@ class Oauth2AuthenticationSSO(authentication.BaseAuthentication):
         )
         if not response.ok:
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
-        sso_id = response.json()['id']
-        try:
-            user = Supplier.objects.get(sso_id=sso_id)
-        except Supplier.DoesNotExist:
-            raise exceptions.AuthenticationFailed(self.message_does_not_exist)
-        return (user, bearer_token)
+
+        sso_data = response.json()
+        sso_user = helpers.SSOUser(id=sso_data['id'], email=sso_data['email'])
+        return (sso_user, bearer_token)
 
     def authenticate_header(self, request):
         return self.keyword
