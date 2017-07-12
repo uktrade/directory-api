@@ -1,3 +1,5 @@
+from unittest.mock import call, patch
+
 import pytest
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -9,6 +11,8 @@ from core.authentication import (
     GeckoBasicAuthentication, Oauth2AuthenticationSSO, SessionAuthenticationSSO
 )
 from core.permissions import IsAuthenticatedSSO
+
+from supplier import helpers
 
 
 @pytest.fixture
@@ -52,14 +56,17 @@ class Oauth2AuthenticationSSOView(BaseTestView):
 
 
 @pytest.mark.django_db
+@patch.object(helpers.sso_api_client.user, 'get_session_user',
+              wraps=helpers.sso_api_client.user.get_session_user)
 def test_sso_session_authentication_ok_session_id(
-    sso_session_request_active_user, rf
+    mock_get_session_user, sso_session_request_active_user, rf
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = SessionAuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
     assert request.user.supplier.sso_id == 999
+    assert mock_get_session_user.call_args == call('123')
 
 
 @pytest.mark.django_db
@@ -95,14 +102,17 @@ def test_sso_session_authentication_bad_session_value(
 
 
 @pytest.mark.django_db
+@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
+              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
 def test_sso_oauth2_authentication_ok_oauth_token(
-    sso_oauth2_request_active_user, rf
+    mock_get_oauth2_user_profile, sso_oauth2_request_active_user, rf
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='Bearer 123')
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
     assert request.user.supplier.sso_id == 999
+    assert mock_get_oauth2_user_profile.call_args == call('123')
 
 
 @pytest.mark.django_db

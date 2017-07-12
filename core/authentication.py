@@ -26,7 +26,7 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
             return None
         if len(auth) == 1:
             raise exceptions.AuthenticationFailed(self.message_bad_format)
-        return self.authenticate_credentials(auth[1])
+        return self.authenticate_credentials(auth[1].decode())
 
     def authenticate_credentials(self, session_id):
         response = helpers.sso_api_client.user.get_session_user(session_id)
@@ -58,7 +58,7 @@ class Oauth2AuthenticationSSO(authentication.BaseAuthentication):
             return None
         if len(auth) == 1:
             raise exceptions.AuthenticationFailed(self.message_bad_format)
-        return self.authenticate_credentials(auth[1])
+        return self.authenticate_credentials(auth[1].decode())
 
     def authenticate_credentials(self, bearer_token):
         response = helpers.sso_api_client.user.get_oauth2_user_profile(
