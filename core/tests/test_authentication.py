@@ -1,11 +1,14 @@
 import pytest
 from rest_framework.response import Response
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 
-from supplier.authentication import (
-    SessionAuthenticationSSO, Oauth2AuthenticationSSO
+from django.contrib.auth.models import User
+
+from core.authentication import (
+    GeckoBasicAuthentication, Oauth2AuthenticationSSO, SessionAuthenticationSSO
 )
-from supplier.permissions import IsAuthenticatedSSO
+from core.permissions import IsAuthenticatedSSO
 
 
 @pytest.fixture
@@ -132,3 +135,45 @@ def test_sso_oauth2_authentication_bad_bearer_value(
     assert response.data['detail'] == (
         Oauth2AuthenticationSSO.message_invalid_session
     )
+
+
+def test_gecko_basic_auth_uses_settings_for_auth(settings):
+    username = 'gecko_basic_auth_user'
+    settings.GECKO_API_KEY = username
+    settings.GECKO_API_PASS = 'X'
+    auth_class = GeckoBasicAuthentication()
+
+    auth_results = auth_class.authenticate_credentials(username, 'X')
+
+    assert auth_results[0].__class__ is User
+    assert auth_results[0].username == username
+    assert auth_results[0].id is None  # do not save this user to db!
+    assert auth_results[1] is None
+
+
+def test_gecko_basic_auth_raises_exception_on_incorrect_user(settings):
+    settings.GECKO_API_KEY = 'gecko_basic_auth_user'
+    settings.GECKO_API_PASS = 'X'
+    auth_class = GeckoBasicAuthentication()
+
+    with pytest.raises(AuthenticationFailed):
+        auth_class.authenticate_credentials('blabla', 'X')
+
+
+def test_gecko_basic_auth_raises_exception_on_incorrect_password(settings):
+    username = 'gecko_basic_auth_user'
+    settings.GECKO_API_KEY = username
+    settings.GECKO_API_PASS = 'X'
+    auth_class = GeckoBasicAuthentication()
+
+    with pytest.raises(AuthenticationFailed):
+        auth_class.authenticate_credentials(username, 'XXX')
+
+
+def test_gecko_basic_auth_raises_exception_on_incorrect_credentials(settings):
+    settings.GECKO_API_KEY = 'gecko_basic_auth_user'
+    settings.GECKO_API_PASS = 'X'
+    auth_class = GeckoBasicAuthentication()
+
+    with pytest.raises(AuthenticationFailed):
+        auth_class.authenticate_credentials('blabla', 'XXX')

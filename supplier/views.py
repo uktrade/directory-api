@@ -7,8 +7,8 @@ from rest_framework import status
 
 from django.http import Http404
 
-from supplier import authentication, serializers, gecko
-from api.auth import GeckoBasicAuthentication
+from core import authentication
+from supplier import serializers, gecko
 from user.models import User as Supplier
 from notifications import notifications
 
@@ -48,7 +48,7 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class GeckoTotalRegisteredSuppliersView(APIView):
     permission_classes = (IsAuthenticated, )
-    authentication_classes = (GeckoBasicAuthentication, )
+    authentication_classes = (authentication.GeckoBasicAuthentication, )
     renderer_classes = (JSONRenderer, )
     http_method_names = ("get", )
 

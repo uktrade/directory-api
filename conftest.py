@@ -103,7 +103,7 @@ def requests_mocker():
 def authed_supplier():
     """
     This fixture is used by sso_session_request_active_user fixture to ensure
-    that supplier.authentication.SessionAuthenticationSSO authenticates.
+    that core.authentication.SessionAuthenticationSSO authenticates.
 
     """
 
@@ -124,7 +124,7 @@ def sso_session_request_active_user(authed_supplier, requests_mocker):
 @pytest.fixture
 def authed_client(sso_session_request_active_user):
     """
-    supplier.authentication.SessionAuthenticationSSO passes the session header
+    core.authentication.SessionAuthenticationSSO passes the session header
     "123" to sso, but the sso_session_request_active_user fixture will ensure
     that the authed_supplier fixture is instead returned - resulting in
     authed_supplier being added to `request.user.supplier`.
