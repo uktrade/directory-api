@@ -67,7 +67,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_REDIS_URL=debug; \
 	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
 	export DIRECTORY_API_SSO_SIGNATURE_SECRET=api_signature_debug; \
-	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/;\
+	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/;\
 	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
 	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
 	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}; \
@@ -81,9 +81,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
-	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/; \
-	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
-	export DIRECTORY_API_SSO_SIGNATURE_SECRET=proxy_signature_debug
+	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/
 
 docker_test_env_files:
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
@@ -157,7 +155,7 @@ DEBUG_SET_ENV_VARS := \
 	export CELERY_RESULT_BACKEND=debug; \
 	export STORAGE_CLASS_NAME=local-storage; \
 	export SSO_SIGNATURE_SECRET=api_signature_debug; \
-	export SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
+	export SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/; \
 	export NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
 	export FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
 	export FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}; \
@@ -172,9 +170,7 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
-	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/; \
-	export SSO_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/api/v1/; \
-	export SSO_SIGNATURE_SECRET=proxy_signature_debug
+	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/
 
 
 debug_webserver:

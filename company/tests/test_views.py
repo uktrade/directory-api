@@ -34,6 +34,17 @@ default_public_profile_data = {
 }
 
 
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_retrieve_no_company(authed_client, authed_supplier):
+    authed_supplier.company = None
+    authed_supplier.save()
+
+    response = authed_client.get(reverse('company'))
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)

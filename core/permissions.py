@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from user.models import User as Supplier
+from supplier.helpers import SSOUser
 
 
 class IsAuthenticatedSSO(permissions.BasePermission):
@@ -9,4 +9,4 @@ class IsAuthenticatedSSO(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return isinstance(request.user, Supplier)
+        return isinstance(request.user, SSOUser)

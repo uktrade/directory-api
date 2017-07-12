@@ -3,6 +3,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
+from django.http import Http404
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
@@ -23,7 +24,9 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        return self.request.user.company
+        if self.request.user.supplier and self.request.user.supplier.company:
+            return self.request.user.supplier.company
+        raise Http404()
 
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
@@ -63,11 +66,13 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
-            kwargs['data']['company'] = self.request.user.company_id
+            kwargs['data']['company'] = self.request.user.supplier.company_id
         return super().get_serializer(*args, **kwargs)
 
     def get_queryset(self):
-        return self.queryset.filter(company_id=self.request.user.company_id)
+        return self.queryset.filter(
+            company_id=self.request.user.supplier.company_id
+        )
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -87,7 +92,7 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         """Confirms enrolment by company_email verification"""
-        company = self.request.user.company
+        company = self.request.user.supplier.company
         serializer = self.serializer_class(
             data=request.data,
             context={'expected_code': company.verification_code}
