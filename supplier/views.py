@@ -15,6 +15,9 @@ from notifications import notifications
 
 class SupplierRetrieveExternalAPIView(APIView):
     serializer_class = serializers.ExternalSupplierSerializer
+    authentication_classes = [
+        authentication.Oauth2AuthenticationSSO,
+    ]
 
     def get(self, request):
         if not self.request.user.supplier:
@@ -37,7 +40,6 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = serializers.SupplierSerializer
     authentication_classes = [
         authentication.SessionAuthenticationSSO,
-        authentication.Oauth2AuthenticationSSO,
     ]
 
     def get_object(self):

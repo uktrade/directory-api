@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 
 from user.models import User as Supplier
 from supplier.tests import factories, VALID_REQUEST_DATA
-from supplier import serializers
+from supplier import serializers, helpers
 
 
 @pytest.fixture
@@ -129,11 +129,19 @@ def test_unsubscribe_supplier_email_confirmation(
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_get(authed_client, authed_supplier, settings):
+@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
+              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
+def test_external_supplier_details_get(
+    authed_client, authed_supplier, settings
+):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
     expected = serializers.ExternalSupplierSerializer(authed_supplier).data
 
-    response = authed_client.get(reverse('external-supplier-details'))
+    response = authed_client.get(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 200
     assert response.json() == expected
@@ -141,21 +149,33 @@ def test_public_supplier_details_get(authed_client, authed_supplier, settings):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_post(authed_client):
-    response = authed_client.post(reverse('external-supplier-details'))
+@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
+              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
+def test_external_supplier_details_post(authed_client):
+    response = authed_client.post(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 405
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_get_no_supplier(
+@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
+              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
+def test_external_supplier_details_get_no_supplier(
     authed_client, authed_supplier
 ):
 
     authed_supplier.delete()
 
-    response = authed_client.get(reverse('external-supplier-details'))
+    response = authed_client.get(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 404
 
