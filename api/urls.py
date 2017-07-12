@@ -60,9 +60,48 @@ urlpatterns = [
         name='external-supplier-sso-list'
     ),
     url(
+        r'external/supplier/$',
+        SupplierRetrieveExternalAPIView.as_view(),
+        name='external-supplier-details'
+    ),
+    url(
         r'supplier/gecko/total-registered/$',
         GeckoTotalRegisteredSuppliersView.as_view(),
         name='gecko-total-registered-suppliers'
+    ),
+    url(
+        r'^supplier/company/$',
+        CompanyRetrieveUpdateAPIView.as_view(),
+        name='company'
+    ),
+    url(
+        r'supplier/company/verify/$',
+        VerifyCompanyWithCodeAPIView.as_view(),
+        name='company-verify'
+    ),
+    url(
+        r'^supplier/company/case-study/$',
+        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
+        name='company-case-study',
+    ),
+    url(
+        r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
+        CompanyCaseStudyViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'delete': 'destroy',
+        }),
+        name='company-case-study-detail',
+    ),
+    url(
+        r'supplier/$',
+        SupplierRetrieveUpdateAPIView.as_view(),
+        name='supplier'
+    ),
+    url(
+        r'^supplier/unsubscribe/$',
+        UnsubscribeSupplierAPIView.as_view(),
+        name='unsubscribe-supplier'
     ),
     url(
         r'public/case-study/(?P<pk>.*)/$',
@@ -108,46 +147,6 @@ urlpatterns = [
         r'export-opportunity/$',
         ExportOpportunityCreateAPIView.as_view(),
         name='export-opportunity-create'
-    ),
-
-    url(
-        r'^supplier/company/$',
-        CompanyRetrieveUpdateAPIView.as_view(),
-        name='company'
-    ),
-    url(
-        r'supplier/company/verify/$',
-        VerifyCompanyWithCodeAPIView.as_view(),
-        name='company-verify'
-    ),
-    url(
-        r'^supplier/company/case-study/$',
-        CompanyCaseStudyViewSet.as_view({'post': 'create'}),
-        name='company-case-study',
-    ),
-    url(
-        r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
-        CompanyCaseStudyViewSet.as_view({
-            'get': 'retrieve',
-            'patch': 'partial_update',
-            'delete': 'destroy',
-        }),
-        name='company-case-study-detail',
-    ),
-    url(
-        r'supplier/$',
-        SupplierRetrieveUpdateAPIView.as_view(),
-        name='supplier'
-    ),
-    url(
-        r'^supplier/unsubscribe/$',
-        UnsubscribeSupplierAPIView.as_view(),
-        name='unsubscribe-supplier'
-    ),
-    url(
-        r'external/supplier/company/$',
-        SupplierRetrieveExternalAPIView.as_view(),
-        name='external-supplier-details'
     ),
 ]
 
