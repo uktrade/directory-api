@@ -50,6 +50,16 @@ def test_supplier_update(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_supplier_retrieve_no_supplier(authed_client, authed_supplier):
+    authed_supplier.delete()
+
+    response = authed_client.get(reverse('supplier'))
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
 def test_gecko_num_registered_supplier_view_returns_correct_json():
     client = APIClient()
     Supplier.objects.create(**VALID_REQUEST_DATA)
@@ -135,6 +145,19 @@ def test_public_supplier_details_post(authed_client):
     response = authed_client.post(reverse('external-supplier-details'))
 
     assert response.status_code == 405
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_public_supplier_details_get_no_supplier(
+    authed_client, authed_supplier
+):
+
+    authed_supplier.delete()
+
+    response = authed_client.get(reverse('external-supplier-details'))
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db

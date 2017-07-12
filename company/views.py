@@ -3,6 +3,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
+from django.http import Http404
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
@@ -23,7 +24,9 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        return self.request.user.supplier.company
+        if self.request.user.supplier and self.request.user.supplier.company:
+            return self.request.user.supplier.company
+        raise Http404()
 
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):

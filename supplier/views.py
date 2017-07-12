@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
 
+from django.http import Http404
+
 from supplier import authentication, serializers, gecko
 from api.auth import GeckoBasicAuthentication
 from user.models import User as Supplier
@@ -15,6 +17,8 @@ class SupplierRetrieveExternalAPIView(APIView):
     serializer_class = serializers.ExternalSupplierSerializer
 
     def get(self, request):
+        if not self.request.user.supplier:
+            raise Http404()
         serializer = self.serializer_class(request.user.supplier)
         return Response(serializer.data)
 
@@ -37,11 +41,12 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     ]
 
     def get_object(self):
+        if not self.request.user.supplier:
+            raise Http404()
         return self.request.user.supplier
 
 
 class GeckoTotalRegisteredSuppliersView(APIView):
-
     permission_classes = (IsAuthenticated, )
     authentication_classes = (GeckoBasicAuthentication, )
     renderer_classes = (JSONRenderer, )

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from supplier.authentication import (
     SessionAuthenticationSSO, Oauth2AuthenticationSSO
 )
+from supplier.permissions import IsAuthenticatedSSO
 
 
 @pytest.fixture
@@ -33,7 +34,7 @@ def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
 
 class BaseTestView(APIView):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticatedSSO]
 
     def get(self, request):
         return Response()
@@ -70,6 +71,14 @@ def test_sso_session_authentication_bad_session_format(rf):
 
 
 @pytest.mark.django_db
+def test_sso_session_authentication_missing(rf):
+    request = rf.get('/', {})
+    response = SessionAuthenticationSSOView.as_view()(request)
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
 def test_sso_session_authentication_bad_session_value(
     sso_session_request_invalid_session_id, rf
 ):
@@ -94,7 +103,7 @@ def test_sso_oauth2_authentication_ok_oauth_token(
 
 
 @pytest.mark.django_db
-def test_sso_oauth2_authentication_bad_session_format(rf):
+def test_sso_oauth2_authentication_bad_bearer_format(rf):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='Bearer')
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
@@ -105,7 +114,15 @@ def test_sso_oauth2_authentication_bad_session_format(rf):
 
 
 @pytest.mark.django_db
-def test_sso_oauth2_authentication_bad_session_value(
+def test_sso_oauth2_authentication_missing(rf):
+    request = rf.get('/', {})
+    response = Oauth2AuthenticationSSOView.as_view()(request)
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_sso_oauth2_authentication_bad_bearer_value(
     sso_oauth2_request_invalid_session_id, rf
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='Bearer 123')

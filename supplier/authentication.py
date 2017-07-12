@@ -13,7 +13,6 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
 
     message_invalid_session = 'Invalid session id'
     message_bad_format = 'Invalid SSO_SESSION_ID header.'
-    message_does_not_exist = 'Supplier does not exist.'
     keyword = 'SSO_SESSION_ID'
 
     def authenticate(self, request):
@@ -39,7 +38,6 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
 class Oauth2AuthenticationSSO(authentication.BaseAuthentication):
     message_invalid_session = 'Invalid bearer token'
     message_bad_format = 'Invalid bearer header.'
-    message_does_not_exist = 'Supplier does not exist.'
     keyword = 'Bearer'
 
     def authenticate(self, request):

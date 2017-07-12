@@ -3,7 +3,6 @@ from django.utils.functional import cached_property
 
 from directory_sso_api_client.client import DirectorySSOAPIClient
 
-
 from user.models import User as Supplier
 
 
