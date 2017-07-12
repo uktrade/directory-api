@@ -116,7 +116,7 @@ urlpatterns = [
         name='company'
     ),
     url(
-        r'supplier/verify/$',
+        r'supplier/company/verify/$',
         VerifyCompanyWithCodeAPIView.as_view(),
         name='company-verify'
     ),
