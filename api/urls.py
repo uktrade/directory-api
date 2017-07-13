@@ -55,12 +55,12 @@ urlpatterns = [
         name='pre-verified-enrolment',
     ),
     url(
-        r'external/supplier-sso/$',
+        r'^external/supplier-sso/$',
         SupplierSSOListExternalAPIView.as_view(),
         name='external-supplier-sso-list'
     ),
     url(
-        r'external/supplier/$',
+        r'^external/supplier/$',
         SupplierRetrieveExternalAPIView.as_view(),
         name='external-supplier-details'
     ),
