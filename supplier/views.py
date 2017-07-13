@@ -7,6 +7,7 @@ from rest_framework import status
 
 from django.http import Http404
 
+from api.signature import SignatureCheckPermission
 from core import authentication
 from supplier import serializers, gecko
 from user.models import User as Supplier
@@ -15,6 +16,9 @@ from notifications import notifications
 
 class SupplierRetrieveExternalAPIView(APIView):
     serializer_class = serializers.ExternalSupplierSerializer
+    authentication_classes = [
+        authentication.Oauth2AuthenticationSSO,
+    ]
 
     def get(self, request):
         if not self.request.user.supplier:
@@ -25,6 +29,8 @@ class SupplierRetrieveExternalAPIView(APIView):
 
 class SupplierSSOListExternalAPIView(ListAPIView):
     queryset = Supplier.objects.all()
+    authentication_classes = []
+    permission_classes = [SignatureCheckPermission]
 
     def get(self, request):
         # normally DRF loops over the queryset and calls the serializer on each
@@ -37,7 +43,6 @@ class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = serializers.SupplierSerializer
     authentication_classes = [
         authentication.SessionAuthenticationSSO,
-        authentication.Oauth2AuthenticationSSO,
     ]
 
     def get_object(self):

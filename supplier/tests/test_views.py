@@ -129,11 +129,17 @@ def test_unsubscribe_supplier_email_confirmation(
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_get(authed_client, authed_supplier, settings):
+def test_external_supplier_details_get(
+    authed_client, authed_supplier, settings
+):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
     expected = serializers.ExternalSupplierSerializer(authed_supplier).data
 
-    response = authed_client.get(reverse('external-supplier-details'))
+    response = authed_client.get(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 200
     assert response.json() == expected
@@ -141,21 +147,29 @@ def test_public_supplier_details_get(authed_client, authed_supplier, settings):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_post(authed_client):
-    response = authed_client.post(reverse('external-supplier-details'))
+def test_external_supplier_details_post(authed_client):
+    response = authed_client.post(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 405
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_public_supplier_details_get_no_supplier(
+def test_external_supplier_details_get_no_supplier(
     authed_client, authed_supplier
 ):
 
     authed_supplier.delete()
 
-    response = authed_client.get(reverse('external-supplier-details'))
+    response = authed_client.get(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
 
     assert response.status_code == 404
 
