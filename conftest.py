@@ -122,12 +122,26 @@ def sso_session_request_active_user(authed_supplier, requests_mocker):
 
 
 @pytest.fixture
-def authed_client(sso_session_request_active_user):
+def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
+    return requests_mocker.get(
+        'http://sso.trade.great.dev:8004/oauth2/user-profile/v1/',
+        json={
+            'id': authed_supplier.sso_id,
+            'email': authed_supplier.company_email
+        }
+    )
+
+
+@pytest.fixture
+def authed_client(
+    sso_session_request_active_user, sso_oauth2_request_active_user
+):
     """
     core.authentication.SessionAuthenticationSSO passes the session header
-    "123" to sso, but the sso_session_request_active_user fixture will ensure
-    that the authed_supplier fixture is instead returned - resulting in
-    authed_supplier being added to `request.user.supplier`.
+    "123" to sso, but the fixtures sso_session_request_active_user and
+    sso_oauth2_request_active_user will ensure that the authed_supplier fixture
+    is instead returned - resulting in authed_supplier being added to
+    `request.user.supplier`.
 
     """
 

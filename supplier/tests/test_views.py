@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 
 from user.models import User as Supplier
 from supplier.tests import factories, VALID_REQUEST_DATA
-from supplier import serializers, helpers
+from supplier import serializers
 
 
 @pytest.fixture
@@ -129,8 +129,6 @@ def test_unsubscribe_supplier_email_confirmation(
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
-              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
 def test_external_supplier_details_get(
     authed_client, authed_supplier, settings
 ):
@@ -149,8 +147,6 @@ def test_external_supplier_details_get(
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
-              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
 def test_external_supplier_details_post(authed_client):
     response = authed_client.post(
         reverse('external-supplier-details'),
@@ -163,8 +159,6 @@ def test_external_supplier_details_post(authed_client):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
-              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
 def test_external_supplier_details_get_no_supplier(
     authed_client, authed_supplier
 ):
