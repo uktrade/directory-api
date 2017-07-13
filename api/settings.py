@@ -436,3 +436,12 @@ connections.create_connection(
 # SSO
 SSO_API_CLIENT_BASE_URL = os.environ['SSO_API_CLIENT_BASE_URL']
 SSO_SIGNATURE_SECRET = os.environ['SSO_SIGNATURE_SECRET']
+
+# Export opportunity lead generation
+SUBJECT_EXPORT_OPPORTUNITY_CREATED = os.getenv(
+    'SUBJECT_EXPORT_OPPORTUNITY_CREATED',
+    'A new Export Opportunity lead has been submitted via great.gov.uk'
+)
+RECIPIENT_EMAIL_EXPORT_OPPORTUNITY_CREATED = os.environ[
+    'RECIPIENT_EMAIL_EXPORT_OPPORTUNITY_CREATED'
+]
