@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
+from directory_validators.constants import choices
+
 from django.conf import settings
 
 from company import models, validators
@@ -149,3 +151,7 @@ class CompanySearchSerializer(serializers.Serializer):
     term = serializers.CharField()
     page = serializers.IntegerField()
     size = serializers.IntegerField()
+    sector = serializers.ChoiceField(
+        choices=choices.COMPANY_CLASSIFICATIONS,
+        required=False,
+    )

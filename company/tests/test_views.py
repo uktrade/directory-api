@@ -1,7 +1,7 @@
 import datetime
 import http
 from io import BytesIO
-from unittest.mock import patch, Mock
+from unittest.mock import call, patch, Mock
 
 from django.core.urlresolvers import reverse
 
@@ -851,45 +851,100 @@ def test_company_search(mock_get_search_results, api_client):
             'hits': [None, None],
         },
     }
+    data = {'term': 'bones', 'page': 1, 'size': 10, 'sector': 'AEROSPACE'}
+    response = api_client.get(reverse('company-search'), data=data)
+
+    assert response.status_code == 200
+    assert response.json() == expected_value
+    assert mock_get_search_results.call_args == call(
+        term='bones', page=1, size=10, sector='AEROSPACE'
+    )
+
+
+@patch('company.views.CompanySearchAPIView.get_search_results')
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_search_no_sector(mock_get_search_results, api_client):
+    mock_get_search_results.return_value = expected_value = {
+        'hits': {
+            'total': 2,
+            'hits': [None, None],
+        },
+    }
     data = {'term': 'bones', 'page': 1, 'size': 10}
     response = api_client.get(reverse('company-search'), data=data)
 
     assert response.status_code == 200
     assert response.json() == expected_value
     mock_get_search_results.assert_called_once_with(
-        term='bones', page=1, size=10,
+        term='bones', page=1, size=10, sector=None
     )
 
 
+@pytest.mark.parametrize('page_number,expected_start', [
+    [1, 0],
+    [2, 5],
+    [3, 10],
+    [4, 15],
+    [5, 20],
+    [6, 25],
+    [7, 30],
+    [8, 35],
+    [9, 40],
+])
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_company_paginate_first_page(api_client):
-    # [page number, expected_start]
-    params = [
-        [1, 0],
-        [2, 5],
-        [3, 10],
-        [4, 15],
-        [5, 20],
-        [6, 25],
-        [7, 30],
-        [8, 35],
-        [9, 40],
-    ]
+def test_company_paginate_first_page(page_number, expected_start, api_client):
     es = connections.get_connection('default')
-    for page, expected_start in params:
-        with patch.object(es, 'search', return_value={}) as mock_search:
-            data = {'term': 'bones', 'page': page, 'size': 5}
-            api_client.get(reverse('company-search'), data=data)
-            mock_search.assert_called_once_with(
-                body={
-                    'size': 5,
-                    'from': expected_start,
-                    'query': {
-                        'match': {
-                            '_all': 'bones'
-                        }
-                    },
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {'term': 'bones', 'page': page_number, 'size': 5}
+        response = api_client.get(reverse('company-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        mock_search.assert_called_once_with(
+            body={
+                'size': 5,
+                'from': expected_start,
+                'query': {
+                    'match': {
+                        '_all': 'bones'
+                    }
                 },
-                doc_type=['company_doc_type'],
-                index=['companies']
-            )
+            },
+            doc_type=['company_doc_type'],
+            index=['companies']
+        )
+
+
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_search_with_sector_filter(api_client):
+    es = connections.get_connection('default')
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {'term': 'bones', 'sector': 'AEROSPACE', 'size': 5, 'page': 1}
+        response = api_client.get(reverse('company-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'size': 5,
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match': {
+                                    '_all': 'bones'
+                                }
+                            }
+                        ],
+                        'filter': [
+                            {
+                                'match': {
+                                    'sectors': 'AEROSPACE'
+                                }
+                            }
+                        ]
+                    }
+                },
+                'from': 0
+            },
+            doc_type=['company_doc_type'],
+            index=['companies']
+        )

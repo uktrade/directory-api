@@ -126,6 +126,7 @@ class CompanySearchAPIView(views.APIView):
             term=serializer.data['term'],
             page=serializer.data['page'],
             size=serializer.data['size'],
+            sector=serializer.data.get('sector'),
         )
         return Response(
             data=search_results,
@@ -133,16 +134,17 @@ class CompanySearchAPIView(views.APIView):
         )
 
     @staticmethod
-    def get_search_results(term, page, size):
+    def get_search_results(term, page, size, sector):
         """Search companies by term
 
         Wildcard search of companies by provided term. The position of
         companies that have only one sector is increased.
 
         Arguments:
-            term {str} -- Search term to match on
-            page {int} -- Page number to query
-            size {int} -- Number of results per page
+            term {str}   -- Search term to match on
+            page {int}   -- Page number to query
+            size {int}   -- Number of results per page
+            sector {str} -- Filter companies by this sector
 
         Returns:
             dict -- Companies that match the term
@@ -152,5 +154,9 @@ class CompanySearchAPIView(views.APIView):
         start = (page - 1) * size
         end = start + size
         search_object = search.CompanyDocType.search()
+
+        if sector:
+            search_object = search_object.filter("match", sectors=sector)
+
         response = search_object.query('match', _all=term)[start:end].execute()
         return response.to_dict()
