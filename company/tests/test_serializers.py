@@ -237,3 +237,13 @@ def test_company_search_serializer():
     )
 
     assert serializer.is_valid() is True
+
+
+def test_company_search_serializer_empty_term_sector():
+    serializer = serializers.CompanySearchSerializer(
+        data={'page': 1, 'size': 10}
+    )
+
+    message = serializers.CompanySearchSerializer.MESSAGE_MISSING_SECTOR_TERM
+    assert serializer.is_valid() is False
+    assert serializer.errors == {'non_field_errors': [message]}
