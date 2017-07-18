@@ -1,6 +1,6 @@
 import pytest
 
-from company.models import Company
+from company.tests.factories import CompanyFactory
 from supplier import serializers
 from supplier.tests import VALID_REQUEST_DATA
 
@@ -37,7 +37,7 @@ def test_supplier_serializer_save():
 
 @pytest.mark.django_db
 def test_supplier_with_company_serializer_save():
-    company = Company.objects.create(number='01234567')
+    company = CompanyFactory.create(number='01234567')
     data = VALID_REQUEST_DATA.copy()
     data['company'] = company.pk
     serializer = serializers.SupplierSerializer(data=data)

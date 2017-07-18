@@ -33,6 +33,7 @@ class Company(TimeStampedModel):
         choices=choices.EXPORT_STATUSES,
         validators=[shared_validators.export_status_intention]
     )
+    has_exported_before = models.BooleanField()
     keywords = models.TextField(
         blank=True,
         default='',
