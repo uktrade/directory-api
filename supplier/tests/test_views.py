@@ -24,6 +24,7 @@ def supplier():
         name='Jim Example',
         sso_id=123,
         company__export_status='YES',
+        company__has_exported_before=True,
     )
 
 

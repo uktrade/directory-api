@@ -17,6 +17,7 @@ class Command(BaseCommand):
             company = Company.objects.create(
                 employees='1-10',
                 export_status='ONE_TWO_YEARS_AGO',
+                has_exported_before=True,
                 keywords='test',
                 name='Test company {sso_id}'.format(sso_id=sso_id),
                 is_published=True,

@@ -7,6 +7,7 @@ import pytest
 import requests_mock
 from rest_framework.test import APIClient
 
+from django.core.management import call_command
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 
@@ -81,7 +82,8 @@ def migration(transactional_db):
                 self.migrate_to).apps
             return self._new_apps
 
-    return Migrator()
+    yield Migrator()
+    call_command('migrate')
 
 
 @pytest.fixture(autouse=True)
