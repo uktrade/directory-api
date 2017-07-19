@@ -21,6 +21,8 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'company_number',
             'contact_email_address',
             'has_exported_before',
+            'export_destinations',
+            'export_destinations_other',
         ]
         extra_kwargs = {
             'export_status': {'required': False},
