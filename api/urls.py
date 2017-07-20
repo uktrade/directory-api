@@ -65,7 +65,7 @@ urlpatterns = [
         name='external-supplier-details'
     ),
     url(
-        r'supplier/gecko/total-registered/$',
+        r'^supplier/gecko/total-registered/$',
         GeckoTotalRegisteredSuppliersView.as_view(),
         name='gecko-total-registered-suppliers'
     ),
@@ -75,7 +75,7 @@ urlpatterns = [
         name='company'
     ),
     url(
-        r'supplier/company/verify/$',
+        r'^supplier/company/verify/$',
         VerifyCompanyWithCodeAPIView.as_view(),
         name='company-verify'
     ),
@@ -94,7 +94,7 @@ urlpatterns = [
         name='company-case-study-detail',
     ),
     url(
-        r'supplier/$',
+        r'^supplier/$',
         SupplierRetrieveUpdateAPIView.as_view(),
         name='supplier'
     ),
@@ -104,47 +104,47 @@ urlpatterns = [
         name='unsubscribe-supplier'
     ),
     url(
-        r'public/case-study/(?P<pk>.*)/$',
+        r'^public/case-study/(?P<pk>.*)/$',
         PublicCaseStudyViewSet.as_view({'get': 'retrieve'}),
         name='public-case-study-detail'
     ),
     url(
-        r'public/company/(?P<companies_house_number>.*)/$',
+        r'^public/company/(?P<companies_house_number>.*)/$',
         CompanyPublicProfileViewSet.as_view({'get': 'retrieve'}),
         name='company-public-profile-detail'
     ),
     url(
-        r'public/company/$',
+        r'^public/company/$',
         CompanyPublicProfileViewSet.as_view({'get': 'list'}),
         name='company-public-profile-list'
     ),
     url(
-        r'validate/company-number/$',
+        r'^validate/company-number/$',
         CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
     ),
     url(
-        r'buyer/$',
+        r'^buyer/$',
         BuyerCreateAPIView.as_view(),
         name='buyer-create',
     ),
     url(
-        r'contact/supplier/$',
+        r'^contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
         name='company-public-profile-contact-create'
     ),
     url(
-        r'notifications/anonymous-unsubscribe/$',
+        r'^notifications/anonymous-unsubscribe/$',
         AnonymousUnsubscribeCreateAPIView.as_view(),
         name='anonymous-unsubscribe'
     ),
     url(
-        r'company/search/$',
+        r'^company/search/$',
         CompanySearchAPIView.as_view(),
         name='company-search'
     ),
     url(
-        r'export-opportunity/$',
+        r'^export-opportunity/$',
         ExportOpportunityCreateAPIView.as_view(),
         name='export-opportunity-create'
     ),
