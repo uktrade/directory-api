@@ -957,3 +957,32 @@ def test_company_search_with_sector_filter(api_client):
             doc_type=['company_doc_type'],
             index=['companies']
         )
+
+
+@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
+def test_company_search_with_sector_filter_only(api_client):
+    es = connections.get_connection('default')
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {'sector': 'AEROSPACE', 'size': 5, 'page': 1}
+        response = api_client.get(reverse('company-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'size': 5,
+                'query': {
+                    'bool': {
+                        'filter': [
+                            {
+                                'match': {
+                                    'sectors': 'AEROSPACE'
+                                }
+                            }
+                        ]
+                    }
+                },
+                'from': 0
+            },
+            doc_type=['company_doc_type'],
+            index=['companies']
+        )

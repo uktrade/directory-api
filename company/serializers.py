@@ -149,10 +149,18 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 
 class CompanySearchSerializer(serializers.Serializer):
-    term = serializers.CharField()
+
+    MESSAGE_MISSING_SECTOR_TERM = 'Please specify a search term or a sector.'
+
+    term = serializers.CharField(required=False)
     page = serializers.IntegerField()
     size = serializers.IntegerField()
     sector = serializers.ChoiceField(
         choices=choices.COMPANY_CLASSIFICATIONS,
         required=False,
     )
+
+    def validate(self, data):
+        if not data.get('term') and not data.get('sector'):
+            raise serializers.ValidationError(self.MESSAGE_MISSING_SECTOR_TERM)
+        return data

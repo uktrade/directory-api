@@ -123,7 +123,7 @@ class CompanySearchAPIView(views.APIView):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
         search_results = self.get_search_results(
-            term=serializer.data['term'],
+            term=serializer.data.get('term'),
             page=serializer.data['page'],
             size=serializer.data['size'],
             sector=serializer.data.get('sector'),
@@ -154,9 +154,9 @@ class CompanySearchAPIView(views.APIView):
         start = (page - 1) * size
         end = start + size
         search_object = search.CompanyDocType.search()
-
         if sector:
             search_object = search_object.filter("match", sectors=sector)
-
-        response = search_object.query('match', _all=term)[start:end].execute()
+        if term:
+            search_object = search_object.query('match', _all=term)
+        response = search_object[start:end].execute()
         return response.to_dict()
