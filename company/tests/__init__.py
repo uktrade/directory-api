@@ -10,6 +10,7 @@ VALID_REQUEST_DATA = {
     'website': 'http://example.com',
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
+    'has_exported_before': True,
     'date_of_creation': '2010-10-10',
     'mobile_number': '07505605132',
     'postal_full_name': 'test_full_name',

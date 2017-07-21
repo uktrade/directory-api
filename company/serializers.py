@@ -101,6 +101,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'employees',
             'export_status',
             'facebook_url',
+            'has_exported_before',
             'has_valid_address',
             'id',
             'is_published',
