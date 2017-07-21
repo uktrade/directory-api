@@ -28,6 +28,7 @@ default_public_profile_data = {
     'website': 'http://example.com',
     'description': 'Company description',
     'export_status': choices.EXPORT_STATUSES[1][0],
+    'has_exported_before': True,
     'date_of_creation': '2010-10-10',
     'email_address': 'thing@example.com',
     'verified_with_code': True,
@@ -88,6 +89,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'website': company.website,
         'description': company.description,
         'export_status': company.export_status,
+        'has_exported_before': company.has_exported_before,
         'locality': company.locality,
         'name': 'Test Company',
         'postal_code': company.postal_code,
@@ -103,6 +105,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
     company = CompanyFactory(
         number='01234567',
         export_status=choices.EXPORT_STATUSES[1][0],
+        has_exported_before=True,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -187,6 +190,7 @@ def test_company_not_update_modified(authed_client, authed_supplier):
     company = CompanyFactory(
         number='01234567',
         export_status=choices.EXPORT_STATUSES[1][0],
+        has_exported_before=True,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -288,6 +292,7 @@ def company_data():
         'website': 'http://example.com',
         'description': 'Company description',
         'export_status': choices.EXPORT_STATUSES[1][0],
+        'has_exported_before': True,
         'date_of_creation': '2010-10-10',
     }
 
@@ -412,6 +417,7 @@ def test_company_update(
     assert instance.website == 'http://example.com'
     assert instance.description == 'Company description'
     assert instance.export_status == choices.EXPORT_STATUSES[1][0]
+    assert instance.has_exported_before is True
     assert instance.date_of_creation == datetime.date(2010, 10, 10)
 
 
@@ -515,9 +521,10 @@ def test_company_case_study_create_company_not_published(
     video, authed_client, authed_supplier
 ):
 
-    company = Company.objects.create(
+    company = CompanyFactory.create(
         number='01234567',
         export_status=choices.EXPORT_STATUSES[1][0],
+        has_exported_before=True,
         is_published=False
     )
     authed_supplier.company = company
@@ -778,6 +785,7 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
             'website': 'http://example.com',
             'description': 'Company description',
             'export_status': choices.EXPORT_STATUSES[1][0],
+            'has_exported_before': True,
             'date_of_creation': '2010-10-10',
             'postal_full_name': 'test_full_name',
             'address_line_1': 'test_address_line_1',
@@ -818,6 +826,7 @@ def test_verify_company_with_code_invalid_code(
             'website': 'http://example.com',
             'description': 'Company description',
             'export_status': choices.EXPORT_STATUSES[1][0],
+            'has_exported_before': True,
             'date_of_creation': '2010-10-10',
             'postal_full_name': 'test_full_name',
             'address_line_1': 'test_address_line_1',

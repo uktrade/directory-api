@@ -30,6 +30,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     summary = factory.fuzzy.FuzzyText(length=50)
     description = factory.fuzzy.FuzzyText(length=50)
     employees = factory.fuzzy.FuzzyChoice(EMPLOYEES_CHOICES)
+    has_exported_before = False
     export_status = factory.fuzzy.FuzzyChoice(EXPORT_STATUS_CHOICES)
     keywords = factory.fuzzy.FuzzyText(length=20)
     # TODO: Currently we can't use ImageField because of botocore issues

@@ -11,6 +11,7 @@ VALID_REQUEST_DATA = {
     "company_name": "Test Corp",
     "referrer": "company_email",
     "export_status": choices.EXPORT_STATUSES[1][0],
+    "has_exported_before": True,
     "date_of_creation": "2010-10-10",
     "mobile_number": '07507605137',
     "revenue": "101010.00",

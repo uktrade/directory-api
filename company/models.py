@@ -33,6 +33,24 @@ class Company(TimeStampedModel):
         choices=choices.EXPORT_STATUSES,
         validators=[shared_validators.export_status_intention]
     )
+    export_destinations = JSONField(
+        blank=True,
+        default=[],
+        help_text=(
+            "Of the countries the project have prioritised,"
+            "which does the company want to export to (whitelisted)"
+        )
+    )
+    export_destinations_other = models.CharField(
+        max_length=1000,
+        blank=True,
+        default='',
+        help_text=(
+            "Of the countries the project have not prioritised,"
+            "which does the company want to export to (free text)."
+        )
+    )
+    has_exported_before = models.BooleanField()
     keywords = models.TextField(
         blank=True,
         default='',

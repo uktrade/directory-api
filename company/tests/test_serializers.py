@@ -76,6 +76,7 @@ def test_company_serializer_untouches_is_published():
     data = {
         'number': "01234567",
         'export_status': choices.EXPORT_STATUSES[1][0],
+        'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
         'title': 'test_title',
@@ -101,6 +102,7 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
     data = {
         'number': "01234567",
         'export_status': choices.EXPORT_STATUSES[1][0],
+        'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
         'title': 'test_title',
@@ -148,6 +150,7 @@ def test_company_serializer_doesnt_accept_number_over_8_chars():
     data = {
         'number': "012345678",
         'export_status': choices.EXPORT_STATUSES[1][0],
+        'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
         'title': 'test_title',
