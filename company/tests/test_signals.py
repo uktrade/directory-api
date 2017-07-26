@@ -117,135 +117,87 @@ def test_unknown_address_not_send_letters(mock_send_letter, settings):
 
 
 @pytest.mark.django_db
-def test_automatic_publish_create():
-    should_be_published = [
-        {
-            'description': 'description',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'summary': 'summary',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'verified_with_preverified_enrolment': True
-        }
+@pytest.mark.parametrize(
+    'desciption,summary,email,preverified,code_verified,published,expected', [
+        # has_contact
+        ['',  '',  '',         False, False, False, False],
+        ['',  '',  'a@e.com',  False, False, False, False],
+        # has_synopsis
+        ['d', '',  '',         False, False, False, False],
+        ['d', '',  'a@e.com',  False, False, False, False],
+        ['d', 's',  '',        False, False, False, False],
+        ['',  's',  '',        False, False, False, False],
+        ['d', 's',  'a@e.com', False, False, False, False],
+        ['',  's',  'a@e.com', False, False, False, False],
+        # verified_with_preverified_enrolment
+        ['',  '',  '',         True,  False, False, False],
+        ['',  '',  'a@e.com',  True,  False, False, False],
+        ['d', '',  '',         True,  False, False, False],
+        ['d', '',  'a@e.com',  True,  False, False, True],
+        ['d', 's',  '',        True,  False, False, False],
+        ['',  's',  '',        True,  False, False, False],
+        ['d', 's',  'a@e.com', True,  False, False, True],
+        ['',  's',  'a@e.com', True,  False, False, True],
+        # verified_with_code
+        ['',  '',  '',         False, True,  False, False],
+        ['',  '',  'a@e.com',  False, True,  False, False],
+        ['d', '',  '',         False, True,  False, False],
+        ['d', '',  'a@e.com',  False, True,  False, True],
+        ['d', 's',  '',        False, True,  False, False],
+        ['',  's',  '',        False, True,  False, False],
+        ['d', 's',  'a@e.com', False, True,  False, True],
+        ['',  's',  'a@e.com', False, True,  False, True],
+        # already published
+        ['',  '',  '',         False, False, True,  True],
+        ['',  '',  'a@e.com',  False, False, True,  True],
+        ['d', '',  '',         False, False, True,  True],
+        ['d', '',  'a@e.com',  False, False, True,  True],
+        ['d', 's',  '',        False, False, True,  True],
+        ['',  's',  '',        False, False, True,  True],
+        ['d', 's',  'a@e.com', False, False, True,  True],
+        ['',  's',  'a@e.com', False, False, True,  True],
+        ['',  '',  '',         True,  False, True,  True],
+        ['',  '',  'a@e.com',  True,  False, True,  True],
+        ['d', '',  '',         True,  False, True,  True],
+        ['d', '',  'a@e.com',  True,  False, True,  True],
+        ['d', 's',  '',        True,  False, True,  True],
+        ['',  's',  '',        True,  False, True,  True],
+        ['d', 's',  'a@e.com', True,  False, True,  True],
+        ['',  's',  'a@e.com', True,  False, True,  True],
+        ['',  '',  '',         False, True,  True,  True],
+        ['',  '',  'a@e.com',  False, True,  True,  True],
+        ['d', '',  '',         False, True,  True,  True],
+        ['d', '',  'a@e.com',  False, True,  True,  True],
+        ['d', 's',  '',        False, True,  True,  True],
+        ['',  's',  '',        False, True,  True,  True],
+        ['d', 's',  'a@e.com', False, True,  True,  True],
+        ['',  's',  'a@e.com', False, True,  True,  True],
+
     ]
+)
+def test_automatic_publish(
+    desciption, summary, email, preverified, code_verified, published, expected
+):
+    fields = {
+        'description': desciption,
+        'summary': summary,
+        'email_address': email,
+        'verified_with_code': code_verified,
+        'verified_with_preverified_enrolment': preverified,
+        'is_published': published
+    }
 
-    should_be_unpublished = [
-        {
-            'description': '',
-            'summary': '',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'description': 'description',
-            'summary': 'summary',
-            'email_address': '',
-            'verified_with_code': True,
-        },
-        {
-            'description': 'description',
-            'summary': 'summary',
-            'email_address': 'jim@example.com',
-            'verified_with_code': False,
-        },
-        {
-            'verified_with_preverified_enrolment': False
-        }
-    ]
+    # create
+    assert CompanyFactory(**fields).is_published is expected
 
-    should_be_force_published = [
-        {**item, 'is_published': True}
-        for item in should_be_unpublished
-    ]
-
-    for kwargs in should_be_published:
-        assert CompanyFactory(**kwargs).is_published is True
-
-    for kwargs in should_be_unpublished:
-        assert CompanyFactory(**kwargs).is_published is False
-
-    for kwargs in should_be_force_published:
-        assert CompanyFactory(**kwargs).is_published is True
-
-
-@pytest.mark.django_db
-def test_automatic_publish_update():
-    should_be_published = [
-        {
-            'description': 'description',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'summary': 'summary',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'verified_with_preverified_enrolment': True
-        }
-    ]
-
-    should_be_unpublished = [
-        {
-            'description': '',
-            'summary': '',
-            'email_address': 'thing@example.com',
-            'verified_with_code': True,
-        },
-        {
-            'description': 'description',
-            'summary': 'summary',
-            'email_address': '',
-            'verified_with_code': True,
-        },
-        {
-            'description': 'description',
-            'summary': 'summary',
-            'email_address': 'jim@example.com',
-            'verified_with_code': False,
-        },
-        {
-            'verified_with_preverified_enrolment': False
-        }
-    ]
-
-    should_be_force_published = [
-        {**item, 'is_published': True}
-        for item in should_be_unpublished
-    ]
-
-    for kwargs in should_be_published:
-        company = CompanyFactory()
-        assert company.is_published is False
-        for field, value in kwargs.items():
-            setattr(company, field, value)
-        company.save()
-        company.refresh_from_db()
-        assert company.is_published is True
-
-    for kwargs in should_be_unpublished:
-        company = CompanyFactory()
-        assert company.is_published is False
-        for field, value in kwargs.items():
-            setattr(company, field, value)
-        company.save()
-        company.refresh_from_db()
-        assert company.is_published is False
-
-    for kwargs in should_be_force_published:
-        company = CompanyFactory()
-        assert company.is_published is False
-        for field, value in kwargs.items():
-            setattr(company, field, value)
-        company.save()
-        company.refresh_from_db()
-        assert company.is_published is True
+    # update
+    company = CompanyFactory()
+    assert company.is_published is False
+    for field, value in fields.items():
+        setattr(company, field, value)
+    company.save()
+    company.refresh_from_db()
+    assert company.is_published is expected
 
 
 @pytest.mark.django_db
