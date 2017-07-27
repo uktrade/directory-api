@@ -1,3 +1,6 @@
+from functools import reduce
+import operator
+
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -7,6 +10,8 @@ from django.http import Http404
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
+
+from elasticsearch_dsl import Q
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -126,7 +131,7 @@ class CompanySearchAPIView(views.APIView):
             term=serializer.data.get('term'),
             page=serializer.data['page'],
             size=serializer.data['size'],
-            sector=serializer.data.get('sector'),
+            sectors=['AEROSPACE', serializer.data.get('sector')],
         )
         return Response(
             data=search_results,
@@ -134,7 +139,7 @@ class CompanySearchAPIView(views.APIView):
         )
 
     @staticmethod
-    def get_search_results(term, page, size, sector):
+    def get_search_results(term, page, size, sectors):
         """Search companies by term
 
         Wildcard search of companies by provided term. The position of
@@ -144,7 +149,7 @@ class CompanySearchAPIView(views.APIView):
             term {str}   -- Search term to match on
             page {int}   -- Page number to query
             size {int}   -- Number of results per page
-            sector {str} -- Filter companies by this sector
+            sectors {str[]} -- Filter companies by these sectors
 
         Returns:
             dict -- Companies that match the term
@@ -154,9 +159,13 @@ class CompanySearchAPIView(views.APIView):
         start = (page - 1) * size
         end = start + size
         search_object = search.CompanyDocType.search()
-        if sector:
-            search_object = search_object.filter("match", sectors=sector)
+        
+        if sectors:
+            filters = [Q("match", sectors=sector) for sector in sectors]
+            combinedFilters = reduce(operator.or_, filters)
+            search_object = search_object.query('bool', filter=[combinedFilters])
         if term:
-            search_object = search_object.query('match', _all=term)
+            term_filter = search_object.query('match', _all=term)
+        # from pdb import set_trace; set_trace()
         response = search_object[start:end].execute()
         return response.to_dict()
