@@ -1,11 +1,10 @@
 import abc
 from collections import namedtuple
 
-from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from notifications import constants, helpers, models
+from notifications import constants, helpers, tasks
 
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
@@ -29,22 +28,13 @@ class NotificationBase(abc.ABC):
             **kwargs
         }
 
-    def send(self):
+    def get_bodies(self):
         context = self.get_context_data()
         text_body = render_to_string(self.text_template, context)
         html_body = render_to_string(self.html_template, context)
-        message = EmailMultiAlternatives(
-            subject=self.subject,
-            body=text_body,
-            to=[self.recipient.email],
-            from_email=self.from_email,
-        )
-        message.attach_alternative(html_body, "text/html")
-        message.send()
-        self.record_sent()
+        return text_body, html_body
 
-    @abc.abstractmethod
-    def record_sent(self):
+    def send(self):
         pass
 
 
@@ -61,9 +51,17 @@ class SupplierNotificationBase(NotificationBase):
             email=self.supplier.company_email
         )
 
-    def record_sent(self):
-        return models.SupplierEmailNotification.objects.create(
-            supplier=self.supplier, category=self.category,
+    def send(self):
+        text_body, html_body = self.get_bodies()
+        tasks.send_email.apply_async(
+            subject=self.subject,
+            body_text=text_body,
+            html_body=html_body,
+            recipient_email=self.recipient.email,
+            from_email=self.from_email,
+            category_id=self.category,
+            supplier_id=self.supplier.pk,
+            anonymous=False
         )
 
 
@@ -80,9 +78,17 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
             email=self.subscriber['email']
         )
 
-    def record_sent(self):
-        return models.AnonymousEmailNotification.objects.create(
-            email=self.recipient.email, category=self.category,
+    def send(self):
+        text_body, html_body = self.get_bodies()
+        tasks.send_email.apply_async(
+            subject=self.subject,
+            body_text=text_body,
+            html_body=html_body,
+            recipient_email=self.recipient.email,
+            from_email=self.from_email,
+            category_id=self.category.pk,
+            supplier_id=None,
+            anonymous=True
         )
 
 
