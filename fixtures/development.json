@@ -87,7 +87,7 @@
     "fields": {
         "created": "2017-01-16T10:39:29.363Z",
         "modified": "2017-02-14T14:17:34.109Z",
-        "title": "great things",
+        "title": "aardvark",
         "short_summary": "case study summary.",
         "description": "Well here is a description.",
         "sector": "AEROSPACE",
@@ -114,7 +114,7 @@
     "fields": {
         "created": "2017-01-16T10:41:39.039Z",
         "modified": "2017-02-07T15:54:53.139Z",
-        "title": "thing",
+        "title": "wolf",
         "short_summary": "A short summary",
         "description": "A longer description",
         "sector": "AEROSPACE",
@@ -141,7 +141,7 @@
     "fields": {
         "created": "2017-01-18T12:21:28.203Z",
         "modified": "2017-02-14T14:16:51.891Z",
-        "title": "Example Company",
+        "title": "Gorilla",
         "short_summary": "An example summary",
         "description": "An example company that sells things",
         "sector": "AEROSPACE",

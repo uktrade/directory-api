@@ -6,7 +6,7 @@ import pytest
 
 from django.utils import timezone
 
-from company.tests.factories import CompanyFactory
+from company.tests import factories
 
 
 @pytest.mark.django_db
@@ -14,7 +14,7 @@ def test_sends_verification_letter_post_save(settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with mock.patch('requests.post') as requests_mock:
-        company = CompanyFactory()
+        company = factories.CompanyFactory()
 
     company.refresh_from_db()
     assert company.verification_code
@@ -45,7 +45,7 @@ def test_does_not_send_verification_letter_on_update(settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with mock.patch('requests.post') as requests_mock:
-        company = CompanyFactory(name="Original name")
+        company = factories.CompanyFactory(name="Original name")
         company.name = "Changed name"
         company.save()
 
@@ -75,7 +75,7 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with mock.patch('requests.post'):
-        company = CompanyFactory(verification_code='test')
+        company = factories.CompanyFactory(verification_code='test')
 
     company.refresh_from_db()
     assert company.verification_code == 'test'
@@ -85,7 +85,7 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 @mock.patch('company.signals.send_verification_letter')
 def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    CompanyFactory(
+    factories.CompanyFactory(
         is_verification_letter_sent=True,
         verification_code='test',
     )
@@ -98,7 +98,7 @@ def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
 @mock.patch('company.signals.send_verification_letter')
 def test_letter_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    company = CompanyFactory(verification_code='test')
+    company = factories.CompanyFactory(verification_code='test')
 
     mock_send_letter.assert_called_with(company=company)
 
@@ -111,7 +111,7 @@ def test_letter_sent(mock_send_letter, settings):
 )
 def test_unknown_address_not_send_letters(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-    CompanyFactory()
+    factories.CompanyFactory()
 
     mock_send_letter.send_letter.assert_not_called()
 
@@ -188,10 +188,10 @@ def test_automatic_publish(
     }
 
     # create
-    assert CompanyFactory(**fields).is_published is expected
+    assert factories.CompanyFactory(**fields).is_published is expected
 
     # update
-    company = CompanyFactory()
+    company = factories.CompanyFactory()
     assert company.is_published is False
     for field, value in fields.items():
         setattr(company, field, value)
@@ -202,7 +202,7 @@ def test_automatic_publish(
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
-    company = CompanyFactory(is_published=False)
+    company = factories.CompanyFactory(is_published=False)
 
     assert company.date_published is None
 
@@ -210,7 +210,7 @@ def test_store_date_published_unpublished_company():
 @pytest.mark.django_db
 @freeze_time()
 def test_store_date_published_published_company_without_date():
-    company = CompanyFactory(is_published=True, date_published=None)
+    company = factories.CompanyFactory(is_published=True, date_published=None)
 
     assert company.date_published == timezone.now()
 
@@ -219,20 +219,35 @@ def test_store_date_published_published_company_without_date():
 def test_store_date_published_published_company_with_date():
     expected_date = timezone.now()
 
-    company = CompanyFactory(is_published=True, date_published=expected_date)
+    company = factories.CompanyFactory(
+        is_published=True, date_published=expected_date
+    )
 
     assert company.date_published == expected_date
 
 
 @pytest.mark.django_db
-def test_save_to_elasticsearch_published(mock_elasticsearch_company_save):
-    CompanyFactory(is_published=True)
+@pytest.mark.parametrize('is_published,call_count', [
+    (False, 0),
+    (True, 1),
+])
+def test_save_company_changes_to_elasticsearch(
+    is_published, call_count, mock_elasticsearch_company_save
+):
+    factories.CompanyFactory(is_published=is_published)
 
-    assert mock_elasticsearch_company_save.call_count == 1
+    assert mock_elasticsearch_company_save.call_count == call_count
 
 
 @pytest.mark.django_db
-def test_save_to_elasticsearch_unpublished(mock_elasticsearch_company_save):
-    CompanyFactory(is_published=False)
+@pytest.mark.parametrize('is_published,call_count', [
+    (False, 0),
+    (True, 2),
+])
+def test_save_case_study_changes_to_elasticsearch(
+    is_published, call_count, mock_elasticsearch_company_save
+):
+    company = factories.CompanyFactory(is_published=is_published)
+    factories.CompanyCaseStudyFactory(company=company)
 
-    assert mock_elasticsearch_company_save.call_count == 0
+    assert mock_elasticsearch_company_save.call_count == call_count
