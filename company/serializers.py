@@ -155,12 +155,22 @@ class CompanySearchSerializer(serializers.Serializer):
     term = serializers.CharField(required=False)
     page = serializers.IntegerField()
     size = serializers.IntegerField()
+    sectors = serializers.MultipleChoiceField(
+        choices=choices.COMPANY_CLASSIFICATIONS,
+        required=False,
+    )
+    # backwards compatibility. To remove once ED-945 is completed
     sector = serializers.ChoiceField(
         choices=choices.COMPANY_CLASSIFICATIONS,
         required=False,
     )
 
-    def validate(self, data):
-        if not data.get('term') and not data.get('sector'):
+    def validate(self, attrs):
+        is_sector_present = attrs.get('sector') or attrs.get('sectors')
+        is_term_present = attrs.get('term')
+        if not (is_term_present or is_sector_present):
             raise serializers.ValidationError(self.MESSAGE_MISSING_SECTOR_TERM)
-        return data
+        # backwards compatibility. To remove once ED-945 is completed
+        if attrs.get('sector'):
+            attrs['sectors'] = {attrs['sector']}
+        return attrs

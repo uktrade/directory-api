@@ -866,7 +866,7 @@ def test_company_search(mock_get_search_results, api_client):
     assert response.status_code == 200
     assert response.json() == expected_value
     assert mock_get_search_results.call_args == call(
-        term='bones', page=1, size=10, sector='AEROSPACE'
+        term='bones', page=1, size=10, sectors={'AEROSPACE'}
     )
 
 
@@ -884,8 +884,9 @@ def test_company_search_no_sector(mock_get_search_results, api_client):
 
     assert response.status_code == 200
     assert response.json() == expected_value
-    mock_get_search_results.assert_called_once_with(
-        term='bones', page=1, size=10, sector=None
+    assert mock_get_search_results.call_count == 1
+    assert mock_get_search_results.call_args == call(
+        term='bones', page=1, size=10, sectors=set()
     )
 
 
@@ -908,15 +909,21 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
-        mock_search.assert_called_once_with(
+        assert mock_search.call_count == 1
+        assert mock_search.call_args == call(
             body={
                 'size': 5,
-                'from': expected_start,
                 'query': {
-                    'match': {
-                        '_all': 'bones'
+                    'bool': {
+                        'must': [{
+                            'match': {
+                                '_all': 'bones'
+                            }
+                        }],
+                        'minimum_should_match': 0
                     }
                 },
+                'from': expected_start
             },
             doc_type=['company_doc_type'],
             index=['companies']
@@ -936,20 +943,17 @@ def test_company_search_with_sector_filter(api_client):
                 'size': 5,
                 'query': {
                     'bool': {
-                        'must': [
-                            {
-                                'match': {
-                                    '_all': 'bones'
-                                }
+                        'minimum_should_match': 1,
+                        'must': [{
+                            'match': {
+                                '_all': 'bones'
                             }
-                        ],
-                        'filter': [
-                            {
-                                'match': {
-                                    'sectors': 'AEROSPACE'
-                                }
+                        }],
+                        'should': [{
+                            'match': {
+                                'sectors': 'AEROSPACE'
                             }
-                        ]
+                        }]
                     }
                 },
                 'from': 0
@@ -969,19 +973,18 @@ def test_company_search_with_sector_filter_only(api_client):
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
-                'size': 5,
                 'query': {
                     'bool': {
-                        'filter': [
-                            {
-                                'match': {
-                                    'sectors': 'AEROSPACE'
-                                }
+                        'minimum_should_match': 1,
+                        'should': [{
+                            'match': {
+                                'sectors': 'AEROSPACE'
                             }
-                        ]
+                        }]
                     }
                 },
-                'from': 0
+                'from': 0,
+                'size': 5
             },
             doc_type=['company_doc_type'],
             index=['companies']

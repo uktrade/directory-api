@@ -1,6 +1,3 @@
-from functools import reduce
-import operator
-
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -128,10 +125,10 @@ class CompanySearchAPIView(views.APIView):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
         search_results = self.get_search_results(
-            term=serializer.data.get('term'),
-            page=serializer.data['page'],
-            size=serializer.data['size'],
-            sectors=['AEROSPACE', serializer.data.get('sector')],
+            term=serializer.validated_data.get('term'),
+            page=serializer.validated_data['page'],
+            size=serializer.validated_data['size'],
+            sectors=serializer.validated_data.get('sectors'),
         )
         return Response(
             data=search_results,
@@ -158,14 +155,21 @@ class CompanySearchAPIView(views.APIView):
 
         start = (page - 1) * size
         end = start + size
-        search_object = search.CompanyDocType.search()
-        
+
+        should_filters = []
+        must_filters = []
         if sectors:
-            filters = [Q("match", sectors=sector) for sector in sectors]
-            combinedFilters = reduce(operator.or_, filters)
-            search_object = search_object.query('bool', filter=[combinedFilters])
+            for sector in sectors:
+                should_filters.append(Q("match", sectors=sector))
         if term:
-            term_filter = search_object.query('match', _all=term)
-        # from pdb import set_trace; set_trace()
+            must_filters.append(Q('match', _all=term))
+
+        search_object = search.CompanyDocType.search().query(
+            'bool',
+            must=must_filters,
+            should=should_filters,
+            minimum_should_match=1 if len(should_filters) else 0
+        )
+
         response = search_object[start:end].execute()
         return response.to_dict()
