@@ -13,8 +13,12 @@ class CompanyConfig(AppConfig):
             sender='company.Company'
         )
         post_save.connect(
-            receiver=signals.save_to_elasticsearch,
+            receiver=signals.save_company_change_to_elasticsearch,
             sender='company.Company'
+        )
+        post_save.connect(
+            receiver=signals.save_case_study_change_to_elasticsearch,
+            sender='company.CompanyCaseStudy'
         )
         pre_save.connect(
             receiver=signals.publish_companies_that_meet_criteria,
