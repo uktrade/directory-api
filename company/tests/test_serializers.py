@@ -250,3 +250,21 @@ def test_company_search_serializer_empty_term_sector():
     message = serializers.CompanySearchSerializer.MESSAGE_MISSING_SECTOR_TERM
     assert serializer.is_valid() is False
     assert serializer.errors == {'non_field_errors': [message]}
+
+
+def test_serach_serializer_sector_specified():
+    serializer = serializers.CompanySearchSerializer(
+        data={'page': 1, 'size': 10, 'term': 'thing', 'sector': 'AEROSPACE'}
+    )
+
+    assert serializer.is_valid() is True
+    assert serializer.validated_data['sectors'] == {'AEROSPACE'}
+
+
+def test_serach_serializer_sectors_specified():
+    serializer = serializers.CompanySearchSerializer(
+        data={'page': 1, 'size': 10, 'term': 'thing', 'sectors': ['AEROSPACE']}
+    )
+
+    assert serializer.is_valid() is True
+    assert serializer.validated_data['sectors'] == {'AEROSPACE'}

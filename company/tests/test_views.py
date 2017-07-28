@@ -6,6 +6,7 @@ from unittest.mock import call, patch, Mock
 from django.core.urlresolvers import reverse
 
 from directory_validators.constants import choices
+from elasticsearch_dsl import Index, analyzer
 from elasticsearch_dsl.connections import connections
 import pytest
 from freezegun import freeze_time
@@ -13,7 +14,9 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
 
+from company import views
 from company.models import Company, CompanyCaseStudy
+from company.search import CompanyDocType
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -399,11 +402,58 @@ def supplier(company):
     )
 
 
+@pytest.fixture
+def search_companies_data():
+    index = Index('companies')
+    index.doc_type(CompanyDocType)
+    index.analyzer(analyzer('english'))
+    index.delete(ignore=404)
+    index.create()
+    wolf_company = CompanyFactory(
+        name='Wolf limited',
+        description='Providing the stealth and prowess of wolves.',
+        summary='Hunts in packs',
+        is_published=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        sectors=['AEROSPACE', 'AIRPORTS'],
+        id=1,
+    )
+    aardvark_company = CompanyFactory(
+        name='Aardvark limited',
+        description='Providing the power and beauty of Aardvarks.',
+        summary='Like an Aardvark',
+        is_published=True,
+        keywords='Ants, Tongue, Anteater',
+        sectors=['AEROSPACE'],
+        id=2,
+    )
+    CompanyFactory(
+        name='Grapeshot limited',
+        description='Providing the destructiveness of grapeshot.',
+        summary='Like naval warfare',
+        is_published=True,
+        keywords='Pirates, Ocean, Ship',
+        sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
+        id=3,
+    )
+    CompanyCaseStudyFactory(
+        company=wolf_company,
+        title='Thick case study',
+        description='Gold is delicious.'
+    )
+    CompanyCaseStudyFactory(
+        company=aardvark_company,
+        title='Thick case study',
+        description='We determined lead sinks in water.'
+    )
+
+
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
-    company_data, authed_client, authed_supplier, company
+    company_data, authed_client, authed_supplier,
+    mock_elasticsearch_company_save, company
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -425,7 +475,8 @@ def test_company_update(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
-    case_study_data, authed_client, authed_supplier, company
+    case_study_data, authed_client, authed_supplier,
+    mock_elasticsearch_company_save, company
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -456,7 +507,7 @@ def test_company_case_study_create(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
-    authed_client, authed_supplier, company
+    authed_client, authed_supplier, mock_elasticsearch_company_save, company
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -487,7 +538,8 @@ def test_company_case_study_create_invalid_image(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
-    video, authed_client, authed_supplier, company
+    video, authed_client, authed_supplier, mock_elasticsearch_company_save,
+    company,
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -561,7 +613,8 @@ def test_company_case_study_create_company_not_published(
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
-    supplier_case_study, authed_supplier, authed_client
+    supplier_case_study, authed_supplier, mock_elasticsearch_company_save,
+    authed_client,
 ):
     authed_supplier.company = supplier_case_study.company
     authed_supplier.save()
@@ -866,7 +919,7 @@ def test_company_search(mock_get_search_results, api_client):
     assert response.status_code == 200
     assert response.json() == expected_value
     assert mock_get_search_results.call_args == call(
-        term='bones', page=1, size=10, sector='AEROSPACE'
+        term='bones', page=1, size=10, sectors={'AEROSPACE'}
     )
 
 
@@ -884,8 +937,9 @@ def test_company_search_no_sector(mock_get_search_results, api_client):
 
     assert response.status_code == 200
     assert response.json() == expected_value
-    mock_get_search_results.assert_called_once_with(
-        term='bones', page=1, size=10, sector=None
+    assert mock_get_search_results.call_count == 1
+    assert mock_get_search_results.call_args == call(
+        term='bones', page=1, size=10, sectors=set()
     )
 
 
@@ -908,15 +962,21 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
-        mock_search.assert_called_once_with(
+        assert mock_search.call_count == 1
+        assert mock_search.call_args == call(
             body={
                 'size': 5,
-                'from': expected_start,
                 'query': {
-                    'match': {
-                        '_all': 'bones'
+                    'bool': {
+                        'must': [{
+                            'match': {
+                                '_all': 'bones'
+                            }
+                        }],
+                        'minimum_should_match': 0
                     }
                 },
+                'from': expected_start
             },
             doc_type=['company_doc_type'],
             index=['companies']
@@ -936,20 +996,17 @@ def test_company_search_with_sector_filter(api_client):
                 'size': 5,
                 'query': {
                     'bool': {
-                        'must': [
-                            {
-                                'match': {
-                                    '_all': 'bones'
-                                }
+                        'minimum_should_match': 1,
+                        'must': [{
+                            'match': {
+                                '_all': 'bones'
                             }
-                        ],
-                        'filter': [
-                            {
-                                'match': {
-                                    'sectors': 'AEROSPACE'
-                                }
+                        }],
+                        'should': [{
+                            'match': {
+                                'sectors': 'AEROSPACE'
                             }
-                        ]
+                        }]
                     }
                 },
                 'from': 0
@@ -969,20 +1026,70 @@ def test_company_search_with_sector_filter_only(api_client):
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
-                'size': 5,
                 'query': {
                     'bool': {
-                        'filter': [
-                            {
-                                'match': {
-                                    'sectors': 'AEROSPACE'
-                                }
+                        'minimum_should_match': 1,
+                        'should': [{
+                            'match': {
+                                'sectors': 'AEROSPACE'
                             }
-                        ]
+                        }]
                     }
                 },
-                'from': 0
+                'from': 0,
+                'size': 5
             },
             doc_type=['company_doc_type'],
             index=['companies']
         )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('term,sector,expected', [
+    # sectors
+    ['',           ['AEROSPACE'],             ['1', '2']],
+    ['',           ['AEROSPACE', 'AIRPORTS'], ['1', '2', '3']],
+    # company name
+    ['wolf',       None,                      ['1']],
+    ['Aardvark',   None,                      ['2']],
+    ['grapeshot',  None,                      ['3']],
+    ['wolf',       ['AEROSPACE', 'AIRPORTS'], ['1']],
+    ['wolf',       ['AEROSPACE'],             ['1']],
+    ['wolf',       ['AIRPORTS'],              ['1']],
+    ['Aardvark',   ['AEROSPACE', 'AIRPORTS'], ['2']],
+    # company description
+    ['stealth',    None,                      ['1']],
+    ['beauty',     None,                      ['2']],
+    ['Providing',  None,                      ['1', '2', '3']],
+    ['stealth',    ['AEROSPACE'],             ['1']],
+    ['stealth',    ['FOOD_AND_DRINK'],        []],
+    ['beauty',     ['AEROSPACE'],             ['2']],
+    ['beauty',     ['FOOD_AND_DRINK'],        []],
+    ['Providing',  ['AEROSPACE'],             ['1', '2']],
+    ['Providing',  ['TECHNOLOGY'],            []],
+    # company keywords
+    ['Hunting',    None,                      ['1']],
+    ['Hunting',    ['AEROSPACE', 'AIRPORTS'], ['1']],
+    ['Hunting',    ['FOOD_AND_DRINK'],        []],
+    # case study description
+    ['lead',       None,                      ['2']],
+    ['lead',       ['AEROSPACE'],             ['2']],
+    ['lead',       ['AEROSPACE', 'AIRPORTS'], ['2']],
+    ['lead',       ['FOOD_AND_DRINK'],        []],
+    # case study title
+    ['case study', None,                      ['1', '2']],
+    ['case study', ['FOOD_AND_DRINK'],        []],
+    ['case study', ['AIRPORTS'],              ['1']],
+
+])
+def test_company_search_results(term, sector, expected, search_companies_data):
+    Index('companies').refresh()
+
+    results = views.CompanySearchAPIView.get_search_results(
+        term=term, page=1, size=5, sectors=sector
+    )
+    hits = results['hits']['hits']
+
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected

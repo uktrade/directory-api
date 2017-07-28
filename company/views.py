@@ -8,6 +8,8 @@ from django.http import Http404
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
+from elasticsearch_dsl import Q
+
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
@@ -123,10 +125,10 @@ class CompanySearchAPIView(views.APIView):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
         search_results = self.get_search_results(
-            term=serializer.data.get('term'),
-            page=serializer.data['page'],
-            size=serializer.data['size'],
-            sector=serializer.data.get('sector'),
+            term=serializer.validated_data.get('term'),
+            page=serializer.validated_data['page'],
+            size=serializer.validated_data['size'],
+            sectors=serializer.validated_data.get('sectors'),
         )
         return Response(
             data=search_results,
@@ -134,7 +136,7 @@ class CompanySearchAPIView(views.APIView):
         )
 
     @staticmethod
-    def get_search_results(term, page, size, sector):
+    def get_search_results(term, page, size, sectors):
         """Search companies by term
 
         Wildcard search of companies by provided term. The position of
@@ -144,7 +146,7 @@ class CompanySearchAPIView(views.APIView):
             term {str}   -- Search term to match on
             page {int}   -- Page number to query
             size {int}   -- Number of results per page
-            sector {str} -- Filter companies by this sector
+            sectors {str[]} -- Filter companies by these sectors
 
         Returns:
             dict -- Companies that match the term
@@ -153,10 +155,21 @@ class CompanySearchAPIView(views.APIView):
 
         start = (page - 1) * size
         end = start + size
-        search_object = search.CompanyDocType.search()
-        if sector:
-            search_object = search_object.filter("match", sectors=sector)
+
+        should_filters = []
+        must_filters = []
+        if sectors:
+            for sector in sectors:
+                should_filters.append(Q("match", sectors=sector))
         if term:
-            search_object = search_object.query('match', _all=term)
+            must_filters.append(Q('match', _all=term))
+
+        search_object = search.CompanyDocType.search().query(
+            'bool',
+            must=must_filters,
+            should=should_filters,
+            minimum_should_match=1 if len(should_filters) else 0
+        )
+
         response = search_object[start:end].execute()
         return response.to_dict()
