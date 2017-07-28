@@ -1,7 +1,7 @@
-import http
-from unittest.mock import patch
-import re
 import logging
+import http
+import re
+from unittest.mock import patch
 
 import pytest
 import requests_mock
@@ -86,7 +86,7 @@ def migration(transactional_db):
     call_command('migrate')
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_elasticsearch_company_save():
     stub = patch('company.search.CompanyDocType.save')
     yield stub.start()
