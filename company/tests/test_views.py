@@ -913,7 +913,7 @@ def test_company_search(mock_get_search_results, api_client):
             'hits': [None, None],
         },
     }
-    data = {'term': 'bones', 'page': 1, 'size': 10, 'sector': 'AEROSPACE'}
+    data = {'term': 'bones', 'page': 1, 'size': 10, 'sectors': ['AEROSPACE']}
     response = api_client.get(reverse('company-search'), data=data)
 
     assert response.status_code == 200
@@ -925,7 +925,7 @@ def test_company_search(mock_get_search_results, api_client):
 
 @patch('company.views.CompanySearchAPIView.get_search_results')
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_company_search_no_sector(mock_get_search_results, api_client):
+def test_company_search_no_sectors(mock_get_search_results, api_client):
     mock_get_search_results.return_value = expected_value = {
         'hits': {
             'total': 2,
@@ -987,7 +987,7 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
 def test_company_search_with_sector_filter(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'term': 'bones', 'sector': 'AEROSPACE', 'size': 5, 'page': 1}
+        data = {'term': 'bees', 'sectors': ['AEROSPACE'], 'size': 5, 'page': 1}
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
@@ -999,7 +999,7 @@ def test_company_search_with_sector_filter(api_client):
                         'minimum_should_match': 1,
                         'must': [{
                             'match': {
-                                '_all': 'bones'
+                                '_all': 'bees'
                             }
                         }],
                         'should': [{
@@ -1020,7 +1020,7 @@ def test_company_search_with_sector_filter(api_client):
 def test_company_search_with_sector_filter_only(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'sector': 'AEROSPACE', 'size': 5, 'page': 1}
+        data = {'sectors': ['AEROSPACE'], 'size': 5, 'page': 1}
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
