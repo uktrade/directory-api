@@ -6,8 +6,6 @@ import pytest
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 
-from notifications import models
-
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)

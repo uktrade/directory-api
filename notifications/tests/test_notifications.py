@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock, PropertyMock, ANY
 
 import pytest
 
@@ -42,7 +42,9 @@ def test_doesnt_send_case_study_email_when_user_has_case_studies():
 
 @freeze_time()
 @pytest.mark.django_db
-def test_sends_case_study_email_only_when_registered_8_days_ago(settings):
+@patch('notifications.tasks.send_supplier_email')
+def test_sends_case_study_email_only_when_registered_8_days_ago(
+        mock_task, settings):
     expected_subject = email.NoCaseStudiesNotification.subject
     seven_days_ago = timezone.now() - timedelta(days=7)
     eight_days_ago = timezone.now() - timedelta(days=8)
@@ -50,49 +52,50 @@ def test_sends_case_study_email_only_when_registered_8_days_ago(settings):
     SupplierFactory(date_joined=seven_days_ago)
     supplier = SupplierFactory(date_joined=eight_days_ago)
     SupplierFactory(date_joined=nine_days_ago)
-    mail.outbox = []  # reset after emails sent by signals
-
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 1
-    assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == expected_subject
-    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
-    assert SupplierEmailNotification.objects.all().count() == 1
-    instance = SupplierEmailNotification.objects.get()
-    assert instance.supplier == supplier
-    assert instance.category == 'no_case_studies'
-    assert instance.date_sent == timezone.now()
+    mock_task.delay.assert_called_once_with(
+        category='no_case_studies',
+        from_email=settings.FAB_FROM_EMAIL,
+        supplier_id=supplier.pk,
+        html_body=ANY,
+        text_body=ANY,
+        recipient_email=supplier.company_email,
+        subject=expected_subject,
+    )
 
 
 @freeze_time()
 @pytest.mark.django_db
 @patch('notifications.email.NoCaseStudiesNotification.zendesk_url',
        PropertyMock(return_value='http://help.zendesk.com'))
-def test_case_study_email_has_expected_vars_in_template(settings):
+@patch('notifications.tasks.send_supplier_email')
+def test_case_study_email_has_expected_vars_in_template(mock_task, settings):
     settings.NO_CASE_STUDIES_URL = 'http://great.gov.uk/case-studies/add'
     settings.NO_CASE_STUDIES_UTM = 'utm=1'
 
     eight_days_ago = timezone.now() - timedelta(days=8)
     supplier = SupplierFactory(date_joined=eight_days_ago)
-    mail.outbox = []  # reset after emails sent by signals
-
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 1
-    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
-    assert supplier.name in mail.outbox[0].body
-    assert supplier.name in mail.outbox[0].alternatives[0][0]
-    assert 'http://great.gov.uk/case-studies/add?utm=1' in mail.outbox[0].body
+    assert len(mock_task.delay.call_args_list) == 1
+    call_args = mock_task.delay.call_args[1]
+    assert call_args['from_email'] == settings.FAB_FROM_EMAIL
+    assert supplier.name in call_args['text_body']
+    assert supplier.name in call_args['html_body']
     assert ('http://great.gov.uk/case-studies/add?utm=1'
-            in mail.outbox[0].alternatives[0][0])
-    assert 'http://help.zendesk.com' in mail.outbox[0].body
-    assert 'http://help.zendesk.com' in mail.outbox[0].alternatives[0][0]
+            in call_args['text_body'])
+    assert ('http://great.gov.uk/case-studies/add?utm=1'
+            in call_args['html_body'])
+    assert 'http://help.zendesk.com' in call_args['text_body']
+    assert 'http://help.zendesk.com' in call_args['html_body']
 
 
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
+@patch('notifications.tasks.send_supplier_email')
 def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute(
+    mock_task,
     settings
 ):
     supplier1 = SupplierFactory(
@@ -101,20 +104,22 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute(
         date_joined=datetime(2016, 12, 8, 23, 59, 59))
     SupplierFactory(date_joined=datetime(2016, 12, 7, 23, 59, 59))
     SupplierFactory(date_joined=datetime(2016, 12, 9, 0, 0, 1))
-    mail.outbox = []  # reset after emails sent by signals
-
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 2
-    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
-    assert mail.outbox[0].to == [supplier1.company_email]
-    assert mail.outbox[1].from_email == settings.FAB_FROM_EMAIL
-    assert mail.outbox[1].to == [supplier2.company_email]
-    assert SupplierEmailNotification.objects.all().count() == 2
+    assert len(mock_task.delay.call_args_list) == 2
+    first_email_call_args = mock_task.delay.call_args_list[0][1]
+    second_email_call_args = mock_task.delay.call_args_list[1][1]
+    assert first_email_call_args['from_email'] == settings.FAB_FROM_EMAIL
+    assert first_email_call_args['recipient_email'] == supplier1.company_email
+    assert second_email_call_args['from_email'] == settings.FAB_FROM_EMAIL
+    assert second_email_call_args['recipient_email'] == supplier2.company_email
 
 
 @pytest.mark.django_db
-def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
+@patch('notifications.tasks.send_supplier_email')
+def test_case_study_email_uses_settings_for_no_of_days_and_subject(
+        mock_task,
+        settings):
     settings.NO_CASE_STUDIES_DAYS = 1
     expected_subject = email.NoCaseStudiesNotification.subject
     one_day_ago = timezone.now() - timedelta(days=1)
@@ -122,19 +127,19 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(settings):
     SupplierFactory(date_joined=eight_days_ago)
     supplier = SupplierFactory(
         date_joined=one_day_ago)
-    mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
-
-    assert len(mail.outbox) == 1
-    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
-    assert mail.outbox[0].to == [supplier.company_email]
-    assert mail.outbox[0].subject == expected_subject
-    assert SupplierEmailNotification.objects.all().count() == 1
+    assert len(mock_task.delay.call_args_list) == 1
+    call_args = mock_task.delay.call_args[1]
+    assert call_args['from_email'] == settings.FAB_FROM_EMAIL
+    assert call_args['recipient_email'] == supplier.company_email
+    assert call_args['subject'] == expected_subject
 
 
 @pytest.mark.django_db
+@patch('notifications.tasks.send_supplier_email')
 def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
+    mock_task,
     settings
 ):
     eight_days_ago = timezone.now() - timedelta(days=8)
@@ -144,15 +149,13 @@ def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
         supplier=suppliers[0], category='no_case_studies')
     SupplierEmailNotificationFactory(
         supplier=suppliers[1], category='hasnt_logged_in')
-    mail.outbox = []  # reset after emails sent by signals
 
     notifications.no_case_studies()
 
-    assert len(mail.outbox) == 1
-    assert mail.outbox[0].from_email == settings.FAB_FROM_EMAIL
-    assert mail.outbox[0].to == [suppliers[1].company_email]
-    # what we created in data setup + 1 new
-    assert SupplierEmailNotification.objects.all().count() == 3
+    assert len(mock_task.delay.call_args_list) == 1
+    call_args = mock_task.delay.call_args[1]
+    assert call_args['from_email'] == settings.FAB_FROM_EMAIL
+    assert call_args['recipient_email'] == suppliers[1].company_email
 
 
 @pytest.mark.django_db
