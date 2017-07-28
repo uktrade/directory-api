@@ -107,12 +107,14 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-def test_unsubscribe_supplier(authed_client, authed_supplier):
+@patch('notifications.tasks.send_supplier_email')
+def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
 
     authed_supplier.refresh_from_db()
     assert response.status_code == http.client.OK
     assert authed_supplier.unsubscribed is True
+    mock_task.delay.assert_called_once()
 
 
 @pytest.mark.django_db
