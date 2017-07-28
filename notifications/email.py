@@ -53,15 +53,14 @@ class SupplierNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        tasks.send_email.apply_async(
+        tasks.send_supplier_email.apply_async(
             subject=self.subject,
             body_text=text_body,
             html_body=html_body,
             recipient_email=self.recipient.email,
             from_email=self.from_email,
-            category_id=self.category,
+            category=self.category,
             supplier_id=self.supplier.pk,
-            anonymous=False
         )
 
 
@@ -80,15 +79,13 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        tasks.send_email.apply_async(
+        tasks.send_anon_email.apply_async(
             subject=self.subject,
             body_text=text_body,
             html_body=html_body,
             recipient_email=self.recipient.email,
             from_email=self.from_email,
-            category_id=self.category.pk,
-            supplier_id=None,
-            anonymous=True
+            category=self.category,
         )
 
 

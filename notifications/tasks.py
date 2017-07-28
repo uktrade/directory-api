@@ -41,15 +41,11 @@ def new_companies_in_sector():
         notifications.new_companies_in_sector()
 
 
-@app.task(autoretry_for=(TimeoutError, ))
 def send_email(subject,
                text_body,
                html_body,
                recipient_email,
-               from_email,
-               category,
-               supplier_id,
-               anonymous):
+               from_email):
     message = EmailMultiAlternatives(
         subject=subject,
         body=text_body,
@@ -58,13 +54,30 @@ def send_email(subject,
     )
     message.attach_alternative(html_body, "text/html")
     message.send()
-    if anonymous:
-        return models.AnonymousEmailNotification.objects.create(
-            email=recipient_email, category=category,
-        )
-    else:
-        User = get_user_model()
-        supplier = User.objects.get(pk=supplier_id)
-        return models.SupplierEmailNotification.objects.create(
-            supplier=supplier, category=category,
-        )
+
+
+@app.task(autoretry_for=(TimeoutError, ))
+def send_supplier_email(subject,
+                        text_body,
+                        html_body,
+                        recipient_email,
+                        from_email,
+                        category,
+                        supplier_id):
+    send_email(subject, text_body, html_body, recipient_email, from_email)
+    User = get_user_model()
+    supplier = User.objects.get(pk=supplier_id)
+    return models.SupplierEmailNotification.objects.create(
+        supplier=supplier, category=category)
+
+
+@app.task(autoretry_for=(TimeoutError, ))
+def send_anon_email(subject,
+                    text_body,
+                    html_body,
+                    recipient_email,
+                    from_email,
+                    category):
+    send_email(subject, text_body, html_body, recipient_email, from_email)
+    return models.AnonymousEmailNotification.objects.create(
+        email=recipient_email, category=category)
