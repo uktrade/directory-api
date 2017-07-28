@@ -1,4 +1,3 @@
-import json
 import factory
 import factory.fuzzy
 
@@ -16,11 +15,11 @@ EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
 EXPORT_STATUS_CHOICES = [choice[0] for choice in choices.EXPORT_STATUSES]
 
 
-class FuzzySectorJson(factory.fuzzy.BaseFuzzyAttribute):
+class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
     def fuzz(self):
         sectors = [choice[0] for choice in choices.COMPANY_CLASSIFICATIONS]
         random_sector = factory.fuzzy._random.choice(sectors)
-        return json.dumps([random_sector])
+        return [random_sector]
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
@@ -35,7 +34,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     keywords = factory.fuzzy.FuzzyText(length=20)
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
-    sectors = FuzzySectorJson()
+    sectors = FuzzySector()
     website = factory.LazyAttribute(
         lambda company: 'http://%s.example.com' % company.name)
     date_of_creation = None
