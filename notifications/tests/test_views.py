@@ -25,7 +25,7 @@ def test_create_anonymous_unsubscribe_create_good_signature(mock_task, client):
     response = client.post(url, {'email': Signer().sign(email)})
 
     assert response.status_code == http.client.CREATED
-    mock_task.delay.assert_called_once()
+    assert mock_task.delay.called
 
 
 @pytest.mark.django_db
@@ -39,7 +39,7 @@ def test_create_anonymous_unsubscribe_multiple_times(mock_task, client):
     response = client.post(url, {'email': Signer().sign(email)})
 
     assert response.status_code == http.client.OK
-    mock_task.delay.assert_called_once()
+    assert mock_task.delay.called
 
 
 @pytest.mark.django_db

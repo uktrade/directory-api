@@ -114,7 +114,7 @@ def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     authed_supplier.refresh_from_db()
     assert response.status_code == http.client.OK
     assert authed_supplier.unsubscribed is True
-    mock_task.delay.assert_called_once()
+    assert mock_task.delay.called
 
 
 @pytest.mark.django_db

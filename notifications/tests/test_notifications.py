@@ -738,9 +738,24 @@ def test_new_companies_in_sector(mock_task, settings):
     notifications.new_companies_in_sector()
     call_args_list = mock_task.delay.call_args_list
     assert len(call_args_list) == 3
-    email_one = call_args_list[0][1]
-    email_two = call_args_list[1][1]
-    email_three = call_args_list[2][1]
+    email_one = list(
+        filter(
+            lambda x: x[1]['recipient_email'] == buyer_one.email,
+            call_args_list
+        )
+    )[0][1]
+    email_two = list(
+        filter(
+            lambda x: x[1]['recipient_email'] == buyer_two.email,
+            call_args_list
+        )
+    )[0][1]
+    email_three = list(
+        filter(
+            lambda x: x[1]['recipient_email'] == buyer_three.email,
+            call_args_list
+        )
+    )[0][1]
 
     assert email_one['recipient_email'] == buyer_one.email
     assert email_one['subject'] == expected_subject
