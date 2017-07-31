@@ -1,9 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 
 from api.celery import app
 from notifications import notifications, models
+from user.models import User as Supplier
 
 
 def lock_acquired(lock_name):
@@ -65,8 +65,7 @@ def send_supplier_email(subject,
                         category,
                         supplier_id):
     send_email(subject, text_body, html_body, recipient_email, from_email)
-    User = get_user_model()
-    supplier = User.objects.get(pk=supplier_id)
+    supplier = Supplier.objects.get(pk=supplier_id)
     return models.SupplierEmailNotification.objects.create(
         supplier=supplier, category=category)
 
