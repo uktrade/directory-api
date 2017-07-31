@@ -30,6 +30,7 @@ def test_company_doc_type():
         'modified': '2016-11-23T11:21:10.977518Z',
         'name': company.name,
         'number': company.number,
+        'has_description': True,
         'sectors': company.sectors,
         'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,

@@ -22,6 +22,7 @@ class FormattedDate(field.Date):
 class CompanyDocType(DocType):
     date_of_creation = FormattedDate(date_format='%Y-%m-%d')
     description = field.Text()
+    has_description = field.Boolean()
     employees = field.Text()
     facebook_url = field.Text()
     pk = field.Integer()
@@ -63,6 +64,7 @@ def company_model_to_doc_type(company):
         meta={'id': company.pk},
         date_of_creation=company.date_of_creation,
         description=company.description,
+        has_description=company.description != '',
         employees=company.employees,
         facebook_url=company.facebook_url,
         pk=str(company.pk),
