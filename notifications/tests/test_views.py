@@ -18,19 +18,19 @@ def test_create_anonymous_unsubscribe_create_bad_signature(client):
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-@patch('notifications.tasks.send_anon_email')
+@patch('notifications.tasks.send_anon_email', autospec=True)
 def test_create_anonymous_unsubscribe_create_good_signature(mock_task, client):
     url = reverse('anonymous-unsubscribe')
     email = 'test@example.com'
     response = client.post(url, {'email': Signer().sign(email)})
 
     assert response.status_code == http.client.CREATED
-    assert mock_task.delay.called
+    assert mock_task.delay.called is True
 
 
 @pytest.mark.django_db
 @patch('api.signature.SignatureCheckPermission.has_permission', Mock)
-@patch('notifications.tasks.send_anon_email')
+@patch('notifications.tasks.send_anon_email', autospec=True)
 def test_create_anonymous_unsubscribe_multiple_times(mock_task, client):
     url = reverse('anonymous-unsubscribe')
     email = 'test@example.com'
@@ -39,7 +39,7 @@ def test_create_anonymous_unsubscribe_multiple_times(mock_task, client):
     response = client.post(url, {'email': Signer().sign(email)})
 
     assert response.status_code == http.client.OK
-    assert mock_task.delay.called
+    assert mock_task.delay.called is True
 
 
 @pytest.mark.django_db
