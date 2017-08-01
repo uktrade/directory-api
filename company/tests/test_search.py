@@ -35,6 +35,7 @@ def test_company_doc_type():
         'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,
         'summary': company.summary,
+        'case_study_count': 1,
         'has_single_sector': False,
         'supplier_case_studies': [
             {

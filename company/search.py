@@ -20,6 +20,7 @@ class FormattedDate(field.Date):
 
 
 class CompanyDocType(DocType):
+    case_study_count = field.Integer()
     date_of_creation = FormattedDate(date_format='%Y-%m-%d')
     description = field.Text()
     has_description = field.Boolean()
@@ -62,25 +63,26 @@ class CompanyDocType(DocType):
 def company_model_to_doc_type(company):
     company_doc_type = CompanyDocType(
         meta={'id': company.pk},
+        case_study_count=company.supplier_case_studies.count(),
         date_of_creation=company.date_of_creation,
         description=company.description,
         has_description=company.description != '',
         employees=company.employees,
         facebook_url=company.facebook_url,
-        pk=str(company.pk),
+        has_single_sector=len(company.sectors) == 1,
         keywords=company.keywords,
         linkedin_url=company.linkedin_url,
         logo=company.logo.url if company.logo else '',
         modified=company.modified,
-        sectors=company.sectors,
-        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         name=company.name,
         number=company.number,
+        pk=str(company.pk),
+        sectors=company.sectors,
+        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         slug=company.slug,
         summary=company.summary,
         twitter_url=company.twitter_url,
         website=company.website,
-        has_single_sector=len(company.sectors) == 1,
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({
