@@ -446,6 +446,62 @@ def search_companies_data():
         title='Thick case study',
         description='We determined lead sinks in water.'
     )
+    index.refresh()
+
+
+@pytest.fixture
+def search_companies_ordering_data():
+    index = Index('companies')
+    index.doc_type(CompanyDocType)
+    index.analyzer(analyzer('english'))
+    index.delete(ignore=404)
+    index.create()
+    CompanyFactory(
+        name='Wolf limited',
+        description='',
+        summary='Hunts in packs',
+        is_published=True,
+        keywords='Packs, Hunting, Stark, Wolf',
+        sectors=['AEROSPACE', 'AIRPORTS'],
+        id=1,
+    )
+    CompanyFactory(
+        name='Wolf from Gladiators limited',
+        description='',
+        summary='Hunters',
+        is_published=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        sectors=['FOOD_AND_DRINK', 'AIRPORTS'],
+        id=2,
+    )
+    CompanyFactory(
+        name='Wolf a kimbo Limited',
+        description='pack hunters',
+        summary='Hunts in packs',
+        is_published=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        sectors=['AEROSPACE', 'AIRPORTS'],
+        id=3,
+    )
+    CompanyFactory(
+        name='Wolf among us Limited',
+        description='wolf among sheep',
+        summary='wooly',
+        is_published=True,
+        keywords='Sheep, big bad, wolf',
+        sectors=['AEROSPACE', 'AIRPORTS'],
+        id=4,
+    )
+    CompanyFactory(
+        name='Grapeshot limited',
+        description='Providing the destructiveness of grapeshot.',
+        summary='Like naval warfare',
+        is_published=True,
+        keywords='Pirates, Ocean, Ship',
+        sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
+        id=5,
+    )
+    index.refresh()
 
 
 @pytest.mark.django_db
@@ -967,16 +1023,32 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
             body={
                 'size': 5,
                 'query': {
-                    'bool': {
-                        'must': [{
-                            'match': {
-                                '_all': 'bones'
+                    'function_score': {
+                        'functions': [
+                            {
+                                'weight': 1.75,
+                                'filter': {
+                                    'term': {
+                                        'has_description': True
+                                    }
+                                }
                             }
-                        }],
-                        'minimum_should_match': 0
+                        ],
+                        'query': {
+                            'bool': {
+                                'minimum_should_match': 0,
+                                'must': [
+                                    {
+                                        'match': {
+                                            '_all': 'bones'
+                                        }
+                                    }
+                                ]
+                            }
+                        }
                     }
                 },
-                'from': expected_start
+                'from': expected_start,
             },
             doc_type=['company_doc_type'],
             index=['companies']
@@ -995,18 +1067,32 @@ def test_company_search_with_sector_filter(api_client):
             body={
                 'size': 5,
                 'query': {
-                    'bool': {
-                        'minimum_should_match': 1,
-                        'must': [{
-                            'match': {
-                                '_all': 'bees'
+                    'function_score': {
+                        'functions': [
+                            {
+                                'weight': 1.75,
+                                'filter': {
+                                    'term': {
+                                        'has_description': True
+                                    }
+                                }
                             }
-                        }],
-                        'should': [{
-                            'match': {
-                                'sectors': 'AEROSPACE'
+                        ],
+                        'query': {
+                            'bool': {
+                                'minimum_should_match': 1,
+                                'must': [{
+                                    'match': {
+                                        '_all': 'bees'
+                                    }
+                                }],
+                                'should': [{
+                                    'match': {
+                                        'sectors': 'AEROSPACE'
+                                    }
+                                }]
                             }
-                        }]
+                        }
                     }
                 },
                 'from': 0
@@ -1027,13 +1113,27 @@ def test_company_search_with_sector_filter_only(api_client):
         assert mock_search.call_args == call(
             body={
                 'query': {
-                    'bool': {
-                        'minimum_should_match': 1,
-                        'should': [{
-                            'match': {
-                                'sectors': 'AEROSPACE'
+                    'function_score': {
+                        'functions': [
+                            {
+                                'weight': 1.75,
+                                'filter': {
+                                    'term': {
+                                        'has_description': True
+                                    }
+                                }
                             }
-                        }]
+                        ],
+                        'query': {
+                            'bool': {
+                                'minimum_should_match': 1,
+                                'should': [{
+                                    'match': {
+                                        'sectors': 'AEROSPACE'
+                                    }
+                                }]
+                            }
+                        },
                     }
                 },
                 'from': 0,
@@ -1083,8 +1183,6 @@ def test_company_search_with_sector_filter_only(api_client):
 
 ])
 def test_company_search_results(term, sector, expected, search_companies_data):
-    Index('companies').refresh()
-
     results = views.CompanySearchAPIView.get_search_results(
         term=term, page=1, size=5, sectors=sector
     )
@@ -1093,3 +1191,24 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('term,sectors,expected', [
+    ['wolf',       None,         ['3', '4', '1', '2']],
+    ['Limited',    None,         ['3', '5', '4', '1', '2']],
+    ['packs',      None,         ['3', '2', '1']],
+    ['',          ['AEROSPACE'], ['4', '3', '1']],
+    ['Grapeshot', None,          ['5']],
+])
+def test_company_search_results_ordering(
+    term, expected, sectors, search_companies_ordering_data
+):
+    results = views.CompanySearchAPIView.get_search_results(
+        term=term, page=1, size=5, sectors=sectors
+    )
+    hits = results['hits']['hits']
+
+    ordered_hit_ids = [hit['_id'] for hit in hits]
+
+    assert ordered_hit_ids == expected

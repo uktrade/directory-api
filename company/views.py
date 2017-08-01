@@ -8,7 +8,7 @@ from django.http import Http404
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
-from elasticsearch_dsl import Q
+from elasticsearch_dsl import query
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -160,16 +160,24 @@ class CompanySearchAPIView(views.APIView):
         must_filters = []
         if sectors:
             for sector in sectors:
-                should_filters.append(Q("match", sectors=sector))
+                should_filters.append(query.Q("match", sectors=sector))
         if term:
-            must_filters.append(Q('match', _all=term))
+            must_filters.append(query.Q('match', _all=term))
 
         search_object = search.CompanyDocType.search().query(
-            'bool',
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0
+            'function_score',
+            query=query.Q(
+                'bool',
+                must=must_filters,
+                should=should_filters,
+                minimum_should_match=1 if len(should_filters) else 0
+            ),
+            functions=[
+                query.SF({
+                  'weight': 1.75,
+                  'filter': query.Q('term', has_description=True)
+                })
+            ]
         )
-
         response = search_object[start:end].execute()
         return response.to_dict()
