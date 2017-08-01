@@ -465,7 +465,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=1,
     )
-    CompanyFactory(
+    wolf_three = CompanyFactory(
         name='Wolf from Gladiators limited',
         description='',
         summary='Hunters',
@@ -474,7 +474,7 @@ def search_companies_ordering_data():
         sectors=['FOOD_AND_DRINK', 'AIRPORTS'],
         id=2,
     )
-    CompanyFactory(
+    wolf_one_company = CompanyFactory(
         name='Wolf a kimbo Limited',
         description='pack hunters',
         summary='Hunts in packs',
@@ -483,7 +483,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=3,
     )
-    CompanyFactory(
+    wolf_two_company = CompanyFactory(
         name='Wolf among us Limited',
         description='wolf among sheep',
         summary='wooly',
@@ -492,7 +492,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=4,
     )
-    CompanyFactory(
+    grapeshot_company = CompanyFactory(
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
@@ -500,6 +500,28 @@ def search_companies_ordering_data():
         keywords='Pirates, Ocean, Ship',
         sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
         id=5,
+    )
+
+    CompanyCaseStudyFactory(company=wolf_one_company)
+    CompanyCaseStudyFactory(company=wolf_one_company)
+    CompanyCaseStudyFactory(company=wolf_two_company)
+    CompanyCaseStudyFactory(company=wolf_two_company)
+    CompanyCaseStudyFactory(company=wolf_two_company)
+    CompanyCaseStudyFactory(
+        company=wolf_three,
+        title='cannons better than grapeshot',
+        description='guns'
+    )
+    CompanyCaseStudyFactory(company=wolf_three)
+    CompanyCaseStudyFactory(
+        company=grapeshot_company,
+        title='cannons',
+        description='guns'
+    )
+    CompanyCaseStudyFactory(
+        company=grapeshot_company,
+        title='cannons',
+        description='naval guns'
     )
     index.refresh()
 
@@ -1021,19 +1043,8 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
         assert mock_search.call_count == 1
         assert mock_search.call_args == call(
             body={
-                'size': 5,
                 'query': {
                     'function_score': {
-                        'functions': [
-                            {
-                                'weight': 1.75,
-                                'filter': {
-                                    'term': {
-                                        'has_description': True
-                                    }
-                                }
-                            }
-                        ],
                         'query': {
                             'bool': {
                                 'minimum_should_match': 0,
@@ -1045,13 +1056,116 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
                                     }
                                 ]
                             }
-                        }
+                        },
+                        'boost_mode': 'sum',
+                        'functions': [
+                            {
+                                'weight': 5,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 4,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 3,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 2,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 1,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 0
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
                     }
                 },
                 'from': expected_start,
+                'size': 5
             },
             doc_type=['company_doc_type'],
-            index=['companies']
+            index=['companies'],
         )
 
 
@@ -1068,12 +1182,104 @@ def test_company_search_with_sector_filter(api_client):
                 'size': 5,
                 'query': {
                     'function_score': {
+                        'boost_mode': 'sum',
                         'functions': [
                             {
-                                'weight': 1.75,
+                                'weight': 5,
                                 'filter': {
-                                    'term': {
-                                        'has_description': True
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 4,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 3,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 2,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 1,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 0
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -1114,12 +1320,104 @@ def test_company_search_with_sector_filter_only(api_client):
             body={
                 'query': {
                     'function_score': {
+                        'boost_mode': 'sum',
                         'functions': [
                             {
-                                'weight': 1.75,
+                                'weight': 5,
                                 'filter': {
-                                    'term': {
-                                        'has_description': True
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 4,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'range': {
+                                                    'case_study_count': {
+                                                        'gt': 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 3,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 2,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 1
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': False
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                'weight': 1,
+                                'filter': {
+                                    'bool': {
+                                        'must': [
+                                            {
+                                                'term': {
+                                                    'case_study_count': 0
+                                                }
+                                            },
+                                            {
+                                                'term': {
+                                                    'has_description': True
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
                             }
@@ -1195,11 +1493,13 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('term,sectors,expected', [
-    ['wolf',       None,         ['3', '4', '1', '2']],
-    ['Limited',    None,         ['3', '5', '4', '1', '2']],
-    ['packs',      None,         ['3', '2', '1']],
-    ['',          ['AEROSPACE'], ['4', '3', '1']],
-    ['Grapeshot', None,          ['5']],
+    ['wolf',       None,          ['3', '4', '2', '1']],
+    ['Limited',    None,          ['3', '5', '4', '2', '1']],
+    ['packs',      None,          ['3', '2', '1']],
+    ['',           ['AEROSPACE'], ['4', '3', '1']],
+    ['Grapeshot',  None,          ['2', '5']],
+    ['cannons',    None,          ['5', '2']],
+    ['guns',       None,          ['5', '2']],
 ])
 def test_company_search_results_ordering(
     term, expected, sectors, search_companies_ordering_data
