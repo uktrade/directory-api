@@ -13,7 +13,7 @@ def test_notification_base_rejects_if_required_properties_missing():
     assert exc_info.exconly() == (
         "TypeError: Can't instantiate abstract class "
         "NotificationMissingProperties with abstract methods category, "
-        "from_email, html_template, recipient, record_sent, subject, "
+        "from_email, html_template, recipient, subject, "
         "text_template, unsubscribe_url"
     )
 
