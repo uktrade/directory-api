@@ -200,9 +200,14 @@ class CompanySearchAPIView(views.APIView):
                   'weight': 1,
                   'filter': no_case_study + has_description,
                 }),
-
             ],
             boost_mode='sum',
         )
+
+        search_object = search_object.highlight_options(
+            require_field_match=False,
+        ).highlight('summary', 'description')
+
         response = search_object[start:end].execute()
+
         return response.to_dict()

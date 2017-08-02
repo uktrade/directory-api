@@ -450,6 +450,40 @@ def search_companies_data():
 
 
 @pytest.fixture
+def search_companies_highlighting_data():
+    index = Index('companies')
+    index.doc_type(CompanyDocType)
+    index.analyzer(analyzer('english'))
+    index.delete(ignore=404)
+    index.create()
+    CompanyFactory(
+        name='Wolf limited',
+        description=(
+            'Providing the stealth and prowess of wolves. This is a very long '
+            'thing about wolf stuff. Lets see what happens in the test when '
+            'ES encounters a long  description. Perhaps it will concatenate. '
+        ) + ('It is known. ' * 30) + (
+            'The wolf cries at night.'
+        ),
+        summary='Hunts in packs',
+        is_published=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        sectors=['AEROSPACE', 'AIRPORTS'],
+        id=1,
+    )
+    CompanyFactory(
+        name='Aardvark limited',
+        description='Providing the power and beauty of Aardvarks.',
+        summary='Like an Aardvark',
+        is_published=True,
+        keywords='Ants, Tongue, Anteater',
+        sectors=['AEROSPACE'],
+        id=2,
+    )
+    index.refresh()
+
+
+@pytest.fixture
 def search_companies_ordering_data():
     index = Index('companies')
     index.doc_type(CompanyDocType)
@@ -1043,6 +1077,13 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
         assert mock_search.call_count == 1
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'function_score': {
                         'query': {
@@ -1179,6 +1220,13 @@ def test_company_search_with_sector_filter(api_client):
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'size': 5,
                 'query': {
                     'function_score': {
@@ -1318,6 +1366,13 @@ def test_company_search_with_sector_filter_only(api_client):
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'function_score': {
                         'boost_mode': 'sum',
@@ -1512,3 +1567,34 @@ def test_company_search_results_ordering(
     ordered_hit_ids = [hit['_id'] for hit in hits]
 
     assert ordered_hit_ids == expected
+
+
+@pytest.mark.django_db
+def test_company_search_results_highlight(search_companies_highlighting_data):
+    results = views.CompanySearchAPIView.get_search_results(
+        term='power', page=1, size=5, sectors=None
+    )
+    hits = results['hits']['hits']
+
+    assert hits[0]['highlight'] == {
+        'description': [
+            'Providing the <em>power</em> and beauty of Aardvarks.'
+        ]
+    }
+
+
+@pytest.mark.django_db
+def test_company_search_results_highlight_long(
+    search_companies_highlighting_data
+):
+    results = views.CompanySearchAPIView.get_search_results(
+        term='wolf', page=1, size=5, sectors=None
+    )
+    hits = results['hits']['hits']
+
+    assert '...'.join(hits[0]['highlight']['description']) == (
+        'Providing the stealth and prowess of wolves. This is a very '
+        'long thing about <em>wolf</em> stuff. Lets see... known. It is '
+        'known. It is known. It is known. It is known. It is known. It is '
+        'known. The <em>wolf</em> cries at night.'
+    )
