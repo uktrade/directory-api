@@ -8,7 +8,7 @@ from django.http import Http404
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
-from elasticsearch_dsl import Q
+from elasticsearch_dsl import query
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -160,16 +160,54 @@ class CompanySearchAPIView(views.APIView):
         must_filters = []
         if sectors:
             for sector in sectors:
-                should_filters.append(Q("match", sectors=sector))
+                should_filters.append(query.Match(sectors=sector))
         if term:
-            must_filters.append(Q('match', _all=term))
+            must_filters.append(query.Match(_all=term))
 
-        search_object = search.CompanyDocType.search().query(
-            'bool',
+        query_object = query.Bool(
             must=must_filters,
             should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0
+            minimum_should_match=1 if len(should_filters) else 0,
         )
 
+        no_description = query.Term(has_description=False)
+        has_description = query.Term(has_description=True)
+        no_case_study = query.Term(case_study_count=0)
+        one_case_study = query.Term(case_study_count=1)
+        multiple_case_studies = query.Range(case_study_count={'gt': 1})
+
+        search_object = search.CompanyDocType.search().query(
+            'function_score',
+            query=query_object,
+            functions=[
+                query.SF({
+                  'weight': 5,
+                  'filter': multiple_case_studies + has_description,
+                }),
+                query.SF({
+                  'weight': 4,
+                  'filter': multiple_case_studies + no_description,
+                }),
+                query.SF({
+                  'weight': 3,
+                  'filter': one_case_study + has_description,
+                }),
+                query.SF({
+                  'weight': 2,
+                  'filter': one_case_study + no_description,
+                }),
+                query.SF({
+                  'weight': 1,
+                  'filter': no_case_study + has_description,
+                }),
+            ],
+            boost_mode='sum',
+        )
+
+        search_object = search_object.highlight_options(
+            require_field_match=False,
+        ).highlight('summary', 'description')
+
         response = search_object[start:end].execute()
+
         return response.to_dict()
