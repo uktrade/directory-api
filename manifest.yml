@@ -1,0 +1,5 @@
+---
+applications:
+- name: directory-api
+  memory: 512M
+  buildpack: python_buildpack
