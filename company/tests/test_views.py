@@ -1091,7 +1091,7 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
                                 'minimum_should_match': 0,
                                 'must': [
                                     {
-                                        'match': {
+                                        'match_phrase': {
                                             '_all': 'bones'
                                         }
                                     }
@@ -1336,7 +1336,7 @@ def test_company_search_with_sector_filter(api_client):
                             'bool': {
                                 'minimum_should_match': 1,
                                 'must': [{
-                                    'match': {
+                                    'match_phrase': {
                                         '_all': 'bees'
                                     }
                                 }],

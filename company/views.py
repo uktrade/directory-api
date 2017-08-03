@@ -162,7 +162,7 @@ class CompanySearchAPIView(views.APIView):
             for sector in sectors:
                 should_filters.append(query.Match(sectors=sector))
         if term:
-            must_filters.append(query.Match(_all=term))
+            must_filters.append(query.MatchPhrase(_all=term))
 
         query_object = query.Bool(
             must=must_filters,
