@@ -44,4 +44,5 @@ s3transfer==0.1.10        # via boto3
 six==1.10.0               # via django-extensions, elasticsearch-dsl, python-dateutil
 urllib3==1.21.1           # via elasticsearch
 vine==1.1.3               # via amqp
+waitress==0.8.9
 whitenoise==3.2.2
