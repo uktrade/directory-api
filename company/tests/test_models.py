@@ -1,6 +1,7 @@
 import pytest
 
 from directory_validators.constants import choices
+from directory_validators.company import no_html
 
 from django.db import IntegrityError
 
@@ -63,11 +64,11 @@ def test_company_model_has_update_create_timestamps():
     field_names = [field.name for field in models.Company._meta.get_fields()]
 
     assert 'created' in field_names
-    created_field = models.Company._meta.get_field_by_name('created')[0]
+    created_field = models.Company._meta.get_field('created')
     assert created_field.__class__ is CreationDateTimeField
 
     assert 'modified' in field_names
-    modified_field = models.Company._meta.get_field_by_name('modified')[0]
+    modified_field = models.Company._meta.get_field('modified')
     assert modified_field.__class__ is ModificationDateTimeField
 
 
@@ -76,13 +77,11 @@ def test_company_case_study_model_has_update_create_timestamps():
                    for field in models.CompanyCaseStudy._meta.get_fields()]
 
     assert 'created' in field_names
-    created_field = models.CompanyCaseStudy._meta.get_field_by_name(
-        'created')[0]
+    created_field = models.CompanyCaseStudy._meta.get_field('created')
     assert created_field.__class__ is CreationDateTimeField
 
     assert 'modified' in field_names
-    modified_field = models.CompanyCaseStudy._meta.get_field_by_name(
-        'modified')[0]
+    modified_field = models.CompanyCaseStudy._meta.get_field('modified')
     assert modified_field.__class__ is ModificationDateTimeField
 
 
@@ -123,3 +122,42 @@ def test_public_profile_url(settings):
     company = CompanyFactory(number='1234567')
 
     assert company.public_profile_url == 'http://profile/1234567'
+
+
+@pytest.mark.parametrize('field_name', [
+    'name',
+    'description',
+    'keywords',
+    'summary',
+    'description',
+    'export_destinations_other',
+    'email_full_name',
+    'postal_full_name',
+    'address_line_1',
+    'address_line_2',
+    'locality',
+    'country',
+    'postal_code',
+    'po_box',
+])
+def test_xss_attack_company(field_name):
+    field = models.Company._meta.get_field(field_name)
+    assert no_html in field.validators
+
+
+@pytest.mark.parametrize('field_name', [
+    'title',
+    'description',
+    'short_summary',
+    'image_one_caption',
+    'image_two_caption',
+    'image_three_caption',
+    'testimonial',
+    'testimonial_name',
+    'testimonial_job_title',
+    'testimonial_company',
+    'keywords',
+])
+def test_xss_attack_cast_Study(field_name):
+    field = models.CompanyCaseStudy._meta.get_field(field_name)
+    assert no_html in field.validators

@@ -1,5 +1,6 @@
 from directory_validators.constants import choices
 from directory_validators import enrolment as shared_validators
+from directory_validators.company import no_html
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -16,17 +17,19 @@ class Company(TimeStampedModel):
     summary = models.CharField(
         max_length=250,
         blank=True,
-        default=''
+        default='',
+        validators=[no_html],
     )
     description = models.TextField(
         blank=True,
         default='',
+        validators=[no_html],
     )
     employees = models.CharField(
         max_length=20,
         choices=choices.EMPLOYEES,
         blank=True,
-        default=''
+        default='',
     )
     export_status = models.CharField(
         max_length=20,
@@ -48,22 +51,30 @@ class Company(TimeStampedModel):
         help_text=(
             "Of the countries the project have not prioritised,"
             "which does the company want to export to (free text)."
-        )
+        ),
+        validators=[no_html],
     )
     has_exported_before = models.BooleanField()
     keywords = models.TextField(
         blank=True,
         default='',
+        validators=[no_html],
     )
     logo = models.ImageField(
         upload_to=helpers.path_and_rename_logos,
         default='',
         blank=True,
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        validators=[no_html],
+    )
     number = models.CharField(
         max_length=8,
-        validators=[shared_validators.company_number],
+        validators=[
+            shared_validators.company_number,
+            no_html
+        ],
         unique=True
     )
     sectors = JSONField(
@@ -124,36 +135,43 @@ class Company(TimeStampedModel):
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     address_line_1 = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     address_line_2 = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     locality = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     country = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     postal_code = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     po_box = models.CharField(
         max_length=255,
         blank=True,
         default='',
+        validators=[no_html],
     )
     email_address = models.EmailField(
         blank=True,
@@ -163,6 +181,7 @@ class Company(TimeStampedModel):
         max_length=200,
         blank=True,
         default='',
+        validators=[no_html],
     )
     slug = models.SlugField()
 
@@ -192,12 +211,17 @@ class Company(TimeStampedModel):
 class CompanyCaseStudy(TimeStampedModel):
     title = models.CharField(
         max_length=100,
+        validators=[no_html],
     )
     short_summary = models.CharField(
-        max_length=200, blank=True, default=''
+        max_length=200,
+        blank=True,
+        default='',
+        validators=[no_html],
     )
     description = models.CharField(
         max_length=1000,
+        validators=[no_html],
     )
     sector = models.CharField(
         choices=choices.COMPANY_CLASSIFICATIONS,
@@ -206,7 +230,9 @@ class CompanyCaseStudy(TimeStampedModel):
     website = models.URLField(
         max_length=255, blank=True, default=''
     )
-    keywords = models.TextField()
+    keywords = models.TextField(
+        validators=[no_html]
+    )
     image_one = models.ImageField(
         upload_to=helpers.path_and_rename_supplier_case_study,
         blank=True,
@@ -223,13 +249,13 @@ class CompanyCaseStudy(TimeStampedModel):
         default='',
     )
     image_one_caption = models.CharField(
-        max_length=200, blank=True, default=''
+        max_length=200, blank=True, default='', validators=[no_html],
     )
     image_two_caption = models.CharField(
-        max_length=200, blank=True, default=''
+        max_length=200, blank=True, default='', validators=[no_html],
     )
     image_three_caption = models.CharField(
-        max_length=200, blank=True, default=''
+        max_length=200, blank=True, default='', validators=[no_html],
     )
     video_one = models.FileField(
         blank=True,
@@ -237,16 +263,16 @@ class CompanyCaseStudy(TimeStampedModel):
         upload_to=helpers.path_and_rename_supplier_case_study,
     )
     testimonial = models.CharField(
-        max_length=1000, blank=True, default=''
+        max_length=1000, blank=True, default='', validators=[no_html],
     )
     testimonial_name = models.CharField(
-        max_length=255, blank=True, default=''
+        max_length=255, blank=True, default='', validators=[no_html],
     )
     testimonial_job_title = models.CharField(
-        max_length=255, blank=True, default=''
+        max_length=255, blank=True, default='', validators=[no_html],
     )
     testimonial_company = models.CharField(
-        max_length=255, blank=True, default=''
+        max_length=255, blank=True, default='', validators=[no_html],
     )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
 
