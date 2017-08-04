@@ -49,10 +49,10 @@ class SupplierAdmin(admin.ModelAdmin):
                        for field in Company._meta.get_fields()
                        if 'company__' + field.name
                        not in self.csv_excluded_fields]
-        fieldnames.append('company__has_case_study')
-        fieldnames.append('company__number_of_case_studies')
-        fieldnames = sorted(fieldnames)
-
+        fieldnames.extend([
+            'company__has_case_study',
+            'company__number_of_case_studies'
+        ])
         suppliers = queryset.select_related('company').all().annotate(
             company__has_case_study=Case(
                 When(company__supplier_case_studies__isnull=False,
@@ -63,12 +63,17 @@ class SupplierAdmin(admin.ModelAdmin):
             ),
             company__number_of_case_studies=Count(
                 'company__supplier_case_studies'
-            )
+            ),
         ).values(*fieldnames)
+        fieldnames.append('company__number_of_sectors')
+        fieldnames = sorted(fieldnames)
         writer = csv.DictWriter(response, fieldnames=fieldnames)
         writer.writeheader()
 
         for supplier in suppliers:
+            supplier['company__number_of_sectors'] = len(
+                supplier['company__sectors']
+            )
             writer.writerow(supplier)
 
         return response

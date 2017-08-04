@@ -36,7 +36,10 @@ class DownloadCSVTestCase(TestCase):
         self.freezer.stop()
 
     def test_download_csv(self):
-        company = Company.objects.create(**COMPANY_DATA)
+        company = Company.objects.create(
+            **COMPANY_DATA,
+            sectors=['TEST', 'FOO']
+        )
         supplier = Supplier.objects.create(company=company, **SUPPLIER_DATA)
 
         data = {
@@ -81,10 +84,11 @@ class DownloadCSVTestCase(TestCase):
             ('company__name', 'Test Company'),
             ('company__number', '11234567'),
             ('company__number_of_case_studies', '0'),
+            ('company__number_of_sectors', '2'),
             ('company__po_box', ''),
             ('company__postal_code', 'test_postal_code'),
             ('company__postal_full_name', 'test_full_name'),
-            ('company__sectors', '[]'),
+            ('company__sectors', '"[\'TEST\', \'FOO\']"'),
             ('company__slug', 'test-company'),
             ('company__summary', ''),
             ('company__twitter_url', ''),
@@ -152,6 +156,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__name', 'Test Company'),
             ('company__number', '11234567'),
             ('company__number_of_case_studies', '1'),
+            ('company__number_of_sectors', '0'),
             ('company__po_box', ''),
             ('company__postal_code', 'test_postal_code'),
             ('company__postal_full_name', 'test_full_name'),
@@ -201,6 +206,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__name', 'Test Company'),
             ('company__number', '01234568'),
             ('company__number_of_case_studies', '0'),
+            ('company__number_of_sectors', '0'),
             ('company__po_box', ''),
             ('company__postal_code', 'test_postal_code'),
             ('company__postal_full_name', 'test_full_name'),
