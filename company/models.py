@@ -107,6 +107,7 @@ class Company(TimeStampedModel):
     )
     verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
+    verified_with_companies_house_oauth2 = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
     date_verification_letter_sent = models.DateTimeField(null=True)
     # social links
@@ -194,6 +195,14 @@ class Company(TimeStampedModel):
     @property
     def public_profile_url(self):
         return settings.FAS_COMPANY_PROFILE_URL.format(number=self.number)
+
+    @property
+    def is_verified(self):
+        return any([
+            self.verified_with_preverified_enrolment,
+            self.verified_with_code,
+            self.verified_with_companies_house_oauth2,
+        ])
 
     def has_valid_address(self):
         required_address_fields = [

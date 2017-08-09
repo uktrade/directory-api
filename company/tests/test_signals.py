@@ -118,86 +118,90 @@ def test_unknown_address_not_send_letters(mock_send_letter, settings):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'desciption,summary,email,preverified,code_verified,published,expected', [
+    'desciption,summary,email,is_verified,expected',
+    [
         # has_contact
-        ['',  '',  '',         False, False, False, False],
-        ['',  '',  'a@e.com',  False, False, False, False],
+        ['',  '',  '',         False, False],
+        ['',  '',  'a@e.com',  False, False],
         # has_synopsis
-        ['d', '',  '',         False, False, False, False],
-        ['d', '',  'a@e.com',  False, False, False, False],
-        ['d', 's',  '',        False, False, False, False],
-        ['',  's',  '',        False, False, False, False],
-        ['d', 's',  'a@e.com', False, False, False, False],
-        ['',  's',  'a@e.com', False, False, False, False],
-        # verified_with_preverified_enrolment
-        ['',  '',  '',         True,  False, False, False],
-        ['',  '',  'a@e.com',  True,  False, False, False],
-        ['d', '',  '',         True,  False, False, False],
-        ['d', '',  'a@e.com',  True,  False, False, True],
-        ['d', 's',  '',        True,  False, False, False],
-        ['',  's',  '',        True,  False, False, False],
-        ['d', 's',  'a@e.com', True,  False, False, True],
-        ['',  's',  'a@e.com', True,  False, False, True],
-        # verified_with_code
-        ['',  '',  '',         False, True,  False, False],
-        ['',  '',  'a@e.com',  False, True,  False, False],
-        ['d', '',  '',         False, True,  False, False],
-        ['d', '',  'a@e.com',  False, True,  False, True],
-        ['d', 's',  '',        False, True,  False, False],
-        ['',  's',  '',        False, True,  False, False],
-        ['d', 's',  'a@e.com', False, True,  False, True],
-        ['',  's',  'a@e.com', False, True,  False, True],
-        # already published
-        ['',  '',  '',         False, False, True,  True],
-        ['',  '',  'a@e.com',  False, False, True,  True],
-        ['d', '',  '',         False, False, True,  True],
-        ['d', '',  'a@e.com',  False, False, True,  True],
-        ['d', 's',  '',        False, False, True,  True],
-        ['',  's',  '',        False, False, True,  True],
-        ['d', 's',  'a@e.com', False, False, True,  True],
-        ['',  's',  'a@e.com', False, False, True,  True],
-        ['',  '',  '',         True,  False, True,  True],
-        ['',  '',  'a@e.com',  True,  False, True,  True],
-        ['d', '',  '',         True,  False, True,  True],
-        ['d', '',  'a@e.com',  True,  False, True,  True],
-        ['d', 's',  '',        True,  False, True,  True],
-        ['',  's',  '',        True,  False, True,  True],
-        ['d', 's',  'a@e.com', True,  False, True,  True],
-        ['',  's',  'a@e.com', True,  False, True,  True],
-        ['',  '',  '',         False, True,  True,  True],
-        ['',  '',  'a@e.com',  False, True,  True,  True],
-        ['d', '',  '',         False, True,  True,  True],
-        ['d', '',  'a@e.com',  False, True,  True,  True],
-        ['d', 's',  '',        False, True,  True,  True],
-        ['',  's',  '',        False, True,  True,  True],
-        ['d', 's',  'a@e.com', False, True,  True,  True],
-        ['',  's',  'a@e.com', False, True,  True,  True],
-
+        ['d', '',  '',         False, False],
+        ['d', '',  'a@e.com',  False, False],
+        ['d', 's',  '',        False, False],
+        ['',  's',  '',        False, False],
+        ['d', 's',  'a@e.com', False, False],
+        ['',  's',  'a@e.com', False, False],
+        # is_verified
+        ['',  '',  '',         True,  False],
+        ['',  '',  'a@e.com',  True,  False],
+        ['d', '',  '',         True,  False],
+        ['d', '',  'a@e.com',  True,  True],
+        ['d', 's',  '',        True,  False],
+        ['',  's',  '',        True,  False],
+        ['d', 's',  'a@e.com', True,  True],
+        ['',  's',  'a@e.com', True,  True],
     ]
 )
-def test_automatic_publish(
-    desciption, summary, email, preverified, code_verified, published, expected
-):
+def test_publish(desciption, summary, email, is_verified, expected):
+    fields = {
+        'description': desciption,
+        'summary': summary,
+        'email_address': email
+    }
+    mock_verifed = mock.PropertyMock(return_value=is_verified)
+    with mock.patch('company.models.Company.is_verified', mock_verifed):
+        company = factories.CompanyFactory(**fields)
+        # create
+        assert company.is_published is expected
+        # update
+        for field, value in fields.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'desciption,summary,email,is_verified', [
+        # has_contact
+        ['',  '',  '',         False],
+        ['',  '',  'a@e.com',  False],
+        # has_synopsis
+        ['d', '',  '',         False],
+        ['d', '',  'a@e.com',  False],
+        ['d', 's',  '',        False],
+        ['',  's',  '',        False],
+        ['d', 's',  'a@e.com', False],
+        ['',  's',  'a@e.com', False],
+        # is_verified
+        ['',  '',  '',         True],
+        ['',  '',  'a@e.com',  True],
+        ['d', '',  '',         True],
+        ['d', '',  'a@e.com',  True],
+        ['d', 's',  '',        True],
+        ['',  's',  '',        True],
+        ['d', 's',  'a@e.com', True],
+        ['',  's',  'a@e.com', True],
+    ]
+)
+def test_publish_published(desciption, summary, email, is_verified):
     fields = {
         'description': desciption,
         'summary': summary,
         'email_address': email,
-        'verified_with_code': code_verified,
-        'verified_with_preverified_enrolment': preverified,
-        'is_published': published
+        'is_published': True
     }
-
-    # create
-    assert factories.CompanyFactory(**fields).is_published is expected
-
-    # update
-    company = factories.CompanyFactory()
-    assert company.is_published is False
-    for field, value in fields.items():
-        setattr(company, field, value)
-    company.save()
-    company.refresh_from_db()
-    assert company.is_published is expected
+    mock_verifed = mock.PropertyMock(return_value=is_verified)
+    with mock.patch('company.models.Company.is_verified', mock_verifed):
+        company = factories.CompanyFactory(**fields)
+        # create
+        assert company.is_published is True
+        # update
+        for field, value in fields.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is True
 
 
 @pytest.mark.django_db

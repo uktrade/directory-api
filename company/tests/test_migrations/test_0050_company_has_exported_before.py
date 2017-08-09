@@ -1,13 +1,5 @@
 import pytest
-
-from company.tests.factories import CompanyFactory
-
-
-def company_factory_factory(Company):
-    class HistoricCompanyFactory(CompanyFactory):
-        class Meta:
-            model = Company
-    return HistoricCompanyFactory
+from company.tests import helpers
 
 
 @pytest.mark.django_db
@@ -23,7 +15,7 @@ def test_legacy_keywords(before, after, migration):
         'company', '0050_company_has_exported_before'
     )
     HistoricCompany = historic_apps.get_model('company', 'Company')
-    HistoricCompanyFactory = company_factory_factory(HistoricCompany)
+    HistoricCompanyFactory = helpers.company_factory_factory(HistoricCompany)
     historic_company = HistoricCompanyFactory.create(export_status=before)
 
     apps = migration.apply('company', '0051_auto_20170718_0931')
