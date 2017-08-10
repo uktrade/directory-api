@@ -14,7 +14,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
 
-from company import views
+from company import helpers, serializers, views
 from company.models import Company, CompanyCaseStudy
 from company.search import CompanyDocType
 from company.tests import (
@@ -39,7 +39,6 @@ default_public_profile_data = {
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_retrieve_no_company(authed_client, authed_supplier):
     authed_supplier.company = None
     authed_supplier.save()
@@ -51,7 +50,6 @@ def test_company_retrieve_no_company(authed_client, authed_supplier):
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_retrieve_view(authed_client, authed_supplier):
     company = CompanyFactory(
         name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
@@ -104,7 +102,6 @@ def test_company_retrieve_view(authed_client, authed_supplier):
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @pytest.mark.django_db
 def test_company_update_with_put(authed_client, authed_supplier):
     company = CompanyFactory(
@@ -149,7 +146,6 @@ def test_company_update_with_put(authed_client, authed_supplier):
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @pytest.mark.django_db
 def test_company_update_with_patch(authed_client, authed_supplier):
     company = CompanyFactory(
@@ -193,7 +189,6 @@ def test_company_update_with_patch(authed_client, authed_supplier):
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @pytest.mark.django_db
 def test_company_not_update_modified(authed_client, authed_supplier):
     company = CompanyFactory(
@@ -216,7 +211,6 @@ def test_company_not_update_modified(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_rejects_invalid_data(
     mock_get_serializer, client
@@ -229,7 +223,6 @@ def test_company_number_validator_rejects_invalid_data(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_accepts_valid_data(
     mock_get_serializer, client
@@ -566,8 +559,60 @@ def search_companies_ordering_data():
     index.refresh()
 
 
+@pytest.fixture
+def companies_house_oauth_invalid_access_token(requests_mocker):
+    return requests_mocker.post(
+        'https://account.companieshouse.gov.uk/oauth2/verify',
+        status_code=400
+    )
+
+
+@pytest.fixture
+def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
+    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+        number='{number}rad'.format(number=authed_supplier.company.number)
+    )
+    return requests_mocker.post(
+        'https://account.companieshouse.gov.uk/oauth2/verify',
+        status_code=200,
+        json={
+            'scope': scope,
+            'expires_in': 6000,
+        }
+    )
+
+
+@pytest.fixture
+def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
+    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+        number=authed_supplier.company.number
+    )
+    return requests_mocker.post(
+        'https://account.companieshouse.gov.uk/oauth2/verify',
+        status_code=200,
+        json={
+            'scope': scope,
+            'expires_in': -1,
+        }
+    )
+
+
+@pytest.fixture
+def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
+    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+        number=authed_supplier.company.number
+    )
+    return requests_mocker.post(
+        'https://account.companieshouse.gov.uk/oauth2/verify',
+        status_code=200,
+        json={
+            'scope': scope,
+            'expires_in': 6000,
+        }
+    )
+
+
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
     company_data, authed_client, authed_supplier,
@@ -590,7 +635,6 @@ def test_company_update(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
     case_study_data, authed_client, authed_supplier,
@@ -622,7 +666,6 @@ def test_company_case_study_create(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
     authed_client, authed_supplier, mock_elasticsearch_company_save, company
@@ -653,7 +696,6 @@ def test_company_case_study_create_invalid_image(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
     video, authed_client, authed_supplier, mock_elasticsearch_company_save,
@@ -685,7 +727,6 @@ def test_company_case_study_create_not_an_image(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_company_not_published(
     video, authed_client, authed_supplier
@@ -728,7 +769,6 @@ def test_company_case_study_create_company_not_published(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
     supplier_case_study, authed_supplier, mock_elasticsearch_company_save,
@@ -752,7 +792,6 @@ def test_company_case_study_update(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_delete(
     supplier_case_study, authed_supplier, authed_client
@@ -772,7 +811,6 @@ def test_company_case_study_delete(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_case_study_get(
     supplier_case_study, authed_supplier, authed_client
 ):
@@ -805,9 +843,8 @@ def test_company_case_study_get(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_public_company_case_study_get(
-        supplier_case_study, supplier, api_client
+    supplier_case_study, supplier, api_client
 ):
     pk = supplier_case_study.pk
     url = reverse(
@@ -836,7 +873,6 @@ def test_public_company_case_study_get(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_retrieve_public_profile(
     public_profile, api_client
 ):
@@ -851,7 +887,6 @@ def test_company_profile_public_retrieve_public_profile(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_404_private_profile(
     private_profile, api_client
 ):
@@ -865,7 +900,6 @@ def test_company_profile_public_404_private_profile(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_list_profiles(
     private_profile, public_profile, api_client
 ):
@@ -880,7 +914,6 @@ def test_company_profile_public_list_profiles(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_ordering(
     private_profile, public_profile, public_profile_software,
     public_profile_with_case_study, public_profile_with_case_studies,
@@ -904,7 +937,6 @@ def test_company_profile_public_list_profiles_ordering(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_filter_single(
     public_profile_software, public_profile_cars, public_profile_smart_cars,
     api_client
@@ -929,7 +961,6 @@ def test_company_profile_public_list_profiles_filter_single(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_profile_public_list_profiles_empty_filter(
     public_profile_software, public_profile_cars, public_profile_smart_cars,
     api_client
@@ -945,7 +976,6 @@ def test_company_profile_public_list_profiles_empty_filter(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_verify_company_with_code(authed_client, authed_supplier, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
@@ -984,7 +1014,6 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_verify_company_with_code_invalid_code(
     authed_client, authed_supplier, settings
 ):
@@ -1023,7 +1052,6 @@ def test_verify_company_with_code_invalid_code(
 
 
 @patch('company.views.CompanySearchAPIView.get_search_results')
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_search(mock_get_search_results, api_client):
     mock_get_search_results.return_value = expected_value = {
         'hits': {
@@ -1042,7 +1070,6 @@ def test_company_search(mock_get_search_results, api_client):
 
 
 @patch('company.views.CompanySearchAPIView.get_search_results')
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_search_no_sectors(mock_get_search_results, api_client):
     mock_get_search_results.return_value = expected_value = {
         'hits': {
@@ -1072,7 +1099,6 @@ def test_company_search_no_sectors(mock_get_search_results, api_client):
     [8, 35],
     [9, 40],
 ])
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_paginate_first_page(page_number, expected_start, api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
@@ -1216,7 +1242,6 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
         )
 
 
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_search_with_sector_filter(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
@@ -1362,7 +1387,6 @@ def test_company_search_with_sector_filter(api_client):
         )
 
 
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_company_search_with_sector_filter_only(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
@@ -1604,3 +1628,82 @@ def test_company_search_results_highlight_long(
         'known. It is known. It is known. It is known. It is known. It is '
         'known. The <em>wolf</em> cries at night.'
     )
+
+
+@pytest.mark.django_db
+def test_verify_companies_house_missing_access_token(
+    authed_client, authed_supplier
+):
+    url = reverse('company-verify-companies-house')
+    response = authed_client.post(url)  # missing access_token
+
+    assert response.status_code == 400
+    assert response.json() == {'access_token': ['This field is required.']}
+    company = authed_supplier.company
+    company.refresh_from_db()
+    assert company.verified_with_companies_house_oauth2 is False
+
+
+@pytest.mark.django_db
+def test_verify_companies_house_invalid_access_token(
+    companies_house_oauth_invalid_access_token, authed_client, authed_supplier
+):
+    serializer = serializers.VerifyCompanyWithCompaniesHouseSerializer
+    url = reverse('company-verify-companies-house')
+    response = authed_client.post(url, {'access_token': '123'})
+
+    assert response.status_code == 400
+    assert response.json() == {
+        'access_token': [serializer.MESSAGE_BAD_ACCESS_TOKEN]
+    }
+    company = authed_supplier.company
+    company.refresh_from_db()
+    assert company.verified_with_companies_house_oauth2 is False
+
+
+@pytest.mark.django_db
+def test_verify_companies_house_wrong_company_access_token(
+    companies_house_oauth_wrong_company, authed_client, authed_supplier
+):
+    serializer = serializers.VerifyCompanyWithCompaniesHouseSerializer
+    url = reverse('company-verify-companies-house')
+    response = authed_client.post(url, {'access_token': '123'})
+
+    assert response.status_code == 400
+    assert response.json() == {
+        'access_token': [serializer.MESSAGE_SCOPE_ERROR]
+    }
+    company = authed_supplier.company
+    company.refresh_from_db()
+    assert company.verified_with_companies_house_oauth2 is False
+
+
+@pytest.mark.django_db
+def test_verify_companies_house_expired_access_token(
+    companies_house_oauth_expired_token, authed_client, authed_supplier
+):
+    serializer = serializers.VerifyCompanyWithCompaniesHouseSerializer
+    url = reverse('company-verify-companies-house')
+    response = authed_client.post(url, {'access_token': '123'})
+
+    assert response.status_code == 400
+    assert response.json() == {
+        'access_token': [serializer.MESSAGE_EXPIRED]
+    }
+    company = authed_supplier.company
+    company.refresh_from_db()
+    assert company.verified_with_companies_house_oauth2 is False
+
+
+@pytest.mark.django_db
+def test_verify_companies_house_good_access_token(
+    companies_house_oauth_valid_token, authed_supplier, authed_client,
+    mock_elasticsearch_company_save
+):
+    url = reverse('company-verify-companies-house')
+    response = authed_client.post(url, {'access_token': '123'})
+
+    assert response.status_code == 200
+    company = authed_supplier.company
+    company.refresh_from_db()
+    assert company.verified_with_companies_house_oauth2 is True

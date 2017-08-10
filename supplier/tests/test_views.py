@@ -1,5 +1,5 @@
 import base64
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import http
 
 from django.core.urlresolvers import reverse
@@ -29,7 +29,6 @@ def supplier():
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_supplier_retrieve(authed_client, authed_supplier):
     response = authed_client.get(reverse('supplier'))
 
@@ -40,7 +39,6 @@ def test_supplier_retrieve(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_supplier_update(authed_client, authed_supplier):
     response = authed_client.patch(
         reverse('supplier'), {'company_email': 'a@b.co'}, format='json'
@@ -51,7 +49,6 @@ def test_supplier_update(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_supplier_retrieve_no_supplier(authed_client, authed_supplier):
     authed_supplier.delete()
 
@@ -106,7 +103,6 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('notifications.tasks.send_supplier_email')
 def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
@@ -118,7 +114,6 @@ def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('notifications.notifications.supplier_unsubscribed')
 def test_unsubscribe_supplier_email_confirmation(
     mock_supplier_unsubscribed, authed_client, authed_supplier
@@ -131,7 +126,6 @@ def test_unsubscribe_supplier_email_confirmation(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_external_supplier_details_get(
     authed_client, authed_supplier, settings
 ):
@@ -149,7 +143,6 @@ def test_external_supplier_details_get(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_external_supplier_details_post(authed_client):
     response = authed_client.post(
         reverse('external-supplier-details'),
@@ -161,7 +154,6 @@ def test_external_supplier_details_post(authed_client):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_external_supplier_details_get_no_supplier(
     authed_client, authed_supplier
 ):
@@ -178,7 +170,6 @@ def test_external_supplier_details_get_no_supplier(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_external_supplier_sso_list(authed_client, authed_supplier):
 
     suppliers = factories.SupplierFactory.create_batch(3)

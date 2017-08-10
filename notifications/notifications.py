@@ -58,34 +58,26 @@ def hasnt_logged_in():
 
 
 def verification_code_not_given():
-    # first one
-    now = datetime.utcnow()
-    days_ago = now - timedelta(days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS)
-    suppliers = Supplier.objects.filter(
-        company__verified_with_code=False,
-        company__date_verification_letter_sent__year=days_ago.year,
-        company__date_verification_letter_sent__month=days_ago.month,
-        company__date_verification_letter_sent__day=days_ago.day,
-        unsubscribed=False,
-    ).exclude(
-        supplieremailnotification__category=constants.
-        VERIFICATION_CODE_NOT_GIVEN,
+    verification_code_not_given_first_reminder()
+    verification_code_not_given_seconds_reminder()
+
+
+def verification_code_not_given_first_reminder():
+    days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS
+    category = constants.VERIFICATION_CODE_NOT_GIVEN
+    suppliers = helpers.get_unverified_suppliers(days_ago).exclude(
+        supplieremailnotification__category=category,
     )
     for supplier in suppliers:
         notification = email.VerificationWaitingNotification(supplier)
         notification.send()
 
-    days_ago = datetime.utcnow() - timedelta(
-        days=settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL)
-    suppliers = Supplier.objects.filter(
-        company__verified_with_code=False,
-        company__date_verification_letter_sent__year=days_ago.year,
-        company__date_verification_letter_sent__month=days_ago.month,
-        company__date_verification_letter_sent__day=days_ago.day,
-        unsubscribed=False,
-    ).exclude(
-        supplieremailnotification__category=constants.
-        VERIFICATION_CODE_2ND_EMAIL,
+
+def verification_code_not_given_seconds_reminder():
+    days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL
+    category = constants.VERIFICATION_CODE_2ND_EMAIL
+    suppliers = helpers.get_unverified_suppliers(days_ago).exclude(
+        supplieremailnotification__category=category,
     )
     for supplier in suppliers:
         notification = email.VerificationStillWaitingNotification(supplier)

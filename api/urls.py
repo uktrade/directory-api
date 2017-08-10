@@ -10,6 +10,7 @@ from company.views import (
     CompanyRetrieveUpdateAPIView,
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
+    VerifyCompanyWithCompaniesHouseView,
 )
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
@@ -78,6 +79,11 @@ urlpatterns = [
         r'^supplier/company/verify/$',
         VerifyCompanyWithCodeAPIView.as_view(),
         name='company-verify'
+    ),
+    url(
+        r'^supplier/company/verify/companies-house/$',
+        VerifyCompanyWithCompaniesHouseView.as_view(),
+        name='company-verify-companies-house'
     ),
     url(
         r'^supplier/company/case-study/$',
