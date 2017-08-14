@@ -83,6 +83,8 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_preverified_enrolment': False,
+        'verified_with_companies_house_oauth2': False,
+        'is_verified': False,
         'country': company.country,
         'mobile_number': company.mobile_number,
         'address_line_1': company.address_line_1,
@@ -138,6 +140,8 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_preverified_enrolment': False,
+        'verified_with_companies_house_oauth2': False,
+        'is_verified': False,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
@@ -180,6 +184,8 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_preverified_enrolment': False,
+        'verified_with_companies_house_oauth2': False,
+        'is_verified': False,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK

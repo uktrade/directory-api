@@ -124,6 +124,26 @@ def test_public_profile_url(settings):
     assert company.public_profile_url == 'http://profile/1234567'
 
 
+@pytest.mark.parametrize('code,preverfiied,oauth2,expected', [
+    [False, False, False, False],
+    [False, False, True,  True],
+    [False, True,  False, True],
+    [False, True,  True,  True],
+    [True,  False, True,  True],
+    [True,  False, True,  True],
+    [True,  False, False, True],
+    [True,  True,  False, True],
+    [True,  True,  True,  True],
+])
+def test_company_is_verified(code, preverfiied, oauth2, expected):
+    company = CompanyFactory.build(
+        verified_with_preverified_enrolment=preverfiied,
+        verified_with_code=code,
+        verified_with_companies_house_oauth2=oauth2,
+    )
+    assert company.is_verified is expected
+
+
 @pytest.mark.parametrize('field_name', [
     'name',
     'description',

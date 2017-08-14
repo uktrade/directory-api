@@ -19,10 +19,7 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
     if not instance.is_published:
         has_contact = bool(instance.email_address)
         has_synopsis = bool(instance.description or instance.summary)
-        is_verified = (
-            instance.verified_with_preverified_enrolment or
-            instance.verified_with_code
-        )
+        is_verified = instance.is_verified
         instance.is_published = all([is_verified, has_synopsis, has_contact])
 
 

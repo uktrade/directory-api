@@ -122,9 +122,11 @@ class CompanySerializer(serializers.ModelSerializer):
             'summary',
             'supplier_case_studies',
             'twitter_url',
+            'website',
             'verified_with_code',
             'verified_with_preverified_enrolment',
-            'website',
+            'verified_with_companies_house_oauth2',
+            'is_verified',
         )
         read_only_fields = ('modified', 'is_published', 'slug')
 
