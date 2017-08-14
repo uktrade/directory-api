@@ -74,6 +74,9 @@ class SupplierAdmin(admin.ModelAdmin):
             supplier['company__number_of_sectors'] = len(
                 supplier['company__sectors']
             )
+            supplier['company__sectors'] = ','.join(
+                supplier['company__sectors']
+            )
             writer.writerow(supplier)
 
         return response
