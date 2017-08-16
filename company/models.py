@@ -1,4 +1,4 @@
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
 
@@ -30,11 +30,6 @@ class Company(TimeStampedModel):
         choices=choices.EMPLOYEES,
         blank=True,
         default='',
-    )
-    export_status = models.CharField(
-        max_length=20,
-        choices=choices.EXPORT_STATUSES,
-        validators=[shared_validators.export_status_intention]
     )
     export_destinations = JSONField(
         blank=True,
@@ -233,7 +228,7 @@ class CompanyCaseStudy(TimeStampedModel):
         validators=[no_html],
     )
     sector = models.CharField(
-        choices=choices.COMPANY_CLASSIFICATIONS,
+        choices=choices.INDUSTRIES,
         max_length=100,
     )
     website = models.URLField(

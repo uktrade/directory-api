@@ -1,6 +1,6 @@
 import pytest
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 from directory_validators.company import no_html
 
 from django.db import IntegrityError
@@ -44,7 +44,7 @@ def test_company_case_study_non_required_fields():
     instance = models.CompanyCaseStudy.objects.create(
         title='a title',
         description='a description',
-        sector=choices.COMPANY_CLASSIFICATIONS[1][0],
+        sector=choices.INDUSTRIES[1][0],
         keywords='good, great',
         company=company,
     )

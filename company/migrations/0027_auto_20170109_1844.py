@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import company.helpers
-import directory_validators.enrolment
 from django.db import migrations, models
 
 
@@ -22,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='company',
             name='export_status',
-            field=models.CharField(choices=[('', ''), ('YES', 'Yes, in the last year.'), ('ONE_TWO_YEARS_AGO', 'Yes, 1-2 years ago.'), ('OVER_TWO_YEARS_AGO', 'Yes, over 2 years ago.'), ('NOT_YET', 'Not yet.'), ('NO_INTENTION', 'No, and we have no intention to.')], max_length=20, validators=[directory_validators.enrolment.export_status_intention]),
+            field=models.CharField(choices=[('', ''), ('YES', 'Yes, in the last year.'), ('ONE_TWO_YEARS_AGO', 'Yes, 1-2 years ago.'), ('OVER_TWO_YEARS_AGO', 'Yes, over 2 years ago.'), ('NOT_YET', 'Not yet.'), ('NO_INTENTION', 'No, and we have no intention to.')], max_length=20, validators=[]),
         ),
         migrations.AlterField(
             model_name='companycasestudy',

@@ -10,14 +10,14 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 import requests
 
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
 COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
-SECTOR_CHOICES = dict(choices.COMPANY_CLASSIFICATIONS)
+SECTOR_CHOICES = dict(choices.INDUSTRIES)
 
 logger = logging.getLogger(__name__)
 

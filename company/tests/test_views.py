@@ -5,7 +5,7 @@ from unittest.mock import call, patch, Mock
 
 from django.core.urlresolvers import reverse
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -29,7 +29,6 @@ default_public_profile_data = {
     'name': 'private company',
     'website': 'http://example.com',
     'description': 'Company description',
-    'export_status': choices.EXPORT_STATUSES[1][0],
     'has_exported_before': True,
     'date_of_creation': '2010-10-10',
     'email_address': 'thing@example.com',
@@ -90,7 +89,6 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'number': company.number,
         'website': company.website,
         'description': company.description,
-        'export_status': company.export_status,
         'has_exported_before': company.has_exported_before,
         'locality': company.locality,
         'name': 'Test Company',
@@ -105,7 +103,6 @@ def test_company_retrieve_view(authed_client, authed_supplier):
 def test_company_update_with_put(authed_client, authed_supplier):
     company = CompanyFactory(
         number='01234567',
-        export_status=choices.EXPORT_STATUSES[1][0],
         has_exported_before=True,
     )
     authed_supplier.company = company
@@ -149,7 +146,6 @@ def test_company_update_with_put(authed_client, authed_supplier):
 def test_company_update_with_patch(authed_client, authed_supplier):
     company = CompanyFactory(
         number='01234567',
-        export_status=choices.EXPORT_STATUSES[1][0]
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -192,7 +188,6 @@ def test_company_update_with_patch(authed_client, authed_supplier):
 def test_company_not_update_modified(authed_client, authed_supplier):
     company = CompanyFactory(
         number='01234567',
-        export_status=choices.EXPORT_STATUSES[1][0],
         has_exported_before=True,
     )
     authed_supplier.company = company
@@ -271,7 +266,7 @@ def case_study_data(image_one, image_two, image_three, video, company):
         'company': company.pk,
         'title': 'a title',
         'description': 'a description',
-        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
         'image_one': image_one,
@@ -292,7 +287,6 @@ def company_data():
         'name': 'Test Company',
         'website': 'http://example.com',
         'description': 'Company description',
-        'export_status': choices.EXPORT_STATUSES[1][0],
         'has_exported_before': True,
         'date_of_creation': '2010-10-10',
     }
@@ -612,7 +606,6 @@ def test_company_update(
     assert instance.name == 'Test Company'
     assert instance.website == 'http://example.com'
     assert instance.description == 'Company description'
-    assert instance.export_status == choices.EXPORT_STATUSES[1][0]
     assert instance.has_exported_before is True
     assert instance.date_of_creation == datetime.date(2010, 10, 10)
 
@@ -660,7 +653,7 @@ def test_company_case_study_create_invalid_image(
         'company': company.pk,
         'title': 'a title',
         'description': 'a description',
-        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
         'image_one': get_test_image(extension="BMP"),
@@ -690,7 +683,7 @@ def test_company_case_study_create_not_an_image(
         'company': company.pk,
         'title': 'a title',
         'description': 'a description',
-        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
         'image_one': video,
@@ -716,7 +709,6 @@ def test_company_case_study_create_company_not_published(
 
     company = CompanyFactory.create(
         number='01234567',
-        export_status=choices.EXPORT_STATUSES[1][0],
         has_exported_before=True,
         is_published=False
     )
@@ -727,7 +719,7 @@ def test_company_case_study_create_company_not_published(
         'company': company.pk,
         'title': 'a title',
         'description': 'a description',
-        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
         'image_one': get_test_image(extension="PNG"),
@@ -967,7 +959,6 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
             'name': 'Test Company',
             'website': 'http://example.com',
             'description': 'Company description',
-            'export_status': choices.EXPORT_STATUSES[1][0],
             'has_exported_before': True,
             'date_of_creation': '2010-10-10',
             'postal_full_name': 'test_full_name',
@@ -1007,7 +998,6 @@ def test_verify_company_with_code_invalid_code(
             'name': 'Test Company',
             'website': 'http://example.com',
             'description': 'Company description',
-            'export_status': choices.EXPORT_STATUSES[1][0],
             'has_exported_before': True,
             'date_of_creation': '2010-10-10',
             'postal_full_name': 'test_full_name',

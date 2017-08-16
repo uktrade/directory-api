@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('description', models.TextField(blank=True, default='', null=True)),
                 ('employees', models.CharField(choices=[('', 'Please select'), ('1-10', '1-10'), ('11-50', '11-50'), ('51-200', '51-200'), ('201-500', '201-500'), ('501-1000', '501-1,000'), ('1001-10000', '1,001-10,000'), ('10001+', '10,001+')], max_length=20)),
-                ('export_status', models.CharField(choices=[('', ''), ('YES', 'Yes, in the last year.'), ('ONE_TWO_YEARS_AGO', 'Yes, 1-2 years ago.'), ('OVER_TWO_YEARS_AGO', 'Yes, over 2 years ago.'), ('NOT_YET', 'Not yet.'), ('NO_INTENTION', 'No, and we have no intention to.')], max_length=20, validators=[directory_validators.enrolment.export_status_intention])),
+                ('export_status', models.CharField(choices=[('', ''), ('YES', 'Yes, in the last year.'), ('ONE_TWO_YEARS_AGO', 'Yes, 1-2 years ago.'), ('OVER_TWO_YEARS_AGO', 'Yes, over 2 years ago.'), ('NOT_YET', 'Not yet.'), ('NO_INTENTION', 'No, and we have no intention to.')], max_length=20)),
                 ('logo', models.FileField(blank=True, null=True, upload_to='')),
                 ('name', models.CharField(max_length=255)),
                 ('number', models.CharField(max_length=8, unique=True, validators=[django.core.validators.RegexValidator(code='invalid_company_number', message='Company number must be 8 characters', regex='^[A-Za-z0-9]{8}$')])),
