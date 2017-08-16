@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from requests import HTTPError
 
 from company import helpers, models
 
@@ -9,6 +10,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         querystring = models.Company.objects.exclude(number='')
         for company in querystring.filter(date_of_creation__isnull=True):
-            date_of_creation = helpers.get_date_of_creation(company.number)
-            company.date_of_creation = date_of_creation
-            company.save()
+            try:
+                date_of_creation = helpers.get_date_of_creation(company.number)
+                company.date_of_creation = date_of_creation
+                company.save()
+            except HTTPError:
+                pass
