@@ -1,5 +1,3 @@
-from unittest.mock import patch, Mock
-
 from directory_constants.constants import choices
 from rest_framework import status
 import pytest
@@ -10,7 +8,6 @@ from exportopportunity import models
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_export_opportunity_create(authed_client):
     assert models.ExportOpportunity.objects.count() == 0
 

@@ -25,10 +25,10 @@ def profile_api_200(*args, **kwargs):
 
 
 def test_companies_house_client_consumes_auth(settings):
-    settings.COMPANIES_HOUSE_API_KEY = 'ff'
+    helpers.CompaniesHouseClient.api_key = 'ff'
     with requests_mock.mock() as mock:
         mock.get('https://thing.com')
-        response = helpers.companies_house_client('https://thing.com')
+        response = helpers.CompaniesHouseClient.get('https://thing.com')
     expected = 'Basic ZmY6'  # base64 encoded ff
     assert response.request.headers['Authorization'] == expected
 
@@ -39,13 +39,13 @@ def test_companies_house_client_logs_unauth(caplog):
             'https://thing.com',
             status_code=http.client.UNAUTHORIZED,
         )
-        helpers.companies_house_client('https://thing.com')
+        helpers.CompaniesHouseClient.get('https://thing.com')
     log = caplog.records[0]
     assert log.levelname == 'ERROR'
     assert log.msg == helpers.MESSAGE_AUTH_FAILED
 
 
-def test_get_companies_house_profile():
+def test_companies_house_client_retrieve_profile():
     profile = {'company_status': 'active'}
     with requests_mock.mock() as mock:
         mock.get(
@@ -53,7 +53,7 @@ def test_get_companies_house_profile():
             status_code=http.client.OK,
             json=profile
         )
-        response = helpers.get_companies_house_profile('01234567')
+        response = helpers.CompaniesHouseClient.retrieve_profile('01234567')
     assert response.json() == profile
 
 
@@ -95,18 +95,18 @@ def test_path_and_rename_logos_no_extension():
     assert actual.startswith('company_logos')
 
 
-@mock.patch.object(helpers, 'get_companies_house_profile')
-def test_get_date_of_creation_response_ok(mock_get_companies_house_profile):
-    mock_get_companies_house_profile.return_value = profile_api_200()
+@mock.patch.object(helpers.CompaniesHouseClient, 'retrieve_profile')
+def test_get_date_of_creation_response_ok(mock_retrieve_profile):
+    mock_retrieve_profile.return_value = profile_api_200()
     result = helpers.get_date_of_creation('01234567')
 
-    mock_get_companies_house_profile.assert_called_once_with(number='01234567')
+    mock_retrieve_profile.assert_called_once_with(number='01234567')
     assert result == date(1987, 12, 31)
 
 
-@mock.patch.object(helpers, 'get_companies_house_profile')
-def test_get_date_of_creation_response_bad(mock_get_companies_house_profile):
-    mock_get_companies_house_profile.return_value = profile_api_400()
+@mock.patch.object(helpers.CompaniesHouseClient, 'retrieve_profile')
+def test_get_date_of_creation_response_bad(mock_retrieve_profile):
+    mock_retrieve_profile.return_value = profile_api_400()
 
     with pytest.raises(HTTPError):
         helpers.get_date_of_creation('01234567')
