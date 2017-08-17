@@ -12,4 +12,4 @@ class Command(BaseCommand):
         ).values_list(
             'id', flat=True
         ):
-            tasks.save_company_to_elasticsearch(company_id=company_id)
+            tasks.save_company_to_elasticsearch.delay(company_id=company_id)

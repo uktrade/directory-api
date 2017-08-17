@@ -40,6 +40,6 @@ def test_populate_elasticsearch(mock_tasks):
 
     call_command('populate_elasticsearch')
 
-    mock_tasks.save_company_to_elasticsearch.assert_called_once_with(
+    mock_tasks.save_company_to_elasticsearch.delay.assert_called_once_with(
         company_id=company.pk
     )

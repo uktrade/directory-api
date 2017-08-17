@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from rest_framework import status
@@ -13,7 +13,6 @@ from user.models import User as Supplier
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('boto3.resource')
 def test_enrolment_viewset_create(boto_mock):
     client = APIClient()
@@ -30,7 +29,6 @@ def test_enrolment_viewset_create(boto_mock):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_enrolment_viewset_create_invalid_data():
     client = APIClient()
     invalid_data = VALID_REQUEST_DATA.copy()
@@ -46,7 +44,6 @@ def test_enrolment_viewset_create_invalid_data():
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('enrolment.serializers.CompanyEnrolmentSerializer.create')
 def test_enrolment_create_company_exception_rollback(mock_create):
     api_client = APIClient()
@@ -61,7 +58,6 @@ def test_enrolment_create_company_exception_rollback(mock_create):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 @patch('supplier.serializers.SupplierSerializer.create')
 def test_enrolment_create_supplier_exception_rollback(mock_create):
     api_client = APIClient()
@@ -76,7 +72,6 @@ def test_enrolment_create_supplier_exception_rollback(mock_create):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_enrolment_create_disables_single_preverified_enrolment():
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
@@ -97,7 +92,6 @@ def test_enrolment_create_disables_single_preverified_enrolment():
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_enrolment_create_preverified_enrolment_different_email(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
@@ -117,7 +111,6 @@ def test_enrolment_create_preverified_enrolment_different_email(authed_client):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_preverified_enrolment_retrieve_not_found(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],
@@ -135,7 +128,6 @@ def test_preverified_enrolment_retrieve_not_found(authed_client):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission', Mock)
 def test_preverified_enrolment_retrieve_found(authed_client):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=VALID_REQUEST_DATA['company_number'],

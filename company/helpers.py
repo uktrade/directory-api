@@ -1,8 +1,10 @@
 from datetime import datetime
-import logging
-import http
-import os
+from functools import partial
 from uuid import uuid4
+import http
+import logging
+import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -18,9 +20,6 @@ COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
 SECTOR_CHOICES = dict(choices.COMPANY_CLASSIFICATIONS)
 
 logger = logging.getLogger(__name__)
-company_profile_url = 'https://api.companieshouse.gov.uk/company/{number}'
-
-companies_house_session = requests.Session()
 
 
 def get_sector_label(sectors_value):
@@ -52,7 +51,7 @@ def get_date_of_creation(number):
 
     """
 
-    response = get_companies_house_profile(number=number)
+    response = CompaniesHouseClient.retrieve_profile(number=number)
     if not response.ok:
         raise response.raise_for_status()
     else:
@@ -60,17 +59,37 @@ def get_date_of_creation(number):
         return datetime.strptime(raw, COMPANIES_HOUSE_DATE_FORMAT).date()
 
 
-def companies_house_client(url):
-    auth = requests.auth.HTTPBasicAuth(settings.COMPANIES_HOUSE_API_KEY, '')
-    response = companies_house_session.get(url=url, auth=auth)
-    if response.status_code == http.client.UNAUTHORIZED:
-        logger.error(MESSAGE_AUTH_FAILED)
-    return response
+class CompaniesHouseClient:
+    api_key = settings.COMPANIES_HOUSE_API_KEY
+    make_api_url = partial(urljoin, 'https://api.companieshouse.gov.uk')
+    make_oauth2_url = partial(urljoin, 'https://account.companieshouse.gov.uk')
+    endpoints = {
+        'profile': make_api_url('company/{number}'),
+        'verify-oauth2-access-token': make_oauth2_url('oauth2/verify'),
+    }
+    session = requests.Session()
 
+    @classmethod
+    def get_auth(cls):
+        return requests.auth.HTTPBasicAuth(cls.api_key, '')
 
-def get_companies_house_profile(number):
-    url = company_profile_url.format(number=number)
-    return companies_house_client(url)
+    @classmethod
+    def get(cls, url, params={}):
+        response = cls.session.get(url=url, params=params, auth=cls.get_auth())
+        if response.status_code == http.client.UNAUTHORIZED:
+            logger.error(MESSAGE_AUTH_FAILED)
+        return response
+
+    @classmethod
+    def retrieve_profile(cls, number):
+        url = cls.endpoints['profile'].format(number=number)
+        return cls.get(url)
+
+    @classmethod
+    def verify_access_token(cls, access_token):
+        url = cls.endpoints['verify-oauth2-access-token']
+        data = {'access-token': access_token}
+        return cls.session.post(url=url, json=data)
 
 
 @deconstructible

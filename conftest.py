@@ -29,7 +29,7 @@ def pytest_runtest_setup(item):
         status_code=http.client.OK,
     )
 
-    helpers.companies_house_session.mount(
+    helpers.CompaniesHouseClient.session.mount(
         'https://api.companieshouse.gov.uk',
         companies_house_adapter
     )
@@ -149,3 +149,18 @@ def authed_client(
 
     client = APIClient(HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     return client
+
+
+@pytest.fixture(autouse=True)
+def mock_signature_check():
+    stub = patch('api.signature.SignatureCheckPermission.has_permission')
+    stub.start()
+    yield stub
+    stub.stop()
+
+
+@pytest.fixture
+def enable_signature_check(mock_signature_check):
+    mock_signature_check.stop()
+    yield
+    mock_signature_check.start()

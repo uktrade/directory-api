@@ -87,13 +87,18 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VerifyCompanyWithCodeAPIView(views.APIView):
+    """
+    Confirms Supplier's relationship with Company by providing proof of
+    access to the Company's physical address.
+
+    """
 
     http_method_names = ("post", )
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer, )
 
     def post(self, request, *args, **kwargs):
-        """Confirms enrolment by company_email verification"""
+
         company = self.request.user.supplier.company
         serializer = self.serializer_class(
             data=request.data,
@@ -111,6 +116,28 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class VerifyCompanyWithCompaniesHouseView(views.APIView):
+    """
+    Confirms Supplier's relationship with Company by providing proof of
+    being able to login to the Company's Companies House profile.
+
+    """
+
+    serializer_class = serializers.VerifyCompanyWithCompaniesHouseSerializer
+
+    def post(self, request, *args, **kwargs):
+        company = self.request.user.supplier.company
+        serializer = self.serializer_class(
+            data=request.data,
+            context={'company_number': company.number}
+        )
+        serializer.is_valid(raise_exception=True)
+        company.verified_with_companies_house_oauth2 = True
+        company.save()
+
+        return Response()
 
 
 class CompanySearchAPIView(views.APIView):

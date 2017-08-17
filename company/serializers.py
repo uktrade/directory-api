@@ -5,7 +5,7 @@ from directory_validators.constants import choices
 
 from django.conf import settings
 
-from company import models, validators
+from company import helpers, models, validators
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -168,3 +168,21 @@ class CompanySearchSerializer(serializers.Serializer):
         if not (is_term_present or is_sector_present):
             raise serializers.ValidationError(self.MESSAGE_MISSING_SECTOR_TERM)
         return attrs
+
+
+class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
+    MESSAGE_BAD_ACCESS_TOKEN = 'Bad access token'
+    MESSAGE_SCOPE_ERROR = 'Access token not valid for company'
+    MESSAGE_EXPIRED = 'Access token has expired'
+
+    access_token = serializers.CharField()
+
+    def validate_access_token(self, value):
+        response = helpers.CompaniesHouseClient.verify_access_token(value)
+        if not response.ok:
+            raise serializers.ValidationError(self.MESSAGE_BAD_ACCESS_TOKEN)
+        data = response.json()
+        if not data['scope'].rsplit('/')[-1] == self.context['company_number']:
+            raise serializers.ValidationError(self.MESSAGE_SCOPE_ERROR)
+        if data['expires_in'] < 1:
+            raise serializers.ValidationError(self.MESSAGE_EXPIRED)
