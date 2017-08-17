@@ -12,21 +12,7 @@ class StannpClient():
         self.test_mode = test_mode
 
     def post(self, url, data):
-        response = requests.post(
-            url, data=data, auth=(self.api_key, '')
-        )
-        return response.json()
-
-    def validate_recipient(self, recipient):
-        """
-        Validates an recipient.
-
-        https://www.stannp.com/direct-mail-api/recipients
-        """
-        return self.post(
-            'https://dash.stannp.com/api/v1/recipients/validate',
-            data=recipient
-        )
+        return requests.post(url, data=data, auth=(self.api_key, ''))
 
     def send_letter(self, template, recipient):
         """
