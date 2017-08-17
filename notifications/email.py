@@ -4,7 +4,7 @@ from collections import namedtuple
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from notifications import constants, helpers, tasks
+from notifications import constants, helpers, tasks, models
 
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
@@ -53,14 +53,16 @@ class SupplierNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        tasks.send_supplier_email.delay(
+        models.SupplierEmailNotification.objects.create(
+            supplier=self.supplier,
+            category=self.category
+        )
+        tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
             html_body=html_body,
             recipient_email=self.recipient.email,
             from_email=self.from_email,
-            category=self.category,
-            supplier_id=self.supplier.pk,
         )
 
 
@@ -79,13 +81,15 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        tasks.send_anon_email.delay(
+        models.AnonymousEmailNotification.objects.create(
+            email=self.recipient.email, category=self.category
+        )
+        tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
             html_body=html_body,
             recipient_email=self.recipient.email,
-            from_email=self.from_email,
-            category=self.category,
+            from_email=self.from_email
         )
 
 

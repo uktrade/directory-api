@@ -2,8 +2,7 @@ from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 
 from api.celery import app
-from notifications import notifications, models
-from user.models import User as Supplier
+from notifications import notifications
 
 
 def lock_acquired(lock_name):
@@ -41,11 +40,10 @@ def new_companies_in_sector():
         notifications.new_companies_in_sector()
 
 
-def send_email(subject,
-               text_body,
-               html_body,
-               recipient_email,
-               from_email):
+@app.task(autoretry_for=(TimeoutError, ))
+def send_email(
+    subject, text_body, html_body, recipient_email, from_email
+):
     message = EmailMultiAlternatives(
         subject=subject,
         body=text_body,
@@ -54,29 +52,3 @@ def send_email(subject,
     )
     message.attach_alternative(html_body, "text/html")
     message.send()
-
-
-@app.task(autoretry_for=(TimeoutError, ))
-def send_supplier_email(subject,
-                        text_body,
-                        html_body,
-                        recipient_email,
-                        from_email,
-                        category,
-                        supplier_id):
-    send_email(subject, text_body, html_body, recipient_email, from_email)
-    supplier = Supplier.objects.get(pk=supplier_id)
-    return models.SupplierEmailNotification.objects.create(
-        supplier=supplier, category=category)
-
-
-@app.task(autoretry_for=(TimeoutError, ))
-def send_anon_email(subject,
-                    text_body,
-                    html_body,
-                    recipient_email,
-                    from_email,
-                    category):
-    send_email(subject, text_body, html_body, recipient_email, from_email)
-    return models.AnonymousEmailNotification.objects.create(
-        email=recipient_email, category=category)
