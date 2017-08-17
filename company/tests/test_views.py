@@ -6,7 +6,7 @@ from unittest.mock import call, patch, Mock
 from django.core.urlresolvers import reverse
 
 from directory_validators.constants import choices
-from elasticsearch_dsl import Index, analyzer
+from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
 from freezegun import freeze_time
@@ -16,7 +16,6 @@ from PIL import Image, ImageDraw
 
 from company import helpers, serializers, views
 from company.models import Company, CompanyCaseStudy
-from company.search import CompanyDocType
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -403,11 +402,6 @@ def supplier(company):
 
 @pytest.fixture
 def search_companies_data():
-    index = Index('companies')
-    index.doc_type(CompanyDocType)
-    index.analyzer(analyzer('english'))
-    index.delete(ignore=404)
-    index.create()
     wolf_company = CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
@@ -445,16 +439,11 @@ def search_companies_data():
         title='Thick case study',
         description='We determined lead sinks in water.'
     )
-    index.refresh()
+    Index('companies').refresh()
 
 
 @pytest.fixture
 def search_companies_highlighting_data():
-    index = Index('companies')
-    index.doc_type(CompanyDocType)
-    index.analyzer(analyzer('english'))
-    index.delete(ignore=404)
-    index.create()
     CompanyFactory(
         name='Wolf limited',
         description=(
@@ -479,16 +468,11 @@ def search_companies_highlighting_data():
         sectors=['AEROSPACE'],
         id=2,
     )
-    index.refresh()
+    Index('companies').refresh()
 
 
 @pytest.fixture
 def search_companies_ordering_data():
-    index = Index('companies')
-    index.doc_type(CompanyDocType)
-    index.analyzer(analyzer('english'))
-    index.delete(ignore=404)
-    index.create()
     CompanyFactory(
         name='Wolf limited',
         description='',
@@ -556,7 +540,7 @@ def search_companies_ordering_data():
         title='cannons',
         description='naval guns'
     )
-    index.refresh()
+    Index('companies').refresh()
 
 
 @pytest.fixture
@@ -615,8 +599,7 @@ def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
 @pytest.mark.django_db
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
-    company_data, authed_client, authed_supplier,
-    mock_elasticsearch_company_save, company
+    company_data, authed_client, authed_supplier, company
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -637,8 +620,8 @@ def test_company_update(
 @pytest.mark.django_db
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
-    case_study_data, authed_client, authed_supplier,
-    mock_elasticsearch_company_save, company
+    case_study_data, authed_client, authed_supplier, company,
+    mock_elasticsearch_company_save
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -668,7 +651,7 @@ def test_company_case_study_create(
 @pytest.mark.django_db
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
-    authed_client, authed_supplier, mock_elasticsearch_company_save, company
+    authed_client, authed_supplier, company
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -698,8 +681,7 @@ def test_company_case_study_create_invalid_image(
 @pytest.mark.django_db
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
-    video, authed_client, authed_supplier, mock_elasticsearch_company_save,
-    company,
+    video, authed_client, authed_supplier, company,
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -771,8 +753,8 @@ def test_company_case_study_create_company_not_published(
 @pytest.mark.django_db
 @patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
-    supplier_case_study, authed_supplier, mock_elasticsearch_company_save,
-    authed_client,
+    supplier_case_study, authed_supplier, authed_client,
+    mock_elasticsearch_company_save
 ):
     authed_supplier.company = supplier_case_study.company
     authed_supplier.save()
@@ -1527,6 +1509,7 @@ def test_company_search_with_sector_filter_only(api_client):
         )
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 @pytest.mark.parametrize('term,sector,expected', [
     # sectors
@@ -1577,6 +1560,7 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 
 
 @pytest.mark.django_db
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
     ['wolf',       None,          ['3', '4', '2', '1']],
     ['Limited',    None,          ['3', '5', '4', '2', '1']],
@@ -1600,6 +1584,7 @@ def test_company_search_results_ordering(
 
 
 @pytest.mark.django_db
+@pytest.mark.rebuild_elasticsearch
 def test_company_search_results_highlight(search_companies_highlighting_data):
     results = views.CompanySearchAPIView.get_search_results(
         term='power', page=1, size=5, sectors=None
