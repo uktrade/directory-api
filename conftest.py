@@ -3,10 +3,13 @@ import http
 import re
 from unittest.mock import patch
 
+from elasticsearch_dsl import Index, analyzer
+from company.search import CompanyDocType
 import pytest
 import requests_mock
 from rest_framework.test import APIClient
 
+from django.conf import settings
 from django.core.management import call_command
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
@@ -87,21 +90,6 @@ def migration(transactional_db):
 
 
 @pytest.fixture
-def mock_elasticsearch_company_save():
-    stub = patch('company.search.CompanyDocType.save')
-    yield stub.start()
-    stub.stop()
-
-
-@pytest.fixture
-def requests_mocker():
-    mocker = requests_mock.mock()
-    mocker.start()
-    yield mocker
-    mocker.stop()
-
-
-@pytest.fixture
 def authed_supplier():
     """
     This fixture is used by sso_session_request_active_user fixture to ensure
@@ -164,3 +152,33 @@ def enable_signature_check(mock_signature_check):
     mock_signature_check.stop()
     yield
     mock_signature_check.start()
+
+
+@pytest.fixture
+def requests_mocker():
+    elasticsearch_url = 'http://{address}:9200/companies/.*'.format(
+        address=settings.ELASTICSEARCH_ENDPOINT
+    )
+    mocker = requests_mock.mock()
+    mocker.register_uri('PUT', re.compile(elasticsearch_url), real_http=True)
+    mocker.start()
+    yield mocker
+    mocker.stop()
+
+
+@pytest.fixture
+def mock_elasticsearch_company_save():
+    stub = patch('company.search.CompanyDocType.save')
+    yield stub.start()
+    stub.stop()
+
+
+@pytest.fixture(autouse=True)
+def elasticsearch_marker(request):
+    if request.node.get_marker('rebuild_elasticsearch'):
+        # sanitize the companies index before each test that uses it
+        index = Index('companies')
+        index.doc_type(CompanyDocType)
+        index.analyzer(analyzer('english'))
+        index.delete(ignore=404)
+        index.create()

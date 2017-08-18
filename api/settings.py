@@ -418,10 +418,11 @@ FAB_TRUSTED_SOURCE_ENROLMENT_LINK = os.environ[
 ]
 
 # Initialise default Elasticsearch connection
+ELASTICSEARCH_ENDPOINT = os.getenv("ELASTICSEARCH_ENDPOINT")
 connections.create_connection(
     alias='default',
     hosts=[{
-        'host': os.getenv("ELASTICSEARCH_ENDPOINT"),
+        'host': ELASTICSEARCH_ENDPOINT,
         'port': int(os.getenv("ELASTICSEARCH_PORT", 443))
     }],
     http_auth=AWS4Auth(
