@@ -17,6 +17,10 @@ class SSOUser:
         self.id = id
         self.email = email
 
+    @property
+    def pk(self):
+        return self.id
+
     @cached_property
     def supplier(self):
         try:
