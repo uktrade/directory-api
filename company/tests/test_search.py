@@ -1,3 +1,4 @@
+from unittest.mock import patch, Mock, PropertyMock
 import datetime
 
 from freezegun import freeze_time
@@ -16,7 +17,9 @@ def test_company_doc_type():
     )
     case_study = factories.CompanyCaseStudyFactory(company=company)
 
-    doc = search.company_model_to_doc_type(company)
+    logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
+    with patch.object(company, 'logo', new_callable=logo_mock):
+        doc = search.company_model_to_doc_type(company)
 
     expected = {
         'date_of_creation': '2000-10-10',
@@ -26,7 +29,7 @@ def test_company_doc_type():
         'pk': str(company.pk),
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
-        'logo': '',
+        'logo': 'http://0.0.0.0:8000/media/thing.jpg',
         'modified': '2016-11-23T11:21:10.977518Z',
         'name': company.name,
         'number': company.number,
@@ -74,3 +77,29 @@ def test_company_doc_type_single_sector():
     doc = search.company_model_to_doc_type(company)
 
     assert doc.to_dict()['has_single_sector'] is True
+
+
+@pytest.mark.django_db
+def test_company_doc_type_single_sector_local_storage(settings):
+    settings.STORAGE_CLASS_NAME = 'local-storage'
+
+    company = factories.CompanyFactory()
+
+    logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
+    with patch.object(company, 'logo', new_callable=logo_mock):
+        doc = search.company_model_to_doc_type(company)
+
+    assert doc.to_dict()['logo'] == 'http://0.0.0.0:8000/media/thing.jpg'
+
+
+@pytest.mark.django_db
+def test_company_doc_type_single_sector_non_local_storage(settings):
+    settings.STORAGE_CLASS_NAME = 'default'
+
+    company = factories.CompanyFactory()
+
+    logo_mock = PropertyMock(return_value=Mock(url='http://media.com/a.jpg'))
+    with patch.object(company, 'logo', new_callable=logo_mock):
+        doc = search.company_model_to_doc_type(company)
+
+    assert doc.to_dict()['logo'] == 'http://media.com/a.jpg'
