@@ -1,4 +1,8 @@
+from urllib.parse import urljoin
+
 from elasticsearch_dsl import field, DocType
+
+from django.conf import settings
 
 from company import helpers
 
@@ -21,28 +25,28 @@ class FormattedDate(field.Date):
 
 class CompanyDocType(DocType):
     case_study_count = field.Integer()
-    date_of_creation = FormattedDate(date_format='%Y-%m-%d')
+    date_of_creation = FormattedDate(date_format='%Y-%m-%d', index='no')
     description = field.Text()
     has_description = field.Boolean()
-    employees = field.Text()
-    facebook_url = field.Text()
-    pk = field.Integer()
+    employees = field.Text(index='no')
+    facebook_url = field.Text(index='no')
+    pk = field.Integer(index='no')
     keywords = field.Text()
-    linkedin_url = field.Text()
-    logo = field.Text()
+    linkedin_url = field.Text(index='no')
+    logo = field.Text(index='no')
     has_single_sector = field.Boolean()
-    modified = FormattedDate(date_format='%Y-%m-%dT%H:%M:%S.%fZ')
+    modified = FormattedDate(date_format='%Y-%m-%dT%H:%M:%S.%fZ', index='no')
     name = field.Text()
     number = field.Text()
     sectors = field.Text(multi=True)
     sectors_label = field.Text(multi=True)
     slug = field.Text()
     summary = field.Text()
-    twitter_url = field.Text()
+    twitter_url = field.Text(index='no')
     website = field.Text()
     supplier_case_studies = field.Nested(
         properties={
-            'pk': field.Integer(),
+            'pk': field.Integer(index='no'),
             'title': field.Text(),
             'short_summary': field.Text(),
             'description': field.Text(),
@@ -60,6 +64,12 @@ class CompanyDocType(DocType):
         index = 'companies'
 
 
+def get_absolute_url(url):
+    if settings.STORAGE_CLASS_NAME == 'local-storage':
+        return urljoin(settings.LOCAL_STORAGE_DOMAIN, url)
+    return url
+
+
 def company_model_to_doc_type(company):
     company_doc_type = CompanyDocType(
         meta={'id': company.pk},
@@ -72,7 +82,7 @@ def company_model_to_doc_type(company):
         has_single_sector=len(company.sectors) == 1,
         keywords=company.keywords,
         linkedin_url=company.linkedin_url,
-        logo=company.logo.url if company.logo else '',
+        logo=get_absolute_url(company.logo.url if company.logo else ''),
         modified=company.modified,
         name=company.name,
         number=company.number,
