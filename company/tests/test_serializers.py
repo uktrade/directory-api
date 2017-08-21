@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from directory_validators import company as shared_validators
 from django.utils.timezone import UTC
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 from company.tests import VALID_REQUEST_DATA
 from company import models, serializers, validators
@@ -24,7 +24,7 @@ def company_case_study_one(company):
     return models.CompanyCaseStudy.objects.create(
         title='a title one',
         description='a description one',
-        sector=choices.COMPANY_CLASSIFICATIONS[1][0],
+        sector=choices.INDUSTRIES[1][0],
         website='http://www.example.com',
         keywords='goog, great',
         testimonial='very nice',
@@ -40,7 +40,7 @@ def company_case_study_two(company):
     return models.CompanyCaseStudy.objects.create(
         title='a title one',
         description='a description one',
-        sector=choices.COMPANY_CLASSIFICATIONS[1][0],
+        sector=choices.INDUSTRIES[1][0],
         website='http://www.example.com',
         keywords='goog, great',
         testimonial='very nice',
@@ -56,7 +56,7 @@ def case_study_data(company):
     return {
         'title': 'a title',
         'description': 'a description',
-        'sector': choices.COMPANY_CLASSIFICATIONS[1][0],
+        'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
         'testimonial': 'very nice',
@@ -75,7 +75,6 @@ def case_study_data(company):
 def test_company_serializer_untouches_is_published():
     data = {
         'number': "01234567",
-        'export_status': choices.EXPORT_STATUSES[1][0],
         'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
@@ -101,7 +100,6 @@ def test_company_serializer_untouches_is_published():
 def test_company_serializer_doesnt_allow_changing_modified_timestamp():
     data = {
         'number': "01234567",
-        'export_status': choices.EXPORT_STATUSES[1][0],
         'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
@@ -149,7 +147,6 @@ def test_company_serializer_doesnt_accept_number_under_8_chars():
 def test_company_serializer_doesnt_accept_number_over_8_chars():
     data = {
         'number': "012345678",
-        'export_status': choices.EXPORT_STATUSES[1][0],
         'has_exported_before': True,
         'name': 'Earnest Corp',
         'date_of_creation': '2010-10-10',
@@ -183,7 +180,6 @@ def test_company_serializer_save():
     assert company.number == VALID_REQUEST_DATA['number']
     assert company.website == VALID_REQUEST_DATA['website']
     assert company.description == VALID_REQUEST_DATA['description']
-    assert company.export_status == VALID_REQUEST_DATA['export_status']
     assert len(company.verification_code) == 12
 
 

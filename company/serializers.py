@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 from django.conf import settings
 
@@ -99,7 +99,6 @@ class CompanySerializer(serializers.ModelSerializer):
             'email_address',
             'email_full_name',
             'employees',
-            'export_status',
             'facebook_url',
             'has_exported_before',
             'has_valid_address',
@@ -158,7 +157,7 @@ class CompanySearchSerializer(serializers.Serializer):
     page = serializers.IntegerField()
     size = serializers.IntegerField()
     sectors = serializers.MultipleChoiceField(
-        choices=choices.COMPANY_CLASSIFICATIONS,
+        choices=choices.INDUSTRIES,
         required=False,
     )
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 
 class MessageToSupplierSerializer(serializers.Serializer):
@@ -10,6 +10,6 @@ class MessageToSupplierSerializer(serializers.Serializer):
     sender_name = serializers.CharField(max_length=255)
     sender_company_name = serializers.CharField(max_length=255)
     sender_country = serializers.CharField(max_length=255)
-    sector = serializers.ChoiceField(choices=choices.COMPANY_CLASSIFICATIONS)
+    sector = serializers.ChoiceField(choices=choices.INDUSTRIES)
     subject = serializers.CharField()
     body = serializers.CharField()

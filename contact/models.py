@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.db import models
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 from api.model_utils import TimeStampedModel
 from company.models import Company
@@ -15,7 +15,7 @@ class MessageToSupplier(TimeStampedModel):
     sender_company_name = models.CharField(max_length=255)
     sender_country = models.CharField(max_length=255)
     sector = models.CharField(
-        choices=choices.COMPANY_CLASSIFICATIONS,
+        choices=choices.INDUSTRIES,
         max_length=255,
     )
     recipient = models.ForeignKey(

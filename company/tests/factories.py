@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 from company.models import Company, CompanyCaseStudy
 
@@ -12,12 +12,11 @@ def company_house_number():
 
 
 EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
-EXPORT_STATUS_CHOICES = [choice[0] for choice in choices.EXPORT_STATUSES]
 
 
 class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
     def fuzz(self):
-        sectors = [choice[0] for choice in choices.COMPANY_CLASSIFICATIONS]
+        sectors = [choice[0] for choice in choices.INDUSTRIES]
         random_sector = factory.fuzzy._random.choice(sectors)
         return [random_sector]
 
@@ -30,7 +29,6 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     description = factory.fuzzy.FuzzyText(length=50)
     employees = factory.fuzzy.FuzzyChoice(EMPLOYEES_CHOICES)
     has_exported_before = False
-    export_status = factory.fuzzy.FuzzyChoice(EXPORT_STATUS_CHOICES)
     keywords = factory.fuzzy.FuzzyText(length=20)
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()

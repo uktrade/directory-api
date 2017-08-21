@@ -1,6 +1,5 @@
 import json
 
-from directory_validators.constants import choices
 from rest_framework import serializers
 
 
@@ -9,7 +8,6 @@ VALID_REQUEST_DATA = {
     'name': 'Test Company',
     'website': 'http://example.com',
     'description': 'Company description',
-    'export_status': choices.EXPORT_STATUSES[1][0],
     'has_exported_before': True,
     'date_of_creation': '2010-10-10',
     'mobile_number': '07505605132',

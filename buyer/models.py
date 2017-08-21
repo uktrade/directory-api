@@ -1,4 +1,4 @@
-from directory_validators.constants import choices
+from directory_constants.constants import choices
 
 from django.db import models
 
@@ -10,7 +10,7 @@ class Buyer(TimeStampedModel):
     email = models.EmailField()
     name = models.CharField(max_length=255)
     sector = models.CharField(
-        choices=choices.COMPANY_CLASSIFICATIONS,
+        choices=choices.INDUSTRIES,
         max_length=255,
     )
     company_name = models.CharField(max_length=255)
