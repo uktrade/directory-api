@@ -126,8 +126,17 @@ class CompanySerializer(serializers.ModelSerializer):
             'verified_with_preverified_enrolment',
             'verified_with_companies_house_oauth2',
             'is_verified',
+            'export_destinations',
+            'export_destinations_other',
         )
-        read_only_fields = ('modified', 'is_published', 'slug')
+        extra_kwargs = {
+            'export_status': {'required': False},
+            'has_exported_before': {'required': False},
+            'modified': {'read_only': True},
+            'is_published': {'read_only': True},
+            'slug': {'read_only': True},
+
+        }
 
     def get_has_valid_address(self, obj):
         return obj.has_valid_address()

@@ -17,6 +17,8 @@ VALID_REQUEST_DATA = {
     'locality': 'test_locality',
     'postal_code': 'test_postal_code',
     'country': 'test_country',
+    'export_destinations': ['DE'],
+    'export_destinations_other': 'LY',
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 
