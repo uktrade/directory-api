@@ -57,7 +57,7 @@ class PublishByCompanyHouseNumberView(FormView):
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
     search_fields = (
-        'name', 'description', 'export_status', 'keywords',
+        'name', 'description', 'keywords',
         'sectors', 'website', 'verification_code', 'number',
         'postal_full_name', 'address_line_1', 'address_line_2',
         'locality', 'country', 'postal_code', 'po_box',
