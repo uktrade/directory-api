@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from company.models import Company, CompanyCaseStudy
-from company.admin import PublishByCompanyHouseNumberForm
+from company.admin import PublishByCompanyHouseNumberForm, CompanyAdmin
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 
 
@@ -260,3 +260,19 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[1] == row_one
         assert actual[2] == row_two
         assert actual[3] == row_three
+
+
+def test_company_search_fields_exist():
+    """It will raise FieldError if a field don't exist."""
+    for fieldname in CompanyAdmin.search_fields:
+        query_key = '{}__icontains'.format(fieldname)
+        query = {query_key: 'foo'}
+        Company.objects.filter(**query)
+
+
+def test_company_case_study_search_fields_exist():
+    """It will raise FieldError if a field don't exist."""
+    for fieldname in CompanyCaseStudy.search_fields:
+        query_key = '{}__icontains'.format(fieldname)
+        query = {query_key: 'foo'}
+        CompanyCaseStudy.objects.filter(**query)
