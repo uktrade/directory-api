@@ -9,5 +9,7 @@ class Command(MigrateCommand):
 
     def handle(self, *args, **options):
         """Execute command."""
-        with advisory_lock('migrations', shared=True):
+        # An exclusive lock (shared=False) is necessary - only single instance
+        # should execute the migrations
+        with advisory_lock(lock_id='migrations', shared=False, wait=True):
             super().handle(*args, **options)
