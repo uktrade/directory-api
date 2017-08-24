@@ -9,6 +9,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         querystring = models.Company.objects.exclude(number='')
+        failed = 0
+        succeded = 0
         for company in querystring.filter(date_of_creation__isnull=True):
             try:
                 date_of_creation = helpers.get_date_of_creation(company.number)
@@ -18,5 +20,13 @@ class Command(BaseCommand):
                     company.name
                 )
                 self.stdout.write(self.style.SUCCESS(message))
+                succeded += 1
             except HTTPError as e:
                 self.stdout.write(self.style.ERROR(e.response))
+                failed += 1
+        self.stdout.write(self.style.SUCCESS('{} companies updated'.format(
+            succeded
+        )))
+        self.stdout.write(self.style.WARNING('{} companies failed'.format(
+            failed
+        )))
