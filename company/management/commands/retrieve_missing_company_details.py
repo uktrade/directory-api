@@ -14,5 +14,9 @@ class Command(BaseCommand):
                 date_of_creation = helpers.get_date_of_creation(company.number)
                 company.date_of_creation = date_of_creation
                 company.save()
-            except HTTPError:
-                pass
+                message = 'Company {} date of creation updated'.format(
+                    company.name
+                )
+                self.stdout.write(self.style.SUCCESS(message))
+            except HTTPError as e:
+                self.stdout.write(self.style.ERROR(e.response))

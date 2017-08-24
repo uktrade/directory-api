@@ -25,6 +25,6 @@ def test_retrieve_missing_company(mock_helpers):
 @patch('company.management.commands.retrieve_missing_company_details.helpers')
 def test_retrieve_missing_company_404_case(mock_helpers):
     company = CompanyFactory(date_of_creation=None, number=123)
-    mock_helpers.get_date_of_creation.side_effect = HTTPError()
+    mock_helpers.get_date_of_creation.side_effect = HTTPError(response='foo')
     call_command('retrieve_missing_company_details')
     assert company.date_of_creation is None
