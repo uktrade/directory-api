@@ -13,19 +13,42 @@ from user.models import User as Supplier
 
 
 @pytest.mark.django_db
-@patch('boto3.resource')
-def test_enrolment_viewset_create(boto_mock):
+def test_enrolment_viewset_create():
     client = APIClient()
-    response = client.post(
-        reverse('enrolment'), VALID_REQUEST_DATA, format='json'
-    )
+    data = {
+        'address_line_1': '123 Fake street',
+        'address_line_2': 'The Lane',
+        'company_name': 'Example Corp.',
+        'company_number': '07504387',
+        'company_email': 'jim@example.com',
+        'contact_email_address': 'jim@example.com',
+        'country': 'UK',
+        'has_exported_before': True,
+        'locality': 'London',
+        'po_box': 'PO 344',
+        'postal_code': 'E14 POX',
+        'sso_id': 1
+    }
+    response = client.post(reverse('enrolment'), data, format='json')
+
     assert response.status_code == status.HTTP_201_CREATED
-    assert Company.objects.filter(
-        number=VALID_REQUEST_DATA['company_number']
-    ).exists()
-    assert Supplier.objects.filter(
-        sso_id=VALID_REQUEST_DATA['sso_id'],
-    ).exists()
+
+    company = Company.objects.get(number='07504387')
+    assert company.address_line_1 == data['address_line_1']
+    assert company.address_line_2 == data['address_line_2']
+    assert company.name == data['company_name']
+    assert company.number == data['company_number']
+    assert company.email_address == data['contact_email_address']
+    assert company.country == data['country']
+    assert company.has_exported_before == data['has_exported_before']
+    assert company.locality == data['locality']
+    assert company.po_box == data['po_box']
+    assert company.postal_code == data['postal_code']
+
+    supplier = Supplier.objects.get(sso_id=1)
+    assert supplier.company == company
+    assert supplier.company_email == data['contact_email_address']
+    assert supplier.sso_id == data['sso_id']
 
 
 @pytest.mark.django_db
