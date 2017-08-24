@@ -52,6 +52,39 @@ def test_enrolment_viewset_create():
 
 
 @pytest.mark.django_db
+def test_enrolment_viewset_create_optional_fields_unset():
+    client = APIClient()
+    data = {
+        'company_name': 'Example Corp.',
+        'company_number': '07504387',
+        'company_email': 'jim@example.com',
+        'contact_email_address': 'jim@example.com',
+        'has_exported_before': True,
+        'sso_id': 1
+    }
+    response = client.post(reverse('enrolment'), data, format='json')
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    company = Company.objects.get(number='07504387')
+    assert company.address_line_1 == ''
+    assert company.address_line_2 == ''
+    assert company.name == data['company_name']
+    assert company.number == data['company_number']
+    assert company.email_address == data['contact_email_address']
+    assert company.country == ''
+    assert company.has_exported_before == data['has_exported_before']
+    assert company.locality == ''
+    assert company.po_box == ''
+    assert company.postal_code == ''
+
+    supplier = Supplier.objects.get(sso_id=1)
+    assert supplier.company == company
+    assert supplier.company_email == data['contact_email_address']
+    assert supplier.sso_id == data['sso_id']
+
+
+@pytest.mark.django_db
 def test_enrolment_viewset_create_invalid_data():
     client = APIClient()
     invalid_data = VALID_REQUEST_DATA.copy()
