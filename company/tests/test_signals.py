@@ -1,11 +1,13 @@
 import datetime
 from unittest import mock
 
+import elasticsearch
 from freezegun import freeze_time
 import pytest
 
 from django.utils import timezone
 
+from company.search import CompanyDocType
 from company.tests import factories
 
 
@@ -255,3 +257,41 @@ def test_save_case_study_changes_to_elasticsearch(
     factories.CompanyCaseStudyFactory(company=company)
 
     assert mock_elasticsearch_company_save.call_count == call_count
+
+
+@pytest.mark.django_db
+def test_delete_company_from_elasticsearch():
+    company = factories.CompanyFactory(is_published=True)
+    company_pk = company.pk
+
+    CompanyDocType.get(id=company_pk)  # not raises if exists
+
+    company.delete()
+
+    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+        CompanyDocType.get(id=company_pk)
+
+
+@pytest.mark.django_db
+def test_delete_unpublished_company_from_elasticsearch():
+    company = factories.CompanyFactory(is_published=False)
+    company_pk = company.pk
+
+    company.delete()
+
+    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+        CompanyDocType.get(id=company_pk)
+
+
+@pytest.mark.django_db
+def test_delete_unpublish_company_from_elasticsearch():
+    company = factories.CompanyFactory(is_published=True)
+    company_pk = company.pk
+
+    CompanyDocType.get(id=company_pk)  # not raises if exists
+
+    company.is_published = False
+    company.save()
+
+    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+        CompanyDocType.get(id=company_pk)

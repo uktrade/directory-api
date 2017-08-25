@@ -28,9 +28,16 @@ def store_date_published(sender, instance, *args, **kwargs):
         instance.date_published = timezone.now()
 
 
-def save_company_change_to_elasticsearch(sender, instance, *args, **kwargs):
+def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
+    document = instance.to_doc_type()
     if instance.is_published:
-        instance.to_doc_type().save()
+        document.save()
+    else:
+        document.delete(ignore=404)
+
+
+def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
+    instance.to_doc_type().delete(ignore=404)
 
 
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
