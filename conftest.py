@@ -159,8 +159,10 @@ def requests_mocker():
     elasticsearch_url = 'http://{address}:9200/companies/.*'.format(
         address=settings.ELASTICSEARCH_ENDPOINT
     )
+    elasticsearch_url_compiled = re.compile(elasticsearch_url)
     mocker = requests_mock.mock()
-    mocker.register_uri('PUT', re.compile(elasticsearch_url), real_http=True)
+    mocker.register_uri('PUT', elasticsearch_url_compiled, real_http=True)
+    mocker.register_uri('DELETE', elasticsearch_url_compiled, real_http=True)
     mocker.start()
     yield mocker
     mocker.stop()
