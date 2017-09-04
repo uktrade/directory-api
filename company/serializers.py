@@ -6,6 +6,7 @@ from directory_constants.constants import choices
 from django.conf import settings
 
 from company import helpers, models, validators
+from company.models import OwnershipInvite
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -194,3 +195,14 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_SCOPE_ERROR)
         if data['expires_in'] < 1:
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
+
+
+class OwnershipInviteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OwnershipInvite
+        fields = (
+            'new_owner_email',
+            'company',
+            'requestor',
+        )

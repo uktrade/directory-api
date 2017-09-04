@@ -58,18 +58,3 @@ class User(TimeStampedModel):
 
     def __str__(self):
         return self.company_email
-
-
-class OwnershipInvite(TimeStampedModel):
-
-    new_owner_email = models.EmailField(unique=True)
-    company = models.ForeignKey(Company, related_name='companies')
-    requestor = models.ForeignKey(User, related_name='users')
-    accepted = models.BooleanField(default=False)
-    accepted_date = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return 'Transferring {} to {}'.format(
-            self.company.name,
-            self.new_owner_email
-        )

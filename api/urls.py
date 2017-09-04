@@ -11,7 +11,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-)
+    TransferOwnershipInviteCreateView)
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -29,7 +29,6 @@ from enrolment.views import (
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity.views import ExportOpportunityCreateAPIView
-from user.views import TransferOwnershipInviteCreateView
 
 from django.conf import settings
 
@@ -90,6 +89,11 @@ urlpatterns = [
         r'^supplier/company/case-study/$',
         CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
+    ),
+    url(
+        r'^supplier/company/change-ownership-invite/',
+        TransferOwnershipInviteCreateView.as_view(),
+        name='transfer-ownership-invite-create'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
@@ -155,11 +159,6 @@ urlpatterns = [
         ExportOpportunityCreateAPIView.as_view(),
         name='export-opportunity-create'
     ),
-    url(
-        r'^change-ownership/invite/',
-        TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite-create'
-    )
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':

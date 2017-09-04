@@ -15,7 +15,7 @@ from rest_framework import status
 from PIL import Image, ImageDraw
 
 from company import helpers, serializers, views
-from company.models import Company, CompanyCaseStudy
+from company.models import Company, CompanyCaseStudy, OwnershipInvite
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -1690,3 +1690,26 @@ def test_verify_companies_house_good_access_token(
     company = authed_supplier.company
     company.refresh_from_db()
     assert company.verified_with_companies_house_oauth2 is True
+
+
+@pytest.mark.django_db
+def test_company_create_transfer_ownership_invite(
+        authed_client,
+        authed_supplier):
+
+    data = {
+        'new_owner_email': 'foo@bar.com',
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+    }
+    response = authed_client.post(
+        reverse('transfer-ownership-invite-create'),
+        data=data,
+        format='json'
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == data
+    assert OwnershipInvite.objects.filter(
+        new_owner_email='foo@bar.com'
+    ).exists()

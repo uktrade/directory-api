@@ -10,6 +10,8 @@ from company import filters, models, pagination, search, serializers
 
 from elasticsearch_dsl import query
 
+from company.serializers import OwnershipInviteSerializer
+
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
@@ -238,3 +240,7 @@ class CompanySearchAPIView(views.APIView):
         response = search_object[start:end].execute()
 
         return response.to_dict()
+
+
+class TransferOwnershipInviteCreateView(generics.CreateAPIView):
+    serializer_class = OwnershipInviteSerializer
