@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import InviteModel
+from .models import OwnershipInvite
 
-admin.site.register(InviteModel)
+admin.site.register(OwnershipInvite)

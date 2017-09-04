@@ -29,6 +29,7 @@ from enrolment.views import (
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity.views import ExportOpportunityCreateAPIView
+from user.views import TransferOwnershipInviteCreateView
 
 from django.conf import settings
 
@@ -154,6 +155,11 @@ urlpatterns = [
         ExportOpportunityCreateAPIView.as_view(),
         name='export-opportunity-create'
     ),
+    url(
+        r'^change-ownership/invite/',
+        TransferOwnershipInviteCreateView,
+        name='transfer-ownership-invite-create'
+    )
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
