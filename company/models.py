@@ -296,8 +296,8 @@ class CompanyCaseStudy(TimeStampedModel):
 class OwnershipInvite(TimeStampedModel):
 
     new_owner_email = models.EmailField(unique=True)
-    company = models.ForeignKey(Company, related_name='companies')
-    requestor = models.ForeignKey('user.User', related_name='users')
+    company = models.ForeignKey(Company)
+    requestor = models.ForeignKey('user.User')
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
 

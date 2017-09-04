@@ -30,6 +30,8 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__verification_code',
         'company__messages',
         'supplieremailnotification',
+        'company__ownershipinvite',
+        'ownershipinvite'
     )
 
     def download_csv(self, request, queryset):
