@@ -157,7 +157,7 @@ urlpatterns = [
     ),
     url(
         r'^change-ownership/invite/',
-        TransferOwnershipInviteCreateView,
+        TransferOwnershipInviteCreateView.as_view(),
         name='transfer-ownership-invite-create'
     )
 ]
