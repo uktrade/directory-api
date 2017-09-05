@@ -1710,6 +1710,39 @@ def test_company_create_transfer_ownership_invite(
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == data
-    assert OwnershipInvite.objects.filter(
+    invite = OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
-    ).exists()
+    )
+    assert invite.company == authed_supplier.company
+    assert invite.requestor == authed_supplier
+
+
+@pytest.mark.django_db
+def test_company_create_duplicated_transfer_ownership_invite(
+        authed_client,
+        authed_supplier):
+
+    invite = OwnershipInvite(
+        new_owner_email='foo@bar.com',
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+    invite.save()
+
+    data = {
+        'new_owner_email': 'foo@bar.com',
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+    }
+    response = authed_client.post(
+        reverse('transfer-ownership-invite-create'),
+        data=data,
+        format='json'
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        'new_owner_email': [
+            'ownership invite with this new owner email already exists.'
+        ]
+    }
