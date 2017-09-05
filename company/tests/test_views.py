@@ -1,5 +1,6 @@
 import datetime
 import http
+import uuid
 from io import BytesIO
 from unittest.mock import call, patch, Mock
 
@@ -1703,18 +1704,18 @@ def test_company_create_transfer_ownership_invite(
         'requestor': authed_supplier.pk,
     }
     response = authed_client.post(
-        reverse('transfer-ownership-invite-create'),
+        reverse('transfer-ownership-invite'),
         data=data,
         format='json'
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == data
     invite = OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
     )
     assert invite.company == authed_supplier.company
     assert invite.requestor == authed_supplier
+    assert isinstance(invite.uuid, uuid.UUID)
 
 
 @pytest.mark.django_db
@@ -1735,7 +1736,7 @@ def test_company_create_duplicated_transfer_ownership_invite(
         'requestor': authed_supplier.pk,
     }
     response = authed_client.post(
-        reverse('transfer-ownership-invite-create'),
+        reverse('transfer-ownership-invite'),
         data=data,
         format='json'
     )
