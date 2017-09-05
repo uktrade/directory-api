@@ -169,7 +169,7 @@ urlpatterns = [
     url(
         r'^contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact'
+        name='company-public-profile-contact-create'
     ),
     url(
         r'^notifications/anonymous-unsubscribe/$',
