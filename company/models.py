@@ -300,9 +300,3 @@ class OwnershipInvite(TimeStampedModel):
     requestor = models.ForeignKey('user.User')
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return 'Transferring {} to {}'.format(
-            self.company.name,
-            self.new_owner_email
-        )
