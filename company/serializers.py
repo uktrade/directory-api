@@ -210,13 +210,15 @@ class OwershipInviteSerializer(
     company_name = serializers.CharField(read_only=True, source='company.name')
 
     def validate_new_owner_email(self, value):
-        if not self.partial
+        if not self.partial:
             return value
         user = self.context['request'].user
         if user.supplier is not None:
             serializers.ValidationError('User has already a company')
         if value != user.company_email:
-            raise serializers.ValidationError('User accepting an incorrect invite')
+            raise serializers.ValidationError(
+                'User accepting an incorrect invite'
+            )
         return value
 
     def validate_requestor(self, value):
@@ -231,6 +233,7 @@ class OwershipInviteSerializer(
         fields = (
             'new_owner_email',
             'company_name',
+            'company',
             'requestor',
             'uuid'
         )

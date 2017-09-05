@@ -103,6 +103,7 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
+<<<<<<< ccfa5eae56f4ab2f4346842da7ef552678c2e973
 <<<<<<< 58854b32c8d8dbe1314022537329fb1c9abd7a4e
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         TransferOwnershipInviteViewSet.as_view({
@@ -116,8 +117,17 @@ urlpatterns = [
         TransferOwnershipInviteViewSet.as_view({
 =======
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>*+)/$',
+=======
+        r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         TransferOwnershipInviteViewSet.as_view({
-            'get': 'retrieve',
+            'get': 'retrieve'
+        }),
+        name='transfer-ownership-invite-retrieve'
+    ),
+    url(
+        r'^supplier/company/transfer-ownership-invite/$',
+>>>>>>> Fix existing tests and pep8
+        TransferOwnershipInviteViewSet.as_view({
             'patch': 'partial_update',
 >>>>>>> added custom validation and get/patch logic
             'post': 'create'
