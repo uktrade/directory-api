@@ -1694,7 +1694,7 @@ def test_verify_companies_house_good_access_token(
 
 
 @pytest.mark.django_db
-def test_company_create_transfer_ownership_invite(
+def test_create_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
@@ -1719,7 +1719,7 @@ def test_company_create_transfer_ownership_invite(
 
 
 @pytest.mark.django_db
-def test_company_create_duplicated_transfer_ownership_invite(
+def test_create_duplicated_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
@@ -1747,3 +1747,31 @@ def test_company_create_duplicated_transfer_ownership_invite(
             'ownership invite with this new owner email already exists.'
         ]
     }
+
+
+@pytest.mark.django_db
+def test_retrieve_transfer_ownership_invite(
+        authed_client,
+        authed_supplier):
+
+    invite = OwnershipInvite(
+        new_owner_email='foo@bar.com',
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+    invite.save()
+
+    response = authed_client.get(
+        reverse('transfer-ownership-invite-retrieve',
+                kwargs={'uuid': str(invite.uuid)})
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    expected_response = {
+        'uuid': str(invite.uuid),
+        'company_name': invite.company.name,
+        'company': invite.company.pk,
+        'new_owner_email': invite.new_owner_email,
+        'requestor': invite.requestor.pk
+    }
+    assert response.json() == expected_response
