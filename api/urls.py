@@ -91,7 +91,7 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
-        r'^supplier/company/change-ownership-invite/',
+        r'^supplier/company/transfer-ownership-invite/',
         TransferOwnershipInviteCreateView.as_view(),
         name='transfer-ownership-invite-create'
     ),
