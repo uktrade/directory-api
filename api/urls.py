@@ -17,10 +17,15 @@ from company.views import (
     TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
     RemoveCollaboratorsView,
+<<<<<<< 58854b32c8d8dbe1314022537329fb1c9abd7a4e
 )
 >>>>>>> Implement collaboration invite
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
+=======
+    TransferOwnershipInviteViewSet,
+    AnonymousUnsubscribeCreateAPIView,
+>>>>>>> added custom validation and get/patch logic
 )
 from supplier.views import (
     GeckoTotalRegisteredSuppliersView,
@@ -98,6 +103,7 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
+<<<<<<< 58854b32c8d8dbe1314022537329fb1c9abd7a4e
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         TransferOwnershipInviteViewSet.as_view({
             'get': 'retrieve',
@@ -108,6 +114,12 @@ urlpatterns = [
     url(
         r'^supplier/company/transfer-ownership-invite/$',
         TransferOwnershipInviteViewSet.as_view({
+=======
+        r'^supplier/company/transfer-ownership-invite/(?P<uuid>*+)/$',
+        TransferOwnershipInviteViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+>>>>>>> added custom validation and get/patch logic
             'post': 'create'
         }),
         name='transfer-ownership-invite'
@@ -169,7 +181,7 @@ urlpatterns = [
     url(
         r'^contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact-create'
+        name='company-public-profile-contact'
     ),
     url(
         r'^notifications/anonymous-unsubscribe/$',
