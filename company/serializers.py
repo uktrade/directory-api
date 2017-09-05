@@ -324,14 +324,20 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
 class CollaboratorInviteSerializer(
     SetRequestorCompanyMixin, serializers.ModelSerializer
 ):
+    company_name = serializers.CharField(read_only=True, source='company.name')
 
     class Meta:
         model = models.CollaboratorInvite
         fields = (
             'collaborator_email',
-            'company',
+            'company_name',
             'requestor',
+            'uuid',
         )
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+            'accepted': {'write_only': True},
+        }
 
 
 class RemoveCollaboratorsSerializer(serializers.Serializer):
