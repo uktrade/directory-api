@@ -1,3 +1,5 @@
+import uuid
+
 from directory_constants.constants import choices
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
@@ -295,6 +297,7 @@ class CompanyCaseStudy(TimeStampedModel):
 
 class OwnershipInvite(TimeStampedModel):
 
+    uuid = models.UUIDField(default=uuid.uuid4)
     new_owner_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)
     requestor = models.ForeignKey('user.User')

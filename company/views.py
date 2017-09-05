@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -263,3 +264,10 @@ class RemoveCollaboratorsView(views.APIView):
         sso_ids = serializer.validated_data['sso_ids']
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
+
+
+class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.OwershipInviteSerializer
+    queryset = models.OwnershipInvite
+    lookup_field = 'uuid'
+    http_method_names = ('get', 'post', 'patch')

@@ -11,10 +11,14 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
+<<<<<<< 517f66d6ac9052f2f7514905e1865da88c69a795
     TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
     RemoveCollaboratorsView,
 )
+=======
+    TransferOwnershipInviteViewSet)
+>>>>>>> added custom validation and get/patch logic
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -94,9 +98,13 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
-        r'^supplier/company/transfer-ownership-invite/',
-        TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite-create'
+        r'^supplier/company/transfer-ownership-invite/(?P<uuid>*+)/$',
+        TransferOwnershipInviteViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'post': 'create'
+        }),
+        name='transfer-ownership-invite'
     ),
     url(
         r'^supplier/company/collaboration-invite/',
@@ -155,7 +163,7 @@ urlpatterns = [
     url(
         r'^contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact-create'
+        name='company-public-profile-contact'
     ),
     url(
         r'^notifications/anonymous-unsubscribe/$',
