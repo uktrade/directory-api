@@ -250,7 +250,7 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
     def validate_requestor(self, value):
         if not self.partial:
             return value
-        if self.instance.company.suppliers != self.instance.requestor:
+        if self.instance.requestor not in self.instance.company.suppliers:
             raise serializers.ValidationError('Requestor is not legit')
         return value
 
