@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -9,8 +10,6 @@ from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 
 from elasticsearch_dsl import query
-
-from company.serializers import OwnershipInviteSerializer
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -242,5 +241,8 @@ class CompanySearchAPIView(views.APIView):
         return response.to_dict()
 
 
-class TransferOwnershipInviteCreateView(generics.CreateAPIView):
-    serializer_class = OwnershipInviteSerializer
+class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.OwershipInviteSerializer
+    queryset = models.OwnershipInvite
+    lookup_field = 'uuid'
+    http_method_names = ('get', 'post', 'patch')

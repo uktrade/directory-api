@@ -11,7 +11,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-    TransferOwnershipInviteCreateView)
+    TransferOwnershipInviteViewSet)
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -91,9 +91,13 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
-        r'^supplier/company/transfer-ownership-invite/',
-        TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite-create'
+        r'^supplier/company/transfer-ownership-invite/(?P<uuid>*+)/$',
+        TransferOwnershipInviteViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'post': 'create'
+        }),
+        name='transfer-ownership-invite'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
@@ -142,7 +146,7 @@ urlpatterns = [
     url(
         r'^contact/supplier/$',
         CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact-create'
+        name='company-public-profile-contact'
     ),
     url(
         r'^notifications/anonymous-unsubscribe/$',

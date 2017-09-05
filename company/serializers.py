@@ -197,7 +197,7 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
 
 
-class OwnershipInviteSerializer(serializers.ModelSerializer):
+class OwnershipInviteWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OwnershipInvite
@@ -206,3 +206,36 @@ class OwnershipInviteSerializer(serializers.ModelSerializer):
             'company',
             'requestor',
         )
+
+
+class OwershipInviteSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(read_only=True, source='company.name')
+
+    def validate_new_owner_email(self, value):
+        if not self.partial
+            return value
+        user = self.context['request'].user
+        if user.supplier is not None:
+            serializers.ValidationError('User has already a company')
+        if value != user.company_email:
+            raise serializers.ValidationError('User accepting an incorrect invite')
+        return value
+
+    def validate_requestor(self, value):
+        if not self.partial:
+            return value
+        if self.instance.company.suppliers != self.instance.requestor:
+            raise serializers.ValidationError('Requestor is not legit')
+        return value
+
+    class Meta:
+        model = OwnershipInvite
+        fields = (
+            'new_owner_email',
+            'company_name',
+            'requestor',
+            'uuid'
+        )
+    extra_kwargs = {
+        'uuid': {'read_only': True}
+    }
