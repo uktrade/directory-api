@@ -266,5 +266,7 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
             'uuid'
         )
     extra_kwargs = {
-        'uuid': {'read_only': True}
+        'uuid': {'read_only': True},
+        'accepted': {'write_only': True},
+        'company': {'write_only': True}
     }
