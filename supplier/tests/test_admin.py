@@ -236,7 +236,6 @@ class DownloadCSVTestCase(TestCase):
             data,
             follow=True
         )
-
         actual = str(response.content, 'utf-8').split('\r\n')
         assert actual[0] == ','.join(supplier_one_expected_data.keys())
         assert actual[1] == ','.join(supplier_two_expected_data.values())

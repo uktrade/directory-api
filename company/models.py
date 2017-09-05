@@ -291,3 +291,12 @@ class CompanyCaseStudy(TimeStampedModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)[:50]
         return super().save(*args, **kwargs)
+
+
+class OwnershipInvite(TimeStampedModel):
+
+    new_owner_email = models.EmailField(unique=True)
+    company = models.ForeignKey(Company)
+    requestor = models.ForeignKey('user.User')
+    accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(null=True, blank=True)

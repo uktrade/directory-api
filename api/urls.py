@@ -11,7 +11,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-)
+    TransferOwnershipInviteCreateView)
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -89,6 +89,11 @@ urlpatterns = [
         r'^supplier/company/case-study/$',
         CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
+    ),
+    url(
+        r'^supplier/company/transfer-ownership-invite/',
+        TransferOwnershipInviteCreateView.as_view(),
+        name='transfer-ownership-invite-create'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
