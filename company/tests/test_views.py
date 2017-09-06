@@ -14,15 +14,15 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
 
-from company import helpers, serializers, views
-from company.models import Company, CompanyCaseStudy, OwnershipInvite
+from company import helpers, models, serializers, views
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
     VALID_REQUEST_DATA,
 )
-from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from company.tests import factories
 from user.models import User as Supplier
+from supplier.tests.factories import SupplierFactory
 
 
 default_public_profile_data = {
@@ -49,7 +49,7 @@ def test_company_retrieve_no_company(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_retrieve_view(authed_client, authed_supplier):
-    company = CompanyFactory(
+    company = factories.CompanyFactory(
         name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
     )
     authed_supplier.company = company
@@ -103,7 +103,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_update_with_put(authed_client, authed_supplier):
-    company = CompanyFactory(
+    company = factories.CompanyFactory(
         number='01234567',
         has_exported_before=True,
     )
@@ -148,7 +148,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_update_with_patch(authed_client, authed_supplier):
-    company = CompanyFactory(
+    company = factories.CompanyFactory(
         number='01234567',
     )
     authed_supplier.company = company
@@ -192,7 +192,7 @@ def test_company_update_with_patch(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_not_update_modified(authed_client, authed_supplier):
-    company = CompanyFactory(
+    company = factories.CompanyFactory(
         number='01234567',
         has_exported_before=True,
     )
@@ -305,7 +305,7 @@ def api_client():
 
 @pytest.fixture
 def company():
-    return Company.objects.create(
+    return models.Company.objects.create(
         verified_with_code=True,
         email_address='test@example.com',
         **VALID_REQUEST_DATA
@@ -314,7 +314,7 @@ def company():
 
 @pytest.fixture
 def private_profile():
-    company = Company(**default_public_profile_data)
+    company = models.Company(**default_public_profile_data)
     company.number = '0123456A'
     company.verified_with_code = False
     company.save()
@@ -323,7 +323,7 @@ def private_profile():
 
 @pytest.fixture
 def public_profile():
-    company = Company(**default_public_profile_data)
+    company = models.Company(**default_public_profile_data)
     company.number = '0123456B'
     company.is_published = True
     company.save()
@@ -332,22 +332,22 @@ def public_profile():
 
 @pytest.fixture
 def public_profile_with_case_study():
-    company = CompanyFactory(is_published=True)
-    CompanyCaseStudyFactory(company=company)
+    company = factories.CompanyFactory(is_published=True)
+    factories.CompanyCaseStudyFactory(company=company)
     return company
 
 
 @pytest.fixture
 def public_profile_with_case_studies():
-    company = CompanyFactory(is_published=True)
-    CompanyCaseStudyFactory(company=company)
-    CompanyCaseStudyFactory(company=company)
+    company = factories.CompanyFactory(is_published=True)
+    factories.CompanyCaseStudyFactory(company=company)
+    factories.CompanyCaseStudyFactory(company=company)
     return company
 
 
 @pytest.fixture
 def public_profile_software():
-    company = Company(**default_public_profile_data)
+    company = models.Company(**default_public_profile_data)
     company.number = '0123456C'
     company.is_published = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES']
@@ -357,7 +357,7 @@ def public_profile_software():
 
 @pytest.fixture
 def public_profile_cars():
-    company = Company(**default_public_profile_data)
+    company = models.Company(**default_public_profile_data)
     company.number = '0123456D'
     company.is_published = True
     company.sectors = ['AUTOMOTIVE']
@@ -367,7 +367,7 @@ def public_profile_cars():
 
 @pytest.fixture
 def public_profile_smart_cars():
-    company = Company(**default_public_profile_data)
+    company = models.Company(**default_public_profile_data)
     company.number = '0123456E'
     company.is_published = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES', 'AUTOMOTIVE']
@@ -377,7 +377,7 @@ def public_profile_smart_cars():
 
 @pytest.fixture
 def supplier_case_study(case_study_data, company):
-    return CompanyCaseStudy.objects.create(
+    return models.CompanyCaseStudy.objects.create(
         title=case_study_data['title'],
         description=case_study_data['description'],
         sector=case_study_data['sector'],
@@ -402,7 +402,7 @@ def supplier(company):
 
 @pytest.fixture
 def search_companies_data():
-    wolf_company = CompanyFactory(
+    wolf_company = factories.CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs',
@@ -411,7 +411,7 @@ def search_companies_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=1,
     )
-    aardvark_company = CompanyFactory(
+    aardvark_company = factories.CompanyFactory(
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
@@ -420,7 +420,7 @@ def search_companies_data():
         sectors=['AEROSPACE'],
         id=2,
     )
-    CompanyFactory(
+    factories.CompanyFactory(
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
@@ -429,12 +429,12 @@ def search_companies_data():
         sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
         id=3,
     )
-    CompanyCaseStudyFactory(
+    factories.CompanyCaseStudyFactory(
         company=wolf_company,
         title='Thick case study',
         description='Gold is delicious.'
     )
-    CompanyCaseStudyFactory(
+    factories.CompanyCaseStudyFactory(
         company=aardvark_company,
         title='Thick case study',
         description='We determined lead sinks in water.'
@@ -444,7 +444,7 @@ def search_companies_data():
 
 @pytest.fixture
 def search_companies_highlighting_data():
-    CompanyFactory(
+    factories.CompanyFactory(
         name='Wolf limited',
         description=(
             'Providing the stealth and prowess of wolves. This is a very long '
@@ -459,7 +459,7 @@ def search_companies_highlighting_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=1,
     )
-    CompanyFactory(
+    factories.CompanyFactory(
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
@@ -473,7 +473,7 @@ def search_companies_highlighting_data():
 
 @pytest.fixture
 def search_companies_ordering_data():
-    CompanyFactory(
+    factories.CompanyFactory(
         name='Wolf limited',
         description='',
         summary='Hunts in packs',
@@ -482,7 +482,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=1,
     )
-    wolf_three = CompanyFactory(
+    wolf_three = factories.CompanyFactory(
         name='Wolf from Gladiators limited',
         description='',
         summary='Hunters',
@@ -491,7 +491,7 @@ def search_companies_ordering_data():
         sectors=['FOOD_AND_DRINK', 'AIRPORTS'],
         id=2,
     )
-    wolf_one_company = CompanyFactory(
+    wolf_one_company = factories.CompanyFactory(
         name='Wolf a kimbo Limited',
         description='pack hunters',
         summary='Hunts in packs',
@@ -500,7 +500,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=3,
     )
-    wolf_two_company = CompanyFactory(
+    wolf_two_company = factories.CompanyFactory(
         name='Wolf among us Limited',
         description='wolf among sheep',
         summary='wooly',
@@ -509,7 +509,7 @@ def search_companies_ordering_data():
         sectors=['AEROSPACE', 'AIRPORTS'],
         id=4,
     )
-    grapeshot_company = CompanyFactory(
+    grapeshot_company = factories.CompanyFactory(
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
@@ -519,23 +519,23 @@ def search_companies_ordering_data():
         id=5,
     )
 
-    CompanyCaseStudyFactory(company=wolf_one_company)
-    CompanyCaseStudyFactory(company=wolf_one_company)
-    CompanyCaseStudyFactory(company=wolf_two_company)
-    CompanyCaseStudyFactory(company=wolf_two_company)
-    CompanyCaseStudyFactory(company=wolf_two_company)
-    CompanyCaseStudyFactory(
+    factories.CompanyCaseStudyFactory(company=wolf_one_company)
+    factories.CompanyCaseStudyFactory(company=wolf_one_company)
+    factories.CompanyCaseStudyFactory(company=wolf_two_company)
+    factories.CompanyCaseStudyFactory(company=wolf_two_company)
+    factories.CompanyCaseStudyFactory(company=wolf_two_company)
+    factories.CompanyCaseStudyFactory(
         company=wolf_three,
         title='cannons better than grapeshot',
         description='guns'
     )
-    CompanyCaseStudyFactory(company=wolf_three)
-    CompanyCaseStudyFactory(
+    factories.CompanyCaseStudyFactory(company=wolf_three)
+    factories.CompanyCaseStudyFactory(
         company=grapeshot_company,
         title='cannons',
         description='guns'
     )
-    CompanyCaseStudyFactory(
+    factories.CompanyCaseStudyFactory(
         company=grapeshot_company,
         title='cannons',
         description='naval guns'
@@ -605,7 +605,7 @@ def test_company_update(
     authed_supplier.save()
 
     response = authed_client.patch(reverse('company'), company_data)
-    instance = Company.objects.get(number=response.data['number'])
+    instance = models.Company.objects.get(number=response.data['number'])
 
     assert response.status_code == http.client.OK
     assert instance.number == '01234567'
@@ -630,7 +630,7 @@ def test_company_case_study_create(
     )
     assert response.status_code == http.client.CREATED
 
-    instance = CompanyCaseStudy.objects.get(pk=response.data['pk'])
+    instance = models.CompanyCaseStudy.objects.get(pk=response.data['pk'])
     assert instance.testimonial == case_study_data['testimonial']
     assert instance.testimonial_name == case_study_data['testimonial_name']
     assert instance.testimonial_job_title == (
@@ -713,7 +713,7 @@ def test_company_case_study_create_company_not_published(
     video, authed_client, authed_supplier
 ):
 
-    company = CompanyFactory.create(
+    company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
         is_published=False
@@ -787,7 +787,7 @@ def test_company_case_study_delete(
     response = authed_client.delete(url)
 
     assert response.status_code == http.client.NO_CONTENT
-    assert CompanyCaseStudy.objects.filter(pk=pk).exists() is False
+    assert models.CompanyCaseStudy.objects.filter(pk=pk).exists() is False
 
 
 @pytest.mark.django_db
@@ -960,7 +960,7 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with patch('requests.post'):
-        company = Company.objects.create(**{
+        company = models.Company.objects.create(**{
             'number': '11234567',
             'name': 'Test Company',
             'website': 'http://example.com',
@@ -999,7 +999,7 @@ def test_verify_company_with_code_invalid_code(
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with patch('requests.post'):
-        company = Company.objects.create(**{
+        company = models.Company.objects.create(**{
             'number': '11234567',
             'name': 'Test Company',
             'website': 'http://example.com',
@@ -1700,7 +1700,6 @@ def test_company_create_transfer_ownership_invite(
     data = {
         'new_owner_email': 'foo@bar.com',
         'company': authed_supplier.company.pk,
-        'requestor': authed_supplier.pk,
     }
     response = authed_client.post(
         reverse('transfer-ownership-invite-create'),
@@ -1709,8 +1708,12 @@ def test_company_create_transfer_ownership_invite(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == data
-    invite = OwnershipInvite.objects.get(
+    assert response.json() == {
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'new_owner_email': 'foo@bar.com'
+    }
+    invite = models.OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
     )
     assert invite.company == authed_supplier.company
@@ -1722,7 +1725,7 @@ def test_company_create_duplicated_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
-    invite = OwnershipInvite(
+    invite = models.OwnershipInvite(
         new_owner_email='foo@bar.com',
         company=authed_supplier.company,
         requestor=authed_supplier,
@@ -1732,7 +1735,6 @@ def test_company_create_duplicated_transfer_ownership_invite(
     data = {
         'new_owner_email': 'foo@bar.com',
         'company': authed_supplier.company.pk,
-        'requestor': authed_supplier.pk,
     }
     response = authed_client.post(
         reverse('transfer-ownership-invite-create'),
@@ -1746,3 +1748,99 @@ def test_company_create_duplicated_transfer_ownership_invite(
             'ownership invite with this new owner email already exists.'
         ]
     }
+
+
+@pytest.mark.django_db
+def test_company_create_collaboration_invite(
+    authed_client, authed_supplier
+):
+    data = {'collaborator_email': 'foo@bar.com'}
+    url = reverse('collaboration-invite-create')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == {
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'collaborator_email': 'foo@bar.com'
+    }
+    invite = models.CollaboratorInvite.objects.get(
+        collaborator_email='foo@bar.com'
+    )
+
+    assert invite.company == authed_supplier.company
+    assert invite.requestor == authed_supplier
+
+
+@pytest.mark.django_db
+def test_company_create_duplicated_collaboration_invite(
+    authed_client, authed_supplier
+):
+    factories.CollaboratorInviteFactory(
+        collaborator_email='foo@bar.com',
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+
+    data = {'collaborator_email': 'foo@bar.com'}
+    url = reverse('collaboration-invite-create')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        'collaborator_email': [
+            'collaborator invite with this collaborator email already exists.'
+        ]
+    }
+
+
+@pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
+def test_remove_collaborators_not_company_owner():
+    pass
+
+
+@pytest.mark.django_db
+def test_remove_collaborators(authed_client, authed_supplier):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    supplier_one = SupplierFactory(company=authed_supplier.company)
+    supplier_two = SupplierFactory(company=authed_supplier.company)
+    supplier_three = SupplierFactory(company=authed_supplier.company)
+    supplier_four = SupplierFactory()
+
+    suppliers_before = authed_supplier.company.suppliers.all()
+    assert supplier_one in suppliers_before
+    assert supplier_two in suppliers_before
+    assert supplier_three in suppliers_before
+    assert supplier_four not in suppliers_before
+    assert authed_supplier in suppliers_before
+
+    url = reverse('remove-collaborators')
+    data = {'sso_ids': [supplier_one.sso_id, supplier_two.sso_id]}
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == 200
+    suppliers_after = authed_supplier.company.suppliers.all()
+    assert supplier_one not in suppliers_after
+    assert supplier_two not in suppliers_after
+    assert supplier_three in suppliers_after
+    assert supplier_four not in suppliers_after
+    assert authed_supplier in suppliers_after
+
+
+@pytest.mark.django_db
+def test_remove_collaborators_cannot_remove_self(
+    authed_client, authed_supplier
+):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    assert authed_supplier in authed_supplier.company.suppliers.all()
+
+    url = reverse('remove-collaborators')
+    data = {'sso_ids': [authed_supplier.sso_id]}
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == 200
+    assert authed_supplier in authed_supplier.company.suppliers.all()

@@ -1,5 +1,5 @@
 import base64
-from unittest.mock import patch
+from unittest.mock import call, patch
 import http
 
 from django.core.urlresolvers import reverse
@@ -10,8 +10,9 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from user.models import User as Supplier
-from supplier.tests import factories, VALID_REQUEST_DATA
 from supplier import serializers
+from supplier.helpers import SSOUser
+from supplier.tests import factories, VALID_REQUEST_DATA
 
 
 @pytest.fixture
@@ -126,17 +127,34 @@ def test_unsubscribe_supplier_email_confirmation(
 
 
 @pytest.mark.django_db
-def test_external_supplier_details_get(
+@patch('core.authentication.Oauth2AuthenticationSSO.authenticate_credentials')
+def test_external_supplier_details_get_bearer_auth(
+    mock_authenticate_credentials, client, authed_supplier, settings
+):
+    sso_user = SSOUser(id=authed_supplier.sso_id, email='test@example.com')
+    mock_authenticate_credentials.return_value = (sso_user, '123')
+
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+    expected = serializers.ExternalSupplierSerializer(authed_supplier).data
+
+    url = reverse('external-supplier-details')
+    response = client.get(url, {}, HTTP_AUTHORIZATION='Bearer 123')
+
+    assert response.status_code == 200
+    assert response.json() == expected
+    assert mock_authenticate_credentials.call_count == 1
+    assert mock_authenticate_credentials.call_args == call('123')
+
+
+@pytest.mark.django_db
+def test_external_supplier_details_get_sso_auth(
     authed_client, authed_supplier, settings
 ):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
     expected = serializers.ExternalSupplierSerializer(authed_supplier).data
 
-    response = authed_client.get(
-        reverse('external-supplier-details'),
-        {},
-        HTTP_AUTHORIZATION='Bearer 123'
-    )
+    url = reverse('external-supplier-details')
+    response = authed_client.get(url, {})
 
     assert response.status_code == 200
     assert response.json() == expected

@@ -11,7 +11,10 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-    TransferOwnershipInviteCreateView)
+    TransferOwnershipInviteCreateView,
+    CollaboratorInviteCreateView,
+    RemoveCollaboratorsView,
+)
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -94,6 +97,16 @@ urlpatterns = [
         r'^supplier/company/transfer-ownership-invite/',
         TransferOwnershipInviteCreateView.as_view(),
         name='transfer-ownership-invite-create'
+    ),
+    url(
+        r'^supplier/company/collaboration-invite/',
+        CollaboratorInviteCreateView.as_view(),
+        name='collaboration-invite-create'
+    ),
+    url(
+        r'^supplier/company/remove-collaborators/',
+        RemoveCollaboratorsView.as_view(),
+        name='remove-collaborators'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',

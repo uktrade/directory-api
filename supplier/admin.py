@@ -31,7 +31,9 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__messages',
         'supplieremailnotification',
         'company__ownershipinvite',
-        'ownershipinvite'
+        'ownershipinvite',
+        'company__collaboratorinvite',
+        'collaboratorinvite'
     )
 
     def download_csv(self, request, queryset):
