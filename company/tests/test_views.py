@@ -1778,6 +1778,7 @@ def test_retrieve_transfer_ownership_invite(
 
 
 @pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
 def test_accept_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1789,12 +1790,12 @@ def test_accept_transfer_ownership_invite(
     )
     invite.save()
 
-    response = authed_client.patch(
+    authed_client.patch(
         reverse('transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
-
     invite.refresh_from_db()
-
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
