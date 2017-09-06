@@ -204,7 +204,7 @@ class SetRequestorCompanyMixin:
         return super().to_internal_value(data)
 
 
-class OwershipInviteSerializer(
+class OwnershipInviteSerializer(
     SetRequestorCompanyMixin, serializers.ModelSerializer
 ):
     company_name = serializers.CharField(read_only=True, source='company.name')
@@ -233,7 +233,7 @@ class OwnershipInviteSerializer(
     SetRequestorCompanyMixin, serializers.ModelSerializer
 ):
     class Meta:
-        model = OwnershipInvite
+        model = models.OwnershipInvite
         fields = (
             'new_owner_email',
             'company_name',

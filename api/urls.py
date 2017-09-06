@@ -44,6 +44,7 @@ from supplier.views import (
     SupplierRetrieveUpdateAPIView,
     SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
+    CompanyCollboratorsListView,
 )
 from enrolment.views import (
     EnrolmentCreateAPIView,
@@ -172,6 +173,11 @@ urlpatterns = [
             'delete': 'destroy',
         }),
         name='company-case-study-detail',
+    ),
+    url(
+        r'^supplier/company/collaborators/$',
+        CompanyCollboratorsListView.as_view(),
+        name='supplier-company-collaborators-list'
     ),
     url(
         r'^supplier/$',
