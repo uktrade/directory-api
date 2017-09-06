@@ -11,6 +11,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
+<<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
 <<<<<<< 517f66d6ac9052f2f7514905e1865da88c69a795
     TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
@@ -19,6 +20,15 @@ from company.views import (
 =======
     TransferOwnershipInviteViewSet)
 >>>>>>> added custom validation and get/patch logic
+=======
+<<<<<<< 30918712b5d1cd02df0ba8cd5b789b6ac33e4030
+    TransferOwnershipInviteViewSet)
+=======
+    TransferOwnershipInviteCreateView,
+    CollaboratorInviteCreateView,
+)
+>>>>>>> Implement collaboration invite
+>>>>>>> Implement collaboration invite
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -118,11 +128,14 @@ urlpatterns = [
         name='collaboration-invite-create'
     ),
     url(
+<<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
         r'^supplier/company/remove-collaborators/',
         RemoveCollaboratorsView.as_view(),
         name='remove-collaborators'
     ),
     url(
+=======
+>>>>>>> Implement collaboration invite
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
         CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',

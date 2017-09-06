@@ -203,6 +203,13 @@ class SetRequestorCompanyMixin:
         data['company'] = self.context['request'].user.supplier.company.pk
         return super().to_internal_value(data)
 
+<<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
+=======
+
+class OwnershipInviteSerializer(
+    SetRequestorCompanyMixin, serializers.ModelSerializer
+):
+>>>>>>> Implement collaboration invite
 
 class OwnershipInviteSerializer(
     SetRequestorCompanyMixin, serializers.ModelSerializer
@@ -285,8 +292,20 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
             'accepted',
         )
 
-    extra_kwargs = {
-        'uuid': {'read_only': True},
-        'accepted': {'write_only': True},
-        'company': {'write_only': True}
-    }
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+            'accepted': {'write_only': True},
+        }
+
+
+class CollaboratorInviteSerializer(
+    SetRequestorCompanyMixin, serializers.ModelSerializer
+):
+
+    class Meta:
+        model = models.CollaboratorInvite
+        fields = (
+            'collaborator_email',
+            'company',
+            'requestor',
+        )

@@ -23,9 +23,7 @@ from company.tests import (
 )
 from company.tests import factories
 from supplier.tests.factories import SupplierFactory
-
 from user.models import User as Supplier
-from supplier.tests.factories import SupplierFactory
 
 
 default_public_profile_data = {
@@ -1719,6 +1717,11 @@ def test_create_transfer_ownership_invite(
     invite = models.OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
     )
+    assert response.json() == {
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'new_owner_email': 'foo@bar.com'
+    }
     assert invite.company == authed_supplier.company
     assert invite.requestor == authed_supplier
     assert isinstance(invite.uuid, uuid.UUID)
@@ -1902,3 +1905,46 @@ def test_accept_transfer_ownership_invite(
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
+
+
+def test_company_create_collaboration_invite(
+    authed_client, authed_supplier
+):
+    data = {'collaborator_email': 'foo@bar.com'}
+    url = reverse('collaboration-invite-create')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == {
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'collaborator_email': 'foo@bar.com'
+    }
+    invite = models.CollaboratorInvite.objects.get(
+        collaborator_email='foo@bar.com'
+    )
+
+    assert invite.company == authed_supplier.company
+    assert invite.requestor == authed_supplier
+
+
+@pytest.mark.django_db
+def test_company_create_duplicated_collaboration_invite(
+    authed_client, authed_supplier
+):
+    factories.CollaboratorInviteFactory(
+        collaborator_email='foo@bar.com',
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+
+    data = {'collaborator_email': 'foo@bar.com'}
+    url = reverse('collaboration-invite-create')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        'collaborator_email': [
+            'collaborator invite with this collaborator email already exists.'
+        ]
+    }
