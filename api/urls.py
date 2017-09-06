@@ -93,14 +93,14 @@ urlpatterns = [
     url(
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         TransferOwnershipInviteViewSet.as_view({
-            'get': 'retrieve'
+            'get': 'retrieve',
+            'patch': 'partial_update'
         }),
-        name='transfer-ownership-invite-retrieve'
+        name='transfer-ownership-invite-detail'
     ),
     url(
         r'^supplier/company/transfer-ownership-invite/$',
         TransferOwnershipInviteViewSet.as_view({
-            'patch': 'partial_update',
             'post': 'create'
         }),
         name='transfer-ownership-invite'

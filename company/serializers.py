@@ -230,6 +230,12 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Requestor is not legit')
         return value
 
+    def update(self, instance, validated_data):
+        import ipdb; ipdb.set_trace()
+        if validated_data['accepted'] == True:
+            pass
+
+
     class Meta:
         model = OwnershipInvite
         fields = (
