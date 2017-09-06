@@ -307,6 +307,7 @@ class OwnershipInvite(TimeStampedModel):
 
 class CollaboratorInvite(TimeStampedModel):
 
+    uuid = models.UUIDField(default=uuid.uuid4)
     collaborator_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)
     requestor = models.ForeignKey('user.User')
