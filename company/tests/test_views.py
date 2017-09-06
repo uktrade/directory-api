@@ -1861,7 +1861,7 @@ def test_retrieve_transfer_ownership_invite(
     invite.save()
 
     response = authed_client.get(
-        reverse('transfer-ownership-invite-retrieve',
+        reverse('transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)})
     )
 
@@ -1874,3 +1874,23 @@ def test_retrieve_transfer_ownership_invite(
         'requestor': invite.requestor.pk
     }
     assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+def test_accept_transfer_ownership_invite(
+        authed_client,
+        authed_supplier):
+
+    invite = OwnershipInvite(
+        new_owner_email='foo@bar.com',
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+    invite.save()
+
+    response = authed_client.patch(
+        reverse('transfer-ownership-invite-detail',
+                kwargs={'uuid': str(invite.uuid)}),
+        {'accepted': True}
+    )
+
