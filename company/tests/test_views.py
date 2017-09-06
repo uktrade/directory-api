@@ -23,6 +23,7 @@ from company.tests import (
     VALID_REQUEST_DATA,
 )
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from supplier.tests.factories import SupplierFactory
 from user.models import User as Supplier
 
 
@@ -1783,10 +1784,12 @@ def test_accept_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
+    supplier = SupplierFactory()
+
     invite = OwnershipInvite(
         new_owner_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
+        company=supplier.company,
+        requestor=supplier,
     )
     invite.save()
 
