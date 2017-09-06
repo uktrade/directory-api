@@ -11,7 +11,13 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
+<<<<<<< 30918712b5d1cd02df0ba8cd5b789b6ac33e4030
     TransferOwnershipInviteViewSet)
+=======
+    TransferOwnershipInviteCreateView,
+    CollaboratorInviteCreateView,
+)
+>>>>>>> Implement collaboration invite
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView
 )
@@ -104,6 +110,11 @@ urlpatterns = [
             'post': 'create'
         }),
         name='transfer-ownership-invite'
+    ),
+    url(
+        r'^supplier/company/collaboration-invite/',
+        CollaboratorInviteCreateView.as_view(),
+        name='collaboration-invite-create'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',

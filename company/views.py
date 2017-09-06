@@ -10,6 +10,11 @@ from company import filters, models, pagination, search, serializers
 
 from elasticsearch_dsl import query
 
+from company.serializers import (
+    CollaboratorInviteSerializer,
+    OwnershipInviteSerializer,
+)
+
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
@@ -245,3 +250,11 @@ class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
     queryset = models.OwnershipInvite
     lookup_field = 'uuid'
     http_method_names = ('get', 'post', 'patch')
+
+
+class TransferOwnershipInviteCreateView(generics.CreateAPIView):
+    serializer_class = OwnershipInviteSerializer
+
+
+class CollaboratorInviteCreateView(generics.CreateAPIView):
+    serializer_class = CollaboratorInviteSerializer

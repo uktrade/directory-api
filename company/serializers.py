@@ -7,7 +7,6 @@ from directory_constants.constants import choices
 from django.conf import settings
 
 from company import helpers, models, validators
-from company.models import OwnershipInvite
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -198,10 +197,19 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
 
 
-class OwnershipInviteWriteSerializer(serializers.ModelSerializer):
+class SetRequestorCompanyMixin:
+    def to_internal_value(self, data):
+        data['requestor'] = self.context['request'].user.supplier.pk
+        data['company'] = self.context['request'].user.supplier.company.pk
+        return super().to_internal_value(data)
+
+
+class OwnershipInviteSerializer(
+    SetRequestorCompanyMixin, serializers.ModelSerializer
+):
 
     class Meta:
-        model = OwnershipInvite
+        model = models.OwnershipInvite
         fields = (
             'new_owner_email',
             'company',
@@ -259,8 +267,20 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
             'accepted',
         )
 
-    extra_kwargs = {
-        'uuid': {'read_only': True},
-        'accepted': {'write_only': True},
-        'company': {'write_only': True}
-    }
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+            'accepted': {'write_only': True},
+        }
+
+
+class CollaboratorInviteSerializer(
+    SetRequestorCompanyMixin, serializers.ModelSerializer
+):
+
+    class Meta:
+        model = models.CollaboratorInvite
+        fields = (
+            'collaborator_email',
+            'company',
+            'requestor',
+        )
