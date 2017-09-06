@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
@@ -258,8 +259,7 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if validated_data['accepted'] == True:
-            # set the date here
-            pass
+            validated_data['accepted_date'] = now()
         return super().update(instance, validated_data)
 
     class Meta:
