@@ -284,3 +284,9 @@ class CollaboratorInviteSerializer(
             'company',
             'requestor',
         )
+
+
+class RemoveCollaboratorsSerializer(serializers.Serializer):
+    sso_ids = serializers.ListField(
+        child=serializers.IntegerField()
+    )

@@ -24,6 +24,7 @@ from company.tests import (
 from supplier.tests.factories import SupplierFactory
 from company.tests import factories
 from user.models import User as Supplier
+from supplier.tests.factories import SupplierFactory
 
 
 default_public_profile_data = {
@@ -1847,3 +1848,55 @@ def test_company_create_duplicated_collaboration_invite(
             'collaborator invite with this collaborator email already exists.'
         ]
     }
+
+
+@pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
+def test_remove_collaborators_not_company_owner():
+    pass
+
+
+@pytest.mark.django_db
+def test_remove_collaborators(authed_client, authed_supplier):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    supplier_one = SupplierFactory(company=authed_supplier.company)
+    supplier_two = SupplierFactory(company=authed_supplier.company)
+    supplier_three = SupplierFactory(company=authed_supplier.company)
+    supplier_four = SupplierFactory()
+
+    suppliers_before = authed_supplier.company.suppliers.all()
+    assert supplier_one in suppliers_before
+    assert supplier_two in suppliers_before
+    assert supplier_three in suppliers_before
+    assert supplier_four not in suppliers_before
+    assert authed_supplier in suppliers_before
+
+    url = reverse('remove-collaborators')
+    data = {'sso_ids': [supplier_one.sso_id, supplier_two.sso_id]}
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == 200
+    suppliers_after = authed_supplier.company.suppliers.all()
+    assert supplier_one not in suppliers_after
+    assert supplier_two not in suppliers_after
+    assert supplier_three in suppliers_after
+    assert supplier_four not in suppliers_after
+    assert authed_supplier in suppliers_after
+
+
+@pytest.mark.django_db
+def test_remove_collaborators_cannot_remove_self(
+    authed_client, authed_supplier
+):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    assert authed_supplier in authed_supplier.company.suppliers.all()
+
+    url = reverse('remove-collaborators')
+    data = {'sso_ids': [authed_supplier.sso_id]}
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == 200
+    assert authed_supplier in authed_supplier.company.suppliers.all()

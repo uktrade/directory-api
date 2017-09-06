@@ -16,6 +16,7 @@ from company.views import (
 =======
     TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
+    RemoveCollaboratorsView,
 )
 >>>>>>> Implement collaboration invite
 from notifications.views import (
@@ -115,6 +116,11 @@ urlpatterns = [
         r'^supplier/company/collaboration-invite/',
         CollaboratorInviteCreateView.as_view(),
         name='collaboration-invite-create'
+    ),
+    url(
+        r'^supplier/company/remove-collaborators/',
+        RemoveCollaboratorsView.as_view(),
+        name='remove-collaborators'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
