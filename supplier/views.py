@@ -18,6 +18,7 @@ class SupplierRetrieveExternalAPIView(APIView):
     serializer_class = serializers.ExternalSupplierSerializer
     authentication_classes = [
         authentication.Oauth2AuthenticationSSO,
+        authentication.SessionAuthenticationSSO,
     ]
 
     def get(self, request):
@@ -41,9 +42,6 @@ class SupplierSSOListExternalAPIView(ListAPIView):
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = serializers.SupplierSerializer
-    authentication_classes = [
-        authentication.SessionAuthenticationSSO,
-    ]
 
     def get_object(self):
         if not self.request.user.supplier:
