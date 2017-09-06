@@ -26,6 +26,7 @@ from company.views import (
 =======
     TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
+    RemoveCollaboratorsView,
 )
 >>>>>>> Implement collaboration invite
 >>>>>>> Implement collaboration invite
@@ -128,14 +129,20 @@ urlpatterns = [
         name='collaboration-invite-create'
     ),
     url(
+<<<<<<< 353563ec0d10a8db9a8aca224adf9b06a5d1f190
 <<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
+=======
+>>>>>>> Add endpoint for removal of contributors
         r'^supplier/company/remove-collaborators/',
         RemoveCollaboratorsView.as_view(),
         name='remove-collaborators'
     ),
     url(
+<<<<<<< 353563ec0d10a8db9a8aca224adf9b06a5d1f190
 =======
 >>>>>>> Implement collaboration invite
+=======
+>>>>>>> Add endpoint for removal of contributors
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
         CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',
