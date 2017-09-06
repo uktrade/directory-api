@@ -9,7 +9,8 @@ from django.http import Http404
 
 from api.signature import SignatureCheckPermission
 from core import authentication
-from supplier import serializers, gecko
+from core.permissions import IsAuthenticatedSSO
+from supplier import gecko, serializers, permissions
 from user.models import User as Supplier
 from notifications import notifications
 
@@ -75,4 +76,19 @@ class UnsubscribeSupplierAPIView(APIView):
                 "detail": "Supplier unsubscribed"
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class CompanyCollboratorsListView(ListAPIView):
+    permission_classes = [
+        IsAuthenticatedSSO,
+        SignatureCheckPermission,
+        permissions.IsCompanyProfileOwner
+    ]
+    serializer_class = serializers.SupplierSerializer
+
+    def get_queryset(self):
+        return Supplier.objects.filter(
+            company_id=self.request.user.supplier.company_id,
+            is_company_owner=False
         )
