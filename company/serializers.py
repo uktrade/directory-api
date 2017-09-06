@@ -260,7 +260,19 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if validated_data['accepted'] == True:
             validated_data['accepted_date'] = now()
-        return super().update(instance, validated_data)
+        instance = super().update(instance, validated_data)
+        self.create_supplier(instance)
+        return instance
+
+    def create_supplier(self, instance):
+        from user.models import User as Supplier
+        supplier = Supplier(
+            sso_id=self.context['request'].user.id,
+            company=instance.company,
+            company_email=instance.company.email_address,
+            is_company_owner=True,
+        )
+        supplier.save()
 
     class Meta:
         model = OwnershipInvite

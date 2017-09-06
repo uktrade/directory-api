@@ -29,7 +29,6 @@ class CompanyConfig(AppConfig):
             receiver=signals.save_case_study_change_to_elasticsearch,
             sender='company.CompanyCaseStudy',
         )
-
         post_delete.connect(
             receiver=signals.delete_company_elasticsearch_document,
             sender='company.Company',
