@@ -257,10 +257,10 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        import ipdb; ipdb.set_trace()
         if validated_data['accepted'] == True:
+            # set the date here
             pass
-
+        return super().update(instance, validated_data)
 
     class Meta:
         model = OwnershipInvite
@@ -269,8 +269,10 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
             'company_name',
             'company',
             'requestor',
-            'uuid'
+            'uuid',
+            'accepted',
         )
+
     extra_kwargs = {
         'uuid': {'read_only': True},
         'accepted': {'write_only': True},
