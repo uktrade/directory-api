@@ -10,7 +10,10 @@ from company import filters, models, pagination, search, serializers
 
 from elasticsearch_dsl import query
 
-from company.serializers import OwnershipInviteSerializer
+from company.serializers import (
+    CollaboratorInviteSerializer,
+    OwnershipInviteSerializer,
+)
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -244,3 +247,7 @@ class CompanySearchAPIView(views.APIView):
 
 class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = OwnershipInviteSerializer
+
+
+class CollaboratorInviteCreateView(generics.CreateAPIView):
+    serializer_class = CollaboratorInviteSerializer
