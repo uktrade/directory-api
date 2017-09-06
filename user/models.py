@@ -54,7 +54,6 @@ class User(TimeStampedModel):
     )
     is_company_owner = models.BooleanField(default=False)
 
-
     class Meta:
         ordering = ('-created', '-modified')
 
