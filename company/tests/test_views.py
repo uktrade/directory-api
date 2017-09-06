@@ -1795,3 +1795,6 @@ def test_accept_transfer_ownership_invite(
         {'accepted': True}
     )
 
+    invite.refresh_from_db()
+
+    assert invite.accepted is True
