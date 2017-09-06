@@ -24,7 +24,6 @@ from company.tests import (
 from supplier.tests.factories import SupplierFactory
 from company.tests import factories
 from user.models import User as Supplier
-from supplier.tests.factories import SupplierFactory
 
 
 default_public_profile_data = {
@@ -1699,22 +1698,18 @@ def test_create_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
-    data = {
-        'new_owner_email': 'foo@bar.com',
-        'company': authed_supplier.company.pk,
-    }
-    response = authed_client.post(
-        reverse('transfer-ownership-invite'),
-        data=data,
-        format='json'
-    )
+    data = {'new_owner_email': 'foo@bar.com'}
+    url = reverse('transfer-ownership-invite')
+    response = authed_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_201_CREATED
-    invite = OwnershipInvite.objects.get(
+    invite = models.OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
     )
     assert response.json() == {
+        'uuid': str(invite.uuid),
         'company': authed_supplier.company.pk,
+        'company_name': invite.company.name,
         'requestor': authed_supplier.pk,
         'new_owner_email': 'foo@bar.com'
     }
@@ -1754,12 +1749,11 @@ def test_create_duplicated_transfer_ownership_invite(
 
 
 @pytest.mark.django_db
-<<<<<<< 980e5128e629990a95b3483707014415f486772a
 def test_retrieve_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
-    invite = OwnershipInvite(
+    invite = models.OwnershipInvite(
         new_owner_email='foo@bar.com',
         company=authed_supplier.company,
         requestor=authed_supplier,
@@ -1788,15 +1782,16 @@ def test_accept_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
+    authed_supplier.delete()
+
     supplier = SupplierFactory()
 
-    invite = OwnershipInvite(
+    invite = models.OwnershipInvite(
         new_owner_email='foo@bar.com',
         company=supplier.company,
         requestor=supplier,
     )
     invite.save()
-
     authed_client.patch(
         reverse('transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
@@ -1808,6 +1803,7 @@ def test_accept_transfer_ownership_invite(
     assert invite.accepted_date.isoformat() == expected_date
 
 
+@pytest.mark.django_db
 def test_company_create_collaboration_invite(
     authed_client, authed_supplier
 ):
@@ -1815,15 +1811,17 @@ def test_company_create_collaboration_invite(
     url = reverse('collaboration-invite-create')
     response = authed_client.post(url, data=data)
 
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == {
-        'company': authed_supplier.company.pk,
-        'requestor': authed_supplier.pk,
-        'collaborator_email': 'foo@bar.com'
-    }
     invite = models.CollaboratorInvite.objects.get(
         collaborator_email='foo@bar.com'
     )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'company': authed_supplier.company.pk,
+        'company_name': invite.company.name,
+        'requestor': authed_supplier.pk,
+        'collaborator_email': 'foo@bar.com'
+    }
 
     assert invite.company == authed_supplier.company
     assert invite.requestor == authed_supplier
@@ -1901,30 +1899,3 @@ def test_remove_collaborators_cannot_remove_self(
 
     assert response.status_code == 200
     assert authed_supplier in authed_supplier.company.suppliers.all()
-
-
-def test_retrieve_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
-
-    invite = OwnershipInvite(
-        new_owner_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
-    )
-    invite.save()
-
-    response = authed_client.get(
-        reverse('transfer-ownership-invite-retrieve',
-                kwargs={'uuid': str(invite.uuid)})
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    expected_response = {
-        'uuid': str(invite.uuid),
-        'company_name': invite.company.name,
-        'company': invite.company.pk,
-        'new_owner_email': invite.new_owner_email,
-        'requestor': invite.requestor.pk
-    }
-    assert response.json() == expected_response

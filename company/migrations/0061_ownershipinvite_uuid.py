@@ -9,7 +9,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0059_ownershipinvite'),
+        ('company', '0060_collaboratorinvite'),
     ]
 
     operations = [

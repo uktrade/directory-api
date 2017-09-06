@@ -199,8 +199,9 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
 
 class SetRequestorCompanyMixin:
     def to_internal_value(self, data):
-        data['requestor'] = self.context['request'].user.supplier.pk
-        data['company'] = self.context['request'].user.supplier.company.pk
+        if not self.partial:
+            data['requestor'] = self.context['request'].user.supplier.pk
+            data['company'] = self.context['request'].user.supplier.company.pk
         return super().to_internal_value(data)
 
 
@@ -224,48 +225,13 @@ class OwnershipInviteSerializer(
     def validate_requestor(self, value):
         if not self.partial:
             return value
-        if self.instance.company.suppliers != self.instance.requestor:
-            raise serializers.ValidationError('Requestor is not legit')
-        return value
-
-    class Meta:
-        model = models.OwnershipInvite
-        fields = (
-            'new_owner_email',
-            'company_name',
-            'company',
-            'requestor',
-            'uuid'
-        )
-        extra_kwargs = {
-            'uuid': {'read_only': True}
-        }
-
-
-class OwershipInviteSerializer(serializers.ModelSerializer):
-    company_name = serializers.CharField(read_only=True, source='company.name')
-
-    def validate_new_owner_email(self, value):
-        if not self.partial:
-            return value
-        user = self.context['request'].user
-        if user.supplier is not None:
-            serializers.ValidationError('User has already a company')
-        if value != user.company_email:
-            raise serializers.ValidationError(
-                'User accepting an incorrect invite'
-            )
-        return value
-
-    def validate_requestor(self, value):
-        if not self.partial:
-            return value
-        if self.instance.requestor not in self.instance.company.suppliers:
+        queryset = self.instance.company.suppliers.all()
+        if self.instance.requestor not in queryset:
             raise serializers.ValidationError('Requestor is not legit')
         return value
 
     def update(self, instance, validated_data):
-        if validated_data['accepted'] == True:
+        if validated_data['accepted'] is True:
             validated_data['accepted_date'] = now()
         instance = super().update(instance, validated_data)
         self.create_supplier(instance)
@@ -282,7 +248,7 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
         supplier.save()
 
     class Meta:
-        model = OwnershipInvite
+        model = models.OwnershipInvite
         fields = (
             'new_owner_email',
             'company_name',
@@ -295,6 +261,8 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'uuid': {'read_only': True},
             'accepted': {'write_only': True},
+            'company': {'required': False},
+            'requestor': {'required': False},
         }
 
 
@@ -308,12 +276,15 @@ class CollaboratorInviteSerializer(
         fields = (
             'collaborator_email',
             'company_name',
+            'company',
             'requestor',
             'uuid',
         )
         extra_kwargs = {
             'uuid': {'read_only': True},
             'accepted': {'write_only': True},
+            'company': {'required': False},
+            'requestor': {'required': False},
         }
 
 

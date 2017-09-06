@@ -266,7 +266,7 @@ class RemoveCollaboratorsView(views.APIView):
 
 
 class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.OwershipInviteSerializer
+    serializer_class = serializers.OwnershipInviteSerializer
     queryset = models.OwnershipInvite
     lookup_field = 'uuid'
     http_method_names = ('get', 'post', 'patch')
