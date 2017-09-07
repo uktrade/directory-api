@@ -229,7 +229,8 @@ class InviteSerializerMixin:
             raise serializers.ValidationError({
                 self.email_field_name: self.MESSAGE_ALREADY_HAS_COMPANY
             })
-        if getattr(self.instance, self.email_field_name) != user.email:
+        email_value = getattr(self.instance, self.email_field_name)
+        if email_value.lower() != user.email.lower():
             raise serializers.ValidationError({
                 self.email_field_name: self.MESSAGE_WRONG_INVITE
             })

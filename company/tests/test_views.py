@@ -1847,11 +1847,49 @@ def test_accept_transfer_ownership_invite(
         requestor=supplier,
     )
     invite.save()
-    authed_client.patch(
+    response = authed_client.patch(
         reverse('transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+
+    assert response.status_code == 200
+
+    invite.refresh_from_db()
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
+    assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
+def test_accept_transfer_ownership_invite_case_insensetive(
+        authed_client,
+        authed_supplier):
+
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=False)
+
+    invite = models.OwnershipInvite(
+        new_owner_email=authed_supplier.company_email.upper(),
+        company=supplier.company,
+        requestor=supplier,
+    )
+    invite.save()
+    response = authed_client.patch(
+        reverse('transfer-ownership-invite-detail',
+                kwargs={'uuid': str(invite.uuid)}),
+        {'accepted': True}
+    )
+
+    assert response.status_code == 200
+
     invite.refresh_from_db()
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
@@ -2010,6 +2048,38 @@ def test_accept_collboration_invite(
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email,
+        company=supplier.company,
+        requestor=supplier,
+    )
+
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    assert response.status_code == 200
+
+    invite.refresh_from_db()
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
+    assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
+def test_accept_collboration_invite_case_insensetive(
+    authed_client, authed_supplier
+):
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=False)
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email=authed_supplier.company_email.upper(),
         company=supplier.company,
         requestor=supplier,
     )
