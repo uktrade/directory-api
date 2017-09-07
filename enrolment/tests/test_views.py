@@ -49,6 +49,7 @@ def test_enrolment_viewset_create():
     assert supplier.company == company
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
+    assert supplier.is_company_owner is True
 
 
 @pytest.mark.django_db
