@@ -1898,6 +1898,10 @@ def test_accept_transfer_ownership_invite(
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
     assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
 
 
 @pytest.mark.django_db
