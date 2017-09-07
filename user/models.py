@@ -52,6 +52,7 @@ class User(TimeStampedModel):
             'Designates whether this user should receive notifications'
         ),
     )
+    is_company_owner = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-created', '-modified')

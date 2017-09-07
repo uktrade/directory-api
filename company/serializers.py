@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
@@ -6,6 +7,7 @@ from directory_constants.constants import choices
 from django.conf import settings
 
 from company import helpers, models, validators
+from user.models import User as Supplier
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -198,35 +200,101 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
 
 class SetRequestorCompanyMixin:
     def to_internal_value(self, data):
-        data['requestor'] = self.context['request'].user.supplier.pk
-        data['company'] = self.context['request'].user.supplier.company.pk
+        if not self.partial:
+            data['requestor'] = self.context['request'].user.supplier.pk
+            data['company'] = self.context['request'].user.supplier.company.pk
         return super().to_internal_value(data)
 
 
 class OwnershipInviteSerializer(
-    SetRequestorCompanyMixin, serializers.ModelSerializer
+        SetRequestorCompanyMixin,
+        serializers.ModelSerializer
 ):
+
+    company_name = serializers.CharField(read_only=True, source='company.name')
+
+    def check_new_owner_email(self):
+        user = self.context['request'].user
+        if user.supplier is not None:
+            raise serializers.ValidationError({
+                'new_owner_email': 'User already has a company'
+            })
+        if self.instance.new_owner_email != user.email:
+            raise serializers.ValidationError({
+                'new_owner_email': 'User accepting an incorrect invite'
+            })
+        return True
+
+    def check_requestor(self):
+        queryset = self.instance.company.suppliers.all()
+        if self.instance.requestor not in queryset:
+            raise serializers.ValidationError({
+                'requestor': 'Requestor is not legit'
+            })
+        return True
+
+    def validate(self, data):
+        """Perform additional validation if accepting the invite."""
+        if data.get('accepted', False):
+            self.check_new_owner_email()
+            self.check_requestor()
+        return super().validate(data)
+
+    def update(self, instance, validated_data):
+        if validated_data['accepted'] is True:
+            validated_data['accepted_date'] = now()
+        instance = super().update(instance, validated_data)
+        self.create_supplier(instance)
+        return instance
+
+    def create_supplier(self, instance):
+        supplier = Supplier(
+            sso_id=self.context['request'].user.id,
+            company=instance.company,
+            company_email=instance.company.email_address,
+            is_company_owner=True,
+        )
+        supplier.save()
 
     class Meta:
         model = models.OwnershipInvite
         fields = (
             'new_owner_email',
+            'company_name',
             'company',
             'requestor',
+            'uuid',
+            'accepted',
         )
+
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+            'accepted': {'write_only': True},
+            'company': {'required': False},
+            'requestor': {'required': False},
+        }
 
 
 class CollaboratorInviteSerializer(
     SetRequestorCompanyMixin, serializers.ModelSerializer
 ):
+    company_name = serializers.CharField(read_only=True, source='company.name')
 
     class Meta:
         model = models.CollaboratorInvite
         fields = (
             'collaborator_email',
+            'company_name',
             'company',
             'requestor',
+            'uuid',
         )
+        extra_kwargs = {
+            'uuid': {'read_only': True},
+            'accepted': {'write_only': True},
+            'company': {'required': False},
+            'requestor': {'required': False},
+        }
 
 
 class RemoveCollaboratorsSerializer(serializers.Serializer):

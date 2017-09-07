@@ -28,7 +28,11 @@ class ExternalSupplierSerializer(serializers.ModelSerializer):
             'name',
             'profile_url',
             'sso_id',
+            'is_company_owner',
         )
+        extra_kwargs = {
+            'is_company_owner': {'read_only': True},
+        }
 
     def get_profile_url(self, obj):
         return obj.company.public_profile_url
@@ -43,10 +47,12 @@ class SupplierSerializer(serializers.ModelSerializer):
             'company_email',
             'date_joined',
             'sso_id',
+            'is_company_owner'
         )
         extra_kwargs = {
             'sso_id': {'required': True},
             'company': {'required': False},
+            'is_company_owner': {'read_only': True},
         }
 
     def validate_name(self, value):

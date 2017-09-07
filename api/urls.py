@@ -11,12 +11,12 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-    TransferOwnershipInviteCreateView,
     CollaboratorInviteCreateView,
     RemoveCollaboratorsView,
+    TransferOwnershipInviteViewSet,
 )
 from notifications.views import (
-    AnonymousUnsubscribeCreateAPIView
+    AnonymousUnsubscribeCreateAPIView,
 )
 from supplier.views import (
     GeckoTotalRegisteredSuppliersView,
@@ -24,6 +24,7 @@ from supplier.views import (
     SupplierRetrieveUpdateAPIView,
     SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
+    CompanyCollboratorsListView,
 )
 from enrolment.views import (
     EnrolmentCreateAPIView,
@@ -94,9 +95,19 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
-        r'^supplier/company/transfer-ownership-invite/',
-        TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite-create'
+        r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
+        TransferOwnershipInviteViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update'
+        }),
+        name='transfer-ownership-invite-detail'
+    ),
+    url(
+        r'^supplier/company/transfer-ownership-invite/$',
+        TransferOwnershipInviteViewSet.as_view({
+            'post': 'create'
+        }),
+        name='transfer-ownership-invite'
     ),
     url(
         r'^supplier/company/collaboration-invite/',
@@ -116,6 +127,11 @@ urlpatterns = [
             'delete': 'destroy',
         }),
         name='company-case-study-detail',
+    ),
+    url(
+        r'^supplier/company/collaborators/$',
+        CompanyCollboratorsListView.as_view(),
+        name='supplier-company-collaborators-list'
     ),
     url(
         r'^supplier/$',

@@ -201,3 +201,64 @@ def test_external_supplier_sso_list(authed_client, authed_supplier):
         suppliers[0].sso_id,
         authed_supplier.sso_id,
     ]
+
+
+@pytest.mark.django_db
+def test_company_collaborators_anon_users():
+    url = reverse('supplier-company-collaborators-list')
+    client = APIClient()
+
+    response = client.get(url)
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_company_collaborators_not_profile_owner(
+    authed_supplier, authed_client
+):
+    authed_supplier.is_company_owner = False
+    authed_supplier.save()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_company_collaborators_profile_owner(
+    authed_supplier, authed_client
+):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    supplier_one = factories.SupplierFactory(company=authed_supplier.company)
+    supplier_two = factories.SupplierFactory(company=authed_supplier.company)
+    factories.SupplierFactory()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    parsed = response.json()
+    supplier_sso_ids = {supplier_one.sso_id, supplier_two.sso_id}
+
+    assert {supplier['sso_id'] for supplier in parsed} == supplier_sso_ids
+
+
+@pytest.mark.django_db
+def test_company_collaborators_profile_owner_no_collaborators(
+    authed_supplier, authed_client
+):
+    authed_supplier.is_company_owner = True
+    authed_supplier.save()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    assert response.json() == []
