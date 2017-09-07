@@ -11,32 +11,10 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-<<<<<<< 6295e8fd09e97a5aef74cdccc69e8ba7e13c97ff
-<<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
-<<<<<<< 517f66d6ac9052f2f7514905e1865da88c69a795
-    TransferOwnershipInviteCreateView,
-    CollaboratorInviteCreateView,
-    RemoveCollaboratorsView,
-)
-=======
-    TransferOwnershipInviteViewSet)
->>>>>>> added custom validation and get/patch logic
-=======
-<<<<<<< 30918712b5d1cd02df0ba8cd5b789b6ac33e4030
-    TransferOwnershipInviteViewSet)
-=======
-    TransferOwnershipInviteCreateView,
-=======
->>>>>>> Fix stuff
     CollaboratorInviteCreateView,
     RemoveCollaboratorsView,
     TransferOwnershipInviteViewSet,
 )
-<<<<<<< 6295e8fd09e97a5aef74cdccc69e8ba7e13c97ff
->>>>>>> Implement collaboration invite
->>>>>>> Implement collaboration invite
-=======
->>>>>>> Fix stuff
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView,
 )
@@ -137,20 +115,11 @@ urlpatterns = [
         name='collaboration-invite-create'
     ),
     url(
-<<<<<<< 353563ec0d10a8db9a8aca224adf9b06a5d1f190
-<<<<<<< 03c6837b38323593e3c6c12b68ecf1ab9153dd8c
-=======
->>>>>>> Add endpoint for removal of contributors
         r'^supplier/company/remove-collaborators/',
         RemoveCollaboratorsView.as_view(),
         name='remove-collaborators'
     ),
     url(
-<<<<<<< 353563ec0d10a8db9a8aca224adf9b06a5d1f190
-=======
->>>>>>> Implement collaboration invite
-=======
->>>>>>> Add endpoint for removal of contributors
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
         CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',

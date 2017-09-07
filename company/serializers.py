@@ -244,25 +244,6 @@ class OwnershipInviteSerializer(
         return value
 
 
-class CollaboratorInviteSerializer(
-    SetRequestorCompanyMixin, serializers.ModelSerializer
-):
-
-    class Meta:
-        model = models.CollaboratorInvite
-        fields = (
-            'collaborator_email',
-            'company',
-            'requestor',
-        )
-
-
-class RemoveCollaboratorsSerializer(serializers.Serializer):
-    sso_ids = serializers.ListField(
-        child=serializers.IntegerField()
-    )
-
-
 class OwershipInviteSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(read_only=True, source='company.name')
 

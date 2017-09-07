@@ -270,35 +270,3 @@ class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
     queryset = models.OwnershipInvite
     lookup_field = 'uuid'
     http_method_names = ('get', 'post', 'patch')
-
-
-class TransferOwnershipInviteCreateView(generics.CreateAPIView):
-    serializer_class = serializers.OwnershipInviteSerializer
-
-
-class CollaboratorInviteCreateView(generics.CreateAPIView):
-    serializer_class = serializers.CollaboratorInviteSerializer
-
-
-class RemoveCollaboratorsView(views.APIView):
-    serializer_class = serializers.RemoveCollaboratorsSerializer
-
-    def get_queryset(self):
-        return self.request.user.supplier.company.suppliers.exclude(
-            pk=self.request.user.supplier.pk
-        )
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.POST)
-        serializer.is_valid(raise_exception=True)
-
-        sso_ids = serializer.validated_data['sso_ids']
-        self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
-        return Response()
-
-
-class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.OwershipInviteSerializer
-    queryset = models.OwnershipInvite
-    lookup_field = 'uuid'
-    http_method_names = ('get', 'post', 'patch')

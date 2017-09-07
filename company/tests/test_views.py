@@ -1748,50 +1748,6 @@ def test_create_duplicated_transfer_ownership_invite(
     }
 
 
-@pytest.mark.django_db
-def test_company_create_collaboration_invite(
-    authed_client, authed_supplier
-):
-    data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == {
-        'company': authed_supplier.company.pk,
-        'requestor': authed_supplier.pk,
-        'collaborator_email': 'foo@bar.com'
-    }
-    invite = models.CollaboratorInvite.objects.get(
-        collaborator_email='foo@bar.com'
-    )
-
-    assert invite.company == authed_supplier.company
-    assert invite.requestor == authed_supplier
-
-
-@pytest.mark.django_db
-def test_company_create_duplicated_collaboration_invite(
-    authed_client, authed_supplier
-):
-    factories.CollaboratorInviteFactory(
-        collaborator_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
-    )
-
-    data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        'collaborator_email': [
-            'collaborator invite with this collaborator email already exists.'
-        ]
-    }
-
-
 @pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
 def test_remove_collaborators_not_company_owner():
     pass
@@ -1970,7 +1926,7 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
     authed_supplier.delete()
 
     supplier = SupplierFactory()
-    company = CompanyFactory()
+    company = factories.CompanyFactory()
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
@@ -2038,55 +1994,3 @@ def test_company_create_duplicated_collaboration_invite(
             'collaborator invite with this collaborator email already exists.'
         ]
     }
-
-
-@pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
-def test_remove_collaborators_not_company_owner():
-    pass
-
-
-@pytest.mark.django_db
-def test_remove_collaborators(authed_client, authed_supplier):
-    authed_supplier.is_company_owner = True
-    authed_supplier.save()
-
-    supplier_one = SupplierFactory(company=authed_supplier.company)
-    supplier_two = SupplierFactory(company=authed_supplier.company)
-    supplier_three = SupplierFactory(company=authed_supplier.company)
-    supplier_four = SupplierFactory()
-
-    suppliers_before = authed_supplier.company.suppliers.all()
-    assert supplier_one in suppliers_before
-    assert supplier_two in suppliers_before
-    assert supplier_three in suppliers_before
-    assert supplier_four not in suppliers_before
-    assert authed_supplier in suppliers_before
-
-    url = reverse('remove-collaborators')
-    data = {'sso_ids': [supplier_one.sso_id, supplier_two.sso_id]}
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == 200
-    suppliers_after = authed_supplier.company.suppliers.all()
-    assert supplier_one not in suppliers_after
-    assert supplier_two not in suppliers_after
-    assert supplier_three in suppliers_after
-    assert supplier_four not in suppliers_after
-    assert authed_supplier in suppliers_after
-
-
-@pytest.mark.django_db
-def test_remove_collaborators_cannot_remove_self(
-    authed_client, authed_supplier
-):
-    authed_supplier.is_company_owner = True
-    authed_supplier.save()
-
-    assert authed_supplier in authed_supplier.company.suppliers.all()
-
-    url = reverse('remove-collaborators')
-    data = {'sso_ids': [authed_supplier.sso_id]}
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == 200
-    assert authed_supplier in authed_supplier.company.suppliers.all()
