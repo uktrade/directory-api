@@ -11,7 +11,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-    CollaboratorInviteCreateView,
+    CollaboratorInviteViewSet,
     RemoveCollaboratorsView,
     TransferOwnershipInviteViewSet,
 )
@@ -110,9 +110,19 @@ urlpatterns = [
         name='transfer-ownership-invite'
     ),
     url(
-        r'^supplier/company/collaboration-invite/',
-        CollaboratorInviteCreateView.as_view(),
+        r'^supplier/company/collaboration-invite/$',
+        CollaboratorInviteViewSet.as_view({
+            'post': 'create'
+        }),
         name='collaboration-invite-create'
+    ),
+    url(
+        r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
+        CollaboratorInviteViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update'
+        }),
+        name='collaboration-invite-detail'
     ),
     url(
         r'^supplier/company/remove-collaborators/',

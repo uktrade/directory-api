@@ -244,8 +244,11 @@ class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
 
 
-class CollaboratorInviteCreateView(generics.CreateAPIView):
+class CollaboratorInviteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CollaboratorInviteSerializer
+    queryset = models.CollaboratorInvite
+    lookup_field = 'uuid'
+    http_method_names = ('get', 'post', 'patch')
 
 
 class RemoveCollaboratorsView(views.APIView):
