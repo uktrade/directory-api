@@ -1897,6 +1897,7 @@ def test_accept_transfer_ownership_invite(
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
 
 
 @pytest.mark.django_db
