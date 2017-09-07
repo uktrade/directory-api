@@ -11,6 +11,7 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     company_email = factory.LazyAttribute(
         lambda supplier: '%s@example.com' % supplier.name)
     company = factory.SubFactory(CompanyFactory)
+    is_company_owner = True
 
     class Meta:
         model = Supplier

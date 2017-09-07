@@ -7,6 +7,8 @@ from django.http import Http404
 
 from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
+from core.permissions import IsAuthenticatedSSO
+from supplier.permissions import IsCompanyProfileOwner
 
 from elasticsearch_dsl import query
 
@@ -240,19 +242,45 @@ class CompanySearchAPIView(views.APIView):
         return response.to_dict()
 
 
+class CollaboratorInviteCreateView(generics.CreateAPIView):
+    serializer_class = serializers.CollaboratorInviteSerializer
+    permission_classes = [
+        SignatureCheckPermission,
+        IsAuthenticatedSSO,
+        IsCompanyProfileOwner,
+    ]
+
+
 class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
+    permission_classes = [
+        SignatureCheckPermission,
+        IsAuthenticatedSSO,
+        IsCompanyProfileOwner,
+    ]
 
 
-class CollaboratorInviteViewSet(viewsets.ModelViewSet):
+class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CollaboratorInviteSerializer
-    queryset = models.CollaboratorInvite
+    queryset = models.CollaboratorInvite.objects.all()
     lookup_field = 'uuid'
-    http_method_names = ('get', 'post', 'patch')
+
+
+class TransferOwnershipInviteRetrieveUpdateAPIView(
+    generics.RetrieveUpdateAPIView
+):
+    serializer_class = serializers.OwnershipInviteSerializer
+    queryset = models.OwnershipInvite.objects.all()
+    lookup_field = 'uuid'
 
 
 class RemoveCollaboratorsView(views.APIView):
     serializer_class = serializers.RemoveCollaboratorsSerializer
+    permission_classes = [
+        SignatureCheckPermission,
+        IsAuthenticatedSSO,
+        IsCompanyProfileOwner,
+    ]
 
     def get_queryset(self):
         return self.request.user.supplier.company.suppliers.exclude(
@@ -266,10 +294,3 @@ class RemoveCollaboratorsView(views.APIView):
         sso_ids = serializer.validated_data['sso_ids']
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
-
-
-class TransferOwnershipInviteViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.OwnershipInviteSerializer
-    queryset = models.OwnershipInvite
-    lookup_field = 'uuid'
-    http_method_names = ('get', 'post', 'patch')

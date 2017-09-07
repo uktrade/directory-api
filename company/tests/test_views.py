@@ -1748,20 +1748,23 @@ def test_create_duplicated_transfer_ownership_invite(
     }
 
 
-@pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
-def test_remove_collaborators_not_company_owner():
-    pass
-
-
 @pytest.mark.django_db
 def test_remove_collaborators(authed_client, authed_supplier):
     authed_supplier.is_company_owner = True
     authed_supplier.save()
 
-    supplier_one = SupplierFactory(company=authed_supplier.company)
-    supplier_two = SupplierFactory(company=authed_supplier.company)
-    supplier_three = SupplierFactory(company=authed_supplier.company)
-    supplier_four = SupplierFactory()
+    supplier_one = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_two = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_three = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_four = SupplierFactory(
+        is_company_owner=False
+    )
 
     suppliers_before = authed_supplier.company.suppliers.all()
     assert supplier_one in suppliers_before
@@ -1836,7 +1839,7 @@ def test_accept_transfer_ownership_invite(
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(is_company_owner=False)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
@@ -2003,7 +2006,7 @@ def test_accept_collboration_invite(
 ):
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(is_company_owner=False)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email,
@@ -2111,3 +2114,20 @@ def test_accept_collaborator_invite_requestor_not_legit(
     assert response.json() == expected_response
     assert invite.accepted is False
     assert invite.accepted_date is None
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', (
+    reverse('collaboration-invite-create'),
+    reverse('remove-collaborators'),
+    reverse('transfer-ownership-invite'),
+))
+def test_multi_user_account_management_views_forbidden(
+    url, authed_client, authed_supplier
+):
+    authed_supplier.is_company_owner = False
+    authed_supplier.save()
+
+    response = authed_client.post(url, {})
+
+    assert response.status_code == 403
