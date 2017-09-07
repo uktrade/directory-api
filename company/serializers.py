@@ -7,6 +7,7 @@ from directory_constants.constants import choices
 from django.conf import settings
 
 from company import helpers, models, validators
+from user.models import User as Supplier
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -265,27 +266,32 @@ class RemoveCollaboratorsSerializer(serializers.Serializer):
 class OwershipInviteSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(read_only=True, source='company.name')
 
-    def validate_new_owner_email(self, value):
-        if not self.partial:
-            return value
+    def check_new_owner_email(self):
         user = self.context['request'].user
         if user.supplier is not None:
-            serializers.ValidationError('User has already a company')
-        if value != user.company_email:
-            raise serializers.ValidationError(
-                'User accepting an incorrect invite'
-            )
-        return value
+            raise serializers.ValidationError({
+                'new_owner_email': 'User already has a company'
+            })
+        if self.instance.new_owner_email != user.email:
+            raise serializers.ValidationError({
+                'new_owner_email': 'User accepting an incorrect invite'
+            })
+        return True
 
-    def validate_requestor(self, value):
-        if not self.partial:
-            return value
-        if self.instance.requestor not in self.instance.company.suppliers:
-
+    def check_requestor(self):
         queryset = self.instance.company.suppliers.all()
         if self.instance.requestor not in queryset:
-            raise serializers.ValidationError('Requestor is not legit')
-        return value
+            raise serializers.ValidationError({
+                'requestor': 'Requestor is not legit'
+            })
+        return True
+
+    def validate(self, data):
+        """Perform additional validation if accepting the invite."""
+        if data.get('accepted', False):
+            self.check_new_owner_email()
+            self.check_requestor()
+        return super().validate(data)
 
     def update(self, instance, validated_data):
         if validated_data['accepted'] is True:
@@ -295,7 +301,6 @@ class OwershipInviteSerializer(serializers.ModelSerializer):
         return instance
 
     def create_supplier(self, instance):
-        from user.models import User as Supplier
         supplier = Supplier(
             sso_id=self.context['request'].user.id,
             company=instance.company,
