@@ -198,102 +198,107 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
 
 
-class SetRequestorCompanyMixin:
+class InviteSerializerMixin:
+
+    MESSAGE_ALREADY_HAS_COMPANY = 'User already has a company'
+    MESSAGE_WRONG_INVITE = 'User accepting an incorrect invite'
+    MESSAGE_INVALID_REQUESTOR = 'Requestor is not legit'
+
     def to_internal_value(self, data):
         if not self.partial:
             data['requestor'] = self.context['request'].user.supplier.pk
             data['company'] = self.context['request'].user.supplier.company.pk
         return super().to_internal_value(data)
 
-
-class OwnershipInviteSerializer(
-        SetRequestorCompanyMixin,
-        serializers.ModelSerializer
-):
-
-    company_name = serializers.CharField(read_only=True, source='company.name')
-
-    def check_new_owner_email(self):
-        user = self.context['request'].user
-        if user.supplier is not None:
-            raise serializers.ValidationError({
-                'new_owner_email': 'User already has a company'
-            })
-        if self.instance.new_owner_email != user.email:
-            raise serializers.ValidationError({
-                'new_owner_email': 'User accepting an incorrect invite'
-            })
-        return True
-
-    def check_requestor(self):
-        queryset = self.instance.company.suppliers.all()
-        if self.instance.requestor not in queryset:
-            raise serializers.ValidationError({
-                'requestor': 'Requestor is not legit'
-            })
-        return True
-
     def validate(self, data):
-        """Perform additional validation if accepting the invite."""
         if data.get('accepted', False):
-            self.check_new_owner_email()
+            self.check_email()
             self.check_requestor()
         return super().validate(data)
 
     def update(self, instance, validated_data):
-        if validated_data['accepted'] is True:
+        if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
         instance = super().update(instance, validated_data)
         self.create_supplier(instance)
         return instance
 
+    def check_email(self):
+        user = self.context['request'].user
+        if user.supplier is not None:
+            raise serializers.ValidationError({
+                self.email_field_name: self.MESSAGE_ALREADY_HAS_COMPANY
+            })
+        email_value = getattr(self.instance, self.email_field_name)
+        if email_value.lower() != user.email.lower():
+            raise serializers.ValidationError({
+                self.email_field_name: self.MESSAGE_WRONG_INVITE
+            })
+
+    def check_requestor(self):
+        queryset = self.instance.company.suppliers.all()
+        if self.instance.requestor not in queryset:
+            raise serializers.ValidationError({
+                'requestor': self.MESSAGE_INVALID_REQUESTOR
+            })
+
     def create_supplier(self, instance):
-        supplier = Supplier(
+        Supplier.objects.create(
             sso_id=self.context['request'].user.id,
             company=instance.company,
             company_email=instance.company.email_address,
             is_company_owner=True,
         )
-        supplier.save()
+
+
+class OwnershipInviteSerializer(
+    InviteSerializerMixin, serializers.ModelSerializer
+):
+    email_field_name = 'new_owner_email'
+
+    company_name = serializers.CharField(read_only=True, source='company.name')
 
     class Meta:
         model = models.OwnershipInvite
         fields = (
-            'new_owner_email',
-            'company_name',
+            'accepted',
             'company',
+            'company_name',
+            'new_owner_email',
             'requestor',
             'uuid',
-            'accepted',
         )
 
         extra_kwargs = {
-            'uuid': {'read_only': True},
             'accepted': {'write_only': True},
             'company': {'required': False},
             'requestor': {'required': False},
+            'uuid': {'read_only': True},
         }
 
 
 class CollaboratorInviteSerializer(
-    SetRequestorCompanyMixin, serializers.ModelSerializer
+    InviteSerializerMixin, serializers.ModelSerializer
 ):
+    email_field_name = 'collaborator_email'
+
     company_name = serializers.CharField(read_only=True, source='company.name')
 
     class Meta:
         model = models.CollaboratorInvite
         fields = (
+            'accepted',
             'collaborator_email',
-            'company_name',
             'company',
+            'company_name',
             'requestor',
             'uuid',
         )
         extra_kwargs = {
-            'uuid': {'read_only': True},
             'accepted': {'write_only': True},
             'company': {'required': False},
             'requestor': {'required': False},
+            'uuid': {'read_only': True},
         }
 
 

@@ -1748,20 +1748,23 @@ def test_create_duplicated_transfer_ownership_invite(
     }
 
 
-@pytest.mark.skip('Authenticator on other PR. Follow up once merged.')
-def test_remove_collaborators_not_company_owner():
-    pass
-
-
 @pytest.mark.django_db
 def test_remove_collaborators(authed_client, authed_supplier):
     authed_supplier.is_company_owner = True
     authed_supplier.save()
 
-    supplier_one = SupplierFactory(company=authed_supplier.company)
-    supplier_two = SupplierFactory(company=authed_supplier.company)
-    supplier_three = SupplierFactory(company=authed_supplier.company)
-    supplier_four = SupplierFactory()
+    supplier_one = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_two = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_three = SupplierFactory(
+        company=authed_supplier.company, is_company_owner=False
+    )
+    supplier_four = SupplierFactory(
+        is_company_owner=False
+    )
 
     suppliers_before = authed_supplier.company.suppliers.all()
     assert supplier_one in suppliers_before
@@ -1836,7 +1839,7 @@ def test_accept_transfer_ownership_invite(
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(is_company_owner=False)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
@@ -1844,11 +1847,49 @@ def test_accept_transfer_ownership_invite(
         requestor=supplier,
     )
     invite.save()
-    authed_client.patch(
+    response = authed_client.patch(
         reverse('transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+
+    assert response.status_code == 200
+
+    invite.refresh_from_db()
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
+    assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
+def test_accept_transfer_ownership_invite_case_insensetive(
+        authed_client,
+        authed_supplier):
+
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=False)
+
+    invite = models.OwnershipInvite(
+        new_owner_email=authed_supplier.company_email.upper(),
+        company=supplier.company,
+        requestor=supplier,
+    )
+    invite.save()
+    response = authed_client.patch(
+        reverse('transfer-ownership-invite-detail',
+                kwargs={'uuid': str(invite.uuid)}),
+        {'accepted': True}
+    )
+
+    assert response.status_code == 200
+
     invite.refresh_from_db()
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
@@ -1867,7 +1908,7 @@ def test_accept_wrong_transfer_ownership_invite(
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=1)
+    supplier = SupplierFactory(is_company_owner=True)
 
     invite = models.OwnershipInvite(
         new_owner_email='foo@bar.com',
@@ -1880,9 +1921,11 @@ def test_accept_wrong_transfer_ownership_invite(
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
+
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'new_owner_email': ['User accepting an incorrect invite']
+        'new_owner_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -1909,9 +1952,11 @@ def test_accept_transfer_ownership_invite_supplier_has_company_already(
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
+
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'new_owner_email': ['User already has a company']
+        'new_owner_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -1940,10 +1985,11 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
         {'accepted': True}
     )
     invite.refresh_from_db()
+    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'requestor': ['Requestor is not legit']
+        'requestor': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -1994,3 +2040,174 @@ def test_company_create_duplicated_collaboration_invite(
             'collaborator invite with this collaborator email already exists.'
         ]
     }
+
+
+@pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
+def test_accept_collboration_invite(
+    authed_client, authed_supplier
+):
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=False)
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email=authed_supplier.company_email,
+        company=supplier.company,
+        requestor=supplier,
+    )
+
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    assert response.status_code == 200
+
+    invite.refresh_from_db()
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
+    assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+@freeze_time('2016-11-23T11:21:10.977518Z')
+def test_accept_collboration_invite_case_insensetive(
+    authed_client, authed_supplier
+):
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=False)
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email=authed_supplier.company_email.upper(),
+        company=supplier.company,
+        requestor=supplier,
+    )
+
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    assert response.status_code == 200
+
+    invite.refresh_from_db()
+    expected_date = '2016-11-23T11:21:10.977518+00:00'
+    assert invite.accepted is True
+    assert invite.accepted_date.isoformat() == expected_date
+    assert supplier.is_company_owner is False
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+def test_accept_wrong_collaborator_invite(
+    authed_client, authed_supplier
+):
+
+    authed_supplier.delete()
+
+    supplier = SupplierFactory(is_company_owner=True)
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email='foo@bar.com',
+        company=supplier.company,
+        requestor=supplier,
+    )
+
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
+    expected_response = {
+        'collaborator_email': [error]
+    }
+    assert response.json() == expected_response
+    assert invite.accepted is False
+    assert invite.accepted_date is None
+    assert Supplier.objects.filter(
+        company=supplier.company,
+        is_company_owner=True
+    ).count() == 1
+
+
+@pytest.mark.django_db
+def test_accept_collaborator_invite_supplier_has_company_already(
+        authed_client,
+        authed_supplier):
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email=authed_supplier.company_email,
+        company=authed_supplier.company,
+        requestor=authed_supplier,
+    )
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    expected_response = {
+        'collaborator_email': [error]
+    }
+    assert response.json() == expected_response
+    assert invite.accepted is False
+    assert invite.accepted_date is None
+
+
+@pytest.mark.django_db
+def test_accept_collaborator_invite_requestor_not_legit(
+        authed_client,
+        authed_supplier):
+
+    authed_supplier.delete()
+
+    supplier = SupplierFactory()
+    company = factories.CompanyFactory()
+
+    invite = factories.CollaboratorInviteFactory(
+        collaborator_email=authed_supplier.company_email,
+        company=company,
+        requestor=supplier
+    )
+    url = reverse(
+        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+    )
+    response = authed_client.patch(url, {'accepted': True})
+    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
+
+    invite.refresh_from_db()
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    expected_response = {
+        'requestor': [error]
+    }
+    assert response.json() == expected_response
+    assert invite.accepted is False
+    assert invite.accepted_date is None
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', (
+    reverse('collaboration-invite-create'),
+    reverse('remove-collaborators'),
+    reverse('transfer-ownership-invite'),
+))
+def test_multi_user_account_management_views_forbidden(
+    url, authed_client, authed_supplier
+):
+    authed_supplier.is_company_owner = False
+    authed_supplier.save()
+
+    response = authed_client.post(url, {})
+
+    assert response.status_code == 403

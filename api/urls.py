@@ -11,9 +11,11 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
-    CollaboratorInviteCreateView,
     RemoveCollaboratorsView,
-    TransferOwnershipInviteViewSet,
+    CollaboratorInviteCreateView,
+    TransferOwnershipInviteCreateView,
+    CollaboratorInviteRetrieveUpdateAPIView,
+    TransferOwnershipInviteRetrieveUpdateAPIView,
 )
 from notifications.views import (
     AnonymousUnsubscribeCreateAPIView,
@@ -96,23 +98,23 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
-        TransferOwnershipInviteViewSet.as_view({
-            'get': 'retrieve',
-            'patch': 'partial_update'
-        }),
+        TransferOwnershipInviteRetrieveUpdateAPIView.as_view(),
         name='transfer-ownership-invite-detail'
     ),
     url(
         r'^supplier/company/transfer-ownership-invite/$',
-        TransferOwnershipInviteViewSet.as_view({
-            'post': 'create'
-        }),
+        TransferOwnershipInviteCreateView.as_view(),
         name='transfer-ownership-invite'
     ),
     url(
-        r'^supplier/company/collaboration-invite/',
+        r'^supplier/company/collaboration-invite/$',
         CollaboratorInviteCreateView.as_view(),
         name='collaboration-invite-create'
+    ),
+    url(
+        r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
+        CollaboratorInviteRetrieveUpdateAPIView.as_view(),
+        name='collaboration-invite-detail'
     ),
     url(
         r'^supplier/company/remove-collaborators/',

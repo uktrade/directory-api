@@ -30,6 +30,7 @@ class EnrolmentCreateAPIView(APIView):
             data={'company': company.id, **request.data}
         )
         supplier_serializer.is_valid(raise_exception=True)
+        supplier_serializer.validated_data['is_company_owner'] = True
         supplier_serializer.save()
 
         return Response(status=status.HTTP_201_CREATED)

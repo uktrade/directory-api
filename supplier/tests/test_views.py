@@ -234,8 +234,14 @@ def test_company_collaborators_profile_owner(
     authed_supplier.is_company_owner = True
     authed_supplier.save()
 
-    supplier_one = factories.SupplierFactory(company=authed_supplier.company)
-    supplier_two = factories.SupplierFactory(company=authed_supplier.company)
+    supplier_one = factories.SupplierFactory(
+        company=authed_supplier.company,
+        is_company_owner=False,
+    )
+    supplier_two = factories.SupplierFactory(
+        company=authed_supplier.company,
+        is_company_owner=False,
+    )
     factories.SupplierFactory()
 
     url = reverse('supplier-company-collaborators-list')
