@@ -1921,9 +1921,11 @@ def test_accept_wrong_transfer_ownership_invite(
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
+
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'new_owner_email': ['User accepting an incorrect invite']
+        'new_owner_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -1950,9 +1952,11 @@ def test_accept_transfer_ownership_invite_supplier_has_company_already(
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
+    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
+
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'new_owner_email': ['User already has a company']
+        'new_owner_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -1981,10 +1985,11 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
         {'accepted': True}
     )
     invite.refresh_from_db()
+    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'requestor': ['Requestor is not legit']
+        'requestor': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -2121,8 +2126,9 @@ def test_accept_wrong_collaborator_invite(
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
     expected_response = {
-        'collaborator_email': ['User accepting an incorrect invite']
+        'collaborator_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -2147,9 +2153,11 @@ def test_accept_collaborator_invite_supplier_has_company_already(
         'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
+    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
+
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'collaborator_email': ['User already has a company']
+        'collaborator_email': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
@@ -2175,11 +2183,13 @@ def test_accept_collaborator_invite_requestor_not_legit(
         'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
+    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
+
     invite.refresh_from_db()
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     expected_response = {
-        'requestor': ['Requestor is not legit']
+        'requestor': [error]
     }
     assert response.json() == expected_response
     assert invite.accepted is False
