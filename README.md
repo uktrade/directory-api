@@ -1,14 +1,13 @@
 # directory-api
-[Export Directory API service](https://www.directory.exportingisgreat.gov.uk/)
 
-## Build status
+[![code-climate-image]][code-climate]
+[![circle-ci-image]][circle-ci]
+[![codecov-image]][codecov]
+[![gemnasium-image]][gemnasium]
 
-[![CircleCI](https://circleci.com/gh/uktrade/directory-api/tree/master.svg?style=svg)](https://circleci.com/gh/uktrade/directory-api/tree/master)
+**[Export Directory API service](https://www.directory.exportingisgreat.gov.uk/)**
 
-## Coverage
-
-[![codecov](https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg)](https://codecov.io/gh/uktrade/directory-api)
-
+---
 
 ## Requirements
 [Docker >= 1.10](https://docs.docker.com/engine/installation/) 
@@ -71,3 +70,16 @@ To update `fixtures/development.json` with the current contents of the database 
 `make dumpdata`
 
 Then check the contents of `fixtures/development.json`.
+
+
+[code-climate-image]: https://codeclimate.com/github/uktrade/directory-api/badges/issue_count.svg
+[code-climate]: https://codeclimate.com/github/uktrade/directory-api
+
+[circle-ci-image]: https://circleci.com/gh/uktrade/directory-api/tree/master.svg?style=svg
+[circle-ci]: https://circleci.com/gh/uktrade/directory-api/tree/master
+
+[codecov-image]: https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg
+[codecov]: https://codecov.io/gh/uktrade/directory-api
+
+[gemnasium-image]: https://gemnasium.com/badges/github.com/uktrade/directory-api.svg
+[gemnasium]: https://gemnasium.com/github.com/uktrade/directory-api
