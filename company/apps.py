@@ -33,3 +33,11 @@ class CompanyConfig(AppConfig):
             receiver=signals.delete_company_elasticsearch_document,
             sender='company.Company',
         )
+        post_save.connect(
+            receiver=signals.send_account_ownership_notification,
+            sender='company.OwnershipInvite'
+        )
+        post_save.connect(
+            receiver=signals.send_account_ownership_notification,
+            sender='company.CollaboratorInvite'
+        )

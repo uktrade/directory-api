@@ -83,7 +83,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/; \
 	export DIRECTORY_API_RECIPIENT_EMAIL_EXPORT_OPPORTUNITY_CREATED=post@example.gov.uk; \
-	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000
+	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
+	export FAB_DOMAIN=foo
 
 docker_test_env_files:
 	$(DOCKER_SET_DEBUG_ENV_VARS) && \
@@ -175,7 +176,8 @@ DEBUG_SET_ENV_VARS := \
 	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/; \
 	export SSO_SIGNATURE_SECRET=proxy_signature_debug; \
 	export RECIPIENT_EMAIL_EXPORT_OPPORTUNITY_CREATED=post@example.gov.uk; \
-	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000
+	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
+	export FAB_DOMAIN=foo
 
 
 debug_webserver:

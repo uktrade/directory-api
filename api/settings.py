@@ -269,6 +269,7 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 FAS_FROM_EMAIL = os.getenv("FAS_FROM_EMAIL")
 FAB_FROM_EMAIL = os.getenv("FAB_FROM_EMAIL")
+FAB_DOMAIN = os.getenv("FAB_DOMAIN")
 
 # Public storage for company profile logo
 STORAGE_CLASSES = {
