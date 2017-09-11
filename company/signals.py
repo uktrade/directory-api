@@ -4,6 +4,9 @@ from django.utils import timezone
 from company.utils import send_verification_letter
 
 
+FROM_EMAIL = settings.FAS_FROM_EMAIL
+
+
 def send_first_verification_letter(sender, instance, *args, **kwargs):
     should_send_letter = all([
         settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
@@ -43,3 +46,22 @@ def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
     if instance.company.is_published:
         instance.company.to_doc_type().save()
+
+
+def send_account_ownership_notification(
+        sender, instance, created, *args, **kwargs
+):
+    from notifications.tasks import send_email
+
+    if not created:
+        return
+
+    send_email.delay(
+        subject=instance.subject,
+        text_body=instance.invite_link,
+        html_body='<html><a href="{}">Click</a></html>'.format(
+            instance.invite_link
+        ),
+        recipient_email=instance.recipient_email,
+        from_email=FROM_EMAIL
+    )

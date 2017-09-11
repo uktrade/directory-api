@@ -3,7 +3,8 @@ import factory.fuzzy
 
 from directory_constants.constants import choices
 
-from company.models import Company, CompanyCaseStudy, CollaboratorInvite
+from company.models import Company, CompanyCaseStudy, CollaboratorInvite, \
+    OwnershipInvite
 
 
 def company_house_number():
@@ -79,3 +80,15 @@ class CollaboratorInviteFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = CollaboratorInvite
+
+
+class OwnershipInviteFactory(factory.django.DjangoModelFactory):
+
+    new_owner_email = factory.Sequence(lambda n: '{}@example.com'.format(n))
+    company = factory.SubFactory(CompanyFactory)
+    requestor = factory.SubFactory('supplier.tests.factories.SupplierFactory')
+    accepted = False
+    accepted_date = None
+
+    class Meta:
+        model = OwnershipInvite

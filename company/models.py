@@ -304,6 +304,20 @@ class OwnershipInvite(TimeStampedModel):
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def subject(self):
+        return settings.OWNERSHIP_INVITE_SUBJECT
+
+    @property
+    def recipient_email(self):
+        return self.new_owner_email
+
+    @property
+    def invite_link(self):
+        return settings.FAB_OWNERSHIP_URL.format(
+            uuid=self.uuid
+        )
+
 
 class CollaboratorInvite(TimeStampedModel):
 
@@ -313,3 +327,17 @@ class CollaboratorInvite(TimeStampedModel):
     requestor = models.ForeignKey('user.User')
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def subject(self):
+        return settings.COLLABORATOR_INVITE_SUBJECT
+
+    @property
+    def recipient_email(self):
+        return self.collaborator_email
+
+    @property
+    def invite_link(self):
+        return settings.FAB_COLLABORATOR_URL.format(
+            uuid=self.uuid
+        )
