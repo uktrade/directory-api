@@ -306,7 +306,7 @@ class OwnershipInvite(TimeStampedModel):
 
     @property
     def subject(self):
-        return 'Accept account ownership invitation'
+        return settings.OWNERSHIP_INVITE_SUBJECT
 
     @property
     def recipient_email(self):
@@ -314,7 +314,7 @@ class OwnershipInvite(TimeStampedModel):
 
     @property
     def invite_link(self):
-        return settings.FAB_OWNERSHIP_LINK.format(
+        return settings.FAB_OWNERSHIP_URL.format(
             uuid=self.uuid
         )
 
@@ -330,7 +330,7 @@ class CollaboratorInvite(TimeStampedModel):
 
     @property
     def subject(self):
-        return 'Accept collaborator invite'
+        return settings.COLLABORATOR_INVITE_SUBJECT
 
     @property
     def recipient_email(self):
@@ -338,6 +338,6 @@ class CollaboratorInvite(TimeStampedModel):
 
     @property
     def invite_link(self):
-        return settings.FAB_COLLABORATOR_LINK.format(
+        return settings.FAB_COLLABORATOR_URL.format(
             uuid=self.uuid
         )
