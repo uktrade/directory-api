@@ -51,30 +51,17 @@ def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
 def send_account_ownership_notification(
         sender, instance, created, *args, **kwargs
 ):
-    from company import models
     from notifications.tasks import send_email
 
     if not created:
         return
-    if sender == models.OwnershipInvite:
-        subject = 'Accept account ownership invite'
-        text_body = '{fab}/account/transfer/accept/?invite_key={uuid}'.format(
-            fab=settings.FAB_DOMAIN,
-            uuid=instance.uuid
-        )
-        recipient_email = instance.new_owner_email
-    if sender == models.CollaboratorInvite:
-        subject = 'Accept collaborator invite',
-        text_body = '{fab}/account/collaborate/accept/?invite_key={uuid}'.format(
-            fab=settings.FAB_DOMAIN,
-            uuid=instance.uuid
-        ),
-        recipient_email = instance.collaborator_email
 
     send_email.delay(
-        subject=subject,
-        text_body=text_body,
-        html_body='<html><a href="{}">Click</a></html>'.format(text_body),
-        recipient_email=recipient_email,
+        subject=instance.subject,
+        text_body=instance.invite_link,
+        html_body='<html><a href="{}">Click</a></html>'.format(
+            instance.invite_link
+        ),
+        recipient_email=instance.recipient_email,
         from_email=FROM_EMAIL
     )

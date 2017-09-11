@@ -2,6 +2,7 @@ import datetime
 from unittest import mock
 
 import elasticsearch
+from django.conf import settings
 from freezegun import freeze_time
 import pytest
 
@@ -295,3 +296,59 @@ def test_delete_unpublish_company_from_elasticsearch():
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
         CompanyDocType.get(id=company_pk)
+
+
+@pytest.mark.django_db
+@mock.patch('notifications.tasks.send_email')
+def test_account_ownership_transfer_email_notification(mocked_send_email):
+
+    invite = factories.OwnershipInviteFactory()
+
+    assert mocked_send_email.delay.called_once_with(
+        subject=invite.subject,
+        text_body=invite.subject,
+        html_body='<html><a href="{}">Click</a></html>'.format(
+            invite.invite_link
+        ),
+        recipient_email=invite.recipient_email,
+        from_email=settings.FAS_FROM_EMAIL
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('notifications.tasks.send_email')
+def test_account_collaborator_email_notification(mocked_send_email):
+
+    invite = factories.CollaboratorInviteFactory()
+
+    assert mocked_send_email.delay.called_once_with(
+        subject=invite.subject,
+        text_body=invite.subject,
+        html_body='<html><a href="{}">Click</a></html>'.format(
+            invite.invite_link
+        ),
+        recipient_email=invite.recipient_email,
+        from_email=settings.FAS_FROM_EMAIL
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('notifications.tasks.send_email')
+def test_account_collaborator_email_notification_modified(mocked_send_email):
+
+    invite = factories.CollaboratorInviteFactory()
+
+    # now modify it
+
+    invite.accepted = True
+    invite.save()
+
+    assert mocked_send_email.delay.called_once_with(
+        subject=invite.subject,
+        text_body=invite.subject,
+        html_body='<html><a href="{}">Click</a></html>'.format(
+            invite.invite_link
+        ),
+        recipient_email=invite.recipient_email,
+        from_email=settings.FAS_FROM_EMAIL
+    )
