@@ -5,9 +5,9 @@
 #    pip-compile --output-file requirements_test.txt requirements_test.ini
 #
 -e git+https://github.com/uktrade/directory-constants.git@v3.1.0#egg=directory_constants
--e git+https://github.com/uktrade/directory-sso-api-client.git@v1.3.1#egg=directory_sso_api_client
+-e git+https://github.com/uktrade/directory-sso-api-client.git@v1.5.0#egg=directory_sso_api_client
 -e git+https://github.com/uktrade/directory-validators.git@v3.0.0#egg=directory_validators
--e git+https://github.com/uktrade/directory-signature-auth.git@v0.2.0#egg=sigauth
+-e git+https://github.com/uktrade/directory-signature-auth.git@v1.0.0#egg=sigauth
 amqp==2.1.4               # via kombu
 billiard==3.5.0.2         # via celery
 boto3==1.4.1
