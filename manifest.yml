@@ -1,5 +1,14 @@
 ---
 applications:
 - name: directory-api
+  memory: 1G
+  buildpack: python_buildpack
+  command:
+- name: directory-celery_beat_scheduler
   memory: 512M
   buildpack: python_buildpack
+  command: docker/cmd-celery_beat_scheduler.sh
+- name: directory-celery_worker
+  memory: 512M
+  buildpack: python_buildpack
+  command: docker/cmd-celery_worker.sh
