@@ -1,4 +1,3 @@
-from directory_constants.constants import choices
 from rest_framework import status
 import pytest
 
@@ -12,15 +11,27 @@ def test_export_opportunity_create(authed_client):
     assert models.ExportOpportunity.objects.count() == 0
 
     data = {
-        'type_of_enquiry': choices.OPEN_ENDED,
-        'open_ended_description': 'foobar',
-        'business_model': choices.DISTRIBUTION,
-        'subsector': choices.CATERING,
-        'bid_value': 'badzillions',
-        'bid_timing': '2017-09-09',
-        'full_name': 'Testo Useri',
-        'email_address': 'test@foo.com',
-        'company_name': 'Acme'
+        'additional_requirements': 'give me things',
+        'business_model': ['distribution'],
+        'business_model_other': 'things',
+        'company_name': 'Jim corp',
+        'company_website': 'http://www.example.com',
+        'contact_preference': ['EMAIL', 'PHONE'],
+        'email_address': 'jim@exmaple.com',
+        'email_address_confirm': 'jim@exmaple.com',
+        'full_name': 'jim example',
+        'job_title': 'Exampler',
+        'locality': 'France',
+        'order_deadline': '1-3 MONTHS',
+        'order_size': '1-1000',
+        'phone_number': '07507605844',
+        'products': ['DISCOUNT'],
+        'products_other': 'things',
+        'target_sectors': ['retail'],
+        'target_sectors_other': 'things',
+        'terms_agreed': True,
+        'campaign': 'food-is-great',
+        'country': 'france',
     }
 
     response = authed_client.post(
