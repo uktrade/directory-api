@@ -5,7 +5,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 import core.tasks
-from notifications import constants, helpers, tasks, models
+from notifications import constants, helpers, models
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
 
@@ -183,5 +183,3 @@ class AnonymousSubscriberUbsubscribed(AnonymousSubscriberNotificationBase):
     subject = settings.UNSUBSCRIBED_SUBJECT
     text_template = 'unsubscribed-anonymous-subscriber.txt'
     unsubscribe_url = None
-
-
