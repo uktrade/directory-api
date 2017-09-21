@@ -1,3 +1,5 @@
+import abc
+
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -142,13 +144,21 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
-class CompanySearchAPIView(views.APIView):
+class SearchBaseView(abc.ABC, views.APIView):
+    http_method_names = ("get", )
+    # `serializer_class` is used for deserializing the search query,
+    # but not for serializing the search results.
+    serializer_class = serializers.CompanySearchSerializer
+    permission_classes = [SignatureCheckPermission]
 
     http_method_names = ("get", )
     # `serializer_class` is used for deserializing the search query,
     # but not for serializing the search results.
     serializer_class = serializers.CompanySearchSerializer
     permission_classes = [SignatureCheckPermission]
+
+    sector_field_name = abc.abstractproperty()
+    apply_highlighting = abc.abstractproperty()
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
@@ -164,12 +174,8 @@ class CompanySearchAPIView(views.APIView):
             status=status.HTTP_200_OK,
         )
 
-    @staticmethod
-    def get_search_results(term, page, size, sectors):
-        """Search companies by term
-
-        Wildcard search of companies by provided term. The position of
-        companies that have only one sector is increased.
+    def get_search_results(self, term, page, size, sectors):
+        """Search by term and filter by sector.
 
         Arguments:
             term {str}   -- Search term to match on
@@ -182,32 +188,58 @@ class CompanySearchAPIView(views.APIView):
 
         """
 
-        start = (page - 1) * size
-        end = start + size
+        search_object = self.create_search_object(term, sectors)
+        search_object = self.apply_highlighting(search_object)
+        search_object = self.apply_pagination(search_object, page, size)
+        return search_object.execute().to_dict()
 
+    def create_query_object(self, term, sectors):
         should_filters = []
         must_filters = []
         if sectors:
             for sector in sectors:
-                should_filters.append(query.Match(sectors=sector))
+                params = {self.sector_field_name: sector}
+                should_filters.append(query.Match(**params))
         if term:
             must_filters.append(query.MatchPhrase(_all=term))
-
-        query_object = query.Bool(
+        return query.Bool(
             must=must_filters,
             should=should_filters,
             minimum_should_match=1 if len(should_filters) else 0,
         )
 
+    @staticmethod
+    def apply_pagination(search_object, page, size):
+        start = (page - 1) * size
+        end = start + size
+        return search_object[start:end]
+
+
+class CaseStudySearchAPIView(SearchBaseView):
+    sector_field_name = 'sector'
+
+    def create_search_object(self, term, sectors):
+        query = self.create_query_object(term, sectors)
+        return search.CaseStudyDocType.search().query(query)
+
+    @staticmethod
+    def apply_highlighting(search_object):
+        return search_object
+
+
+class CompanySearchAPIView(SearchBaseView):
+    sector_field_name = 'sectors'
+
+    def create_search_object(self, term, sectors):
         no_description = query.Term(has_description=False)
         has_description = query.Term(has_description=True)
         no_case_study = query.Term(case_study_count=0)
         one_case_study = query.Term(case_study_count=1)
         multiple_case_studies = query.Range(case_study_count={'gt': 1})
 
-        search_object = search.CompanyDocType.search().query(
+        return search.CompanyDocType.search().query(
             'function_score',
-            query=query_object,
+            query=self.create_query_object(term, sectors),
             functions=[
                 query.SF({
                   'weight': 5,
@@ -233,13 +265,11 @@ class CompanySearchAPIView(views.APIView):
             boost_mode='sum',
         )
 
-        search_object = search_object.highlight_options(
+    @staticmethod
+    def apply_highlighting(search_object):
+        return search_object.highlight_options(
             require_field_match=False,
         ).highlight('summary', 'description')
-
-        response = search_object[start:end].execute()
-
-        return response.to_dict()
 
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):

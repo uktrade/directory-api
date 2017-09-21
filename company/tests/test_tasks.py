@@ -11,6 +11,6 @@ from company.tests.factories import CompanyFactory
 @patch.object(Company, 'to_doc_type')
 def test_save_to_elasticsearch(mocked_to_doc_type):
     company = CompanyFactory()
-    save_company_to_elasticsearch(company_id=company.id)
+    save_company_to_elasticsearch(pk=company.id)
 
     assert mocked_to_doc_type().save.called is True

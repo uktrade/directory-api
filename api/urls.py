@@ -7,6 +7,7 @@ from company.views import (
     CompanyNumberValidatorAPIView,
     CompanyPublicProfileViewSet,
     CompanySearchAPIView,
+    CaseStudySearchAPIView,
     CompanyRetrieveUpdateAPIView,
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
@@ -184,6 +185,11 @@ urlpatterns = [
         r'^company/search/$',
         CompanySearchAPIView.as_view(),
         name='company-search'
+    ),
+    url(
+        r'^case-study/search/$',
+        CaseStudySearchAPIView.as_view(),
+        name='casestudy-search',
     ),
     url(
         r'^export-opportunity/$',

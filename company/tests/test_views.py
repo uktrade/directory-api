@@ -15,7 +15,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
 
-from company import helpers, models, serializers, views
+from company import helpers, models, search, serializers, views
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -399,6 +399,18 @@ def supplier(company):
         company_email='someone@example.com',
         company=company,
     )
+
+
+@pytest.fixture
+def search_case_studies_data():
+    AEROSPACE = 'AEROSPACE'
+    AIRPORTS = 'AIRPORTS'
+    company = factories.CompanyFactory(is_published=True)
+    factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
+    factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
+    factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
+    factories.CompanyCaseStudyFactory(pk=8, company=company, sector=AIRPORTS)
+    Index(search.CASE_STUDY_INDEX_NAME).refresh()
 
 
 @pytest.fixture
@@ -1546,11 +1558,27 @@ def test_company_search_with_sector_filter_only(api_client):
 
 ])
 def test_company_search_results(term, sector, expected, search_companies_data):
-    results = views.CompanySearchAPIView.get_search_results(
+    results = views.CompanySearchAPIView().get_search_results(
         term=term, page=1, size=5, sectors=sector
     )
     hits = results['hits']['hits']
 
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('sector,expected', [
+    ['AEROSPACE', ['1', '2']],
+    ['AIRPORTS',  ['8', '7']],
+])
+def test_case_study_search_results(sector, expected, search_case_studies_data):
+    results = views.CaseStudySearchAPIView().get_search_results(
+        term='', page=1, size=5, sectors=[sector]
+    )
+    hits = results['hits']['hits']
     assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
@@ -1572,7 +1600,7 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 def test_company_search_results_ordering(
     term, expected, sectors, search_companies_ordering_data
 ):
-    results = views.CompanySearchAPIView.get_search_results(
+    results = views.CompanySearchAPIView().get_search_results(
         term=term, page=1, size=5, sectors=sectors
     )
     hits = results['hits']['hits']
@@ -1585,7 +1613,7 @@ def test_company_search_results_ordering(
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 def test_company_search_results_highlight(search_companies_highlighting_data):
-    results = views.CompanySearchAPIView.get_search_results(
+    results = views.CompanySearchAPIView().get_search_results(
         term='power', page=1, size=5, sectors=None
     )
     hits = results['hits']['hits']
@@ -1601,7 +1629,7 @@ def test_company_search_results_highlight(search_companies_highlighting_data):
 def test_company_search_results_highlight_long(
     search_companies_highlighting_data
 ):
-    results = views.CompanySearchAPIView.get_search_results(
+    results = views.CompanySearchAPIView().get_search_results(
         term='wolf', page=1, size=5, sectors=None
     )
     hits = results['hits']['hits']
