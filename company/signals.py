@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.utils import timezone
 
+from company.email import CollaboratorNotification, OwnershipChangeNotification
 from company.utils import send_verification_letter
-from notifications.email import CollaboratorNotification, \
-    OwnershipChangeNotification
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -64,6 +63,5 @@ def send_account_collaborator_notification(
 ):
     if not created:
         return
-
     notification = CollaboratorNotification(instance=instance)
     notification.send()
