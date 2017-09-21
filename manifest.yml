@@ -3,4 +3,3 @@ applications:
 - name: directory-api
   memory: 1G
   buildpack: python_buildpack
-  command:
