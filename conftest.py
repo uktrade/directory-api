@@ -3,8 +3,6 @@ import http
 import re
 from unittest.mock import patch
 
-from elasticsearch_dsl import Index, analyzer
-from company.search import CompanyDocType
 import pytest
 import requests_mock
 from rest_framework.test import APIClient
@@ -156,11 +154,12 @@ def enable_signature_check(mock_signature_check):
 
 @pytest.fixture
 def requests_mocker():
-    elasticsearch_url = 'http://{address}:9200/companies/.*'.format(
+    elasticsearch_url = 'http://{address}:9200/.*'.format(
         address=settings.ELASTICSEARCH_ENDPOINT
     )
     elasticsearch_url_compiled = re.compile(elasticsearch_url)
     mocker = requests_mock.mock()
+    mocker.register_uri('GET', elasticsearch_url_compiled, real_http=True)
     mocker.register_uri('PUT', elasticsearch_url_compiled, real_http=True)
     mocker.register_uri('DELETE', elasticsearch_url_compiled, real_http=True)
     mocker.start()
@@ -179,8 +178,4 @@ def mock_elasticsearch_company_save():
 def elasticsearch_marker(request):
     if request.node.get_marker('rebuild_elasticsearch'):
         # sanitize the companies index before each test that uses it
-        index = Index('companies')
-        index.doc_type(CompanyDocType)
-        index.analyzer(analyzer('english'))
-        index.delete(ignore=404)
-        index.create()
+        call_command('rebuild_elasticsearch_index')

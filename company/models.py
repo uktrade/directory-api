@@ -215,6 +215,9 @@ class Company(TimeStampedModel):
 
 
 class CompanyCaseStudy(TimeStampedModel):
+
+    to_doc_type = search.case_study_model_to_doc_type
+
     title = models.CharField(
         max_length=100,
         validators=[no_html],

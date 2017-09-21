@@ -7,6 +7,10 @@ from django.conf import settings
 from company import helpers
 
 
+COMPANY_INDEX_NAME = 'companies'
+CASE_STUDY_INDEX_NAME = 'casestudies'
+
+
 class FormattedDate(field.Date):
     def __init__(self, date_format, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,7 +65,26 @@ class CompanyDocType(DocType):
     )
 
     class Meta:
-        index = 'companies'
+        index = COMPANY_INDEX_NAME
+
+
+class CaseStudyDocType(DocType):
+    pk = field.Integer(index='no')
+    title = field.Text()
+    short_summary = field.Text()
+    description = field.Text()
+    sector = field.Text()
+    keywords = field.Text()
+    image = field.Text(index='no')
+    company_number = field.Text(index='no')
+    image_one_caption = field.Text()
+    image_two_caption = field.Text()
+    image_three_caption = field.Text()
+    testimonial = field.Text()
+    slug = field.Text(index='no')
+
+    class Meta:
+        index = CASE_STUDY_INDEX_NAME
 
 
 def get_absolute_url(url):
@@ -113,3 +136,25 @@ def company_model_to_doc_type(company):
             'website': case_study.website,
         })
     return company_doc_type
+
+
+def case_study_model_to_doc_type(case_study):
+    case_study_doc_type = CaseStudyDocType(
+        meta={'id': case_study.pk},
+        description=case_study.description,
+        image_one_caption=case_study.image_one_caption,
+        image_three_caption=case_study.image_three_caption,
+        image_two_caption=case_study.image_two_caption,
+        keywords=case_study.keywords,
+        pk=case_study.pk,
+        sector=case_study.sector,
+        short_summary=case_study.short_summary,
+        slug=case_study.slug,
+        title=case_study.title,
+        company_number=case_study.company.number,
+        image=get_absolute_url(
+            case_study.image_one.url if case_study.image_one else '',
+        ),
+
+    )
+    return case_study_doc_type

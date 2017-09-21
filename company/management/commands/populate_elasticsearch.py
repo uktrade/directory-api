@@ -4,12 +4,21 @@ from company import models, tasks
 
 
 class Command(BaseCommand):
-    help = 'Populates ElasticSearch with companies'
+    help = 'Populates ElasticSearch with companies and case studies'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--async', dest='async', type=bool, default=True)
 
     def handle(self, *args, **options):
-        for company_id in models.Company.objects.filter(
-                is_published=True
-        ).values_list(
-            'id', flat=True
-        ):
-            tasks.save_company_to_elasticsearch.delay(company_id=company_id)
+        companies = (
+            models.Company.objects
+            .only('id')
+            .prefetch_related('supplier_case_studies')
+            .filter(is_published=True)
+        )
+        for company in companies:
+            method = tasks.save_company_to_elasticsearch
+            (method.delay if options['async'] else method)(pk=company.id)
+            for casestudy in company.supplier_case_studies.all():
+                method = tasks.save_case_study_to_elasticsearch
+                (method.delay if options['async'] else method)(pk=casestudy.id)

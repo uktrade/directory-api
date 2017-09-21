@@ -46,6 +46,7 @@ def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
     if instance.company.is_published:
         instance.company.to_doc_type().save()
+        instance.to_doc_type().save()
 
 
 def send_account_ownership_notification(
