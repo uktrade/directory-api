@@ -2,7 +2,8 @@ from django.conf import settings
 from django.utils import timezone
 
 from company.utils import send_verification_letter
-
+from notifications.email import CollaboratorNotification, \
+    OwnershipChangeNotification
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -49,20 +50,20 @@ def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
         instance.to_doc_type().save()
 
 
-def send_account_ownership_notification(
+def send_account_ownership_transfer_notification(
         sender, instance, created, *args, **kwargs
 ):
-    from notifications.tasks import send_email
+    if not created:
+        return
+    notification = OwnershipChangeNotification(instance=instance)
+    notification.send()
 
+
+def send_account_collaborator_notification(
+        sender, instance, created, *args, **kwargs
+):
     if not created:
         return
 
-    send_email.delay(
-        subject=instance.subject,
-        text_body=instance.invite_link,
-        html_body='<html><a href="{}">Click</a></html>'.format(
-            instance.invite_link
-        ),
-        recipient_email=instance.recipient_email,
-        from_email=FROM_EMAIL
-    )
+    notification = CollaboratorNotification(instance=instance)
+    notification.send()

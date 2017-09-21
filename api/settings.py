@@ -271,8 +271,14 @@ FAS_FROM_EMAIL = os.getenv("FAS_FROM_EMAIL")
 FAB_FROM_EMAIL = os.getenv("FAB_FROM_EMAIL")
 FAB_OWNERSHIP_URL = os.getenv("FAB_OWNERSHIP_URL")
 FAB_COLLABORATOR_URL = os.getenv("FAB_COLLABORATOR_URL")
-OWNERSHIP_INVITE_SUBJECT = os.getenv("OWNERSHIP_INVITE_SUBJECT")
-COLLABORATOR_INVITE_SUBJECT = os.getenv("COLLABORATOR_INVITE_SUBJECT")
+OWNERSHIP_INVITE_SUBJECT = os.getenv(
+    'OWNERSHIP_INVITE_SUBJECT',
+    'Confirm ownership of {company_name}’s Find a buyer profile'
+)
+COLLABORATOR_INVITE_SUBJECT = os.getenv(
+    'COLLABORATOR_INVITE_SUBJECT',
+    'Confirm you’ve been added to {company_name}’s Find a buyer profile'
+)
 
 # Public storage for company profile logo
 STORAGE_CLASSES = {

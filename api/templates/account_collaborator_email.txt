@@ -1,0 +1,24 @@
+Exporting is GREAT
+
+--------------------------------------
+
+Hello,
+
+{{ requestor_name }} wants to add you as a user to the Find a buyer profile for {{ company_name }}.
+
+Click the link to confirm you want to be added to the profile.
+
+{{ invite_link }}
+
+Thank you
+
+The Department for International Trade
+
+--------------------------------------
+
+https://www.linkedin.com/company/department-for-international-trade
+https://twitter.com/tradegovuk
+
+HM Government
+http://great.gov.uk
+Department for International Trade, 3 Whitehall Pl, Westminster, London SW1A

@@ -34,10 +34,10 @@ class CompanyConfig(AppConfig):
             sender='company.Company',
         )
         post_save.connect(
-            receiver=signals.send_account_ownership_notification,
+            receiver=signals.send_account_ownership_transfer_notification,
             sender='company.OwnershipInvite'
         )
         post_save.connect(
-            receiver=signals.send_account_ownership_notification,
+            receiver=signals.send_account_collaborator_notification,
             sender='company.CollaboratorInvite'
         )
