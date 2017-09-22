@@ -1,0 +1,23 @@
+Exporting is GREAT
+
+--------------------------------------
+
+Hello,
+{% block body %}
+{% endblock %}
+
+
+{{ invite_link }}
+
+Thank you
+
+The Department for International Trade
+
+--------------------------------------
+
+https://www.linkedin.com/company/department-for-international-trade
+https://twitter.com/tradegovuk
+
+HM Government
+http://great.gov.uk
+Department for International Trade, 3 Whitehall Pl, Westminster, London SW1A
