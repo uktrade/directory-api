@@ -189,7 +189,7 @@ urlpatterns = [
     url(
         r'^case-study/search/$',
         CaseStudySearchAPIView.as_view(),
-        name='casestudy-search',
+        name='case-study-search',
     ),
     url(
         r'^export-opportunity/$',
