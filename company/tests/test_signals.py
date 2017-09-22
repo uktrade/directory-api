@@ -301,14 +301,14 @@ def test_delete_unpublish_company_from_elasticsearch():
 @mock.patch('company.signals.OwnershipChangeNotification')
 def test_account_ownership_transfer_email_notification(mocked_notification):
     factories.OwnershipInviteFactory()
-    assert mocked_notification().send.called
+    assert mocked_notification().send_async.called is True
 
 
 @pytest.mark.django_db
 @mock.patch('company.signals.CollaboratorNotification')
 def test_account_collaborator_email_notification(mocked_notification):
     factories.CollaboratorInviteFactory()
-    assert mocked_notification().send.called
+    assert mocked_notification().send_async.called is True
 
 
 @pytest.mark.django_db
@@ -321,4 +321,4 @@ def test_account_collaborator_email_notification_modified(mocked_notification):
     invite.accepted = True
     invite.save()
 
-    assert mocked_notification().send().called is False
+    assert mocked_notification().send_async.call_count == 1

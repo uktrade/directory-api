@@ -56,7 +56,7 @@ def send_account_ownership_transfer_notification(
         return
 
     notification = OwnershipChangeNotification(instance=instance)
-    notification.send()
+    notification.send_async()
 
 
 def send_account_collaborator_notification(
@@ -65,4 +65,4 @@ def send_account_collaborator_notification(
     if not created:
         return
     notification = CollaboratorNotification(instance=instance)
-    notification.send()
+    notification.send_async()

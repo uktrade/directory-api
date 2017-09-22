@@ -27,7 +27,7 @@ class MultiUserOwnershipBaseNotification:
         html_body = render_to_string(self.html_template, context)
         return text_body, html_body
 
-    def send(self):
+    def send_async(self):
         text_body, html_body = self.get_bodies()
         tasks.send_email.delay(
             subject=self.instance.subject,

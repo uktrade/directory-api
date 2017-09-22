@@ -16,7 +16,7 @@ from .factories import CollaboratorInviteFactory, OwnershipInviteFactory
 def test_onwership_change_notification(mock_send_email):
     invite = OwnershipInviteFactory()
     notification = OwnershipChangeNotification(instance=invite)
-    notification.send()
+    notification.send_async()
 
     mock_send_email.delay.assert_called_once_with(
         subject=invite.subject,
@@ -33,7 +33,7 @@ def test_onwership_change_notification(mock_send_email):
 def test_collaborator_notification(mock_send_email):
     invite = CollaboratorInviteFactory()
     notification = CollaboratorNotification(instance=invite)
-    notification.send()
+    notification.send_async()
 
     mock_send_email.delay.assert_called_once_with(
         subject=invite.subject,
