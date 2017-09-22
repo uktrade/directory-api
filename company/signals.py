@@ -54,6 +54,7 @@ def send_account_ownership_transfer_notification(
 ):
     if not created:
         return
+
     notification = OwnershipChangeNotification(instance=instance)
     notification.send()
 

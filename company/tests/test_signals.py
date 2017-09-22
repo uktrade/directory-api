@@ -2,7 +2,6 @@ import datetime
 from unittest import mock
 
 import elasticsearch
-from django.conf import settings
 from freezegun import freeze_time
 import pytest
 
@@ -299,43 +298,22 @@ def test_delete_unpublish_company_from_elasticsearch():
 
 
 @pytest.mark.django_db
-@mock.patch('notifications.tasks.send_email')
-def test_account_ownership_transfer_email_notification(mocked_send_email):
-
-    invite = factories.OwnershipInviteFactory()
-
-    assert mocked_send_email.delay.called_once_with(
-        subject=invite.subject,
-        text_body=invite.subject,
-        html_body='<html><a href="{}">Click</a></html>'.format(
-            invite.invite_link
-        ),
-        recipient_email=invite.recipient_email,
-        from_email=settings.FAS_FROM_EMAIL
-    )
+@mock.patch('company.signals.OwnershipChangeNotification')
+def test_account_ownership_transfer_email_notification(mocked_notification):
+    factories.OwnershipInviteFactory()
+    assert mocked_notification().send.called
 
 
 @pytest.mark.django_db
-@mock.patch('notifications.tasks.send_email')
-def test_account_collaborator_email_notification(mocked_send_email):
-
-    invite = factories.CollaboratorInviteFactory()
-
-    assert mocked_send_email.delay.called_once_with(
-        subject=invite.subject,
-        text_body=invite.subject,
-        html_body='<html><a href="{}">Click</a></html>'.format(
-            invite.invite_link
-        ),
-        recipient_email=invite.recipient_email,
-        from_email=settings.FAS_FROM_EMAIL
-    )
+@mock.patch('company.signals.CollaboratorNotification')
+def test_account_collaborator_email_notification(mocked_notification):
+    factories.CollaboratorInviteFactory()
+    assert mocked_notification().send.called
 
 
 @pytest.mark.django_db
-@mock.patch('notifications.tasks.send_email')
-def test_account_collaborator_email_notification_modified(mocked_send_email):
-
+@mock.patch('company.signals.CollaboratorNotification')
+def test_account_collaborator_email_notification_modified(mocked_notification):
     invite = factories.CollaboratorInviteFactory()
 
     # now modify it
@@ -343,12 +321,4 @@ def test_account_collaborator_email_notification_modified(mocked_send_email):
     invite.accepted = True
     invite.save()
 
-    assert mocked_send_email.delay.called_once_with(
-        subject=invite.subject,
-        text_body=invite.subject,
-        html_body='<html><a href="{}">Click</a></html>'.format(
-            invite.invite_link
-        ),
-        recipient_email=invite.recipient_email,
-        from_email=settings.FAS_FROM_EMAIL
-    )
+    assert mocked_notification().send().called is False
