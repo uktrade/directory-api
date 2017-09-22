@@ -1,16 +1,26 @@
-Dear Post,
+Hello,
 
 An international buyer has submitted the following export opportunity lead via trade.great.gov.uk:
 
-Company name: {{ opportunity.company_name }}
-Enquity type: {{ opportunity.opportunity.type_of_enquiry }}
-Description: {{ opportunity.open_ended_description }}
-Business model: {{ opportunity.business_model }}
-Subsector: {{ opportunity.subsector }}
-Bid value: {{ opportunity.bid_value} }
-Bid timing: {{ opportunity.bid_timing }}
-Contact name: {{ opportunity.full_name }}
-Contact email address: {{ opportunity.email_address }}
+Business model: {{ instance.business_model|join:' ' }} {{ instance.business_model_other }}
+Target sectors: {{ instance.target_sectors|join:' ' }} {{ instance.target_sectors_other }}
+Products: {{ instance.products|join:' ' }} {{ instance.products_other }}
+Order size: {{ instance.order_size }}
+Order Deadline: {{ instance.order_deadline }}
+Additional_requirements: {{ instance.additional_requirements }}
+
+Contact details:
+
+Name: {{ instance.full_name }}
+Job title: {{ instance.job_title }}
+Email: {{ instance.email_address }}
+Company: {{ instance.company_name }}
+Website: {{ instance.company_website }}
+Phone number: {{ instance.phone_number }}
+Contact preference: {{ instance.contact_preference|join:' ' }}
+
+Campaign: {{ instance.campaign }}
+Country: {{ instance.country }}
 
 kind regards,
 
