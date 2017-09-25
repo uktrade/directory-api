@@ -5,7 +5,7 @@ from elasticsearch_dsl import Index, analyzer
 from django.conf import settings
 from django.utils import timezone
 
-from company.search import CompanyDocType, company_model_to_doc_type
+from company import search
 from company.stannp import stannp_client
 
 
@@ -38,10 +38,18 @@ def send_verification_letter(company):
 
 
 def rebuild_and_populate_elasticsearch_index(CompanyModel):
-    companies = Index('companies')
-    companies.doc_type(CompanyDocType)
-    companies.analyzer(analyzer('english'))
-    companies.delete(ignore=404)
-    companies.create()
+    indices = (
+        (search.COMPANY_INDEX_NAME, search.CompanyDocType),
+        (search.CASE_STUDY_INDEX_NAME, search.CaseStudyDocType),
+    )
+    for index_name, doc_type in indices:
+        index = Index(index_name)
+        index.doc_type(doc_type)
+        index.analyzer(analyzer('english'))
+        index.delete(ignore=404)
+        index.create()
+
     for company in CompanyModel.objects.filter(is_published=True):
-        company_model_to_doc_type(company).save()
+        search.company_model_to_doc_type(company).save()
+        for case_study in company.supplier_case_studies.all():
+            search.case_study_model_to_doc_type(case_study).save()
