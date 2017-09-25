@@ -1,5 +1,14 @@
 ---
 applications:
-- name: directory-api
+- name: directory-api-dev
   memory: 1G
   buildpack: python_buildpack
+  command : python manage.py distributed_migrate --noinput && python manage.py collectstatic --noinput && waitress-serve --port=$PORT api.wsgi:application
+- name: directory-api-worker-dev
+  memory: 1G
+  buildpack: python_buildpack
+  command : celery -A api worker -l info
+- name: directory-api-celery-dev
+  memory: 1G
+  buildpack: python_buildpack
+  command : celery -A api beat -l info -S django
