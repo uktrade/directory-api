@@ -54,5 +54,5 @@ class ExportOpportunity(TimeStampedModel):
     contact_preference = ArrayField(
         models.CharField(choices=choices.CONTACT_OPTIONS, max_length=20)
     )
-    campaign = models.CharField(max_length=100)
+    campaign = models.CharField(max_length=100, null=True)
     country = models.CharField(max_length=100)

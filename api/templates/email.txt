@@ -28,4 +28,6 @@ HM Government
 http://great.gov.uk
 Department for International Trade, 3 Whitehall Pl, Westminster, London SW1A
 
-Unsubscribe: {{ unsubscribe_url }}
+{% if unsubscribe_url %}
+    Unsubscribe: {{ unsubscribe_url }}
+{% endif %}

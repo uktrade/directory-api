@@ -104,7 +104,7 @@ def test_gecko_num_registered_supplier_view_rejects_incorrect_creds():
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
 

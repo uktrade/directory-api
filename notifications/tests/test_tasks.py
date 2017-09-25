@@ -1,7 +1,7 @@
 import pytest
 from django.core import mail
 
-from notifications.tasks import send_email
+from core.tasks import send_email
 
 
 @pytest.mark.django_db
