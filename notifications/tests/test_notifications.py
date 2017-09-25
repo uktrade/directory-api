@@ -40,7 +40,7 @@ def test_doesnt_send_case_study_email_when_user_has_case_studies():
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_case_study_email_only_when_registered_8_days_ago(
         mock_task, settings):
     expected_subject = email.NoCaseStudiesNotification.subject
@@ -65,7 +65,7 @@ def test_sends_case_study_email_only_when_registered_8_days_ago(
 @pytest.mark.django_db
 @patch('notifications.email.NoCaseStudiesNotification.zendesk_url',
        PropertyMock(return_value='http://help.zendesk.com'))
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_case_study_email_has_expected_vars_in_template(mock_task, settings):
     settings.NO_CASE_STUDIES_URL = 'http://great.gov.uk/case-studies/add'
     settings.NO_CASE_STUDIES_UTM = 'utm=1'
@@ -89,7 +89,7 @@ def test_case_study_email_has_expected_vars_in_template(mock_task, settings):
 
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute(
         mock_task,
         settings
@@ -112,7 +112,7 @@ def test_sends_case_study_email_when_8_days_ago_but_not_to_the_minute(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_case_study_email_uses_settings_for_no_of_days_and_subject(
         mock_task,
         settings):
@@ -133,7 +133,7 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
         mock_task,
         settings
@@ -158,7 +158,7 @@ def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_case_study_email_to_expected_users(mock_task):
     eight_days_ago = timezone.now() - timedelta(days=8)
     twelve_days_ago = timezone.now() - timedelta(days=12)
@@ -191,7 +191,7 @@ def test_sends_case_study_email_to_expected_users(mock_task):
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_doesnt_send_ver_code_email_when_user_has_input_ver_code(mock_task):
     eight_days_ago = timezone.now() - timedelta(days=8)
     sixteen_days_ago = timezone.now() - timedelta(days=16)
@@ -218,7 +218,7 @@ def test_doesnt_send_ver_code_email_when_user_has_input_ver_code(mock_task):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_ver_code_email_when_not_input_for_8_days(mock_task, settings):
     expected_subject = email.VerificationWaitingNotification.subject
     seven_days_ago = timezone.now() - timedelta(days=7)
@@ -254,7 +254,7 @@ def test_sends_ver_code_email_when_not_input_for_8_days(mock_task, settings):
 @pytest.mark.django_db
 @patch('notifications.email.VerificationWaitingNotification.zendesk_url',
        PropertyMock(return_value='http://help.zendesk.com'))
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_ver_code_email_has_expected_vars_in_template(mock_task, settings):
     settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
     expected_url = 'http://great.gov.uk/verrrrify'
@@ -278,7 +278,7 @@ def test_ver_code_email_has_expected_vars_in_template(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_ver_code_email_when_not_input_for_16_days(mock_task, settings):
     expected_subject = email.VerificationStillWaitingNotification.subject
     fifteen_days_ago = timezone.now() - timedelta(days=15)
@@ -330,7 +330,7 @@ def test_sends_ver_code_email_when_not_input_for_16_days(mock_task, settings):
 @pytest.mark.django_db
 @patch('notifications.email.VerificationStillWaitingNotification.zendesk_url',
        PropertyMock(return_value='http://help.zendesk.com'))
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_ver_code_email2_has_expected_vars_in_template(mock_task, settings):
     settings.VERIFICATION_CODE_URL = 'http://great.gov.uk/verrrrify'
     sixteen_days_ago = timezone.now() - timedelta(days=16)
@@ -353,7 +353,7 @@ def test_ver_code_email2_has_expected_vars_in_template(mock_task, settings):
 
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
         mock_task, settings
 ):
@@ -375,7 +375,7 @@ def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
 
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
         mock_task, settings
 ):
@@ -409,7 +409,7 @@ def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_doesnt_send_ver_code_email_if_email_already_sent(mock_task):
     eight_days_ago = timezone.now() - timedelta(days=8)
     sixteen_days_ago = timezone.now() - timedelta(days=16)
@@ -435,7 +435,7 @@ def test_doesnt_send_ver_code_email_if_email_already_sent(mock_task):
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
         mock_task, settings
 ):
@@ -460,7 +460,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
         mock_task, settings
 ):
@@ -489,7 +489,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_ver_code_email_to_expected_users(mock_task):
     eight_days_ago = timezone.now() - timedelta(days=8)
     twelve_days_ago = timezone.now() - timedelta(days=12)
@@ -537,7 +537,7 @@ def test_sends_ver_code_email_to_expected_users(mock_task):
 
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_log_in_email_when_not_logged_in_for_30_days(mock_task):
     expected_subject = email.HasNotLoggedInRecentlyNotification.subject
     suppliers = SupplierFactory.create_batch(3)
@@ -567,7 +567,7 @@ def test_sends_log_in_email_when_not_logged_in_for_30_days(mock_task):
 
 @freeze_time('2017-01-31 17:13:34')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 @patch('notifications.email.HasNotLoggedInRecentlyNotification.zendesk_url',
        PropertyMock(return_value='http://help.zendesk.com'))
 def test_log_in_email_has_expected_vars_in_template(mock_task, settings):
@@ -601,7 +601,7 @@ def test_log_in_email_has_expected_vars_in_template(mock_task, settings):
 
 @freeze_time('2016-12-09 12:30:00')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_doesnt_send_log_in_email_when_api_returns_no_users(mock_task):
     mocked_api = MagicMock(
         return_value=MagicMock(
@@ -616,7 +616,7 @@ def test_doesnt_send_log_in_email_when_api_returns_no_users(mock_task):
 
 @freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_log_in_email_uses_settings_for_no_of_days_and_subject(
         mock_task, settings):
     settings.HASNT_LOGGED_IN_DAYS = 1
@@ -646,7 +646,7 @@ def test_log_in_email_uses_settings_for_no_of_days_and_subject(
 
 @freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_doesnt_send_log_in_email_if_log_in_email_already_sent(mock_task):
     suppliers = SupplierFactory.create_batch(2)
     SupplierEmailNotificationFactory(
@@ -676,7 +676,7 @@ def test_doesnt_send_log_in_email_if_log_in_email_already_sent(mock_task):
 
 @freeze_time('2017-04-01 12:00:00')
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_sends_log_in_email_to_expected_users(mock_task, settings):
     suppliers = SupplierFactory.create_batch(4)
     mocked_json = [
@@ -710,7 +710,7 @@ def test_sends_log_in_email_to_expected_users(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector(mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     expected_subject = email.NewCompaniesInSectorNotification.subject
@@ -772,7 +772,7 @@ def test_new_companies_in_sector(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_exclude_unsbscribed(mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
     settings.NEW_COMPANIES_IN_SECTOR_SUBJECT = 'test subject'
@@ -794,7 +794,7 @@ def test_new_companies_in_sector_exclude_unsbscribed(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_exclude_suppliers_without_companies(
         mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
@@ -809,7 +809,7 @@ def test_new_companies_in_sector_exclude_suppliers_without_companies(
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_exclude_already_sent_recently(
         mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
@@ -831,7 +831,7 @@ def test_new_companies_in_sector_exclude_already_sent_recently(
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_include_already_sent_long_time_ago(
         mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
@@ -854,7 +854,7 @@ def test_new_companies_in_sector_include_already_sent_long_time_ago(
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_records_notification(mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
 
@@ -871,7 +871,7 @@ def test_new_companies_in_sector_records_notification(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_single_email_per_buyer(mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
 
@@ -896,7 +896,7 @@ def test_new_companies_in_sector_single_email_per_buyer(mock_task, settings):
 
 @freeze_time()
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
 
@@ -924,7 +924,7 @@ def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_supplier_unsubscribed(mock_task):
     supplier = SupplierFactory()
     notifications.supplier_unsubscribed(supplier)
@@ -936,7 +936,7 @@ def test_supplier_unsubscribed(mock_task):
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email')
+@patch('core.tasks.send_email')
 def test_anonymous_unsubscribed(mock_task):
     notifications.anonymous_unsubscribed(
         recipient_email='jim@example.com'

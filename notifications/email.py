@@ -4,8 +4,8 @@ from collections import namedtuple
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from notifications import constants, helpers, tasks, models
-
+import core.tasks
+from notifications import constants, helpers, models
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
 
@@ -57,7 +57,7 @@ class SupplierNotificationBase(NotificationBase):
             supplier=self.supplier,
             category=self.category
         )
-        tasks.send_email.delay(
+        core.tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
             html_body=html_body,
@@ -84,7 +84,7 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
         models.AnonymousEmailNotification.objects.create(
             email=self.recipient.email, category=self.category
         )
-        tasks.send_email.delay(
+        core.tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
             html_body=html_body,

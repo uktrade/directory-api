@@ -84,9 +84,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/; \
 	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export DIRECTORY_API_FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
-	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}; \
-    export DIRECTORY_API_OWNERSHIP_INVITE_SUBJECT=Accept account ownership invite; \
-    export DIRECTORY_API_COLLABORATOR_INVITE_SUBJECT=Accept account collaborator invite
+	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}
 
 
 docker_test_env_files:
@@ -180,9 +178,7 @@ DEBUG_SET_ENV_VARS := \
 	export SSO_SIGNATURE_SECRET=proxy_signature_debug; \
 	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
-	export FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}; \
-	export OWNERSHIP_INVITE_SUBJECT=Accept account ownership invite; \
-    export COLLABORATOR_INVITE_SUBJECT=Accept account collaborator invite
+	export FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}
 
 
 debug_webserver:

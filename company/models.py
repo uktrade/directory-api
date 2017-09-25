@@ -309,7 +309,9 @@ class OwnershipInvite(TimeStampedModel):
 
     @property
     def subject(self):
-        return settings.OWNERSHIP_INVITE_SUBJECT
+        return settings.OWNERSHIP_INVITE_SUBJECT.format(
+            company_name=self.company.name
+        )
 
     @property
     def recipient_email(self):
@@ -333,7 +335,9 @@ class CollaboratorInvite(TimeStampedModel):
 
     @property
     def subject(self):
-        return settings.COLLABORATOR_INVITE_SUBJECT
+        return settings.COLLABORATOR_INVITE_SUBJECT.format(
+            company_name=self.company.name
+        )
 
     @property
     def recipient_email(self):

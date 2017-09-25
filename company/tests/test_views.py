@@ -1722,7 +1722,7 @@ def test_verify_companies_house_good_access_token(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_create_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1748,7 +1748,7 @@ def test_create_transfer_ownership_invite(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_create_duplicated_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1834,7 +1834,7 @@ def test_remove_collaborators_cannot_remove_self(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_retrieve_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1864,7 +1864,7 @@ def test_retrieve_transfer_ownership_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1900,7 +1900,7 @@ def test_accept_transfer_ownership_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_transfer_ownership_invite_case_insensetive(
         authed_client,
         authed_supplier):
@@ -1935,7 +1935,7 @@ def test_accept_transfer_ownership_invite_case_insensetive(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_wrong_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -1971,7 +1971,7 @@ def test_accept_wrong_transfer_ownership_invite(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_transfer_ownership_invite_supplier_has_company_already(
         authed_client,
         authed_supplier):
@@ -1999,7 +1999,7 @@ def test_accept_transfer_ownership_invite_supplier_has_company_already(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_transfer_ownership_invite_requestor_not_legit(
         authed_client,
         authed_supplier):
@@ -2033,7 +2033,7 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_company_create_collaboration_invite(
     authed_client, authed_supplier
 ):
@@ -2058,7 +2058,7 @@ def test_company_create_collaboration_invite(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_company_create_duplicated_collaboration_invite(
     authed_client, authed_supplier
 ):
@@ -2082,7 +2082,7 @@ def test_company_create_duplicated_collaboration_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_collboration_invite(
     authed_client, authed_supplier
 ):
@@ -2115,7 +2115,7 @@ def test_accept_collboration_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_collboration_invite_case_insensetive(
     authed_client, authed_supplier
 ):
@@ -2147,7 +2147,7 @@ def test_accept_collboration_invite_case_insensetive(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_wrong_collaborator_invite(
     authed_client, authed_supplier
 ):
@@ -2181,7 +2181,7 @@ def test_accept_wrong_collaborator_invite(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_collaborator_invite_supplier_has_company_already(
         authed_client,
         authed_supplier):
@@ -2207,7 +2207,7 @@ def test_accept_collaborator_invite_supplier_has_company_already(
 
 
 @pytest.mark.django_db
-@patch('notifications.tasks.send_email', Mock())
+@patch('core.tasks.send_email', Mock())
 def test_accept_collaborator_invite_requestor_not_legit(
         authed_client,
         authed_supplier):
