@@ -12,3 +12,7 @@ applications:
   memory: 1G
   buildpack: python_buildpack
   command : celery -A api beat -l info -S django
+- name: directory-api-staging
+  memory: 1G
+  buildpack: python_buildpack
+  command : python manage.py distributed_migrate --noinput && python manage.py collectstatic --noinput && waitress-serve --port=$PORT api.wsgi:application
