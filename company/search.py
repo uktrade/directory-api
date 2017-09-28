@@ -7,10 +7,6 @@ from django.conf import settings
 from company import helpers
 
 
-COMPANY_INDEX_NAME = 'companies'
-CASE_STUDY_INDEX_NAME = 'casestudies'
-
-
 class FormattedDate(field.Date):
     def __init__(self, date_format, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,7 +61,7 @@ class CompanyDocType(DocType):
     )
 
     class Meta:
-        index = COMPANY_INDEX_NAME
+        index = settings.ELASTICSEARCH_COMPANY_INDEX
 
 
 class CaseStudyDocType(DocType):
@@ -84,7 +80,7 @@ class CaseStudyDocType(DocType):
     slug = field.Text(index='no')
 
     class Meta:
-        index = CASE_STUDY_INDEX_NAME
+        index = settings.ELASTICSEARCH_CASE_STUDY_INDEX
 
 
 def get_absolute_url(url):
