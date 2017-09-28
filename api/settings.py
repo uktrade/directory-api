@@ -445,6 +445,12 @@ connections.create_connection(
     verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS") != 'false',
     connection_class=RequestsHttpConnection
 )
+ELASTICSEARCH_COMPANY_INDEX = os.getenv(
+    'ELASTICSEARCH_COMPANY_INDEX', 'companies'
+)
+ELASTICSEARCH_CASE_STUDY_INDEX = os.getenv(
+    'ELASTICSEARCH_CASE_STUDY_INDEX', 'casestudies'
+)
 
 # SSO
 SSO_API_CLIENT_BASE_URL = os.environ['SSO_API_CLIENT_BASE_URL']

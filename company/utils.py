@@ -39,8 +39,8 @@ def send_verification_letter(company):
 
 def rebuild_and_populate_elasticsearch_index(CompanyModel):
     indices = (
-        (search.COMPANY_INDEX_NAME, search.CompanyDocType),
-        (search.CASE_STUDY_INDEX_NAME, search.CaseStudyDocType),
+        (settings.ELASTICSEARCH_COMPANY_INDEX, search.CompanyDocType),
+        (settings.ELASTICSEARCH_CASE_STUDY_INDEX, search.CaseStudyDocType),
     )
     for index_name, doc_type in indices:
         index = Index(index_name)

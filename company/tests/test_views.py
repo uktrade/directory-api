@@ -15,7 +15,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
 
-from company import helpers, models, search, serializers, views
+from company import helpers, models, serializers, views
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -402,7 +402,7 @@ def supplier(company):
 
 
 @pytest.fixture
-def search_case_studies_data():
+def search_case_studies_data(settings):
     AEROSPACE = 'AEROSPACE'
     AIRPORTS = 'AIRPORTS'
     company = factories.CompanyFactory(is_published=True)
@@ -410,11 +410,11 @@ def search_case_studies_data():
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
     factories.CompanyCaseStudyFactory(pk=8, company=company, sector=AIRPORTS)
-    Index(search.CASE_STUDY_INDEX_NAME).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX).refresh()
 
 
 @pytest.fixture
-def search_companies_data():
+def search_companies_data(settings):
     wolf_company = factories.CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
@@ -452,11 +452,11 @@ def search_companies_data():
         title='Thick case study',
         description='We determined lead sinks in water.'
     )
-    Index('companies').refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
 
 
 @pytest.fixture
-def search_companies_highlighting_data():
+def search_companies_highlighting_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
         description=(
@@ -481,11 +481,11 @@ def search_companies_highlighting_data():
         sectors=['AEROSPACE'],
         id=2,
     )
-    Index('companies').refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
 
 
 @pytest.fixture
-def search_companies_ordering_data():
+def search_companies_ordering_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
         description='',
@@ -553,7 +553,7 @@ def search_companies_ordering_data():
         title='cannons',
         description='naval guns'
     )
-    Index('companies').refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
 
 
 @pytest.fixture
