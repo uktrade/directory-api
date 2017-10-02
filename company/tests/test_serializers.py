@@ -5,9 +5,9 @@ import pytest
 from freezegun import freeze_time
 
 from directory_validators import company as shared_validators
-from django.utils.timezone import UTC
 
 from directory_constants.constants import choices
+from pytz import UTC
 
 from company.tests import VALID_REQUEST_DATA
 from company import models, serializers, validators

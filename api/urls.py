@@ -1,3 +1,4 @@
+import django
 from django.conf.urls import url, include
 from django.contrib import admin
 
@@ -202,7 +203,7 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
     urlpatterns += [
         url(
             r'^media/(?P<path>.*)$',
-            'django.views.static.serve',
+            django.views.static.serve,
             {'document_root': settings.MEDIA_ROOT}
         ),
     ]
