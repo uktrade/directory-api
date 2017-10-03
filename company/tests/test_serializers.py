@@ -120,7 +120,7 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
 
     # modified is the value of when the serializer save method was called
     # instead of what we tried to update it to
-    assert company.modified == datetime(2016, 1, 9, 12, 16, 11, tzinfo=UTC())
+    assert company.modified == datetime(2016, 1, 9, 12, 16, 11, tzinfo=UTC)
 
 
 def test_company_serializer_has_keywords_shared_serializers():
