@@ -25,6 +25,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company',
         'created',
         'modified',
+        'company__campaign_tag',
         'company__supplier_case_studies',
         'company__suppliers',
         'company__verification_code',

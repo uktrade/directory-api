@@ -149,13 +149,7 @@ class SearchBaseView(abc.ABC, views.APIView):
     http_method_names = ("get", )
     # `serializer_class` is used for deserializing the search query,
     # but not for serializing the search results.
-    serializer_class = serializers.CompanySearchSerializer
-    permission_classes = [SignatureCheckPermission]
-
-    http_method_names = ("get", )
-    # `serializer_class` is used for deserializing the search query,
-    # but not for serializing the search results.
-    serializer_class = serializers.CompanySearchSerializer
+    serializer_class = serializers.SearchSerializer
     permission_classes = [SignatureCheckPermission]
 
     sector_field_name = abc.abstractproperty()
@@ -169,13 +163,14 @@ class SearchBaseView(abc.ABC, views.APIView):
             page=serializer.validated_data['page'],
             size=serializer.validated_data['size'],
             sectors=serializer.validated_data.get('sectors'),
+            campaign_tag=serializer.validated_data.get('campaign_tag'),
         )
         return Response(
             data=search_results,
             status=status.HTTP_200_OK,
         )
 
-    def get_search_results(self, term, page, size, sectors):
+    def get_search_results(self, term, page, size, sectors, campaign_tag):
         """Search by term and filter by sector.
 
         Arguments:
@@ -189,18 +184,22 @@ class SearchBaseView(abc.ABC, views.APIView):
 
         """
 
-        search_object = self.create_search_object(term, sectors)
+        search_object = self.create_search_object(term, sectors, campaign_tag)
         search_object = self.apply_highlighting(search_object)
         search_object = self.apply_pagination(search_object, page, size)
         return search_object.execute().to_dict()
 
-    def create_query_object(self, term, sectors):
+    def create_query_object(self, term, sectors, campaign_tag):
         should_filters = []
         must_filters = []
         if sectors:
             for sector in sectors:
                 params = {self.sector_field_name: sector}
                 should_filters.append(query.Match(**params))
+        if campaign_tag:
+            should_filters.append(
+                query.MatchPhrase(campaign_tag=campaign_tag)
+            )
         if term:
             must_filters.append(query.MatchPhrase(_all=term))
         return query.Bool(
@@ -219,9 +218,11 @@ class SearchBaseView(abc.ABC, views.APIView):
 class CaseStudySearchAPIView(SearchBaseView):
     sector_field_name = 'sector'
 
-    def create_search_object(self, term, sectors):
-        query = self.create_query_object(term, sectors)
-        return search.CaseStudyDocType.search().query(query)
+    def create_search_object(self, term, sectors, campaign_tag):
+        query_object = self.create_query_object(
+            term=term, sectors=sectors, campaign_tag=campaign_tag
+        )
+        return search.CaseStudyDocType.search().query(query_object)
 
     @staticmethod
     def apply_highlighting(search_object):
@@ -231,16 +232,19 @@ class CaseStudySearchAPIView(SearchBaseView):
 class CompanySearchAPIView(SearchBaseView):
     sector_field_name = 'sectors'
 
-    def create_search_object(self, term, sectors):
+    def create_search_object(self, term, sectors, campaign_tag):
         no_description = query.Term(has_description=False)
         has_description = query.Term(has_description=True)
         no_case_study = query.Term(case_study_count=0)
         one_case_study = query.Term(case_study_count=1)
         multiple_case_studies = query.Range(case_study_count={'gt': 1})
 
+        query_object = self.create_query_object(
+            term=term, sectors=sectors, campaign_tag=campaign_tag
+        )
         return search.CompanyDocType.search().query(
             'function_score',
-            query=self.create_query_object(term, sectors),
+            query=query_object,
             functions=[
                 query.SF({
                   'weight': 5,

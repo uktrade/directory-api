@@ -6,7 +6,7 @@ from unittest.mock import call, patch, Mock
 
 from django.core.urlresolvers import reverse
 
-from directory_constants.constants import choices
+from directory_constants.constants import choices, lead_generation, sectors
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -403,8 +403,8 @@ def supplier(company):
 
 @pytest.fixture
 def search_case_studies_data(settings):
-    AEROSPACE = 'AEROSPACE'
-    AIRPORTS = 'AIRPORTS'
+    AEROSPACE = sectors.AEROSPACE
+    AIRPORTS = sectors.AIRPORTS
     company = factories.CompanyFactory(is_published=True)
     factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
@@ -421,8 +421,9 @@ def search_companies_data(settings):
         summary='Hunts in packs',
         is_published=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        sectors=['AEROSPACE', 'AIRPORTS'],
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
+        campaign_tag=lead_generation.FOOD_IS_GREAT,
     )
     aardvark_company = factories.CompanyFactory(
         name='Aardvark limited',
@@ -430,8 +431,9 @@ def search_companies_data(settings):
         summary='Like an Aardvark',
         is_published=True,
         keywords='Ants, Tongue, Anteater',
-        sectors=['AEROSPACE'],
+        sectors=[sectors.AEROSPACE],
         id=2,
+        campaign_tag=lead_generation.FOOD_IS_GREAT,
     )
     factories.CompanyFactory(
         name='Grapeshot limited',
@@ -439,20 +441,26 @@ def search_companies_data(settings):
         summary='Like naval warfare',
         is_published=True,
         keywords='Pirates, Ocean, Ship',
-        sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
+        sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=3,
+        campaign_tag=lead_generation.LEGAL_IS_GREAT,
     )
     factories.CompanyCaseStudyFactory(
+        id=1,
         company=wolf_company,
         title='Thick case study',
-        description='Gold is delicious.'
+        description='Gold is delicious.',
+        campaign_tag=lead_generation.LEGAL_IS_GREAT
     )
     factories.CompanyCaseStudyFactory(
+        id=2,
         company=aardvark_company,
         title='Thick case study',
-        description='We determined lead sinks in water.'
+        description='We determined lead sinks in water.',
+        campaign_tag=lead_generation.FOOD_IS_GREAT
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX).refresh()
 
 
 @pytest.fixture
@@ -469,7 +477,7 @@ def search_companies_highlighting_data(settings):
         summary='Hunts in packs',
         is_published=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        sectors=['AEROSPACE', 'AIRPORTS'],
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
     )
     factories.CompanyFactory(
@@ -478,7 +486,7 @@ def search_companies_highlighting_data(settings):
         summary='Like an Aardvark',
         is_published=True,
         keywords='Ants, Tongue, Anteater',
-        sectors=['AEROSPACE'],
+        sectors=[sectors.AEROSPACE],
         id=2,
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
@@ -492,7 +500,7 @@ def search_companies_ordering_data(settings):
         summary='Hunts in packs',
         is_published=True,
         keywords='Packs, Hunting, Stark, Wolf',
-        sectors=['AEROSPACE', 'AIRPORTS'],
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
     )
     wolf_three = factories.CompanyFactory(
@@ -501,7 +509,7 @@ def search_companies_ordering_data(settings):
         summary='Hunters',
         is_published=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        sectors=['FOOD_AND_DRINK', 'AIRPORTS'],
+        sectors=[sectors.FOOD_AND_DRINK, sectors.AIRPORTS],
         id=2,
     )
     wolf_one_company = factories.CompanyFactory(
@@ -510,7 +518,7 @@ def search_companies_ordering_data(settings):
         summary='Hunts in packs',
         is_published=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        sectors=['AEROSPACE', 'AIRPORTS'],
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=3,
     )
     wolf_two_company = factories.CompanyFactory(
@@ -519,7 +527,7 @@ def search_companies_ordering_data(settings):
         summary='wooly',
         is_published=True,
         keywords='Sheep, big bad, wolf',
-        sectors=['AEROSPACE', 'AIRPORTS'],
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=4,
     )
     grapeshot_company = factories.CompanyFactory(
@@ -528,7 +536,7 @@ def search_companies_ordering_data(settings):
         summary='Like naval warfare',
         is_published=True,
         keywords='Pirates, Ocean, Ship',
-        sectors=['AIRPORTS', 'FOOD_AND_DRINK'],
+        sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=5,
     )
 
@@ -1050,13 +1058,23 @@ def test_company_search(mock_get_search_results, api_client):
             'hits': [None, None],
         },
     }
-    data = {'term': 'bones', 'page': 1, 'size': 10, 'sectors': ['AEROSPACE']}
+    data = {
+        'term': 'bones',
+        'page': 1,
+        'size': 10,
+        'sectors': [sectors.AEROSPACE],
+        'campaign_tag': lead_generation.FOOD_IS_GREAT,
+    }
     response = api_client.get(reverse('company-search'), data=data)
 
     assert response.status_code == 200
     assert response.json() == expected_value
     assert mock_get_search_results.call_args == call(
-        term='bones', page=1, size=10, sectors={'AEROSPACE'}
+        term='bones',
+        page=1,
+        size=10,
+        sectors={sectors.AEROSPACE},
+        campaign_tag=lead_generation.FOOD_IS_GREAT,
     )
 
 
@@ -1075,7 +1093,7 @@ def test_company_search_no_sectors(mock_get_search_results, api_client):
     assert response.json() == expected_value
     assert mock_get_search_results.call_count == 1
     assert mock_get_search_results.call_args == call(
-        term='bones', page=1, size=10, sectors=set()
+        term='bones', page=1, size=10, sectors=set(), campaign_tag=None,
     )
 
 
@@ -1236,7 +1254,12 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
 def test_company_search_with_sector_filter(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'term': 'bees', 'sectors': ['AEROSPACE'], 'size': 5, 'page': 1}
+        data = {
+            'term': 'bees',
+            'sectors': [sectors.AEROSPACE],
+            'size': 5,
+            'page': 1,
+        }
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
@@ -1364,7 +1387,7 @@ def test_company_search_with_sector_filter(api_client):
                                 }],
                                 'should': [{
                                     'match': {
-                                        'sectors': 'AEROSPACE'
+                                        'sectors': sectors.AEROSPACE
                                     }
                                 }]
                             }
@@ -1381,7 +1404,7 @@ def test_company_search_with_sector_filter(api_client):
 def test_company_search_with_sector_filter_only(api_client):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'sectors': ['AEROSPACE'], 'size': 5, 'page': 1}
+        data = {'sectors': [sectors.AEROSPACE], 'size': 5, 'page': 1}
         response = api_client.get(reverse('company-search'), data=data)
 
         assert response.status_code == 200, response.content
@@ -1503,7 +1526,7 @@ def test_company_search_with_sector_filter_only(api_client):
                                 'minimum_should_match': 1,
                                 'should': [{
                                     'match': {
-                                        'sectors': 'AEROSPACE'
+                                        'sectors': sectors.AEROSPACE
                                     }
                                 }]
                             }
@@ -1520,46 +1543,83 @@ def test_company_search_with_sector_filter_only(api_client):
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
+@pytest.mark.parametrize('term,campaign_tag,expected', [
+    ['', lead_generation.FOOD_IS_GREAT,  ['1', '2']],
+    ['', lead_generation.LEGAL_IS_GREAT, ['3']],
+])
+def test_company_search_results_campaign_tag(
+    term, campaign_tag, expected, search_companies_data
+):
+    results = views.CompanySearchAPIView().get_search_results(
+        term=term, page=1, size=5, sectors=None, campaign_tag=campaign_tag
+    )
+    hits = results['hits']['hits']
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('term,campaign_tag,expected', [
+    ['', lead_generation.FOOD_IS_GREAT,  ['2']],
+    ['', lead_generation.LEGAL_IS_GREAT, ['1']],
+])
+def test_case_study_search_results_campaign_tag(
+    term, campaign_tag, expected, search_companies_data
+):
+    results = views.CaseStudySearchAPIView().get_search_results(
+        term=term, page=1, size=5, sectors=None, campaign_tag=campaign_tag
+    )
+    hits = results['hits']['hits']
+
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
 @pytest.mark.parametrize('term,sector,expected', [
     # sectors
-    ['',           ['AEROSPACE'],             ['1', '2']],
-    ['',           ['AEROSPACE', 'AIRPORTS'], ['1', '2', '3']],
+    ['',           [sectors.AEROSPACE],                   ['1', '2']],
+    ['',           [sectors.AEROSPACE, sectors.AIRPORTS], ['1', '2', '3']],
     # company name
-    ['wolf',       None,                      ['1']],
-    ['Aardvark',   None,                      ['2']],
-    ['grapeshot',  None,                      ['3']],
-    ['wolf',       ['AEROSPACE', 'AIRPORTS'], ['1']],
-    ['wolf',       ['AEROSPACE'],             ['1']],
-    ['wolf',       ['AIRPORTS'],              ['1']],
-    ['Aardvark',   ['AEROSPACE', 'AIRPORTS'], ['2']],
+    ['wolf',       None,                                  ['1']],
+    ['Aardvark',   None,                                  ['2']],
+    ['grapeshot',  None,                                  ['3']],
+    ['wolf',       [sectors.AEROSPACE, sectors.AIRPORTS], ['1']],
+    ['wolf',       [sectors.AEROSPACE],                   ['1']],
+    ['wolf',       [sectors.AIRPORTS],                    ['1']],
+    ['Aardvark',   [sectors.AEROSPACE, sectors.AIRPORTS], ['2']],
     # company description
-    ['stealth',    None,                      ['1']],
-    ['beauty',     None,                      ['2']],
-    ['Providing',  None,                      ['1', '2', '3']],
-    ['stealth',    ['AEROSPACE'],             ['1']],
-    ['stealth',    ['FOOD_AND_DRINK'],        []],
-    ['beauty',     ['AEROSPACE'],             ['2']],
-    ['beauty',     ['FOOD_AND_DRINK'],        []],
-    ['Providing',  ['AEROSPACE'],             ['1', '2']],
-    ['Providing',  ['TECHNOLOGY'],            []],
+    ['stealth',    None,                                  ['1']],
+    ['beauty',     None,                                  ['2']],
+    ['Providing',  None,                                  ['1', '2', '3']],
+    ['stealth',    [sectors.AEROSPACE],                   ['1']],
+    ['stealth',    [sectors.FOOD_AND_DRINK],              []],
+    ['beauty',     [sectors.AEROSPACE],                   ['2']],
+    ['beauty',     [sectors.FOOD_AND_DRINK],              []],
+    ['Providing',  [sectors.AEROSPACE],                   ['1', '2']],
+    ['Providing',  ['TECHNOLOGY'],                        []],
     # company keywords
-    ['Hunting',    None,                      ['1']],
-    ['Hunting',    ['AEROSPACE', 'AIRPORTS'], ['1']],
-    ['Hunting',    ['FOOD_AND_DRINK'],        []],
+    ['Hunting',    None,                                  ['1']],
+    ['Hunting',    [sectors.AEROSPACE, sectors.AIRPORTS], ['1']],
+    ['Hunting',    [sectors.FOOD_AND_DRINK],              []],
     # case study description
-    ['lead',       None,                      ['2']],
-    ['lead',       ['AEROSPACE'],             ['2']],
-    ['lead',       ['AEROSPACE', 'AIRPORTS'], ['2']],
-    ['lead',       ['FOOD_AND_DRINK'],        []],
+    ['lead',       None,                                  ['2']],
+    ['lead',       [sectors.AEROSPACE],                   ['2']],
+    ['lead',       [sectors.AEROSPACE, sectors.AIRPORTS], ['2']],
+    ['lead',       [sectors.FOOD_AND_DRINK],              []],
     # case study title
-    ['case study', None,                      ['1', '2']],
-    ['case study', ['FOOD_AND_DRINK'],        []],
-    ['case study', ['AIRPORTS'],              ['1']],
+    ['case study', None,                                  ['1', '2']],
+    ['case study', [sectors.FOOD_AND_DRINK],              []],
+    ['case study', [sectors.AIRPORTS],                    ['1']],
 
 ])
 def test_company_search_results(term, sector, expected, search_companies_data):
     results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sector
+        term=term, page=1, size=5, sectors=sector, campaign_tag=None
     )
     hits = results['hits']['hits']
 
@@ -1571,12 +1631,12 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 @pytest.mark.parametrize('sector,expected', [
-    ['AEROSPACE', ['1', '2']],
-    ['AIRPORTS',  ['8', '7']],
+    [sectors.AEROSPACE, ['1', '2']],
+    [sectors.AIRPORTS,  ['8', '7']],
 ])
 def test_case_study_search_results(sector, expected, search_case_studies_data):
     results = views.CaseStudySearchAPIView().get_search_results(
-        term='', page=1, size=5, sectors=[sector]
+        term='', page=1, size=5, sectors=[sector], campaign_tag=None
     )
     hits = results['hits']['hits']
     assert len(hits) == len(expected)
@@ -1589,19 +1649,19 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
-    ['wolf',       None,          ['3', '4', '2', '1']],
-    ['Limited',    None,          ['3', '5', '4', '2', '1']],
-    ['packs',      None,          ['3', '2', '1']],
-    ['',           ['AEROSPACE'], ['4', '3', '1']],
-    ['Grapeshot',  None,          ['2', '5']],
-    ['cannons',    None,          ['5', '2']],
-    ['guns',       None,          ['5', '2']],
+    ['wolf',       None,                ['3', '4', '2', '1']],
+    ['Limited',    None,                ['3', '5', '4', '2', '1']],
+    ['packs',      None,                ['3', '2', '1']],
+    ['',           [sectors.AEROSPACE], ['4', '3', '1']],
+    ['Grapeshot',  None,                ['2', '5']],
+    ['cannons',    None,                ['5', '2']],
+    ['guns',       None,                ['5', '2']],
 ])
 def test_company_search_results_ordering(
     term, expected, sectors, search_companies_ordering_data
 ):
     results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sectors
+        term=term, page=1, size=5, sectors=sectors, campaign_tag=None
     )
     hits = results['hits']['hits']
 
@@ -1614,7 +1674,7 @@ def test_company_search_results_ordering(
 @pytest.mark.rebuild_elasticsearch
 def test_company_search_results_highlight(search_companies_highlighting_data):
     results = views.CompanySearchAPIView().get_search_results(
-        term='power', page=1, size=5, sectors=None
+        term='power', page=1, size=5, sectors=None, campaign_tag=None
     )
     hits = results['hits']['hits']
 
@@ -1630,7 +1690,7 @@ def test_company_search_results_highlight_long(
     search_companies_highlighting_data
 ):
     results = views.CompanySearchAPIView().get_search_results(
-        term='wolf', page=1, size=5, sectors=None
+        term='wolf', page=1, size=5, sectors=None, campaign_tag=None
     )
     hits = results['hits']['hits']
 

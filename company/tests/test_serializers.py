@@ -231,7 +231,7 @@ def test_company_case_study_with_company(company_case_study_one):
 
 
 def test_company_search_serializer():
-    serializer = serializers.CompanySearchSerializer(
+    serializer = serializers.SearchSerializer(
         data={'page': 1, 'size': 10, 'term': 'thing'}
     )
 
@@ -239,10 +239,10 @@ def test_company_search_serializer():
 
 
 def test_company_search_serializer_empty_term_sector():
-    serializer = serializers.CompanySearchSerializer(
+    serializer = serializers.SearchSerializer(
         data={'page': 1, 'size': 10}
     )
 
-    message = serializers.CompanySearchSerializer.MESSAGE_MISSING_SECTOR_TERM
+    message = serializers.SearchSerializer.MESSAGE_MISSING_QUERY
     assert serializer.is_valid() is False
     assert serializer.errors == {'non_field_errors': [message]}
