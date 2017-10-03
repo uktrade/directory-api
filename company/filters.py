@@ -6,7 +6,7 @@ from company import models
 class JSONFilter(django_filters.CharFilter):
     def filter(self, qs, value):
         if value:
-            value = '"{value}"'.format(value=value)
+            value = '{value}'.format(value=value)
         return super().filter(qs, value)
 
 
