@@ -16,12 +16,12 @@ def test_user_model_str():
 
 
 def test_user_model_has_update_create_timestamps():
-    field_names = User._meta.get_all_field_names()
+    field_names = [field.name for field in User._meta.get_fields()]
 
     assert 'created' in field_names
-    created_field = User._meta.get_field_by_name('created')[0]
+    created_field = User._meta.get_field('created')
     assert created_field.__class__ is CreationDateTimeField
 
     assert 'modified' in field_names
-    modified_field = User._meta.get_field_by_name('modified')[0]
+    modified_field = User._meta.get_field('modified')
     assert modified_field.__class__ is ModificationDateTimeField

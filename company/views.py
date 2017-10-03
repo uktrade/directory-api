@@ -72,6 +72,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         if 'data' in kwargs:
+            kwargs['data'] = kwargs['data'].dict()
             kwargs['data']['company'] = self.request.user.supplier.company_id
         return super().get_serializer(*args, **kwargs)
 

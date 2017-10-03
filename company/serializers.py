@@ -5,6 +5,7 @@ from directory_validators import company as shared_validators
 from directory_constants.constants import choices
 
 from django.conf import settings
+from django.http import QueryDict
 
 from company import helpers, models, validators
 from user.models import User as Supplier
@@ -205,6 +206,8 @@ class InviteSerializerMixin:
     MESSAGE_INVALID_REQUESTOR = 'Requestor is not legit'
 
     def to_internal_value(self, data):
+        if isinstance(data, QueryDict):
+            data = data.dict()
         if not self.partial:
             data['requestor'] = self.context['request'].user.supplier.pk
             data['company'] = self.context['request'].user.supplier.company.pk
