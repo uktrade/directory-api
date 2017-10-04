@@ -38,6 +38,41 @@ class PublishByCompanyHouseNumberForm(forms.Form):
         return numbers
 
 
+class CompanyModelForm(forms.ModelForm):
+
+    MESSAGE_TOO_MANY_IN_CAMPAIGN = (
+        'A campaign cannot have more than three companies.'
+    )
+
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+    def clean_campaign_tag(self):
+        campaign_tag = self.cleaned_data['campaign_tag']
+        if Company.objects.filter(campaign_tag=campaign_tag).count() >= 3:
+            raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
+        return campaign_tag
+
+
+class CompanyCaseStudyModelForm(forms.ModelForm):
+
+    MESSAGE_TOO_MANY_IN_CAMPAIGN = (
+        'A campaign cannot have more than three case studies.'
+    )
+
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+    def clean_campaign_tag(self):
+        campaign_tag = self.cleaned_data['campaign_tag']
+        queryset = CompanyCaseStudy.objects.filter(campaign_tag=campaign_tag)
+        if queryset.count() >= 3:
+            raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
+        return campaign_tag
+
+
 class PublishByCompanyHouseNumberView(FormView):
     form_class = PublishByCompanyHouseNumberForm
     template_name = 'admin/company/publish_form.html'
@@ -63,8 +98,9 @@ class CompanyAdmin(admin.ModelAdmin):
         'locality', 'country', 'postal_code', 'po_box',
     )
     list_display = ('name', 'number', 'is_published', 'verified_with_code')
-    list_filter = ('is_published', 'verified_with_code')
+    list_filter = ('is_published', 'verified_with_code', 'campaign_tag',)
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
+    form = CompanyModelForm
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
@@ -83,6 +119,7 @@ class CompanyAdmin(admin.ModelAdmin):
 @admin.register(CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
+    form = CompanyCaseStudyModelForm
     search_fields = (
         'company__name', 'company__number', 'description', 'short_summary',
         'title', 'website', 'keywords', 'testimonial',

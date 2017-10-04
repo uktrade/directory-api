@@ -7,10 +7,10 @@ import pytest
 from django.test import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from directory_constants.constants import lead_generation
 
+from company import admin
 from company.models import Company, CompanyCaseStudy
-from company.admin import PublishByCompanyHouseNumberForm, CompanyAdmin, \
-    CompanyCaseStudyAdmin
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 
 
@@ -124,7 +124,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     data = {
         'company_numbers': '12345678,23456789,34567890'
     }
-    form = PublishByCompanyHouseNumberForm(data=data)
+    form = admin.PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
     msg = COMPANY_DOESNT_EXIST_MSG + '12345678, 23456789, 34567890'
@@ -135,7 +135,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     data = {
         'company_numbers': '{num},23456789'.format(num=company.number)
     }
-    form = PublishByCompanyHouseNumberForm(data=data)
+    form = admin.PublishByCompanyHouseNumberForm(data=data)
 
     assert form.is_valid() is False
     msg = COMPANY_DOESNT_EXIST_MSG + '23456789'
@@ -148,7 +148,9 @@ def test_companies_publish_form_handles_whitespace():
     data = '    {num1},{num2} , {num3},'.format(
         num1=companies[0].number, num2=companies[1].number,
         num3=companies[2].number)
-    form = PublishByCompanyHouseNumberForm(data={'company_numbers': data})
+    form = admin.PublishByCompanyHouseNumberForm(
+        data={'company_numbers': data}
+    )
 
     assert form.is_valid() is True
 
@@ -265,7 +267,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
 def test_company_search_fields_exist():
     """It will raise FieldError if a field don't exist."""
-    for fieldname in CompanyAdmin.search_fields:
+    for fieldname in admin.CompanyAdmin.search_fields:
         query_key = '{}__icontains'.format(fieldname)
         query = {query_key: 'foo'}
         Company.objects.filter(**query)
@@ -273,7 +275,42 @@ def test_company_search_fields_exist():
 
 def test_company_case_study_search_fields_exist():
     """It will raise FieldError if a field don't exist."""
-    for fieldname in CompanyCaseStudyAdmin.search_fields:
+    for fieldname in admin.CompanyCaseStudyAdmin.search_fields:
         query_key = '{}__icontains'.format(fieldname)
         query = {query_key: 'foo'}
         CompanyCaseStudy.objects.filter(**query)
+
+
+@pytest.mark.django_db
+def test_company_campaign_tag():
+    campaign_tag = lead_generation.FOOD_IS_GREAT
+    CompanyFactory(campaign_tag=campaign_tag)
+    CompanyFactory(campaign_tag=campaign_tag)
+    CompanyFactory(campaign_tag=campaign_tag)
+
+    company = CompanyFactory()
+
+    form = admin.CompanyModelForm(
+        {'campaign_tag': campaign_tag},
+        instance=company
+    )
+
+    assert form.is_valid() is False
+    assert form.errors['campaign_tag'] == [form.MESSAGE_TOO_MANY_IN_CAMPAIGN]
+
+
+@pytest.mark.django_db
+def test_case_study_campaign_tag():
+    campaign_tag = lead_generation.FOOD_IS_GREAT
+    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
+    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
+    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
+    case_study = CompanyCaseStudyFactory()
+
+    form = admin.CompanyCaseStudyModelForm(
+        {'campaign_tag': campaign_tag},
+        instance=case_study,
+    )
+
+    assert form.is_valid() is False
+    assert form.errors['campaign_tag'] == [form.MESSAGE_TOO_MANY_IN_CAMPAIGN]
