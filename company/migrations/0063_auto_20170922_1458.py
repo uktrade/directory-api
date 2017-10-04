@@ -4,13 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from company import utils
-
-
-def rebuild_company_index(apps, schema_editor):
-    Company = apps.get_model('company', 'Company')
-    utils.rebuild_and_populate_elasticsearch_index(Company)
-
 
 class Migration(migrations.Migration):
 
@@ -18,6 +11,8 @@ class Migration(migrations.Migration):
         ('company', '0062_collaboratorinvite_uuid'),
     ]
 
+    # This migration was rebuilding the ES index, but the DocType of Company
+    # changed, so it was moved to 0066
     operations = [
-        migrations.RunPython(rebuild_company_index, migrations.RunPython.noop)
+        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop)
     ]
