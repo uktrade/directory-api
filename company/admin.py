@@ -50,8 +50,9 @@ class CompanyModelForm(forms.ModelForm):
 
     def clean_campaign_tag(self):
         campaign_tag = self.cleaned_data['campaign_tag']
-        if Company.objects.filter(campaign_tag=campaign_tag).count() >= 3:
-            raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
+        if campaign_tag:
+            if Company.objects.filter(campaign_tag=campaign_tag).count() >= 3:
+                raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
         return campaign_tag
 
 
@@ -67,9 +68,10 @@ class CompanyCaseStudyModelForm(forms.ModelForm):
 
     def clean_campaign_tag(self):
         campaign_tag = self.cleaned_data['campaign_tag']
-        queryset = CompanyCaseStudy.objects.filter(campaign_tag=campaign_tag)
-        if queryset.count() >= 3:
-            raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
+        if campaign_tag:
+            qs = CompanyCaseStudy.objects.filter(campaign_tag=campaign_tag)
+            if qs.count() >= 3:
+                raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
         return campaign_tag
 
 
