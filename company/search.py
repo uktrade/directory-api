@@ -44,6 +44,7 @@ class CompanyDocType(DocType):
     summary = field.Text()
     twitter_url = field.Text(index='no')
     website = field.Text()
+    campaign_tag = field.Text()
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index='no'),
@@ -78,6 +79,7 @@ class CaseStudyDocType(DocType):
     image_three_caption = field.Text()
     testimonial = field.Text()
     slug = field.Text(index='no')
+    campaign_tag = field.Text()
 
     class Meta:
         index = settings.ELASTICSEARCH_CASE_STUDY_INDEX
@@ -112,6 +114,7 @@ def company_model_to_doc_type(company):
         summary=company.summary,
         twitter_url=company.twitter_url,
         website=company.website,
+        campaign_tag=company.campaign_tag,
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({
@@ -151,6 +154,6 @@ def case_study_model_to_doc_type(case_study):
         image=get_absolute_url(
             case_study.image_one.url if case_study.image_one else '',
         ),
-
+        campaign_tag=case_study.campaign_tag,
     )
     return case_study_doc_type

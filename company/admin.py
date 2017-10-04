@@ -91,7 +91,7 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     actions = ['download_csv']
 
-    csv_excluded_fields = ()
+    csv_excluded_fields = ('campaign_tag', 'company__campaign_tag',)
     csv_filename = 'find-a-buyer_case_studies_{}.csv'.format(
                 datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 
