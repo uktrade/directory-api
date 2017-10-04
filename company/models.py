@@ -95,7 +95,7 @@ class Company(TimeStampedModel):
             'verified, and have an email address.'
         )
     )
-    date_published = models.DateField(null=True)
+    date_published = models.DateField(null=True, blank=True)
     verification_code = models.CharField(
         _('verification code'),
         max_length=255,
@@ -106,7 +106,9 @@ class Company(TimeStampedModel):
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
-    date_verification_letter_sent = models.DateTimeField(null=True)
+    date_verification_letter_sent = models.DateTimeField(
+        null=True, blank=True
+    )
     # social links
     twitter_url = models.URLField(
         max_length=255,
