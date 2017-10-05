@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Populates ElasticSearch with companies and case studies'
 
     def add_arguments(self, parser):
-        parser.add_argument('--async', dest='async', type=bool, default=False)
+        parser.add_argument('--async', dest='async', type=bool, default=True)
 
     def handle(self, *args, **options):
         companies = (
