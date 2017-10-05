@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest.mock import Mock
 
 import pytest
 
@@ -207,10 +208,17 @@ def test_company_number_serializer_validators():
 
 @pytest.mark.django_db
 def test_company_case_study_explicit_value(case_study_data):
-    serializer = serializers.CompanyCaseStudySerializer(data=case_study_data)
+    request = Mock()
+    company = CompanyFactory()
+    request.user.supplier.company = company
+    serializer = serializers.CompanyCaseStudySerializer(
+        data=case_study_data, context={'request': request}
+    )
 
     assert serializer.is_valid()
     data = serializer.validated_data
+
+    assert data['company'] == company
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
     assert data['testimonial_name'] == case_study_data['testimonial_name']
