@@ -64,6 +64,12 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('slug',)
 
+    def to_internal_value(self, data):
+        if isinstance(data, QueryDict):
+            data = data.dict()
+        data['company'] = self.context['request'].user.supplier.company.pk
+        return super().to_internal_value(data)
+
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 
