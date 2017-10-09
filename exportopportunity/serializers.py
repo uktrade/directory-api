@@ -3,6 +3,11 @@ from exportopportunity import models
 from rest_framework import serializers
 
 
-class ExportOpportunitySerializer(serializers.ModelSerializer):
+class ExportOpportunityFoodSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.ExportOpportunity
+        model = models.ExportOpportunityFood
+
+
+class ExportOpportunityLegalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ExportOpportunityLegal

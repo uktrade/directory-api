@@ -4,8 +4,15 @@ from api.signature import SignatureCheckPermission
 from exportopportunity import models, serializers
 
 
-class ExportOpportunityCreateAPIView(CreateAPIView):
-    model = models.ExportOpportunity
-    serializer_class = serializers.ExportOpportunitySerializer
+class ExportOpportunityFoodCreateAPIView(CreateAPIView):
+    model = models.ExportOpportunityFood
+    serializer_class = serializers.ExportOpportunityFoodSerializer
+    http_method_names = ("post", )
+    permission_classes = [SignatureCheckPermission]
+
+
+class ExportOpportunityLegalCreateAPIView(CreateAPIView):
+    model = models.ExportOpportunityLegal
+    serializer_class = serializers.ExportOpportunityLegalSerializer
     http_method_names = ("post", )
     permission_classes = [SignatureCheckPermission]

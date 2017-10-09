@@ -7,8 +7,8 @@ from exportopportunity import models
 
 
 @pytest.mark.django_db
-def test_export_opportunity_create(authed_client):
-    assert models.ExportOpportunity.objects.count() == 0
+def test_food_export_opportunity_create(authed_client):
+    assert models.ExportOpportunityFood.objects.count() == 0
 
     data = {
         'additional_requirements': 'give me things',
@@ -35,8 +35,41 @@ def test_export_opportunity_create(authed_client):
     }
 
     response = authed_client.post(
-        reverse('export-opportunity-create'),
+        reverse('export-opportunity-food-create'),
         data=data
     )
     assert response.status_code == status.HTTP_201_CREATED
-    assert models.ExportOpportunity.objects.count() == 1
+    assert models.ExportOpportunityFood.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_legal_export_opportunity_create(authed_client):
+    assert models.ExportOpportunityLegal.objects.count() == 0
+
+    data = {
+        'additional_requirements': 'give me things',
+        'advice_type': 'Drafting-of-contracts',
+        'advice_type_other': 'thingers',
+        'company_name': 'Jim corp',
+        'company_website': 'http://www.example.com',
+        'contact_preference': ['EMAIL', 'PHONE'],
+        'email_address': 'jim@exmaple.com',
+        'email_address_confirm': 'jim@exmaple.com',
+        'full_name': 'jim example',
+        'job_title': 'Exampler',
+        'locality': 'France',
+        'order_deadline': '1-3 MONTHS',
+        'phone_number': '07507605844',
+        'target_sectors': ['FOOD_AND_DRINK'],
+        'target_sectors_other': 'things',
+        'terms_agreed': True,
+        'campaign': 'legal-is-great',
+        'country': 'france',
+    }
+
+    response = authed_client.post(
+        reverse('export-opportunity-legal-create'),
+        data=data
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert models.ExportOpportunityLegal.objects.count() == 1

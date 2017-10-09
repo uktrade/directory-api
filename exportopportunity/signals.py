@@ -7,7 +7,8 @@ from exportopportunity import helpers
 
 def send_opportunity_to_post(sender, instance, *args, **kwargs):
     message = render_to_string(
-        'email/opportunity-submitted.txt', {'instance': instance}
+        instance.email_template_name,
+        {'instance': instance}
     )
     recipient_list = helpers.get_ita_email(
         campaign=instance.campaign, country=instance.country,
