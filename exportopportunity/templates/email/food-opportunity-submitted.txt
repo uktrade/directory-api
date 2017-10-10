@@ -1,0 +1,9 @@
+{% extends 'email/opportunity-submitted.txt' %}
+{% block content %}
+Business model: {{ instance.business_model|join:' ' }} {{ instance.business_model_other }}
+Target sectors: {{ instance.target_sectors|join:' ' }} {{ instance.target_sectors_other }}
+Products: {{ instance.products|join:' ' }} {{ instance.products_other }}
+Order size: {{ instance.order_size }}
+Order Deadline: {{ instance.order_deadline }}
+Additional_requirements: {{ instance.additional_requirements }}
+{% endblock %}

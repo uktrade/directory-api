@@ -36,7 +36,7 @@ from enrolment.views import (
 )
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
-from exportopportunity.views import ExportOpportunityCreateAPIView
+from exportopportunity import views as exportopportunity_views
 
 from django.conf import settings
 
@@ -193,9 +193,14 @@ urlpatterns = [
         name='case-study-search',
     ),
     url(
-        r'^export-opportunity/$',
-        ExportOpportunityCreateAPIView.as_view(),
-        name='export-opportunity-create'
+        r'^export-opportunity/food/$',
+        exportopportunity_views.ExportOpportunityFoodCreateAPIView.as_view(),
+        name='export-opportunity-food-create'
+    ),
+    url(
+        r'^export-opportunity/legal/$',
+        exportopportunity_views.ExportOpportunityLegalCreateAPIView.as_view(),
+        name='export-opportunity-legal-create'
     ),
 ]
 

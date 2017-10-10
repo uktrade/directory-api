@@ -189,7 +189,7 @@ class Company(TimeStampedModel):
         blank=True,
         null=True,
         help_text='Marks the company for use on the specified campaign page',
-        choices=[(i, i) for i in choices.LEAD_GENERATION_CAMPAIGNS],
+        choices=choices.LEAD_GENERATION_CAMPAIGNS,
     )
 
     class Meta:
@@ -299,7 +299,7 @@ class CompanyCaseStudy(TimeStampedModel):
         blank=True,
         null=True,
         help_text='Marks the casestudy for use on the specified campaign page',
-        choices=[(i, i) for i in choices.LEAD_GENERATION_CAMPAIGNS],
+        choices=choices.LEAD_GENERATION_CAMPAIGNS,
     )
 
     class Meta:

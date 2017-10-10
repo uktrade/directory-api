@@ -10,5 +10,9 @@ class ExportOpportunityConfig(AppConfig):
     def ready(self):
         post_save.connect(
             receiver=signals.send_opportunity_to_post,
-            sender='exportopportunity.ExportOpportunity'
+            sender='exportopportunity.ExportOpportunityFood'
+        )
+        post_save.connect(
+            receiver=signals.send_opportunity_to_post,
+            sender='exportopportunity.ExportOpportunityLegal'
         )
