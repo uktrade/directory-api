@@ -1954,14 +1954,15 @@ def test_accept_transfer_ownership_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True
+        is_company_owner=True,
+        company_email=invite.new_owner_email
     ).count() == 1
 
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @patch('core.tasks.send_email', Mock())
-def test_accept_transfer_ownership_invite_case_insensetive(
+def test_accept_transfer_ownership_invite_case_insensitive(
         authed_client,
         authed_supplier):
 
@@ -1990,6 +1991,7 @@ def test_accept_transfer_ownership_invite_case_insensetive(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
+        company_email=invite.new_owner_email,
         is_company_owner=True
     ).count() == 1
 
@@ -2143,7 +2145,7 @@ def test_company_create_duplicated_collaboration_invite(
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @patch('core.tasks.send_email', Mock())
-def test_accept_collboration_invite(
+def test_accept_collaborator_invite(
     authed_client, authed_supplier
 ):
     authed_supplier.delete()
@@ -2169,14 +2171,15 @@ def test_accept_collboration_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True
+        is_company_owner=False,
+        company_email=invite.collaborator_email
     ).count() == 1
 
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @patch('core.tasks.send_email', Mock())
-def test_accept_collboration_invite_case_insensetive(
+def test_accept_collaborator_invite_case_insensitive(
     authed_client, authed_supplier
 ):
     authed_supplier.delete()
@@ -2202,7 +2205,8 @@ def test_accept_collboration_invite_case_insensetive(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True
+        is_company_owner=False,
+        company_email=invite.collaborator_email
     ).count() == 1
 
 

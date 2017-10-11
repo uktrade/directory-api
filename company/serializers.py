@@ -256,14 +256,6 @@ class InviteSerializerMixin:
                 'requestor': self.MESSAGE_INVALID_REQUESTOR
             })
 
-    def create_supplier(self, instance):
-        Supplier.objects.create(
-            sso_id=self.context['request'].user.id,
-            company=instance.company,
-            company_email=instance.company.email_address,
-            is_company_owner=True,
-        )
-
 
 class OwnershipInviteSerializer(
     InviteSerializerMixin, serializers.ModelSerializer
@@ -290,6 +282,14 @@ class OwnershipInviteSerializer(
             'uuid': {'read_only': True},
         }
 
+    def create_supplier(self, instance):
+        Supplier.objects.create(
+            sso_id=self.context['request'].user.id,
+            company=instance.company,
+            company_email=instance.new_owner_email,
+            is_company_owner=True,
+        )
+
 
 class CollaboratorInviteSerializer(
     InviteSerializerMixin, serializers.ModelSerializer
@@ -310,10 +310,18 @@ class CollaboratorInviteSerializer(
         )
         extra_kwargs = {
             'accepted': {'write_only': True},
-            'company': {'required': False},
+            'company': {'read_only': False},
             'requestor': {'required': False},
             'uuid': {'read_only': True},
         }
+
+    def create_supplier(self, instance):
+        Supplier.objects.create(
+            sso_id=self.context['request'].user.id,
+            company=instance.company,
+            company_email=instance.collaborator_email,
+            is_company_owner=False,
+        )
 
 
 class RemoveCollaboratorsSerializer(serializers.Serializer):
