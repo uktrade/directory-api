@@ -4,7 +4,7 @@ from uuid import uuid4
 import http
 import logging
 import os
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -89,7 +89,7 @@ class CompaniesHouseClient:
     def verify_access_token(cls, access_token):
         url = cls.endpoints['verify-oauth2-access-token']
         data = {'access-token': access_token}
-        return cls.session.post(url=url, json=data)
+        return cls.session.post(url=url + '?' + urlencode(data))
 
 
 @deconstructible
