@@ -167,7 +167,7 @@ def case_study_model_to_doc_type(
         'campaign_tag',
     }
     return CaseStudyDocType(
-        meta={'id': case_study.pk, 'index': index},
+        meta={'id': case_study.pk, '_index': index},
         image=get_absolute_url(
             case_study.image_one.url if case_study.image_one else '',
         ),

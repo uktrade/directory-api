@@ -1,11 +1,8 @@
 import datetime
 
-from elasticsearch_dsl import Index, analyzer
-
 from django.conf import settings
 from django.utils import timezone
 
-from company import search
 from company.stannp import stannp_client
 
 
@@ -38,18 +35,7 @@ def send_verification_letter(company):
 
 
 def rebuild_and_populate_elasticsearch_index(CompanyModel):
-    indices = (
-        (settings.ELASTICSEARCH_COMPANY_INDEX, search.CompanyDocType),
-        (settings.ELASTICSEARCH_CASE_STUDY_INDEX, search.CaseStudyDocType),
-    )
-    for index_name, doc_type in indices:
-        index = Index(index_name)
-        index.doc_type(doc_type)
-        index.analyzer(analyzer('english'))
-        index.delete(ignore=404)
-        index.create()
-
-    for company in CompanyModel.objects.filter(is_published=True):
-        search.company_model_to_doc_type(company).save()
-        for case_study in company.supplier_case_studies.all():
-            search.case_study_model_to_doc_type(case_study).save()
+    # this function was used by migrations, but has been superseded by
+    # the management `command elasticsearch_migrate` - which happens on every
+    # deployment meaning there is no need for specific ES migrations.
+    pass

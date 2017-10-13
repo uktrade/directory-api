@@ -18,7 +18,7 @@ CODECOV := \
 	fi
 
 test:
-	$(DJANGO_MIGRATE) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST) && $(CODECOV)
+	$(DJANGO_MIGRATE) && $(DJANGO_MIGRATE_ELASTICSEARCH) && $(COLLECT_STATIC) && $(FLAKE8) && $(PYTEST) && $(CODECOV)
 
 DJANGO_WEBSERVER := \
 	python manage.py collectstatic --noinput; \

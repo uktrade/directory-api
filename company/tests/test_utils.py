@@ -6,7 +6,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from company.tests import factories
-from company import models, search, utils
+from company import utils
 
 
 @pytest.mark.django_db
@@ -37,31 +37,3 @@ def test_send_letter(mock_stannp_client):
     company.refresh_from_db()
     assert company.is_verification_letter_sent
     assert company.date_verification_letter_sent == timezone.now()
-
-
-@pytest.mark.django_db
-@pytest.mark.rebuild_elasticsearch
-def test_rebuild_and_populate_elasticsearch_index():
-    published_company = factories.CompanyFactory(is_published=True)
-    unpublished_company = factories.CompanyFactory(is_published=False)
-
-    published_case_study = factories.CompanyCaseStudyFactory(
-        company=published_company
-    )
-    unpublished_case_study = factories.CompanyCaseStudyFactory(
-        company=unpublished_company
-    )
-
-    search.CompanyDocType.get(id=published_company.pk).delete()
-    search.CaseStudyDocType.get(id=published_case_study.pk).delete()
-    utils.rebuild_and_populate_elasticsearch_index(models.Company)
-
-    assert search.CompanyDocType.get(id=published_company.pk) is not None
-    assert search.CaseStudyDocType.get(id=published_case_study.pk) is not None
-
-    assert search.CompanyDocType.get(
-        id=unpublished_company.pk, ignore=404
-    ) is None
-    assert search.CaseStudyDocType.get(
-        id=unpublished_case_study.pk, ignore=404
-    ) is None

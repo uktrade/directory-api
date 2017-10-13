@@ -28,28 +28,33 @@ class Command(management.BaseCommand):
         self.new_company_index = self.company_index_prefix + unique_id
         self.new_case_study_index = self.case_study_index_prefix + unique_id
         self.client = connections.get_connection()
-        self.indices_client = IndicesClient(client=self.client)
         super().__init__(*args, **kwargs)
 
-    def create_index(self, name, doc_type):
+    def create_index(self, name, doc_type, alias):
         index = Index(name)
         index.doc_type(doc_type)
         index.analyzer(analyzer('english'))
+        index.aliases(**{alias: {}})
         index.create()
         return index
 
     def get_indices(self, alias_name):
+        indices_client = IndicesClient(client=self.client)
         try:
-            return list(self.indices_client.get_alias(name=alias_name).keys())
+            return list(indices_client.get_alias(name=alias_name).keys())
         except NotFoundError:
             return []
 
     def create_new_indices(self):
         self.create_index(
-            name=self.new_company_index, doc_type=search.CompanyDocType,
+            name=self.new_company_index,
+            doc_type=search.CompanyDocType,
+            alias=self.company_index_alias,
         )
         self.create_index(
-            name=self.new_case_study_index, doc_type=search.CaseStudyDocType,
+            name=self.new_case_study_index,
+            doc_type=search.CaseStudyDocType,
+            alias=self.case_study_index_alias,
         )
 
     def populate_new_indices(self):
@@ -70,28 +75,23 @@ class Command(management.BaseCommand):
                     case_study=case_study, index=self.new_case_study_index,
                 )
                 case_study_documents.append(case_study_doc_type.to_dict(True))
-
         bulk(self.client, company_documents)
         bulk(self.client, case_study_documents)
 
-    def activate_new_indices(self):
-        self.indices_client.put_alias(
-            name=self.company_index_alias, index=self.new_company_index
-        )
-        self.indices_client.put_alias(
-            name=self.case_study_index_alias, index=self.new_case_study_index
-        )
-        Index(self.company_index_alias).refresh()
-        Index(self.case_study_index_alias).refresh()
-
     def delete_old_indices(self):
         for index_name in self.get_indices(self.company_index_alias):
-            Index(index_name).delete()
+            if index_name != self.new_company_index:
+                Index(index_name).delete()
         for index_name in self.get_indices(self.case_study_index_alias):
-            Index(index_name).delete()
+            if index_name != self.new_case_study_index:
+                Index(index_name).delete()
+
+    def refresh_aliases(self):
+        Index(self.company_index_alias).refresh()
+        Index(self.case_study_index_alias).refresh()
 
     def handle(self, *args, **options):
         self.create_new_indices()
         self.populate_new_indices()
         self.delete_old_indices()
-        self.activate_new_indices()
+        self.refresh_aliases()

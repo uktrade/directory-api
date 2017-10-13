@@ -1,4 +1,4 @@
-from company.management.commands.migrate_elasticsearch import (
+from company.management.commands.elasticsearch_migrate import (
     Command as MigrateCommand
 )
 from django_pglocks import advisory_lock

@@ -178,4 +178,4 @@ def mock_elasticsearch_company_save():
 def elasticsearch_marker(request):
     if request.node.get_marker('rebuild_elasticsearch'):
         # sanitize the companies index before each test that uses it
-        call_command('migrate_elasticsearch')
+        call_command('elasticsearch_migrate')
