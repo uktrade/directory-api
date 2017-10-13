@@ -8,7 +8,7 @@ test_requirements:
 	pip install -r requirements_test.txt
 
 DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
-DJANGO_ENSURE_INDICES := python manage.py ensure_elasticsearch_indices
+DJANGO_MIGRATE_ELASTICSEARCH := python manage.py elasticsearch_migrate
 FLAKE8 := flake8 . --exclude=migrations,.venv
 PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
@@ -183,7 +183,7 @@ DEBUG_SET_ENV_VARS := \
 
 
 debug_webserver:
-	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER); $(DJANGO_ENSURE_INDICES);
+	 $(DEBUG_SET_ENV_VARS); $(DJANGO_WEBSERVER); $(DJANGO_MIGRATE_ELASTICSEARCH);
 
 debug_celery_beat_scheduler:
 	$(DEBUG_SET_ENV_VARS); export CELERY_ENABLED=true; export CELERY_BROKER_URL=redis://127.0.0.1:6379; export CELERY_RESULT_BACKEND=redis://127.0.0.1:6379; celery -A api beat -l info -S django

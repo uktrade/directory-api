@@ -8,7 +8,7 @@ from company.search import CompanyDocType, CaseStudyDocType
 
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
-def test_populate_elasticsearch():
+def test_migrate_elasticsearch():
     published_company = factories.CompanyFactory(is_published=True)
     unpublished_company = factories.CompanyFactory(is_published=False)
 
@@ -21,7 +21,7 @@ def test_populate_elasticsearch():
 
     CompanyDocType.get(id=published_company.pk).delete()
     CaseStudyDocType.get(id=published_case_study.pk).delete()
-    management.call_command('populate_elasticsearch', async=False)
+    management.call_command('migrate_elasticsearch')
 
     assert CompanyDocType.get(id=published_company.pk) is not None
     assert CaseStudyDocType.get(id=published_case_study.pk) is not None

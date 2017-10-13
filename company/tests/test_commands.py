@@ -30,16 +30,3 @@ def test_retrieve_missing_company_details(mock_get_date_of_creation):
     assert models.Company.objects.get(
         number=companies[1].number
     ).date_of_creation == date(2010, 10, 10)
-
-
-@pytest.mark.django_db
-@patch('company.management.commands.populate_elasticsearch.tasks')
-def test_populate_elasticsearch(mock_tasks):
-    company = CompanyFactory(is_published=True)
-    CompanyFactory(is_published=False)
-
-    call_command('populate_elasticsearch')
-
-    mock_tasks.save_company_to_elasticsearch.delay.assert_called_once_with(
-        pk=company.pk
-    )
