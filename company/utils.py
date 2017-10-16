@@ -32,10 +32,3 @@ def send_verification_letter(company):
     company.is_verification_letter_sent = True
     company.date_verification_letter_sent = timezone.now()
     company.save()
-
-
-def rebuild_and_populate_elasticsearch_index(CompanyModel):
-    # this function was used by migrations, but has been superseded by
-    # the management `command elasticsearch_migrate` - which happens on every
-    # deployment meaning there is no need for specific ES migrations.
-    pass

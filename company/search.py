@@ -132,7 +132,7 @@ def company_model_to_doc_type(
     }
     has_description = getattr(company, 'description', '') != ''
     company_doc_type = CompanyDocType(
-        meta={'id': company.pk, 'index': index},
+        meta={'id': company.pk, '_index': index},
         pk=str(company.pk),
         case_study_count=company.supplier_case_studies.count(),
         has_single_sector=len(company.sectors) == 1,

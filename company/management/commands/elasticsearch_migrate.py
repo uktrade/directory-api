@@ -14,19 +14,33 @@ from company import models
 
 class Command(management.BaseCommand):
 
-    help = 'Migrate elasticsearch indices.'
+    help = """
+    Migrate Elasticsearch indices with zero downtime - meaning that search will
+    still work during the migration. The migration has four steps:
+
+    1) Create the new indices: create campaign and case study indices and give
+       them the appropriate alias so the new indices will be used when the
+       application searches from or inserts into the campaigns or case studies.
+    2) Populate the new indices: insert the companies and case studies into the
+       new indices. This is done in bulk for performance gains.
+    3) Delete the old indices: If a search happens during the migration the
+       old indices will be used but now the new indices are ready so the old
+       indices can be deleted - and the application will now search from and
+       insert into the new indices.
+    4) Refresh the new aliases: Block execution until the new indices have all
+       their operations complete. This is critical to avoid race conditions.
+
+    """
 
     company_index_alias = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
     case_study_index_alias = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
-    case_study_index_prefix = settings.ELASTICSEARCH_CASE_STUDY_INDEX
-    company_index_prefix = settings.ELASTICSEARCH_COMPANY_INDEX
     new_company_index = None
     new_case_study_index = None
 
     def __init__(self, *args, **kwargs):
         unique_id = get_random_string(length=32).lower()
-        self.new_company_index = self.company_index_prefix + unique_id
-        self.new_case_study_index = self.case_study_index_prefix + unique_id
+        self.new_company_index = 'companies-' + unique_id
+        self.new_case_study_index = 'casestudies-' + unique_id
         self.client = connections.get_connection()
         super().__init__(*args, **kwargs)
 
@@ -34,7 +48,9 @@ class Command(management.BaseCommand):
         index = Index(name)
         index.doc_type(doc_type)
         index.analyzer(analyzer('english'))
-        index.aliases(**{alias: {}})
+        # give the index an alias (e.g, `company_alias`), so the index is used
+        # when the application searches from or inserts into `campaign_alias`.
+        index.aliases(**{alias: {}})  # same  as .aliases(company-alias: {})
         index.create()
         return index
 
