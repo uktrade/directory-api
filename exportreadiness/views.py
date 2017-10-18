@@ -13,6 +13,3 @@ class TriageResultCreateRetrieveView(CreateAPIView, RetrieveAPIView):
             TriageResult.objects.all(),
             sso_id=self.request.user.id
         )
-
-    def post(self, request, *args, **kwargs):
-        pass

@@ -29,3 +29,43 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'sso_id': triage_result.sso_id
     }
     assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+def test_triage_result_retrieve_view_404(authed_client):
+    response = authed_client.get(
+        reverse('export-readiness-triage-create-retrieve')
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_triage_result_create_view(authed_client):
+    triage_result_data = {
+        'company_name': 'Acme ltd',
+        'exported_before': True,
+        'exporting_regular_part': True,
+        'sector': 'Foo',
+        'sole_trader': False,
+    }
+
+    response = authed_client.post(
+        reverse('export-readiness-triage-create-retrieve'),
+        triage_result_data,
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    expected_response = {
+        'company_name': 'Acme ltd',
+        'created': '2016-11-23T11:21:10.977518Z',
+        'exported_before': True,
+        'exporting_regular_part': True,
+        'id': response.json()['id'],
+        'modified': '2016-11-23T11:21:10.977518Z',
+        'sector': 'Foo',
+        'sole_trader': False,
+        'sso_id': 999
+    }
+    assert response.json() == expected_response

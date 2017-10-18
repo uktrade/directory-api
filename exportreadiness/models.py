@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -15,10 +14,3 @@ class TriageResult(TimeStampedModel):
 
     def __str__(self):
         return self.company_name
-
-    def save(self, **kwargs):
-        if self.company_name and self.sole_trader:
-            raise ValidationError(
-                'Company name and sole trader cannot be selected together'
-            )
-        return super().save(**kwargs)
