@@ -12,5 +12,5 @@ class TriageResult(TimeStampedModel):
     sole_trader = models.BooleanField()
     sso_id = models.PositiveIntegerField(unique=True)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.company_name
