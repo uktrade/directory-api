@@ -8,7 +8,7 @@ class TriageResult(TimeStampedModel):
     sector = models.CharField(max_length=255)
     exported_before = models.BooleanField()
     regular_exporter = models.BooleanField()
-    used_online_marketplace = models.BooleanField()
+    used_online_marketplace = models.NullBooleanField()
     company_name = models.CharField(max_length=255, null=True, blank=True)
     sole_trader = models.BooleanField()
     sso_id = models.PositiveIntegerField(unique=True)
