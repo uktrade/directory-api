@@ -21,7 +21,7 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'company_name': triage_result.company_name,
         'created': '2016-11-23T11:21:10.977518Z',
         'exported_before': triage_result.exported_before,
-        'exporting_regular_part': triage_result.exporting_regular_part,
+        'regular_exporter': triage_result.regular_exporter,
         'id': triage_result.pk,
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': triage_result.sector,
@@ -46,7 +46,7 @@ def test_triage_result_create_view(authed_client):
     triage_result_data = {
         'company_name': 'Acme ltd',
         'exported_before': True,
-        'exporting_regular_part': True,
+        'regular_exporter': True,
         'sector': 'Foo',
         'sole_trader': False,
     }
@@ -61,7 +61,7 @@ def test_triage_result_create_view(authed_client):
         'company_name': 'Acme ltd',
         'created': '2016-11-23T11:21:10.977518Z',
         'exported_before': True,
-        'exporting_regular_part': True,
+        'regular_exporter': True,
         'id': response.json()['id'],
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': 'Foo',

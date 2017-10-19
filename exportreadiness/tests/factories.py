@@ -7,7 +7,7 @@ class TriageResultFactory(factory.django.DjangoModelFactory):
 
     sector = 'Foo'
     exported_before = True
-    exporting_regular_part = True
+    regular_exporter = True
     company_name = factory.fuzzy.FuzzyText(length=12)
     sole_trader = False
 
