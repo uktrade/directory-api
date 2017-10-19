@@ -37,6 +37,7 @@ from enrolment.views import (
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity import views as exportopportunity_views
+from exportreadiness import views as exportreadiness_views
 
 from django.conf import settings
 
@@ -202,6 +203,11 @@ urlpatterns = [
         exportopportunity_views.ExportOpportunityLegalCreateAPIView.as_view(),
         name='export-opportunity-legal-create'
     ),
+    url(
+        r'export-readiness/triage/$',
+        exportreadiness_views.TriageResultCreateRetrieveView.as_view(),
+        name='export-readiness-triage-create-retrieve'
+    )
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
