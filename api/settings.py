@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'contact.apps.ContactConfig',
     'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
+    'exportreadiness.apps.ExportReadinessConfig',
     'directory_constants',
 ]
 
