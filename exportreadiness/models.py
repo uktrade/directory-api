@@ -1,6 +1,6 @@
 from django.db import models
 
-from directory_constants.constants import comtrade_choices
+from directory_constants.constants import exred_sector_names
 from django.utils.functional import cached_property
 
 from api.model_utils import TimeStampedModel
@@ -8,7 +8,7 @@ from api.model_utils import TimeStampedModel
 
 class TriageResult(TimeStampedModel):
     sector = models.CharField(
-        choices=comtrade_choices.SECTORS_CHOICES,
+        choices=exred_sector_names.SECTORS_CHOICES,
         max_length=255
     )
     exported_before = models.BooleanField()
@@ -20,7 +20,7 @@ class TriageResult(TimeStampedModel):
 
     @cached_property
     def sector_name(self):
-        return comtrade_choices.CODES_SECTORS_DICT[self.sector]
+        return exred_sector_names.CODES_SECTORS_DICT[self.sector]
 
     def __str__(self):  # pragma: no cover
         return self.company_name
