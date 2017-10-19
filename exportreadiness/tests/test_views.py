@@ -3,6 +3,8 @@ from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status
 
+from directory_constants.constants import comtrade_choices
+
 from .factories import TriageResultFactory
 
 
@@ -26,6 +28,7 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'id': triage_result.pk,
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': triage_result.sector,
+        'sector_name': triage_result.sector_name,
         'sole_trader': triage_result.sole_trader,
         'sso_id': triage_result.sso_id
     }
@@ -49,7 +52,7 @@ def test_triage_result_create_view(authed_client):
         'exported_before': True,
         'regular_exporter': True,
         'used_online_marketplace': True,
-        'sector': 'Foo',
+        'sector': comtrade_choices.SECTORS_CHOICES[0][0],
         'sole_trader': False,
     }
 
@@ -57,7 +60,6 @@ def test_triage_result_create_view(authed_client):
         reverse('export-readiness-triage-create-retrieve'),
         triage_result_data,
     )
-
     assert response.status_code == status.HTTP_201_CREATED
     expected_response = {
         'company_name': 'Acme ltd',
@@ -67,7 +69,8 @@ def test_triage_result_create_view(authed_client):
         'used_online_marketplace': True,
         'id': response.json()['id'],
         'modified': '2016-11-23T11:21:10.977518Z',
-        'sector': 'Foo',
+        'sector': comtrade_choices.SECTORS_CHOICES[0][0],  # HS01
+        'sector_name': comtrade_choices.SECTORS_CHOICES[0][1],  # Animals: Live
         'sole_trader': False,
         'sso_id': 999
     }

@@ -4,11 +4,12 @@ from .models import TriageResult
 
 
 class TriageResultSerializer(serializers.ModelSerializer):
+    sector_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = TriageResult
         extra_kwargs = {
-            'sso_id': {'required': False}
+            'sso_id': {'required': False},
         }
 
     def create(self, validated_data):
