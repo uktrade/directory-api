@@ -30,7 +30,8 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'sector': triage_result.sector,
         'sector_name': triage_result.sector_name,
         'sole_trader': triage_result.sole_trader,
-        'sso_id': triage_result.sso_id
+        'sso_id': triage_result.sso_id,
+        'company_number': None,
     }
     assert response.json() == expected_response
 
@@ -73,6 +74,7 @@ def test_triage_result_create_view(authed_client):
         # Animals: Live
         'sector_name': exred_sector_names.SECTORS_CHOICES[0][1],
         'sole_trader': False,
-        'sso_id': 999
+        'sso_id': 999,
+        'company_number': None,
     }
     assert response.json() == expected_response

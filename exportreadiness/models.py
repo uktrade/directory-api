@@ -1,6 +1,8 @@
-from django.db import models
-
 from directory_constants.constants import exred_sector_names
+from directory_validators.company import no_html
+from directory_validators import enrolment as shared_validators
+
+from django.db import models
 from django.utils.functional import cached_property
 
 from api.model_utils import TimeStampedModel
@@ -13,8 +15,23 @@ class TriageResult(TimeStampedModel):
     )
     exported_before = models.BooleanField()
     regular_exporter = models.BooleanField()
-    used_online_marketplace = models.BooleanField()
-    company_name = models.CharField(max_length=255, null=True, blank=True)
+    used_online_marketplace = models.NullBooleanField()
+    company_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        validators=[no_html],
+    )
+    company_number = models.CharField(
+        max_length=8,
+        validators=[
+            shared_validators.company_number,
+            no_html,
+        ],
+        unique=True,
+        null=True,
+        blank=True,
+    )
     sole_trader = models.BooleanField()
     sso_id = models.PositiveIntegerField(unique=True)
 
