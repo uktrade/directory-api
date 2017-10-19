@@ -22,6 +22,7 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'created': '2016-11-23T11:21:10.977518Z',
         'exported_before': triage_result.exported_before,
         'regular_exporter': triage_result.regular_exporter,
+        'used_online_marketplace': triage_result.used_online_marketplace,
         'id': triage_result.pk,
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': triage_result.sector,
@@ -47,6 +48,7 @@ def test_triage_result_create_view(authed_client):
         'company_name': 'Acme ltd',
         'exported_before': True,
         'regular_exporter': True,
+        'used_online_marketplace': True,
         'sector': 'Foo',
         'sole_trader': False,
     }
@@ -62,6 +64,7 @@ def test_triage_result_create_view(authed_client):
         'created': '2016-11-23T11:21:10.977518Z',
         'exported_before': True,
         'regular_exporter': True,
+        'used_online_marketplace': True,
         'id': response.json()['id'],
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': 'Foo',
