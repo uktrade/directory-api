@@ -45,9 +45,9 @@ class TriageResult(TimeStampedModel):
 
 class ArticleRead(TimeStampedModel):
     article_uuid = models.UUIDField()
-    sso_id = models.PositiveIntegerField(unique=True)
+    sso_id = models.PositiveIntegerField()
 
 
 class TaskCompleted(TimeStampedModel):
     task_uuid = models.UUIDField()
-    sso_id = models.PositiveIntegerField(unique=True)
+    sso_id = models.PositiveIntegerField()
