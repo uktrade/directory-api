@@ -1,18 +1,35 @@
 from rest_framework import serializers
 
-from .models import TriageResult
+from .mixins import InjectSSOIDCreateMixin
+from . import models
 
 
-class TriageResultSerializer(serializers.ModelSerializer):
+class TriageResultSerializer(InjectSSOIDCreateMixin,
+                             serializers.ModelSerializer):
     sector_name = serializers.CharField(read_only=True)
 
     class Meta:
-        model = TriageResult
+        model = models.TriageResult
         extra_kwargs = {
             'sso_id': {'required': False},
         }
 
-    def create(self, validated_data):
-        sso_id = self.context['request'].user.id
-        validated_data['sso_id'] = sso_id
-        return super().create(validated_data)
+
+class ArticleReadSerializer(InjectSSOIDCreateMixin,
+                            serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ArticleRead
+        extra_kwargs = {
+            'sso_id': {'required': False},
+        }
+
+
+class TaskCompletedSerializer(InjectSSOIDCreateMixin,
+                              serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TaskCompleted
+        extra_kwargs = {
+            'sso_id': {'required': False},
+        }

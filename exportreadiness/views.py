@@ -1,15 +1,21 @@
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, \
-    get_object_or_404
-
-from .models import TriageResult
-from .serializers import TriageResultSerializer
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from . import mixins
+from . import serializers
 
 
-class TriageResultCreateRetrieveView(CreateAPIView, RetrieveAPIView):
-    serializer_class = TriageResultSerializer
+class TriageResultCreateRetrieveView(mixins.GetObjectOr404FromSSOIdMixin,
+                                     CreateAPIView,
+                                     RetrieveAPIView):
+    serializer_class = serializers.TriageResultSerializer
 
-    def get_object(self):
-        return get_object_or_404(
-            TriageResult.objects.all(),
-            sso_id=self.request.user.id
-        )
+
+class ArticleReadCreateRetrieveView(mixins.GetObjectOr404FromSSOIdMixin,
+                                    CreateAPIView,
+                                    RetrieveAPIView):
+    serializer_class = serializers.ArticleReadSerializer
+
+
+class TaskCompletedCreateRetrieveView(mixins.GetObjectOr404FromSSOIdMixin,
+                                      CreateAPIView,
+                                      RetrieveAPIView):
+    serializer_class = serializers.TaskCompletedSerializer
