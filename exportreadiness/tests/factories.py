@@ -1,8 +1,10 @@
+import uuid
+
 import factory
 
 from directory_constants.constants import comtrade_choices
 
-from exportreadiness.models import TriageResult
+from exportreadiness import models
 
 
 class TriageResultFactory(factory.django.DjangoModelFactory):
@@ -15,4 +17,20 @@ class TriageResultFactory(factory.django.DjangoModelFactory):
     sole_trader = False
 
     class Meta:
-        model = TriageResult
+        model = models.TriageResult
+
+
+class ArticleReadFactory(factory.django.DjangoModelFactory):
+
+    article_uuid = factory.LazyFunction(uuid.uuid4)
+
+    class Meta:
+        model = models.ArticleRead
+
+
+class TaskCompletedFactory(factory.django.DjangoModelFactory):
+
+    task_uuid = factory.LazyFunction(uuid.uuid4)
+
+    class Meta:
+        model = models.TaskCompleted

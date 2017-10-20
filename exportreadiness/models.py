@@ -41,3 +41,13 @@ class TriageResult(TimeStampedModel):
 
     def __str__(self):  # pragma: no cover
         return self.company_name
+
+
+class ArticleRead(TimeStampedModel):
+    article_uuid = models.UUIDField()
+    sso_id = models.PositiveIntegerField()
+
+
+class TaskCompleted(TimeStampedModel):
+    task_uuid = models.UUIDField()
+    sso_id = models.PositiveIntegerField()

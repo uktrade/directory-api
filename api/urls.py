@@ -207,7 +207,17 @@ urlpatterns = [
         r'export-readiness/triage/$',
         exportreadiness_views.TriageResultCreateRetrieveView.as_view(),
         name='export-readiness-triage-create-retrieve'
-    )
+    ),
+    url(
+        r'export-readiness/article-read/$',
+        exportreadiness_views.ArticleReadCreateRetrieveView.as_view(),
+        name='export-readiness-article-read-create-retrieve'
+    ),
+    url(
+        r'export-readiness/task-completed/$',
+        exportreadiness_views.TaskCompletedCreateRetrieveView.as_view(),
+        name='export-readiness-task-completed-create-retrieve'
+    ),
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
