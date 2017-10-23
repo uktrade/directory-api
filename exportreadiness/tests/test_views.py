@@ -88,18 +88,33 @@ def test_article_read_retrieve_view(authed_client, authed_supplier):
     article = factories.ArticleReadFactory(
         sso_id=authed_supplier.sso_id
     )
+    article2 = factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id
+    )
+    factories.ArticleReadFactory(
+        sso_id=123
+    )
     response = authed_client.get(
         reverse('export-readiness-article-read-create-retrieve')
     )
 
     assert response.status_code == status.HTTP_200_OK
-    expected_response = {
-        'created': '2016-11-23T11:21:10.977518Z',
-        'id': article.pk,
-        'modified': '2016-11-23T11:21:10.977518Z',
-        'sso_id': authed_supplier.sso_id,
-        'article_uuid': str(article.article_uuid)
-    }
+    expected_response = [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': article.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': str(article.article_uuid)
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': article2.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': str(article2.article_uuid)
+        }
+    ]
 
     assert response.json() == expected_response
 
@@ -111,7 +126,8 @@ def test_article_read_retrieve_404(authed_client):
         reverse('export-readiness-article-read-create-retrieve')
     )
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
@@ -143,18 +159,33 @@ def test_task_completed_retrieve_view(authed_client, authed_supplier):
     task = factories.TaskCompletedFactory(
         sso_id=authed_supplier.sso_id
     )
+    task2 = factories.TaskCompletedFactory(
+        sso_id=authed_supplier.sso_id
+    )
+    factories.TaskCompletedFactory(
+        sso_id=123
+    )
     response = authed_client.get(
         reverse('export-readiness-task-completed-create-retrieve')
     )
 
     assert response.status_code == status.HTTP_200_OK
-    expected_response = {
-        'created': '2016-11-23T11:21:10.977518Z',
-        'id': task.pk,
-        'modified': '2016-11-23T11:21:10.977518Z',
-        'sso_id': authed_supplier.sso_id,
-        'task_uuid': str(task.task_uuid)
-    }
+    expected_response = [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': task.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'task_uuid': str(task.task_uuid)
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': task2.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'task_uuid': str(task2.task_uuid)
+        }
+    ]
 
     assert response.json() == expected_response
 
@@ -166,7 +197,8 @@ def test_task_completed_retrieve_404(authed_client):
         reverse('export-readiness-task-completed-create-retrieve')
     )
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')

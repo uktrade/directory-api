@@ -16,3 +16,12 @@ class GetObjectOr404FromSSOIdMixin:
             model_class.objects.all(),
             sso_id=self.request.user.id
         )
+
+
+class FilterBySSOIdMixin:
+
+    def get_queryset(self):
+        model_class = self.serializer_class.Meta.model
+        return model_class.objects.filter(
+            sso_id=self.request.user.id
+        )
