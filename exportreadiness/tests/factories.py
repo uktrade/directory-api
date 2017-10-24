@@ -2,14 +2,14 @@ import uuid
 
 import factory
 
-from directory_constants.constants import comtrade_choices
+from directory_constants.constants import exred_sector_names
 
 from exportreadiness import models
 
 
 class TriageResultFactory(factory.django.DjangoModelFactory):
 
-    sector = comtrade_choices.SECTORS_CHOICES[0][0]  # HS01 Animals live
+    sector = exred_sector_names.SECTORS_CHOICES[0][0]  # HS01 Animals live
     exported_before = True
     regular_exporter = True
     used_online_marketplace = False
