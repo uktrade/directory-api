@@ -1,4 +1,4 @@
-from directory_constants.constants import exred_articles, exred_sector_names
+from directory_constants.constants import choices, exred_sector_names
 from directory_validators.company import no_html
 from directory_validators import enrolment as shared_validators
 
@@ -6,12 +6,6 @@ from django.db import models
 from django.utils.functional import cached_property
 
 from api.model_utils import TimeStampedModel
-
-#  ('8b3f0454-5821-4635-a755-9e5a0214c594', 'ANALYSE_THE_COMPETITION')
-EXREAD_ARTICLES_CHOICES = tuple(
-    [(getattr(exred_articles, item), item,) for
-     item in dir(exred_articles) if not item.startswith("__")]
-)
 
 
 class TriageResult(TimeStampedModel):
@@ -50,7 +44,7 @@ class TriageResult(TimeStampedModel):
 
 
 class ArticleRead(TimeStampedModel):
-    article_uuid = models.UUIDField(choices=EXREAD_ARTICLES_CHOICES)
+    article_uuid = models.UUIDField(choices=choices.EXREAD_ARTICLES_CHOICES)
     sso_id = models.PositiveIntegerField()
 
 
