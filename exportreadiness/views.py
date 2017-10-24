@@ -1,12 +1,17 @@
-from rest_framework.generics import CreateAPIView, ListCreateAPIView, \
-    RetrieveAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    ListCreateAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
 from . import mixins
 from . import serializers
 
 
-class TriageResultCreateRetrieveView(mixins.GetObjectOr404FromSSOIdMixin,
-                                     CreateAPIView,
-                                     RetrieveAPIView):
+class TriageResultCreateRetrieveView(
+    mixins.GetObjectOr404FromSSOIdMixin, CreateAPIView, RetrieveAPIView,
+    UpdateAPIView
+):
     serializer_class = serializers.TriageResultSerializer
 
 
