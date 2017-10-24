@@ -1,4 +1,4 @@
-from directory_constants.constants import exred_sector_names
+from directory_constants.constants import choices, exred_sector_names
 from directory_validators.company import no_html
 from directory_validators import enrolment as shared_validators
 
@@ -44,7 +44,7 @@ class TriageResult(TimeStampedModel):
 
 
 class ArticleRead(TimeStampedModel):
-    article_uuid = models.UUIDField()
+    article_uuid = models.UUIDField(choices=choices.EXREAD_ARTICLES_CHOICES)
     sso_id = models.PositiveIntegerField()
 
 

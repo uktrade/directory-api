@@ -5,7 +5,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 from rest_framework import status
 
-from directory_constants.constants import exred_sector_names
+from directory_constants.constants import exred_articles, exred_sector_names
 
 from . import factories
 
@@ -106,13 +106,16 @@ def test_triage_result_create_view(authed_client):
 @pytest.mark.django_db
 def test_article_read_retrieve_view(authed_client, authed_supplier):
     article = factories.ArticleReadFactory(
-        sso_id=authed_supplier.sso_id
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR
     )
     article2 = factories.ArticleReadFactory(
-        sso_id=authed_supplier.sso_id
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS
     )
     factories.ArticleReadFactory(
-        sso_id=123
+        sso_id=123,
+        article_uuid=exred_articles.ANALYSE_THE_COMPETITION
     )
     response = authed_client.get(
         reverse('export-readiness-article-read-create-retrieve')
@@ -153,9 +156,8 @@ def test_article_read_retrieve_404(authed_client):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_article_read_create_view(authed_client):
-    article_uuid = str(uuid.uuid4())
     article_data = {
-        'article_uuid': article_uuid
+        'article_uuid': exred_articles.ANALYSE_THE_COMPETITION
     }
 
     response = authed_client.post(
@@ -167,7 +169,7 @@ def test_article_read_create_view(authed_client):
         'created': '2016-11-23T11:21:10.977518Z',
         'id': response.json()['id'],
         'sso_id': 999,
-        'article_uuid': article_uuid,
+        'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
         'modified': '2016-11-23T11:21:10.977518Z',
     }
     assert response.json() == expected_response
