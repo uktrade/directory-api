@@ -38,6 +38,26 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
     assert response.json() == expected_response
 
 
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_triage_result_update_view(authed_client, authed_supplier):
+    triage_result = factories.TriageResultFactory(
+        sso_id=authed_supplier.sso_id,
+        sole_trader=False
+    )
+
+    assert triage_result.sole_trader is False
+
+    response = authed_client.patch(
+        reverse('export-readiness-triage-create-retrieve'),
+        {'sole_trader': True}
+    )
+    triage_result.refresh_from_db()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert triage_result.sole_trader is True
+
+
 @pytest.mark.django_db
 def test_triage_result_retrieve_view_404(authed_client):
     response = authed_client.get(
