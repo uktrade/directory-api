@@ -13,12 +13,12 @@ class TriageResultAdmin(admin.ModelAdmin):
         'regular_exporter',
         'used_online_marketplace',
         'company_number',
-        'sole_trader',
+        'is_in_companies_house',
     )
     list_filter = (
         'exported_before',
         'regular_exporter',
         'used_online_marketplace',
-        'sole_trader',
         'sector',
+        'is_in_companies_house',
     )
