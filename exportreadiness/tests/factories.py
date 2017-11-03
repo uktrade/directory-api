@@ -14,7 +14,7 @@ class TriageResultFactory(factory.django.DjangoModelFactory):
     regular_exporter = True
     used_online_marketplace = False
     company_name = factory.fuzzy.FuzzyText(length=12)
-    sole_trader = False
+    is_in_companies_house = True
 
     class Meta:
         model = models.TriageResult

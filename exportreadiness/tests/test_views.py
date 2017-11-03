@@ -31,7 +31,7 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
         'modified': '2016-11-23T11:21:10.977518Z',
         'sector': triage_result.sector,
         'sector_name': triage_result.sector_name,
-        'sole_trader': triage_result.sole_trader,
+        'is_in_companies_house': triage_result.is_in_companies_house,
         'sso_id': triage_result.sso_id,
         'company_number': None,
     }
@@ -43,19 +43,19 @@ def test_triage_result_retrieve_view(authed_client, authed_supplier):
 def test_triage_result_update_view(authed_client, authed_supplier):
     triage_result = factories.TriageResultFactory(
         sso_id=authed_supplier.sso_id,
-        sole_trader=False
+        is_in_companies_house=False
     )
 
-    assert triage_result.sole_trader is False
+    assert triage_result.is_in_companies_house is False
 
     response = authed_client.patch(
         reverse('export-readiness-triage-create-retrieve'),
-        {'sole_trader': True}
+        {'is_in_companies_house': True}
     )
     triage_result.refresh_from_db()
 
     assert response.status_code == status.HTTP_200_OK
-    assert triage_result.sole_trader is True
+    assert triage_result.is_in_companies_house is True
 
 
 @pytest.mark.django_db
@@ -76,7 +76,7 @@ def test_triage_result_create_view(authed_client):
         'regular_exporter': True,
         'used_online_marketplace': True,
         'sector': exred_sector_names.SECTORS_CHOICES[0][0],
-        'sole_trader': False,
+        'is_in_companies_house': False,
     }
 
     response = authed_client.post(
@@ -95,7 +95,7 @@ def test_triage_result_create_view(authed_client):
         'sector': exred_sector_names.SECTORS_CHOICES[0][0],  # HS01
         # Animals: Live
         'sector_name': exred_sector_names.SECTORS_CHOICES[0][1],
-        'sole_trader': False,
+        'is_in_companies_house': False,
         'sso_id': 999,
         'company_number': None,
     }
