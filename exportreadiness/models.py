@@ -28,7 +28,7 @@ class TriageResult(TimeStampedModel):
             shared_validators.company_number,
             no_html,
         ],
-        unique=True,
+        unique=False,
         null=True,
         blank=True,
     )
