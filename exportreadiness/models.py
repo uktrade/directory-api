@@ -32,7 +32,7 @@ class TriageResult(TimeStampedModel):
         null=True,
         blank=True,
     )
-    sole_trader = models.BooleanField()
+    sole_trader = models.NullBooleanField()
     sso_id = models.PositiveIntegerField(unique=True)
 
     @cached_property
