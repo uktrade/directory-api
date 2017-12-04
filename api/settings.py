@@ -199,6 +199,11 @@ if DEBUG:
                 'level': 'WARNING',
                 'propagate': False,
             },
+            'elasticsearch': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
             '': {
                 'handlers': ['console'],
                 'level': 'DEBUG',

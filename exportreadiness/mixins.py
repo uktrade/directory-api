@@ -1,12 +1,17 @@
+from rest_framework.fields import empty
 from rest_framework.generics import get_object_or_404
 
+from django.http import QueryDict
 
-class InjectSSOIDCreateMixin:
 
-    def create(self, validated_data):
-        sso_id = self.context['request'].user.id
-        validated_data['sso_id'] = sso_id
-        return super().create(validated_data)
+class InjectSSOIDMixin:
+
+    def run_validation(self, data=empty):
+        if data:
+            if isinstance(data, QueryDict):
+                data = data.dict()
+            data['sso_id'] = self.context['request'].user.id
+        return super().run_validation(data)
 
 
 class GetObjectOr404FromSSOIdMixin:

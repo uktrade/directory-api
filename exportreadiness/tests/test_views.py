@@ -1,13 +1,14 @@
+from unittest.mock import ANY
 import uuid
 
-import pytest
-from django.urls import reverse
+from directory_constants.constants import exred_articles, exred_sector_names
 from freezegun import freeze_time
+import pytest
 from rest_framework import status
 
-from directory_constants.constants import exred_articles, exred_sector_names
+from django.urls import reverse
 
-from . import factories
+from exportreadiness.tests import factories
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
@@ -155,7 +156,15 @@ def test_article_read_retrieve_404(authed_client):
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
-def test_article_read_create_view(authed_client):
+def test_article_read_create_view(authed_client, authed_supplier):
+    article = factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR
+    )
+    article2 = factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS
+    )
     article_data = {
         'article_uuid': exred_articles.ANALYSE_THE_COMPETITION
     }
@@ -164,15 +173,155 @@ def test_article_read_create_view(authed_client):
         reverse('export-readiness-article-read-create-retrieve'),
         article_data,
     )
-    assert response.status_code == status.HTTP_201_CREATED
-    expected_response = {
-        'created': '2016-11-23T11:21:10.977518Z',
-        'id': response.json()['id'],
-        'sso_id': 999,
-        'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
-        'modified': '2016-11-23T11:21:10.977518Z',
-    }
-    assert response.json() == expected_response
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': article.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': str(article.article_uuid)
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': article2.pk,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': str(article2.article_uuid)
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
+            'modified': '2016-11-23T11:21:10.977518Z',
+        }
+    ]
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_bulk(authed_client, authed_supplier):
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+    )
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS,
+    )
+
+    response = authed_client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        [
+            {'article_uuid': exred_articles.ANALYSE_THE_COMPETITION},
+            {'article_uuid': exred_articles.GET_MONEY_TO_EXPORT},
+        ],
+        format='json',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
+            'modified': '2016-11-23T11:21:10.977518Z',
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.GET_MONEY_TO_EXPORT,
+            'modified': '2016-11-23T11:21:10.977518Z',
+        }
+    ]
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_bulk_duplicates(
+    authed_client, authed_supplier
+):
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS,
+    )
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+    )
+    response = authed_client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        [
+            {'article_uuid': exred_articles.BORROW_AGAINST_ASSETS},
+            {'article_uuid': exred_articles.GET_MONEY_TO_EXPORT},
+        ],
+        format='json',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.GET_MONEY_TO_EXPORT,
+            'modified': '2016-11-23T11:21:10.977518Z',
+        }
+    ]
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_bulk_validation_error(
+    authed_client, authed_supplier
+):
+    invalid_uuid = '98ef1246-4e23-4d3d-a0ee-4917bc72858e'
+    response = authed_client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        [
+            {'article_uuid': exred_articles.ANALYSE_THE_COMPETITION},
+            {'article_uuid': invalid_uuid},
+        ],
+        format='json',
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == [
+        {},
+        {'article_uuid': ['"' + invalid_uuid + '" is not a valid choice.']}
+    ]
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')

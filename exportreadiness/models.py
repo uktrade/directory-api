@@ -47,6 +47,9 @@ class ArticleRead(TimeStampedModel):
     article_uuid = models.UUIDField(choices=choices.EXREAD_ARTICLES_CHOICES)
     sso_id = models.PositiveIntegerField()
 
+    class Meta:
+        unique_together = ('article_uuid', 'sso_id')
+
 
 class TaskCompleted(TimeStampedModel):
     task_uuid = models.UUIDField()
