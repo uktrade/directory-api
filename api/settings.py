@@ -189,6 +189,16 @@ if DEBUG:
                 'level': 'ERROR',
                 'propagate': True,
             },
+            'mohawk': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
+            'requests': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
             '': {
                 'handlers': ['console'],
                 'level': 'DEBUG',
