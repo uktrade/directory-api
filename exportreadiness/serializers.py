@@ -1,10 +1,11 @@
 from rest_framework import serializers
+from rest_framework.fields import empty
 
-from .mixins import InjectSSOIDCreateMixin
+from .mixins import InjectSSOIDMixin
 from . import models
 
 
-class TriageResultSerializer(InjectSSOIDCreateMixin,
+class TriageResultSerializer(InjectSSOIDMixin,
                              serializers.ModelSerializer):
     sector_name = serializers.CharField(read_only=True)
 
@@ -15,7 +16,23 @@ class TriageResultSerializer(InjectSSOIDCreateMixin,
         }
 
 
-class ArticleReadSerializer(InjectSSOIDCreateMixin,
+class RemoveExistingListSerializer(serializers.ListSerializer):
+
+    def run_validation(self, data=empty):
+        if data:
+            # during bulk insertion, allows receiving articles that have
+            # already been read without creating duplicates - thus clients
+            # don't need to first retrieve articles it's already seen for
+            # performance gains: ED-2822
+            uuids = {item['article_uuid'] for item in data}
+            duplicates = map(str, models.ArticleRead.objects.filter(
+                article_uuid__in=uuids
+            ).values_list('article_uuid', flat=True))
+            data = [i for i in data if i['article_uuid'] not in duplicates]
+        return super().run_validation(data)
+
+
+class ArticleReadSerializer(InjectSSOIDMixin,
                             serializers.ModelSerializer):
 
     class Meta:
@@ -23,9 +40,10 @@ class ArticleReadSerializer(InjectSSOIDCreateMixin,
         extra_kwargs = {
             'sso_id': {'required': False},
         }
+        list_serializer_class = RemoveExistingListSerializer
 
 
-class TaskCompletedSerializer(InjectSSOIDCreateMixin,
+class TaskCompletedSerializer(InjectSSOIDMixin,
                               serializers.ModelSerializer):
 
     class Meta:
