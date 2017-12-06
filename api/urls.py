@@ -209,6 +209,11 @@ urlpatterns = [
         name='export-readiness-triage-create-retrieve'
     ),
     url(
+        r'export-readiness/triage-external/$',
+        exportreadiness_views.TriageResultRetrieveExternalAPIView.as_view(),
+        name='export-readiness-triage-retrieve-external'
+    ),
+    url(
         r'export-readiness/article-read/$',
         exportreadiness_views.ArticleReadCreateRetrieveView.as_view(),
         name='export-readiness-article-read-create-retrieve'

@@ -2,8 +2,9 @@ from rest_framework.generics import (
     CreateAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
-    UpdateAPIView,
-)
+    UpdateAPIView)
+
+from core import authentication
 from . import mixins
 from . import serializers
 
@@ -13,6 +14,16 @@ class TriageResultCreateRetrieveView(
     UpdateAPIView
 ):
     serializer_class = serializers.TriageResultSerializer
+
+
+class TriageResultRetrieveExternalAPIView(
+    mixins.GetObjectOr404FromSSOIdMixin, RetrieveAPIView
+):
+    serializer_class = serializers.TriageResultSerializer
+    authentication_classes = [
+        authentication.Oauth2AuthenticationSSO,
+        authentication.SessionAuthenticationSSO,
+    ]
 
 
 class ArticleReadCreateRetrieveView(mixins.FilterBySSOIdMixin,
