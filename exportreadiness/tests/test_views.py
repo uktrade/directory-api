@@ -254,3 +254,13 @@ def test_triage_result_retrieve_external(authed_client, authed_supplier):
     url = reverse('export-readiness-triage-retrieve-external')
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_triage_result_retrieve_external_404(authed_client):
+    factories.TriageResultFactory(
+        sso_id=1
+    )
+    url = reverse('export-readiness-triage-retrieve-external')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
