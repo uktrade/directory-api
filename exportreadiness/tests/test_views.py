@@ -393,3 +393,23 @@ def test_task_completed_create_view(authed_client):
         'modified': '2016-11-23T11:21:10.977518Z',
     }
     assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+def test_triage_result_retrieve_external(authed_client, authed_supplier):
+    factories.TriageResultFactory(
+        sso_id=authed_supplier.sso_id
+    )
+    url = reverse('export-readiness-triage-retrieve-external')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_triage_result_retrieve_external_404(authed_client):
+    factories.TriageResultFactory(
+        sso_id=1
+    )
+    url = reverse('export-readiness-triage-retrieve-external')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
