@@ -301,6 +301,43 @@ def test_article_read_create_view_bulk_duplicates(
         }
     ]
 
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_bulk_duplicate(
+    authed_client, authed_supplier
+):
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS,
+    )
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+    )
+    response = authed_client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        {'article_uuid': exred_articles.BORROW_AGAINST_ASSETS},
+        format='json',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
+        },
+        {
+            'created': '2016-11-23T11:21:10.977518Z',
+            'id': ANY,
+            'modified': '2016-11-23T11:21:10.977518Z',
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+        },
+    ]
+
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
