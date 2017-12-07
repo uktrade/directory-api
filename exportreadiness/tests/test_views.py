@@ -1,4 +1,3 @@
-from unittest.mock import ANY
 import uuid
 
 from directory_constants.constants import exred_articles, exred_sector_names
@@ -125,16 +124,10 @@ def test_article_read_retrieve_view(authed_client, authed_supplier):
     assert response.status_code == status.HTTP_200_OK
     expected_response = [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': article.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': str(article.article_uuid)
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': article2.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': str(article2.article_uuid)
         }
@@ -177,25 +170,16 @@ def test_article_read_create_view(authed_client, authed_supplier):
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': article.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': str(article.article_uuid)
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': article2.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': str(article2.article_uuid)
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
-            'modified': '2016-11-23T11:21:10.977518Z',
         }
     ]
 
@@ -224,32 +208,20 @@ def test_article_read_create_view_bulk(authed_client, authed_supplier):
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.ANALYSE_THE_COMPETITION,
-            'modified': '2016-11-23T11:21:10.977518Z',
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.GET_MONEY_TO_EXPORT,
-            'modified': '2016-11-23T11:21:10.977518Z',
         }
     ]
 
@@ -279,27 +251,19 @@ def test_article_read_create_view_bulk_duplicates(
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.GET_MONEY_TO_EXPORT,
-            'modified': '2016-11-23T11:21:10.977518Z',
         }
     ]
+
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
@@ -323,16 +287,10 @@ def test_article_read_create_view_bulk_duplicate(
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': ANY,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
         },
@@ -341,7 +299,7 @@ def test_article_read_create_view_bulk_duplicate(
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
-def test_article_read_create_view_bulk_validation_error(
+def test_article_read_create_view_bulk_validation(
     authed_client, authed_supplier
 ):
     invalid_uuid = '98ef1246-4e23-4d3d-a0ee-4917bc72858e'
@@ -353,12 +311,22 @@ def test_article_read_create_view_bulk_validation_error(
         ],
         format='json',
     )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == 400
     assert response.json() == [
         {},
         {'article_uuid': ['"' + invalid_uuid + '" is not a valid choice.']}
     ]
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_handles_errors(client):
+    response = client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        {'article_uuid': exred_articles.ANALYSE_THE_COMPETITION},
+        format='json',
+    )
+    assert response.status_code == 401
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
@@ -380,16 +348,10 @@ def test_task_completed_retrieve_view(authed_client, authed_supplier):
     assert response.status_code == status.HTTP_200_OK
     expected_response = [
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': task.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'task_uuid': str(task.task_uuid)
         },
         {
-            'created': '2016-11-23T11:21:10.977518Z',
-            'id': task2.pk,
-            'modified': '2016-11-23T11:21:10.977518Z',
             'sso_id': authed_supplier.sso_id,
             'task_uuid': str(task2.task_uuid)
         }
@@ -423,10 +385,7 @@ def test_task_completed_create_view(authed_client):
     )
     assert response.status_code == status.HTTP_201_CREATED
     expected_response = {
-        'created': '2016-11-23T11:21:10.977518Z',
-        'id': response.json()['id'],
         'sso_id': 999,
         'task_uuid': task_uuid,
-        'modified': '2016-11-23T11:21:10.977518Z',
     }
     assert response.json() == expected_response

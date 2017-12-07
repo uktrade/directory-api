@@ -110,6 +110,9 @@ docker_debug: docker_remove_all
 	docker-compose run -d --no-deps celery_worker && \
 	docker-compose run --service-ports webserver make django_webserver
 
+debug_test_last_failed:
+	make debug_test pytest_args='--last-failed'
+
 docker_webserver_bash:
 	docker exec -it directoryapi_webserver_1 sh
 
