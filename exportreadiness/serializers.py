@@ -26,7 +26,8 @@ class RemoveExistingListSerializer(serializers.ListSerializer):
             # performance gains: ED-2822
             uuids = {item['article_uuid'] for item in data}
             duplicates = map(str, models.ArticleRead.objects.filter(
-                article_uuid__in=uuids
+                article_uuid__in=uuids,
+                sso_id=self.context['request'].user.id,
             ).values_list('article_uuid', flat=True))
             data = [i for i in data if i['article_uuid'] not in duplicates]
         return super().run_validation(data)
