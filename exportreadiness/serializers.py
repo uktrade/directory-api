@@ -36,6 +36,7 @@ class ArticleReadSerializer(InjectSSOIDMixin,
                             serializers.ModelSerializer):
 
     class Meta:
+        fields = ['article_uuid', 'sso_id']
         model = models.ArticleRead
         extra_kwargs = {
             'sso_id': {'required': False},
@@ -47,6 +48,7 @@ class TaskCompletedSerializer(InjectSSOIDMixin,
                               serializers.ModelSerializer):
 
     class Meta:
+        fields = ['sso_id', 'task_uuid']
         model = models.TaskCompleted
         extra_kwargs = {
             'sso_id': {'required': False},
