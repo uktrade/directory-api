@@ -14,7 +14,7 @@ class TriageResult(TimeStampedModel):
         max_length=255
     )
     exported_before = models.BooleanField()
-    regular_exporter = models.BooleanField()
+    regular_exporter = models.NullBooleanField()
     used_online_marketplace = models.NullBooleanField()
     company_name = models.CharField(
         max_length=255,
@@ -32,7 +32,7 @@ class TriageResult(TimeStampedModel):
         null=True,
         blank=True,
     )
-    is_in_companies_house = models.BooleanField()
+    is_in_companies_house = models.NullBooleanField()
     sso_id = models.PositiveIntegerField(unique=True)
 
     @cached_property
