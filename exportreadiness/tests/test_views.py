@@ -244,6 +244,7 @@ def test_article_read_create_view_bulk_duplicates(
         [
             {'article_uuid': exred_articles.BORROW_AGAINST_ASSETS},
             {'article_uuid': exred_articles.GET_MONEY_TO_EXPORT},
+            {'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR},
         ],
         format='json',
     )
