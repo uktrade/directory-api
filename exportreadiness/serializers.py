@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from rest_framework import serializers
 from rest_framework.fields import empty
 
@@ -25,10 +27,11 @@ class RemoveExistingListSerializer(serializers.ListSerializer):
             # don't need to first retrieve articles it's already seen for
             # performance gains: ED-2822
             uuids = {item['article_uuid'] for item in data}
-            duplicates = map(str, models.ArticleRead.objects.filter(
+            queryset = models.ArticleRead.objects.filter(
                 article_uuid__in=uuids,
                 sso_id=self.context['request'].user.id,
-            ).values_list('article_uuid', flat=True))
+            ).values_list('article_uuid', flat=True)
+            duplicates = [str(i) for i in queryset]
             data = [i for i in data if i['article_uuid'] not in duplicates]
         return super().run_validation(data)
 
