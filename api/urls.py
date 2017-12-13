@@ -37,6 +37,7 @@ from enrolment.views import (
 from buyer.views import BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity import views as exportopportunity_views
+from exportreadiness import views as exportreadiness_views
 
 from django.conf import settings
 
@@ -201,6 +202,21 @@ urlpatterns = [
         r'^export-opportunity/legal/$',
         exportopportunity_views.ExportOpportunityLegalCreateAPIView.as_view(),
         name='export-opportunity-legal-create'
+    ),
+    url(
+        r'export-readiness/triage/$',
+        exportreadiness_views.TriageResultCreateRetrieveView.as_view(),
+        name='export-readiness-triage-create-retrieve'
+    ),
+    url(
+        r'export-readiness/article-read/$',
+        exportreadiness_views.ArticleReadCreateRetrieveView.as_view(),
+        name='export-readiness-article-read-create-retrieve'
+    ),
+    url(
+        r'export-readiness/task-completed/$',
+        exportreadiness_views.TaskCompletedCreateRetrieveView.as_view(),
+        name='export-readiness-task-completed-create-retrieve'
     ),
 ]
 
