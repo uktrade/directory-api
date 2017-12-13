@@ -107,7 +107,8 @@ class Command(management.BaseCommand):
         Index(self.case_study_index_alias).refresh()
 
     def handle(self, *args, **options):
-        self.create_new_indices()
-        self.populate_new_indices()
-        self.delete_old_indices()
-        self.refresh_aliases()
+        if settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX:
+            self.create_new_indices()
+            self.populate_new_indices()
+            self.delete_old_indices()
+            self.refresh_aliases()
