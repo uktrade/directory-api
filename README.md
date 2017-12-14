@@ -8,17 +8,17 @@
 **[Export Directory API service](https://www.directory.exportingisgreat.gov.uk/)**
 
 ---
-### See also: 
+### See also:
 | [directory-api](https://github.com/uktrade/directory-api) | [directory-ui-buyer](https://github.com/uktrade/directory-ui-buyer) | [directory-ui-supplier](https://github.com/uktrade/directory-ui-supplier) | [directory-ui-export-readiness](https://github.com/uktrade/directory-ui-export-readiness) |
 | --- | --- | --- | --- |
 | **[directory-sso](https://github.com/uktrade/directory-sso)** | **[directory-sso-proxy](https://github.com/uktrade/directory-sso-proxy)** | **[directory-sso-profile](https://github.com/uktrade/directory-sso-profile)** |  |
 
-For more information on installation please check the [Developers Onboarding Checklist](https://uktrade.atlassian.net/wiki/spaces/ED/pages/32243946/Developers+onboarding+checklist) 
+For more information on installation please check the [Developers Onboarding Checklist](https://uktrade.atlassian.net/wiki/spaces/ED/pages/32243946/Developers+onboarding+checklist)
 
 ## Requirements
 
 [Docker >= 1.10](https://docs.docker.com/engine/installation/)  
-[Docker Compose >= 1.8](https://docs.docker.com/compose/install/) 
+[Docker Compose >= 1.8](https://docs.docker.com/compose/install/)
 
 ## Local installation
 
@@ -47,7 +47,7 @@ Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_AC
 
 ### Setup debug environment
 Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/) for the Mac)
-    
+
     $ make debug
 
 ### Run debug webserver
@@ -78,18 +78,18 @@ To update `fixtures/development.json` with the current contents of the database 
 Then check the contents of `fixtures/development.json`.
 
 ## SSO
-To make sso work locally add the following to your machine's `/etc/hosts`: 
+To make sso work locally add the following to your machine's `/etc/hosts`:
 
 | IP Adress | URL                      |
 | --------  | ------------------------ |
-| 127.0.0.1 | buyer.trade.great.dev    |
-| 127.0.0.1 | supplier.trade.great.dev |
-| 127.0.0.1 | sso.trade.great.dev      |
-| 127.0.0.1 | api.trade.great.dev      |
-| 127.0.0.1 | profile.trade.great.dev  |
-| 127.0.0.1 | exred.trade.great.dev    |
+| 127.0.0.1 | buyer.trade.great    |
+| 127.0.0.1 | supplier.trade.great |
+| 127.0.0.1 | sso.trade.great      |
+| 127.0.0.1 | api.trade.great      |
+| 127.0.0.1 | profile.trade.great  |
+| 127.0.0.1 | exred.trade.great    |
 
-Then log into `directory-sso` via `sso.trade.great.dev:8001`, and use `directory-ui-supplier` on `buyer.trade.great.dev:8001`
+Then log into `directory-sso` via `sso.trade.great:8004`
 
 Note in production, the `directory-sso` session cookie is shared with all subdomains that are on the same parent domain as `directory-sso`. However in development we cannot share cookies between subdomains using `localhost` - that would be like trying to set a cookie for `.com`, which is not supported by any RFC.
 
