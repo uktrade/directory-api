@@ -244,6 +244,7 @@ def test_article_read_create_view_bulk_duplicates(
         [
             {'article_uuid': exred_articles.BORROW_AGAINST_ASSETS},
             {'article_uuid': exred_articles.GET_MONEY_TO_EXPORT},
+            {'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR},
         ],
         format='json',
     )
@@ -257,6 +258,45 @@ def test_article_read_create_view_bulk_duplicates(
         {
             'sso_id': authed_supplier.sso_id,
             'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+        },
+        {
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.GET_MONEY_TO_EXPORT,
+        }
+    ]
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_article_read_create_view_bulk_duplicates_multiple_users(
+    authed_client, authed_supplier
+):
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id + 1,
+        article_uuid=exred_articles.BORROW_AGAINST_ASSETS,
+    )
+    factories.ArticleReadFactory(
+        sso_id=authed_supplier.sso_id,
+        article_uuid=exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+    )
+    response = authed_client.post(
+        reverse('export-readiness-article-read-create-retrieve'),
+        [
+            {'article_uuid': exred_articles.BORROW_AGAINST_ASSETS},
+            {'article_uuid': exred_articles.GET_MONEY_TO_EXPORT},
+        ],
+        format='json',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.CHOOSING_AGENT_OR_DISTRIBUTOR,
+        },
+        {
+            'sso_id': authed_supplier.sso_id,
+            'article_uuid': exred_articles.BORROW_AGAINST_ASSETS,
         },
         {
             'sso_id': authed_supplier.sso_id,
