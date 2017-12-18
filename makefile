@@ -56,7 +56,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export DIRECTORY_API_AWS_STORAGE_BUCKET_NAME=debug; \
-	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great.dev; \
+	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great; \
 	export DIRECTORY_API_CSRF_COOKIE_SECURE=false; \
 	export DIRECTORY_API_SESSION_COOKIE_SECURE=false; \
 	export DIRECTORY_API_GECKO_API_KEY=gecko; \
@@ -68,12 +68,12 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_REDIS_URL=debug; \
 	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
 	export DIRECTORY_API_SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
-	export DIRECTORY_API_SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/;\
+	export DIRECTORY_API_SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great:8004/;\
 	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
-	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
-	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}; \
-	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
-	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe/; \
+	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great:8005/suppliers; \
+	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great:8005/suppliers/{number}; \
+	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great:8005/unsubscribe; \
+	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great:8001/unsubscribe/; \
 	export DIRECTORY_API_FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
 	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
 	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=elasticsearch; \
@@ -82,7 +82,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
-	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/{code}/; \
+	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/{code}/; \
 	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export DIRECTORY_API_FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
 	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}
@@ -149,7 +149,7 @@ DEBUG_SET_ENV_VARS := \
 	export COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export COMPANIES_HOUSE_API_KEY=debug; \
 	export AWS_STORAGE_BUCKET_NAME=debug; \
-	export SESSION_COOKIE_DOMAIN=.trade.great.dev; \
+	export SESSION_COOKIE_DOMAIN=.trade.great; \
 	export CSRF_COOKIE_SECURE=false; \
 	export SESSION_COOKIE_SECURE=false; \
 	export GECKO_API_KEY=gecko; \
@@ -163,12 +163,12 @@ DEBUG_SET_ENV_VARS := \
 	export CELERY_RESULT_BACKEND=debug; \
 	export STORAGE_CLASS_NAME=local-storage; \
 	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
-	export SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great.dev:8004/; \
+	export SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great:8004/; \
 	export NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
-	export FAS_COMPANY_LIST_URL=http://supplier.trade.great.dev:8005/suppliers; \
-	export FAS_COMPANY_PROFILE_URL=http://supplier.trade.great.dev:8005/suppliers/{number}; \
-	export FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great.dev:8005/unsubscribe; \
-	export FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great.dev:8001/unsubscribe; \
+	export FAS_COMPANY_LIST_URL=http://supplier.trade.great:8005/suppliers; \
+	export FAS_COMPANY_PROFILE_URL=http://supplier.trade.great:8005/suppliers/{number}; \
+	export FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great:8005/unsubscribe; \
+	export FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great:8001/unsubscribe; \
 	export FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
 	export FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
 	export ELASTICSEARCH_ENDPOINT=localhost; \
@@ -178,11 +178,11 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
-	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great.dev:8001/register-code/\{code\}/; \
+	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/; \
 	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
 	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
-	export FAB_OWNERSHIP_URL=http://buyer.trade.great.dev:8001/account/transfer/accept/?invite_key={uuid}; \
-	export FAB_COLLABORATOR_URL=http://buyer.trade.great.dev:8001/account/collaborate/accept/?invite_key={uuid}
+	export FAB_OWNERSHIP_URL=http://buyer.trade.great:8001/account/transfer/accept/?invite_key={uuid}; \
+	export FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?invite_key={uuid}
 
 
 debug_webserver:
