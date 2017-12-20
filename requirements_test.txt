@@ -5,7 +5,8 @@
 #    pip-compile --output-file requirements_test.txt requirements_test.in
 #
 -e git+https://github.com/uktrade/directory-constants.git@v6.3.0#egg=directory_constants
--e git+https://github.com/uktrade/directory-sso-api-client.git@v2.0.0#egg=directory_sso_api_client
+-e git+https://github.com/uktrade/directory-healthcheck.git@v0.3.0#egg=directory_healthcheck
+-e git+https://github.com/uktrade/directory-sso-api-client.git@v2.1.1#egg=directory_sso_api_client
 -e git+https://github.com/uktrade/directory-validators.git@v4.0.0#egg=directory_validators
 -e git+https://github.com/uktrade/directory-signature-auth.git@v2.0.0#egg=sigauth
 amqp==2.1.4               # via kombu
@@ -22,6 +23,7 @@ cryptography==2.1.4       # via pyopenssl, requests
 dj-database-url==0.4.1
 django-celery-beat==1.0.1
 django-filter==1.0.4
+django-health-check==3.0.0
 django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
