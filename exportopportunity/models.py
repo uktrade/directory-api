@@ -32,16 +32,16 @@ class ExportOpportunityFood(ExportOpportunityBaseModel):
                 (['', 'Other'],) +
                 choices.FOOD_LEAD_GENERATION_BUSINESS_MODELS
             ),
-            max_length=30,
+            max_length=2000,
         ),
     )
     business_model_other = models.CharField(
-        null=True, blank=True, max_length=30,
+        null=True, blank=True, max_length=1000,
     )
     target_sectors = ArrayField(
         models.CharField(
             choices=(['', 'Other'],) + choices.FOOD_LEAD_GENERATION_SECTORS,
-            max_length=30,
+            max_length=2000,
         ),
     )
     target_sectors_other = models.CharField(
@@ -52,7 +52,7 @@ class ExportOpportunityFood(ExportOpportunityBaseModel):
             choices=(
                 (['', 'Other'],) + choices.FOOD_LEAD_GENERATION_PRODUCT_TYPES
             ),
-            max_length=30,
+            max_length=2000,
         ),
     )
     products_other = models.CharField(
@@ -76,16 +76,16 @@ class ExportOpportunityLegal(ExportOpportunityBaseModel):
     advice_type = ArrayField(
         models.CharField(
             choices=(['', 'Other'],) + choices.LEGAL_LEAD_GENERATION_NEED,
-            max_length=30,
+            max_length=2000,
         ),
     )
     advice_type_other = models.CharField(
-        null=True, blank=True, max_length=30,
+        null=True, blank=True, max_length=1000,
     )
     target_sectors = ArrayField(
         models.CharField(
             choices=(['', 'Other'],) + choices.LEGAL_LEAD_GENERATION_SECTORS,
-            max_length=30,
+            max_length=2000,
         ),
     )
     target_sectors_other = models.CharField(

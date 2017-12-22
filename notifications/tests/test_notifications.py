@@ -913,7 +913,7 @@ def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
 
     notifications.new_companies_in_sector()
     unsubscribe_url = (
-        'http://supplier.trade.great.dev:8005/unsubscribe?email='
+        'http://supplier.trade.great:8005/unsubscribe?email='
         'jim%40example.com%3A2Kkc4EAEos2htrZXeLj73CSVBWA'
     )
 

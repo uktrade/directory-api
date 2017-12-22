@@ -44,7 +44,11 @@ INSTALLED_APPS = [
     'contact.apps.ContactConfig',
     'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
+    'exportreadiness.apps.ExportReadinessConfig',
     'directory_constants',
+    'directory_healthcheck',
+    'health_check',
+    'health_check.db',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -187,6 +191,21 @@ if DEBUG:
                 'handlers': ['console'],
                 'level': 'ERROR',
                 'propagate': True,
+            },
+            'mohawk': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
+            'requests': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
+            'elasticsearch': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
             },
             '': {
                 'handlers': ['console'],
@@ -478,3 +497,6 @@ ITA_EMAILS_LEGAL_IS_GREAT_FRANCE = os.getenv(
 ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = os.getenv(
     'ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE', ''
 ).split(',')
+
+# health check
+HEALTH_CHECK_TOKEN = os.environ['HEALTH_CHECK_TOKEN']
