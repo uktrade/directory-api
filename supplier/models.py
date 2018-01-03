@@ -6,7 +6,7 @@ from api.model_utils import TimeStampedModel
 from company.models import Company
 
 
-class User(TimeStampedModel):
+class Supplier(TimeStampedModel):
 
     sso_id = models.PositiveIntegerField(
         _('sso user.sso_id'),
@@ -20,7 +20,7 @@ class User(TimeStampedModel):
         default='',
     )
     company = models.ForeignKey(
-        Company, related_name='users', null=True
+        Company, related_name='suppliers', null=True
     )
     company_email = models.EmailField(
         _('company email'),
