@@ -1,4 +1,4 @@
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 def total_registered_suppliers():

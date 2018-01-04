@@ -23,7 +23,7 @@ from company.tests import (
 )
 from company.tests import factories
 from supplier.tests.factories import SupplierFactory
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 default_public_profile_data = {

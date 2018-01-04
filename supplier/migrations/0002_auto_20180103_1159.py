@@ -26,6 +26,7 @@ def create_suppliers(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('user', '0010_auto_20170907_1552'),
         ('supplier', '0001_initial'),
     ]
 

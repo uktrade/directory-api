@@ -9,7 +9,7 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from user.models import User as Supplier
+from supplier.models import Supplier
 from supplier import serializers
 from supplier.helpers import SSOUser
 from supplier.tests import factories, VALID_REQUEST_DATA

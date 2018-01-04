@@ -4,7 +4,7 @@ from notifications import constants
 
 
 class SupplierEmailNotification(models.Model):
-    supplier = models.ForeignKey('user.User')
+    supplier = models.ForeignKey('supplier.Supplier')
     category = models.CharField(
         max_length=255, choices=constants.SUPPLIER_NOTIFICATION_CATEGORIES)
     date_sent = models.DateTimeField(auto_now_add=True)
@@ -33,7 +33,7 @@ class AnonymousEmailNotification(models.Model):
 class AnonymousUnsubscribe(models.Model):
     """
     For allowing anonymous FAS users to unsubscribe from notifications. FAB
-    suppliers are unsubscribed via `User.ubsubscribed`.
+    suppliers are unsubscribed via `Supplier.ubsubscribed`.
 
     """
 

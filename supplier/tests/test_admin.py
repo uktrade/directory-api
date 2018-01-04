@@ -10,7 +10,7 @@ import pytest
 
 from freezegun import freeze_time
 
-from user.models import User as Supplier
+from supplier.models import Supplier
 from supplier.tests import VALID_REQUEST_DATA as SUPPLIER_DATA
 from company.models import Company, CompanyCaseStudy
 from company.tests import VALID_REQUEST_DATA
@@ -49,7 +49,7 @@ class DownloadCSVTestCase(TestCase):
             )
         }
         response = self.client.post(
-            reverse('admin:user_user_changelist'),
+            reverse('admin:supplier_supplier_changelist'),
             data,
             follow=True
         )
@@ -235,7 +235,7 @@ class DownloadCSVTestCase(TestCase):
             )
         }
         response = self.client.post(
-            reverse('admin:user_user_changelist'),
+            reverse('admin:supplier_supplier_changelist'),
             data,
             follow=True
         )
@@ -284,7 +284,7 @@ class ResendLetterTestCase(TestCase):
             )
         }
         response = self.client.post(
-            reverse('admin:user_user_changelist'),
+            reverse('admin:supplier_supplier_changelist'),
             data,
             follow=True
         )

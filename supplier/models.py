@@ -7,7 +7,6 @@ from company.models import Company
 
 
 class Supplier(TimeStampedModel):
-
     sso_id = models.PositiveIntegerField(
         _('sso user.sso_id'),
         unique=True,

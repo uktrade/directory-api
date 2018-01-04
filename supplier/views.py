@@ -11,7 +11,7 @@ from api.signature import SignatureCheckPermission
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from supplier import gecko, serializers, permissions
-from user.models import User as Supplier
+from supplier.models import Supplier
 from notifications import notifications
 
 
