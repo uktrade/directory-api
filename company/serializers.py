@@ -8,7 +8,7 @@ from django.conf import settings
 from django.http import QueryDict
 
 from company import helpers, models, validators
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 class AllowedFormatImageField(serializers.ImageField):

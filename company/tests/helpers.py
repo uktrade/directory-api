@@ -1,7 +1,7 @@
-from company.tests.factories import CompanyFactory
+from company.tests import factories
 
 
-def company_factory_factory(Company):
+def build_company_factory(Company):
     """Factory function that returns a CompanyFactory
 
     This allows creating a CompanyFactory that works in migration tests. The
@@ -11,7 +11,21 @@ def company_factory_factory(Company):
 
     """
 
-    class HistoricCompanyFactory(CompanyFactory):
+    class HistoricCompanyFactory(factories.CompanyFactory):
         class Meta:
             model = Company
     return HistoricCompanyFactory
+
+
+def build_collaborator_invite_factory(CollaboratorInvite):
+    class HistoricCollaboratorFactory(factories.CollaboratorInviteFactory):
+        class Meta:
+            model = CollaboratorInvite
+    return HistoricCollaboratorFactory
+
+
+def build_ownership_invite_factory(OwnershipInvite):
+    class HistoricOwnershipInviteFactory(factories.OwnershipInviteFactory):
+        class Meta:
+            model = OwnershipInvite
+    return HistoricOwnershipInviteFactory

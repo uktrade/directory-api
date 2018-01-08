@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from company.models import Company
-from user.models import User
+from supplier.models import Supplier
 
 
 class Command(BaseCommand):
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 verified_with_code=True,
                 is_verification_letter_sent=True,
             )
-            user = User.objects.create(sso_id=sso_id, company=company)
+            user = Supplier.objects.create(sso_id=sso_id, company=company)
 
             self.stdout.write(
                 self.style.SUCCESS('Successfully created user "%s"' % user.id)

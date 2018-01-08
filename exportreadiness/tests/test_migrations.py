@@ -6,7 +6,9 @@ from exportreadiness.tests import helpers
 def test_is_in_companies_house(migration):
     app_name = 'exportreadiness'
     model_name = 'TriageResult'
-    historic_apps = migration.before(app_name, '0009_auto_20171103_1157')
+    historic_apps = migration.before([
+        (app_name, '0009_auto_20171103_1157')
+    ])
 
     HistoricTriageResult = historic_apps.get_model(app_name, model_name)
     HistoricTriageResultFactory = helpers.build_triage_result_factory(

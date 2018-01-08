@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from company.models import Company
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 @pytest.mark.django_db
