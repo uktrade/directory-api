@@ -5,7 +5,7 @@ from django.conf import settings
 from directory_sso_api_client.client import DirectorySSOAPIClient
 
 from notifications import constants, email, helpers
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 sso_api_client = DirectorySSOAPIClient(

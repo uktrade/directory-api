@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from user.models import User as Supplier
+from supplier.models import Supplier
 from company.tests.factories import CompanyFactory
 
 

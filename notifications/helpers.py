@@ -6,7 +6,7 @@ from django.core.signing import Signer
 from django.conf import settings
 
 from buyer.models import Buyer
-from user.models import User as Supplier
+from supplier.models import Supplier
 from company.models import Company
 from notifications.models import (
     AnonymousUnsubscribe,

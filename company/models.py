@@ -318,7 +318,7 @@ class OwnershipInvite(TimeStampedModel):
     uuid = models.UUIDField(default=uuid.uuid4)
     new_owner_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)
-    requestor = models.ForeignKey('user.User')
+    requestor = models.ForeignKey('supplier.Supplier')
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
 
@@ -344,7 +344,7 @@ class CollaboratorInvite(TimeStampedModel):
     uuid = models.UUIDField(default=uuid.uuid4)
     collaborator_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)
-    requestor = models.ForeignKey('user.User')
+    requestor = models.ForeignKey('supplier.Supplier')
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
 

@@ -59,6 +59,15 @@ def get_date_of_creation(number):
         return datetime.strptime(raw, COMPANIES_HOUSE_DATE_FORMAT).date()
 
 
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        r.headers['Authorization'] = 'Bearer ' + self.token
+        return r
+
+
 class CompaniesHouseClient:
     api_key = settings.COMPANIES_HOUSE_API_KEY
     make_api_url = partial(urljoin, 'https://api.companieshouse.gov.uk')
@@ -70,12 +79,13 @@ class CompaniesHouseClient:
     session = requests.Session()
 
     @classmethod
-    def get_auth(cls):
+    def get_http_basic_auth(cls):
         return requests.auth.HTTPBasicAuth(cls.api_key, '')
 
     @classmethod
-    def get(cls, url, params={}):
-        response = cls.session.get(url=url, params=params, auth=cls.get_auth())
+    def get(cls, url, params={}, auth=None):
+        auth = auth or cls.get_http_basic_auth
+        response = cls.session.get(url=url, params=params, auth=auth())
         if response.status_code == http.client.UNAUTHORIZED:
             logger.error(MESSAGE_AUTH_FAILED)
         return response
@@ -88,8 +98,8 @@ class CompaniesHouseClient:
     @classmethod
     def verify_access_token(cls, access_token):
         url = cls.endpoints['verify-oauth2-access-token']
-        data = {'access-token': access_token}
-        return cls.session.post(url=url, json=data)
+        auth = BearerAuth(token=access_token)
+        return cls.session.get(url=url, auth=auth)
 
 
 @deconstructible

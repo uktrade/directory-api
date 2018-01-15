@@ -6,7 +6,7 @@ from django.db.models import BooleanField, Case, Count, When, Value
 from django.http import HttpResponse
 
 from company.utils import send_verification_letter
-from user.models import User as Supplier
+from supplier.models import Supplier
 from company.models import Company
 
 
@@ -28,6 +28,7 @@ class SupplierAdmin(admin.ModelAdmin):
         'company__campaign_tag',
         'company__supplier_case_studies',
         'company__suppliers',
+        'company__users',
         'company__verification_code',
         'company__messages',
         'supplieremailnotification',

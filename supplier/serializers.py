@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 class ExternalSupplierSerializer(serializers.ModelSerializer):

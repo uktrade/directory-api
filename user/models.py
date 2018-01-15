@@ -20,7 +20,7 @@ class User(TimeStampedModel):
         default='',
     )
     company = models.ForeignKey(
-        Company, related_name='suppliers', null=True
+        Company, related_name='users', null=True
     )
     company_email = models.EmailField(
         _('company email'),

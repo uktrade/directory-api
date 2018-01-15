@@ -23,7 +23,7 @@ from company.tests import (
 )
 from company.tests import factories
 from supplier.tests.factories import SupplierFactory
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 default_public_profile_data = {
@@ -567,7 +567,7 @@ def search_companies_ordering_data(settings):
 
 @pytest.fixture
 def companies_house_oauth_invalid_access_token(requests_mocker):
-    return requests_mocker.post(
+    return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=400
     )
@@ -578,7 +578,7 @@ def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
     scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
         number='{number}rad'.format(number=authed_supplier.company.number)
     )
-    return requests_mocker.post(
+    return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=200,
         json={
@@ -593,7 +593,7 @@ def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
     scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
-    return requests_mocker.post(
+    return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=200,
         json={
@@ -608,7 +608,7 @@ def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
     scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
-    return requests_mocker.post(
+    return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=200,
         json={
@@ -1787,9 +1787,7 @@ def test_verify_companies_house_good_access_token(
 
 @pytest.mark.django_db
 @patch('core.tasks.send_email', Mock())
-def test_create_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
+def test_create_transfer_ownership_invite(authed_client, authed_supplier):
 
     data = {'new_owner_email': 'foo@bar.com'}
     url = reverse('transfer-ownership-invite')

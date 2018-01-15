@@ -1,7 +1,7 @@
 import pytest
 
 from supplier import gecko
-from user.models import User as Supplier
+from supplier.models import Supplier
 
 
 @pytest.mark.django_db

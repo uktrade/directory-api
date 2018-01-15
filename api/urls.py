@@ -2,7 +2,7 @@ import django
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from api.views import HealthCheckAPIView
+import healthcheck.views
 from company.views import (
     CompanyCaseStudyViewSet,
     CompanyNumberValidatorAPIView,
@@ -50,9 +50,29 @@ urlpatterns = [
         include(admin.site.urls)
     ),
     url(
-        r'^$',
-        HealthCheckAPIView.as_view(),
-        name='health-check'
+        r'^healthcheck/database/$',
+        healthcheck.views.DatabaseAPIView.as_view(),
+        name='health-check-database'
+    ),
+    url(
+        r'^healthcheck/cache/$',
+        healthcheck.views.CacheAPIView.as_view(),
+        name='health-check-cache'
+    ),
+    url(
+        r'^healthcheck/single-sign-on/$',
+        healthcheck.views.SingleSignOnAPIView.as_view(),
+        name='health-check-single-sign-on'
+    ),
+    url(
+        r'^healthcheck/elasticsearch/$',
+        healthcheck.views.ElasticsearchAPIView.as_view(),
+        name='health-check-elastic-search'
+    ),
+    url(
+        r'^healthcheck/ping/$',
+        healthcheck.views.PingAPIView.as_view(),
+        name='health-check-ping'
     ),
     url(
         r'^enrolment/$',

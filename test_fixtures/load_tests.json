@@ -63,7 +63,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 1,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -115,7 +115,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 25,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -167,7 +167,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 24,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -219,7 +219,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 23,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -271,7 +271,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 22,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -323,7 +323,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 21,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -375,7 +375,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 20,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -427,7 +427,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 19,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -479,7 +479,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 18,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -531,7 +531,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 17,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -583,7 +583,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 16,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -635,7 +635,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 15,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -687,7 +687,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 14,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -739,7 +739,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 13,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -791,7 +791,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 12,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -843,7 +843,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 11,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -895,7 +895,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 10,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -947,7 +947,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 9,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -999,7 +999,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 8,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1051,7 +1051,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 7,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1103,7 +1103,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 6,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1155,7 +1155,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 5,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1207,7 +1207,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 4,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1259,7 +1259,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 3,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",
@@ -1311,7 +1311,7 @@
     }
   },
   {
-    "model": "user.user",
+    "model": "supplier.supplier",
     "pk": 2,
     "fields": {
       "created": "2017-01-06T17:12:40.092Z",

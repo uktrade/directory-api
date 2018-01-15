@@ -18,7 +18,7 @@ from supplier import helpers
 @pytest.fixture
 def sso_session_request_invalid_session_id(requests_mocker):
     return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/api/v1/session-user/?session_key=123',
+        'http://sso.trade.great:8004/api/v1/session-user/?session_key=123',
         status_code=404,
     )
 
@@ -26,7 +26,7 @@ def sso_session_request_invalid_session_id(requests_mocker):
 @pytest.fixture
 def sso_oauth2_request_invalid_session_id(requests_mocker):
     return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/oauth2/user-profile/v1/',
+        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
         status_code=404,
     )
 
@@ -34,7 +34,7 @@ def sso_oauth2_request_invalid_session_id(requests_mocker):
 @pytest.fixture
 def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
     return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/oauth2/user-profile/v1/',
+        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
         json={'id': authed_supplier.sso_id, 'email': 'thing@example.com'}
     )
 

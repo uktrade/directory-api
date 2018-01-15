@@ -4,7 +4,9 @@ from user.tests import helpers
 
 @pytest.mark.django_db
 def test_legacy_keywords(migration):
-    historic_apps = migration.before('user', '0009_user_is_company_owner')
+    historic_apps = migration.before([
+        ('user', '0009_user_is_company_owner'),
+    ])
     HistoricUser = historic_apps.get_model('user', 'User')
     HistoricUserFactory = helpers.build_user_factory(HistoricUser)
 

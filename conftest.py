@@ -49,7 +49,7 @@ def migration(transactional_db):
     can be used to initiate the ORM models as in the migrations themselves.
     For example:
         def test_foo_set_to_bar(migration):
-            old_apps = migration.before('my_app', '0001_inital')
+            old_apps = migration.before([('my_app', '0001_inital')])
             Foo = old_apps.get_model('my_app', 'foo')
             Foo.objects.create(bar=False)
             assert Foo.objects.count() == 1
@@ -61,13 +61,13 @@ def migration(transactional_db):
             assert Foo.objects.filter(bar=True).count() == Foo.objects.count()
     From: https://gist.github.com/asfaltboy/b3e6f9b5d95af8ba2cc46f2ba6eae5e2
     """
-    class Migrator(object):
-        def before(self, app, migrate_from, ):
+    class Migrator:
+        def before(self, migrate_from):
             """ Specify app and starting migration name as in:
-                before('app', '0001_before') => app/migrations/0001_before.py
+                before(['app', '0001_before']) => app/migrations/0001_before.py
             """
-            self.app = app
-            self.migrate_from = [(app, migrate_from)]
+
+            self.migrate_from = migrate_from
             self.executor = MigrationExecutor(connection)
             self.executor.migrate(self.migrate_from)
             self._old_apps = self.executor.loader.project_state(
@@ -101,7 +101,7 @@ def authed_supplier():
 @pytest.fixture
 def sso_session_request_active_user(authed_supplier, requests_mocker):
     return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/api/v1/session-user/?session_key=123',
+        'http://sso.trade.great:8004/api/v1/session-user/?session_key=123',
         json={
             'id': authed_supplier.sso_id,
             'email': authed_supplier.company_email
@@ -112,7 +112,7 @@ def sso_session_request_active_user(authed_supplier, requests_mocker):
 @pytest.fixture
 def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
     return requests_mocker.get(
-        'http://sso.trade.great.dev:8004/oauth2/user-profile/v1/',
+        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
         json={
             'id': authed_supplier.sso_id,
             'email': authed_supplier.company_email

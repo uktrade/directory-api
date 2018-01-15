@@ -10,5 +10,5 @@ class SupplierConfig(AppConfig):
     def ready(self):
         post_save.connect(
             receiver=signals.remove_supplier_company_ownership,
-            sender='user.User'
+            sender='supplier.Supplier'
         )

@@ -11,11 +11,11 @@ from company.tests import helpers
     ('NO_INTENTION', False),
 ])
 def test_legacy_keywords(before, after, migration):
-    historic_apps = migration.before(
-        'company', '0050_company_has_exported_before'
-    )
+    historic_apps = migration.before([
+        ('company', '0050_company_has_exported_before'),
+    ])
     HistoricCompany = historic_apps.get_model('company', 'Company')
-    HistoricCompanyFactory = helpers.company_factory_factory(HistoricCompany)
+    HistoricCompanyFactory = helpers.build_company_factory(HistoricCompany)
     historic_company = HistoricCompanyFactory.create(export_status=before)
 
     apps = migration.apply('company', '0051_auto_20170718_0931')
