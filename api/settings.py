@@ -468,12 +468,15 @@ connections.create_connection(
     verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS") != 'false',
     connection_class=RequestsHttpConnection
 )
-ELASTICSEARCH_COMPANY_INDEX = os.getenv(
-    'ELASTICSEARCH_COMPANY_INDEX', 'companies'
+ELASTICSEARCH_COMPANY_INDEX_ALIAS = os.getenv(
+    'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
 )
-ELASTICSEARCH_CASE_STUDY_INDEX = os.getenv(
-    'ELASTICSEARCH_CASE_STUDY_INDEX', 'casestudies'
+ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = os.getenv(
+    'ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS', 'casestudies-alias'
 )
+FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = os.getenv(
+    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', 'true'
+) == 'true'
 
 # SSO
 SSO_PROXY_API_CLIENT_BASE_URL = os.environ['SSO_PROXY_API_CLIENT_BASE_URL']

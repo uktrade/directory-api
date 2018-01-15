@@ -410,7 +410,7 @@ def search_case_studies_data(settings):
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
     factories.CompanyCaseStudyFactory(pk=8, company=company, sector=AIRPORTS)
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -459,8 +459,8 @@ def search_companies_data(settings):
         description='We determined lead sinks in water.',
         campaign_tag=lead_generation.FOOD_IS_GREAT
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX).refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -489,7 +489,8 @@ def search_companies_highlighting_data(settings):
         sectors=[sectors.AEROSPACE],
         id=2,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -561,7 +562,7 @@ def search_companies_ordering_data(settings):
         title='cannons',
         description='naval guns'
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX).refresh()
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -1108,7 +1109,9 @@ def test_company_search_no_sectors(mock_get_search_results, api_client):
     [8, 35],
     [9, 40],
 ])
-def test_company_paginate_first_page(page_number, expected_start, api_client):
+def test_company_paginate_first_page(
+    page_number, expected_start, api_client, settings
+):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
@@ -1247,11 +1250,11 @@ def test_company_paginate_first_page(page_number, expected_start, api_client):
                 'size': 5
             },
             doc_type=['company_doc_type'],
-            index=['companies'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
         )
 
 
-def test_company_search_with_sector_filter(api_client):
+def test_company_search_with_sector_filter(api_client, settings):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {
@@ -1397,11 +1400,11 @@ def test_company_search_with_sector_filter(api_client):
                 'from': 0
             },
             doc_type=['company_doc_type'],
-            index=['companies']
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
         )
 
 
-def test_company_search_with_sector_filter_only(api_client):
+def test_company_search_with_sector_filter_only(api_client, settings):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {'sectors': [sectors.AEROSPACE], 'size': 5, 'page': 1}
@@ -1537,7 +1540,7 @@ def test_company_search_with_sector_filter_only(api_client):
                 'size': 5
             },
             doc_type=['company_doc_type'],
-            index=['companies']
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
         )
 
 
@@ -1686,6 +1689,7 @@ def test_company_search_results_highlight(search_companies_highlighting_data):
 
 
 @pytest.mark.django_db
+@pytest.mark.rebuild_elasticsearch
 def test_company_search_results_highlight_long(
     search_companies_highlighting_data
 ):
