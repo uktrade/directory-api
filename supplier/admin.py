@@ -1,13 +1,11 @@
-import csv
 import datetime
 
 from django.contrib import admin, messages
-from django.db.models import BooleanField, Case, Count, When, Value
 from django.http import HttpResponse
 
 from company.utils import send_verification_letter
+from supplier.helpers import generate_suppliers_csv
 from supplier.models import Supplier
-from company.models import Company
 
 
 @admin.register(Supplier)
@@ -20,24 +18,6 @@ class SupplierAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified',)
     actions = ['download_csv', 'resend_letter']
 
-    csv_excluded_fields = (
-        'id',
-        'company',
-        'created',
-        'modified',
-        'company__campaign_tag',
-        'company__supplier_case_studies',
-        'company__suppliers',
-        'company__users',
-        'company__verification_code',
-        'company__messages',
-        'supplieremailnotification',
-        'company__ownershipinvite',
-        'ownershipinvite',
-        'company__collaboratorinvite',
-        'collaboratorinvite'
-    )
-
     def download_csv(self, request, queryset):
         """
         Generates CSV report of all suppliers, with company details included.
@@ -49,41 +29,10 @@ class SupplierAdmin(admin.ModelAdmin):
             )
         )
 
-        fieldnames = [field.name for field in Supplier._meta.get_fields()
-                      if field.name not in self.csv_excluded_fields]
-        fieldnames += ['company__' + field.name
-                       for field in Company._meta.get_fields()
-                       if 'company__' + field.name
-                       not in self.csv_excluded_fields]
-        fieldnames.extend([
-            'company__has_case_study',
-            'company__number_of_case_studies'
-        ])
-        suppliers = queryset.select_related('company').all().annotate(
-            company__has_case_study=Case(
-                When(company__supplier_case_studies__isnull=False,
-                     then=Value(True)
-                     ),
-                default=Value(False),
-                output_field=BooleanField()
-            ),
-            company__number_of_case_studies=Count(
-                'company__supplier_case_studies'
-            ),
-        ).values(*fieldnames)
-        fieldnames.append('company__number_of_sectors')
-        fieldnames = sorted(fieldnames)
-        writer = csv.DictWriter(response, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for supplier in suppliers:
-            supplier['company__number_of_sectors'] = len(
-                supplier['company__sectors']
-            )
-            supplier['company__sectors'] = ','.join(
-                supplier['company__sectors']
-            )
-            writer.writerow(supplier)
+        generate_suppliers_csv(
+            file_object=response,
+            queryset=queryset
+        )
 
         return response
 

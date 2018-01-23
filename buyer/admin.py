@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import admin
 
-from api.utils import generate_csv
+from api.utils import generate_csv_response
 from buyer.models import Buyer
 
 
@@ -19,8 +19,7 @@ class BuyerAdmin(admin.ModelAdmin):
                 datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 
     def download_csv(self, request, queryset):
-        return generate_csv(
-            model=self.model,
+        return generate_csv_response(
             queryset=queryset,
             filename=self.csv_filename,
             excluded_fields=self.csv_excluded_fields

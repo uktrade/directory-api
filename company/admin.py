@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django import forms
 
-from api.utils import generate_csv
+from api.utils import generate_csv_response
 from company.models import Company, CompanyCaseStudy
 
 
@@ -139,8 +139,7 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
         Generates CSV report of selected case studies.
         """
 
-        return generate_csv(
-            model=self.model,
+        return generate_csv_response(
             queryset=queryset,
             filename=self.csv_filename,
             excluded_fields=self.csv_excluded_fields
