@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_object = self.generate_csv_file()
-        key = 'find-a-buyer-suppliers.csv'
+        key = settings.SUPPLIERS_CSV_FILE_NAME
         upload_file_object_to_s3(
             file_object=file_object,
             key=key,

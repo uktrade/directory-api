@@ -29,12 +29,12 @@ from supplier.views import (
     SupplierSSOListExternalAPIView,
     UnsubscribeSupplierAPIView,
     CompanyCollboratorsListView,
-)
+    SupplierCSVDownloadAPIView)
 from enrolment.views import (
     EnrolmentCreateAPIView,
     PreVerifiedEnrolmentRetrieveView,
 )
-from buyer.views import BuyerCreateAPIView
+from buyer.views import BuyerCSVDownloadAPIView, BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity import views as exportopportunity_views
 from exportreadiness import views as exportreadiness_views
@@ -238,6 +238,16 @@ urlpatterns = [
         exportreadiness_views.TaskCompletedCreateRetrieveView.as_view(),
         name='export-readiness-task-completed-create-retrieve'
     ),
+    url(
+        r'buyer/csv-dump/$',
+        BuyerCSVDownloadAPIView.as_view(),
+        name='buyer-csv-dump'
+    ),
+    url(
+        r'supplier/csv-dump/$',
+        SupplierCSVDownloadAPIView.as_view(),
+        name='supplier-csv-dump'
+    )
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':

@@ -17,6 +17,6 @@ def test_upload_buyers_csv_to_s3(mocked_upload_file_object_to_s3):
     assert mocked_upload_file_object_to_s3.called
     assert mocked_upload_file_object_to_s3.call_args == mock.call(
         file_object=mock.ANY,
-        key='find-a-buyer-buyers.csv',
+        key=settings.BUYERS_CSV_FILE_NAME,
         bucket=settings.CSV_DUMP_BUCKET_NAME,
     )
