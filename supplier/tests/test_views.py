@@ -1,7 +1,8 @@
 import base64
-from unittest.mock import call, patch
+from unittest.mock import call, patch, Mock
 import http
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 
 import pytest
@@ -268,3 +269,25 @@ def test_company_collaborators_profile_owner_no_collaborators(
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.django_db
+@patch('api.signature.SignatureCheckPermission.has_permission',
+       Mock(return_value=True))
+@patch('core.views.get_file_from_s3')
+def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
+    mocked_body = Mock()
+    mocked_body.read.return_value = b'company_name\r\nacme\r\n'
+    mocked_get_file_from_s3.return_value = {
+        'Body': mocked_body
+    }
+    response = authed_client.get(reverse('supplier-csv-dump'))
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content == b'company_name\r\nacme\r\n'
+    assert response._headers['content-type'] == ('Content-Type', 'text/csv')
+    assert response._headers['content-disposition'] == (
+        'Content-Disposition',
+        'attachment; filename="{filename}"'.format(
+            filename=settings.SUPPLIERS_CSV_FILE_NAME
+        )
+    )

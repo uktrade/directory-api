@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
@@ -10,6 +11,7 @@ from django.http import Http404
 from api.signature import SignatureCheckPermission
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
+from core.views import CSVDumpAPIView
 from supplier import gecko, serializers, permissions
 from supplier.models import Supplier
 from notifications import notifications
@@ -92,3 +94,9 @@ class CompanyCollboratorsListView(ListAPIView):
             company_id=self.request.user.supplier.company_id,
             is_company_owner=False
         )
+
+
+class SupplierCSVDownloadAPIView(CSVDumpAPIView):
+    bucket = settings.CSV_DUMP_BUCKET_NAME
+    key = settings.SUPPLIERS_CSV_FILE_NAME
+    filename = settings.SUPPLIERS_CSV_FILE_NAME
