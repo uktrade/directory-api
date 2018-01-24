@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from rest_framework.views import APIView
 
+from api.signature import SignatureCheckPermission
+from core.permissions import IsAuthenticatedCSVDump
 from core.utils import get_file_from_s3
 
 
 class CSVDumpAPIView(APIView):
+    permission_classes = (SignatureCheckPermission, IsAuthenticatedCSVDump)
     bucket = None
     key = None
     filename = None

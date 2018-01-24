@@ -505,5 +505,6 @@ ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = os.getenv(
 HEALTH_CHECK_TOKEN = os.environ['HEALTH_CHECK_TOKEN']
 
 CSV_DUMP_BUCKET_NAME = os.environ['CSV_DUMP_BUCKET_NAME']
+CSV_DUMP_AUTH_TOKEN = os.environ['CSV_DUMP_AUTH_TOKEN']
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'

@@ -41,7 +41,10 @@ def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):
     mocked_get_file_from_s3.return_value = {
         'Body': mocked_body
     }
-    response = authed_client.get(reverse('buyer-csv-dump'))
+    response = authed_client.get(
+        reverse('buyer-csv-dump'),
+        {'token': settings.CSV_DUMP_AUTH_TOKEN}
+    )
     assert response.status_code == status.HTTP_200_OK
     assert response.content == b'company_name\r\nacme\r\n'
     assert response._headers['content-type'] == ('Content-Type', 'text/csv')
