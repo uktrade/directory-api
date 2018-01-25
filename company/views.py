@@ -317,7 +317,7 @@ class RemoveCollaboratorsView(views.APIView):
         )
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.POST)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         sso_ids = serializer.validated_data['sso_ids']
