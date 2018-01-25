@@ -1,7 +1,7 @@
 {% extends "account_ownership_base_email.txt" %}
 
 {% block body %}
-{{ requestor_name }} wants to make you the new owner of the Find a buyer profile for {{ company_name }}.
+{{ requestor }} wants to make you the new owner of the Find a buyer profile for {{ company_name }}.
 
 Click the link to confirm you’re the new profile owner.
 

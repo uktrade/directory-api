@@ -1,6 +1,6 @@
 from django.db.models import signals
 from unittest import mock
-from unittest.mock import ANY
+from unittest.mock import ANY, Mock
 
 import factory
 import pytest
@@ -42,3 +42,45 @@ def test_collaborator_notification(mock_send_email):
         text_body=ANY,
         html_body=ANY
     )
+
+
+@pytest.mark.django_db
+@mock.patch.object(CollaboratorNotification, 'send_async', Mock)
+def test_collaborator_notification_requestor_name():
+    invite = CollaboratorInviteFactory(requestor__name='example')
+    notification = CollaboratorNotification(instance=invite)
+
+    assert notification.get_context_data()['requestor'] == 'example'
+
+
+@pytest.mark.django_db
+@mock.patch.object(CollaboratorNotification, 'send_async', Mock)
+def test_collaborator_notification_requestor_email():
+    invite = CollaboratorInviteFactory(
+        requestor__name=None,
+        requestor__company_email='jim@example.com',
+    )
+    notification = CollaboratorNotification(instance=invite)
+
+    assert notification.get_context_data()['requestor'] == 'jim@example.com'
+
+
+@pytest.mark.django_db
+@mock.patch.object(OwnershipChangeNotification, 'send_async', Mock)
+def test_onwership_change_notification_requestor_name():
+    invite = OwnershipInviteFactory(requestor__name='example')
+    notification = OwnershipChangeNotification(instance=invite)
+
+    assert notification.get_context_data()['requestor'] == 'example'
+
+
+@pytest.mark.django_db
+@mock.patch.object(OwnershipChangeNotification, 'send_async', Mock)
+def test_onwership_change_notification_requestor_email():
+    invite = OwnershipInviteFactory(
+        requestor__name=None,
+        requestor__company_email='jim@example.com',
+    )
+    notification = OwnershipChangeNotification(instance=invite)
+
+    assert notification.get_context_data()['requestor'] == 'jim@example.com'
