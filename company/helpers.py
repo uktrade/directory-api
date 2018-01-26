@@ -77,6 +77,10 @@ class CompaniesHouseClient:
         'verify-oauth2-access-token': make_oauth2_url('oauth2/verify'),
     }
     session = requests.Session()
+    session.mount(
+        'https',
+        requests.adapters.HTTPAdapter(max_retries=3),
+    )
 
     @classmethod
     def get_http_basic_auth(cls):
