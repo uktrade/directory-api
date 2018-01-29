@@ -508,3 +508,6 @@ CSV_DUMP_BUCKET_NAME = os.environ['CSV_DUMP_BUCKET_NAME']
 CSV_DUMP_AUTH_TOKEN = os.environ['CSV_DUMP_AUTH_TOKEN']
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
+
+# internal api
+ENABLE_INTERNAL_TESTING_API = os.getenv("ENABLE_INTERNAL_TESTING_API", False)

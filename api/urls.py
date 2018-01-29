@@ -258,3 +258,11 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             {'document_root': settings.MEDIA_ROOT}
         ),
     ]
+
+if settings.ENABLE_INTERNAL_TESTING_API:
+    urlpatterns += [
+        url(
+            r'^internal/',
+            include('internal.urls', namespace='internal-api')
+        )
+    ]
