@@ -2,10 +2,10 @@ from directory_sso_api_client.user import UserAPIClient
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from internal.serializers import UserSerializer
+from testing_api.serializers import UserSerializer
 
 """
-GET /internal/users/<email>/
+GET /testing_api/users/<email>/
 {
   "sso_id": <sso-id>,
   "email_verification_link": "<verification-link>",

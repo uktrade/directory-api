@@ -259,10 +259,10 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
         ),
     ]
 
-if settings.ENABLE_INTERNAL_TESTING_API:
+if settings.ENABLE_TESTING_API:
     urlpatterns += [
         url(
-            r'^internal/',
-            include('internal.urls', namespace='internal-api')
+            r'^testing_api/',
+            include('testing_api.urls', namespace='testing_api')
         )
     ]

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from internal.views import UserAPIView
+from testing_api.views import UserAPIView
 
 urlpatterns = [
     url(

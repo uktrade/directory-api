@@ -89,7 +89,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_HEALTH_CHECK_TOKEN=debug; \
 	export DIRECTORY_API_CSV_DUMP_BUCKET_NAME=debug; \
 	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug; \
-	export DIRECTORY_API_ENABLE_INTERNAL_TESTING_API=true
+	export DIRECTORY_API_ENABLE_TESTING_API=true
 
 
 docker_test_env_files:
@@ -190,7 +190,7 @@ DEBUG_SET_ENV_VARS := \
 	export HEALTH_CHECK_TOKEN=debug; \
 	export CSV_DUMP_BUCKET_NAME=debug; \
 	export CSV_DUMP_AUTH_TOKEN=debug; \
-	export ENABLE_INTERNAL_TESTING_API=true
+	export ENABLE_TESTING_API=true
 
 
 debug_webserver:
@@ -257,4 +257,4 @@ compile_test_requirements:
 
 compile_all_requirements: compile_requirements compile_test_requirements
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements DEBUG_SET_ENV_VARS
