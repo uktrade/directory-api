@@ -88,7 +88,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}; \
 	export DIRECTORY_API_HEALTH_CHECK_TOKEN=debug; \
 	export DIRECTORY_API_CSV_DUMP_BUCKET_NAME=debug; \
-	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug
+	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug; \
+	export DIRECTORY_API_ENABLE_INTERNAL_TESTING_API=true
 
 
 docker_test_env_files:
@@ -188,7 +189,8 @@ DEBUG_SET_ENV_VARS := \
 	export FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?invite_key={uuid}; \
 	export HEALTH_CHECK_TOKEN=debug; \
 	export CSV_DUMP_BUCKET_NAME=debug; \
-	export CSV_DUMP_AUTH_TOKEN=debug
+	export CSV_DUMP_AUTH_TOKEN=debug; \
+	export ENABLE_INTERNAL_TESTING_API=true
 
 
 debug_webserver:
