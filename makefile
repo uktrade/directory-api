@@ -8,7 +8,7 @@ test_requirements:
 	pip install -r requirements_test.txt
 
 DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
-DJANGO_MIGRATE_ELASTICSEARCH := python manage.py elasticsearch_migrate
+DJANGO_MIGRATE_ELASTICSEARCH := python manage.py distributed_elasticsearch_migrate
 FLAKE8 := flake8 . --exclude=migrations,.venv
 PYTEST := pytest . --cov=. --capture=no --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
