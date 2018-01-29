@@ -1,10 +1,11 @@
+from directory_sso_api_client.user import UserAPIClient
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from internal.serializers import UserSerializer
 
 """
-GET /internal/user/<email>/
+GET /internal/users/<email>/
 {
   "sso_id": <sso-id>,
   "email_verification_link": "<verification-link>",
@@ -12,15 +13,20 @@ GET /internal/user/<email>/
 }
 """
 
+
 class UserAPIView(APIView):
+    client = UserAPIClient(
+        base_url='http://sso.trade.great:8003', api_key='debug'
+    )
 
     serializer_class = UserSerializer
     authentication_classes = []
     permission_classes = []
 
     def get(self, request, email: str, format: str = None):
+        response = self.client.get_user_by_email(email="non@existing.com")
         response_data = {
-            "sso_id": 1,
+            "sso_id": response.status_code,
             "email_verification_link": "verification link",
             "is_verified": True
         }
