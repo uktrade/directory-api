@@ -4,7 +4,7 @@ from internal.views import UserAPIView
 
 urlpatterns = [
     url(
-        r'^user/(?P<email>.*)/$',
+        r'^users/(?P<email>.*)/$',
         UserAPIView.as_view(),
         name="user-retrieve",),
 ]
