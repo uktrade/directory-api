@@ -24,7 +24,7 @@ class UserAPIView(APIView):
     permission_classes = []
 
     def get(self, request, email: str, format: str = None):
-        response = self.client.get_user_by_email(email="non@existing.com")
+        response = self.client.get_user_by_email(email=email)
         response_data = {
             "sso_id": response.status_code,
             "email_verification_link": "verification link",
