@@ -12,14 +12,6 @@ from api.settings import (
 )
 from testapi.serializers import UserSerializer
 
-"""
-GET /testapi/users/<email>/
-{
-  "sso_id": <sso-id>,
-  "is_verified": True/False
-}
-"""
-
 
 class UserAPIView(APIView):
     base_url=SSO_PROXY_API_CLIENT_BASE_URL
