@@ -4,7 +4,7 @@ from testapi.views import UserAPIView
 
 urlpatterns = [
     url(
-        r'^users/(?P<email>.*)/$',
+        r'^user-by-email/(?P<email>.*)/$',
         UserAPIView.as_view(),
         name="user-retrieve",),
 ]
