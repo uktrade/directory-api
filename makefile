@@ -257,4 +257,4 @@ compile_test_requirements:
 
 compile_all_requirements: compile_requirements compile_test_requirements
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements DEBUG_SET_ENV_VARS
+.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
