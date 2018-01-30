@@ -510,4 +510,4 @@ BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 
 # testing api
-ENABLE_TEST_API = os.getenv("ENABLE_TEST_API", False)
+ENABLE_TEST_API = os.getenv("ENABLE_TEST_API", 'false') == 'true'
