@@ -1,4 +1,6 @@
 from directory_sso_api_client.client import DirectorySSOAPIClient
+from django.http import Http404
+from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -29,9 +31,8 @@ class UserAPIView(APIView):
 
     def get(self, request: Request, email: str, format: str = None):
         sso_response = self.sso_api_client.get_user_by_email(email=email)
-        response_data = {
-            "sso_id": sso_response.status_code,
-            "is_verified": True
-        }
-        serializer = self.serializer_class(response_data)
-        return Response(serializer.data)
+        if sso_response.status_code == status.HTTP_200_OK:
+            serializer = self.serializer_class(sso_response.json())
+            return Response(serializer.data)
+        else:
+            raise Http404()
