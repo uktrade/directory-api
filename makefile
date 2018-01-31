@@ -184,7 +184,6 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
 	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/; \
-	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
 	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export FAB_OWNERSHIP_URL=http://buyer.trade.great:8001/account/transfer/accept/?invite_key={uuid}; \
 	export FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?invite_key={uuid}; \
