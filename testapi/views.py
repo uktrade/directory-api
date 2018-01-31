@@ -23,7 +23,7 @@ class UserAPIView(APIView):
     permission_classes = []
 
     def dispatch(self, *args, **kwargs):
-        if not settings.ENABLE_TEST_API:
+        if not settings.TEST_API_ENABLE:
             raise Http404()
         return super().dispatch(*args, **kwargs)
 
