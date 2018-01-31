@@ -511,3 +511,4 @@ SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 
 # testing api
 TEST_API_ENABLE = os.getenv("TEST_API_ENABLE", 'false') == 'true'
+TEST_API_AUTH_TOKEN = os.environ["TEST_API_AUTH_TOKEN"]

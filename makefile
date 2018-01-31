@@ -90,6 +90,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_CSV_DUMP_BUCKET_NAME=debug; \
 	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug; \
 	export DIRECTORY_API_TEST_API_ENABLE=true; \
+	export DIRECTORY_API_TEST_API_AUTH_TOKEN=debug
 
 
 docker_test_env_files:
@@ -191,6 +192,7 @@ DEBUG_SET_ENV_VARS := \
 	export CSV_DUMP_BUCKET_NAME=debug; \
 	export CSV_DUMP_AUTH_TOKEN=debug; \
 	export TEST_API_ENABLE=true; \
+	export TEST_API_AUTH_TOKEN=debug
 
 
 debug_webserver:
