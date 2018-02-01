@@ -9,7 +9,7 @@ from supplier.tests.factories import SupplierFactory
 
 @pytest.mark.django_db
 @mock.patch(
-    'supplier.management.commands.generate_suppliers_csv_dump.upload_file_object_to_s3' # NOQA
+    'supplier.management.commands.generate_suppliers_csv_dump.upload_file_object_to_s3'  # NOQA
 )
 def test_upload_suppliers_csv_to_s3(mocked_upload_file_object_to_s3):
     SupplierFactory.create_batch(5)
