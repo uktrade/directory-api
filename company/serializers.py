@@ -243,7 +243,7 @@ class InviteSerializerMixin:
         if (
             user.supplier and
             user.supplier.company and
-            user.supplier.company is not self.instance.company
+            user.supplier.company != self.instance.company
         ):
             raise serializers.ValidationError({
                 self.email_field_name: self.MESSAGE_ALREADY_HAS_COMPANY
