@@ -17,7 +17,7 @@ def test_upload_suppliers_csv_to_s3(mocked_upload_file_object_to_s3):
     SupplierFactory(
         sso_id=123,
         name='foobar',
-        company_email='foobar%s@example.com',
+        company_email='foobar@example.com',
         company=None,
         is_company_owner=True,
     )
