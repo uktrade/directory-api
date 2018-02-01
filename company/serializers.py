@@ -226,6 +226,7 @@ class InviteSerializerMixin:
 
     def validate(self, data):
         if data.get('accepted', False):
+            self.check_different_company_connection()
             self.check_email()
             self.check_requestor()
         return super().validate(data)
@@ -234,15 +235,22 @@ class InviteSerializerMixin:
         if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
         instance = super().update(instance, validated_data)
-        self.create_supplier(instance)
+        self.update_or_create_supplier(instance)
         return instance
 
-    def check_email(self):
+    def check_different_company_connection(self):
         user = self.context['request'].user
-        if user.supplier is not None:
+        if (
+            user.supplier and
+            user.supplier.company and
+            user.supplier.company is not self.instance.company
+        ):
             raise serializers.ValidationError({
                 self.email_field_name: self.MESSAGE_ALREADY_HAS_COMPANY
             })
+
+    def check_email(self):
+        user = self.context['request'].user
         email_value = getattr(self.instance, self.email_field_name)
         if email_value.lower() != user.email.lower():
             raise serializers.ValidationError({
@@ -282,12 +290,14 @@ class OwnershipInviteSerializer(
             'uuid': {'read_only': True},
         }
 
-    def create_supplier(self, instance):
-        Supplier.objects.create(
+    def update_or_create_supplier(self, instance):
+        Supplier.objects.update_or_create(
             sso_id=self.context['request'].user.id,
-            company=instance.company,
             company_email=instance.new_owner_email,
-            is_company_owner=True,
+            defaults={
+                'company': instance.company,
+                'is_company_owner': True,
+            }
         )
 
 
@@ -315,12 +325,14 @@ class CollaboratorInviteSerializer(
             'uuid': {'read_only': True},
         }
 
-    def create_supplier(self, instance):
-        Supplier.objects.create(
+    def update_or_create_supplier(self, instance):
+        Supplier.objects.update_or_create(
             sso_id=self.context['request'].user.id,
-            company=instance.company,
             company_email=instance.collaborator_email,
-            is_company_owner=False,
+            defaults={
+                'company': instance.company,
+                'is_company_owner': False,
+            }
         )
 
 
