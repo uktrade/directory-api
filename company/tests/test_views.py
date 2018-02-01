@@ -2036,13 +2036,43 @@ def test_accept_wrong_transfer_ownership_invite(
 
 @pytest.mark.django_db
 @patch('core.tasks.send_email', Mock())
-def test_accept_transfer_ownership_invite_supplier_has_company_already(
-        authed_client,
-        authed_supplier):
+def test_accept_transfer_ownership_invite_to_collaborator(
+    authed_client, authed_supplier
+):
+    authed_supplier.company = None
+    authed_supplier.save()
 
+    company = factories.CompanyFactory()
+    existing_owner = SupplierFactory(
+        company=company,
+        is_company_owner=True,
+        company_email='owner@example.com',
+    )
+    invite = models.OwnershipInvite.objects.create(
+        new_owner_email=authed_supplier.company_email,
+        company=company,
+        requestor=existing_owner,
+    )
+    response = authed_client.patch(
+        reverse('transfer-ownership-invite-detail',
+                kwargs={'uuid': str(invite.uuid)}),
+        {'accepted': True}
+    )
+
+    invite.refresh_from_db()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert invite.accepted is True
+
+
+@pytest.mark.django_db
+@patch('core.tasks.send_email', Mock())
+def test_accept_transfer_ownership_invite_supplier_has_other_company(
+    authed_client, authed_supplier
+):
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
-        company=authed_supplier.company,
+        company=factories.CompanyFactory(),
         requestor=authed_supplier,
     )
     invite.save()
@@ -2248,13 +2278,13 @@ def test_accept_wrong_collaborator_invite(
 
 @pytest.mark.django_db
 @patch('core.tasks.send_email', Mock())
-def test_accept_collaborator_invite_supplier_has_company_already(
-        authed_client,
-        authed_supplier):
+def test_accept_collaborator_invite_supplier_has_other_company(
+    authed_client, authed_supplier
+):
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email,
-        company=authed_supplier.company,
+        company=factories.CompanyFactory(),
         requestor=authed_supplier,
     )
     url = reverse(
