@@ -79,7 +79,7 @@ def generate_suppliers_csv(file_object, queryset):
 
     for supplier in suppliers:
         supplier['company__number_of_sectors'] = len(
-            supplier['company__sectors']
+            supplier.get('company__sectors', [])
         )
         supplier['company__sectors'] = ','.join(
             supplier['company__sectors']

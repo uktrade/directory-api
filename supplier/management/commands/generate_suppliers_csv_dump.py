@@ -30,6 +30,6 @@ class Command(BaseCommand):
         file_object = io.StringIO()
         generate_suppliers_csv(
             file_object=file_object,
-            queryset=Supplier.objects.all(),
+            queryset=Supplier.objects.exclude(company__isnull=True),
         )
         return file_object
