@@ -14,6 +14,7 @@ class TriageResultAdmin(admin.ModelAdmin):
         'used_online_marketplace',
         'company_number',
         'is_in_companies_house',
+        'created',
     )
     list_filter = (
         'exported_before',
