@@ -15,10 +15,9 @@ from testapi.serializers import UserSerializer
 
 
 class UserAPIView(APIView):
-    base_url=SSO_PROXY_API_CLIENT_BASE_URL
+    base_url = SSO_PROXY_API_CLIENT_BASE_URL
     sso_api_client = DirectoryTestAPIClient(
         base_url=base_url, api_key=SSO_PROXY_SIGNATURE_SECRET)
-
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticatedTestAPI]
     http_method_names = ("get", )
@@ -30,7 +29,8 @@ class UserAPIView(APIView):
 
     def get(self, request: Request, email: str, format: str = None):
         token = request.GET.get('token')
-        sso_response = self.sso_api_client.get_user_by_email(email=email, token=token)
+        sso_response = self.sso_api_client.get_user_by_email(
+            email=email, token=token)
         if sso_response.status_code == status.HTTP_200_OK:
             serializer = self.serializer_class(sso_response.json())
             return Response(serializer.data)
