@@ -1,18 +1,24 @@
-import pytest
-
 from django.core.urlresolvers import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
-
-from urllib.parse import urljoin
 
 
-@pytest.mark.django_db
-def test_get_user_by_email():
-    email = 'jim@example.com'
-    url = urljoin(reverse('users/'), email, "/")
-    client = APIClient()
+def test_get_user_by_email_and_disabled_test_api(client, settings):
+    settings.TEST_API_AUTH_TOKEN = False
+    url = reverse('user_by_email', kwargs={"email": "some@user.com"})
+    query = {"token": settings.TEST_API_AUTH_TOKEN}
+    response = client.get(url, query)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    response = client.get(url)
 
-    assert response.status_code == status.HTTP_200_OK
+def test_get_user_by_email_with_valid_auth_token(client, settings):
+    url = reverse('user_by_email', kwargs={"email": "some@user.com"})
+    query = {"token": settings.TEST_API_AUTH_TOKEN}
+    response = client.get(url, query)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_get_user_by_email_with_invalid_auth_token(client):
+    endpoint = reverse('user_by_email', kwargs={"email": "some@user.com"})
+    query = {"token": "this_is_an_invalid_token"}
+    response = client.get(endpoint, query)
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
