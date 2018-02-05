@@ -266,6 +266,6 @@ if settings.TEST_API_ENABLE:
         url(
             r'^testapi/user-by-email/(?P<email>.*)/$',
             UserAPIView.as_view(),
-            name="user-retrieve"
+            name="user_by_email"
         )
     ]
