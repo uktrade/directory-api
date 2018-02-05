@@ -52,7 +52,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
 	export DIRECTORY_API_EMAIL_HOST_PASSWORD=debug; \
 	export DIRECTORY_API_DEFAULT_FROM_EMAIL=debug; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL=debug ;\
+	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL=debug; \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
 	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
 	export DIRECTORY_API_AWS_STORAGE_BUCKET_NAME=debug; \
@@ -68,7 +68,7 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_REDIS_URL=debug; \
 	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
 	export DIRECTORY_API_SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
-	export DIRECTORY_API_SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great:8004/;\
+	export DIRECTORY_API_SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great:8004/; \
 	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
 	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great:8005/suppliers; \
 	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great:8005/suppliers/{number}; \
@@ -88,7 +88,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}; \
 	export DIRECTORY_API_HEALTH_CHECK_TOKEN=debug; \
 	export DIRECTORY_API_CSV_DUMP_BUCKET_NAME=debug; \
-	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug
+	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug; \
+	export DIRECTORY_API_TEST_API_ENABLE=true; \
+	export DIRECTORY_API_TEST_API_AUTH_TOKEN=debug
 
 
 docker_test_env_files:
@@ -182,13 +184,14 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
 	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/; \
-	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
 	export LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export FAB_OWNERSHIP_URL=http://buyer.trade.great:8001/account/transfer/accept/?invite_key={uuid}; \
 	export FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?invite_key={uuid}; \
 	export HEALTH_CHECK_TOKEN=debug; \
 	export CSV_DUMP_BUCKET_NAME=debug; \
-	export CSV_DUMP_AUTH_TOKEN=debug
+	export CSV_DUMP_AUTH_TOKEN=debug; \
+	export TEST_API_ENABLE=true; \
+	export TEST_API_AUTH_TOKEN=debug
 
 
 debug_webserver:

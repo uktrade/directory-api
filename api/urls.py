@@ -41,6 +41,8 @@ from exportreadiness import views as exportreadiness_views
 
 from django.conf import settings
 
+from testapi.views import UserAPIView
+
 admin.autodiscover()
 
 
@@ -257,4 +259,13 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             django.views.static.serve,
             {'document_root': settings.MEDIA_ROOT}
         ),
+    ]
+
+if settings.TEST_API_ENABLE:
+    urlpatterns += [
+        url(
+            r'^testapi/user-by-email/(?P<email>.*)/$',
+            UserAPIView.as_view(),
+            name="user_by_email"
+        )
     ]
