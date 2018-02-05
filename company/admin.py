@@ -99,8 +99,11 @@ class CompanyAdmin(admin.ModelAdmin):
         'postal_full_name', 'address_line_1', 'address_line_2',
         'locality', 'country', 'postal_code', 'po_box',
     )
-    list_display = ('name', 'number', 'is_published', 'verified_with_code')
-    list_filter = ('is_published', 'verified_with_code', 'campaign_tag',)
+    list_display = ('name', 'number', 'is_published')
+    list_filter = (
+        'is_published', 'verified_with_code',
+        'verified_with_companies_house_oauth2', 'campaign_tag',
+    )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
     form = CompanyModelForm
 
