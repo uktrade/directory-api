@@ -4,6 +4,7 @@ import pytest
 from django.core.urlresolvers import reverse
 from rest_framework import status
 
+from company import models
 from company.tests import factories
 
 
@@ -60,4 +61,32 @@ def test_get_existing_company_by_ch_id_with_disabled_test_api(
 def test_get_company_by_non_existing_ch_id(client):
     url = reverse('company_by_ch_id', kwargs={'ch_id': 'nonexisting'})
     response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
+    number = authed_supplier.company.number
+    url = reverse(
+        'company_by_ch_id', kwargs={'ch_id': number})
+    response = authed_client.delete(url)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert models.Company.objects.filter(number=number).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_non_existing_company_by_ch_id(authed_client):
+    url = reverse(
+        'company_by_ch_id', kwargs={'ch_id': 'invalid'})
+    response = authed_client.delete(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_existing_company_by_ch_id_with_disabled_testapi(
+        authed_client, authed_supplier, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse(
+        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+    response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
