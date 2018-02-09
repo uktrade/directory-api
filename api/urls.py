@@ -265,3 +265,4 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             {'document_root': settings.MEDIA_ROOT}
         ),
     ]
+
