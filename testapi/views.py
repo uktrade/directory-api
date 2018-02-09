@@ -1,9 +1,9 @@
-from django.http import HttpResponseNotFound
+from django.http import Http404
 from rest_framework.generics import get_object_or_404, RetrieveAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from api import settings
+from django.conf import settings
 from api.signature import SignatureCheckPermission
 from company.models import Company
 from testapi.serializers import CompanySerializer
@@ -18,7 +18,7 @@ class CompanyTestAPIView(RetrieveAPIView):
 
     def dispatch(self, *args, **kwargs):
         if not settings.FEATURE_TEST_API_ENABLE:
-            return HttpResponseNotFound
+            raise Http404
         return super().dispatch(*args, **kwargs)
 
     def get(self, request: Request, ch_id: str, format: str = None):
