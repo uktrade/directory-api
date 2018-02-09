@@ -41,6 +41,8 @@ from exportreadiness import views as exportreadiness_views
 
 from django.conf import settings
 
+from testapi.views import CompanyTestAPIView
+
 admin.autodiscover()
 
 
@@ -247,7 +249,12 @@ urlpatterns = [
         r'supplier/csv-dump/$',
         SupplierCSVDownloadAPIView.as_view(),
         name='supplier-csv-dump'
-    )
+    ),
+    url(
+        r'^testapi/company/(?P<ch_id>.*)/$',
+        CompanyTestAPIView.as_view(),
+        name='company_by_ch_id'
+    ),
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
