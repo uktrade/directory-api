@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'directory_healthcheck',
     'health_check',
     'health_check.db',
+    'testapi'
 ]
 
 MIDDLEWARE_CLASSES = [
