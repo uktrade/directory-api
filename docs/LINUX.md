@@ -4,12 +4,12 @@ Instructions below were tested on:
 
 * Fedora 27
 
-1. Install postgress locally
-2. Configure postgress
-3. Run elasticsearch
-4. Start the service
-5. Create service host aliases
-6. Access the service
+1. [Install postgress locally](#1-install-postgres)
+2. [Configure postgress](#2-configure-postgres)
+3. [Run elasticsearch](#3-run-elasticsearch)
+4. [Start the service](#4-start-the-service)
+5. [Create service host aliases](#5-create-service-host-aliases)
+6. [Access the service](#6-access-services-by-their-service-names)
 
 
 ## 1. Install postgres
