@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'directory_healthcheck',
     'health_check',
     'health_check.db',
+    'testapi'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -508,3 +509,7 @@ CSV_DUMP_BUCKET_NAME = os.environ['CSV_DUMP_BUCKET_NAME']
 CSV_DUMP_AUTH_TOKEN = os.environ['CSV_DUMP_AUTH_TOKEN']
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
+
+# testing api
+FEATURE_TEST_API_ENABLED = os.getenv(
+    "FEATURE_TEST_API_ENABLED", 'false') == 'true'

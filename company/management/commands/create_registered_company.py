@@ -14,7 +14,6 @@ class Command(BaseCommand):
         for company_number in options['company_number']:
             company = Company.objects.create(
                 employees='1-10',
-                export_status='ONE_TWO_YEARS_AGO',
                 has_exported_before=True,
                 keywords='test',
                 name='Test company',

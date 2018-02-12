@@ -110,3 +110,15 @@ Therefore to make cookie sharing work in development we need the apps to be runn
 
 [gemnasium-image]: https://gemnasium.com/badges/github.com/uktrade/directory-api.svg
 [gemnasium]: https://gemnasium.com/github.com/uktrade/directory-api
+
+
+## Manage commands
+
+Create registered company in your local environment:
+```bash
+cmd="create_registered_company ch_id_max_8chrs" make debug_manage
+```
+
+## Linux setup
+
+Linux (Fedora 27) instructions are available [here](docs/LINUX.md)
