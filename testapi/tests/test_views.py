@@ -10,7 +10,7 @@ from company.tests import factories
 @pytest.mark.django_db
 def test_get_existing_company_by_ch_id(authed_client, authed_supplier):
     url = reverse(
-        'company_by_ch_id', kwargs={"ch_id": authed_supplier.company.number})
+        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
@@ -30,7 +30,7 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     company.refresh_from_db()
     assert company.verification_code
     url = reverse(
-        'company_by_ch_id', kwargs={"ch_id": authed_supplier.company.number})
+        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
     response = authed_client.get(url)
     assert 'letter_verification_code' in response.json()
     assert response.json()['company_email'] == email_address
@@ -40,8 +40,8 @@ def test_check_contents_of_get_existing_company_by_ch_id(
 
 @pytest.mark.django_db
 def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
-    url = reverse('company_by_ch_id', kwargs={'ch_id': "12345678"})
     settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('company_by_ch_id', kwargs={'ch_id': '12345678'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -51,13 +51,13 @@ def test_get_existing_company_by_ch_id_with_disabled_test_api(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
-        'company_by_ch_id', kwargs={"ch_id": authed_supplier.company.number})
+        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 def test_get_company_by_non_existing_ch_id(client):
-    url = reverse('company_by_ch_id', kwargs={"ch_id": "nonexisting"})
+    url = reverse('company_by_ch_id', kwargs={'ch_id': 'nonexisting'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
