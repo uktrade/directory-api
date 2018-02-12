@@ -17,7 +17,7 @@ class CompanyTestAPIView(RetrieveAPIView):
     http_method_names = ('get', )
 
     def dispatch(self, *args, **kwargs):
-        if not settings.FEATURE_TEST_API_ENABLE:
+        if not settings.FEATURE_TEST_API_ENABLED:
             raise Http404
         return super().dispatch(*args, **kwargs)
 

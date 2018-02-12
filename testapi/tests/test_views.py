@@ -40,8 +40,8 @@ def test_check_contents_of_get_existing_company_by_ch_id(
 
 @pytest.mark.django_db
 def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
-    settings.FEATURE_TEST_API_ENABLE = False
-    url = reverse('company_by_ch_id', kwargs={"ch_id": "12345678"})
+    url = reverse('company_by_ch_id', kwargs={'ch_id': "12345678"})
+    settings.FEATURE_TEST_API_ENABLED = False
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -49,7 +49,7 @@ def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
 @pytest.mark.django_db
 def test_get_existing_company_by_ch_id_with_disabled_test_api(
         authed_client, authed_supplier, settings):
-    settings.FEATURE_TEST_API_ENABLE = False
+    settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
         'company_by_ch_id', kwargs={"ch_id": authed_supplier.company.number})
     response = authed_client.get(url)
