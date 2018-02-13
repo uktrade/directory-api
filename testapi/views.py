@@ -24,8 +24,12 @@ class CompanyTestAPIView(RetrieveAPIView, DestroyAPIView):
             raise Http404
         return super().dispatch(*args, **kwargs)
 
-    def get(self, request, ch_id):
-        company = get_object_or_404(Company, number=ch_id)
+    def get_company(self, ch_id):
+        return get_object_or_404(Company, number=ch_id)
+
+    def get(self, request, *args, **kwargs):
+        ch_id = kwargs['ch_id']
+        company = self.get_company(ch_id)
         response_data = {
             'letter_verification_code': company.verification_code,
             'company_email': company.email_address,
@@ -33,6 +37,7 @@ class CompanyTestAPIView(RetrieveAPIView, DestroyAPIView):
         }
         return Response(response_data)
 
-    def delete(self, request, ch_id):
-        get_object_or_404(Company, number=ch_id).delete()
+    def delete(self, request, *args, **kwargs):
+        ch_id = kwargs['ch_id']
+        self.get_company(ch_id).delete()
         return Response(status=204)
