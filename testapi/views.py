@@ -34,9 +34,5 @@ class CompanyTestAPIView(RetrieveAPIView, DestroyAPIView):
         return Response(response_data)
 
     def delete(self, request, ch_id):
-        try:
-            company = get_object_or_404(Company, number=ch_id)
-            company.delete()
-        except Http404:
-            raise Http404()
+        get_object_or_404(Company, number=ch_id).delete()
         return Response(status=204)
