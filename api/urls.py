@@ -258,7 +258,7 @@ urlpatterns = [
     url(
         r'^testapi/companies/published/$',
         PublishedCompaniesTestAPIView.as_view(),
-        name='company_by_ch_id'
+        name='published_companies'
     ),
 ]
 
