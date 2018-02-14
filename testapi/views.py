@@ -11,6 +11,8 @@ from django.conf import settings
 from api.signature import SignatureCheckPermission
 from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
+from testapi.utils import get_matching_companies, \
+    get_published_companies_query_params
 
 
 class TestAPIView(GenericAPIView):
@@ -54,44 +56,9 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     lookup_field = 'is_published'
     http_method_names = 'get'
 
-    @staticmethod
-    def get_query_parameter(request):
-        params = request.query_params
-        limit = int(params.get('limit', 100))
-        minimal_number_of_sectors = int(params.get(
-            'minimal_number_of_sectors', 0))
-        return limit, minimal_number_of_sectors
-
-    @staticmethod
-    def prepare_company_data(company):
-        return {
-            'name': company.name,
-            'number': company.number,
-            'sectors': company.sectors,
-            'employees': company.employees,
-            'keywords': company.keywords,
-            'website': company.website,
-            'facebook_url': company.facebook_url,
-            'twitter_url': company.twitter_url,
-            'linkedin_url': company.linkedin_url,
-            'company_email': company.email_address,
-            'summary': company.summary,
-            'description': company.description,
-        }
-
-    def get_matching_companies(self, limit, minimal_number_of_sectors):
-        result = []
-        counter = 0
-        for company in self.queryset.all():
-            if len(company.sectors) >= minimal_number_of_sectors:
-                counter += 1
-                if counter <= limit:
-                    data = self.prepare_company_data(company)
-                    result.append(data)
-        return result
-
     def get(self, request, *args, **kwargs):
-        limit, minimal_number_of_sectors = self.get_query_parameter(request)
-        response_data = self.get_matching_companies(
-            limit, minimal_number_of_sectors)
+        limit, minimal_number_of_sectors = \
+            get_published_companies_query_params(request)
+        response_data = get_matching_companies(
+            self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
