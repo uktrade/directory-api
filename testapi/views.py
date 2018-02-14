@@ -62,6 +62,23 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
             'minimal_number_of_sectors', 0))
         return limit, minimal_number_of_sectors
 
+    @staticmethod
+    def prepare_company_data(company):
+        return {
+            'name': company.name,
+            'number': company.number,
+            'sectors': company.sectors,
+            'employees': company.employees,
+            'keywords': company.keywords,
+            'website': company.website,
+            'facebook_url': company.facebook_url,
+            'twitter_url': company.twitter_url,
+            'linkedin_url': company.linkedin_url,
+            'company_email': company.email_address,
+            'summary': company.summary,
+            'description': company.description,
+        }
+
     def get_matching_companies(self, limit, minimal_number_of_sectors):
         result = []
         counter = 0
@@ -69,20 +86,7 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
             if len(company.sectors) >= minimal_number_of_sectors:
                 counter += 1
                 if counter <= limit:
-                    data = {
-                        'name': company.name,
-                        'number': company.number,
-                        'sectors': company.sectors,
-                        'employees': company.employees,
-                        'keywords': company.keywords,
-                        'website': company.website,
-                        'facebook_url': company.facebook_url,
-                        'twitter_url': company.twitter_url,
-                        'linkedin_url': company.linkedin_url,
-                        'company_email': company.email_address,
-                        'summary': company.summary,
-                        'description': company.description,
-                    }
+                    data = self.prepare_company_data(company)
                     result.append(data)
         return result
 
