@@ -2,7 +2,8 @@ from django.http import Http404
 from rest_framework.generics import (
     get_object_or_404,
     DestroyAPIView,
-    RetrieveAPIView
+    RetrieveAPIView,
+    GenericAPIView
 )
 from rest_framework.response import Response
 
@@ -12,17 +13,20 @@ from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
 
 
-class CompanyTestAPIView(RetrieveAPIView, DestroyAPIView):
-    serializer_class = CompanySerializer
-    queryset = Company.objects.all()
-    permission_classes = [SignatureCheckPermission]
-    lookup_field = 'number'
-    http_method_names = ('get', 'delete')
+class TestAPIView(GenericAPIView):
 
     def dispatch(self, *args, **kwargs):
         if not settings.FEATURE_TEST_API_ENABLED:
             raise Http404
         return super().dispatch(*args, **kwargs)
+
+
+class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
+    serializer_class = CompanySerializer
+    queryset = Company.objects.all()
+    permission_classes = [SignatureCheckPermission]
+    lookup_field = 'number'
+    http_method_names = ('get', 'delete')
 
     def get_company(self, ch_id):
         return get_object_or_404(Company, number=ch_id)
@@ -43,26 +47,24 @@ class CompanyTestAPIView(RetrieveAPIView, DestroyAPIView):
         return Response(status=204)
 
 
-class PublishedCompaniesTestAPIView(RetrieveAPIView):
+class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
     queryset = Company.objects.filter(is_published=True)
     permission_classes = [SignatureCheckPermission]
     lookup_field = 'is_published'
     http_method_names = 'get'
 
-    def dispatch(self, *args, **kwargs):
-        if not settings.FEATURE_TEST_API_ENABLED:
-            raise Http404
-        return super().dispatch(*args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get_query_parameter(request):
         params = request.query_params
         limit = int(params.get('limit', 100))
         minimal_number_of_sectors = int(params.get(
             'minimal_number_of_sectors', 0))
-        response_data = []
-        counter = 0
+        return limit, minimal_number_of_sectors
 
+    def get_matching_companies(self, limit, minimal_number_of_sectors):
+        result = []
+        counter = 0
         for company in self.queryset.all():
             if len(company.sectors) >= minimal_number_of_sectors:
                 counter += 1
@@ -81,5 +83,11 @@ class PublishedCompaniesTestAPIView(RetrieveAPIView):
                         'summary': company.summary,
                         'description': company.description,
                     }
-                    response_data.append(data)
+                    result.append(data)
+        return result
+
+    def get(self, request, *args, **kwargs):
+        limit, minimal_number_of_sectors = self.get_query_parameter(request)
+        response_data = self.get_matching_companies(
+            limit, minimal_number_of_sectors)
         return Response(response_data)
