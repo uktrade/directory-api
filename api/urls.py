@@ -41,7 +41,7 @@ from exportreadiness import views as exportreadiness_views
 
 from django.conf import settings
 
-from testapi.views import CompanyTestAPIView
+from testapi.views import CompanyTestAPIView, PublishedCompaniesTestAPIView
 
 admin.autodiscover()
 
@@ -254,6 +254,11 @@ urlpatterns = [
         r'^testapi/company/(?P<ch_id>.*)/$',
         CompanyTestAPIView.as_view(),
         name='company_by_ch_id'
+    ),
+    url(
+        r'^testapi/companies/published/$',
+        PublishedCompaniesTestAPIView.as_view(),
+        name='published_companies'
     ),
 ]
 
