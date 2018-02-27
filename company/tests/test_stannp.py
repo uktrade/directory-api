@@ -28,6 +28,14 @@ def stannp_200_response():
     return response
 
 
+@pytest.fixture
+def stannp_not_ok_response():
+    response = requests.models.Response()
+    response.status_code = 500
+    response._content = b'Insufficient credit'
+    return response
+
+
 @patch('requests.post')
 def test_post(mock_post):
     stannp_client.post(
@@ -41,9 +49,36 @@ def test_post(mock_post):
     )
 
 
+@patch('company.stannp.client')
+@patch('company.stannp.requests')
+def test_send_letter_not_ok_response_send_message_to_sentry(
+        mock_requests, mock_raven_client, stannp_not_ok_response
+):
+    mock_requests.post.return_value = stannp_not_ok_response
+    stannp_client.send_letter(
+        template='whatever',
+        recipient={
+            'postal_full_name': 'test_postal_full_name',
+            'address_line_1': 'test_address_line_1',
+            'address_line_2': 'test_address_line_2',
+            'locality': 'test_locality',
+            'postal_code': 'test_postal_code',
+            'country': 'test_country',
+            'custom_fields': [
+                ('test_field_name1', 'test_value1'),
+                ('test_field_name2', 'test_value2'),
+            ]
+        },
+    )
+    assert mock_raven_client.captureMessage.call_count == 1
+    assert mock_raven_client.captureMessage.call_args == call(
+        b'Insufficient credit', stack=True
+    )
+
+
 @patch('requests.post')
 def test_send_letter(mock_post, stannp_200_response):
-    mock_post.return_value == stannp_200_response
+    mock_post.return_value = stannp_200_response
 
     stannp_client.send_letter(
         template='whatever',
