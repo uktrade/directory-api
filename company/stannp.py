@@ -1,9 +1,10 @@
 from django.conf import settings
+from raven.contrib.django.raven_compat.models import client
 
 import requests
 
 
-class StannpClient():
+class StannpClient:
 
     def __init__(self, api_key, test_mode=True):
         self.api_key = api_key
@@ -38,10 +39,13 @@ class StannpClient():
         data['template'] = template
         data['test'] = self.test_mode
 
-        return self.post(
+        response = self.post(
             'https://dash.stannp.com/api/v1/letters/create',
             data,
         )
+        if response.status_code != requests.codes.ok:
+            client.captureMessage(response.content, stack=True)
+        return response
 
 
 stannp_client = StannpClient(
