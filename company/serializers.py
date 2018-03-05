@@ -112,6 +112,8 @@ class CompanySerializer(serializers.ModelSerializer):
             'has_exported_before',
             'has_valid_address',
             'id',
+            'is_exporting_goods',
+            'is_exporting_services',
             'is_published',
             'is_verification_letter_sent',
             'keywords',
