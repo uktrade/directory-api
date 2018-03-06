@@ -148,6 +148,8 @@ class DownloadCSVTestCase(TestCase):
             ('company__has_case_study', 'False'),
             ('company__has_exported_before', 'True'),
             ('company__id', str(supplier.company.pk)),
+            ('company__is_exporting_goods', 'False'),
+            ('company__is_exporting_services', 'False'),
             ('company__is_published', 'False'),
             ('company__is_verification_letter_sent', 'False'),
             ('company__keywords', ''),
