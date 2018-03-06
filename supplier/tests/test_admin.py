@@ -109,6 +109,80 @@ class DownloadCSVTestCase(TestCase):
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 
+    def test_download_csv_company__sectors_is_empty(self):
+        company = Company.objects.create(
+            **COMPANY_DATA,
+            sectors=[]
+        )
+        supplier = Supplier.objects.create(company=company, **SUPPLIER_DATA)
+
+        data = {
+            'action': 'download_csv',
+            '_selected_action': Supplier.objects.all().values_list(
+                'pk', flat=True
+            )
+        }
+        response = self.client.post(
+            reverse('admin:supplier_supplier_changelist'),
+            data,
+            follow=True
+        )
+
+        expected_data = OrderedDict([
+            ('company__address_line_1', 'test_address_line_1'),
+            ('company__address_line_2', 'test_address_line_2'),
+            ('company__country', 'test_country'),
+            ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_of_creation', '2010-10-10'),
+            ('company__date_published', ''),
+            ('company__date_verification_letter_sent', ''),
+            ('company__description', 'Company description'),
+            ('company__email_address', ''),
+            ('company__email_full_name', ''),
+            ('company__employees', ''),
+            ('company__export_destinations', "['DE']"),
+            ('company__export_destinations_other', 'LY'),
+            ('company__facebook_url', ''),
+            ('company__has_case_study', 'False'),
+            ('company__has_exported_before', 'True'),
+            ('company__id', str(supplier.company.pk)),
+            ('company__is_published', 'False'),
+            ('company__is_verification_letter_sent', 'False'),
+            ('company__keywords', ''),
+            ('company__linkedin_url', ''),
+            ('company__locality', 'test_locality'),
+            ('company__logo', ''),
+            ('company__mobile_number', '07505605132'),
+            ('company__modified', '2012-01-14 12:00:00+00:00'),
+            ('company__name', 'Test Company'),
+            ('company__number', '11234567'),
+            ('company__number_of_case_studies', '0'),
+            ('company__number_of_sectors', '0'),
+            ('company__po_box', ''),
+            ('company__postal_code', 'test_postal_code'),
+            ('company__postal_full_name', 'test_full_name'),
+            ('company__sectors', ''),
+            ('company__slug', 'test-company'),
+            ('company__summary', ''),
+            ('company__twitter_url', ''),
+            ('company__verified_with_code', 'False'),
+            ('company__verified_with_companies_house_oauth2', 'False'),
+            ('company__verified_with_preverified_enrolment', 'False'),
+            ('company__website', 'http://example.com'),
+            ('company_email', 'gargoyle@example.com'),
+            ('date_joined', '2017-03-21 13:12:00+00:00'),
+            ('is_active', 'True'),
+            ('is_company_owner', 'False'),
+            ('mobile_number', ''),
+            ('name', ''),
+            ('sso_id', '1'),
+            ('unsubscribed', 'False'),
+        ])
+        actual = str(response.content, 'utf-8').split('\r\n')
+
+        assert actual[0] == ','.join(expected_data.keys())
+        assert actual[1] == ','.join(expected_data.values())
+
     def test_download_csv_multiple_suppliers(self):
         company_data2 = COMPANY_DATA.copy()
         company_data2['number'] = '01234568'
