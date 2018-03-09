@@ -54,6 +54,18 @@ class DownloadCSVTestCase(TestCase):
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 
+    def test_download_csv_supplier_email_notification_no_company(self):
+        supplier_email_notification = SupplierEmailNotificationFactory(
+            supplier__company=None
+        )
+
+        response = self.client.get(
+            reverse('admin:notifications_supplieremailnotification_changelist')
+        )
+
+        assert response.status_code == 200
+
+
     def test_download_csv_multiple_supplier_email_notifications(self):
         supplier_email_notifications = (
             SupplierEmailNotificationFactory.create_batch(3)

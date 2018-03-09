@@ -38,7 +38,7 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
     )
 
     def company_name(self, obj):
-        return obj.supplier.company.name
+        return obj.supplier.company.name if obj.supplier.company else None
 
 
 @admin.register(models.AnonymousEmailNotification)
