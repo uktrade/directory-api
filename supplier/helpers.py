@@ -78,10 +78,13 @@ def generate_suppliers_csv(file_object, queryset):
     writer.writeheader()
 
     for supplier in suppliers:
-        supplier['company__number_of_sectors'] = len(
-            supplier.get('company__sectors') or []
-        )
-        supplier['company__sectors'] = ','.join(
-            supplier['company__sectors']
-        )
+
+        sectors = supplier.get('company__sectors')
+        if sectors:
+            supplier['company__number_of_sectors'] = len(sectors)
+            supplier['company__sectors'] = ','.join(sectors)
+        else:
+            supplier['company__number_of_sectors'] = '0'
+            supplier['company__sectors'] = ''
+
         writer.writerow(supplier)
