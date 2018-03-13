@@ -42,6 +42,11 @@ class TriageResultDownloadCSVTestCase(TestCase):
             ('created', str(triage_result.created)),
             ('exported_before', str(triage_result.exported_before)),
             ('id', str(triage_result.id)),
+            ('is_exporting_goods', str(triage_result.is_exporting_goods)),
+            (
+                'is_exporting_services',
+                str(triage_result.is_exporting_services)
+            ),
             (
                 'is_in_companies_house',
                 str(triage_result.is_in_companies_house)
@@ -83,6 +88,11 @@ class TriageResultDownloadCSVTestCase(TestCase):
             ('created', str(triage_result_one.created)),
             ('exported_before', str(triage_result_one.exported_before)),
             ('id', str(triage_result_one.id)),
+            ('is_exporting_goods', str(triage_result_one.is_exporting_goods)),
+            (
+                'is_exporting_services',
+                str(triage_result_one.is_exporting_services)
+            ),
             (
                 'is_in_companies_house',
                 str(triage_result_one.is_in_companies_house)
@@ -102,6 +112,11 @@ class TriageResultDownloadCSVTestCase(TestCase):
             ('created', str(triage_result_two.created)),
             ('exported_before', str(triage_result_two.exported_before)),
             ('id', str(triage_result_two.id)),
+            ('is_exporting_goods', str(triage_result_two.is_exporting_goods)),
+            (
+                'is_exporting_services',
+                str(triage_result_two.is_exporting_services)
+            ),
             (
                 'is_in_companies_house',
                 str(triage_result_two.is_in_companies_house)
@@ -121,6 +136,14 @@ class TriageResultDownloadCSVTestCase(TestCase):
             ('created', str(triage_result_three.created)),
             ('exported_before', str(triage_result_three.exported_before)),
             ('id', str(triage_result_three.id)),
+            (
+                'is_exporting_goods',
+                str(triage_result_three.is_exporting_goods)
+            ),
+            (
+                'is_exporting_services',
+                str(triage_result_three.is_exporting_services)
+            ),
             (
                 'is_in_companies_house',
                 str(triage_result_three.is_in_companies_house)
