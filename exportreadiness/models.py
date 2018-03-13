@@ -11,10 +11,14 @@ from api.model_utils import TimeStampedModel
 class TriageResult(TimeStampedModel):
     sector = models.CharField(
         choices=exred_sector_names.SECTORS_CHOICES,
+        blank=True,
+        null=True,
         max_length=255
     )
     exported_before = models.BooleanField()
     regular_exporter = models.NullBooleanField()
+    is_exporting_goods = models.BooleanField(default=False)
+    is_exporting_services = models.BooleanField(default=False)
     used_online_marketplace = models.NullBooleanField()
     company_name = models.CharField(
         max_length=255,

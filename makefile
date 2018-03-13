@@ -230,7 +230,7 @@ loaddata:
 	$(DEBUG_SET_ENV_VARS) && ./manage.py loaddata fixtures/development.json
 
 migrations:
-	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment user company buyer notifications exportopportunity
+	$(DEBUG_SET_ENV_VARS) && ./manage.py makemigrations contact enrolment user company buyer notifications exportopportunity exportreadiness
 
 debug: test_requirements debug_db debug_test
 
