@@ -109,3 +109,19 @@ def test_upload_enrolment_form_rolls_back(superuser_client, csv_invalid_rows):
 
     assert response.status_code == 200
     assert PreVerifiedEnrolment.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_download_preverified_template(superuser_client):
+    response = superuser_client.get(reverse('admin:example-template'))
+
+    assert response.content == (
+        b'Company number,Email\r\n'
+        b'90000001,comany@exmaple.com,'
+        b'This is an example company. Delete this row.\r\n'
+    )
+    assert (
+        response['Content-Disposition'] ==
+        'attachment; filename="template.csv"'
+    )
+    assert response['content-type'] == 'text/csv'

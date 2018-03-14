@@ -5,7 +5,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label='enrolment' %}">Pre-verified enrolments</a>
-&rsaquo; <a href="{% url 'admin:pre-verify-companies' %}">Add pre-verified enrolment</a>
+&rsaquo; <a href="{% url 'admin:pre-verify-companies' %}">Bulk create pre-verified enrolments</a>
 &rsaquo; {{ title }}
 </div>
 {% endblock %}
@@ -29,7 +29,7 @@
 				{% endfor %}
 			</fieldset>
 		<div class="submit-row">
-			<input type="submit" name="_save" class="default" value="Generate codes" />
+			<input type="submit" name="_save" class="default" value="Create pre-verified enrolments" />
 		</div>
 		</div>
 	</form>
