@@ -21,7 +21,12 @@ class PreVerifiedEnrolmentModelForm(forms.ModelForm):
 
 class GeneratePreVerifiedCompanies(forms.Form):
     generated_for = forms.CharField(max_length=1000)
-    csv_file = forms.FileField()
+    csv_file = forms.FileField(
+        help_text=(
+            '<a href="/admin/enrolment/preverifiedenrolment/example-template/"'
+            '>Download example csv file</a>'
+        )
+    )
 
     def __init__(self, user, *args, **kwargs):
         self.user = user

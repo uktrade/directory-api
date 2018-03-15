@@ -1,7 +1,10 @@
+import csv
+
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import FormView
+from django.http import HttpResponse
+from django.views.generic import FormView, View
 
 from enrolment.models import PreVerifiedEnrolment
 from enrolment import forms
@@ -18,6 +21,20 @@ class GeneratePreVerifiedCompaniesFormView(FormView):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
+
+class DownloadPreVerifiedTemplate(View):
+
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="template.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Company number', 'Email'])
+        writer.writerow([
+            '90000001', 'comany@exmaple.com',
+            'This is an example company. Delete this row.'
+        ])
+        return response
 
 
 @admin.register(PreVerifiedEnrolment)
@@ -40,6 +57,14 @@ class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
                     GeneratePreVerifiedCompaniesFormView.as_view()
                 ),
                 name="pre-verify-companies"
+            ),
+
+            url(
+                r'^example-template/$',
+                self.admin_site.admin_view(
+                    DownloadPreVerifiedTemplate.as_view()
+                ),
+                name="example-template"
             ),
         ]
         return additional_urls + urls
