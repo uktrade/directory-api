@@ -163,6 +163,9 @@ REST_FRAMEWORK = {
         'api.signature.SignatureCheckPermission',
         'core.permissions.IsAuthenticatedSSO',
     ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
 }
 
 
