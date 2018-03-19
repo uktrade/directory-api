@@ -24,4 +24,4 @@ directory-constants==6.5.2
 directory-sso-api-client==2.5.1
 sigauth==2.1.2
 directory-healthcheck==0.4.2
-django-admin-ip-restrictor==0.2.0
+-e git+https://github.com/uktrade/django-admin-ip-restrictor@v0.3.1#egg=admin_ip_restrictor
