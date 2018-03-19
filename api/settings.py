@@ -59,6 +59,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware'
 ]
 
 ROOT_URLCONF = 'api.urls'
@@ -516,3 +517,9 @@ SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 # testing api
 FEATURE_TEST_API_ENABLED = os.getenv(
     "FEATURE_TEST_API_ENABLED", 'false') == 'true'
+
+
+# Admin restrictor
+RESTRICT_ADMIN = os.getenv('RESTRICT_ADMIN') == 'true'
+ALLOWED_ADMIN_IPS = os.getenv('ALLOWED_ADMIN_IPS', [])
+ALLOWED_ADMIN_IP_RANGES = os.getenv('ALLOWED_ADMIN_IP_RANGES', [])
