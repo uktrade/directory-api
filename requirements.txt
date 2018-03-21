@@ -4,7 +4,6 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
--e git+https://github.com/uktrade/django-admin-ip-restrictor@v0.4.0#egg=admin_ip_restrictor
 amqp==2.2.2               # via kombu
 asn1crypto==0.24.0        # via cryptography
 billiard==3.5.0.3         # via celery
@@ -22,10 +21,11 @@ directory-healthcheck==0.4.2
 directory-sso-api-client==2.5.1
 directory-validators==4.5.1
 dj-database-url==0.4.1
+django-admin-ip-restrictor==0.1.0
 django-celery-beat==1.0.1
 django-filter==1.0.4
 django-health-check==3.0.0  # via directory-healthcheck
-django-ipware==2.0.1
+django-ipware==2.0.1      # via django-admin-ip-restrictor
 django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
