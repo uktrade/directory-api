@@ -25,4 +25,3 @@ directory-sso-api-client==2.5.1
 sigauth==2.1.2
 directory-healthcheck==0.4.2
 django-admin-ip-restrictor==0.1.0
-waitress==0.8.9
