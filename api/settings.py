@@ -1,4 +1,5 @@
 import os
+import ssl
 
 import dj_database_url
 
@@ -430,6 +431,12 @@ UNSUBSCRIBED_SUBJECT = os.getenv(
 # Celery
 CELERY_BROKER_URL = os.getenv('REDIS_URL')
 CELERY_RESULT_BACKEND = os.getenv('REDIS_URL')
+if os.getenv('FEATURE_REDIS_USE_SSL') == 'true':
+    CELERY_REDIS_BACKEND_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE
+    }
+    CELERY_BROKER_USE_SSL = CELERY_REDIS_BACKEND_USE_SSL
+
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
