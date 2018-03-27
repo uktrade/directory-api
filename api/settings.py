@@ -1,5 +1,4 @@
 import os
-import ssl
 
 import dj_database_url
 
