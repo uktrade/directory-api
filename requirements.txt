@@ -38,7 +38,7 @@ elasticsearch==5.3.0
 gunicorn==19.5.0
 idna==2.6                 # via cryptography, requests
 jmespath==0.9.3           # via boto3, botocore
-kombu==4.1.0              # via celery
+kombu==4.0.2
 mohawk==0.3.4             # via sigauth
 monotonic==1.4            # via directory-client-core
 olefile==0.44             # via directory-validators, pillow

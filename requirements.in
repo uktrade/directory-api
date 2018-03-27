@@ -4,6 +4,7 @@ django_extensions==1.6.7
 djangorestframework==3.4.7
 django-storages==1.5.1
 django-filter==1.0.4
+kombu==4.0.2
 django-celery-beat==1.0.1
 django-redis==4.7.0
 django-pglocks
