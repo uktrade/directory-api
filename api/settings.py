@@ -97,7 +97,8 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv('REDIS_URL'),
+        # separate to REDIS_CELERY_URL as needs to start with 'rediss' for SSL
+        "LOCATION": os.getenv('REDIS_CACHE_URL'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -429,7 +430,9 @@ UNSUBSCRIBED_SUBJECT = os.getenv(
 )
 
 # Celery
-CELERY_BROKER_URL = os.getenv('REDIS_URL')
+# separate to REDIS_CACHE_URL as needs to start with 'redis' and SSL conf
+# is in api/celery.py
+CELERY_BROKER_URL = os.getenv('REDIS_CELERY_URL')
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
