@@ -190,7 +190,7 @@ class Company(TimeStampedModel):
         max_length=100,
         blank=True,
         null=True,
-        help_text='Marks the company for use on the specified campaign page',
+        help_text='Marks the company for use on the specified page',
         choices=choices.LEAD_GENERATION_CAMPAIGNS,
     )
 
