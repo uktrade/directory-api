@@ -193,6 +193,7 @@ class Company(TimeStampedModel):
         help_text='Marks the company for use on the specified page',
         choices=choices.LEAD_GENERATION_CAMPAIGNS,
     )
+    is_showcase_company = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'companies'

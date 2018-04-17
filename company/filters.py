@@ -8,4 +8,4 @@ class CompanyPublicProfileFilter(django_filters.rest_framework.FilterSet):
 
     class Meta:
         model = models.Company
-        fields = ['sectors']
+        fields = ['sectors', 'is_showcase_company']
