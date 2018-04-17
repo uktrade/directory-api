@@ -40,6 +40,7 @@ def test_company_doc_type():
         'summary': company.summary,
         'case_study_count': 1,
         'has_single_sector': False,
+        'is_showcase_company': False,
         'supplier_case_studies': [
             {
                 'description': case_study.description,

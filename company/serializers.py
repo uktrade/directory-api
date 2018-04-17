@@ -184,6 +184,7 @@ class SearchSerializer(serializers.Serializer):
         required=False,
         choices=[(i, i) for i in choices.LEAD_GENERATION_CAMPAIGNS],
     )
+    is_showcase_company = serializers.NullBooleanField(required=False)
 
     def validate(self, attrs):
         is_sector_present = attrs.get('sectors') is not None

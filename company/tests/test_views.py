@@ -1082,6 +1082,7 @@ def test_company_search(mock_get_search_results, api_client):
         size=10,
         sectors={sectors.AEROSPACE},
         campaign_tag=lead_generation.FOOD_IS_GREAT,
+        is_showcase_company=None,
     )
 
 
@@ -1100,7 +1101,36 @@ def test_company_search_no_sectors(mock_get_search_results, api_client):
     assert response.json() == expected_value
     assert mock_get_search_results.call_count == 1
     assert mock_get_search_results.call_args == call(
-        term='bones', page=1, size=10, sectors=set(), campaign_tag=None,
+        term='bones',
+        page=1,
+        size=10,
+        sectors=set(),
+        campaign_tag=None,
+        is_showcase_company=None,
+    )
+
+
+@patch('company.views.CompanySearchAPIView.get_search_results')
+def test_company_search_showcase(mock_get_search_results, api_client):
+    mock_get_search_results.return_value = expected_value = {
+        'hits': {
+            'total': 2,
+            'hits': [None, None],
+        },
+    }
+    data = {'term': 'abc', 'page': 1, 'size': 10, 'is_showcase_company': True}
+    response = api_client.get(reverse('company-search'), data=data)
+
+    assert response.status_code == 200
+    assert response.json() == expected_value
+    assert mock_get_search_results.call_count == 1
+    assert mock_get_search_results.call_args == call(
+        term='abc',
+        page=1,
+        size=10,
+        sectors=set(),
+        campaign_tag=None,
+        is_showcase_company=True,
     )
 
 
