@@ -38,6 +38,7 @@ from buyer.views import BuyerCSVDownloadAPIView, BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity import views as exportopportunity_views
 from exportreadiness import views as exportreadiness_views
+from activitystream.views import ActivityStreamView
 
 from django.conf import settings
 
@@ -239,6 +240,11 @@ urlpatterns = [
         r'export-readiness/task-completed/$',
         exportreadiness_views.TaskCompletedCreateRetrieveView.as_view(),
         name='export-readiness-task-completed-create-retrieve'
+    ),
+    url(
+        r'^activity-stream/',
+        ActivityStreamView.as_view(),
+        name='activity-stream'
     ),
     url(
         r'buyer/csv-dump/$',

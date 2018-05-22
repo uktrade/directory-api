@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
     'exportreadiness.apps.ExportReadinessConfig',
+    'activitystream.apps.ActivityStreamConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check',
