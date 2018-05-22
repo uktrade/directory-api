@@ -38,7 +38,7 @@ from buyer.views import BuyerCSVDownloadAPIView, BuyerCreateAPIView
 from contact.views import CreateMessageToSupplierAPIView
 from exportopportunity import views as exportopportunity_views
 from exportreadiness import views as exportreadiness_views
-from activitystream.views import ActivityStreamView
+from activitystream.views import ActivityStreamViewSet
 
 from django.conf import settings
 
@@ -243,7 +243,7 @@ urlpatterns = [
     ),
     url(
         r'^activity-stream/',
-        ActivityStreamView.as_view(),
+        ActivityStreamViewSet.as_view({'get': 'list'}),
         name='activity-stream'
     ),
     url(

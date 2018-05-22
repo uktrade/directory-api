@@ -1,7 +1,10 @@
-from django.http import JsonResponse
-from django.views import View
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
 
 
-class ActivityStreamView(View):
-    def get(self, request, *args, **kwargs):
-        return JsonResponse({})
+class ActivityStreamViewSet(ViewSet):
+    permission_classes = (AllowAny,)
+
+    def list(self, request):
+        return Response({})
