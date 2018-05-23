@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from mohawk import Receiver
@@ -17,14 +18,14 @@ INCORRECT = 'Incorrect authentication credentials.'
 
 
 def lookup_credentials(access_key_id):
-    if access_key_id != 'some-id':
+    if access_key_id != settings.ACTIVITY_STREAM_ACCESS_KEY_ID:
         raise AuthenticationFailed(
             'No Hawk ID of {access_key_id}'.format(id=access_key_id)
         )
 
     return {
-        'id': 'some-id',
-        'key': 'some-secret',
+        'id': settings.ACTIVITY_STREAM_ACCESS_KEY_ID,
+        'key': settings.ACTIVITY_STREAM_SECRET_ACCESS_KEY,
         'algorithm': 'sha256',
     }
 

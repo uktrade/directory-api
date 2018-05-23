@@ -83,6 +83,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
+	export DIRECTORY_API_ACTIVITY_STREAM_ACCESS_KEY_ID=some-id; \
+	export DIRECTORY_API_ACTIVITY_STREAM_SECRET_ACCESS_KEY=some-secret; \
 	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/{code}/; \
 	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export DIRECTORY_API_FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
@@ -181,6 +183,8 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_VERIFY_CERTS=false; \
 	export ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
+	export ACTIVITY_STREAM_ACCESS_KEY_ID=some-id; \
+	export ACTIVITY_STREAM_SECRET_ACCESS_KEY=some-secret; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
 	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/; \
 	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
