@@ -85,7 +85,7 @@ class ActivityStreamAuthentication(BaseAuthentication):
         remote_address = \
             request.META['HTTP_X_FORWARDED_FOR'].split(',')[0].strip()
 
-        if remote_address not in ['1.2.3.4', '2.3.4.5']:
+        if remote_address not in settings.ACTIVITY_STREAM_IP_WHITELIST:
             log.warning(
                 'Failed authentication: the X-Forwarded-For header did not '
                 'start with an IP in the whitelist'
