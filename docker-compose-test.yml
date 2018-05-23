@@ -1,6 +1,9 @@
 version: '2'
 services:
 
+  redis:
+    image: redis:4.0.9
+
   postgres:
     image: postgres:9.5.2
     env_file: ./docker/.env-postgres.test
@@ -23,10 +26,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    depends_on: [postgres, elasticsearch]
-    links: [postgres, elasticsearch]
+    depends_on: [postgres, elasticsearch, redis]
+    links: [postgres, elasticsearch, redis]
     working_dir: /usr/src/app
-    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 120s -wait http://elasticsearch:9200 -timeout 120s
+    entrypoint: dockerize -wait tcp://postgres:5432 -timeout 120s -wait http://elasticsearch:9200 -timeout 120s -wait tcp://redis:6379 -timeout 120s
     command: ./docker/cmd-test.sh
     env_file: ./docker/.env.test
     restart: "no"
