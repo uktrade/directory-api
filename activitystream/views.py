@@ -93,4 +93,4 @@ class ActivityStreamViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request):
-        return Response({})
+        return Response({"secret": "content-for-pen-test"})
