@@ -76,6 +76,22 @@ class ActivityStreamAuthentication(BaseAuthentication):
         return 'Hawk'
 
     def authenticate(self, request):
+        if 'HTTP_X_FORWARDED_FOR' not in request.META:
+            log.warning(
+                'Failed authentication: no X-Forwarded-For header passed'
+            )
+            raise AuthenticationFailed(INCORRECT)
+
+        remote_address = \
+            request.META['HTTP_X_FORWARDED_FOR'].split(',')[0].strip()
+
+        if remote_address not in ['1.2.3.4', '2.3.4.5']:
+            log.warning(
+                'Failed authentication: the X-Forwarded-For header did not '
+                'start with an IP in the whitelist'
+            )
+            raise AuthenticationFailed(INCORRECT)
+
         if 'HTTP_AUTHORIZATION' not in request.META:
             raise AuthenticationFailed(NOT_PROVIDED)
 
