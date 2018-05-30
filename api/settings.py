@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
     'exportreadiness.apps.ExportReadinessConfig',
+    'activitystream.apps.ActivityStreamConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check',
@@ -485,6 +486,17 @@ ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = os.getenv(
 FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = os.getenv(
     'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', 'true'
 ) == 'true'
+
+# Activity Stream
+ACTIVITY_STREAM_ACCESS_KEY_ID = os.getenv(
+    'ACTIVITY_STREAM_ACCESS_KEY_ID'
+)
+ACTIVITY_STREAM_SECRET_ACCESS_KEY = os.getenv(
+    'ACTIVITY_STREAM_SECRET_ACCESS_KEY'
+)
+ACTIVITY_STREAM_IP_WHITELIST = os.getenv(
+    'ACTIVITY_STREAM_IP_WHITELIST'
+).split(',')
 
 # SSO
 SSO_PROXY_API_CLIENT_BASE_URL = os.environ['SSO_PROXY_API_CLIENT_BASE_URL']
