@@ -1,4 +1,4 @@
-Django==1.11.10
+Django==1.11.13
 dj-database-url==0.4.1
 django_extensions==1.6.7
 djangorestframework==3.4.7
@@ -13,7 +13,7 @@ whitenoise==3.2.2
 gunicorn==19.5.0
 psycopg2==2.6.1
 raven==5.19.0
-boto3==1.4.1
+boto3==1.7.30
 celery[redis]==4.1.0
 requests[security]==2.18.4
 requests-aws4auth==0.9
