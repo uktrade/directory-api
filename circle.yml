@@ -16,5 +16,15 @@ deployment:
   dev:
     branch: master
     commands:
+      - |
+        cat >~/.netrc <<EOF
+        machine api.heroku.com
+          login $HEROKU_EMAIL
+          password $HEROKU_TOKEN
+        machine git.heroku.com
+          login $HEROKU_EMAIL
+          password $HEROKU_TOKEN
+        EOF
+      - chmod 600 ~/.netrc # Heroku cli complains about permissions without this
       - make heroku_deploy_dev
       - make integration_tests
