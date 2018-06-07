@@ -250,9 +250,9 @@ heroku_deploy_dev:
 	docker push registry.heroku.com/directory-api-dev/celery_beat_scheduler
 	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
 	docker push registry.heroku.com/directory-api-dev/celery_worker
-	heroku container:release web
-	heroku container:release celery_beat_scheduler
-	heroku container:release celery_worker
+	heroku container:release web --app directory-api-dev
+	heroku container:release celery_beat_scheduler --app directory-api-dev
+	heroku container:release celery_worker --app directory-api-dev
 
 integration_tests:
 	cd $(mktemp -d) && \
