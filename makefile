@@ -242,6 +242,7 @@ debug: test_requirements debug_db debug_test
 
 
 heroku_deploy_dev:
+	./docker/install_heroku_cli.sh
 	docker login --email=$$HEROKU_EMAIL --username=$$HEROKU_EMAIL --password=$$HEROKU_API_KEY registry.heroku.com
 	docker build -t registry.heroku.com/directory-api-dev/web .
 	docker push registry.heroku.com/directory-api-dev/web
