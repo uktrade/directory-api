@@ -1,4 +1,4 @@
-wget -q https://cli-assets.heroku.com/heroku-cli/channels/stable/heroku-cli-linux-x64.tar.gz -O heroku.tar.gz
+wget -q https://cli-assets.heroku.com/heroku-linux-x64.tar.gz -O heroku.tar.gz
 tar -xzf heroku.tar.gz
 mkdir -p ~/bin/heroku-cli
 tar -xzf heroku.tar.gz --strip-components 1 -C ~/bin/heroku-cli
