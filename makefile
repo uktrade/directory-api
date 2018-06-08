@@ -243,16 +243,8 @@ debug: test_requirements debug_db debug_test
 
 heroku_deploy_dev:
 	./docker/install_heroku_cli.sh
-	docker login --email=$$HEROKU_EMAIL --username=$$HEROKU_EMAIL --password=$$HEROKU_TOKEN registry.heroku.com
-	docker build -t registry.heroku.com/directory-api-dev/web .
-	docker push registry.heroku.com/directory-api-dev/web
-	docker build -t registry.heroku.com/directory-api-dev/celery_beat_scheduler -f Dockerfile-celery_beat_scheduler .
-	docker push registry.heroku.com/directory-api-dev/celery_beat_scheduler
-	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
-	docker push registry.heroku.com/directory-api-dev/celery_worker
-	heroku container:release web --app directory-api-dev
-	heroku container:release celery_beat_scheduler --app directory-api-dev
-	heroku container:release celery_worker --app directory-api-dev
+	heroku container:push --recursive
+	heroku container:release web celery_worker celery_beat_scheduler
 
 integration_tests:
 	cd $(mktemp -d) && \
