@@ -243,8 +243,8 @@ debug: test_requirements debug_db debug_test
 
 heroku_deploy_dev:
 	./docker/install_heroku_cli.sh
-	heroku container:push --recursive
-	heroku container:release web celery_worker celery_beat_scheduler
+	~/bin/heroku-cli/bin/heroku container:push --recursive
+	~/bin/heroku-cli/bin/heroku container:release web celery_worker celery_beat_scheduler
 
 integration_tests:
 	cd $(mktemp -d) && \

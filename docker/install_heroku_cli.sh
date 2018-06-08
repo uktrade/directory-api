@@ -3,9 +3,7 @@ tar -xzf heroku.tar.gz
 mkdir -p ~/bin/heroku-cli
 tar -xzf heroku.tar.gz --strip-components 1 -C ~/bin/heroku-cli
 rm -fr heroku.tar.gz
-ln -s ~/bin/heroku-cli/bin/heroku ~/bin/heroku
-export PATH=$PATH:$HOME/bin
-heroku -v
+~/bin/heroku-cli/bin/heroku -v
 cat >~/.netrc <<EOF
 machine api.heroku.com
   login $HEROKU_EMAIL
