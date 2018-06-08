@@ -243,6 +243,7 @@ debug: test_requirements debug_db debug_test
 
 heroku_deploy_dev:
 	./docker/install_heroku_cli.sh
+	docker login --username=$$HEROKU_EMAIL --password=$$HEROKU_TOKEN registry.heroku.com
 	~/bin/heroku-cli/bin/heroku container:push --recursive --app directory-api-dev
 	~/bin/heroku-cli/bin/heroku container:release web celery_worker celery_beat_scheduler --app directory-api-dev
 
