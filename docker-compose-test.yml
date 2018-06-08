@@ -25,7 +25,7 @@ services:
   sut:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.web
     depends_on: [postgres, elasticsearch, redis]
     links: [postgres, elasticsearch, redis]
     working_dir: /usr/src/app

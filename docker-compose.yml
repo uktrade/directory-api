@@ -25,7 +25,7 @@ services:
   webserver:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.web
 
     depends_on: [postgres, elasticsearch, redis]
     links: [postgres, elasticsearch, redis]
@@ -39,7 +39,7 @@ services:
   celery_beat_scheduler:
     build:
       context: .
-      dockerfile: Dockerfile-celery_beat_scheduler
+      dockerfile: Dockerfile.celery_beat_scheduler
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
@@ -52,7 +52,7 @@ services:
   celery_worker:
     build:
       context: .
-      dockerfile: Dockerfile-celery_worker
+      dockerfile: Dockerfile.celery_worker
     depends_on: [postgres, elasticsearch]
     links: [postgres, elasticsearch]
     working_dir: /usr/src/app
