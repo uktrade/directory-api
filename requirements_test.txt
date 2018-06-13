@@ -18,7 +18,7 @@ contextlib2==0.5.5        # via raven
 coverage==4.5.1           # via codecov, pytest-cov
 cryptography==2.1.4       # via pyopenssl, requests
 directory-client-core==0.2.0  # via directory-sso-api-client
-directory-constants==6.6.0
+directory-constants==6.9.0
 directory-healthcheck==0.4.2
 directory-sso-api-client==2.5.1
 directory-validators==4.5.1
