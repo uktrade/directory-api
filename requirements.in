@@ -1,4 +1,4 @@
-Django==1.11.10
+Django==1.11.13
 dj-database-url==0.4.1
 django_extensions==1.6.7
 djangorestframework==3.4.7
@@ -13,15 +13,15 @@ whitenoise==3.2.2
 gunicorn==19.5.0
 psycopg2==2.6.1
 raven==5.19.0
-boto3==1.4.1
+boto3==1.7.30
 celery[redis]==4.1.0
 requests[security]==2.18.4
 requests-aws4auth==0.9
 elasticsearch==5.3.0
 elasticsearch-dsl==5.2.0
-waitress==0.8.9
+waitress==1.1.0
 directory-validators==4.5.1
-directory-constants==6.6.0
+directory-constants==7.0.0
 directory-sso-api-client==2.5.1
 sigauth==2.1.2
 directory-healthcheck==0.4.2

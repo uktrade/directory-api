@@ -7,8 +7,8 @@
 amqp==2.2.2               # via kombu
 asn1crypto==0.24.0        # via cryptography
 billiard==3.5.0.3         # via celery
-boto3==1.4.1
-botocore==1.4.93          # via boto3, s3transfer
+boto3==1.7.30
+botocore==1.10.37         # via boto3, s3transfer
 celery[redis]==4.1.0
 certifi==2018.1.18        # via requests
 cffi==1.11.5              # via cryptography
@@ -18,7 +18,7 @@ contextlib2==0.5.5        # via raven
 coverage==4.5.1           # via codecov, pytest-cov
 cryptography==2.1.4       # via pyopenssl, requests
 directory-client-core==0.2.0  # via directory-sso-api-client
-directory-constants==6.6.0
+directory-constants==7.0.0
 directory-healthcheck==0.4.2
 directory-sso-api-client==2.5.1
 directory-validators==4.5.1
@@ -31,7 +31,7 @@ django-ipware==2.0.1      # via django-admin-ip-restrictor
 django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
-django==1.11.10
+django==1.11.13
 django_extensions==1.6.7
 djangorestframework==3.4.7
 docutils==0.14            # via botocore
@@ -76,5 +76,5 @@ termcolor==1.1.0          # via pytest-sugar
 text-unidecode==1.2       # via faker
 urllib3==1.22             # via elasticsearch, requests
 vine==1.1.4               # via amqp
-waitress==0.8.9
+waitress==1.1.0
 whitenoise==3.2.2

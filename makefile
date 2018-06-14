@@ -65,8 +65,8 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_STANNP_TEST_MODE=true; \
 	export DIRECTORY_API_CONTACT_SUPPLIER_SUBJECT=debug; \
 	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug; \
-	export DIRECTORY_API_REDIS_CACHE_URL=debug; \
-	export DIRECTORY_API_REDIS_CELERY_URL=debug; \
+	export DIRECTORY_API_REDIS_CACHE_URL=redis://redis:6379/; \
+	export DIRECTORY_API_REDIS_CELERY_URL=redis://redis:6379/; \
 	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
 	export DIRECTORY_API_SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
 	export DIRECTORY_API_SSO_PROXY_API_CLIENT_BASE_URL=http://sso.trade.great:8004/; \
@@ -83,6 +83,9 @@ DOCKER_SET_DEBUG_ENV_VARS := \
 	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
+	export DIRECTORY_API_ACTIVITY_STREAM_ACCESS_KEY_ID=some-id; \
+	export DIRECTORY_API_ACTIVITY_STREAM_SECRET_ACCESS_KEY=some-secret; \
+	export DIRECTORY_API_ACTIVITY_STREAM_IP_WHITELIST=1.2.3.4,2.3.4.5; \
 	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/{code}/; \
 	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
 	export DIRECTORY_API_FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
@@ -181,6 +184,9 @@ DEBUG_SET_ENV_VARS := \
 	export ELASTICSEARCH_VERIFY_CERTS=false; \
 	export ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
 	export ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
+	export ACTIVITY_STREAM_ACCESS_KEY_ID=some-id; \
+	export ACTIVITY_STREAM_SECRET_ACCESS_KEY=some-secret; \
+	export ACTIVITY_STREAM_IP_WHITELIST=1.2.3.4,2.3.4.5; \
 	export EMAIL_BACKEND_CLASS_NAME=console; \
 	export FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/; \
 	export SSO_PROXY_SIGNATURE_SECRET=proxy_signature_debug; \
@@ -234,14 +240,12 @@ migrations:
 
 debug: test_requirements debug_db debug_test
 
+
 heroku_deploy_dev:
-	docker login --email=$$HEROKU_EMAIL --username=$$HEROKU_EMAIL --password=$$HEROKU_API_KEY registry.heroku.com
-	docker build -t registry.heroku.com/directory-api-dev/web .
-	docker push registry.heroku.com/directory-api-dev/web
-	docker build -t registry.heroku.com/directory-api-dev/celery_beat_scheduler -f Dockerfile-celery_beat_scheduler .
-	docker push registry.heroku.com/directory-api-dev/celery_beat_scheduler
-	docker build -t registry.heroku.com/directory-api-dev/celery_worker -f Dockerfile-celery_worker .
-	docker push registry.heroku.com/directory-api-dev/celery_worker
+	./docker/install_heroku_cli.sh
+	docker login --username=$$HEROKU_EMAIL --password=$$HEROKU_TOKEN registry.heroku.com
+	~/bin/heroku-cli/bin/heroku container:push --recursive --app directory-api-dev
+	~/bin/heroku-cli/bin/heroku container:release web celery_worker celery_beat_scheduler --app directory-api-dev
 
 integration_tests:
 	cd $(mktemp -d) && \
