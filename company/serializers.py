@@ -5,6 +5,7 @@ from directory_validators import company as shared_validators
 from directory_constants.constants import choices
 
 from django.conf import settings
+from django.db import transaction
 from django.http import QueryDict
 
 from company import helpers, models, validators
@@ -136,6 +137,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'verified_with_code',
             'verified_with_preverified_enrolment',
             'verified_with_companies_house_oauth2',
+            'verified_with_govuk_verify',
             'is_verified',
             'export_destinations',
             'export_destinations_other',
@@ -211,6 +213,23 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_SCOPE_ERROR)
         if data['expires_in'] < 1:
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
+
+
+class VerifyCompanyWithGovUKVerifySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Supplier
+        fields = ('govuk_verify_address',)
+        extra_kwargs = {
+            'govuk_verify_address': {'required': True}
+        }
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        company = self.instance.company
+        company.verified_with_govuk_verify = True
+        company.save()
+        return super().save(*args, **kwargs)
 
 
 class InviteSerializerMixin:

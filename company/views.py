@@ -11,6 +11,7 @@ from api.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
+from supplier.models import Supplier
 
 from elasticsearch_dsl import query
 
@@ -137,6 +138,25 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         company.save()
 
         return Response()
+
+
+class VerifyCompanyWithGovUKVerifyView(views.APIView):
+    """
+    Confirms Supplier's relationship with Company by their name and date of
+    birth being matched against a company officer.
+
+    """
+
+    queryset = Supplier.objects.all()
+    serializer_class = serializers.VerifyCompanyWithGovUKVerifySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            self.request.user.supplier, data=request.data
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.validated_data)
 
 
 class SearchBaseView(abc.ABC, views.APIView):

@@ -2386,3 +2386,36 @@ def test_multi_user_account_management_views_forbidden(
     response = authed_client.post(url, {})
 
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_company_verify_gov_verify(authed_client, authed_supplier):
+    company = authed_supplier.company
+    address = 'Jim Example. 123 Fake Street'
+    url = reverse('company-verify-govuk-verify')
+
+    response = authed_client.post(url, {'govuk_verify_address': address})
+
+    company.refresh_from_db()
+    authed_supplier.refresh_from_db()
+
+    assert response.status_code == 200
+    assert company.verified_with_govuk_verify is True
+    assert authed_supplier.govuk_verify_address == address
+
+
+@pytest.mark.django_db
+def test_company_verify_gov_verify_invalid(authed_client, authed_supplier):
+    company = authed_supplier.company
+    url = reverse('company-verify-govuk-verify')
+
+    response = authed_client.post(url)
+
+    company.refresh_from_db()
+    authed_supplier.refresh_from_db()
+
+    assert response.status_code == 400
+    assert response.json() == {
+        'govuk_verify_address': ['This field is required.']
+    }
+    assert company.verified_with_govuk_verify is False
