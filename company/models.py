@@ -107,6 +107,7 @@ class Company(TimeStampedModel):
     verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
+    verified_with_govuk_verify = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
     date_verification_letter_sent = models.DateTimeField(
         null=True, blank=True
@@ -211,6 +212,7 @@ class Company(TimeStampedModel):
             self.verified_with_preverified_enrolment,
             self.verified_with_code,
             self.verified_with_companies_house_oauth2,
+            self.verified_with_govuk_verify,
         ])
 
     def has_valid_address(self):

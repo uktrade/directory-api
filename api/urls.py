@@ -13,6 +13,7 @@ from company.views import (
     PublicCaseStudyViewSet,
     VerifyCompanyWithCodeAPIView,
     VerifyCompanyWithCompaniesHouseView,
+    VerifyCompanyWithGovUKVerifyView,
     RemoveCollaboratorsView,
     CollaboratorInviteCreateView,
     TransferOwnershipInviteCreateView,
@@ -116,6 +117,11 @@ urlpatterns = [
         r'^supplier/company/verify/companies-house/$',
         VerifyCompanyWithCompaniesHouseView.as_view(),
         name='company-verify-companies-house'
+    ),
+    url(
+        r'^supplier/company/verify/govuk-verify/$',
+        VerifyCompanyWithGovUKVerifyView.as_view(),
+        name='company-verify-govuk-verify'
     ),
     url(
         r'^supplier/company/case-study/$',

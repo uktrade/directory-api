@@ -52,6 +52,12 @@ class Supplier(TimeStampedModel):
         ),
     )
     is_company_owner = models.BooleanField(default=False)
+    govuk_verify_address = models.CharField(
+        null=True,
+        blank=True,
+        help_text="For security purposes. Their address when they verified.",
+        max_length=2000,
+    )
 
     class Meta:
         ordering = ('-created', '-modified')
