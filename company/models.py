@@ -51,7 +51,7 @@ class Company(TimeStampedModel):
         ),
         validators=[no_html],
     )
-    has_exported_before = models.BooleanField()
+    has_exported_before = models.NullBooleanField()
     is_exporting_goods = models.BooleanField(default=False)
     is_exporting_services = models.BooleanField(default=False)
     keywords = models.TextField(
