@@ -8,7 +8,7 @@ from rest_framework import status
 
 from django.http import Http404
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView

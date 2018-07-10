@@ -7,7 +7,7 @@ from rest_framework import generics, viewsets, views, status
 from django.db.models import Case, Count, When, Value, BooleanField
 from django.http import Http404
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner

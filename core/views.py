@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from rest_framework.views import APIView
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from core.permissions import IsAuthenticatedCSVDump
 from core.utils import get_file_from_s3
 

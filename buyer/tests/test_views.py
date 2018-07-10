@@ -11,7 +11,7 @@ from buyer import models
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission',
+@patch('conf.signature.SignatureCheckPermission.has_permission',
        Mock(return_value=True))
 def test_create_buyer_deserialization(client):
     data = {
@@ -32,7 +32,7 @@ def test_create_buyer_deserialization(client):
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission',
+@patch('conf.signature.SignatureCheckPermission.has_permission',
        Mock(return_value=True))
 @patch('core.views.get_file_from_s3')
 def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):

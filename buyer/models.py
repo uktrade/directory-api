@@ -2,7 +2,7 @@ from directory_constants.constants import choices
 
 from django.db import models
 
-from api.model_utils import TimeStampedModel
+from core.utils import TimeStampedModel
 
 
 class Buyer(TimeStampedModel):

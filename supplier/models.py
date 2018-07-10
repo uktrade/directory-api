@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from api.model_utils import TimeStampedModel
+from core.utils import TimeStampedModel
 from company.models import Company
 
 

@@ -1,6 +1,6 @@
 from rest_framework.generics import CreateAPIView
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from exportopportunity import models, serializers
 
 

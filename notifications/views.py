@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from django.db.utils import IntegrityError
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from notifications import models, notifications, serializers
 
 
