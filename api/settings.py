@@ -2,10 +2,13 @@ import os
 
 import dj_database_url
 
+import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
+
+env = environ.Env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +18,7 @@ BASE_DIR = os.path.dirname(PROJECT_ROOT)
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if (os.getenv('DEBUG') == 'true') else False
+DEBUG = env.bool('DEBUG')
 
 # As app is running behind a host-based router supplied by Heroku or other
 # PaaS, we can open ALLOWED_HOSTS
@@ -31,9 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    "rest_framework",
+    'rest_framework',
     'django_celery_beat',
-    "raven.contrib.django.raven_compat",
+    'raven.contrib.django.raven_compat',
     'superuser',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
@@ -95,12 +98,12 @@ DATABASES = {
 
 # Caches
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
         # separate to REDIS_CELERY_URL as needs to start with 'rediss' for SSL
-        "LOCATION": os.getenv('REDIS_CACHE_URL'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        'LOCATION': env.str('REDIS_CACHE_URL', ''),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
@@ -127,7 +130,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
-STATIC_HOST = os.environ.get('STATIC_HOST', '')
+STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -149,10 +152,10 @@ for static_dir in STATICFILES_DIRS:
         os.makedirs(static_dir)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = env.str('SECRET_KEY')
 
 # Application authorisation
-SIGNATURE_SECRET = os.getenv("SIGNATURE_SECRET")
+SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 
 # DRF
 REST_FRAMEWORK = {
@@ -174,7 +177,7 @@ REST_FRAMEWORK = {
 
 # Sentry
 RAVEN_CONFIG = {
-    "dsn": os.getenv("SENTRY_DSN"),
+    'dsn': env.str('SENTRY_DSN', ''),
 }
 
 # Logging for development
@@ -271,41 +274,41 @@ else:
 
 
 # CH
-COMPANIES_HOUSE_API_KEY = os.getenv('COMPANIES_HOUSE_API_KEY')
+COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
 
 # Settings for company email confirmation
-COMPANY_EMAIL_CONFIRMATION_SUBJECT = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_SUBJECT"
-]
-COMPANY_EMAIL_CONFIRMATION_FROM = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_FROM"
-]
-COMPANY_EMAIL_CONFIRMATION_URL = os.environ[
-    "COMPANY_EMAIL_CONFIRMATION_URL"
-]
+COMPANY_EMAIL_CONFIRMATION_SUBJECT = env.str(
+    'COMPANY_EMAIL_CONFIRMATION_SUBJECT',
+)
+COMPANY_EMAIL_CONFIRMATION_FROM = env.str(
+    'COMPANY_EMAIL_CONFIRMATION_FROM'
+)
+COMPANY_EMAIL_CONFIRMATION_URL = env.str(
+    'COMPANY_EMAIL_CONFIRMATION_URL'
+)
 
 # Email
 EMAIL_BACKED_CLASSES = {
     'default': 'django.core.mail.backends.smtp.EmailBackend',
     'console': 'django.core.mail.backends.console.EmailBackend'
 }
-EMAIL_BACKED_CLASS_NAME = os.getenv('EMAIL_BACKEND_CLASS_NAME', 'default')
+EMAIL_BACKED_CLASS_NAME = env.str('EMAIL_BACKEND_CLASS_NAME', 'default')
 EMAIL_BACKEND = EMAIL_BACKED_CLASSES[EMAIL_BACKED_CLASS_NAME]
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = env.str('EMAIL_HOST', '')
+EMAIL_PORT = env.str('EMAIL_PORT', '')
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
-FAS_FROM_EMAIL = os.getenv("FAS_FROM_EMAIL")
-FAB_FROM_EMAIL = os.getenv("FAB_FROM_EMAIL")
-FAB_OWNERSHIP_URL = os.getenv("FAB_OWNERSHIP_URL")
-FAB_COLLABORATOR_URL = os.getenv("FAB_COLLABORATOR_URL")
-OWNERSHIP_INVITE_SUBJECT = os.getenv(
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
+FAS_FROM_EMAIL = env.str('FAS_FROM_EMAIL', '')
+FAB_FROM_EMAIL = env.str('FAB_FROM_EMAIL', '')
+FAB_OWNERSHIP_URL = env.str('FAB_OWNERSHIP_URL', '')
+FAB_COLLABORATOR_URL = env.str('FAB_COLLABORATOR_URL', '')
+OWNERSHIP_INVITE_SUBJECT = env.str(
     'OWNERSHIP_INVITE_SUBJECT',
     'Confirm ownership of {company_name}’s Find a buyer profile'
 )
-COLLABORATOR_INVITE_SUBJECT = os.getenv(
+COLLABORATOR_INVITE_SUBJECT = env.str(
     'COLLABORATOR_INVITE_SUBJECT',
     'Confirm you’ve been added to {company_name}’s Find a buyer profile'
 )
@@ -315,124 +318,123 @@ STORAGE_CLASSES = {
     'default': 'storages.backends.s3boto3.S3Boto3Storage',
     'local-storage': 'django.core.files.storage.FileSystemStorage',
 }
-STORAGE_CLASS_NAME = os.getenv('STORAGE_CLASS_NAME', 'default')
+STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
-LOCAL_STORAGE_DOMAIN = os.getenv('LOCAL_STORAGE_DOMAIN')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
-AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN')
-AWS_S3_URL_PROTOCOL = os.getenv('AWS_S3_URL_PROTOCOL', 'https:')
+AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
+AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', 'great.gov.uk')
+SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', 'great.gov.uk')
 SESSION_COOKIE_NAME = 'directory_api_admin_session_id'
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE') != 'false'
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', True)
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE') != 'false'
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', True)
 
 # Verification letters sent with stannp.com
-FEATURE_VERIFICATION_LETTERS_ENABLED = os.getenv(
-    'FEATURE_VERIFICATION_LETTERS_ENABLED'
-) == 'true'
 
-STANNP_API_KEY = os.getenv("STANNP_API_KEY")
-STANNP_TEST_MODE = os.getenv('STANNP_TEST_MODE') != 'false'
-STANNP_VERIFICATION_LETTER_TEMPLATE_ID = os.environ[
-    "STANNP_VERIFICATION_LETTER_TEMPLATE_ID"
-]
+STANNP_API_KEY = env.str('STANNP_API_KEY', '')
+STANNP_TEST_MODE = env.bool('STANNP_TEST_MODE', True)
+STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
+    'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
+)
 
-GECKO_API_KEY = os.getenv('GECKO_API_KEY')
+GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
-GECKO_API_PASS = os.getenv('GECKO_API_PASS', 'X')
+GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
 
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
 
 # Settings for email to supplier
-CONTACT_SUPPLIER_SUBJECT = os.getenv(
+CONTACT_SUPPLIER_SUBJECT = env.str(
     'CONTACT_SUPPLIER_SUBJECT',
     'Someone is interested in your Find a Buyer profile'
 )
-CONTACT_SUPPLIER_FROM_EMAIL = os.getenv('CONTACT_SUPPLIER_FROM_EMAIL')
+CONTACT_SUPPLIER_FROM_EMAIL = env.str('CONTACT_SUPPLIER_FROM_EMAIL')
 
 # Automated email settings
-NO_CASE_STUDIES_SUBJECT = os.getenv(
-    "NO_CASE_STUDIES_SUBJECT",
-    "Get seen by more international buyers by improving your profile"
+NO_CASE_STUDIES_SUBJECT = env.str(
+    'NO_CASE_STUDIES_SUBJECT',
+    'Get seen by more international buyers by improving your profile'
 )
-NO_CASE_STUDIES_DAYS = int(os.getenv('NO_CASE_STUDIES_DAYS', '8'))
-NO_CASE_STUDIES_URL = os.getenv(
-    "NO_CASE_STUDIES_URL",
-    "https://find-a-buyer.export.great.gov.uk/company/case-study/edit/"
+NO_CASE_STUDIES_DAYS = env.int('NO_CASE_STUDIES_DAYS', 8)
+NO_CASE_STUDIES_URL = env.str(
+    'NO_CASE_STUDIES_URL',
+    'https://find-a-buyer.export.great.gov.uk/company/case-study/edit/'
 )
-NO_CASE_STUDIES_UTM = os.getenv(
-    "NO_CASE_STUDIES_UTM",
-    "utm_source=system mails&utm_campaign=case study creation&utm_medium=email"
+NO_CASE_STUDIES_UTM = env.str(
+    'NO_CASE_STUDIES_UTM',
+    'utm_source=system mails&utm_campaign=case study creation&utm_medium=email'
 )
 
-HASNT_LOGGED_IN_SUBJECT = os.getenv(
-    "HASNT_LOGGED_IN_SUBJECT",
-    "Update your Find a buyer profile"
+HASNT_LOGGED_IN_SUBJECT = env.str(
+    'HASNT_LOGGED_IN_SUBJECT',
+    'Update your Find a buyer profile'
 )
-HASNT_LOGGED_IN_DAYS = int(os.getenv('HASNT_LOGGED_IN_DAYS', '30'))
+HASNT_LOGGED_IN_DAYS = env.int('HASNT_LOGGED_IN_DAYS', 30)
 
-HASNT_LOGGED_IN_URL = os.getenv(
-    "HASNT_LOGGED_IN_URL",
-    "https://sso.trade.great.gov.uk/accounts/login/?next={next}".format(
-        next="https://find-a-buyer.export.great.gov.uk/"
+HASNT_LOGGED_IN_URL = env.str(
+    'HASNT_LOGGED_IN_URL',
+    'https://sso.trade.great.gov.uk/accounts/login/?next={next}'.format(
+        next='https://find-a-buyer.export.great.gov.uk/'
     )
 )
-HASNT_LOGGED_IN_UTM = os.getenv(
-    "HASNT_LOGGED_IN_UTM",
-    "utm_source=system emails&utm_campaign=Dormant User&utm_medium=email"
+HASNT_LOGGED_IN_UTM = env.str(
+    'HASNT_LOGGED_IN_UTM',
+    'utm_source=system emails&utm_campaign=Dormant User&utm_medium=email'
 )
 
-VERIFICATION_CODE_NOT_GIVEN_SUBJECT = os.getenv(
+VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     'Please verify your company’s Find a buyer profile',
 )
-VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = os.getenv(
+VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
 )
-VERIFICATION_CODE_NOT_GIVEN_DAYS = int(os.getenv(
-    'VERIFICATION_CODE_NOT_GIVEN_DAYS', '8'))
-VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = int(os.getenv(
-    'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', '16'))
-VERIFICATION_CODE_URL = os.getenv(
-    "VERIFICATION_CODE_URL", "http://great.gov.uk/verify")
-NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = int(os.getenv(
-    'NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS',
-    '7'
-))
-NEW_COMPANIES_IN_SECTOR_SUBJECT = os.getenv(
+VERIFICATION_CODE_NOT_GIVEN_DAYS = env.int(
+    'VERIFICATION_CODE_NOT_GIVEN_DAYS', 8
+)
+VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.int(
+    'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', 16
+)
+VERIFICATION_CODE_URL = env.str(
+    'VERIFICATION_CODE_URL', 'http://great.gov.uk/verify'
+)
+NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.int(
+    'NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS', 7
+)
+NEW_COMPANIES_IN_SECTOR_SUBJECT = env.str(
     'NEW_COMPANIES_IN_SECTOR_SUBJECT',
     'Find a supplier service - New UK companies in your industry now available'
 )
-NEW_COMPANIES_IN_SECTOR_UTM = os.getenv(
-    "NEW_COMPANIES_IN_SECTOR_UTM", (
-        "utm_source=system%20emails&utm_campaign="
-        "Companies%20in%20a%20sector&utm_medium=email"
+NEW_COMPANIES_IN_SECTOR_UTM = env.str(
+    'NEW_COMPANIES_IN_SECTOR_UTM', (
+        'utm_source=system%20emails&utm_campaign='
+        'Companies%20in%20a%20sector&utm_medium=email'
     )
 )
-ZENDESK_URL = os.getenv(
-    "ZENDESK_URL",
-    "https://contact-us.export.great.gov.uk/feedback/directory/"
+ZENDESK_URL = env.str(
+    'ZENDESK_URL',
+    'https://contact-us.export.great.gov.uk/feedback/directory/'
 )
-UNSUBSCRIBED_SUBJECT = os.getenv(
-    "UNSUBSCRIBED_SUBJECT",
-    "Find a buyer service - unsubscribed from marketing emails"
+UNSUBSCRIBED_SUBJECT = env.str(
+    'UNSUBSCRIBED_SUBJECT',
+    'Find a buyer service - unsubscribed from marketing emails'
 )
 
 # Celery
 # separate to REDIS_CACHE_URL as needs to start with 'redis' and SSL conf
 # is in api/celery.py
-CELERY_BROKER_URL = os.getenv('REDIS_CELERY_URL')
+CELERY_BROKER_URL = env.str('REDIS_CELERY_URL', '')
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -441,104 +443,98 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
 
 # SSO API Client
-SSO_PROXY_API_CLIENT_BASE_URL = os.getenv("SSO_PROXY_API_CLIENT_BASE_URL")
-SSO_PROXY_SIGNATURE_SECRET = os.getenv("SSO_PROXY_SIGNATURE_SECRET")
+SSO_PROXY_API_CLIENT_BASE_URL = env.str('SSO_PROXY_API_CLIENT_BASE_URL', '')
+SSO_PROXY_SIGNATURE_SECRET = env.str('SSO_PROXY_SIGNATURE_SECRET', '')
 
 # FAS
-FAS_COMPANY_LIST_URL = os.getenv('FAS_COMPANY_LIST_URL')
-FAS_COMPANY_PROFILE_URL = os.getenv('FAS_COMPANY_PROFILE_URL')
-FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
-    'FAS_NOTIFICATIONS_UNSUBSCRIBE_URL'
+FAS_COMPANY_LIST_URL = env.str('FAS_COMPANY_LIST_URL', '')
+FAS_COMPANY_PROFILE_URL = env.str('FAS_COMPANY_PROFILE_URL', '')
+FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str(
+    'FAS_NOTIFICATIONS_UNSUBSCRIBE_URL', ''
 )
 
 # FAB
-FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = os.getenv(
-    'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL'
+FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str(
+    'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL', ''
 )
-FAB_TRUSTED_SOURCE_ENROLMENT_LINK = os.environ[
+FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
     'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
-]
+)
 
 # Initialise default Elasticsearch connection
-ELASTICSEARCH_ENDPOINT = os.getenv("ELASTICSEARCH_ENDPOINT")
+ELASTICSEARCH_ENDPOINT = env.str('ELASTICSEARCH_ENDPOINT', '')
 connections.create_connection(
     alias='default',
     hosts=[{
         'host': ELASTICSEARCH_ENDPOINT,
-        'port': int(os.getenv("ELASTICSEARCH_PORT", 443))
+        'port': env.int('ELASTICSEARCH_PORT', 443)
     }],
     http_auth=AWS4Auth(
-        os.getenv("ELASTICSEARCH_AWS_ACCESS_KEY_ID"),
-        os.getenv("ELASTICSEARCH_AWS_SECRET_ACCESS_KEY"),
-        os.getenv("ELASTICSEARCH_AWS_REGION", 'eu-west-1'),
+        env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
+        env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
+        env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-1'),
         'es'
     ),
-    use_ssl=os.getenv("ELASTICSEARCH_USE_SSL") != 'false',
-    verify_certs=os.getenv("ELASTICSEARCH_VERIFY_CERTS") != 'false',
+    use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
+    verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
     connection_class=RequestsHttpConnection
 )
-ELASTICSEARCH_COMPANY_INDEX_ALIAS = os.getenv(
+ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
 )
-ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = os.getenv(
+ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS', 'casestudies-alias'
 )
-FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = os.getenv(
-    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', 'true'
-) == 'true'
 
 # Activity Stream
-ACTIVITY_STREAM_ACCESS_KEY_ID = os.getenv(
-    'ACTIVITY_STREAM_ACCESS_KEY_ID'
+ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
+ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
+    'ACTIVITY_STREAM_SECRET_ACCESS_KEY', ''
 )
-ACTIVITY_STREAM_SECRET_ACCESS_KEY = os.getenv(
-    'ACTIVITY_STREAM_SECRET_ACCESS_KEY'
-)
-ACTIVITY_STREAM_IP_WHITELIST = os.getenv(
-    'ACTIVITY_STREAM_IP_WHITELIST'
-).split(',')
+ACTIVITY_STREAM_IP_WHITELIST = env.list('ACTIVITY_STREAM_IP_WHITELIST')
 
 # SSO
-SSO_PROXY_API_CLIENT_BASE_URL = os.environ['SSO_PROXY_API_CLIENT_BASE_URL']
-SSO_PROXY_SIGNATURE_SECRET = os.environ['SSO_PROXY_SIGNATURE_SECRET']
+SSO_PROXY_API_CLIENT_BASE_URL = env.str('SSO_PROXY_API_CLIENT_BASE_URL')
+SSO_PROXY_SIGNATURE_SECRET = env.str('SSO_PROXY_SIGNATURE_SECRET')
 
 # Export opportunity lead generation
-SUBJECT_EXPORT_OPPORTUNITY_CREATED = os.getenv(
+SUBJECT_EXPORT_OPPORTUNITY_CREATED = env.str(
     'SUBJECT_EXPORT_OPPORTUNITY_CREATED',
     'A new Export Opportunity lead has been submitted via great.gov.uk'
 )
-ITA_EMAILS_FOOD_IS_GREAT_FRANCE = os.getenv(
-    'ITA_EMAILS_FOOD_IS_GREAT_FRANCE', ''
-).split(',')
-ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE = os.getenv(
-    'ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE', ''
-).split(',')
+ITA_EMAILS_FOOD_IS_GREAT_FRANCE = env.list(
+    'ITA_EMAILS_FOOD_IS_GREAT_FRANCE', default=[]
+)
+ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE = env.list(
+    'ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE', default=[]
+)
 
-ITA_EMAILS_LEGAL_IS_GREAT_FRANCE = os.getenv(
-    'ITA_EMAILS_LEGAL_IS_GREAT_FRANCE', ''
-).split(',')
-ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = os.getenv(
-    'ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE', ''
-).split(',')
+ITA_EMAILS_LEGAL_IS_GREAT_FRANCE = env.list(
+    'ITA_EMAILS_LEGAL_IS_GREAT_FRANCE', default=[]
+)
+ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = env.list(
+    'ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE', default=[]
+)
 
 # health check
-HEALTH_CHECK_TOKEN = os.environ['HEALTH_CHECK_TOKEN']
+HEALTH_CHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
 
-CSV_DUMP_BUCKET_NAME = os.environ['CSV_DUMP_BUCKET_NAME']
-CSV_DUMP_AUTH_TOKEN = os.environ['CSV_DUMP_AUTH_TOKEN']
+CSV_DUMP_BUCKET_NAME = env.str('CSV_DUMP_BUCKET_NAME')
+CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 
-# testing api
-FEATURE_TEST_API_ENABLED = os.getenv(
-    "FEATURE_TEST_API_ENABLED", 'false') == 'true'
-
-
 # Admin restrictor
-RESTRICT_ADMIN = os.getenv('RESTRICT_ADMIN') == 'true'
-ALLOWED_ADMIN_IPS = os.getenv('ALLOWED_ADMIN_IPS', [])
-ALLOWED_ADMIN_IP_RANGES = os.getenv('ALLOWED_ADMIN_IP_RANGES', [])
+RESTRICT_ADMIN = env.bool('RESTRICT_ADMIN', False)
+ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS', default=[])
+ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
 
-
-FEATURE_SKIP_MIGRATE = os.getenv('FEATURE_SKIP_MIGRATE', 'false') == 'true'
-FEATURE_REDIS_USE_SSL = os.getenv('FEATURE_REDIS_USE_SSL', 'false') == 'true'
+FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
+FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
+FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
+FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
+    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True
+)
+FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
+    'FEATURE_VERIFICATION_LETTERS_ENABLED', False
+)
