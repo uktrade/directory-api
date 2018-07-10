@@ -1,6 +1,6 @@
 from django.core.mail import EmailMultiAlternatives
 
-from api.celery import app
+from conf.celery import app
 
 
 @app.task(autoretry_for=(TimeoutError, ))

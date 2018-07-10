@@ -272,7 +272,7 @@ def test_company_collaborators_profile_owner_no_collaborators(
 
 
 @pytest.mark.django_db
-@patch('api.signature.SignatureCheckPermission.has_permission',
+@patch('conf.signature.SignatureCheckPermission.has_permission',
        Mock(return_value=True))
 @patch('core.views.get_file_from_s3')
 def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):

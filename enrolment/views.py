@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from enrolment import models, serializers
 from supplier.serializers import SupplierSerializer
 

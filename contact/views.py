@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from contact.serializers import MessageToSupplierSerializer
 from contact.tasks import message_to_supplier
 

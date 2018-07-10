@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.generics import CreateAPIView
 
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from buyer import serializers
 from core.views import CSVDumpAPIView
 

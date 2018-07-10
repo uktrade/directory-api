@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-from api.celery import app
+from conf.celery import app
 from notifications import notifications
 
 

@@ -8,7 +8,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 
 from django.conf import settings
-from api.signature import SignatureCheckPermission
+from conf.signature import SignatureCheckPermission
 from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
 from testapi.utils import get_matching_companies, \

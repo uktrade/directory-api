@@ -1,7 +1,7 @@
 from django.db import models
 from directory_validators import enrolment as shared_validators
 
-from api.model_utils import TimeStampedModel
+from core.utils import TimeStampedModel
 
 
 class PreVerifiedEnrolment(TimeStampedModel):

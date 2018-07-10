@@ -66,7 +66,7 @@ MIDDLEWARE_CLASSES = [
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware'
 ]
 
-ROOT_URLCONF = 'api.urls'
+ROOT_URLCONF = 'conf.urls'
 
 TEMPLATES = [
     {
@@ -88,7 +88,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'api.wsgi.application'
+WSGI_APPLICATION = 'conf.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -166,7 +166,7 @@ REST_FRAMEWORK = {
         'core.authentication.SessionAuthenticationSSO',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'api.signature.SignatureCheckPermission',
+        'conf.signature.SignatureCheckPermission',
         'core.permissions.IsAuthenticatedSSO',
     ),
     'DEFAULT_RENDERER_CLASSES': (

@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import admin
 
-from api.utils import generate_csv_response
+from core.utils import generate_csv_response
 from notifications import models
 
 

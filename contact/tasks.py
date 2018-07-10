@@ -1,6 +1,6 @@
 import django.utils.html
 
-from api.celery import app
+from conf.celery import app
 from company.models import Company
 from contact.models import MessageToSupplier
 
