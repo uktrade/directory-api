@@ -1,13 +1,11 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from mohawk import Receiver
 from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -47,8 +45,8 @@ def seen_nonce(access_key_id, nonce, _):
     return seen_cache_key
 
 
-def raise_exception_if_not_authentic(request):
-    Receiver(
+def _authorise(request):
+    return Receiver(
         lookup_credentials,
         request.META['HTTP_AUTHORIZATION'],
         request.build_absolute_uri(),
@@ -57,14 +55,6 @@ def raise_exception_if_not_authentic(request):
         content_type=request.content_type,
         seen_nonce=seen_nonce,
     )
-
-
-class ActivityStreamUser(AnonymousUser):
-    username = 'activity_stream_user'
-
-    @property
-    def is_authenticated(self):
-        return True
 
 
 class ActivityStreamAuthentication(BaseAuthentication):
@@ -96,17 +86,17 @@ class ActivityStreamAuthentication(BaseAuthentication):
             raise AuthenticationFailed(NOT_PROVIDED)
 
         try:
-            raise_exception_if_not_authentic(request)
+            hawk_receiver = _authorise(request)
         except HawkFail as e:
             log.warning('Failed authentication {}'.format(e))
             raise AuthenticationFailed(INCORRECT)
 
-        return (ActivityStreamUser(), None)
+        return (None, hawk_receiver)
 
 
 class ActivityStreamViewSet(ViewSet):
     authentication_classes = (ActivityStreamAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = ()
 
     def list(self, request):
         return Response({"secret": "content-for-pen-test"})
