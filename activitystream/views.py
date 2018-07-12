@@ -18,7 +18,7 @@ NO_CREDENTIALS_MESSAGE = 'Authentication credentials were not provided.'
 INCORRECT_CREDENTIALS_MESSAGE = 'Incorrect authentication credentials.'
 
 
-def _lookup_credentials(access_key_id):
+def lookup_credentials(access_key_id):
     """Raises a HawkFail if the passed ID is not equal to
     settings.ACTIVITY_STREAM_ACCESS_KEY_ID
     """
@@ -35,7 +35,7 @@ def _lookup_credentials(access_key_id):
     }
 
 
-def _seen_nonce(access_key_id, nonce, _):
+def seen_nonce(access_key_id, nonce, _):
     """Returns if the passed access_key_id/nonce combination has been
     used within 60 seconds
     """
@@ -55,20 +55,20 @@ def _seen_nonce(access_key_id, nonce, _):
     return seen_cache_key
 
 
-def _authorise(request):
+def authorise(request):
     """Raises a HawkFail if the passed request cannot be authenticated"""
     return Receiver(
-        _lookup_credentials,
+        lookup_credentials,
         request.META['HTTP_AUTHORIZATION'],
         request.build_absolute_uri(),
         request.method,
         content=request.body,
         content_type=request.content_type,
-        seen_nonce=_seen_nonce,
+        seen_nonce=seen_nonce,
     )
 
 
-class _ActivityStreamAuthentication(BaseAuthentication):
+class ActivityStreamAuthentication(BaseAuthentication):
 
     def authenticate_header(self, request):
         """This is returned as the WWW-Authenticate header when
@@ -86,10 +86,10 @@ class _ActivityStreamAuthentication(BaseAuthentication):
         If either of these suggest we cannot authenticate, AuthenticationFailed
         is raised, as required in the DRF authentication flow
         """
-        self._authenticate_by_ip(request)
-        return self._authenticate_by_hawk(request)
+        self.authenticate_by_ip(request)
+        return self.authenticate_by_hawk(request)
 
-    def _authenticate_by_ip(self, request):
+    def authenticate_by_ip(self, request):
         if 'HTTP_X_FORWARDED_FOR' not in request.META:
             logger.warning(
                 'Failed authentication: no X-Forwarded-For header passed'
@@ -115,12 +115,12 @@ class _ActivityStreamAuthentication(BaseAuthentication):
             )
             raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
 
-    def _authenticate_by_hawk(self, request):
+    def authenticate_by_hawk(self, request):
         if 'HTTP_AUTHORIZATION' not in request.META:
             raise AuthenticationFailed(NO_CREDENTIALS_MESSAGE)
 
         try:
-            hawk_receiver = _authorise(request)
+            hawk_receiver = authorise(request)
         except HawkFail as e:
             logger.warning('Failed authentication {e}'.format(
                 e=e,
@@ -130,7 +130,7 @@ class _ActivityStreamAuthentication(BaseAuthentication):
         return (None, hawk_receiver)
 
 
-class _ActivityStreamHawkResponseMiddleware:
+class ActivityStreamHawkResponseMiddleware:
     """Adds the Server-Authorization header to the response, so the originator
     of the request can authenticate the response
     """
@@ -149,10 +149,10 @@ class _ActivityStreamHawkResponseMiddleware:
 class ActivityStreamViewSet(ViewSet):
     """List-only view set for the activity stream"""
 
-    authentication_classes = (_ActivityStreamAuthentication,)
+    authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
 
-    @decorator_from_middleware(_ActivityStreamHawkResponseMiddleware)
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of activities"""
         return Response({'secret': 'content-for-pen-test'})
