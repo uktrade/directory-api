@@ -1,3 +1,3 @@
 #!/bin/bash -xe
 
-celery -A api beat -l info -S django
+celery -A conf beat -l info -S django
