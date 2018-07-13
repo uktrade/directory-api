@@ -487,6 +487,10 @@ ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
 )
 
 # Activity Stream
+REMOTE_IP_ADDRESS_RETRIEVER = (
+    'core.authentication.'
+    'GovukPaaSRemoteIPAddressRetriver'
+)
 ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
 ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
     'ACTIVITY_STREAM_SECRET_ACCESS_KEY', ''

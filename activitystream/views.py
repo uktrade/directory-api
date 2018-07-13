@@ -1,27 +1,34 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
+from django.utils.crypto import constant_time_compare
+from django.utils.decorators import decorator_from_middleware
 from mohawk import Receiver
 from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-log = logging.getLogger(__name__)
+import import_string
 
-NOT_PROVIDED = 'Authentication credentials were not provided.'
-INCORRECT = 'Incorrect authentication credentials.'
+
+logger = logging.getLogger(__name__)
+
+NO_CREDENTIALS_MESSAGE = 'Authentication credentials were not provided.'
+INCORRECT_CREDENTIALS_MESSAGE = 'Incorrect authentication credentials.'
 
 
 def lookup_credentials(access_key_id):
-    if access_key_id != settings.ACTIVITY_STREAM_ACCESS_KEY_ID:
-        raise AuthenticationFailed(
-            'No Hawk ID of {access_key_id}'.format(id=access_key_id)
-        )
+    """Raises a HawkFail if the passed ID is not equal to
+    settings.ACTIVITY_STREAM_ACCESS_KEY_ID
+    """
+    if not constant_time_compare(access_key_id,
+                                 settings.ACTIVITY_STREAM_ACCESS_KEY_ID):
+        raise HawkFail('No Hawk ID of {access_key_id}'.format(
+            access_key_id=access_key_id,
+        ))
 
     return {
         'id': settings.ACTIVITY_STREAM_ACCESS_KEY_ID,
@@ -31,24 +38,28 @@ def lookup_credentials(access_key_id):
 
 
 def seen_nonce(access_key_id, nonce, _):
-    # This is a reason to _not_ use HawkRest: its nonce cache key
-    # contains a timestamp but it shouldn't, since the same nonce
-    # on a different timestamp should be rejected.
+    """Returns if the passed access_key_id/nonce combination has been
+    used within 60 seconds
+    """
     cache_key = 'activity_stream:{access_key_id}:{nonce}'.format(
-        access_key_id=access_key_id, nonce=nonce)
-    seen_cache_key = cache.get(cache_key, False)
+        access_key_id=access_key_id,
+        nonce=nonce,
+    )
 
     # cache.add only adds key if it isn't present
-    cache.add(cache_key, True, timeout=60)
+    seen_cache_key = not cache.add(
+        cache_key, True, timeout=60,
+    )
 
     if seen_cache_key:
-        log.warning('Already seen nonce {nonce}'.format(nonce=nonce))
+        logger.warning('Already seen nonce {nonce}'.format(nonce=nonce))
 
     return seen_cache_key
 
 
-def raise_exception_if_not_authentic(request):
-    Receiver(
+def authorise(request):
+    """Raises a HawkFail if the passed request cannot be authenticated"""
+    return Receiver(
         lookup_credentials,
         request.META['HTTP_AUTHORIZATION'],
         request.build_absolute_uri(),
@@ -59,54 +70,82 @@ def raise_exception_if_not_authentic(request):
     )
 
 
-class ActivityStreamUser(AnonymousUser):
-    username = 'activity_stream_user'
-
-    @property
-    def is_authenticated(self):
-        return True
-
-
 class ActivityStreamAuthentication(BaseAuthentication):
 
-    # This is returned as the WWW-Authenticate header when
-    # AuthenticationFailed is raised. DRF also requires this
-    # to send a 401 (as opposed to 403)
     def authenticate_header(self, request):
+        """This is returned as the WWW-Authenticate header when
+        AuthenticationFailed is raised. DRF also requires this
+        to send a 401 (as opposed to 403)
+        """
         return 'Hawk'
 
     def authenticate(self, request):
-        if 'HTTP_X_FORWARDED_FOR' not in request.META:
-            log.warning(
-                'Failed authentication: no X-Forwarded-For header passed'
+        """Authenticates a request using two mechanisms:
+
+        1. The X-Forwarded-For-Header, compared against a whitelist
+        2. A Hawk signature in the Authorization header
+
+        If either of these suggest we cannot authenticate, AuthenticationFailed
+        is raised, as required in the DRF authentication flow
+        """
+        self.authenticate_by_ip(request)
+        return self.authenticate_by_hawk(request)
+
+    def authenticate_by_ip(self, request):
+        remote_ip_address_retriever_class = import_string(
+            settings.REMOTE_IP_ADDRESS_RETRIEVER)
+        try:
+            remote_ip = remote_ip_address_retriever_class().get_ip_address(
+                request)
+        except LookupError:
+            logger.exception('Unable to determine remote IP')
+            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
+
+        if remote_ip not in settings.ACTIVITY_STREAM_IP_WHITELIST:
+            logger.warning(
+                'Failed authentication: the X-Forwarded-For header was not '
+                'produced by a whitelisted IP'
             )
-            raise AuthenticationFailed(INCORRECT)
+            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
 
-        remote_address = \
-            request.META['HTTP_X_FORWARDED_FOR'].split(',')[0].strip()
-
-        if remote_address not in settings.ACTIVITY_STREAM_IP_WHITELIST:
-            log.warning(
-                'Failed authentication: the X-Forwarded-For header did not '
-                'start with an IP in the whitelist'
-            )
-            raise AuthenticationFailed(INCORRECT)
-
+    def authenticate_by_hawk(self, request):
         if 'HTTP_AUTHORIZATION' not in request.META:
-            raise AuthenticationFailed(NOT_PROVIDED)
+            raise AuthenticationFailed(NO_CREDENTIALS_MESSAGE)
 
         try:
-            raise_exception_if_not_authentic(request)
+            hawk_receiver = authorise(request)
         except HawkFail as e:
-            log.warning('Failed authentication {}'.format(e))
-            raise AuthenticationFailed(INCORRECT)
+            logger.warning('Failed authentication {e}'.format(
+                e=e,
+            ))
+            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
 
-        return (ActivityStreamUser(), None)
+        return (None, hawk_receiver)
+
+
+class ActivityStreamHawkResponseMiddleware:
+    """Adds the Server-Authorization header to the response, so the originator
+    of the request can authenticate the response
+    """
+
+    def process_response(self, viewset, response):
+        """Adds the Server-Authorization header to the response, so the originator
+        of the request can authenticate the response
+        """
+        response['Server-Authorization'] = viewset.request.auth.respond(
+            content=response.content,
+            content_type=response['Content-Type'],
+        )
+        return response
 
 
 class ActivityStreamViewSet(ViewSet):
-    authentication_classes = (ActivityStreamAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    """List-only view set for the activity stream"""
 
+    authentication_classes = (ActivityStreamAuthentication,)
+    permission_classes = ()
+
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
-        return Response({"secret": "content-for-pen-test"})
+        """A single page of activities"""
+        return Response({'secret': 'content-for-pen-test'})
