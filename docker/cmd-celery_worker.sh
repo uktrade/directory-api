@@ -1,3 +1,3 @@
 #!/bin/bash -xe
 
-celery -A api worker -l info
+celery -A conf worker -l info
