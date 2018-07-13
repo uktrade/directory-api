@@ -106,9 +106,9 @@ class ActivityStreamAuthentication(BaseAuthentication):
             raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
 
         # PaaS appends 2 IPs, where the IP connected from is the first
-        remote_address = ip_addesses[-2].strip()
+        remote_ip = ip_addesses[-2].strip()
 
-        if remote_address not in settings.ACTIVITY_STREAM_IP_WHITELIST:
+        if remote_ip not in settings.ACTIVITY_STREAM_IP_WHITELIST:
             logger.warning(
                 'Failed authentication: the X-Forwarded-For header was not '
                 'produced by a whitelisted IP'
