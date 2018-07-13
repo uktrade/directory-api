@@ -11,6 +11,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+import import_string
+
 
 logger = logging.getLogger(__name__)
 
@@ -90,23 +92,14 @@ class ActivityStreamAuthentication(BaseAuthentication):
         return self.authenticate_by_hawk(request)
 
     def authenticate_by_ip(self, request):
-        if 'HTTP_X_FORWARDED_FOR' not in request.META:
-            logger.warning(
-                'Failed authentication: no X-Forwarded-For header passed'
-            )
+        remote_ip_address_retriever_class = import_string(
+            settings.REMOTE_IP_ADDRESS_RETRIEVER)
+        try:
+            remote_ip = remote_ip_address_retriever_class().get_ip_address(
+                request)
+        except LookupError:
+            logger.exception('Unable to determine remote IP')
             raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
-
-        x_forwarded_for = request.META['HTTP_X_FORWARDED_FOR']
-        ip_addesses = x_forwarded_for.split(',')
-        if len(ip_addesses) < 2:
-            logger.warning(
-                'Failed authentication: the X-Forwarded-For header does not '
-                'contain enough IP addresses'
-            )
-            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
-
-        # PaaS appends 2 IPs, where the IP connected from is the first
-        remote_ip = ip_addesses[-2].strip()
 
         if remote_ip not in settings.ACTIVITY_STREAM_IP_WHITELIST:
             logger.warning(
