@@ -1,4 +1,5 @@
 from unittest.mock import call, patch
+from urllib.parse import urljoin
 
 import pytest
 from rest_framework.response import Response
@@ -16,25 +17,25 @@ from supplier import helpers
 
 
 @pytest.fixture
-def sso_session_request_invalid_session_id(requests_mocker):
-    return requests_mocker.get(
-        'http://sso.trade.great:8004/api/v1/session-user/?session_key=123',
-        status_code=404,
+def sso_session_request_invalid_session_id(requests_mocker, settings):
+    url = urljoin(
+        settings.SSO_API_CLIENT_BASE_URL,
+        'api/v1/session-user/?session_key=123'
     )
+    return requests_mocker.get(url, status_code=404)
 
 
 @pytest.fixture
-def sso_oauth2_request_invalid_session_id(requests_mocker):
-    return requests_mocker.get(
-        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
-        status_code=404,
-    )
+def sso_oauth2_request_invalid_session_id(requests_mocker, settings):
+    url = urljoin(settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
+    return requests_mocker.get(url, status_code=404)
 
 
 @pytest.fixture
-def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
+def sso_oauth2_request_active_user(authed_supplier, requests_mocker, settings):
+    url = urljoin(settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
     return requests_mocker.get(
-        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
+        url,
         json={'id': authed_supplier.sso_id, 'email': 'thing@example.com'}
     )
 

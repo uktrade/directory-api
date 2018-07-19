@@ -2,6 +2,7 @@ import logging
 import http
 import re
 from unittest.mock import patch
+from urllib.parse import urljoin
 
 import pytest
 import requests_mock
@@ -99,9 +100,15 @@ def authed_supplier():
 
 
 @pytest.fixture
-def sso_session_request_active_user(authed_supplier, requests_mocker):
+def sso_session_request_active_user(
+    authed_supplier, requests_mocker, settings
+):
+    url = urljoin(
+        settings.SSO_API_CLIENT_BASE_URL,
+        'api/v1/session-user/?session_key=123'
+    )
     return requests_mocker.get(
-        'http://sso.trade.great:8004/api/v1/session-user/?session_key=123',
+        url,
         json={
             'id': authed_supplier.sso_id,
             'email': authed_supplier.company_email
@@ -110,9 +117,14 @@ def sso_session_request_active_user(authed_supplier, requests_mocker):
 
 
 @pytest.fixture
-def sso_oauth2_request_active_user(authed_supplier, requests_mocker):
+def sso_oauth2_request_active_user(
+    authed_supplier, requests_mocker, settings
+):
+    url = urljoin(
+        settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
+    )
     return requests_mocker.get(
-        'http://sso.trade.great:8004/oauth2/user-profile/v1/',
+        url,
         json={
             'id': authed_supplier.sso_id,
             'email': authed_supplier.company_email
