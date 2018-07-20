@@ -6,8 +6,6 @@ from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
-from django.urls import reverse_lazy
-
 
 env = environ.Env()
 
@@ -155,13 +153,6 @@ for static_dir in STATICFILES_DIRS:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
-
-# directory-signature-auth
-SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
-URLS_EXCLUDED_FROM_SIGNATURE_CHECK = [
-    reverse_lazy('gecko-total-registered-suppliers'),
-    reverse_lazy('activity-stream'),
-]
 
 # DRF
 REST_FRAMEWORK = {
@@ -547,3 +538,12 @@ FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
 FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
     'FEATURE_VERIFICATION_LETTERS_ENABLED', False
 )
+
+# directory-signature-auth
+SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
+SIGAUTH_URL_NAMES_WHITELIST = [
+    'gecko-total-registered-suppliers',
+    'activity-stream',
+]
+if STORAGE_CLASS_NAME == 'local-storage':
+    SIGAUTH_URL_NAMES_WHITELIST.append('media')
