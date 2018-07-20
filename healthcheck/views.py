@@ -5,7 +5,6 @@ from directory_healthcheck.views import BaseHealthCheckAPIView
 from health_check.db.backends import DatabaseBackend
 from health_check.cache.backends import CacheBackend
 
-from conf.signature import SignatureCheckPermission
 from healthcheck.backends import (
     ElasticSearchCheckBackend, SigngleSignOnBackend
 )
@@ -33,7 +32,7 @@ class ElasticsearchAPIView(BaseHealthCheckAPIView):
 
 class PingAPIView(APIView):
 
-    permission_classes = (SignatureCheckPermission, )
+    permission_classes = []
     http_method_names = ("get", )
 
     def get(self, request, *args, **kwargs):

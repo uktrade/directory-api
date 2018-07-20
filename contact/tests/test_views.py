@@ -41,7 +41,7 @@ def company(message_to_supplier_data):
 
 @pytest.mark.django_db
 @patch(
-    'conf.signature.SignatureCheckPermission.has_permission',
+    'sigauth.utils.RequestSignatureChecker.test_signature',
     Mock(return_value=True)
 )
 @patch('contact.views.message_to_supplier')

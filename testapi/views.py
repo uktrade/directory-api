@@ -8,7 +8,6 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 
 from django.conf import settings
-from conf.signature import SignatureCheckPermission
 from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
 from testapi.utils import get_matching_companies, \
@@ -26,7 +25,7 @@ class TestAPIView(GenericAPIView):
 class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
     lookup_field = 'number'
     http_method_names = ('get', 'delete')
 
@@ -52,7 +51,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
     queryset = Company.objects.filter(is_published=True)
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
     lookup_field = 'is_published'
     http_method_names = 'get'
 

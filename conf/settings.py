@@ -1,11 +1,12 @@
 import os
 
 import dj_database_url
-
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
+
+from django.urls import reverse_lazy
 
 
 env = environ.Env()
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'conf.signature.SignatureCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -154,8 +156,12 @@ for static_dir in STATICFILES_DIRS:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
 
-# Application authorisation
+# directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
+URLS_EXCLUDED_FROM_SIGNATURE_CHECK = [
+    reverse_lazy('gecko-total-registered-suppliers'),
+    reverse_lazy('activity-stream'),
+]
 
 # DRF
 REST_FRAMEWORK = {
@@ -166,7 +172,6 @@ REST_FRAMEWORK = {
         'core.authentication.SessionAuthenticationSSO',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'conf.signature.SignatureCheckPermission',
         'core.permissions.IsAuthenticatedSSO',
     ),
     'DEFAULT_RENDERER_CLASSES': (
