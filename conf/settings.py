@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(PROJECT_ROOT)
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG')
+DEBUG = env.bool('DEBUG', False)
 
 # As app is running behind a host-based router supplied by Heroku or other
 # PaaS, we can open ALLOWED_HOSTS
@@ -448,8 +448,8 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
 
 # SSO API Client
-SSO_PROXY_API_CLIENT_BASE_URL = env.str('SSO_PROXY_API_CLIENT_BASE_URL', '')
-SSO_PROXY_SIGNATURE_SECRET = env.str('SSO_PROXY_SIGNATURE_SECRET', '')
+SSO_API_CLIENT_BASE_URL = env.str('SSO_API_CLIENT_BASE_URL', '')
+SSO_SIGNATURE_SECRET = env.str('SSO_SIGNATURE_SECRET', '')
 
 # FAS
 FAS_COMPANY_LIST_URL = env.str('FAS_COMPANY_LIST_URL', '')
@@ -503,8 +503,8 @@ ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
 ACTIVITY_STREAM_IP_WHITELIST = env.list('ACTIVITY_STREAM_IP_WHITELIST')
 
 # SSO
-SSO_PROXY_API_CLIENT_BASE_URL = env.str('SSO_PROXY_API_CLIENT_BASE_URL')
-SSO_PROXY_SIGNATURE_SECRET = env.str('SSO_PROXY_SIGNATURE_SECRET')
+SSO_API_CLIENT_BASE_URL = env.str('SSO_API_CLIENT_BASE_URL')
+SSO_SIGNATURE_SECRET = env.str('SSO_SIGNATURE_SECRET')
 
 # Export opportunity lead generation
 SUBJECT_EXPORT_OPPORTUNITY_CREATED = env.str(

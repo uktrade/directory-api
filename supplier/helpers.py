@@ -10,8 +10,8 @@ from supplier.models import Supplier
 
 
 sso_api_client = DirectorySSOAPIClient(
-    base_url=settings.SSO_PROXY_API_CLIENT_BASE_URL,
-    api_key=settings.SSO_PROXY_SIGNATURE_SECRET,
+    base_url=settings.SSO_API_CLIENT_BASE_URL,
+    api_key=settings.SSO_SIGNATURE_SECRET,
 )
 
 
