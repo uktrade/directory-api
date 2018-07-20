@@ -3,7 +3,7 @@ import io
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from core.utils import upload_file_object_to_s3
+from core.helpers import upload_file_object_to_s3
 from supplier.helpers import generate_suppliers_csv
 from supplier.models import Supplier
 

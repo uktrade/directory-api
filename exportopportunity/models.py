@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.utils import TimeStampedModel
+from core.helpers import TimeStampedModel
 
 from directory_constants.constants import choices
 from django.contrib.postgres.fields import ArrayField

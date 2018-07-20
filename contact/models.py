@@ -5,7 +5,7 @@ from django.db import models
 
 from directory_constants.constants import choices
 
-from core.utils import TimeStampedModel
+from core.helpers import TimeStampedModel
 from company.models import Company
 
 

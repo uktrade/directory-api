@@ -11,7 +11,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-import import_string
+from core.helpers import RemoteIPAddressRetriver
 
 
 logger = logging.getLogger(__name__)
@@ -92,11 +92,8 @@ class ActivityStreamAuthentication(BaseAuthentication):
         return self.authenticate_by_hawk(request)
 
     def authenticate_by_ip(self, request):
-        remote_ip_address_retriever_class = import_string(
-            settings.REMOTE_IP_ADDRESS_RETRIEVER)
         try:
-            remote_ip = remote_ip_address_retriever_class().get_ip_address(
-                request)
+            remote_ip = RemoteIPAddressRetriver().get_ip_address(request)
         except LookupError:
             logger.exception('Unable to determine remote IP')
             raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)

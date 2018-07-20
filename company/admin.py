@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django import forms
 
-from core.utils import generate_csv_response
+from core.helpers import generate_csv_response
 from company.models import Company, CompanyCaseStudy
 
 

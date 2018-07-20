@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 
 from conf.signature import SignatureCheckPermission
 from core.permissions import IsAuthenticatedCSVDump
-from core.utils import get_file_from_s3
+from core.helpers import get_file_from_s3
 
 
 class CSVDumpAPIView(APIView):
