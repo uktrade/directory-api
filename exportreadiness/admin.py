@@ -1,7 +1,7 @@
 import datetime
 from django.contrib import admin
 
-from core.utils import generate_csv_response
+from core.helpers import generate_csv_response
 from exportreadiness.models import TriageResult
 
 

@@ -44,7 +44,6 @@ flake8==3.0.4
 freezegun==0.3.8
 gunicorn==19.5.0
 idna==2.6                 # via cryptography, requests
-import_string==0.1.0
 jmespath==0.9.3           # via boto3, botocore
 kombu==4.1.0
 mccabe==0.5.3             # via flake8
@@ -73,7 +72,7 @@ requests[security]==2.18.4
 requests_mock==1.1.0
 s3transfer==0.1.13        # via boto3
 sigauth==2.1.2
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, import-string, mohawk, pyopenssl, python-dateutil, requests-mock
+six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, mohawk, pyopenssl, python-dateutil, requests-mock
 termcolor==1.1.0          # via pytest-sugar
 text-unidecode==1.2       # via faker
 urllib3==1.22             # via elasticsearch, requests

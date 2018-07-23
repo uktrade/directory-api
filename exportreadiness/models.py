@@ -5,7 +5,7 @@ from directory_validators import enrolment as shared_validators
 from django.db import models
 from django.utils.functional import cached_property
 
-from core.utils import TimeStampedModel
+from core.helpers import TimeStampedModel
 
 
 class TriageResult(TimeStampedModel):

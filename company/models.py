@@ -10,7 +10,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from core.utils import TimeStampedModel
+from core.helpers import TimeStampedModel
 from company import helpers, search
 
 
