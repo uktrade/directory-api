@@ -38,7 +38,6 @@ elasticsearch-dsl==5.2.0
 elasticsearch==5.3.0
 gunicorn==19.5.0
 idna==2.6                 # via cryptography, requests
-import_string==0.1.0
 jmespath==0.9.3           # via boto3, botocore
 kombu==4.1.0
 mohawk==0.3.4             # via sigauth
@@ -57,7 +56,7 @@ requests-aws4auth==0.9
 requests[security]==2.18.4
 s3transfer==0.1.13        # via boto3
 sigauth==3.0.0
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, import-string, mohawk, pyopenssl, python-dateutil
+six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, mohawk, pyopenssl, python-dateutil
 urllib3==1.22             # via elasticsearch, requests
 vine==1.1.4               # via amqp
 waitress==1.1.0

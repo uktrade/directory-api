@@ -4,9 +4,9 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 
-from core.utils import generate_csv
+from core.helpers import generate_csv
 from buyer.models import Buyer
-from core.utils import upload_file_object_to_s3
+from core.helpers import upload_file_object_to_s3
 
 
 class Command(BaseCommand):

@@ -6,6 +6,7 @@ from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
+from core.constants import IP_RETRIEVER_NAME_GOV_UK
 
 env = environ.Env()
 
@@ -63,7 +64,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware'
+    'core.middleware.AdminIPRestrictorMiddleware'
 ]
 
 ROOT_URLCONF = 'conf.urls'
@@ -483,10 +484,10 @@ ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
 )
 
 # Activity Stream
-REMOTE_IP_ADDRESS_RETRIEVER = (
-    'core.authentication.'
-    'GovukPaaSRemoteIPAddressRetriver'
+REMOTE_IP_ADDRESS_RETRIEVER = env.str(
+    'REMOTE_IP_ADDRESS_RETRIEVER', IP_RETRIEVER_NAME_GOV_UK
 )
+
 ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
 ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
     'ACTIVITY_STREAM_SECRET_ACCESS_KEY', ''
