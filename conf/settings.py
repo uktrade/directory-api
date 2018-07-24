@@ -469,7 +469,7 @@ connections.create_connection(
     http_auth=AWS4Auth(
         env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
         env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-        env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-1'),
+        env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
         'es'
     ),
     use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
