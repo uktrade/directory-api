@@ -3,9 +3,8 @@
 [![code-climate-image]][code-climate]
 [![circle-ci-image]][circle-ci]
 [![codecov-image]][codecov]
-[![gemnasium-image]][gemnasium]
 
-**[Export Directory API service](https://www.directory.exportingisgreat.gov.uk/)**
+**[Export Directory API service](https://www.trade.great.gov.uk/)**
 
 ---
 ### See also:
@@ -107,9 +106,6 @@ Therefore to make cookie sharing work in development we need the apps to be runn
 
 [codecov-image]: https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/uktrade/directory-api
-
-[gemnasium-image]: https://gemnasium.com/badges/github.com/uktrade/directory-api.svg
-[gemnasium]: https://gemnasium.com/github.com/uktrade/directory-api
 
 
 ## Manage commands
