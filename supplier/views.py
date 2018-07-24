@@ -8,7 +8,6 @@ from rest_framework import status
 
 from django.http import Http404
 
-from conf.signature import SignatureCheckPermission
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
@@ -34,7 +33,7 @@ class SupplierRetrieveExternalAPIView(APIView):
 class SupplierSSOListExternalAPIView(ListAPIView):
     queryset = Supplier.objects.all()
     authentication_classes = []
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
     def get(self, request):
         # normally DRF loops over the queryset and calls the serializer on each
@@ -84,7 +83,6 @@ class UnsubscribeSupplierAPIView(APIView):
 class CompanyCollboratorsListView(ListAPIView):
     permission_classes = [
         IsAuthenticatedSSO,
-        SignatureCheckPermission,
         permissions.IsCompanyProfileOwner
     ]
     serializer_class = serializers.SupplierSerializer

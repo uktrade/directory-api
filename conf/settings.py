@@ -1,7 +1,6 @@
 import os
 
 import dj_database_url
-
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
@@ -58,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'conf.signature.SignatureCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -155,9 +155,6 @@ for static_dir in STATICFILES_DIRS:
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
 
-# Application authorisation
-SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
-
 # DRF
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
@@ -167,7 +164,6 @@ REST_FRAMEWORK = {
         'core.authentication.SessionAuthenticationSSO',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'conf.signature.SignatureCheckPermission',
         'core.permissions.IsAuthenticatedSSO',
     ),
     'DEFAULT_RENDERER_CLASSES': (
@@ -543,3 +539,12 @@ FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
 FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
     'FEATURE_VERIFICATION_LETTERS_ENABLED', False
 )
+
+# directory-signature-auth
+SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
+SIGAUTH_URL_NAMES_WHITELIST = [
+    'gecko-total-registered-suppliers',
+    'activity-stream',
+]
+if STORAGE_CLASS_NAME == 'local-storage':
+    SIGAUTH_URL_NAMES_WHITELIST.append('media')

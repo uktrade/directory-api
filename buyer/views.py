@@ -1,7 +1,6 @@
 from django.conf import settings
 from rest_framework.generics import CreateAPIView
 
-from conf.signature import SignatureCheckPermission
 from buyer import serializers
 from core.views import CSVDumpAPIView
 
@@ -9,7 +8,7 @@ from core.views import CSVDumpAPIView
 class BuyerCreateAPIView(CreateAPIView):
     serializer_class = serializers.BuyerSerializer
     authentication_classes = []
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
 
 class BuyerCSVDownloadAPIView(CSVDumpAPIView):

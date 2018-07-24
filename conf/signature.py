@@ -1,7 +1,7 @@
-from sigauth import permissions
+from sigauth import middleware
 
 from django.conf import settings
 
 
-class SignatureCheckPermission(permissions.SignatureCheckPermissionBase):
+class SignatureCheckMiddleware(middleware.SignatureCheckMiddlewareBase):
     secret = settings.SIGNATURE_SECRET

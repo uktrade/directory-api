@@ -2,14 +2,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from conf.signature import SignatureCheckPermission
 from contact.serializers import MessageToSupplierSerializer
 from contact.tasks import message_to_supplier
 
 
 class CreateMessageToSupplierAPIView(APIView):
     serializer_class = MessageToSupplierSerializer
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)

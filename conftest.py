@@ -151,7 +151,7 @@ def authed_client(
 
 @pytest.fixture(autouse=True)
 def mock_signature_check():
-    stub = patch('conf.signature.SignatureCheckPermission.has_permission')
+    stub = patch('sigauth.utils.RequestSignatureChecker.test_signature')
     stub.start()
     yield stub
     stub.stop()

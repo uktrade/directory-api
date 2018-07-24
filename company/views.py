@@ -7,7 +7,6 @@ from rest_framework import generics, viewsets, views, status
 from django.db.models import Case, Count, When, Value, BooleanField
 from django.http import Http404
 
-from conf.signature import SignatureCheckPermission
 from company import filters, models, pagination, search, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
@@ -18,7 +17,7 @@ from elasticsearch_dsl import query
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
 
     serializer_class = serializers.CompanyNumberValidatorSerializer
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
@@ -49,7 +48,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
         )
         .order_by('-has_case_studies', '-modified')
     )
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
     pagination_class = pagination.CompanyPublicProfile
     filter_class = filters.CompanyPublicProfileFilter
     lookup_url_kwarg = 'companies_house_number'
@@ -81,7 +80,7 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
         company__is_published=True
     )
     lookup_field = 'pk'
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
     serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
 
 
@@ -144,7 +143,7 @@ class SearchBaseView(abc.ABC, views.APIView):
     # `serializer_class` is used for deserializing the search query,
     # but not for serializing the search results.
     serializer_class = serializers.SearchSerializer
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
     sector_field_name = abc.abstractproperty()
     apply_highlighting = abc.abstractproperty()
@@ -294,7 +293,6 @@ class CompanySearchAPIView(SearchBaseView):
 class CollaboratorInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.CollaboratorInviteSerializer
     permission_classes = [
-        SignatureCheckPermission,
         IsAuthenticatedSSO,
         IsCompanyProfileOwner,
     ]
@@ -303,7 +301,6 @@ class CollaboratorInviteCreateView(generics.CreateAPIView):
 class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
     permission_classes = [
-        SignatureCheckPermission,
         IsAuthenticatedSSO,
         IsCompanyProfileOwner,
     ]
@@ -326,7 +323,6 @@ class TransferOwnershipInviteRetrieveUpdateAPIView(
 class RemoveCollaboratorsView(views.APIView):
     serializer_class = serializers.RemoveCollaboratorsSerializer
     permission_classes = [
-        SignatureCheckPermission,
         IsAuthenticatedSSO,
         IsCompanyProfileOwner,
     ]

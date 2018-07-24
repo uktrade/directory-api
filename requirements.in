@@ -21,9 +21,9 @@ requests-aws4auth==0.9
 elasticsearch==5.3.0
 elasticsearch-dsl==5.2.0
 waitress==1.1.0
+sigauth==3.0.0
 directory-validators==4.5.1
 directory-constants==7.0.0
 directory-sso-api-client==2.5.1
-sigauth==2.1.2
 directory-healthcheck==0.4.2
 django-admin-ip-restrictor==0.1.0

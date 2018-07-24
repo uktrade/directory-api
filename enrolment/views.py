@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
-from conf.signature import SignatureCheckPermission
 from enrolment import models, serializers
 from supplier.serializers import SupplierSerializer
 
@@ -16,7 +15,7 @@ class EnrolmentCreateAPIView(APIView):
     http_method_names = ("post", )
     company_serializer_class = serializers.CompanyEnrolmentSerializer
     supplier_serializer_class = SupplierSerializer
-    permission_classes = [SignatureCheckPermission]
+    permission_classes = []
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
