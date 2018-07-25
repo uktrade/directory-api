@@ -14,7 +14,7 @@ certifi==2018.1.18        # via requests
 cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
 contextlib2==0.5.5        # via raven
-cryptography==2.1.4       # via pyopenssl, requests
+cryptography==2.3
 directory-client-core==0.3.1  # via directory-sso-api-client
 directory-constants==7.0.0
 directory-healthcheck==0.4.2
