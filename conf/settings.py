@@ -57,7 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE_CLASSES = [
-    'conf.signature.SignatureCheckMiddleware',
+    'core.middleware.SignatureCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -545,6 +545,11 @@ SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
     'gecko-total-registered-suppliers',
     'activity-stream',
+    'health-check-database',
+    'health-check-cache',
+    'health-check-single-sign-on',
+    'health-check-elastic-search',
+    'health-check-ping',
 ]
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
