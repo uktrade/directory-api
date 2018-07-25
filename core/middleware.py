@@ -19,11 +19,8 @@ class AdminIPRestrictorMiddleware(
     MESSAGE_UNABLE_TO_DETERMINE_IP_ADDRESS = 'Unable to determine remote IP'
 
     def get_ip(self, request):
-        return helpers.RemoteIPAddressRetriver().get_ip_address(request)
-
-    def process_request(self, request):
         try:
-            return super().process_request(request)
+            return helpers.RemoteIPAddressRetriver().get_ip_address(request)
         except LookupError:
             logger.exception(self.MESSAGE_UNABLE_TO_DETERMINE_IP_ADDRESS)
             raise Http404()
