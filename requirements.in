@@ -27,3 +27,4 @@ directory-constants==7.0.0
 directory-sso-api-client==2.5.1
 directory-healthcheck==0.4.2
 django-admin-ip-restrictor==0.1.0
+cryptography==2.3.0
