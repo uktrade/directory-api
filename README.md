@@ -97,7 +97,16 @@ Therefore to make cookie sharing work in development we need the apps to be runn
  - `directory-ui-supplier` and `directory-sso` must both be running on sibling subdomains (with same parent domain)
  - `directory-sso` must be told to target cookies at the parent domain.
 
+## Manage commands
 
+Create registered company in your local environment:
+```bash
+cmd="create_registered_company ch_id_max_8chrs" make debug_manage
+```
+
+## Linux setup
+
+Linux (Fedora 27) instructions are available [here](docs/LINUX.md)
 
 [code-climate-image]: https://codeclimate.com/github/uktrade/directory-api/badges/issue_count.svg
 [code-climate]: https://codeclimate.com/github/uktrade/directory-api
@@ -110,15 +119,3 @@ Therefore to make cookie sharing work in development we need the apps to be runn
 
 [snyk-image]: https://snyk.io/test/github/uktrade/directory-api/badge.svg
 [snyk]: https://snyk.io/test/github/uktrade/directory-api
-
-
-## Manage commands
-
-Create registered company in your local environment:
-```bash
-cmd="create_registered_company ch_id_max_8chrs" make debug_manage
-```
-
-## Linux setup
-
-Linux (Fedora 27) instructions are available [here](docs/LINUX.md)
