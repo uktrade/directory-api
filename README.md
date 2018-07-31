@@ -3,6 +3,7 @@
 [![code-climate-image]][code-climate]
 [![circle-ci-image]][circle-ci]
 [![codecov-image]][codecov]
+[![snyk-image]][snyk]
 
 **[Export Directory API service](https://www.trade.great.gov.uk/)**
 
@@ -106,6 +107,9 @@ Therefore to make cookie sharing work in development we need the apps to be runn
 
 [codecov-image]: https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/uktrade/directory-api
+
+[snyk-image]: https://snyk.io/test/github/uktrade/directory-api/badge.svg
+[snyk]: https://snyk.io/test/github/uktrade/directory-api
 
 
 ## Manage commands
