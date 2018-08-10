@@ -254,10 +254,6 @@ integration_tests:
 
 compile_requirements:
 	python3 -m piptools compile requirements.in
-
-compile_test_requirements:
 	python3 -m piptools compile requirements_test.in
-
-compile_all_requirements: compile_requirements compile_test_requirements
 
 .PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
