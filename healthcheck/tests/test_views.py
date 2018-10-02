@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 )
 def test_database(mock_check_status, client, settings):
     response = client.get(
-        reverse('healthcheck-database'),
+        reverse('healthcheck:database'),
         {'token': settings.HEALTH_CHECK_TOKEN},
     )
 
@@ -23,7 +23,7 @@ def test_database(mock_check_status, client, settings):
 )
 def test_cache(mock_check_status, client, settings):
     response = client.get(
-        reverse('healthcheck-cache'),
+        reverse('healthcheck:cache'),
         {'token': settings.HEALTH_CHECK_TOKEN},
     )
 
@@ -37,7 +37,7 @@ def test_cache(mock_check_status, client, settings):
 )
 def test_elasticsearch(mock_check_status, client, settings):
     response = client.get(
-        reverse('healthcheck-elastic-search'),
+        reverse('healthcheck:elastic-search'),
         {'token': settings.HEALTH_CHECK_TOKEN},
     )
 

@@ -20,41 +20,47 @@ import testapi.views
 
 admin.autodiscover()
 
+healthcheck_urls = [
+    url(
+        r'^database/$',
+        healthcheck.views.DatabaseAPIView.as_view(),
+        name='database'
+    ),
+    url(
+        r'^cache/$',
+        healthcheck.views.CacheAPIView.as_view(),
+        name='cache'
+    ),
+    url(
+        r'^single-sign-on/$',
+        directory_healthcheck.views.SingleSignOnHealthcheckView.as_view(),
+        name='single-sign-on'
+    ),
+    url(
+        r'^elasticsearch/$',
+        healthcheck.views.ElasticsearchAPIView.as_view(),
+        name='elastic-search'
+    ),
+    url(
+        r'^ping/$',
+        directory_healthcheck.views.PingView.as_view(),
+        name='ping'
+    ),
+    url(
+        r'^sentry/$',
+        directory_healthcheck.views.SentryHealthcheckView.as_view(),
+        name='sentry'
+    ),
+]
 
 urlpatterns = [
     url(
+        r'^healthcheck/',
+        include(healthcheck_urls, namespace='healthcheck')
+    ),
+    url(
         r'^admin/',
         include(admin.site.urls)
-    ),
-    url(
-        r'^healthcheck/database/$',
-        healthcheck.views.DatabaseAPIView.as_view(),
-        name='healthcheck-database'
-    ),
-    url(
-        r'^healthcheck/cache/$',
-        healthcheck.views.CacheAPIView.as_view(),
-        name='healthcheck-cache'
-    ),
-    url(
-        r'^healthcheck/single-sign-on/$',
-        directory_healthcheck.views.SingleSignOnHealthcheckView.as_view(),
-        name='healthcheck-single-sign-on'
-    ),
-    url(
-        r'^healthcheck/elasticsearch/$',
-        healthcheck.views.ElasticsearchAPIView.as_view(),
-        name='healthcheck-elastic-search'
-    ),
-    url(
-        r'^healthcheck/ping/$',
-        directory_healthcheck.views.PingView.as_view(),
-        name='healthcheck-ping'
-    ),
-    url(
-        r'^healthcheck/sentry/$',
-        directory_healthcheck.views.SentryHealthcheckView.as_view(),
-        name='healthcheck-sentry'
     ),
     url(
         r'^enrolment/$',
