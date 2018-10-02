@@ -1,4 +1,7 @@
+import directory_healthcheck.views
+
 import django
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 
@@ -14,41 +17,50 @@ import notifications.views
 import supplier.views
 import testapi.views
 
-from django.conf import settings
-
 
 admin.autodiscover()
 
+healthcheck_urls = [
+    url(
+        r'^database/$',
+        healthcheck.views.DatabaseAPIView.as_view(),
+        name='database'
+    ),
+    url(
+        r'^cache/$',
+        healthcheck.views.CacheAPIView.as_view(),
+        name='cache'
+    ),
+    url(
+        r'^single-sign-on/$',
+        directory_healthcheck.views.SingleSignOnHealthcheckView.as_view(),
+        name='single-sign-on'
+    ),
+    url(
+        r'^elasticsearch/$',
+        healthcheck.views.ElasticsearchAPIView.as_view(),
+        name='elastic-search'
+    ),
+    url(
+        r'^ping/$',
+        directory_healthcheck.views.PingView.as_view(),
+        name='ping'
+    ),
+    url(
+        r'^sentry/$',
+        directory_healthcheck.views.SentryHealthcheckView.as_view(),
+        name='sentry'
+    ),
+]
 
 urlpatterns = [
     url(
+        r'^healthcheck/',
+        include(healthcheck_urls, namespace='healthcheck')
+    ),
+    url(
         r'^admin/',
         include(admin.site.urls)
-    ),
-    url(
-        r'^healthcheck/database/$',
-        healthcheck.views.DatabaseAPIView.as_view(),
-        name='health-check-database'
-    ),
-    url(
-        r'^healthcheck/cache/$',
-        healthcheck.views.CacheAPIView.as_view(),
-        name='health-check-cache'
-    ),
-    url(
-        r'^healthcheck/single-sign-on/$',
-        healthcheck.views.SingleSignOnAPIView.as_view(),
-        name='health-check-single-sign-on'
-    ),
-    url(
-        r'^healthcheck/elasticsearch/$',
-        healthcheck.views.ElasticsearchAPIView.as_view(),
-        name='health-check-elastic-search'
-    ),
-    url(
-        r'^healthcheck/ping/$',
-        healthcheck.views.PingAPIView.as_view(),
-        name='health-check-ping'
     ),
     url(
         r'^enrolment/$',
