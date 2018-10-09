@@ -33,7 +33,7 @@ healthcheck_urls = [
     ),
     url(
         r'^single-sign-on/$',
-        directory_healthcheck.views.SingleSignOnHealthcheckView.as_view(),
+        healthcheck.views.SingleSignOnHealthcheckView.as_view(),
         name='single-sign-on'
     ),
     url(
@@ -50,6 +50,11 @@ healthcheck_urls = [
         r'^sentry/$',
         directory_healthcheck.views.SentryHealthcheckView.as_view(),
         name='sentry'
+    ),
+    url(
+        r'^stannp/$',
+        healthcheck.views.StannpView.as_view(),
+        name='stannp'
     ),
 ]
 
