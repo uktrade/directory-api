@@ -1,9 +1,12 @@
+import decimal
+
 from elasticsearch_dsl.connections import connections
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import (
     ServiceReturnedUnexpectedResult, ServiceUnavailable
 )
 
+from company.stannp import stannp_client
 from supplier.helpers import sso_api_client
 
 
@@ -30,4 +33,24 @@ class SigngleSignOnBackend(BaseHealthCheckBackend):
                 raise ServiceReturnedUnexpectedResult(
                     self.message_bad_status.format(response)
                 )
+        return True
+
+
+class StannpBackend(BaseHealthCheckBackend):
+    def check_status(self):
+        try:
+            response = stannp_client.retrieve_balance()
+        except Exception as error:
+            raise ServiceUnavailable('(Stannp) ' + str(error))
+        else:
+            if response.status_code != 200:
+                raise ServiceReturnedUnexpectedResult(
+                    f'Stannp returned {response.status_code} status code'
+                )
+            else:
+                balance = decimal.Decimal(response.json()['data']['balance'])
+                if balance < 50:
+                    raise ServiceReturnedUnexpectedResult(
+                        f'Balance is {balance}. Top up soon.'
+                    )
         return True

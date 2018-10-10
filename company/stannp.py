@@ -47,6 +47,11 @@ class StannpClient:
             client.captureMessage(response.content, stack=True)
         return response
 
+    def retrieve_balance(self):
+        domain = 'https://dash.stannp.com'
+        url = domain + '/api/v1/accounts/balance?api_key=' + self.api_key
+        return requests.get(url)
+
 
 stannp_client = StannpClient(
     api_key=settings.STANNP_API_KEY,

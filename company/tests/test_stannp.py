@@ -36,6 +36,14 @@ def stannp_not_ok_response():
     return response
 
 
+@pytest.fixture
+def stannp_balance_ok_response():
+    response = requests.models.Response()
+    response.status_code = 200
+    response.json = lambda: {'data': {'balance': '123.12'}}
+    return response
+
+
 @patch('requests.post')
 def test_post(mock_post):
     stannp_client.post(
@@ -113,3 +121,17 @@ def test_send_letter(mock_post, stannp_200_response):
             'recipient[test_field_name2]': 'test_value2'
         }
     )
+
+
+@patch('company.stannp.requests.get')
+def test_retrieve_balance(
+    mock_get, stannp_balance_ok_response
+):
+    mock_get.return_value = stannp_balance_ok_response
+    response = stannp_client.retrieve_balance()
+
+    assert mock_get.call_count == 1
+    assert mock_get.call_args == call(
+        'https://dash.stannp.com/api/v1/accounts/balance?api_key=debug'
+    )
+    assert response.status_code == 200
