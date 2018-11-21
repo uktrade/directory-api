@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'exportreadiness.apps.ExportReadinessConfig',
     'activitystream.apps.ActivityStreamConfig',
+    'exporting.apps.ExportingConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check',
