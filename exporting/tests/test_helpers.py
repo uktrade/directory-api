@@ -56,7 +56,7 @@ def test_postcode_to_region_id_region_missing(postcode_response):
         )
         result = helpers.postcode_to_region_id('ABC 123')
 
-    assert result == 'East East Foolands'
+    assert result == 'east_east_foolands'
 
 
 def test_postcode_to_region_id_region_present(postcode_response):
@@ -67,4 +67,4 @@ def test_postcode_to_region_id_region_present(postcode_response):
         )
         result = helpers.postcode_to_region_id('ABC 123')
 
-    assert result == 'East East Foolands region'
+    assert result == 'east_east_foolands_region'

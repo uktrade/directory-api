@@ -38,6 +38,10 @@ def test_lookup_by_postcode_success(
         'address_postcode': office.address_postcode,
         'email': office.email,
         'phone': office.phone,
+        'name': office.name,
+        'phone_other': office.phone_other,
+        'phone_other_comment': office.phone_other_comment,
+        'website': office.website,
     }
 
 
