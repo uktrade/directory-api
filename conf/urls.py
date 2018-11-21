@@ -16,6 +16,7 @@ import healthcheck.views
 import notifications.views
 import supplier.views
 import testapi.views
+import exporting.views
 
 
 admin.autodiscover()
@@ -245,6 +246,11 @@ urlpatterns = [
         r'supplier/csv-dump/$',
         supplier.views.SupplierCSVDownloadAPIView.as_view(),
         name='supplier-csv-dump'
+    ),
+    url(
+        r'exporting/lookup-by-postcode/(?P<postcode>.*)/$',
+        exporting.views.RetrieveOfficeByPostCode.as_view(),
+        name='office-lookup-by-postcode'
     ),
     url(
         r'^testapi/company/(?P<ch_id>.*)/$',
