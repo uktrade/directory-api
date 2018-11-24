@@ -7,6 +7,7 @@
 amqp==2.2.2               # via kombu
 asn1crypto==0.24.0        # via cryptography
 attrs==18.2.0             # via pytest
+beautifulsoup4==4.6.3     # via directory-components
 billiard==3.5.0.3         # via celery
 boto3==1.7.30
 botocore==1.10.37         # via boto3, s3transfer
@@ -19,12 +20,13 @@ contextlib2==0.5.5        # via raven
 coverage==4.5.1           # via codecov, pytest-cov
 cryptography==2.3
 directory-client-core==0.3.1  # via directory-sso-api-client
+directory-components==2.33.0
 directory-constants==7.0.0
 directory-healthcheck==0.6.0
 directory-sso-api-client==2.5.1
 directory-validators==4.5.1
 dj-database-url==0.4.1
-django-admin-ip-restrictor==0.1.0
+django-admin-ip-restrictor==1.0.0  # via directory-components
 django-celery-beat==1.1.1
 django-environ==0.4.5
 django-filter==1.0.4
@@ -39,6 +41,7 @@ djangorestframework==3.4.7
 docutils==0.14            # via botocore
 elasticsearch-dsl==5.2.0
 elasticsearch==5.3.0
+export-elements==0.23.0   # via directory-components
 factory-boy==2.8.1
 faker==0.8.11             # via factory-boy
 flake8==3.0.4

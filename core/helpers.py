@@ -1,80 +1,13 @@
 import csv
 
 import boto3
-from ipware.ip2 import get_client_ip
 
-from django.conf import settings
 from django.db import models
 from django_extensions.db.fields import (
     CreationDateTimeField, ModificationDateTimeField,
 )
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-
-from core.constants import IP_RETRIEVER_NAME_GOV_UK, IP_RETRIEVER_NAME_IPWARE
-
-
-class IpwareRemoteIPAddressRetriver:
-    MESSAGE_NOT_FOUND = 'IP not found'
-    MESSAGE_UNROUTABLE = 'IP is private'
-
-    @classmethod
-    def get_ip_address(cls, request):
-        client_ip, is_routable = get_client_ip(request)
-        if not client_ip:
-            raise LookupError(cls.MESSAGE_NOT_FOUND)
-        if not is_routable:
-            raise LookupError(cls.MESSAGE_UNROUTABLE)
-        return client_ip
-
-
-class GovukPaaSRemoteIPAddressRetriver:
-    MESSAGE_MISSING_HEADER = 'X-Forwarded-For not in HTTP headers'
-    MESSAGE_INVALID_IP_COUNT = 'Not enough IP addresses in X-Forwarded-For'
-
-    @classmethod
-    def get_ip_address(cls, request):
-        """
-        Returns the IP of the client making a HTTP request, using the
-        second-to-last IP address in the X-Forwarded-For header. This
-        should not be able to be spoofed in GovukPaaS, but it is not
-        safe to use in other environments.
-
-        Args:
-            request (HttpRequest): the incoming Django request object
-
-        Returns:
-            str: The IP address of the incoming request
-
-        Raises:
-            LookupError: The X-Forwarded-For header is not present, or
-            does not contain enough IPs
-        """
-        if 'HTTP_X_FORWARDED_FOR' not in request.META:
-            raise LookupError(cls.MESSAGE_MISSING_HEADER)
-
-        x_forwarded_for = request.META['HTTP_X_FORWARDED_FOR']
-        ip_addesses = x_forwarded_for.split(',')
-        if len(ip_addesses) < 2:
-            raise LookupError(cls.MESSAGE_INVALID_IP_COUNT)
-
-        return ip_addesses[-2].strip()
-
-
-class RemoteIPAddressRetriver:
-    """
-    Different environments retrieve the remote IP address differently. This
-    class negotiates that.
-
-    """
-
-    @classmethod
-    def __new__(cls, *args, **kwargs):
-        if settings.REMOTE_IP_ADDRESS_RETRIEVER == IP_RETRIEVER_NAME_GOV_UK:
-            return GovukPaaSRemoteIPAddressRetriver()
-        elif settings.REMOTE_IP_ADDRESS_RETRIEVER == IP_RETRIEVER_NAME_IPWARE:
-            return IpwareRemoteIPAddressRetriver()
-        raise NotImplementedError()
 
 
 def upload_file_object_to_s3(file_object, bucket, key):

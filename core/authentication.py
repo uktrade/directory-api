@@ -1,3 +1,4 @@
+from directory_components.helpers import GovukPaaSRemoteIPAddressRetriver  # noqa
 from rest_framework import authentication, exceptions
 from rest_framework.authentication import BasicAuthentication
 
@@ -5,7 +6,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from core.helpers import GovukPaaSRemoteIPAddressRetriver  # noqa
 from supplier import helpers
 
 
