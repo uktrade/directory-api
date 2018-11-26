@@ -11,7 +11,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from core.helpers import RemoteIPAddressRetriver
+from directory_components.helpers import RemoteIPAddressRetriver
 
 
 logger = logging.getLogger(__name__)

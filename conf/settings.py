@@ -1,12 +1,12 @@
 import os
 
 import dj_database_url
+from directory_components.constants import IP_RETRIEVER_NAME_GOV_UK
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
-from core.constants import IP_RETRIEVER_NAME_GOV_UK
 
 env = environ.Env()
 
@@ -59,13 +59,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
+    'directory_components.middleware.IPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'core.middleware.AdminIPRestrictorMiddleware'
 ]
 
 ROOT_URLCONF = 'conf.urls'
@@ -492,10 +492,6 @@ ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
 )
 
 # Activity Stream
-REMOTE_IP_ADDRESS_RETRIEVER = env.str(
-    'REMOTE_IP_ADDRESS_RETRIEVER', IP_RETRIEVER_NAME_GOV_UK
-)
-
 ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
 ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
     'ACTIVITY_STREAM_SECRET_ACCESS_KEY', ''
@@ -533,11 +529,6 @@ CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 
-# Admin restrictor
-RESTRICT_ADMIN = env.bool('RESTRICT_ADMIN', False)
-ALLOWED_ADMIN_IPS = env.list('ALLOWED_ADMIN_IPS', default=[])
-ALLOWED_ADMIN_IP_RANGES = env.list('ALLOWED_ADMIN_IP_RANGES', default=[])
-
 FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
 FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
 FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
@@ -561,3 +552,15 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 ]
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
+
+# ip-restrictor
+RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
+ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
+ALLOWED_ADMIN_IP_RANGES = env.list(
+    'IP_RESTRICTOR_ALLOWED_ADMIN_IP_RANGES', default=[]
+)
+RESTRICTED_APP_NAMES = ['admin']
+REMOTE_IP_ADDRESS_RETRIEVER = env.str(
+    'IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER',
+    IP_RETRIEVER_NAME_GOV_UK
+)
