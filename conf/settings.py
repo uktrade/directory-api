@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
     'superuser',
+    'field_history',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
     'company.apps.CompanyConfig',

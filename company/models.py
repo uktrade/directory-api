@@ -11,6 +11,8 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from core.helpers import TimeStampedModel
+from field_history.tracker import FieldHistoryTracker
+
 from company import helpers, search
 
 
@@ -194,6 +196,12 @@ class Company(TimeStampedModel):
         choices=choices.LEAD_GENERATION_CAMPAIGNS,
     )
     is_showcase_company = models.BooleanField(default=False)
+
+    field_history = FieldHistoryTracker([
+        'verified_with_preverified_enrolment',
+        'verified_with_code',
+        'verified_with_companies_house_oauth2',
+    ])
 
     class Meta:
         verbose_name_plural = 'companies'

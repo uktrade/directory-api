@@ -2,6 +2,7 @@ Django==1.11.15
 dj-database-url==0.4.1
 django-environ==0.4.5
 django_extensions==1.6.7
+django-field-history==0.7.0
 djangorestframework==3.4.7
 django-storages==1.5.1
 django-filter==1.0.4
