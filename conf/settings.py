@@ -7,7 +7,6 @@ from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
-from core.constants import IP_RETRIEVER_NAME_GOV_UK
 
 env = environ.Env()
 
