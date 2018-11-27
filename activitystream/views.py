@@ -145,4 +145,13 @@ class ActivityStreamViewSet(ViewSet):
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of activities"""
-        return Response({'secret': 'content-for-pen-test'})
+
+        return Response({
+            '@context': [
+                'https://www.w3.org/ns/activitystreams', {
+                    'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+                }
+            ],
+            'type': 'Collection',
+            'orderedItems': [],
+        })

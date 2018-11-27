@@ -25,6 +25,18 @@ def _url_incorrect_path():
     return 'http://testserver' + reverse('activity-stream') + 'incorrect/'
 
 
+def _empty_collection():
+    return {
+        '@context': [
+            'https://www.w3.org/ns/activitystreams', {
+                'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+            }
+        ],
+        'type': 'Collection',
+        'orderedItems': [],
+    }
+
+
 def _auth_sender(key_id='some-id', secret_key='some-secret', url=_url,
                  method='GET', content='', content_type=''):
     credentials = {
@@ -258,8 +270,7 @@ def test_empty_object_returned_with_authentication_3_ips(api_client):
     )
 
     assert response.status_code == status.HTTP_200_OK
-    content = {'secret': 'content-for-pen-test'}
-    assert response.json() == content
+    assert response.json() == _empty_collection()
 
 
 @pytest.mark.django_db
@@ -276,8 +287,7 @@ def test_empty_object_returned_with_authentication(api_client):
     )
 
     assert response.status_code == status.HTTP_200_OK
-    content = {'secret': 'content-for-pen-test'}
-    assert response.json() == content
+    assert response.json() == _empty_collection()
 
     # Just asserting that accept_response doesn't raise is a bit weak,
     # so we also assert that it raises if the header, content, or
