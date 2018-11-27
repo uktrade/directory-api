@@ -337,11 +337,14 @@ def test_if_never_verified_not_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_if_verified_with_code_in_stream_in_date_order(api_client):
+def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
     """If the company verified_with_code, then it's in the activity stream
     """
 
     CompanyFactory(number=10000000)
+
+    with freeze_time('2012-01-14 12:00:02'):
+        CompanyFactory(number=10000003, verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:02'):
         CompanyFactory(number=10000002, verified_with_code=True)
@@ -358,11 +361,13 @@ def test_if_verified_with_code_in_stream_in_date_order(api_client):
     )
     items = response.json()['orderedItems']
 
-    assert len(items) == 2
+    assert len(items) == 3
     assert items[0]['published'] == '2012-01-14T12:00:01+00:00'
     assert items[0]['object']['dit:companiesHouseNumber'] == '10000001'
     assert items[1]['published'] == '2012-01-14T12:00:02+00:00'
-    assert items[1]['object']['dit:companiesHouseNumber'] == '10000002'
+    assert items[1]['object']['dit:companiesHouseNumber'] == '10000003'
+    assert items[2]['published'] == '2012-01-14T12:00:02+00:00'
+    assert items[2]['object']['dit:companiesHouseNumber'] == '10000002'
 
 
 @pytest.mark.django_db

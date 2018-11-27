@@ -155,7 +155,7 @@ class ActivityStreamViewSet(ViewSet):
                 'verified_with_companies_house_oauth2',
                 'verified_with_preverified_enrolment',
             ],
-        ).order_by('date_created')
+        ).order_by('date_created', 'id')
 
         def was_company_verified(item):
             return item.field_value
