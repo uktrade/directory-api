@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
+from company.tests.factories import CompanyFactory
+
 
 @pytest.fixture
 def api_client():
@@ -315,3 +317,91 @@ def test_empty_object_returned_with_authentication(api_client):
             content=response.content,
             content_type='incorrect',
         )
+
+
+@pytest.mark.django_db
+def test_if_never_verified_not_in_stream(api_client):
+    """If the company never verified, then it's not in the activity stream
+    """
+    CompanyFactory()
+
+    sender = _auth_sender()
+    response = api_client.get(
+        _url(),
+        content_type='',
+        HTTP_AUTHORIZATION=sender.request_header,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == _empty_collection()
+
+
+@pytest.mark.django_db
+def test_if_verified_with_code_in_stream_in_date_order(api_client):
+    """If the company verified_with_code, then it's in the activity stream
+    """
+
+    CompanyFactory(number=10000000)
+
+    with freeze_time('2012-01-14 12:00:02'):
+        CompanyFactory(number=10000002, verified_with_code=True)
+
+    with freeze_time('2012-01-14 12:00:01'):
+        CompanyFactory(number=10000001, verified_with_code=True)
+
+    sender = _auth_sender()
+    response = api_client.get(
+        _url(),
+        content_type='',
+        HTTP_AUTHORIZATION=sender.request_header,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    items = response.json()['orderedItems']
+
+    assert len(items) == 2
+    assert items[0]['published'] == '2012-01-14T12:00:01+00:00'
+    assert items[0]['object']['dit:companiesHouseNumber'] == '10000001'
+    assert items[1]['published'] == '2012-01-14T12:00:02+00:00'
+    assert items[1]['object']['dit:companiesHouseNumber'] == '10000002'
+
+
+@pytest.mark.django_db
+def test_if_verified_with_companies_house_oauth2_in_stream(api_client):
+    """If the company verified_with_companies_house_oauth2, then it's n the
+    activity stream
+    """
+
+    CompanyFactory(number=10000000, verified_with_companies_house_oauth2=True)
+
+    sender = _auth_sender()
+    response = api_client.get(
+        _url(),
+        content_type='',
+        HTTP_AUTHORIZATION=sender.request_header,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    items = response.json()['orderedItems']
+
+    assert len(items) == 1
+    assert items[0]['object']['dit:companiesHouseNumber'] == '10000000'
+
+
+@pytest.mark.django_db
+def test_if_verified_with_preverified_enrolment_in_stream(api_client):
+    """If the company verified_with_preverified_enrolment, then it's in the
+    activity stream
+    """
+
+    CompanyFactory(number=10000000, verified_with_preverified_enrolment=True)
+
+    sender = _auth_sender()
+    response = api_client.get(
+        _url(),
+        content_type='',
+        HTTP_AUTHORIZATION=sender.request_header,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    items = response.json()['orderedItems']
+
+    assert len(items) == 1
+    assert items[0]['object']['dit:companiesHouseNumber'] == '10000000'

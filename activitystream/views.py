@@ -1,9 +1,11 @@
 import logging
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.crypto import constant_time_compare
 from django.utils.decorators import decorator_from_middleware
+from field_history.models import FieldHistory
 from mohawk import Receiver
 from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
@@ -12,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from directory_components.helpers import RemoteIPAddressRetriver
-
+from company.models import Company
 
 logger = logging.getLogger(__name__)
 
@@ -146,12 +148,46 @@ class ActivityStreamViewSet(ViewSet):
     def list(self, request):
         """A single page of activities"""
 
+        history = FieldHistory.objects.all().filter(
+            content_type=ContentType.objects.get_for_model(Company),
+            field_name__in=[
+                'verified_with_code',
+                'verified_with_companies_house_oauth2',
+                'verified_with_preverified_enrolment',
+            ],
+        ).order_by('date_created')
+
+        def was_company_verified(item):
+            return item.field_value
+
+        def company(item):
+            return item.object
+
         return Response({
             '@context': [
                 'https://www.w3.org/ns/activitystreams', {
                     'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
-                }
+                },
             ],
             'type': 'Collection',
-            'orderedItems': [],
+            'orderedItems': [{
+                'id': (
+                    'dit:directory:CompanyVerification:' + str(item.id) +
+                    ':Create'
+                ),
+                'type': 'Create',
+                'published': item.date_created.isoformat('T'),
+                'generator': {
+                    'type': 'Application',
+                    'name': 'dit:directory',
+                },
+                'object': {
+                    'type': ['Document', 'dit:directory:CompanyVerification'],
+                    'id': 'dit:directory:CompanyVerification:' + str(item.id),
+                    'dit:companiesHouseNumber': str(company(item).number),
+                },
+            }
+                for item in history
+                if was_company_verified(item)
+            ],
         })
