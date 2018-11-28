@@ -186,7 +186,7 @@ class ActivityStreamViewSet(ViewSet):
             Q(date_created__gt=after_ts) | \
             Q(date_created=after_ts, id__gt=after_id)
 
-        history_qs = FieldHistory.objects.all().filter(
+        history_qs_all = FieldHistory.objects.all().filter(
             after_q,
             content_type=ContentType.objects.get_for_model(Company),
             field_name__in=[
@@ -194,7 +194,8 @@ class ActivityStreamViewSet(ViewSet):
                 'verified_with_companies_house_oauth2',
                 'verified_with_preverified_enrolment',
             ],
-        ).order_by('date_created', 'id')[:MAX_PER_PAGE]
+        ).prefetch_related('object').order_by('date_created', 'id')
+        history_qs = history_qs_all[:MAX_PER_PAGE]
         history = list(history_qs)
 
         def was_company_verified(item):

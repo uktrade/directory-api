@@ -424,7 +424,7 @@ def test_if_verified_with_preverified_enrolment_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_pagination(api_client):
+def test_pagination(api_client, django_assert_num_queries):
     """The requests are paginated, ending on a page without a next key
     """
 
@@ -442,18 +442,21 @@ def test_pagination(api_client):
     next_url = _url()
     num_pages = 0
 
-    while next_url:
-        num_pages += 1
-        sender = _auth_sender(url=lambda: next_url)
-        response = api_client.get(
-            next_url,
-            content_type='',
-            HTTP_AUTHORIZATION=sender.request_header,
-            HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
-        )
-        response_json = response.json()
-        items += response_json['orderedItems']
-        next_url = response_json['next'] if 'next' in response_json else None
+    with django_assert_num_queries(9):
+        while next_url:
+            num_pages += 1
+            sender = _auth_sender(url=lambda: next_url)
+            response = api_client.get(
+                next_url,
+                content_type='',
+                HTTP_AUTHORIZATION=sender.request_header,
+                HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+            )
+            response_json = response.json()
+            items += response_json['orderedItems']
+            next_url = \
+                response_json['next'] if 'next' in response_json else \
+                None
 
     assert num_pages == 5
     assert len(items) == 501
