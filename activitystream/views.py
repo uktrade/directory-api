@@ -1,5 +1,7 @@
+from datetime import datetime
 import logging
 
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -11,6 +13,7 @@ from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.viewsets import ViewSet
 
 from directory_components.helpers import RemoteIPAddressRetriver
@@ -20,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 NO_CREDENTIALS_MESSAGE = 'Authentication credentials were not provided.'
 INCORRECT_CREDENTIALS_MESSAGE = 'Incorrect authentication credentials.'
+MAX_PER_PAGE = 500
 
 
 def lookup_credentials(access_key_id):
@@ -144,18 +148,54 @@ class ActivityStreamViewSet(ViewSet):
     authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
 
+    @staticmethod
+    def _parse_after(request):
+        after = request.GET.get('after', '0.000000_0')
+        after_ts_str, after_id_str = after.split('_')
+        after_ts = datetime.fromtimestamp(float(after_ts_str))
+        after_id = int(after_id_str)
+        return after_ts, after_id
+
+    @staticmethod
+    def _build_after(request, after_ts, after_id):
+        return (
+            request.build_absolute_uri(reverse('activity-stream')) +
+            '?after={}_{}'.format(str(after_ts.timestamp()),
+                                  str(after_id))
+        )
+
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
-        """A single page of activities"""
+        """A single page of activities
+        The last page is the page without a 'next' key. A page can be empty,
+        but still have a 'next' key for the next page: The activity stream
+        allows this.
 
-        history = FieldHistory.objects.all().filter(
+        This is to allow post-db filtering of results, without blocking the
+        request while a "full" page of results is found, which would take a
+        non-constant number of queries. Ideally all filtering would be in the
+        database, but it might be extremely awkward (.e.g. having to query on
+        contents of a json field). Fields are only in FieldHistory because we
+        then show them in the activity stream, so the amount of rows returned
+        from the db that we then don't show in the activity _won't_ increase
+        with unreleated development/fields added to models
+        """
+        after_ts, after_id = self._parse_after(request)
+
+        after_q = \
+            Q(date_created__gt=after_ts) | \
+            Q(date_created=after_ts, id__gt=after_id)
+
+        history_qs = FieldHistory.objects.all().filter(
+            after_q,
             content_type=ContentType.objects.get_for_model(Company),
             field_name__in=[
                 'verified_with_code',
                 'verified_with_companies_house_oauth2',
                 'verified_with_preverified_enrolment',
             ],
-        ).order_by('date_created', 'id')
+        ).order_by('date_created', 'id')[:MAX_PER_PAGE]
+        history = list(history_qs)
 
         def was_company_verified(item):
             return item.field_value
@@ -163,7 +203,7 @@ class ActivityStreamViewSet(ViewSet):
         def company(item):
             return item.object
 
-        return Response({
+        items = {
             '@context': [
                 'https://www.w3.org/ns/activitystreams', {
                     'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
@@ -190,4 +230,13 @@ class ActivityStreamViewSet(ViewSet):
                 for item in history
                 if was_company_verified(item)
             ],
+        }
+        next_page = {
+            'next': self._build_after(request, history[-1].date_created,
+                                      history[-1].id)
+        } if history else {}
+
+        return Response({
+            **items,
+            **next_page,
         })

@@ -323,7 +323,9 @@ def test_empty_object_returned_with_authentication(api_client):
 def test_if_never_verified_not_in_stream(api_client):
     """If the company never verified, then it's not in the activity stream
     """
-    CompanyFactory()
+
+    with freeze_time('2012-01-14 12:00:02'):
+        CompanyFactory()
 
     sender = _auth_sender()
     response = api_client.get(
@@ -333,7 +335,16 @@ def test_if_never_verified_not_in_stream(api_client):
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == _empty_collection()
+    assert response.json() == {
+        '@context': [
+            'https://www.w3.org/ns/activitystreams', {
+                'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+            }
+        ],
+        'type': 'Collection',
+        'orderedItems': [],
+        'next': 'http://testserver/activity-stream/?after=1326542402.0_3',
+    }
 
 
 @pytest.mark.django_db
@@ -410,3 +421,41 @@ def test_if_verified_with_preverified_enrolment_in_stream(api_client):
 
     assert len(items) == 1
     assert items[0]['object']['dit:companiesHouseNumber'] == '10000000'
+
+
+@pytest.mark.django_db
+def test_pagination(api_client):
+    """The requests are paginated, ending on a page without a next key
+    """
+
+    with freeze_time('2012-01-14 12:00:02'):
+        for i in range(0, 250):
+            CompanyFactory(number=10000000 + i,
+                           verified_with_preverified_enrolment=True)
+
+    with freeze_time('2012-01-14 12:00:01'):
+        for i in range(250, 501):
+            CompanyFactory(number=10000000 + i,
+                           verified_with_preverified_enrolment=True)
+
+    items = []
+    next_url = _url()
+    num_pages = 0
+
+    while next_url:
+        num_pages += 1
+        sender = _auth_sender(url=lambda: next_url)
+        response = api_client.get(
+            next_url,
+            content_type='',
+            HTTP_AUTHORIZATION=sender.request_header,
+            HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+        )
+        response_json = response.json()
+        items += response_json['orderedItems']
+        next_url = response_json['next'] if 'next' in response_json else None
+
+    assert num_pages == 5
+    assert len(items) == 501
+    assert len(set([item['id'] for item in items])) == 501
+    assert items[500]['object']['dit:companiesHouseNumber'] == '10000249'
