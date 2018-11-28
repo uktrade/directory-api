@@ -194,15 +194,26 @@ class ActivityStreamViewSet(ViewSet):
                 'verified_with_companies_house_oauth2',
                 'verified_with_preverified_enrolment',
             ],
-        ).prefetch_related('object').order_by('date_created', 'id')
+        ).order_by('date_created', 'id')
         history_qs = history_qs_all[:MAX_PER_PAGE]
         history = list(history_qs)
+
+        # prefetch_related / prefetch_related_objects fetches _all_ the fields
+        # from the related table if using a GenericForeignKey, which Field
+        # History uses. To only fetch the fields needed, we do our own join
+        # in-code. This is what prefetch_related does anyway under the hood,
+        # so is likely not worse.
+
+        company_ids = [item.object_id for item in history]
+        companies = Company.objects.all().filter(
+            id__in=company_ids).values_list('id', 'number')
+        company_numbers_by_id = dict(companies)
 
         def was_company_verified(item):
             return item.field_value
 
-        def company(item):
-            return item.object
+        def company_number(item):
+            return company_numbers_by_id[int(item.object_id)]
 
         items = {
             '@context': [
@@ -225,7 +236,7 @@ class ActivityStreamViewSet(ViewSet):
                 'object': {
                     'type': ['Document', 'dit:directory:CompanyVerification'],
                     'id': 'dit:directory:CompanyVerification:' + str(item.id),
-                    'dit:companiesHouseNumber': str(company(item).number),
+                    'dit:companiesHouseNumber': company_number(item),
                 },
             }
                 for item in history
