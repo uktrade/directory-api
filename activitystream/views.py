@@ -179,21 +179,14 @@ class ActivityStreamViewSet(ViewSet):
         then show them in the activity stream, so the amount of rows returned
         from the db that we then don't show in the activity _won't_ increase
         with unreleated development/fields added to models
+
+        The db query is also kept as simple as possible to make it more likely
+        that the db will use an index
         """
         after_ts, after_id = self._parse_after(request)
-
-        after_q = \
-            Q(date_created__gt=after_ts) | \
-            Q(date_created=after_ts, id__gt=after_id)
-
         history_qs_all = FieldHistory.objects.all().filter(
-            after_q,
-            content_type=ContentType.objects.get_for_model(Company),
-            field_name__in=[
-                'verified_with_code',
-                'verified_with_companies_house_oauth2',
-                'verified_with_preverified_enrolment',
-            ],
+            Q(date_created=after_ts, id__gt=after_id) |
+            Q(date_created__gt=after_ts)
         ).order_by('date_created', 'id')
         history_qs = history_qs_all[:MAX_PER_PAGE]
         history = list(history_qs)
@@ -210,7 +203,11 @@ class ActivityStreamViewSet(ViewSet):
         company_numbers_by_id = dict(companies)
 
         def was_company_verified(item):
-            return item.field_value
+            return item.field_value and item.field_name in [
+                'verified_with_code',
+                'verified_with_companies_house_oauth2',
+                'verified_with_preverified_enrolment',
+            ]
 
         def company_number(item):
             return company_numbers_by_id[int(item.object_id)]
