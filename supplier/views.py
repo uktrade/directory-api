@@ -43,7 +43,7 @@ class SupplierSSOListExternalAPIView(ListAPIView):
 
 
 class SupplierRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    serializer_class = serializers.SupplierSerializer
+    serializer_class = serializers.SupplierCompanySerializer
 
     def get_object(self):
         if not self.request.user.supplier:

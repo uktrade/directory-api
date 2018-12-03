@@ -34,7 +34,7 @@ def supplier():
 def test_supplier_retrieve(authed_client, authed_supplier):
     response = authed_client.get(reverse('supplier'))
 
-    expected = serializers.SupplierSerializer(authed_supplier).data
+    expected = serializers.SupplierCompanySerializer(authed_supplier).data
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected

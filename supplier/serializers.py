@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from company.serializers import CompanySerializer
 from supplier.models import Supplier
 
 
@@ -57,3 +58,7 @@ class SupplierSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         return value or ''
+
+
+class SupplierCompanySerializer(SupplierSerializer):
+    company = CompanySerializer()
