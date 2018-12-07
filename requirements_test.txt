@@ -6,6 +6,7 @@
 #
 amqp==2.2.2               # via kombu
 asn1crypto==0.24.0        # via cryptography
+atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via pytest
 beautifulsoup4==4.6.3     # via directory-components
 billiard==3.5.0.3         # via celery
@@ -17,7 +18,7 @@ cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
 codecov==2.0.9
 contextlib2==0.5.5        # via raven
-coverage==4.5.1           # via codecov, pytest-cov
+coverage==4.5.2           # via codecov, pytest-cov
 cryptography==2.3
 directory-client-core==0.3.1  # via directory-sso-api-client
 directory-components==2.33.0
@@ -29,6 +30,7 @@ dj-database-url==0.4.1
 django-admin-ip-restrictor==1.0.0  # via directory-components
 django-celery-beat==1.1.1
 django-environ==0.4.5
+django-field-history==0.7.0
 django-filter==1.0.4
 django-health-check==3.0.0  # via directory-healthcheck
 django-ipware==2.0.1      # via django-admin-ip-restrictor
@@ -43,7 +45,7 @@ elasticsearch-dsl==5.2.0
 elasticsearch==5.3.0
 export-elements==0.23.0   # via directory-components
 factory-boy==2.8.1
-faker==0.8.11             # via factory-boy
+faker==1.0.0              # via factory-boy
 flake8==3.0.4
 freezegun==0.3.8
 gunicorn==19.5.0
@@ -53,20 +55,21 @@ kombu==4.1.0
 mccabe==0.5.3             # via flake8
 mohawk==0.3.4             # via sigauth
 monotonic==1.4            # via directory-client-core
+more-itertools==4.3.0     # via pytest
 olefile==0.44             # via directory-validators, pillow
 phonenumberslite==7.7.4   # via directory-validators
 pillow==4.2.1
-pluggy==0.6.0             # via pytest
+pluggy==0.8.0             # via pytest
 psycopg2==2.6.1
-py==1.5.2                 # via pytest
+py==1.7.0                 # via pytest
 pycodestyle==2.0.0        # via flake8
 pycparser==2.18           # via cffi
 pyflakes==1.2.3           # via flake8
 pyopenssl==17.5.0         # via requests
 pytest-cov==2.3.1
-pytest-django==3.0.0
+pytest-django==3.4.4
 pytest-sugar==0.8.0
-pytest==3.4.0
+pytest==4.0.1
 python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker, freezegun
 pytz==2017.2              # via celery, directory-constants, directory-healthcheck, directory-validators, django
 raven==5.19.0
@@ -76,7 +79,7 @@ requests[security]==2.20.1
 requests_mock==1.1.0
 s3transfer==0.1.13        # via boto3
 sigauth==3.0.0
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, mohawk, pyopenssl, pytest, python-dateutil, requests-mock
+six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, mohawk, more-itertools, pyopenssl, pytest, python-dateutil, requests-mock
 termcolor==1.1.0          # via pytest-sugar
 text-unidecode==1.2       # via faker
 urllib3==1.22             # via elasticsearch, requests
