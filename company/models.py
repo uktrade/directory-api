@@ -188,13 +188,6 @@ class Company(TimeStampedModel):
         validators=[no_html],
     )
     slug = models.SlugField()
-    campaign_tag = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text='Marks the company for use on the specified page',
-        choices=choices.LEAD_GENERATION_CAMPAIGNS,
-    )
     is_showcase_company = models.BooleanField(default=False)
 
     field_history = FieldHistoryTracker([
@@ -305,13 +298,6 @@ class CompanyCaseStudy(TimeStampedModel):
     )
     company = models.ForeignKey(Company, related_name='supplier_case_studies')
     slug = models.SlugField()
-    campaign_tag = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text='Marks the casestudy for use on the specified campaign page',
-        choices=choices.LEAD_GENERATION_CAMPAIGNS,
-    )
 
     class Meta:
         verbose_name_plural = 'company case studies'

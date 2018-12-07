@@ -3,10 +3,10 @@ import logging
 
 from django.db.models import Q
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.crypto import constant_time_compare
 from django.utils.decorators import decorator_from_middleware
+
 from field_history.models import FieldHistory
 from mohawk import Receiver
 from mohawk.exc import HawkFail
@@ -16,7 +16,6 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import ViewSet
 
-from directory_components.helpers import RemoteIPAddressRetriver
 from company.models import Company
 
 logger = logging.getLogger(__name__)
@@ -86,30 +85,13 @@ class ActivityStreamAuthentication(BaseAuthentication):
         return 'Hawk'
 
     def authenticate(self, request):
-        """Authenticates a request using two mechanisms:
-
-        1. The X-Forwarded-For-Header, compared against a whitelist
-        2. A Hawk signature in the Authorization header
+        """Authenticates a request using Hawk signature
 
         If either of these suggest we cannot authenticate, AuthenticationFailed
         is raised, as required in the DRF authentication flow
         """
-        self.authenticate_by_ip(request)
+
         return self.authenticate_by_hawk(request)
-
-    def authenticate_by_ip(self, request):
-        try:
-            remote_ip = RemoteIPAddressRetriver().get_ip_address(request)
-        except LookupError:
-            logger.exception('Unable to determine remote IP')
-            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
-
-        if remote_ip not in settings.ACTIVITY_STREAM_IP_WHITELIST:
-            logger.warning(
-                'Failed authentication: the X-Forwarded-For header was not '
-                'produced by a whitelisted IP'
-            )
-            raise AuthenticationFailed(INCORRECT_CREDENTIALS_MESSAGE)
 
     def authenticate_by_hawk(self, request):
         if 'HTTP_AUTHORIZATION' not in request.META:
@@ -159,9 +141,13 @@ class ActivityStreamViewSet(ViewSet):
     @staticmethod
     def _build_after(request, after_ts, after_id):
         return (
-            request.build_absolute_uri(reverse('activity-stream')) +
-            '?after={}_{}'.format(str(after_ts.timestamp()),
-                                  str(after_id))
+            request.build_absolute_uri(
+                reverse('activity-stream:activity-stream')
+            ) +
+            '?after={}_{}'.format(
+                str(after_ts.timestamp()),
+                str(after_id)
+            )
         )
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)

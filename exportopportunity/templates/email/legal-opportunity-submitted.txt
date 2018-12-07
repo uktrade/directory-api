@@ -1,7 +1,0 @@
-{% extends 'email/opportunity-submitted.txt' %}
-{% block content %}
-Advice type: {{ instance.advice_type|join:' ' }} {{ instance.advice_type_other }}
-Target sectors: {{ instance.target_sectors|join:' ' }} {{ instance.target_sectors_other }}
-Order Deadline: {{ instance.order_deadline }}
-Additional_requirements: {{ instance.additional_requirements }}
-{% endblock %}

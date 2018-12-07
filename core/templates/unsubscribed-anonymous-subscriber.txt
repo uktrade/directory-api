@@ -1,6 +1,5 @@
 {% extends "email.txt" %}
 {% load company_profile_url from notifications_tags %}
-{% load external_url from constants_tags %}
 
 {% block heading %}Find a Supplier{% endblock %}
 

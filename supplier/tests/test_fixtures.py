@@ -10,7 +10,7 @@ from supplier.models import Supplier
 def test_load_test_fixture():
     try:
         call_command('loaddata', 'test_fixtures/load_tests.json')
-    except:
+    except Exception:
         raise AssertionError("Load test fixtures are broken")
     assert Company.objects.all().count() == 25
     assert CompanyCaseStudy.objects.all().count() == 1

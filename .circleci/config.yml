@@ -10,6 +10,18 @@ machine_python3_postgres: &machine_python3_postgres_redis
         POSTGRES_PASSWORD: debug
         POSTGRES_DB: directory_api_debug
     - image: circleci/redis:3.2-alpine
+    - image: docker.elastic.co/elasticsearch/elasticsearch:5.1.2
+      ports: ["9200:9200"]
+      environment:
+        # Set memory
+        ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+        # Disable security
+        xpack.security.enabled: "false"
+        xpack.monitoring.enabled: "false"
+        xpack.graph.enabled: "false"
+        xpack.watcher.enabled: "false"
+        # Run in development mode to ignore bootstrap checks
+        transport.host: "localhost"
 
 
 # Individual (shared) steps.

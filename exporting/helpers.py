@@ -19,4 +19,4 @@ def postcode_to_region_id(postcode):
     response.raise_for_status()
     parsed = response.json()['result']
     region_id = parsed['region'] or parsed['european_electoral_region']
-    return re.sub('\s+', '_', region_id.lower())
+    return re.sub(r'\s+', '_', region_id.lower())

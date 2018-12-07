@@ -7,7 +7,6 @@ import pytest
 from django.test import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from directory_constants.constants import lead_generation
 
 from company import admin
 from company.models import Company, CompanyCaseStudy
@@ -279,71 +278,3 @@ def test_company_case_study_search_fields_exist():
         query_key = '{}__icontains'.format(fieldname)
         query = {query_key: 'foo'}
         CompanyCaseStudy.objects.filter(**query)
-
-
-@pytest.mark.django_db
-def test_company_campaign_tag():
-    campaign_tag = lead_generation.FOOD_IS_GREAT
-    CompanyFactory(campaign_tag=campaign_tag)
-    CompanyFactory(campaign_tag=campaign_tag)
-    CompanyFactory(campaign_tag=campaign_tag)
-
-    company = CompanyFactory()
-
-    form = admin.CompanyModelForm(
-        {'campaign_tag': campaign_tag},
-        instance=company
-    )
-
-    assert form.is_valid() is False
-    assert form.errors['campaign_tag'] == [form.MESSAGE_TOO_MANY_IN_CAMPAIGN]
-
-
-@pytest.mark.django_db
-def test_case_study_campaign_tag():
-    campaign_tag = lead_generation.FOOD_IS_GREAT
-    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
-    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
-    CompanyCaseStudyFactory(campaign_tag=campaign_tag)
-    case_study = CompanyCaseStudyFactory()
-
-    form = admin.CompanyCaseStudyModelForm(
-        {'campaign_tag': campaign_tag},
-        instance=case_study,
-    )
-
-    assert form.is_valid() is False
-    assert form.errors['campaign_tag'] == [form.MESSAGE_TOO_MANY_IN_CAMPAIGN]
-
-
-@pytest.mark.django_db
-def test_case_study_campaign_tag_no_campaign():
-    CompanyCaseStudyFactory(campaign_tag=None)
-    CompanyCaseStudyFactory(campaign_tag=None)
-    CompanyCaseStudyFactory(campaign_tag=None)
-    case_study = CompanyCaseStudyFactory()
-
-    form = admin.CompanyCaseStudyModelForm(
-        {'campaign_tag': None},
-        instance=case_study,
-    )
-
-    assert form.is_valid() is False
-    assert 'campaign_tag' not in form.errors
-
-
-@pytest.mark.django_db
-def test_company_campaign_tag_no_campaign():
-    CompanyFactory(campaign_tag=None)
-    CompanyFactory(campaign_tag=None)
-    CompanyFactory(campaign_tag=None)
-
-    company = CompanyFactory()
-
-    form = admin.CompanyModelForm(
-        {'campaign_tag': None},
-        instance=company
-    )
-
-    assert form.is_valid() is False
-    assert 'campaign_tag' not in form.errors

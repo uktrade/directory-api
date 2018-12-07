@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
     'contact.apps.ContactConfig',
-    'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
     'exportreadiness.apps.ExportReadinessConfig',
     'activitystream.apps.ActivityStreamConfig',
@@ -543,8 +542,8 @@ FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
 # directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
-    'gecko-total-registered-suppliers',
     'activity-stream',
+    'gecko-total-registered-suppliers',
     'health-check-database',
     'health-check-cache',
     'health-check-single-sign-on',

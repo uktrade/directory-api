@@ -44,7 +44,6 @@ class CompanyDocType(DocType):
     summary = field.Text()
     twitter_url = field.Text(index='no')
     website = field.Text()
-    campaign_tag = field.Text()
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index='no'),
@@ -80,7 +79,6 @@ class CaseStudyDocType(DocType):
     image_three_caption = field.Text()
     testimonial = field.Text()
     slug = field.Text(index='no')
-    campaign_tag = field.Text()
 
     class Meta:
         index = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
@@ -112,7 +110,6 @@ def company_model_to_doc_type(
         'summary',
         'twitter_url',
         'website',
-        'campaign_tag',
         'is_showcase_company',
     }
     case_study_fields = {
@@ -166,7 +163,6 @@ def case_study_model_to_doc_type(
         'short_summary',
         'slug',
         'title',
-        'campaign_tag',
     }
     return CaseStudyDocType(
         meta={'id': case_study.pk, '_index': index},

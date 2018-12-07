@@ -157,7 +157,6 @@ class SearchBaseView(abc.ABC, views.APIView):
             page=validated_data['page'],
             size=validated_data['size'],
             sectors=validated_data.get('sectors'),
-            campaign_tag=validated_data.get('campaign_tag'),
             is_showcase_company=validated_data.get('is_showcase_company'),
         )
         return Response(
@@ -166,7 +165,7 @@ class SearchBaseView(abc.ABC, views.APIView):
         )
 
     def get_search_results(
-        self, term, page, size, sectors, campaign_tag, is_showcase_company=None
+        self, term, page, size, sectors, is_showcase_company=None
     ):
         """Search by term and filter by sector.
 
@@ -184,7 +183,6 @@ class SearchBaseView(abc.ABC, views.APIView):
         search_object = self.create_search_object(
             term=term,
             sectors=sectors,
-            campaign_tag=campaign_tag,
             is_showcase_company=is_showcase_company,
         )
         search_object = self.apply_highlighting(search_object)
@@ -192,7 +190,7 @@ class SearchBaseView(abc.ABC, views.APIView):
         return search_object.execute().to_dict()
 
     def create_query_object(
-        self, term, sectors, campaign_tag, is_showcase_company=None
+        self, term, sectors, is_showcase_company=None
     ):
         should_filters = []
         must_filters = []
@@ -200,10 +198,6 @@ class SearchBaseView(abc.ABC, views.APIView):
             for sector in sectors:
                 params = {self.sector_field_name: sector}
                 should_filters.append(query.Match(**params))
-        if campaign_tag:
-            should_filters.append(
-                query.MatchPhrase(campaign_tag=campaign_tag)
-            )
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
@@ -224,12 +218,8 @@ class SearchBaseView(abc.ABC, views.APIView):
 class CaseStudySearchAPIView(SearchBaseView):
     sector_field_name = 'sector'
 
-    def create_search_object(
-        self, term, sectors, campaign_tag, is_showcase_company
-    ):
-        query_object = self.create_query_object(
-            term=term, sectors=sectors, campaign_tag=campaign_tag
-        )
+    def create_search_object(self, term, sectors, is_showcase_company):
+        query_object = self.create_query_object(term=term, sectors=sectors)
         return search.CaseStudyDocType.search().query(query_object)
 
     @staticmethod
@@ -240,9 +230,7 @@ class CaseStudySearchAPIView(SearchBaseView):
 class CompanySearchAPIView(SearchBaseView):
     sector_field_name = 'sectors'
 
-    def create_search_object(
-        self, term, sectors, campaign_tag, is_showcase_company
-    ):
+    def create_search_object(self, term, sectors, is_showcase_company):
         no_description = query.Term(has_description=False)
         has_description = query.Term(has_description=True)
         no_case_study = query.Term(case_study_count=0)
@@ -252,7 +240,6 @@ class CompanySearchAPIView(SearchBaseView):
         query_object = self.create_query_object(
             term=term,
             sectors=sectors,
-            campaign_tag=campaign_tag,
             is_showcase_company=is_showcase_company,
         )
         return search.CompanyDocType.search().query(
