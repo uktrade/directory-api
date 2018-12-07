@@ -1,5 +1,3 @@
-build: docker_test
-
 clean:
 	-find . -type f -name "*.pyc" -delete
 	-find . -type d -name "__pycache__" -delete
@@ -28,115 +26,8 @@ DJANGO_WEBSERVER := \
 django_webserver:
 	$(DJANGO_WEBSERVER)
 
-DOCKER_COMPOSE_REMOVE_AND_PULL := docker-compose -f docker-compose.yml -f docker-compose-test.yml rm -f && docker-compose -f docker-compose.yml -f docker-compose-test.yml pull
-DOCKER_COMPOSE_CREATE_ENVS := python docker/env_writer.py docker/env.json docker/env-postgres.json
-DOCKER_COMPOSE_CREATE_TEST_ENVS := python docker/env_writer.py docker/env.test.json docker/env-postgres.test.json
-
-docker_run:
-	$(DOCKER_COMPOSE_CREATE_ENVS) && \
-	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
-	docker-compose up --build
-
-DOCKER_SET_DEBUG_ENV_VARS := \
-	export DIRECTORY_API_PORT=8000; \
-	export DIRECTORY_API_DEBUG=true; \
-	export DIRECTORY_API_SECRET_KEY=debug; \
-	export DIRECTORY_API_SIGNATURE_SECRET=debug; \
-	export DIRECTORY_API_POSTGRES_USER=debug; \
-	export DIRECTORY_API_POSTGRES_PASSWORD=debug; \
-	export DIRECTORY_API_POSTGRES_DB=directory_api_debug; \
-	export DIRECTORY_API_DATABASE_URL=postgres://debug:debug@postgres:5432/directory_api_debug; \
-	export DIRECTORY_API_COMPANIES_HOUSE_API_KEY=debug; \
-	export DIRECTORY_API_EMAIL_HOST=debug; \
-	export DIRECTORY_API_EMAIL_PORT=debug; \
-	export DIRECTORY_API_EMAIL_HOST_USER=debug; \
-	export DIRECTORY_API_EMAIL_HOST_PASSWORD=debug; \
-	export DIRECTORY_API_DEFAULT_FROM_EMAIL=debug; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_URL=debug; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
-	export DIRECTORY_API_COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
-	export DIRECTORY_API_AWS_STORAGE_BUCKET_NAME=debug; \
-	export DIRECTORY_API_SESSION_COOKIE_DOMAIN=.trade.great; \
-	export DIRECTORY_API_CSRF_COOKIE_SECURE=false; \
-	export DIRECTORY_API_SESSION_COOKIE_SECURE=false; \
-	export DIRECTORY_API_GECKO_API_KEY=gecko; \
-	export DIRECTORY_API_STANNP_API_KEY=debug; \
-	export DIRECTORY_API_STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug; \
-	export DIRECTORY_API_STANNP_TEST_MODE=true; \
-	export DIRECTORY_API_CONTACT_SUPPLIER_SUBJECT=debug; \
-	export DIRECTORY_API_CONTACT_SUPPLIER_FROM_EMAIL=debug; \
-	export DIRECTORY_API_REDIS_CACHE_URL=redis://redis:6379/; \
-	export DIRECTORY_API_REDIS_CELERY_URL=redis://redis:6379/; \
-	export DIRECTORY_API_STORAGE_CLASS_NAME=local-storage; \
-	export DIRECTORY_API_SSO_SIGNATURE_SECRET=api_signature_debug; \
-	export DIRECTORY_API_SSO_API_CLIENT_BASE_URL=http://sso.trade.great:8003/; \
-	export DIRECTORY_API_NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS=7; \
-	export DIRECTORY_API_FAS_COMPANY_LIST_URL=http://supplier.trade.great:8005/suppliers; \
-	export DIRECTORY_API_FAS_COMPANY_PROFILE_URL=http://supplier.trade.great:8005/suppliers/{number}; \
-	export DIRECTORY_API_FAS_NOTIFICATIONS_UNSUBSCRIBE_URL=http://supplier.trade.great:8005/unsubscribe; \
-	export DIRECTORY_API_FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great:8001/unsubscribe/; \
-	export DIRECTORY_API_FAS_FROM_EMAIL=no-reply@trade.great.gov.uk; \
-	export DIRECTORY_API_FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk; \
-	export DIRECTORY_API_ELASTICSEARCH_ENDPOINT=elasticsearch; \
-	export DIRECTORY_API_ELASTICSEARCH_PORT=9200; \
-	export DIRECTORY_API_ELASTICSEARCH_USE_SSL=false; \
-	export DIRECTORY_API_ELASTICSEARCH_VERIFY_CERTS=false; \
-	export DIRECTORY_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID=debug; \
-	export DIRECTORY_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY=debug; \
-	export DIRECTORY_API_ACTIVITY_STREAM_ACCESS_KEY_ID=some-id; \
-	export DIRECTORY_API_ACTIVITY_STREAM_SECRET_ACCESS_KEY=some-secret; \
-	export DIRECTORY_API_ACTIVITY_STREAM_IP_WHITELIST=1.2.3.4,2.3.4.5; \
-	export DIRECTORY_API_FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/{code}/; \
-	export DIRECTORY_API_LOCAL_STORAGE_DOMAIN=http://0.0.0.0:8000; \
-	export DIRECTORY_API_FAB_OWNERSHIP_URL=http://foo.bar/account/transfer/accept/?invite_key={uuid}; \
-	export DIRECTORY_API_FAB_COLLABORATOR_URL=http://foo.bar/account/collaborate/accept/?invite_key={uuid}; \
-	export DIRECTORY_API_HEALTH_CHECK_TOKEN=debug; \
-	export DIRECTORY_API_CSV_DUMP_BUCKET_NAME=debug; \
-	export DIRECTORY_API_CSV_DUMP_AUTH_TOKEN=debug; \
-	export DIRECTORY_API_FEATURE_TEST_API_ENABLED=true
-
-
-docker_test_env_files:
-	$(DOCKER_SET_DEBUG_ENV_VARS) && \
-	$(DOCKER_COMPOSE_CREATE_TEST_ENVS)
-
-DOCKER_REMOVE_ALL := \
-	docker ps -a | \
-	grep -e directoryapi_ | \
-	awk '{print $$1 }' | \
-	xargs -I {} docker rm -f {}
-
-docker_remove_all:
-	$(DOCKER_REMOVE_ALL)
-
-docker_debug: docker_remove_all
-	$(DOCKER_SET_DEBUG_ENV_VARS) && \
-	$(DOCKER_COMPOSE_CREATE_ENVS) && \
-	docker-compose pull && \
-	docker-compose build && \
-	docker-compose run -d --no-deps celery_beat_scheduler && \
-	docker-compose run -d --no-deps celery_worker && \
-	docker-compose run --service-ports webserver make django_webserver
-
 debug_test_last_failed:
 	make debug_test pytest_args='--last-failed'
-
-docker_webserver_bash:
-	docker exec -it directoryapi_webserver_1 sh
-
-docker_psql:
-	docker-compose run postgres psql -h postgres -U debug
-
-docker_test: docker_remove_all
-	$(DOCKER_SET_DEBUG_ENV_VARS) && \
-	$(DOCKER_COMPOSE_CREATE_ENVS) && \
-	$(DOCKER_COMPOSE_CREATE_TEST_ENVS) && \
-	$(DOCKER_COMPOSE_REMOVE_AND_PULL) && \
-	docker-compose -f docker-compose-test.yml build && \
-	docker-compose -f docker-compose-test.yml run sut
-
-docker_build:
-	docker build -t ukti/directory-api:latest .
 
 DEBUG_SET_ENV_VARS := \
 	export SECRET_KEY=debug; \
@@ -239,21 +130,8 @@ migrations:
 
 debug: test_requirements debug_db debug_test
 
-
-heroku_deploy_dev:
-	./docker/install_heroku_cli.sh
-	docker login --username=$$HEROKU_EMAIL --password=$$HEROKU_TOKEN registry.heroku.com
-	~/bin/heroku-cli/bin/heroku container:push --recursive --app directory-api-dev
-	~/bin/heroku-cli/bin/heroku container:release web celery_worker celery_beat_scheduler --app directory-api-dev
-
-integration_tests:
-	cd $(mktemp -d) && \
-	git clone https://github.com/uktrade/directory-tests && \
-	cd directory-tests && \
-	make docker_integration_tests
-
 compile_requirements:
 	python3 -m piptools compile requirements.in
 	python3 -m piptools compile requirements_test.in
 
-.PHONY: build docker_run_test clean test_requirements docker_run docker_debug docker_webserver_bash docker_psql docker_test debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
+.PHONY: build clean test_requirements debug_webserver debug_db debug_test debug heroku_deploy_dev smoke_tests compile_all_requirements
