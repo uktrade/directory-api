@@ -13,7 +13,7 @@ django-pglocks
 Pillow==4.2.1
 whitenoise==3.2.2
 gunicorn==19.5.0
-psycopg2==2.6.1
+psycopg2==2.7.6.1
 raven==5.19.0
 boto3==1.7.30
 celery[redis]==4.1.0
@@ -24,8 +24,8 @@ elasticsearch-dsl==5.2.0
 waitress==1.1.0
 sigauth==3.0.0
 directory-validators==4.5.1
-directory-constants==7.0.0
+directory-constants>=11.0.0,<12.0.0
 directory-sso-api-client==2.5.1
 directory-healthcheck==0.6.0
 cryptography==2.3.0
-directory-components==2.33.0
+directory-components==3.5.0

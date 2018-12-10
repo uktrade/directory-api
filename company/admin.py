@@ -38,43 +38,6 @@ class PublishByCompanyHouseNumberForm(forms.Form):
         return numbers
 
 
-class CompanyModelForm(forms.ModelForm):
-
-    MESSAGE_TOO_MANY_IN_CAMPAIGN = (
-        'A campaign cannot have more than three companies.'
-    )
-
-    class Meta:
-        model = Company
-        fields = '__all__'
-
-    def clean_campaign_tag(self):
-        campaign_tag = self.cleaned_data['campaign_tag']
-        if campaign_tag:
-            if Company.objects.filter(campaign_tag=campaign_tag).count() >= 3:
-                raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
-        return campaign_tag
-
-
-class CompanyCaseStudyModelForm(forms.ModelForm):
-
-    MESSAGE_TOO_MANY_IN_CAMPAIGN = (
-        'A campaign cannot have more than three case studies.'
-    )
-
-    class Meta:
-        model = Company
-        fields = '__all__'
-
-    def clean_campaign_tag(self):
-        campaign_tag = self.cleaned_data['campaign_tag']
-        if campaign_tag:
-            qs = CompanyCaseStudy.objects.filter(campaign_tag=campaign_tag)
-            if qs.count() >= 3:
-                raise forms.ValidationError(self.MESSAGE_TOO_MANY_IN_CAMPAIGN)
-        return campaign_tag
-
-
 class PublishByCompanyHouseNumberView(FormView):
     form_class = PublishByCompanyHouseNumberForm
     template_name = 'admin/company/publish_form.html'
@@ -102,10 +65,9 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ('name', 'number', 'is_published')
     list_filter = (
         'is_published', 'verified_with_code',
-        'verified_with_companies_house_oauth2', 'campaign_tag',
+        'verified_with_companies_house_oauth2',
     )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
-    form = CompanyModelForm
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
@@ -124,7 +86,6 @@ class CompanyAdmin(admin.ModelAdmin):
 @admin.register(CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
-    form = CompanyCaseStudyModelForm
     search_fields = (
         'company__name', 'company__number', 'description', 'short_summary',
         'title', 'website', 'keywords', 'testimonial',
@@ -133,9 +94,9 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     actions = ['download_csv']
 
-    csv_excluded_fields = ('campaign_tag', 'company__campaign_tag',)
     csv_filename = 'find-a-buyer_case_studies_{}.csv'.format(
                 datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    csv_excluded_fields = []
 
     def download_csv(self, request, queryset):
         """

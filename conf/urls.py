@@ -10,7 +10,6 @@ import buyer.views
 import company.views
 import contact.views
 import enrolment.views
-import exportopportunity.views
 import exportreadiness.views
 import healthcheck.views
 import notifications.views
@@ -59,14 +58,35 @@ healthcheck_urls = [
     ),
 ]
 
+activity_stream_urls = [
+    url(
+        r'^$',
+        activitystream.views.ActivityStreamViewSet.as_view({'get': 'list'}),
+        name='activity-stream'
+    ),
+]
+
+
 urlpatterns = [
     url(
         r'^healthcheck/',
-        include(healthcheck_urls, namespace='healthcheck')
+        include(
+            healthcheck_urls,
+            namespace='healthcheck',
+            app_name='healthcheck',
+        )
     ),
     url(
         r'^admin/',
         include(admin.site.urls)
+    ),
+    url(
+        r'^activity-stream/',
+        include(
+            activity_stream_urls,
+            namespace='activity-stream',
+            app_name='activity-stream',
+        )
     ),
     url(
         r'^enrolment/$',
@@ -208,16 +228,6 @@ urlpatterns = [
         name='case-study-search',
     ),
     url(
-        r'^export-opportunity/food/$',
-        exportopportunity.views.ExportOpportunityFoodCreateAPIView.as_view(),
-        name='export-opportunity-food-create'
-    ),
-    url(
-        r'^export-opportunity/legal/$',
-        exportopportunity.views.ExportOpportunityLegalCreateAPIView.as_view(),
-        name='export-opportunity-legal-create'
-    ),
-    url(
         r'export-readiness/triage/$',
         exportreadiness.views.TriageResultCreateRetrieveView.as_view(),
         name='export-readiness-triage-create-retrieve'
@@ -231,11 +241,6 @@ urlpatterns = [
         r'export-readiness/task-completed/$',
         exportreadiness.views.TaskCompletedCreateRetrieveView.as_view(),
         name='export-readiness-task-completed-create-retrieve'
-    ),
-    url(
-        r'^activity-stream/',
-        activitystream.views.ActivityStreamViewSet.as_view({'get': 'list'}),
-        name='activity-stream'
     ),
     url(
         r'buyer/csv-dump/$',

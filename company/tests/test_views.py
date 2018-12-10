@@ -6,7 +6,7 @@ from unittest.mock import call, patch, Mock
 
 from django.core.urlresolvers import reverse
 
-from directory_constants.constants import choices, lead_generation, sectors
+from directory_constants.constants import choices, sectors
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -429,7 +429,6 @@ def search_companies_data(settings):
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
-        campaign_tag=lead_generation.FOOD_IS_GREAT,
     )
     aardvark_company = factories.CompanyFactory(
         name='Aardvark limited',
@@ -439,7 +438,6 @@ def search_companies_data(settings):
         keywords='Ants, Tongue, Anteater',
         sectors=[sectors.AEROSPACE],
         id=2,
-        campaign_tag=lead_generation.FOOD_IS_GREAT,
     )
     factories.CompanyFactory(
         name='Grapeshot limited',
@@ -449,21 +447,18 @@ def search_companies_data(settings):
         keywords='Pirates, Ocean, Ship',
         sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=3,
-        campaign_tag=lead_generation.LEGAL_IS_GREAT,
     )
     factories.CompanyCaseStudyFactory(
         id=1,
         company=wolf_company,
         title='Thick case study',
         description='Gold is delicious.',
-        campaign_tag=lead_generation.LEGAL_IS_GREAT
     )
     factories.CompanyCaseStudyFactory(
         id=2,
         company=aardvark_company,
         title='Thick case study',
         description='We determined lead sinks in water.',
-        campaign_tag=lead_generation.FOOD_IS_GREAT
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
     Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
@@ -1070,7 +1065,6 @@ def test_company_search(mock_get_search_results, api_client):
         'page': 1,
         'size': 10,
         'sectors': [sectors.AEROSPACE],
-        'campaign_tag': lead_generation.FOOD_IS_GREAT,
     }
     response = api_client.get(reverse('company-search'), data=data)
 
@@ -1081,7 +1075,6 @@ def test_company_search(mock_get_search_results, api_client):
         page=1,
         size=10,
         sectors={sectors.AEROSPACE},
-        campaign_tag=lead_generation.FOOD_IS_GREAT,
         is_showcase_company=None,
     )
 
@@ -1105,7 +1098,6 @@ def test_company_search_no_sectors(mock_get_search_results, api_client):
         page=1,
         size=10,
         sectors=set(),
-        campaign_tag=None,
         is_showcase_company=None,
     )
 
@@ -1129,7 +1121,6 @@ def test_company_search_showcase(mock_get_search_results, api_client):
         page=1,
         size=10,
         sectors=set(),
-        campaign_tag=None,
         is_showcase_company=True,
     )
 
@@ -1582,43 +1573,6 @@ def test_company_search_with_sector_filter_only(api_client, settings):
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-@pytest.mark.parametrize('term,campaign_tag,expected', [
-    ['', lead_generation.FOOD_IS_GREAT,  ['1', '2']],
-    ['', lead_generation.LEGAL_IS_GREAT, ['3']],
-])
-def test_company_search_results_campaign_tag(
-    term, campaign_tag, expected, search_companies_data
-):
-    results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=None, campaign_tag=campaign_tag
-    )
-    hits = results['hits']['hits']
-    assert len(hits) == len(expected)
-    for hit in hits:
-        assert hit['_id'] in expected
-
-
-@pytest.mark.rebuild_elasticsearch
-@pytest.mark.django_db
-@pytest.mark.parametrize('term,campaign_tag,expected', [
-    ['', lead_generation.FOOD_IS_GREAT,  ['2']],
-    ['', lead_generation.LEGAL_IS_GREAT, ['1']],
-])
-def test_case_study_search_results_campaign_tag(
-    term, campaign_tag, expected, search_companies_data
-):
-    results = views.CaseStudySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=None, campaign_tag=campaign_tag
-    )
-    hits = results['hits']['hits']
-
-    assert len(hits) == len(expected)
-    for hit in hits:
-        assert hit['_id'] in expected
-
-
-@pytest.mark.rebuild_elasticsearch
-@pytest.mark.django_db
 @pytest.mark.parametrize('term,sector,expected', [
     # sectors
     ['',           [sectors.AEROSPACE],                   ['1', '2']],
@@ -1658,7 +1612,7 @@ def test_case_study_search_results_campaign_tag(
 ])
 def test_company_search_results(term, sector, expected, search_companies_data):
     results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sector, campaign_tag=None
+        term=term, page=1, size=5, sectors=sector,
     )
     hits = results['hits']['hits']
 
@@ -1675,7 +1629,7 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 ])
 def test_case_study_search_results(sector, expected, search_case_studies_data):
     results = views.CaseStudySearchAPIView().get_search_results(
-        term='', page=1, size=5, sectors=[sector], campaign_tag=None
+        term='', page=1, size=5, sectors=[sector]
     )
     hits = results['hits']['hits']
     assert len(hits) == len(expected)
@@ -1700,7 +1654,7 @@ def test_company_search_results_ordering(
     term, expected, sectors, search_companies_ordering_data
 ):
     results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sectors, campaign_tag=None
+        term=term, page=1, size=5, sectors=sectors
     )
     hits = results['hits']['hits']
 
@@ -1713,7 +1667,7 @@ def test_company_search_results_ordering(
 @pytest.mark.rebuild_elasticsearch
 def test_company_search_results_highlight(search_companies_highlighting_data):
     results = views.CompanySearchAPIView().get_search_results(
-        term='power', page=1, size=5, sectors=None, campaign_tag=None
+        term='power', page=1, size=5, sectors=None,
     )
     hits = results['hits']['hits']
 
@@ -1730,7 +1684,7 @@ def test_company_search_results_highlight_long(
     search_companies_highlighting_data
 ):
     results = views.CompanySearchAPIView().get_search_results(
-        term='wolf', page=1, size=5, sectors=None, campaign_tag=None
+        term='wolf', page=1, size=5, sectors=None,
     )
     hits = results['hits']['hits']
 

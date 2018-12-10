@@ -1,5 +1,3 @@
-{% load external_url from constants_tags %}
-
 Exporting is GREAT
 
 

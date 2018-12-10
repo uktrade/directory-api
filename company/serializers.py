@@ -171,7 +171,7 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 class SearchSerializer(serializers.Serializer):
 
-    MESSAGE_MISSING_QUERY = 'Please specify a term, sector, or campaign_tag.'
+    MESSAGE_MISSING_QUERY = 'Please specify a term, sector'
 
     term = serializers.CharField(required=False)
     page = serializers.IntegerField()
@@ -180,17 +180,13 @@ class SearchSerializer(serializers.Serializer):
         choices=choices.INDUSTRIES,
         required=False,
     )
-    campaign_tag = serializers.ChoiceField(
-        required=False,
-        choices=[(i, i) for i in choices.LEAD_GENERATION_CAMPAIGNS],
-    )
+
     is_showcase_company = serializers.NullBooleanField(required=False)
 
     def validate(self, attrs):
         is_sector_present = attrs.get('sectors') is not None
         is_term_present = attrs.get('term') is not None
-        is_campaign_present = attrs.get('campaign_tag') is not None
-        if not (is_term_present or is_sector_present or is_campaign_present):
+        if not (is_term_present or is_sector_present):
             raise serializers.ValidationError(self.MESSAGE_MISSING_QUERY)
         return attrs
 

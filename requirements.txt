@@ -17,8 +17,8 @@ chardet==3.0.4            # via requests
 contextlib2==0.5.5        # via raven
 cryptography==2.3
 directory-client-core==0.3.1  # via directory-sso-api-client
-directory-components==2.33.0
-directory-constants==7.0.0
+directory-components==3.5.0
+directory-constants==11.1.0
 directory-healthcheck==0.6.0
 directory-sso-api-client==2.5.1
 directory-validators==4.5.1
@@ -44,16 +44,16 @@ gunicorn==19.5.0
 idna==2.6                 # via cryptography, requests
 jmespath==0.9.3           # via boto3, botocore
 kombu==4.1.0
-mohawk==0.3.4             # via sigauth
+mohawk==0.3.4             # via directory-components, sigauth
 monotonic==1.4            # via directory-client-core
 olefile==0.44             # via directory-validators, pillow
 phonenumberslite==7.7.4   # via directory-validators
 pillow==4.2.1
-psycopg2==2.6.1
+psycopg2==2.7.6.1
 pycparser==2.18           # via cffi
 pyopenssl==17.5.0         # via requests
 python-dateutil==2.6.1    # via botocore, elasticsearch-dsl
-pytz==2017.2              # via celery, directory-constants, directory-healthcheck, directory-validators, django
+pytz==2017.2              # via celery, directory-healthcheck, directory-validators, django
 raven==5.19.0
 redis==2.10.6             # via celery, django-redis
 requests-aws4auth==0.9

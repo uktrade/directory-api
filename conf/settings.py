@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'supplier.apps.SupplierConfig',
     'buyer.apps.BuyerConfig',
     'contact.apps.ContactConfig',
-    'exportopportunity.apps.ExportOpportunityConfig',
     'notifications.apps.NotificationsConfig',
     'exportreadiness.apps.ExportReadinessConfig',
     'activitystream.apps.ActivityStreamConfig',
@@ -543,8 +542,8 @@ FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
 # directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
-    'gecko-total-registered-suppliers',
     'activity-stream',
+    'gecko-total-registered-suppliers',
     'health-check-database',
     'health-check-cache',
     'health-check-single-sign-on',
@@ -554,14 +553,26 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
 
+
 # ip-restrictor
+IP_RESTRICTOR_SKIP_CHECK_ENABLED = env.bool(
+    'IP_RESTRICTOR_SKIP_CHECK_ENABLED', False
+)
+IP_RESTRICTOR_SKIP_CHECK_SENDER_ID = env.str(
+    'IP_RESTRICTOR_SKIP_CHECK_SENDER_ID', ''
+)
+IP_RESTRICTOR_SKIP_CHECK_SECRET = env.str(
+    'IP_RESTRICTOR_SKIP_CHECK_SECRET', ''
+)
+IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER = env.str(
+    'IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER',
+    IP_RETRIEVER_NAME_GOV_UK
+)
 RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
 ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
 ALLOWED_ADMIN_IP_RANGES = env.list(
     'IP_RESTRICTOR_ALLOWED_ADMIN_IP_RANGES', default=[]
 )
-RESTRICTED_APP_NAMES = ['admin']
-REMOTE_IP_ADDRESS_RETRIEVER = env.str(
-    'IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER',
-    IP_RETRIEVER_NAME_GOV_UK
+RESTRICTED_APP_NAMES = env.list(
+    'IP_RESTRICTOR_RESTRICTED_APP_NAMES', default=['admin']
 )
