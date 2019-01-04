@@ -150,6 +150,22 @@ class ActivityStreamViewSet(ViewSet):
             )
         )
 
+    @staticmethod
+    def _company_in_db(company_numbers_by_id, item):
+        return int(item.object_id) in company_numbers_by_id
+
+    @staticmethod
+    def _was_company_verified(item):
+        return item.field_value and item.field_name in [
+            'verified_with_code',
+            'verified_with_companies_house_oauth2',
+            'verified_with_preverified_enrolment',
+        ]
+
+    @staticmethod
+    def _company_number(company_numbers_by_id, item):
+        return company_numbers_by_id[int(item.object_id)]
+
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of activities
@@ -188,16 +204,6 @@ class ActivityStreamViewSet(ViewSet):
             id__in=company_ids).values_list('id', 'number')
         company_numbers_by_id = dict(companies)
 
-        def was_company_verified(item):
-            return item.field_value and item.field_name in [
-                'verified_with_code',
-                'verified_with_companies_house_oauth2',
-                'verified_with_preverified_enrolment',
-            ]
-
-        def company_number(item):
-            return company_numbers_by_id[int(item.object_id)]
-
         items = {
             '@context': [
                 'https://www.w3.org/ns/activitystreams', {
@@ -219,11 +225,16 @@ class ActivityStreamViewSet(ViewSet):
                 'object': {
                     'type': ['Document', 'dit:directory:CompanyVerification'],
                     'id': 'dit:directory:CompanyVerification:' + str(item.id),
-                    'dit:companiesHouseNumber': company_number(item),
+                    'dit:companiesHouseNumber': (
+                        self._company_number(company_numbers_by_id, item)
+                    )
                 },
             }
                 for item in history
-                if was_company_verified(item)
+                if (
+                    self._company_in_db(company_numbers_by_id, item) and
+                    self._was_company_verified(item)
+                )
             ],
         }
         next_page = {
