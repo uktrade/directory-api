@@ -166,6 +166,32 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
 
 
 @pytest.mark.django_db
+def test_if_verified_with_code_then_deleted_not_in_stream(api_client):
+    """If the company verified_with_code, then deleted, then not in the stream
+
+    This may need to be changed, but this confirms/documents behaviour, and
+    ensures that the endpoint doesn't break in this case
+    """
+
+    to_delete = CompanyFactory(number=10000001, verified_with_code=True)
+    CompanyFactory(number=10000002, verified_with_code=True)
+
+    to_delete.delete()
+
+    sender = _auth_sender()
+    response = api_client.get(
+        _url(),
+        content_type='',
+        HTTP_AUTHORIZATION=sender.request_header,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    items = response.json()['orderedItems']
+
+    assert len(items) == 1
+    assert items[0]['object']['dit:companiesHouseNumber'] == '10000002'
+
+
+@pytest.mark.django_db
 def test_if_verified_with_companies_house_oauth2_in_stream(api_client):
     """If the company verified_with_companies_house_oauth2, then it's n the
     activity stream

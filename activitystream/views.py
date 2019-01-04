@@ -151,6 +151,10 @@ class ActivityStreamViewSet(ViewSet):
         )
 
     @staticmethod
+    def _company_in_db(company_numbers_by_id, item):
+        return int(item.object_id) in company_numbers_by_id
+
+    @staticmethod
     def _was_company_verified(item):
         return item.field_value and item.field_name in [
             'verified_with_code',
@@ -227,7 +231,10 @@ class ActivityStreamViewSet(ViewSet):
                 },
             }
                 for item in history
-                if self._was_company_verified(item)
+                if (
+                    self._company_in_db(company_numbers_by_id, item) and
+                    self._was_company_verified(item)
+                )
             ],
         }
         next_page = {
