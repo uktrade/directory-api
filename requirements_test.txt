@@ -32,7 +32,7 @@ django-celery-beat==1.1.1
 django-environ==0.4.5
 django-field-history==0.7.0
 django-filter==1.0.4
-django-health-check==3.0.0  # via directory-healthcheck
+django-health-check==3.8.0  # via directory-healthcheck
 django-ipware==2.0.1      # via django-admin-ip-restrictor
 django-pglocks==1.0.2
 django-redis==4.7.0
@@ -71,7 +71,7 @@ pytest-django==3.4.4
 pytest-sugar==0.8.0
 pytest==4.0.1
 python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker, freezegun
-pytz==2017.2              # via celery, directory-healthcheck, directory-validators, django
+pytz==2017.2              # via celery, directory-validators, django
 raven==5.19.0
 redis==2.10.6             # via celery, django-redis
 requests-aws4auth==0.9
