@@ -29,3 +29,4 @@ directory-sso-api-client==2.5.1
 directory-healthcheck==1.0.0
 cryptography==2.3.0
 directory-components==3.5.0
+urllib3>=1.23.0<2.0.0
