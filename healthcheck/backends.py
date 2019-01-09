@@ -6,9 +6,6 @@ from health_check.exceptions import (
     ServiceReturnedUnexpectedResult, ServiceUnavailable
 )
 
-from company.stannp import stannp_client
-from supplier.helpers import sso_api_client
-
 
 class ElasticSearchCheckBackend(BaseHealthCheckBackend):
 
@@ -24,6 +21,7 @@ class SigngleSignOnBackend(BaseHealthCheckBackend):
     message_bad_status = 'sso proxy returned {0.status_code} status code'
 
     def check_status(self):
+        from supplier.helpers import sso_api_client
         try:
             response = sso_api_client.ping()
         except Exception as error:
@@ -38,6 +36,8 @@ class SigngleSignOnBackend(BaseHealthCheckBackend):
 
 class StannpBackend(BaseHealthCheckBackend):
     def check_status(self):
+        from company.stannp import stannp_client
+
         try:
             response = stannp_client.retrieve_balance()
         except Exception as error:

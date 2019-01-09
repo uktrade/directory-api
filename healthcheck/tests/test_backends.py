@@ -50,7 +50,7 @@ def test_single_sign_on_ping_ok():
     assert backend.pretty_status() == 'working'
 
 
-@patch('healthcheck.backends.stannp_client.retrieve_balance',
+@patch('company.stannp.stannp_client.retrieve_balance',
        Mock(side_effect=Exception('oops')))
 def test_stannp_balance_connection_error():
     backend = backends.StannpBackend()
@@ -59,7 +59,7 @@ def test_stannp_balance_connection_error():
     assert backend.pretty_status() == 'unavailable: (Stannp) oops'
 
 
-@patch('healthcheck.backends.stannp_client.retrieve_balance',
+@patch('company.stannp.stannp_client.retrieve_balance',
        Mock(return_value=Mock(status_code=500)))
 def test_stannp_balance_not_ok():
     backend = backends.StannpBackend()
@@ -70,7 +70,7 @@ def test_stannp_balance_not_ok():
     )
 
 
-@patch('healthcheck.backends.stannp_client.retrieve_balance')
+@patch('company.stannp.stannp_client.retrieve_balance')
 def test_stannp_balance_ok(mock_retrieve_balance):
     mock_retrieve_balance.return_value = Mock(
         status_code=200,
@@ -86,7 +86,7 @@ def test_stannp_balance_ok(mock_retrieve_balance):
     assert backend.pretty_status() == 'working'
 
 
-@patch('healthcheck.backends.stannp_client.retrieve_balance')
+@patch('company.stannp.stannp_client.retrieve_balance')
 def test_stannp_balance_too_low(mock_retrieve_balance):
     mock_retrieve_balance.return_value = Mock(
         status_code=200,

@@ -11,7 +11,6 @@ import company.views
 import contact.views
 import enrolment.views
 import exportreadiness.views
-import healthcheck.views
 import notifications.views
 import supplier.views
 import testapi.views
@@ -22,39 +21,14 @@ admin.autodiscover()
 
 healthcheck_urls = [
     url(
-        r'^database/$',
-        healthcheck.views.DatabaseAPIView.as_view(),
-        name='database'
-    ),
-    url(
-        r'^cache/$',
-        healthcheck.views.CacheAPIView.as_view(),
-        name='cache'
-    ),
-    url(
-        r'^single-sign-on/$',
-        healthcheck.views.SingleSignOnHealthcheckView.as_view(),
-        name='single-sign-on'
-    ),
-    url(
-        r'^elasticsearch/$',
-        healthcheck.views.ElasticsearchAPIView.as_view(),
-        name='elastic-search'
+        r'^$',
+        directory_healthcheck.views.HealthcheckView.as_view(),
+        name='healthcheck'
     ),
     url(
         r'^ping/$',
         directory_healthcheck.views.PingView.as_view(),
         name='ping'
-    ),
-    url(
-        r'^sentry/$',
-        directory_healthcheck.views.SentryHealthcheckView.as_view(),
-        name='sentry'
-    ),
-    url(
-        r'^stannp/$',
-        healthcheck.views.StannpView.as_view(),
-        name='stannp'
     ),
 ]
 

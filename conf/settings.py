@@ -7,6 +7,9 @@ from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from requests_aws4auth import AWS4Auth
 
+import healthcheck.backends
+import directory_healthcheck.backends
+
 
 env = environ.Env()
 
@@ -52,8 +55,8 @@ INSTALLED_APPS = [
     'exporting.apps.ExportingConfig',
     'directory_constants',
     'directory_healthcheck',
-    'health_check',
     'health_check.db',
+    'health_check.cache',
     'testapi'
 ]
 
@@ -521,8 +524,17 @@ ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = env.list(
     'ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE', default=[]
 )
 
-# health check
-HEALTH_CHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
+# Healthcheck
+DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
+DIRECTORY_HEALTHCHECK_BACKENDS = [
+    directory_healthcheck.backends.SingleSignOnBackend,
+    directory_healthcheck.backends.SentryBackend,
+    healthcheck.backends.ElasticSearchCheckBackend,
+    healthcheck.backends.StannpBackend,
+    # health_check.db.backends.DatabaseBackend and
+    # health_check.cache.CacheBackend are also registered in
+    # INSTALLED_APPS's health_check.db and health_check.cache
+]
 
 CSV_DUMP_BUCKET_NAME = env.str('CSV_DUMP_BUCKET_NAME')
 CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
