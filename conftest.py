@@ -104,7 +104,7 @@ def sso_session_request_active_user(
     authed_supplier, requests_mocker, settings
 ):
     url = urljoin(
-        settings.SSO_API_CLIENT_BASE_URL,
+        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL,
         'api/v1/session-user/?session_key=123'
     )
     return requests_mocker.get(
@@ -121,7 +121,7 @@ def sso_oauth2_request_active_user(
     authed_supplier, requests_mocker, settings
 ):
     url = urljoin(
-        settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
+        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
     )
     return requests_mocker.get(
         url,
@@ -151,7 +151,7 @@ def authed_client(
 
 @pytest.fixture(autouse=True)
 def mock_signature_check():
-    stub = patch('sigauth.utils.RequestSignatureChecker.test_signature')
+    stub = patch('sigauth.helpers.RequestSignatureChecker.test_signature')
     stub.start()
     yield stub
     stub.stop()

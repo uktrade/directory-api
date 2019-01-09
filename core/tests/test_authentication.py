@@ -1,6 +1,7 @@
 from unittest.mock import call, patch
 from urllib.parse import urljoin
 
+from directory_sso_api_client.client import sso_api_client
 import pytest
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -13,13 +14,11 @@ from core.authentication import (
 )
 from core.permissions import IsAuthenticatedSSO
 
-from supplier import helpers
-
 
 @pytest.fixture
 def sso_session_request_invalid_session_id(requests_mocker, settings):
     url = urljoin(
-        settings.SSO_API_CLIENT_BASE_URL,
+        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL,
         'api/v1/session-user/?session_key=123'
     )
     return requests_mocker.get(url, status_code=404)
@@ -27,13 +26,17 @@ def sso_session_request_invalid_session_id(requests_mocker, settings):
 
 @pytest.fixture
 def sso_oauth2_request_invalid_session_id(requests_mocker, settings):
-    url = urljoin(settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
+    url = urljoin(
+        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
+    )
     return requests_mocker.get(url, status_code=404)
 
 
 @pytest.fixture
 def sso_oauth2_request_active_user(authed_supplier, requests_mocker, settings):
-    url = urljoin(settings.SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
+    url = urljoin(
+        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
+    )
     return requests_mocker.get(
         url,
         json={'id': authed_supplier.sso_id, 'email': 'thing@example.com'}
@@ -57,8 +60,8 @@ class Oauth2AuthenticationSSOView(BaseTestView):
 
 
 @pytest.mark.django_db
-@patch.object(helpers.sso_api_client.user, 'get_session_user',
-              wraps=helpers.sso_api_client.user.get_session_user)
+@patch.object(sso_api_client.user, 'get_session_user',
+              wraps=sso_api_client.user.get_session_user)
 def test_sso_session_authentication_ok_session_id(
     mock_get_session_user, sso_session_request_active_user, rf
 ):
@@ -103,8 +106,8 @@ def test_sso_session_authentication_bad_session_value(
 
 
 @pytest.mark.django_db
-@patch.object(helpers.sso_api_client.user, 'get_oauth2_user_profile',
-              wraps=helpers.sso_api_client.user.get_oauth2_user_profile)
+@patch.object(sso_api_client.user, 'get_oauth2_user_profile',
+              wraps=sso_api_client.user.get_oauth2_user_profile)
 def test_sso_oauth2_authentication_ok_oauth_token(
     mock_get_oauth2_user_profile, sso_oauth2_request_active_user, rf
 ):

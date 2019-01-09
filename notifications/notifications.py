@@ -2,16 +2,10 @@ from datetime import timedelta, datetime
 
 from django.conf import settings
 
-from directory_sso_api_client.client import DirectorySSOAPIClient
+from directory_sso_api_client.client import sso_api_client
 
 from notifications import constants, email, helpers
 from supplier.models import Supplier
-
-
-sso_api_client = DirectorySSOAPIClient(
-    base_url=settings.SSO_API_CLIENT_BASE_URL,
-    api_key=settings.SSO_SIGNATURE_SECRET,
-)
 
 
 def no_case_studies():
