@@ -1,4 +1,5 @@
 from directory_components.helpers import GovukPaaSRemoteIPAddressRetriver  # noqa
+from directory_sso_api_client.client import sso_api_client
 from rest_framework import authentication, exceptions
 from rest_framework.authentication import BasicAuthentication
 
@@ -30,7 +31,7 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
         return self.authenticate_credentials(auth[1].decode())
 
     def authenticate_credentials(self, session_id):
-        response = helpers.sso_api_client.user.get_session_user(session_id)
+        response = sso_api_client.user.get_session_user(session_id)
         if not response.ok:
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
         sso_data = response.json()
@@ -62,7 +63,7 @@ class Oauth2AuthenticationSSO(authentication.BaseAuthentication):
         return self.authenticate_credentials(auth[1].decode())
 
     def authenticate_credentials(self, bearer_token):
-        response = helpers.sso_api_client.user.get_oauth2_user_profile(
+        response = sso_api_client.user.get_oauth2_user_profile(
             bearer_token
         )
         if not response.ok:

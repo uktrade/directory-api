@@ -16,24 +16,6 @@ class ElasticSearchCheckBackend(BaseHealthCheckBackend):
         return True
 
 
-class SigngleSignOnBackend(BaseHealthCheckBackend):
-
-    message_bad_status = 'sso proxy returned {0.status_code} status code'
-
-    def check_status(self):
-        from supplier.helpers import sso_api_client
-        try:
-            response = sso_api_client.ping()
-        except Exception as error:
-            raise ServiceUnavailable('(sso proxy) ' + str(error))
-        else:
-            if response.status_code != 200:
-                raise ServiceReturnedUnexpectedResult(
-                    self.message_bad_status.format(response)
-                )
-        return True
-
-
 class StannpBackend(BaseHealthCheckBackend):
     def check_status(self):
         from company.stannp import stannp_client

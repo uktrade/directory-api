@@ -1,18 +1,9 @@
 import csv
-from django.conf import settings
 from django.db.models import BooleanField, Case, Count, When, Value
 from django.utils.functional import cached_property
 
-from directory_sso_api_client.client import DirectorySSOAPIClient
-
 from company.models import Company
 from supplier.models import Supplier
-
-
-sso_api_client = DirectorySSOAPIClient(
-    base_url=settings.SSO_API_CLIENT_BASE_URL,
-    api_key=settings.SSO_SIGNATURE_SECRET,
-)
 
 
 class SSOUser:
