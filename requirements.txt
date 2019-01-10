@@ -57,7 +57,7 @@ pytz==2017.2              # via celery, directory-validators, django
 raven==5.19.0
 redis==2.10.6             # via celery, django-redis
 requests-aws4auth==0.9
-requests[security]==2.20.1
+requests[security]==2.21.0
 s3transfer==0.1.13        # via boto3
 sigauth==4.0.1
 six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, mohawk, pyopenssl, python-dateutil, w3lib
