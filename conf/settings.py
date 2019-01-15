@@ -530,7 +530,6 @@ ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = env.list(
 DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
 DIRECTORY_HEALTHCHECK_BACKENDS = [
     directory_healthcheck.backends.SingleSignOnBackend,
-    directory_healthcheck.backends.SentryBackend,
     healthcheck.backends.ElasticSearchCheckBackend,
     healthcheck.backends.StannpBackend,
     # health_check.db.backends.DatabaseBackend and
