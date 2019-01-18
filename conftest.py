@@ -8,7 +8,6 @@ import pytest
 import requests_mock
 from rest_framework.test import APIClient
 
-from django.conf import settings
 from django.core.management import call_command
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
@@ -166,10 +165,7 @@ def enable_signature_check(mock_signature_check):
 
 @pytest.fixture
 def requests_mocker():
-    elasticsearch_url = 'http://{address}:9200/.*'.format(
-        address=settings.ELASTICSEARCH_ENDPOINT
-    )
-    elasticsearch_url_compiled = re.compile(elasticsearch_url)
+    elasticsearch_url_compiled = re.compile('http://localhost:9200/.*')
     mocker = requests_mock.mock()
     mocker.register_uri('GET', elasticsearch_url_compiled, real_http=True)
     mocker.register_uri('PUT', elasticsearch_url_compiled, real_http=True)
