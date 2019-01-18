@@ -475,24 +475,45 @@ FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
     'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
 )
 
-# Initialise default Elasticsearch connection
-ELASTICSEARCH_ENDPOINT = env.str('ELASTICSEARCH_ENDPOINT', '')
-connections.create_connection(
-    alias='default',
-    hosts=[{
-        'host': ELASTICSEARCH_ENDPOINT,
-        'port': env.int('ELASTICSEARCH_PORT', 443)
-    }],
-    http_auth=AWS4Auth(
-        env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
-        env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-        env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
-        'es'
-    ),
-    use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
-    verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
-    connection_class=RequestsHttpConnection
-)
+
+# aws, localhost, or govuk-paas
+ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
+
+if ELASTICSEARCH_PROVIDER == 'govuk-paas':
+    connections.create_connection(
+        alias='default',
+        hosts=[env.str('ELASTICSEARCH_URL')],
+        verify_certs=env.bool('ELASTICSEARCH_USE_SSL', True),
+        connection_class=RequestsHttpConnection,
+    )
+elif ELASTICSEARCH_PROVIDER == 'aws':
+    connections.create_connection(
+        alias='default',
+        hosts=[{
+            'host': env.str('ELASTICSEARCH_ENDPOINT'),
+            'port': env.int('ELASTICSEARCH_PORT', 443)
+        }],
+        http_auth=AWS4Auth(
+            env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
+            env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
+            env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
+            'es'
+        ),
+        use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
+        verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
+        connection_class=RequestsHttpConnection
+    )
+elif ELASTICSEARCH_PROVIDER == 'localhost':
+    connections.create_connection(
+        alias='default',
+        hosts=['localhost:9200'],
+        use_ssl=False,
+        verify_certs=False,
+        connection_class=RequestsHttpConnection
+    )
+else:
+    raise NotImplementedError()
+
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
 )
