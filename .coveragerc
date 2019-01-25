@@ -1,2 +1,12 @@
 [run]
-omit = */admin.py,conf/wsgi.py,manage.py,*/migrations/*,*/tests/*,.venv/*,conftest.py,conf/settings.py,conf/celery.py
+omit =
+    */admin.py
+    manage.py
+    */migrations/*
+    */tests/*
+    .venv/*
+    conftest.py
+    conf/wsgi.py
+    conf/settings.py
+    conf/celery.py
+    *__init__*
