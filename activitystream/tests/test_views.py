@@ -61,7 +61,7 @@ def _auth_sender(key_id='some-id', secret_key='some-secret', url=_url,
 
 def get_companies_house_number(activity):
     """Returns the companies house number of an activity"""
-    return activity['object']['dit:companiesHouseNumber']
+    return activity['object']['attributedTo']['dit:companiesHouseNumber']
 
 
 @pytest.mark.django_db

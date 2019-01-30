@@ -225,9 +225,11 @@ class ActivityStreamViewSet(ViewSet):
                 'object': {
                     'type': ['Document', 'dit:directory:CompanyVerification'],
                     'id': 'dit:directory:CompanyVerification:' + str(item.id),
-                    'dit:companiesHouseNumber': (
-                        self._company_number(company_numbers_by_id, item)
-                    )
+                    'attributedTo': {
+                        'type': ['Organization', 'dit:Company'],
+                        'dit:companiesHouseNumber':
+                            self._company_number(company_numbers_by_id, item),
+                    },
                 },
             }
                 for item in history
