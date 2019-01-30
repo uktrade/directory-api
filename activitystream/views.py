@@ -197,7 +197,7 @@ class ActivityStreamViewSet(ViewSet):
 
         company_ids = [item.object_id for item in history]
         companies = Company.objects.all().filter(
-            id__in=company_ids).values('id', 'number')
+            id__in=company_ids).values('id', 'number', 'name')
         companies_by_id = dict(
             (company['id'], company) for company in companies
         )
@@ -227,6 +227,7 @@ class ActivityStreamViewSet(ViewSet):
                         'type': ['Organization', 'dit:Company'],
                         'dit:companiesHouseNumber':
                             companies_by_id[int(item.object_id)]['number'],
+                        'name': companies_by_id[int(item.object_id)]['name'],
                     },
                 },
             }
