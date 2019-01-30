@@ -162,10 +162,6 @@ class ActivityStreamViewSet(ViewSet):
             'verified_with_preverified_enrolment',
         ]
 
-    @staticmethod
-    def _company_number(company_numbers_by_id, item):
-        return company_numbers_by_id[int(item.object_id)]
-
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of activities
@@ -228,7 +224,7 @@ class ActivityStreamViewSet(ViewSet):
                     'attributedTo': {
                         'type': ['Organization', 'dit:Company'],
                         'dit:companiesHouseNumber':
-                            self._company_number(company_numbers_by_id, item),
+                            company_numbers_by_id[int(item.object_id)],
                     },
                 },
             }
