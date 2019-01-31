@@ -151,8 +151,8 @@ class ActivityStreamViewSet(ViewSet):
         )
 
     @staticmethod
-    def _company_in_db(company_numbers_by_id, item):
-        return int(item.object_id) in company_numbers_by_id
+    def _company_in_db(companies_by_id, item):
+        return int(item.object_id) in companies_by_id
 
     @staticmethod
     def _was_company_verified(item):
@@ -161,10 +161,6 @@ class ActivityStreamViewSet(ViewSet):
             'verified_with_companies_house_oauth2',
             'verified_with_preverified_enrolment',
         ]
-
-    @staticmethod
-    def _company_number(company_numbers_by_id, item):
-        return company_numbers_by_id[int(item.object_id)]
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
@@ -201,8 +197,10 @@ class ActivityStreamViewSet(ViewSet):
 
         company_ids = [item.object_id for item in history]
         companies = Company.objects.all().filter(
-            id__in=company_ids).values_list('id', 'number')
-        company_numbers_by_id = dict(companies)
+            id__in=company_ids).values('id', 'number', 'name')
+        companies_by_id = dict(
+            (company['id'], company) for company in companies
+        )
 
         items = {
             '@context': [
@@ -225,14 +223,17 @@ class ActivityStreamViewSet(ViewSet):
                 'object': {
                     'type': ['Document', 'dit:directory:CompanyVerification'],
                     'id': 'dit:directory:CompanyVerification:' + str(item.id),
-                    'dit:companiesHouseNumber': (
-                        self._company_number(company_numbers_by_id, item)
-                    )
+                    'attributedTo': {
+                        'type': ['Organization', 'dit:Company'],
+                        'dit:companiesHouseNumber':
+                            companies_by_id[int(item.object_id)]['number'],
+                        'name': companies_by_id[int(item.object_id)]['name'],
+                    },
                 },
             }
                 for item in history
                 if (
-                    self._company_in_db(company_numbers_by_id, item) and
+                    self._company_in_db(companies_by_id, item) and
                     self._was_company_verified(item)
                 )
             ],

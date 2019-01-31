@@ -59,6 +59,16 @@ def _auth_sender(key_id='some-id', secret_key='some-secret', url=_url,
     )
 
 
+def get_companies_house_number(activity):
+    """Returns the companies house number of an activity"""
+    return activity['object']['attributedTo']['dit:companiesHouseNumber']
+
+
+def get_company_name(activity):
+    """Returns the company name of an activity"""
+    return activity['object']['attributedTo']['name']
+
+
 @pytest.mark.django_db
 def test_empty_object_returned_with_authentication(api_client):
     """If the Authorization and X-Forwarded-For headers are correct, then
@@ -139,13 +149,13 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
     CompanyFactory(number=10000000)
 
     with freeze_time('2012-01-14 12:00:02'):
-        CompanyFactory(number=10000003, verified_with_code=True)
+        CompanyFactory(number=10000003, name='a', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:02'):
-        CompanyFactory(number=10000002, verified_with_code=True)
+        CompanyFactory(number=10000002, name='b', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:01'):
-        CompanyFactory(number=10000001, verified_with_code=True)
+        CompanyFactory(number=10000001, name='c', verified_with_code=True)
 
     sender = _auth_sender()
     response = api_client.get(
@@ -158,11 +168,14 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
 
     assert len(items) == 3
     assert items[0]['published'] == '2012-01-14T12:00:01+00:00'
-    assert items[0]['object']['dit:companiesHouseNumber'] == '10000001'
+    assert get_companies_house_number(items[0]) == '10000001'
+    assert get_company_name(items[0]) == 'c'
     assert items[1]['published'] == '2012-01-14T12:00:02+00:00'
-    assert items[1]['object']['dit:companiesHouseNumber'] == '10000003'
+    assert get_companies_house_number(items[1]) == '10000003'
+    assert get_company_name(items[1]) == 'a'
     assert items[2]['published'] == '2012-01-14T12:00:02+00:00'
-    assert items[2]['object']['dit:companiesHouseNumber'] == '10000002'
+    assert get_companies_house_number(items[2]) == '10000002'
+    assert get_company_name(items[2]) == 'b'
 
 
 @pytest.mark.django_db
@@ -188,7 +201,7 @@ def test_if_verified_with_code_then_deleted_not_in_stream(api_client):
     items = response.json()['orderedItems']
 
     assert len(items) == 1
-    assert items[0]['object']['dit:companiesHouseNumber'] == '10000002'
+    assert get_companies_house_number(items[0]) == '10000002'
 
 
 @pytest.mark.django_db
@@ -209,7 +222,7 @@ def test_if_verified_with_companies_house_oauth2_in_stream(api_client):
     items = response.json()['orderedItems']
 
     assert len(items) == 1
-    assert items[0]['object']['dit:companiesHouseNumber'] == '10000000'
+    assert get_companies_house_number(items[0]) == '10000000'
 
 
 @pytest.mark.django_db
@@ -230,7 +243,7 @@ def test_if_verified_with_preverified_enrolment_in_stream(api_client):
     items = response.json()['orderedItems']
 
     assert len(items) == 1
-    assert items[0]['object']['dit:companiesHouseNumber'] == '10000000'
+    assert get_companies_house_number(items[0]) == '10000000'
 
 
 @pytest.mark.django_db
@@ -271,7 +284,7 @@ def test_pagination(api_client, django_assert_num_queries):
     assert num_pages == 5
     assert len(items) == 501
     assert len(set([item['id'] for item in items])) == 501
-    assert items[500]['object']['dit:companiesHouseNumber'] == '10000249'
+    assert get_companies_house_number(items[500]) == '10000249'
 
 
 @pytest.mark.django_db
