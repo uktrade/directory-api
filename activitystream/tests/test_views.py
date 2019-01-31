@@ -69,6 +69,10 @@ def get_company_name(activity):
     return activity['object']['attributedTo']['name']
 
 
+def get_company_id(activity):
+    return activity['object']['attributedTo']['id']
+
+
 @pytest.mark.django_db
 def test_empty_object_returned_with_authentication(api_client):
     """If the Authorization and X-Forwarded-For headers are correct, then
@@ -149,13 +153,16 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
     CompanyFactory(number=10000000)
 
     with freeze_time('2012-01-14 12:00:02'):
-        CompanyFactory(number=10000003, name='a', verified_with_code=True)
+        company_a = CompanyFactory(
+            number=10000003, name='a', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:02'):
-        CompanyFactory(number=10000002, name='b', verified_with_code=True)
+        company_b = CompanyFactory(
+            number=10000002, name='b', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:01'):
-        CompanyFactory(number=10000001, name='c', verified_with_code=True)
+        company_c = CompanyFactory(
+            number=10000001, name='c', verified_with_code=True)
 
     sender = _auth_sender()
     response = api_client.get(
@@ -166,16 +173,21 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
     )
     items = response.json()['orderedItems']
 
+    id_prefix = 'dit:directory:Company:'
+
     assert len(items) == 3
     assert items[0]['published'] == '2012-01-14T12:00:01+00:00'
     assert get_companies_house_number(items[0]) == '10000001'
     assert get_company_name(items[0]) == 'c'
+    assert get_company_id(items[0]) == id_prefix + str(company_c.id)
     assert items[1]['published'] == '2012-01-14T12:00:02+00:00'
     assert get_companies_house_number(items[1]) == '10000003'
     assert get_company_name(items[1]) == 'a'
+    assert get_company_id(items[1]) == id_prefix + str(company_a.id)
     assert items[2]['published'] == '2012-01-14T12:00:02+00:00'
     assert get_companies_house_number(items[2]) == '10000002'
     assert get_company_name(items[2]) == 'b'
+    assert get_company_id(items[2]) == id_prefix + str(company_b.id)
 
 
 @pytest.mark.django_db

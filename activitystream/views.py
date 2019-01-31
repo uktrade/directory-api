@@ -225,6 +225,7 @@ class ActivityStreamViewSet(ViewSet):
                     'id': 'dit:directory:CompanyVerification:' + str(item.id),
                     'attributedTo': {
                         'type': ['Organization', 'dit:Company'],
+                        'id': 'dit:directory:Company:' + item.object_id,
                         'dit:companiesHouseNumber':
                             companies_by_id[int(item.object_id)]['number'],
                         'name': companies_by_id[int(item.object_id)]['name'],
