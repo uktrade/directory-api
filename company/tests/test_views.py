@@ -2340,3 +2340,49 @@ def test_multi_user_account_management_views_forbidden(
     response = authed_client.post(url, {})
 
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_collaborator_request(client):
+    company = factories.CompanyFactory()
+
+    url = reverse('collaborator-request')
+    data = {
+        'company_number': company.number,
+        'collaborator_email': 'test@example.com',
+    }
+    response = client.post(url, data, format='json')
+
+    assert response.status_code == 201
+    assert response.json() == {'company_email': company.email_address}
+
+
+@pytest.mark.django_db
+def test_collaborator_request_incorrect_number(client):
+    url = reverse('collaborator-request')
+    data = {
+        'company_number': 'asdsadas',
+        'collaborator_email': 'test@example.com',
+    }
+    response = client.post(url, data, format='json')
+
+    assert response.status_code == 400
+    assert response.json() == {'__all__': 'Company does not exist'}
+
+
+@pytest.mark.django_db
+def test_collaborator_multiple_times(client):
+    company = factories.CompanyFactory()
+
+    url = reverse('collaborator-request')
+    data = {
+        'company_number': company.number,
+        'collaborator_email': 'test@example.com',
+    }
+    response = client.post(url, data, format='json')
+
+    assert response.status_code == 201
+
+    response = client.post(url, data, format='json')
+
+    assert response.status_code == 400

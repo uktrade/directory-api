@@ -326,3 +326,15 @@ class RemoveCollaboratorsView(views.APIView):
         sso_ids = serializer.validated_data['sso_ids']
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
+
+
+class CollaboratorRequestView(generics.CreateAPIView):
+    serializer_class = serializers.CollaboratorRequestSerializer
+    permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        data = {'company_email': serializer.instance.company.email_address}
+        return Response(data, status=201)

@@ -339,3 +339,26 @@ class RemoveCollaboratorsSerializer(serializers.Serializer):
     sso_ids = serializers.ListField(
         child=serializers.IntegerField()
     )
+
+
+class CollaboratorRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CollaboratorRequest
+        fields = (
+            'collaborator_email',
+            'company',
+        )
+
+    def to_internal_value(self, data):
+        if isinstance(data, QueryDict):
+            data = data.dict()
+        try:
+            company = models.Company.objects.get(number=data['company_number'])
+        except models.Company.DoesNotExist:
+            raise serializers.ValidationError({
+                '__all__': 'Company does not exist'
+            })
+        else:
+            data['company'] = company.pk
+        return super().to_internal_value(data)
