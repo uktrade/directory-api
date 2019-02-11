@@ -147,6 +147,11 @@ urlpatterns = [
         name='supplier-company-collaborators-list'
     ),
     url(
+        r'^supplier/company/collaborator-request/$',
+        company.views.CollaboratorRequestView.as_view(),
+        name='collaborator-request'
+    ),
+    url(
         r'^supplier/$',
         supplier.views.SupplierRetrieveUpdateAPIView.as_view(),
         name='supplier'

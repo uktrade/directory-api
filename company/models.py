@@ -360,3 +360,11 @@ class CollaboratorInvite(TimeStampedModel):
         return settings.FAB_COLLABORATOR_URL.format(
             uuid=self.uuid
         )
+
+
+class CollaboratorRequest(TimeStampedModel):
+    collaborator_email = models.EmailField()
+    company = models.ForeignKey(Company)
+
+    class Meta:
+        unique_together = ('collaborator_email', 'company')
