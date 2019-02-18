@@ -96,6 +96,31 @@ def test_company_serializer_untouches_is_published():
     assert instance.is_published is False
 
 
+@pytest.mark.django_db
+def test_company_serializer_sole_trader():
+    data = {
+        'number': "01234567",
+        'has_exported_before': True,
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+        'title': 'test_title',
+        'firstname': 'test_firstname',
+        'lastname': 'test_lastname',
+        'address_line_1': 'test_address_line_1',
+        'address_line_2': 'test_address_line_2',
+        'locality': 'test_locality',
+        'postal_code': 'test_postal_code',
+        'country': 'test_country',
+        'company_type': models.Company.SOLE_TRADER,
+    }
+    serializer = serializers.CompanySerializer(data=data)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.company_type == models.Company.SOLE_TRADER
+
+
 @freeze_time("2016-01-09 12:16:11")
 @pytest.mark.django_db
 def test_company_serializer_doesnt_allow_changing_modified_timestamp():

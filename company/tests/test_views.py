@@ -98,6 +98,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'postal_code': company.postal_code,
         'export_destinations': [],
         'export_destinations_other': '',
+        'company_type': models.Company.COMPANIES_HOUSE,
     }
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected
@@ -144,6 +145,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'is_verified': False,
         'export_destinations': ['DE'],
         'export_destinations_other': 'LY',
+        'company_type': models.Company.COMPANIES_HOUSE,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
@@ -190,6 +192,7 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'is_verified': False,
         'export_destinations': ['DE'],
         'export_destinations_other': 'LY',
+        'company_type': models.Company.COMPANIES_HOUSE,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK

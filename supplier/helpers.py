@@ -30,6 +30,7 @@ def generate_suppliers_csv(file_object, queryset):
         'created',
         'modified',
         'company__collaboratorrequest',
+        'company__company_type',
         'company__supplier_case_studies',
         'company__suppliers',
         'company__users',

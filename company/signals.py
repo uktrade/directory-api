@@ -50,7 +50,7 @@ def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
 
 
 def send_account_ownership_transfer_notification(
-        sender, instance, created, *args, **kwargs
+    sender, instance, created, *args, **kwargs
 ):
     if not created:
         return
@@ -60,9 +60,20 @@ def send_account_ownership_transfer_notification(
 
 
 def send_account_collaborator_notification(
-        sender, instance, created, *args, **kwargs
+    sender, instance, created, *args, **kwargs
 ):
     if not created:
         return
     notification = CollaboratorNotification(instance=instance)
     notification.send_async()
+
+
+def set_sole_trader_number(sender, instance, *args, **kwargs):
+    if instance._state.adding and instance.company_type == sender.SOLE_TRADER:
+        newest = sender.objects.all().order_by('pk').only('pk').last()
+        pk = newest.pk if newest else 1
+        # seed operates on pk to avoid leaking primary key in the url
+        number = pk + settings.SOLE_TRADER_NUMBER_SEED
+        # avoids clash with companies house numbers as there is no ST prefix
+        # https://www.doorda.com/kb/article/company-number-prefixes.html
+        instance.number = f'ST{number:06}'

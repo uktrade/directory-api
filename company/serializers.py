@@ -102,6 +102,7 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = (
             'address_line_1',
             'address_line_2',
+            'company_type',
             'country',
             'date_of_creation',
             'description',

@@ -17,7 +17,19 @@ from company import helpers, search
 
 
 class Company(TimeStampedModel):
+    COMPANIES_HOUSE = 'COMPANIES_HOUSE'
+    SOLE_TRADER = 'SOLE_TRADER'
+
     to_doc_type = search.company_model_to_doc_type
+
+    company_type = models.CharField(
+        max_length=15,
+        choices=(
+            (COMPANIES_HOUSE, 'Company in Companies House'),
+            (SOLE_TRADER, 'Sold Trader')
+        ),
+        default=COMPANIES_HOUSE
+    )
     summary = models.CharField(
         max_length=250,
         blank=True,
@@ -71,12 +83,19 @@ class Company(TimeStampedModel):
         validators=[no_html],
     )
     number = models.CharField(
+        help_text=(
+            'For companies registered in companies house this is their '
+            'companies house number. For sole trader this is any randomly '
+            'generated string.'
+        ),
         max_length=8,
         validators=[
             shared_validators.company_number,
             no_html
         ],
-        unique=True
+        unique=True,
+        null=True,
+        blank=True,
     )
     sectors = JSONField(
         blank=True,
