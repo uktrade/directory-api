@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='company_type',
-            field=models.CharField(choices=[('COMPANIES_HOUSE', 'Company in Companies House'), ('SOLE_TRADER', 'Sold Trader')], default='COMPANIES_HOUSE', max_length=15),
+            field=models.CharField(choices=[('COMPANIES_HOUSE', 'Company in Companies House'), ('SOLE_TRADER', 'Sole Trader')], default='COMPANIES_HOUSE', max_length=15),
         ),
         migrations.AlterField(
             model_name='company',

@@ -26,7 +26,7 @@ class Company(TimeStampedModel):
         max_length=15,
         choices=(
             (COMPANIES_HOUSE, 'Company in Companies House'),
-            (SOLE_TRADER, 'Sold Trader')
+            (SOLE_TRADER, 'Sole Trader')
         ),
         default=COMPANIES_HOUSE
     )

@@ -119,6 +119,8 @@ def test_company_serializer_sole_trader():
     instance = serializer.save()
 
     assert instance.company_type == models.Company.SOLE_TRADER
+    assert instance.number.startswith('ST')
+    assert len(instance.number) == 8
 
 
 @freeze_time("2016-01-09 12:16:11")
