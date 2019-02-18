@@ -16,7 +16,6 @@ class CompanyConfig(AppConfig):
             receiver=signals.store_date_published,
             sender='company.Company'
         )
-
         post_save.connect(
             receiver=signals.send_first_verification_letter,
             sender='company.Company'
@@ -40,4 +39,8 @@ class CompanyConfig(AppConfig):
         post_save.connect(
             receiver=signals.send_account_collaborator_notification,
             sender='company.CollaboratorInvite'
+        )
+        pre_save.connect(
+            receiver=signals.set_sole_trader_number,
+            sender='company.Company'
         )
