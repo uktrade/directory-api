@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from django.db import transaction
-
 from company.models import Company
 from enrolment import models
 
@@ -36,7 +34,6 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'company_type': {'default': Company.COMPANIES_HOUSE}
         }
 
-    @transaction.atomic
     def create(self, validated_data):
         if validated_data['company_type'] == Company.COMPANIES_HOUSE:
             queryset = models.PreVerifiedEnrolment.objects.filter(

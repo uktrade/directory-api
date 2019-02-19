@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 from django.core.urlresolvers import reverse
 
 from company.models import Company
+from enrolment import models
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from supplier.models import Supplier
@@ -146,6 +147,28 @@ def test_enrolment_create_disables_single_preverified_enrolment():
     preverified_enrolment.refresh_from_db()
     assert preverified_enrolment.is_active is False
     assert company.verified_with_preverified_enrolment is True
+
+
+@pytest.mark.django_db
+@patch.object(models.PreVerifiedEnrolment.objects.none().__class__, 'update')
+def test_enrolment_create_rollback(mock_update):
+    mock_update.side_effect = Exception('!')
+
+    preverified_enrolment = PreVerifiedEnrolmentFactory.create(
+        company_number=VALID_REQUEST_DATA['company_number'],
+        email_address=VALID_REQUEST_DATA['contact_email_address'],
+    )
+    assert preverified_enrolment.is_active is True
+
+    api_client = APIClient()
+    url = reverse('enrolment')
+    with pytest.raises(Exception):
+        api_client.post(url, VALID_REQUEST_DATA, format='json')
+
+    preverified_enrolment.refresh_from_db()
+    assert preverified_enrolment.is_active is True
+
+    assert Company.objects.count() == 0
 
 
 @pytest.mark.django_db
