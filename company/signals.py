@@ -70,7 +70,7 @@ def send_account_collaborator_notification(
 
 def set_sole_trader_number(sender, instance, *args, **kwargs):
     if instance._state.adding and instance.company_type == sender.SOLE_TRADER:
-        newest = sender.objects.all().order_by('pk').only('pk').last()
+        newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url
         number = pk + settings.SOLE_TRADER_NUMBER_SEED

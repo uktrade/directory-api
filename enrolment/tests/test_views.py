@@ -89,14 +89,14 @@ def test_enrolment_viewset_create_optional_fields_unset():
 def test_enrolment_viewset_create_invalid_data():
     client = APIClient()
     invalid_data = VALID_REQUEST_DATA.copy()
-    del invalid_data['company_number']
+    del invalid_data['company_name']
     response = client.post(
         reverse('enrolment'), invalid_data, format='json'
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        'company_number': ['This field is required.']
+        'company_name': ['This field is required.']
     }
 
 
