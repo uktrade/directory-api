@@ -6,7 +6,7 @@ from enrolment import models
 
 class CompanyEnrolmentSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='name')
-    company_number = serializers.CharField(source='number')
+    company_number = serializers.CharField(source='number', required=False)
     contact_email_address = serializers.EmailField(source='email_address')
 
     class Meta:
@@ -16,6 +16,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'address_line_2',
             'company_name',
             'company_number',
+            'company_type',
             'contact_email_address',
             'country',
             'has_exported_before',
@@ -30,19 +31,21 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'locality': {'required': False},
             'po_box': {'required': False},
             'postal_code': {'required': False},
+            'company_type': {'default': Company.COMPANIES_HOUSE}
         }
 
     def create(self, validated_data):
-        queryset = models.PreVerifiedEnrolment.objects.filter(
-            company_number=validated_data['number'],
-            email_address=validated_data['email_address'],
-            is_active=True
-        )
-        validated_data['verified_with_preverified_enrolment'] = (
-            queryset.exists()
-        )
+        if validated_data['company_type'] == Company.COMPANIES_HOUSE:
+            queryset = models.PreVerifiedEnrolment.objects.filter(
+                company_number=validated_data['number'],
+                email_address=validated_data['email_address'],
+                is_active=True
+            )
+            validated_data['verified_with_preverified_enrolment'] = (
+                queryset.exists()
+            )
+            queryset.update(is_active=False)
         company = super().create(validated_data)
-        queryset.update(is_active=False)
         return company
 
 
