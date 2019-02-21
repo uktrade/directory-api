@@ -41,7 +41,7 @@ django==1.11.18
 django_extensions==1.6.7
 djangorestframework==3.4.7
 docutils==0.14            # via botocore
-elasticsearch-dsl==5.2.0
+elasticsearch-dsl==5.4.0
 elasticsearch==5.3.0
 export-elements==0.23.0   # via directory-components
 factory-boy==2.8.1

@@ -95,6 +95,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'conf.wsgi.application'
 
+VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+
+if 'redis' in VCAP_SERVICES:
+    REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+    REDIS_CELERY_URL = REDIS_CACHE_URL.replace('rediss://', 'redis://')
+else:
+    REDIS_CACHE_URL = env.str('REDIS_CACHE_URL', '')
+    REDIS_CELERY_URL = env.str('REDIS_CELERY_URL', '')
+
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 DATABASES = {
@@ -106,7 +115,7 @@ CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         # separate to REDIS_CELERY_URL as needs to start with 'rediss' for SSL
-        'LOCATION': env.str('REDIS_CACHE_URL', ''),
+        'LOCATION': REDIS_CACHE_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -442,8 +451,8 @@ UNSUBSCRIBED_SUBJECT = env.str(
 # Celery
 # separate to REDIS_CACHE_URL as needs to start with 'redis' and SSL conf
 # is in api/celery.py
-CELERY_BROKER_URL = env.str('REDIS_CELERY_URL', '')
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_BROKER_URL = REDIS_CELERY_URL
+CELERY_RESULT_BACKEND = REDIS_CELERY_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -475,24 +484,49 @@ FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
     'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
 )
 
-# Initialise default Elasticsearch connection
-ELASTICSEARCH_ENDPOINT = env.str('ELASTICSEARCH_ENDPOINT', '')
-connections.create_connection(
-    alias='default',
-    hosts=[{
-        'host': ELASTICSEARCH_ENDPOINT,
-        'port': env.int('ELASTICSEARCH_PORT', 443)
-    }],
-    http_auth=AWS4Auth(
-        env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
-        env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-        env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
-        'es'
-    ),
-    use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
-    verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
-    connection_class=RequestsHttpConnection
-)
+# aws, localhost, or govuk-paas
+ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
+
+if ELASTICSEARCH_PROVIDER == 'govuk-paas':
+    if 'elasticsearch' in VCAP_SERVICES:
+        ELASTICSEARCH_URL = (
+            VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
+        )
+    else:
+        ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL')
+    connections.create_connection(
+        alias='default',
+        hosts=[ELASTICSEARCH_URL],
+        connection_class=RequestsHttpConnection,
+    )
+elif ELASTICSEARCH_PROVIDER == 'aws':
+    connections.create_connection(
+        alias='default',
+        hosts=[{
+            'host': env.str('ELASTICSEARCH_ENDPOINT'),
+            'port': env.int('ELASTICSEARCH_PORT', 443)
+        }],
+        http_auth=AWS4Auth(
+            env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
+            env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
+            env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
+            'es'
+        ),
+        use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
+        verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
+        connection_class=RequestsHttpConnection
+    )
+elif ELASTICSEARCH_PROVIDER == 'localhost':
+    connections.create_connection(
+        alias='default',
+        hosts=['localhost:9200'],
+        use_ssl=False,
+        verify_certs=False,
+        connection_class=RequestsHttpConnection
+    )
+else:
+    raise NotImplementedError()
+
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
 )
