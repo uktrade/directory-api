@@ -7,7 +7,7 @@ from directory_components.fields import PaddedCharField
 from django import forms
 from django.db import transaction
 
-from company import models
+from company import helpers, models
 
 
 class CompanyNumberField(PaddedCharField):
@@ -29,8 +29,10 @@ class CompanyNumberField(PaddedCharField):
 class CompanyUrlField(forms.URLField):
     def to_python(self, value):
         value = super().to_python(value)
-        if value and not value.startswith('http'):
-            value = f'http://{value}'
+        if not value:
+            value = None
+        elif not value.startswith('http'):
+            value = f'https://{value}'
         return value
 
 
@@ -40,9 +42,9 @@ class SocialURLField(forms.URLField):
     def to_python(self, value):
         value = super().to_python(value)
         if not value:
-            return ''
+            return None
         if ' ' in value:
-            return ''
+            return None
         if not value.startswith(self.website):
             # may be at "at tag"
             value = value.replace('@', '')
@@ -97,48 +99,6 @@ class CompanyModelForm(forms.ModelForm):
         }
 
 
-class AddressParser:
-
-    def __init__(self, raw_address):
-        self.address_lines = self.clean_raw_address(raw_address)
-
-    @property
-    def is_address_parsable(self):
-        return len(self.address_lines) >= 3
-
-    @staticmethod
-    def clean_raw_address(raw_address):
-        return (
-            raw_address
-            .lower()
-            .replace('\n', ',')
-            .replace(', ', ',')
-            .replace(',uk', '')
-            .replace(',united kingdom', '')
-            .split(',')
-        )
-
-    @property
-    def line_1(self):
-        return self.address_lines[0] if self.is_address_parsable else ''
-
-    @property
-    def line_2(self):
-        return self.address_lines[1] if self.is_address_parsable else ''
-
-    @property
-    def po_box(self):
-        if self.is_address_parsable:
-            for line in self.address_lines:
-                if 'po box' in line:
-                    return line
-        return ''
-
-    @property
-    def postal_code(self):
-        return self.address_lines[-1]
-
-
 def company_type_parser(company_number):
     if company_number:
         return models.Company.COMPANIES_HOUSE
@@ -159,7 +119,7 @@ class EnrolCompanies(forms.Form):
         next(reader, None)  # skip the headers
         row_errors = []
         for i, row in enumerate(reader):
-            address = AddressParser(row[2])
+            address = helpers.AddressParser(row[2])
             form = CompanyModelForm(data={
                 'address_line_1': address.line_1,
                 'address_line_2': address.line_2,

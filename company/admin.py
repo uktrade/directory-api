@@ -87,7 +87,7 @@ class CompanyAdmin(admin.ModelAdmin):
                 name="company_company_publish"
             ),
             url(
-                r'^enrol/$',
+                r'^create-many/$',
                 self.admin_site.admin_view(
                     CompaniesCreateFormView.as_view()
                 ),

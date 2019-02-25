@@ -110,3 +110,104 @@ def test_get_date_of_creation_response_bad(mock_retrieve_profile):
 
     with pytest.raises(HTTPError):
         helpers.get_date_of_creation('01234567')
+
+
+@pytest.mark.parametrize('raw_address,line_1,line_2,po_box,postal_code', (
+    (
+        (
+            'Studio: Unit 354 Stratford Workshops\n'
+            'Burford Road, London E15\n'
+            'Admin & Registered at: 22 Glamis Street, Bognor Regis BO21 1DQ'
+        ),
+        'Studio: Unit 354 Stratford Workshops',
+        'Burford Road',
+        None,
+        'BO21 1DQ',
+    ),
+    (
+        (
+            'Winkburn Business Centre\n'
+            'Example barn Farm\n'
+            'Winkburn \n'
+            'Notts \n'
+            'BG22 8PQ'
+        ),
+        'Winkburn Business Centre',
+        'Example barn Farm',
+        None,
+        'BG22 8PQ',
+    ),
+    (
+        '18 Craven St, London, WC2N5NG',
+        '18 Craven St',
+        'London',
+        None,
+        'WC2N5NG',
+    ),
+    (
+        '104-121 Lancaster Road\nNew Barnet\nHertfordshire\nBN4 8AL',
+        '104-121 Lancaster Road',
+        'New Barnet',
+        None,
+        'BN4 8AL',
+    ),
+    (
+        (
+            'Example corp ltd,\n'
+            'c/o example Ltd, The example Group, \n'
+            '50 Liverpool Street, London, England, BC2M 7PY'
+        ),
+        'Example corp ltd',
+        'c/o example Ltd',
+        None,
+        'BC2M 7PY',
+    ),
+    (
+        '1 St Mary Axe\nLondon BC3A 8AA',
+        '1 St Mary Axe',
+        'London',
+        None,
+        'BC3A 8AA',
+    ),
+    (
+        'Example House, 7th Floor,\n4-5 Notting Hill Gate,\nLondon B11 3LQ',
+        'Example House',
+        '7th Floor',
+        None,
+        'B11 3LQ',
+    ),
+    (
+        (
+            '3000 Example Green\n'
+            'Example Precincts\n'
+            'Gloucester \n'
+            'Gloucestershire BL1 2LP\n'
+        ),
+        '3000 Example Green',
+        'Example Precincts',
+        None,
+        'BL1 2LP',
+
+    ),
+    (
+        '55 Example Road, Baconsfield, Buckinghamshire, BP9 1QL',
+        '55 Example Road',
+        'Baconsfield',
+        None,
+        'BP9 1QL',
+    ),
+    (
+        'Office 20277\nPO Box 15113\nBirmingham B2 4P',
+        'Office 20277',
+        'PO Box 15113',
+        'PO Box 15113',
+        'B2 4P',
+    )
+
+))
+def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
+    address = helpers.AddressParser(raw_address)
+    assert address.line_1 == line_1
+    assert address.line_2 == line_2
+    assert address.po_box == po_box
+    assert address.postal_code == postal_code

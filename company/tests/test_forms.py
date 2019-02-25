@@ -1,6 +1,6 @@
 import pytest
 
-from company import forms
+from company import forms, models
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -24,8 +24,8 @@ def test_company_number_clean(value, expected):
 @pytest.mark.parametrize('value,expected', (
     ('www.example.com', 'http://www.example.com'),
     ('https://www.example.co.uk', 'https://www.example.co.uk'),
-    (None, ''),
-    ('', ''),
+    (None, None),
+    ('', None),
 ))
 def test_company_url_clean(value, expected):
     field = forms.CompanyUrlField()
@@ -33,11 +33,13 @@ def test_company_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
+    ('Foo bar on facebook', None),
+    ('www.facebook.com/example', 'https://www.facebook.com/example'),
     ('example', 'https://www.facebook.com/example'),
     ('@example', 'https://www.facebook.com/example'),
     ('https://www.facebook.com/example', 'https://www.facebook.com/example'),
-    ('', ''),
-    (None, ''),
+    ('', None),
+    (None, None),
 ))
 def test_facebook_url_clean(value, expected):
     field = forms.FacebookURLField()
@@ -45,11 +47,13 @@ def test_facebook_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
+    ('Foo bar on twitter', None),
+    ('www.twitter.com/example', 'https://www.twitter.com/example'),
     ('example', 'https://www.twitter.com/example'),
     ('@example', 'https://www.twitter.com/example'),
     ('https://www.twitter.com/example', 'https://www.twitter.com/example'),
-    ('', ''),
-    (None, ''),
+    ('', None),
+    (None, None),
 ))
 def test_twitter_url_clean(value, expected):
     field = forms.TwitterURLField()
@@ -57,12 +61,23 @@ def test_twitter_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
+    ('Foo bar on linked in', None),
+    ('www.linkedin.com/example', 'https://www.linkedin.com/company/example'),
     ('foo', 'https://www.linkedin.com/company/foo'),
     ('@foo', 'https://www.linkedin.com/company/foo'),
     ('https://www.linkedin.com/foo', 'https://www.linkedin.com/company/foo'),
-    ('', ''),
-    (None, ''),
+    ('', None),
+    (None, None),
 ))
 def test_linkedin_url_clean(value, expected):
     field = forms.LinkedInURLField()
     assert field.to_python(value) == expected
+
+
+@pytest.mark.parametrize('value,expected', (
+    ('', models.Company.SOLE_TRADER),
+    (None, models.Company.SOLE_TRADER),
+    ('1234567', models.Company.COMPANIES_HOUSE)
+))
+def test_company_type_parser(value, expected):
+    assert forms.company_type_parser(value) == expected

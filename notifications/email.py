@@ -35,7 +35,7 @@ class NotificationBase(abc.ABC):
         return text_body, html_body
 
     def send(self):
-        pass
+        raise NotImplementedError
 
 
 class SupplierNotificationBase(NotificationBase):
