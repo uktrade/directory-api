@@ -1,0 +1,25 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='company' %}">Company</a>
+&rsaquo; Create companies
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+	<h2>Companies created</h2>
+	<p>Ask the companies to use the below URLs to enrol:</p>
+	<ul>
+		{% for company, signed_number in pairs %}
+		<li><strong>{{ company.name }} ({{ company.email_address }})</strong>{{ company.email }}: {{ enrolment_url}}?key={{ signed_number }}</li>
+		{% endfor %}
+	</ul>
+	<div>
+		<a href="{% url 'admin:company_company_changelist' %}">Continue</a>
+	</div>
+</div>
+{% endblock %}
