@@ -110,6 +110,7 @@ class EnrolCompanies(forms.Form):
 
     @transaction.atomic
     def clean_csv_file(self):
+        self.companies = []
         csv_file = io.TextIOWrapper(
             self.cleaned_data['csv_file'].file, encoding='utf-8'
         )
@@ -142,13 +143,13 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
             })
 
-            if not form.is_valid():
+            if form.is_valid():
+                self.companies.append(form.save())
+            else:
                 row_errors.append('[Row {number}] {errors}'.format(
                     errors=json.dumps(form.errors),
                     number=i+2,
                 ))
-            else:
-                form.save()
         if row_errors:
             raise forms.ValidationError(row_errors)
         return self.cleaned_data['csv_file']

@@ -1,8 +1,12 @@
 import datetime
 
+from directory_constants.constants.urls import build_great_url
+
 from django.contrib import admin
 from django.conf.urls import url
 from django.core.urlresolvers import reverse_lazy
+from django.core.signing import Signer
+from django.template.response import TemplateResponse
 from django.views.generic import FormView
 from django import forms
 
@@ -15,6 +19,22 @@ class CompaniesCreateFormView(FormView):
     form_class = EnrolCompanies
     template_name = 'admin/company/company_csv_upload_form.html'
     success_url = reverse_lazy('admin:company_company_changelist')
+
+    def form_valid(self, form):
+        signer = Signer()
+        pairs = []
+        for company in form.companies:
+            pairs.append((
+                company, signer.sign(company.number)
+            ))
+        return TemplateResponse(
+            self.request,
+            'admin/company/company_csv_upload_success.html',
+            {
+                'pairs': pairs,
+                'enrolment_url': build_great_url('enrol/pre-verified/')
+            }
+        )
 
 
 class PublishByCompanyHouseNumberForm(forms.Form):
