@@ -54,6 +54,3 @@ class SupplierSerializer(serializers.ModelSerializer):
             'company': {'required': False},
             'is_company_owner': {'read_only': True},
         }
-
-    def validate_name(self, value):
-        return value or ''

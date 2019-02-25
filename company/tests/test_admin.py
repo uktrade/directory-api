@@ -1,9 +1,11 @@
 import http
+import os
 from unittest import TestCase
 
 from freezegun import freeze_time
 import pytest
 
+from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -262,6 +264,68 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[1] == row_one
         assert actual[2] == row_two
         assert actual[3] == row_three
+
+    def test_create_companies_form_success(self):
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/valid-companies-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:company_company_enrol'),
+            {'csv_file': open(file_path, 'rb')}
+        )
+
+        assert response.status_code == 302
+
+        assert Company.objects.count() == 2
+        company_one, company_two = Company.objects.all()
+
+        assert company_one.name == 'Example Compass'
+        assert company_one.address_line_1 == 'Studio: Unit 333 Example'
+        assert company_one.address_line_2 == 'Example Road'
+        assert company_one.postal_code == 'EO21 1DQ'
+        assert company_one.email_address == 'one@example.com'
+        assert company_one.mobile_number == '55555555555'
+        assert company_one.number == '12355434'
+        assert company_one.website == 'http://www.example-compass.co.uk'
+        assert company_one.twitter_url == 'https://www.twitter.com/one'
+        assert company_one.facebook_url == 'https://www.facebook.com/one'
+        assert company_one.linkedin_url == (
+            'https://www.linkedin.com/company/one'
+        )
+        assert company_one.company_type == Company.COMPANIES_HOUSE
+
+        assert company_two.name == 'Example Associates Ltd'
+        assert company_two.address_line_1 == 'Example Business Centre'
+        assert company_two.address_line_2 == 'Example barn Farm'
+        assert company_two.postal_code == 'IG22 0PQ'
+        assert company_two.email_address == 'two@example.com'
+        assert company_two.mobile_number == '6666666'
+        assert company_two.number.startswith('ST')
+        assert company_two.website == 'http://www.example-asscoiates.com'
+        assert company_two.twitter_url == 'https://www.twitter.com/two'
+        assert company_two.facebook_url == 'https://www.facebook.com/two'
+        assert company_two.linkedin_url == (
+            'https://www.linkedin.com/company/two'
+        )
+        assert company_two.company_type == Company.SOLE_TRADER
+
+    def test_create_companies_form_invalid(self):
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/invalid-companies-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:company_company_enrol'),
+            {'csv_file': open(file_path, 'rb')}
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['form'].errors == {
+            'csv_file': ['[Row 3] {"name": ["This field is required."]}']
+        }
 
 
 def test_company_search_fields_exist():

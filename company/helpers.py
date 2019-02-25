@@ -4,6 +4,7 @@ from uuid import uuid4
 import http
 import logging
 import os
+import re
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -116,6 +117,44 @@ class PathAndRename:
         _, ext = os.path.splitext(filename)
         random_filename = '{}{}'.format(uuid4().hex, ext)
         return os.path.join(self.path, random_filename)
+
+
+class AddressParser:
+
+    RE_PATTERN_POSTAL_CODE = r'([A-Z]{1,2}[0-9R][0-9A-Z]? ?[0-9][A-Z]{1,2})'
+
+    def __init__(self, raw_address):
+        self.raw_address = raw_address
+        self.lines = self.clean_raw_address(raw_address)
+
+    @property
+    def is_parsable(self):
+        return len(self.lines) >= 3
+
+    def clean_raw_address(self, raw_address):
+        cleaned = re.sub(self.RE_PATTERN_POSTAL_CODE, r'\n\1', raw_address)
+        cleaned = re.sub(r'\,uk|\,united kingdom', '', cleaned)
+        split = re.split(r'\, ?|\n ?', cleaned)
+        return [item for item in split if item]
+
+    @property
+    def line_1(self):
+        return self.lines[0].strip() if self.is_parsable else ''
+
+    @property
+    def line_2(self):
+        return self.lines[1].strip() if self.is_parsable else ''
+
+    @property
+    def po_box(self):
+        if self.is_parsable:
+            results = [line for line in self.lines if 'po box' in line.lower()]
+            return results[0].strip() if results else None
+
+    @property
+    def postal_code(self):
+        matches = re.findall(self.RE_PATTERN_POSTAL_CODE, self.raw_address)
+        return matches[0].strip() if matches else ''
 
 
 path_and_rename_logos = PathAndRename(sub_path="company_logos")

@@ -8,6 +8,13 @@ from django import forms
 
 from core.helpers import generate_csv_response
 from company.models import Company, CompanyCaseStudy
+from company.forms import EnrolCompanies
+
+
+class CompaniesCreateFormView(FormView):
+    form_class = EnrolCompanies
+    template_name = 'admin/company/company_csv_upload_form.html'
+    success_url = reverse_lazy('admin:company_company_changelist')
 
 
 class PublishByCompanyHouseNumberForm(forms.Form):
@@ -78,6 +85,13 @@ class CompanyAdmin(admin.ModelAdmin):
                     PublishByCompanyHouseNumberView.as_view()
                 ),
                 name="company_company_publish"
+            ),
+            url(
+                r'^create-many/$',
+                self.admin_site.admin_view(
+                    CompaniesCreateFormView.as_view()
+                ),
+                name="company_company_enrol"
             ),
         ]
         return additional_urls + urls
