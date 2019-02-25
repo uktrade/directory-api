@@ -276,7 +276,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             {'csv_file': open(file_path, 'rb')}
         )
 
-        assert response.status_code == 302
+        assert response.status_code == 200
 
         assert Company.objects.count() == 2
         company_one, company_two = Company.objects.all()
