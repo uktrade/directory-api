@@ -246,6 +246,11 @@ urlpatterns = [
         testapi.views.PublishedCompaniesTestAPIView.as_view(),
         name='published_companies'
     ),
+    url(
+        r'^/enrolment/claim-preverified/$',
+        enrolment.views.ClaimPreverifiedCompany.as_view(),
+        name='enrolment-claim-preverified'
+    ),
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':

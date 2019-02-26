@@ -4,10 +4,12 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from django.core import signing
 from django.core.urlresolvers import reverse
 
 from company.models import Company
-from enrolment import models
+from company.tests.factories import CompanyFactory
+from enrolment import models, serializers
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from supplier.models import Supplier
@@ -222,3 +224,49 @@ def test_preverified_enrolment_retrieve_found(authed_client):
     response = authed_client.get(url, params)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_preverified_claim_company_bad_key(authed_client):
+    url = reverse('enrolment-claim-preverified')
+
+    response = authed_client.post(url, {'name': 'Foo bar', 'key': '123'})
+
+    assert response.status_code == 400
+    assert response.json()['key'] == [
+        serializers.ClaimPreverifiedCompanySerializer.MESSAGE_INVALID_KEY
+    ]
+
+
+@pytest.mark.django_db
+def test_preverified_claim_company_missing_company(authed_client):
+    signer = signing.Signer()
+    url = reverse('enrolment-claim-preverified')
+
+    response = authed_client.post(
+        url, {'name': 'Foo bar', 'key': signer.sign('123')}
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_preverified_claim_company_succcess(authed_client):
+    Supplier.objects.all().delete()
+    assert Supplier.objects.count() == 0
+
+    company = CompanyFactory()
+
+    signer = signing.Signer()
+    url = reverse('enrolment-claim-preverified')
+
+    response = authed_client.post(
+        url, {'name': 'Foo bar', 'key': signer.sign(company.number)}
+    )
+
+    assert response.status_code == 201
+    assert Supplier.objects.count() == 1
+
+    supplier = Supplier.objects.first()
+    assert supplier.name == 'Foo bar'
+    assert supplier.company == company
