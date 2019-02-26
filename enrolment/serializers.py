@@ -87,7 +87,8 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         company = get_object_or_404(
             Company.objects.all(),
-            number=validated_data['key']
+            number=validated_data['key'],
+            suppliers__isnull=True,
         )
         return super().create({
             'name': validated_data['name'],

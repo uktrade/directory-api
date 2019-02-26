@@ -13,6 +13,7 @@ from enrolment import models, serializers
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from supplier.models import Supplier
+from supplier.tests.factories import SupplierFactory
 
 
 @pytest.mark.django_db
@@ -270,3 +271,17 @@ def test_preverified_claim_company_succcess(authed_client):
     supplier = Supplier.objects.first()
     assert supplier.name == 'Foo bar'
     assert supplier.company == company
+
+
+@pytest.mark.django_db
+def test_preverified_claim_company_already_claimed(authed_client):
+    supplier = SupplierFactory()
+
+    signer = signing.Signer()
+    url = reverse('enrolment-claim-preverified')
+
+    response = authed_client.post(
+        url, {'name': 'Foo bar', 'key': signer.sign(supplier.company.number)}
+    )
+
+    assert response.status_code == 404
