@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -35,7 +35,7 @@ class EnrolmentCreateAPIView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
-class PreVerifiedEnrolmentRetrieveView(RetrieveAPIView):
+class PreVerifiedEnrolmentRetrieveView(generics.RetrieveAPIView):
     http_method_names = ("get", )
     queryset = models.PreVerifiedEnrolment.objects.filter(is_active=True)
     serializer_class = serializers.PreVerifiedEnrolmentSerializer
@@ -46,3 +46,8 @@ class PreVerifiedEnrolmentRetrieveView(RetrieveAPIView):
             email_address=self.request.GET.get('email_address'),
             company_number=self.request.GET.get('company_number'),
         )
+
+
+class ClaimPreverifiedCompany(generics.CreateAPIView):
+    http_method_names = ("post", )
+    serializer_class = serializers.ClaimPreverifiedCompanySerializer
