@@ -247,7 +247,7 @@ urlpatterns = [
         name='published_companies'
     ),
     url(
-        r'^/enrolment/claim-preverified/$',
+        r'^enrolment/claim-preverified/$',
         enrolment.views.ClaimPreverifiedCompany.as_view(),
         name='enrolment-claim-preverified'
     ),
