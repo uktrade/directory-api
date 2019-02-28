@@ -32,7 +32,7 @@ class CompaniesCreateFormView(FormView):
             'admin/company/company_csv_upload_success.html',
             {
                 'pairs': pairs,
-                'enrolment_url': build_great_url('enrol/pre-verified/')
+                'enrolment_url': build_great_url('profile/enrol/pre-verified/')
             }
         )
 
