@@ -1,5 +1,6 @@
 import requests.exceptions
 
+from django.http import Http404
 from rest_framework.generics import get_object_or_404, RetrieveAPIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -31,7 +32,7 @@ class RetrieveOfficeByPostCodeReturnAll(ListAPIView):
         try:
             region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
         except requests.exceptions.RequestException:
-            region_id = None
+            raise Http404()
         matching = models.Office.objects.filter(region_id=region_id)
         others = models.Office.objects.exclude(region_id=region_id)
         serializer_matching = self.serializer_class(matching, many=True)

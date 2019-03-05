@@ -131,3 +131,22 @@ def test_lookup_by_postcode_get_all_offices_unsupported_post_code(
     total_offices = Office.objects.all().count()
 
     assert len(response.json()['other_offices']) == total_offices
+
+
+@pytest.mark.django_db
+@mock.patch('exporting.helpers.postcode_to_region_id')
+def test_lookup_by_postcode_get_all_offices_error(
+    mock_postcode_to_region_id, api_client
+):
+    mock_postcode_to_region_id.side_effect = (
+        requests.exceptions.RequestException()
+    )
+
+    url = reverse(
+        'office-lookup-by-postcode-return-all',
+        kwargs={'postcode': 'ABC 123'}
+    )
+
+    response = api_client.get(url)
+
+    assert response.status_code == 404
