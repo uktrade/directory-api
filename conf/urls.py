@@ -237,7 +237,7 @@ urlpatterns = [
         name='office-lookup-by-postcode'
     ),
     url(
-        r'exporting/offices-lookup-by-postcode/(?P<postcode>.*)/$',
+        r'exporting/lookup-by-postcode-get-all/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficeByPostCodeReturnAll.as_view(),
         name='office-lookup-by-postcode-return-all'
     ),
