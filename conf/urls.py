@@ -237,6 +237,11 @@ urlpatterns = [
         name='office-lookup-by-postcode'
     ),
     url(
+        r'exporting/offices-lookup-by-postcode/(?P<postcode>.*)/$',
+        exporting.views.RetrieveOfficeByPostCodeReturnAll.as_view(),
+        name='office-lookup-by-postcode-return-all'
+    ),
+    url(
         r'^testapi/company/(?P<ch_id>.*)/$',
         testapi.views.CompanyTestAPIView.as_view(),
         name='company_by_ch_id'
