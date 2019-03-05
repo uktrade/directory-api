@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 
 from company.models import Company
 from company.tests.factories import CompanyFactory
-from enrolment import models, serializers
+from enrolment import models
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from supplier.models import Supplier
@@ -229,24 +229,8 @@ def test_preverified_enrolment_retrieve_found(authed_client):
 
 @pytest.mark.django_db
 def test_preverified_claim_company_bad_key(authed_client):
-    url = reverse('enrolment-claim-preverified')
-
-    response = authed_client.post(url, {'name': 'Foo bar', 'key': '123'})
-
-    assert response.status_code == 400
-    assert response.json()['key'] == [
-        serializers.ClaimPreverifiedCompanySerializer.MESSAGE_INVALID_KEY
-    ]
-
-
-@pytest.mark.django_db
-def test_preverified_claim_company_missing_company(authed_client):
-    signer = signing.Signer()
-    url = reverse('enrolment-claim-preverified')
-
-    response = authed_client.post(
-        url, {'name': 'Foo bar', 'key': signer.sign('123')}
-    )
+    url = reverse('enrolment-claim-preverified', kwargs={'key': '123'})
+    response = authed_client.post(url, {'name': 'Foo bar'})
 
     assert response.status_code == 404
 
@@ -258,12 +242,12 @@ def test_preverified_claim_company_succcess(authed_client):
 
     company = CompanyFactory()
 
-    signer = signing.Signer()
-    url = reverse('enrolment-claim-preverified')
-
-    response = authed_client.post(
-        url, {'name': 'Foo bar', 'key': signer.sign(company.number)}
+    url = reverse(
+        'enrolment-claim-preverified',
+        kwargs={'key': signing.Signer().sign(company.number)}
     )
+
+    response = authed_client.post(url, {'name': 'Foo bar'})
 
     assert response.status_code == 201
     assert Supplier.objects.count() == 1
@@ -277,11 +261,47 @@ def test_preverified_claim_company_succcess(authed_client):
 def test_preverified_claim_company_already_claimed(authed_client):
     supplier = SupplierFactory()
 
-    signer = signing.Signer()
-    url = reverse('enrolment-claim-preverified')
-
-    response = authed_client.post(
-        url, {'name': 'Foo bar', 'key': signer.sign(supplier.company.number)}
+    url = reverse(
+        'enrolment-claim-preverified',
+        kwargs={'key': signing.Signer().sign(supplier.company.number)}
     )
+
+    response = authed_client.post(url, {'name': 'Foo bar'})
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_preverified_retrieve_company_already_claimed(authed_client):
+    supplier = SupplierFactory()
+
+    url = reverse(
+        'enrolment-preverified',
+        kwargs={'key': signing.Signer().sign(supplier.company.number)}
+    )
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_preverified_retrieve_company_succcess(authed_client):
+    company = CompanyFactory()
+
+    url = reverse(
+        'enrolment-preverified',
+        kwargs={'key': signing.Signer().sign(company.number)}
+    )
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_preverified_cretrieve_company_bad_key(authed_client):
+    url = reverse('enrolment-preverified', kwargs={'key': '1234'})
+    response = authed_client.get(url)
 
     assert response.status_code == 404

@@ -1,8 +1,5 @@
 from rest_framework import serializers
 
-from django.core import signing
-from django.shortcuts import get_object_or_404
-
 from company.models import Company
 from enrolment import models
 from supplier.models import Supplier
@@ -65,34 +62,33 @@ class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
 
 
 class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
-    MESSAGE_INVALID_KEY = 'Invalid key'
-
-    key = serializers.CharField(write_only=True)
 
     class Meta:
         model = Supplier
         fields = [
             'name',
-            'company',
-            'key'
         ]
 
-    def validate_key(self, value):
-        signer = signing.Signer()
-        try:
-            return signer.unsign(value)
-        except signing.BadSignature:
-            raise serializers.ValidationError(self.MESSAGE_INVALID_KEY)
-
     def create(self, validated_data):
-        company = get_object_or_404(
-            Company.objects.all(),
-            number=validated_data['key'],
-            suppliers__isnull=True,
-        )
         return super().create({
             'name': validated_data['name'],
-            'company': company,
+            'company': self.context['company'],
             'sso_id': self.context['request'].user.id,
             'company_email': self.context['request'].user.email,
         })
+
+
+class PreverifiedCompanySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Company
+        fields = [
+            'name',
+            'number',
+            'address_line_1',
+            'address_line_2',
+            'name',
+            'company_type',
+            'po_box',
+            'postal_code',
+        ]
