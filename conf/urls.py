@@ -247,9 +247,14 @@ urlpatterns = [
         name='published_companies'
     ),
     url(
-        r'^enrolment/claim-preverified/$',
-        enrolment.views.ClaimPreverifiedCompany.as_view(),
+        r'^enrolment/preverified-company/(?P<key>.*)/claim/$',
+        enrolment.views.PreverifiedCompanyClaim.as_view(),
         name='enrolment-claim-preverified'
+    ),
+    url(
+        r'^enrolment/preverified-company/(?P<key>.*)/$',
+        enrolment.views.PreverifiedCompanyView.as_view(),
+        name='enrolment-preverified'
     ),
 ]
 
