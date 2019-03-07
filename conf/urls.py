@@ -232,9 +232,9 @@ urlpatterns = [
         name='supplier-csv-dump'
     ),
     url(
-        r'exporting/lookup-by-postcode/(?P<postcode>.*)/$',
-        exporting.views.RetrieveOfficeByPostCode.as_view(),
-        name='office-lookup-by-postcode'
+        r'exporting/offices/(?P<postcode>.*)/$',
+        exporting.views.RetrieveOfficesByPostCode.as_view(),
+        name='offices-by-postcode'
     ),
     url(
         r'^testapi/company/(?P<ch_id>.*)/$',
