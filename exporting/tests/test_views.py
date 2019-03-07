@@ -112,4 +112,18 @@ def test_lookup_by_postcode_unsuppported_error(
 
     response = api_client.get(url)
 
-    assert response.status_code == 404
+    assert response.status_code == 200
+
+    matched_office = list(
+        filter(lambda x: x['is_match'] is True, response.json())
+    )
+
+    assert len(matched_office) == 0
+
+    other_offices = list(
+        filter(lambda x: x['is_match'] is False, response.json())
+    )
+
+    total_offices = Office.objects.all().count()
+
+    assert len(other_offices) == total_offices
