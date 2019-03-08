@@ -5,7 +5,6 @@ import json
 from directory_components.fields import PaddedCharField
 
 from django import forms
-from django.conf import settings
 from django.db import transaction
 
 from company import constants, helpers, models
