@@ -118,32 +118,35 @@ def test_unknown_address_not_send_letters(mock_send_letter, settings):
     mock_send_letter.send_letter.assert_not_called()
 
 
+test_publish_params = [
+    # has_contact
+    ['',  '',  '',         False, False],
+    ['',  '',  'a@e.com',  False, False],
+    # has_synopsis
+    ['d', '',  '',         False, False],
+    ['d', '',  'a@e.com',  False, False],
+    ['d', 's',  '',        False, False],
+    ['',  's',  '',        False, False],
+    ['d', 's',  'a@e.com', False, False],
+    ['',  's',  'a@e.com', False, False],
+    # is_verified
+    ['',  '',  '',         True,  False],
+    ['',  '',  'a@e.com',  True,  False],
+    ['d', '',  '',         True,  False],
+    ['d', '',  'a@e.com',  True,  True],
+    ['d', 's',  '',        True,  False],
+    ['',  's',  '',        True,  False],
+    ['d', 's',  'a@e.com', True,  True],
+    ['',  's',  'a@e.com', True,  True],
+]
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'desciption,summary,email,is_verified,expected',
-    [
-        # has_contact
-        ['',  '',  '',         False, False],
-        ['',  '',  'a@e.com',  False, False],
-        # has_synopsis
-        ['d', '',  '',         False, False],
-        ['d', '',  'a@e.com',  False, False],
-        ['d', 's',  '',        False, False],
-        ['',  's',  '',        False, False],
-        ['d', 's',  'a@e.com', False, False],
-        ['',  's',  'a@e.com', False, False],
-        # is_verified
-        ['',  '',  '',         True,  False],
-        ['',  '',  'a@e.com',  True,  False],
-        ['d', '',  '',         True,  False],
-        ['d', '',  'a@e.com',  True,  True],
-        ['d', 's',  '',        True,  False],
-        ['',  's',  '',        True,  False],
-        ['d', 's',  'a@e.com', True,  True],
-        ['',  's',  'a@e.com', True,  True],
-    ]
+    'desciption,summary,email,is_verified,expected', test_publish_params
 )
-def test_publish(desciption, summary, email, is_verified, expected):
+def test_publish(desciption, summary, email, is_verified, expected, settings):
+    settings.FEATURE_MANUAL_PUBLISH_ENABLED = False
     fields = {
         'description': desciption,
         'summary': summary,
@@ -160,6 +163,32 @@ def test_publish(desciption, summary, email, is_verified, expected):
         company.save()
         company.refresh_from_db()
         assert company.is_published is expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'desciption,summary,email,is_verified,expected', test_publish_params
+)
+def test_publish_feature_flagged(
+    desciption, summary, email, is_verified, expected, settings
+):
+    settings.FEATURE_MANUAL_PUBLISH_ENABLED = True
+    fields = {
+        'description': desciption,
+        'summary': summary,
+        'email_address': email
+    }
+    mock_verifed = mock.PropertyMock(return_value=is_verified)
+    with mock.patch('company.models.Company.is_verified', mock_verifed):
+        company = factories.CompanyFactory(**fields)
+        # create
+        assert company.is_published is False
+        # update
+        for field, value in fields.items():
+            setattr(company, field, value)
+        company.save()
+        company.refresh_from_db()
+        assert company.is_published is False
 
 
 @pytest.mark.django_db
