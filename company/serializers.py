@@ -140,6 +140,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'is_verified',
             'export_destinations',
             'export_destinations_other',
+            'is_uk_isd_company',
         )
         extra_kwargs = {
             'export_status': {'required': False},
@@ -147,7 +148,6 @@ class CompanySerializer(serializers.ModelSerializer):
             'modified': {'read_only': True},
             'is_published': {'read_only': True},
             'slug': {'read_only': True},
-
         }
 
     def get_has_valid_address(self, obj):

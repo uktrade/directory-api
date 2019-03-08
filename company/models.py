@@ -208,6 +208,7 @@ class Company(TimeStampedModel):
     )
     slug = models.SlugField()
     is_showcase_company = models.BooleanField(default=False)
+    is_uk_isd_company = models.BooleanField(default=False)
 
     field_history = FieldHistoryTracker([
         'verified_with_preverified_enrolment',

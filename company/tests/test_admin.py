@@ -10,9 +10,11 @@ from django.test import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from company import admin
+from company import constants, admin
 from company.models import Company, CompanyCaseStudy
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from enrolment.models import PreVerifiedEnrolment
+from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 
 
 COMPANY_DOESNT_EXIST_MSG = (
@@ -273,7 +275,10 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
         response = self.client.post(
             reverse('admin:company_company_enrol'),
-            {'csv_file': open(file_path, 'rb')}
+            {
+                'generated_for': constants.UK_ISD,
+                'csv_file': open(file_path, 'rb'),
+            }
         )
 
         assert response.status_code == 200
@@ -295,6 +300,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             'https://www.linkedin.com/company/one'
         )
         assert company_one.company_type == Company.COMPANIES_HOUSE
+        assert company_one.is_uk_isd_company is True
 
         assert company_two.name == 'Example Associates Ltd'
         assert company_two.address_line_1 == 'Example Business Centre'
@@ -310,8 +316,46 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             'https://www.linkedin.com/company/two'
         )
         assert company_two.company_type == Company.SOLE_TRADER
+        assert company_two.is_uk_isd_company is True
 
-    def test_create_companies_form_invalid(self):
+        pre_verified_queryset = PreVerifiedEnrolment.objects.all()
+        assert len(pre_verified_queryset) == 2
+
+        assert pre_verified_queryset[0].company_number == company_one.number
+        assert pre_verified_queryset[0].generated_for == constants.UK_ISD
+        assert pre_verified_queryset[1].company_number == company_two.number
+        assert pre_verified_queryset[1].generated_for == constants.UK_ISD
+
+    def test_create_companies_form_invalid_preverified(self):
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/valid-companies-upload.csv'
+        )
+
+        PreVerifiedEnrolmentFactory(
+            company_number='12355434',
+            email_address='one@example.com',
+        )
+
+        response = self.client.post(
+            reverse('admin:company_company_enrol'),
+            {
+                'generated_for': constants.UK_ISD,
+                'csv_file': open(file_path, 'rb'),
+            }
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['form'].errors == {
+            'csv_file': [
+                (
+                    '[Row 2] {"__all__": ["Pre verified enrolment with this '
+                    'Company number and Email address already exists."]}'
+                )
+            ]
+        }
+
+    def test_create_companies_form_invalid_enrolment(self):
         file_path = os.path.join(
             settings.BASE_DIR,
             'company/tests/fixtures/invalid-companies-upload.csv'
@@ -319,7 +363,10 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
         response = self.client.post(
             reverse('admin:company_company_enrol'),
-            {'csv_file': open(file_path, 'rb')}
+            {
+                'csv_file': open(file_path, 'rb'),
+                'generated_for': constants.UK_ISD,
+            }
         )
 
         assert response.status_code == 200

@@ -5,9 +5,11 @@ import json
 from directory_components.fields import PaddedCharField
 
 from django import forms
+from django.conf import settings
 from django.db import transaction
 
-from company import helpers, models
+from company import constants, helpers, models
+from enrolment.forms import PreVerifiedEnrolmentModelForm
 
 
 class CompanyNumberField(PaddedCharField):
@@ -31,8 +33,6 @@ class CompanyUrlField(forms.URLField):
         value = super().to_python(value)
         if not value:
             value = None
-        elif not value.startswith('http'):
-            value = f'https://{value}'
         return value
 
 
@@ -89,6 +89,7 @@ class CompanyModelForm(forms.ModelForm):
             'verified_with_preverified_enrolment',
             'is_exporting_services',
             'mobile_number',
+            'is_uk_isd_company',
         ]
         field_classes = {
             'number': CompanyNumberField,
@@ -106,7 +107,16 @@ def company_type_parser(company_number):
 
 
 class EnrolCompanies(forms.Form):
+    generated_for = forms.ChoiceField(
+        choices=(
+            (constants.UK_ISD, 'UK ISD'),
+        ),
+    )
     csv_file = forms.FileField()
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
 
     @transaction.atomic
     def clean_csv_file(self):
@@ -118,7 +128,7 @@ class EnrolCompanies(forms.Form):
         csv_file.seek(0)
         reader = csv.reader(csv_file, dialect=dialect)
         next(reader, None)  # skip the headers
-        row_errors = []
+        errors = []
         for i, row in enumerate(reader):
             address = helpers.AddressParser(row[2])
             form = CompanyModelForm(data={
@@ -141,15 +151,39 @@ class EnrolCompanies(forms.Form):
                 'twitter_url': row[10],
                 'verified_with_preverified_enrolment': True,
                 'website': row[9],
+                'is_uk_isd_company': (
+                    self.cleaned_data['generated_for'] == constants.UK_ISD
+                )
             })
 
             if form.is_valid():
-                self.companies.append(form.save())
+                company = form.save()
+                self.companies.append(company)
+                pre_verified_form = PreVerifiedEnrolmentModelForm(data={
+                    'email_address': company.email_address,
+                    'generated_for': self.cleaned_data['generated_for'],
+                    'generated_by': self.user.pk,
+                    'company_number': company.number,
+                })
+                if not pre_verified_form.is_valid():
+                    self.add_bulk_errors(
+                        errors=errors,
+                        row_number=i+2,
+                        line_errors=pre_verified_form.errors,
+                    )
+                else:
+                    pre_verified_form.save()
             else:
-                row_errors.append('[Row {number}] {errors}'.format(
-                    errors=json.dumps(form.errors),
-                    number=i+2,
-                ))
-        if row_errors:
-            raise forms.ValidationError(row_errors)
+                self.add_bulk_errors(
+                    errors=errors, row_number=i+2, line_errors=form.errors,
+                )
+        if errors:
+            raise forms.ValidationError(errors)
         return self.cleaned_data['csv_file']
+
+    @staticmethod
+    def add_bulk_errors(errors, row_number, line_errors):
+        errors.append('[Row {number}] {errors}'.format(
+            errors=json.dumps(line_errors),
+            number=row_number,
+        ))
