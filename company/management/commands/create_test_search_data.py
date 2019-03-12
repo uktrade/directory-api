@@ -13,21 +13,21 @@ class Command(BaseCommand):
                 name='Aardvark limited {}'.format(i),
                 description='Providing the power and beauty of Aardvarks.',
                 summary='Like an Aardvark',
-                is_published=True,
+                is_published_investment_support_directory=True,
                 keywords='Ants, Tongue, Anteater',
             )
             factories.CompanyFactory(
                 name='Wolf limited {}'.format(i),
                 description='Providing the stealth and prowess of wolves.',
                 summary='Hunts in packs',
-                is_published=True,
+                is_published_investment_support_directory=True,
                 keywords='Packs, Hunting, Stark, Teeth',
             )
             factories.CompanyFactory(
                 name='Grapeshot limited {}'.format(i),
                 description='Providing the destructiveness of grapeshot.',
                 summary='Like naval warfare',
-                is_published=True,
+                is_published_investment_support_directory=True,
                 keywords='Pirates, Ocean, Ship',
             )
 
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 name='Gold limited {}'.format(i),
                 description='Providing the richness of gold.',
                 summary='Golden',
-                is_published=True,
+                is_published_investment_support_directory=True,
                 keywords='Rich, Gold, Bank, Shiny',
             )
 
@@ -51,7 +51,7 @@ class Command(BaseCommand):
                 name='Lead group {}'.format(i),
                 description='Providing the density of lead.',
                 summary='Radiation protection',
-                is_published=True,
+                is_published_investment_support_directory=True,
                 keywords='Packs, Thick, Heavy, Metal',
             )
             for j in range(5):

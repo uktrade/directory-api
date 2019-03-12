@@ -50,7 +50,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
 
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
-    queryset = Company.objects.filter(is_published=True)
+    queryset = Company.objects.filter(is_published_investment_support_directory=True)
     permission_classes = []
     lookup_field = 'is_published'
     http_method_names = 'get'

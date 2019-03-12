@@ -82,7 +82,7 @@ class PublishByCompanyHouseNumberView(FormView):
 
     def form_valid(self, form):
         numbers = form.cleaned_data['company_numbers']
-        Company.objects.filter(number__in=numbers).update(is_published=True)
+        Company.objects.filter(number__in=numbers).update(is_published_investment_support_directory=True)
         return super().form_valid(form)
 
 
@@ -94,9 +94,9 @@ class CompanyAdmin(admin.ModelAdmin):
         'postal_full_name', 'address_line_1', 'address_line_2',
         'locality', 'country', 'postal_code', 'po_box',
     )
-    list_display = ('name', 'number', 'is_published')
+    list_display = ('name', 'number', 'is_published_investment_support_directory')
     list_filter = (
-        'is_published', 'verified_with_code',
+        'is_published_investment_support_directory', 'verified_with_code',
         'verified_with_companies_house_oauth2',
     )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent')

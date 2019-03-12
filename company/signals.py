@@ -25,7 +25,7 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
         has_contact = bool(instance.email_address)
         has_synopsis = bool(instance.description or instance.summary)
         is_verified = instance.is_verified
-        instance.is_published = all([is_verified, has_synopsis, has_contact])
+        instance.is_published_investment_support_directory = all([is_verified, has_synopsis, has_contact])
 
 
 def store_date_published(sender, instance, *args, **kwargs):

@@ -220,7 +220,7 @@ def test_publish_published(desciption, summary, email, is_verified):
         'description': desciption,
         'summary': summary,
         'email_address': email,
-        'is_published': True
+        'is_published_investment_support_directory': True
     }
     mock_verifed = mock.PropertyMock(return_value=is_verified)
     with mock.patch('company.models.Company.is_verified', mock_verifed):
@@ -237,7 +237,7 @@ def test_publish_published(desciption, summary, email, is_verified):
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
-    company = factories.CompanyFactory(is_published=False)
+    company = factories.CompanyFactory(is_published_investment_support_directory=False)
 
     assert company.date_published is None
 
@@ -245,7 +245,7 @@ def test_store_date_published_unpublished_company():
 @pytest.mark.django_db
 @freeze_time()
 def test_store_date_published_published_company_without_date():
-    company = factories.CompanyFactory(is_published=True, date_published=None)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True, date_published=None)
 
     assert company.date_published == timezone.now()
 
@@ -255,34 +255,34 @@ def test_store_date_published_published_company_with_date():
     expected_date = timezone.now()
 
     company = factories.CompanyFactory(
-        is_published=True, date_published=expected_date
+        is_published_investment_support_directory=True, date_published=expected_date
     )
 
     assert company.date_published == expected_date
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('is_published,call_count', [
+@pytest.mark.parametrize('is_published_investment_support_directory,call_count', [
     (False, 0),
     (True, 1),
 ])
 def test_save_company_changes_to_elasticsearch(
-    is_published, call_count, mock_elasticsearch_company_save
+    is_published_investment_support_directory, call_count, mock_elasticsearch_company_save
 ):
-    factories.CompanyFactory(is_published=is_published)
+    factories.CompanyFactory(is_published_investment_support_directory=is_published_investment_support_directory)
 
     assert mock_elasticsearch_company_save.call_count == call_count
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('is_published,call_count', [
+@pytest.mark.parametrize('is_published_investment_support_directory,call_count', [
     (False, 0),
     (True, 2),
 ])
 def test_save_case_study_changes_to_elasticsearch(
-    is_published, call_count, mock_elasticsearch_company_save
+    is_published_investment_support_directory, call_count, mock_elasticsearch_company_save
 ):
-    company = factories.CompanyFactory(is_published=is_published)
+    company = factories.CompanyFactory(is_published_investment_support_directory=is_published_investment_support_directory)
     factories.CompanyCaseStudyFactory(company=company)
 
     assert mock_elasticsearch_company_save.call_count == call_count
@@ -290,7 +290,7 @@ def test_save_case_study_changes_to_elasticsearch(
 
 @pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
-    company = factories.CompanyFactory(is_published=True)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
     company_pk = company.pk
 
     CompanyDocType.get(id=company_pk)  # not raises if exists
@@ -303,7 +303,7 @@ def test_delete_company_from_elasticsearch():
 
 @pytest.mark.django_db
 def test_delete_unpublished_company_from_elasticsearch():
-    company = factories.CompanyFactory(is_published=False)
+    company = factories.CompanyFactory(is_published_investment_support_directory=False)
     company_pk = company.pk
 
     company.delete()
@@ -314,12 +314,12 @@ def test_delete_unpublished_company_from_elasticsearch():
 
 @pytest.mark.django_db
 def test_delete_unpublish_company_from_elasticsearch():
-    company = factories.CompanyFactory(is_published=True)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
     company_pk = company.pk
 
     CompanyDocType.get(id=company_pk)  # not raises if exists
 
-    company.is_published = False
+    company.is_published_investment_support_directory = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):

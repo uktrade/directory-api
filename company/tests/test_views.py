@@ -3,6 +3,7 @@ import http
 import uuid
 from io import BytesIO
 from unittest.mock import call, patch, Mock
+from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
@@ -68,6 +69,8 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
+        'is_published_investment_support_directory': False,
+        'is_published_find_a_supplier': False,
         'is_published': False,
         'is_verification_letter_sent': False,
         'keywords': company.keywords,
@@ -128,6 +131,8 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
+        'is_published_investment_support_directory': False,
+        'is_published_find_a_supplier': False,
         'is_published': False,
         'is_verification_letter_sent': False,
         'keywords': company.keywords,
@@ -176,6 +181,8 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
+        'is_published_investment_support_directory': False,
+        'is_published_find_a_supplier': False,
         'is_published': False,
         'is_verification_letter_sent': False,
         'keywords': company.keywords,
@@ -338,21 +345,21 @@ def private_profile():
 def public_profile():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456B'
-    company.is_published = True
+    company.is_published_investment_support_directory = True
     company.save()
     return company
 
 
 @pytest.fixture
 def public_profile_with_case_study():
-    company = factories.CompanyFactory(is_published=True)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
     factories.CompanyCaseStudyFactory(company=company)
     return company
 
 
 @pytest.fixture
 def public_profile_with_case_studies():
-    company = factories.CompanyFactory(is_published=True)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
     factories.CompanyCaseStudyFactory(company=company)
     factories.CompanyCaseStudyFactory(company=company)
     return company
@@ -362,7 +369,7 @@ def public_profile_with_case_studies():
 def public_profile_software():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456C'
-    company.is_published = True
+    company.is_published_investment_support_directory = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES']
     company.save()
     return company
@@ -372,7 +379,7 @@ def public_profile_software():
 def public_profile_cars():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456D'
-    company.is_published = True
+    company.is_published_investment_support_directory = True
     company.sectors = ['AUTOMOTIVE']
     company.save()
     return company
@@ -382,7 +389,7 @@ def public_profile_cars():
 def public_profile_smart_cars():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456E'
-    company.is_published = True
+    company.is_published_investment_support_directory = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES', 'AUTOMOTIVE']
     company.save()
     return company
@@ -417,7 +424,7 @@ def supplier(company):
 def search_case_studies_data(settings):
     AEROSPACE = sectors.AEROSPACE
     AIRPORTS = sectors.AIRPORTS
-    company = factories.CompanyFactory(is_published=True)
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
     factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
@@ -431,7 +438,7 @@ def search_companies_data(settings):
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -440,7 +447,7 @@ def search_companies_data(settings):
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Ants, Tongue, Anteater',
         sectors=[sectors.AEROSPACE],
         id=2,
@@ -449,7 +456,7 @@ def search_companies_data(settings):
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Pirates, Ocean, Ship',
         sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=3,
@@ -482,7 +489,7 @@ def search_companies_highlighting_data(settings):
             'The wolf cries at night.'
         ),
         summary='Hunts in packs',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -491,7 +498,7 @@ def search_companies_highlighting_data(settings):
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Ants, Tongue, Anteater',
         sectors=[sectors.AEROSPACE],
         id=2,
@@ -506,7 +513,7 @@ def search_companies_ordering_data(settings):
         name='Wolf limited',
         description='',
         summary='Hunts in packs',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Wolf',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -515,7 +522,7 @@ def search_companies_ordering_data(settings):
         name='Wolf from Gladiators limited',
         description='',
         summary='Hunters',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.FOOD_AND_DRINK, sectors.AIRPORTS],
         id=2,
@@ -524,7 +531,7 @@ def search_companies_ordering_data(settings):
         name='Wolf a kimbo Limited',
         description='pack hunters',
         summary='Hunts in packs',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=3,
@@ -533,7 +540,7 @@ def search_companies_ordering_data(settings):
         name='Wolf among us Limited',
         description='wolf among sheep',
         summary='wooly',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Sheep, big bad, wolf',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=4,
@@ -542,7 +549,7 @@ def search_companies_ordering_data(settings):
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
-        is_published=True,
+        is_published_investment_support_directory=True,
         keywords='Pirates, Ocean, Ship',
         sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=5,
@@ -745,7 +752,7 @@ def test_company_case_study_create_company_not_published(
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
-        is_published=False
+        is_published_investment_support_directory=False
     )
     authed_supplier.company = company
     authed_supplier.save()

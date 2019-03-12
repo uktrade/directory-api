@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 has_exported_before=True,
                 keywords='test',
                 name='Test company {sso_id}'.format(sso_id=sso_id),
-                is_published=True,
+                is_published_investment_support_directory=True,
                 verification_code='000000000000',
                 verified_with_code=True,
                 is_verification_letter_sent=True,

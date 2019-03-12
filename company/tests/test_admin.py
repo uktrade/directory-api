@@ -38,8 +38,8 @@ class PublishCompaniesTestCase(TestCase):
         assert response.status_code == http.client.OK
 
     def test_companies_in_post_set_to_published(self):
-        companies = CompanyFactory.create_batch(5, is_published=False)
-        published_company = CompanyFactory(is_published=True)
+        companies = CompanyFactory.create_batch(5, is_published_investment_support_directory=False)
+        published_company = CompanyFactory(is_published_investment_support_directory=True)
         numbers = '{num1},{num2}'.format(
             num1=companies[0].number, num2=companies[3].number)
 
@@ -51,14 +51,14 @@ class PublishCompaniesTestCase(TestCase):
         assert response.status_code == http.client.FOUND
         assert response.url == reverse('admin:company_company_changelist')
 
-        published = Company.objects.filter(is_published=True).values_list(
+        published = Company.objects.filter(is_published_investment_support_directory=True).values_list(
             'number', flat=True)
         assert len(published) == 3
         assert companies[0].number in published
         assert companies[3].number in published
         assert published_company.number in published
 
-        unpublished = Company.objects.filter(is_published=False).values_list(
+        unpublished = Company.objects.filter(is_published_investment_support_directory=False).values_list(
             'number', flat=True)
         assert len(unpublished) == 3
         assert companies[1].number in unpublished

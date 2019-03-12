@@ -10,8 +10,8 @@ from company.search import CompanyDocType, CaseStudyDocType
 @pytest.mark.rebuild_elasticsearch
 def test_elasticsearch_migrate_turned_on(settings):
     settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = True
-    published_company = factories.CompanyFactory(is_published=True)
-    unpublished_company = factories.CompanyFactory(is_published=False)
+    published_company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    unpublished_company = factories.CompanyFactory(is_published_investment_support_directory=False)
 
     published_case_study = factories.CompanyCaseStudyFactory(
         company=published_company
@@ -38,7 +38,7 @@ def test_elasticsearch_migrate_turned_on(settings):
 def test_elasticsearch_migrate_turned_off(settings):
     settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = False
 
-    published_company = factories.CompanyFactory(is_published=True)
+    published_company = factories.CompanyFactory(is_published_investment_support_directory=True)
     published_case_study = factories.CompanyCaseStudyFactory(
         company=published_company
     )

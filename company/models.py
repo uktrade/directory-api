@@ -110,10 +110,19 @@ class Company(TimeStampedModel):
         blank=True,
         null=True,
     )
-    is_published = models.BooleanField(
+    is_published_investment_support_directory = models.BooleanField(
         default=False,
         help_text=(
-            'Companies are automatically published based on profile '
+            'Companies that have a published profile on investment support.'
+            'completeness - they must have description or summary, be '
+            'verified, and have an email address.'
+        )
+    )
+
+    is_published_find_a_supplier = models.BooleanField(
+        default=False,
+        help_text=(
+            'Companies that have a published profile on FAS '
             'completeness - they must have description or summary, be '
             'verified, and have an email address.'
         )
@@ -221,6 +230,13 @@ class Company(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_published(self):
+        return any([
+            self.is_published_investment_support_directory,
+            self.is_published_find_a_supplier,
+        ])
 
     @property
     def public_profile_url(self):
