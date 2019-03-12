@@ -290,7 +290,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_one.address_line_1 == 'Studio: Unit 333 Example'
         assert company_one.address_line_2 == 'Example Road'
         assert company_one.postal_code == 'EO21 1DQ'
-        assert company_one.email_address == 'one@example.com'
+        assert company_one.email_address == ''
         assert company_one.mobile_number == '55555555555'
         assert company_one.number == '12355434'
         assert company_one.website == 'http://www.example-compass.co.uk'
@@ -306,7 +306,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_two.address_line_1 == 'Example Business Centre'
         assert company_two.address_line_2 == 'Example barn Farm'
         assert company_two.postal_code == 'IG22 0PQ'
-        assert company_two.email_address == 'two@example.com'
+        assert company_two.email_address == ''
         assert company_two.mobile_number == '6666666'
         assert company_two.number.startswith('ST')
         assert company_two.website == 'http://www.example-asscoiates.com'

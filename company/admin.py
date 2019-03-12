@@ -26,18 +26,18 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
+        url = build_great_url('profile/enrol/pre-verified/')
         signer = Signer()
-        pairs = []
-        for company in form.companies:
-            pairs.append((
-                company, signer.sign(company.number)
-            ))
+        created_companies = [
+            {**company, 'url': url + '?key=' + signer.sign(company['number'])}
+            for company in form.created_companies
+        ]
         return TemplateResponse(
             self.request,
             'admin/company/company_csv_upload_success.html',
             {
-                'pairs': pairs,
-                'enrolment_url': build_great_url('profile/enrol/pre-verified/')
+                'created_companies': created_companies,
+                'skipped_companies': form.skipped_companies,
             }
         )
 

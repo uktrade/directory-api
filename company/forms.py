@@ -74,7 +74,6 @@ class CompanyModelForm(forms.ModelForm):
             'name',
             'number',
             'company_type',
-            'email_address',
             'country',
             'has_exported_before',
             'locality',
@@ -119,7 +118,8 @@ class EnrolCompanies(forms.Form):
 
     @transaction.atomic
     def clean_csv_file(self):
-        self.companies = []
+        self.created_companies = []
+        self.skipped_companies = []
         csv_file = io.TextIOWrapper(
             self.cleaned_data['csv_file'].file, encoding='utf-8'
         )
@@ -135,8 +135,6 @@ class EnrolCompanies(forms.Form):
                 'address_line_2': address.line_2,
                 'company_type': company_type_parser(row[8]),
                 'country': 'UK',
-                'email_address': row[4],
-                'email_full_name': row[3],
                 'facebook_url': row[11],
                 'is_exporting_services': True,
                 'keywords': row[14],
@@ -154,12 +152,15 @@ class EnrolCompanies(forms.Form):
                     self.cleaned_data['generated_for'] == constants.UK_ISD
                 )
             })
-
             if form.is_valid():
                 company = form.save()
-                self.companies.append(company)
+                self.created_companies.append({
+                    'name': row[1],
+                    'number': company.number,
+                    'email_address': row[4],
+                })
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
-                    'email_address': company.email_address,
+                    'email_address': row[4],
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
                     'company_number': company.number,
@@ -173,9 +174,15 @@ class EnrolCompanies(forms.Form):
                 else:
                     pre_verified_form.save()
             else:
-                self.add_bulk_errors(
-                    errors=errors, row_number=i+2, line_errors=form.errors,
-                )
+                if 'number' in form.errors:
+                    self.skipped_companies.append({
+                        'name': row[1],
+                        'email_address': row[4],
+                    })
+                else:
+                    self.add_bulk_errors(
+                        errors=errors, row_number=i+2, line_errors=form.errors,
+                    )
         if errors:
             raise forms.ValidationError(errors)
         return self.cleaned_data['csv_file']
