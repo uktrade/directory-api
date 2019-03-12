@@ -3,7 +3,6 @@ import http
 import uuid
 from io import BytesIO
 from unittest.mock import call, patch, Mock
-from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 
@@ -352,14 +351,18 @@ def public_profile():
 
 @pytest.fixture
 def public_profile_with_case_study():
-    company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    company = factories.CompanyFactory(
+        is_published_investment_support_directory=True
+    )
     factories.CompanyCaseStudyFactory(company=company)
     return company
 
 
 @pytest.fixture
 def public_profile_with_case_studies():
-    company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    company = factories.CompanyFactory(
+        is_published_investment_support_directory=True
+    )
     factories.CompanyCaseStudyFactory(company=company)
     factories.CompanyCaseStudyFactory(company=company)
     return company
@@ -424,7 +427,9 @@ def supplier(company):
 def search_case_studies_data(settings):
     AEROSPACE = sectors.AEROSPACE
     AIRPORTS = sectors.AIRPORTS
-    company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    company = factories.CompanyFactory(
+        is_published_investment_support_directory=True
+    )
     factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
