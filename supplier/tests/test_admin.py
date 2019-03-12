@@ -76,6 +76,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__is_exporting_services', 'False'),
             ('company__is_published', 'False'),
             ('company__is_showcase_company', 'False'),
+            ('company__is_uk_isd_company', 'False'),
             ('company__is_verification_letter_sent', 'False'),
             ('company__keywords', ''),
             ('company__linkedin_url', ''),
@@ -153,6 +154,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__is_exporting_services', 'False'),
             ('company__is_published', 'False'),
             ('company__is_showcase_company', 'False'),
+            ('company__is_uk_isd_company', 'False'),
             ('company__is_verification_letter_sent', 'False'),
             ('company__keywords', ''),
             ('company__linkedin_url', ''),
@@ -186,8 +188,8 @@ class DownloadCSVTestCase(TestCase):
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
 
-        assert actual[0] == ','.join(expected_data.keys())
-        assert actual[1] == ','.join(expected_data.values())
+        assert actual[0].split(',') == list(expected_data.keys())
+        assert actual[1].split(',') == list(expected_data.values())
 
     def test_download_csv_multiple_suppliers(self):
         company_data2 = COMPANY_DATA.copy()
@@ -207,7 +209,7 @@ class DownloadCSVTestCase(TestCase):
         Supplier.objects.create(company=company1, **SUPPLIER_DATA)
         Supplier.objects.create(company=company2, **supplier_data2)
 
-        supplier_one_expected_data = OrderedDict([
+        supplier_one_expected = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__country', 'test_country'),
@@ -229,6 +231,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__is_exporting_services', 'False'),
             ('company__is_published', 'False'),
             ('company__is_showcase_company', 'False'),
+            ('company__is_uk_isd_company', 'False'),
             ('company__is_verification_letter_sent', 'False'),
             ('company__keywords', ''),
             ('company__linkedin_url', ''),
@@ -261,7 +264,7 @@ class DownloadCSVTestCase(TestCase):
             ('unsubscribed', 'False'),
         ])
 
-        supplier_two_expected_data = OrderedDict([
+        supplier_two_expected = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__country', 'test_country'),
@@ -282,7 +285,8 @@ class DownloadCSVTestCase(TestCase):
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
             ('company__is_published', 'False'),
-            ('company__company__is_showcase_company', 'False'),
+            ('company__is_showcase_company', 'False'),
+            ('company__is_uk_isd_company', 'False'),
             ('company__is_verification_letter_sent', 'False'),
             ('company__keywords', ''),
             ('company__linkedin_url', ''),
@@ -326,9 +330,10 @@ class DownloadCSVTestCase(TestCase):
             follow=True
         )
         actual = str(response.content, 'utf-8').split('\r\n')
-        assert actual[0] == ','.join(supplier_one_expected_data.keys())
-        assert actual[1] == ','.join(supplier_two_expected_data.values())
-        assert actual[2] == ','.join(supplier_one_expected_data.values())
+
+        assert actual[0].split(',') == list(supplier_one_expected.keys())
+        assert actual[1].split(',') == list(supplier_two_expected.values())
+        assert actual[2].split(',') == list(supplier_one_expected.values())
 
 
 @pytest.mark.django_db

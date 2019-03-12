@@ -135,8 +135,7 @@ def test_case_study_email_uses_settings_for_no_of_days_and_subject(
 @pytest.mark.django_db
 @patch('core.tasks.send_email')
 def test_doesnt_send_case_study_email_if_case_study_email_already_sent(
-        mock_task,
-        settings
+    mock_task, settings
 ):
     eight_days_ago = timezone.now() - timedelta(days=8)
     suppliers = SupplierFactory.create_batch(

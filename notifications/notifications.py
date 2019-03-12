@@ -17,6 +17,7 @@ def no_case_studies():
         date_joined__month=days_ago.month,
         date_joined__day=days_ago.day,
         unsubscribed=False,
+        company__is_uk_isd_company=False,
     ).exclude(
         supplieremailnotification__category=constants.NO_CASE_STUDIES,
     )
@@ -41,7 +42,8 @@ def hasnt_logged_in():
 
     sso_ids = [sso_user['id'] for sso_user in login_data]
     suppliers = Supplier.objects.filter(
-        sso_id__in=sso_ids
+        sso_id__in=sso_ids,
+        company__is_uk_isd_company=False,
     ).exclude(
         supplieremailnotification__category=constants.HASNT_LOGGED_IN,
     )
@@ -59,7 +61,9 @@ def verification_code_not_given():
 def verification_code_not_given_first_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS
     category = constants.VERIFICATION_CODE_NOT_GIVEN
-    suppliers = helpers.get_unverified_suppliers(days_ago).exclude(
+    suppliers = helpers.get_unverified_suppliers(days_ago).filter(
+        company__is_uk_isd_company=False,
+    ).exclude(
         supplieremailnotification__category=category,
     )
     for supplier in suppliers:
@@ -70,7 +74,9 @@ def verification_code_not_given_first_reminder():
 def verification_code_not_given_seconds_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL
     category = constants.VERIFICATION_CODE_2ND_EMAIL
-    suppliers = helpers.get_unverified_suppliers(days_ago).exclude(
+    suppliers = helpers.get_unverified_suppliers(days_ago).filter(
+        company__is_uk_isd_company=False,
+    ).exclude(
         supplieremailnotification__category=category,
     )
     for supplier in suppliers:

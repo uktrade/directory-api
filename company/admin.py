@@ -20,6 +20,11 @@ class CompaniesCreateFormView(FormView):
     template_name = 'admin/company/company_csv_upload_form.html'
     success_url = reverse_lazy('admin:company_company_changelist')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         signer = Signer()
         pairs = []
