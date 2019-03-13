@@ -13,7 +13,6 @@ class PreVerifiedEnrolmentModelForm(forms.ModelForm):
         model = models.PreVerifiedEnrolment
         fields = [
             'company_number',
-            'email_address',
             'generated_for',
             'generated_by',
         ]

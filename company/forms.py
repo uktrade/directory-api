@@ -1,6 +1,7 @@
 import csv
 import io
 import json
+import re
 
 from directory_components.fields import PaddedCharField
 
@@ -9,6 +10,15 @@ from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
+
+
+class MobileNumberField(forms.CharField):
+    def to_python(self, value):
+        # assume to be a list of numbers, not a single number
+        value = super().to_python(value)
+        if len(value) > self.max_length:
+            value = ''
+        return value
 
 
 class CompanyNumberField(PaddedCharField):
@@ -30,9 +40,14 @@ class CompanyNumberField(PaddedCharField):
 class CompanyUrlField(forms.URLField):
     def to_python(self, value):
         value = super().to_python(value)
-        if not value:
-            value = None
-        return value
+        # handle multiple websites - pick the first
+        value = re.split(r' and |\n', value)[0]
+        # remove comments in brackets
+        value = re.sub(r'\(.*\)', '', value)
+        # assume to be a common on the website, not a website
+        if '.' not in value:
+            value = ''
+        return value.strip() or ''
 
 
 class SocialURLField(forms.URLField):
@@ -41,9 +56,9 @@ class SocialURLField(forms.URLField):
     def to_python(self, value):
         value = super().to_python(value)
         if not value:
-            return None
+            return ''
         if ' ' in value:
-            return None
+            return ''
         if not value.startswith(self.website):
             # may be at "at tag"
             value = value.replace('@', '')
@@ -95,12 +110,14 @@ class CompanyModelForm(forms.ModelForm):
             'facebook_url': FacebookURLField,
             'twitter_url': TwitterURLField,
             'linkedin_url': LinkedInURLField,
+            'mobile_number': MobileNumberField,
         }
 
 
 def company_type_parser(company_number):
     if company_number:
-        return models.Company.COMPANIES_HOUSE
+        if CompanyNumberField(max_length=8).to_python(company_number):
+            return models.Company.COMPANIES_HOUSE
     return models.Company.SOLE_TRADER
 
 
@@ -160,19 +177,12 @@ class EnrolCompanies(forms.Form):
                     'email_address': row[4],
                 })
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
-                    'email_address': row[4],
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
                     'company_number': company.number,
                 })
-                if not pre_verified_form.is_valid():
-                    self.add_bulk_errors(
-                        errors=errors,
-                        row_number=i+2,
-                        line_errors=pre_verified_form.errors,
-                    )
-                else:
-                    pre_verified_form.save()
+                assert pre_verified_form.is_valid
+                pre_verified_form.save()
             else:
                 if 'number' in form.errors:
                     self.skipped_companies.append({

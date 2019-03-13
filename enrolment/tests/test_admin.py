@@ -59,13 +59,13 @@ def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
 
     verified_one = PreVerifiedEnrolment.objects.get(company_number='11111111')
     assert verified_one.company_number == '11111111'
-    assert verified_one.email_address == 'fred@example.com'
+    assert verified_one.email_address is None
     assert verified_one.generated_for == 'COOL LTD'
     assert verified_one.generated_by == superuser
 
     verified_two = PreVerifiedEnrolment.objects.get(company_number='11111112')
     assert verified_two.company_number == '11111112'
-    assert verified_two.email_address == 'jim@example.com'
+    assert verified_two.email_address is None
     assert verified_two.generated_for == 'COOL LTD'
     assert verified_two.generated_by == superuser
 
@@ -73,17 +73,8 @@ def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
 @pytest.mark.django_db
 def test_upload_enrolment_form_shows_erros(superuser_client, csv_invalid_rows):
     expected_error_one = (
-        b'[Row 3] {&quot;email_address&quot;: '
-        b'[&quot;Enter a valid email address.&quot;]}'
-    )
-    expected_error_two = (
          b'[Row 4] {&quot;company_number&quot;: '
          b'[&quot;This field is required.&quot;]}'
-    )
-    expected_error_three = (
-        b'[Row 5] {&quot;__all__&quot;: '
-        b'[&quot;Pre verified enrolment with this Company number and Email '
-        b'address already exists.&quot;]'
     )
 
     response = superuser_client.post(
@@ -93,8 +84,6 @@ def test_upload_enrolment_form_shows_erros(superuser_client, csv_invalid_rows):
 
     assert response.status_code == 200
     assert expected_error_one in response.content
-    assert expected_error_two in response.content
-    assert expected_error_three in response.content
 
 
 @pytest.mark.django_db
