@@ -53,7 +53,10 @@ class PublishCompaniesTestCase(TestCase):
         response = self.client.post(
             reverse('admin:company_company_publish'),
             {'company_numbers': numbers,
-             'directories': 'investment_support_directory',
+             'directories': [
+                 'investment_support_directory',
+                 'find_a_supplier'
+             ],
              },
         )
 
@@ -68,6 +71,14 @@ class PublishCompaniesTestCase(TestCase):
         assert companies[0].number in published_isd
         assert companies[3].number in published_isd
         assert published_company_isd.number in published_isd
+
+        published_fas = Company.objects.filter(
+            is_published_find_a_supplier=True
+        ).values_list('number', flat=True)
+
+        assert len(published_fas) == 2
+        assert companies[0].number in published_fas
+        assert companies[3].number in published_fas
 
         unpublished = Company.objects.filter(
             is_published_investment_support_directory=False,
