@@ -201,24 +201,31 @@ def test_publish_feature_flagged(
     'is_published_find_a_supplier',
     [
         # has_contact
-        ['',  '',  '',         False, True, True],
-        ['',  '',  'a@e.com',  False, True, True],
+        ['',  '',  '',          False, True, True],
+        ['',  '',  'a@e.com',   False, True, True],
+        ['',  '',  'a@e.com',  False, True, False],
+        ['',  '',  'a@e.com',  False, False, True],
         # has_synopsis
-        ['d', '',  '',         False, True, True],
-        ['d', '',  'a@e.com',  False, True, True],
-        ['d', 's',  '',        False, True, True],
-        ['',  's',  '',        False, True, True],
-        ['d', 's',  'a@e.com', False, True, True],
-        ['',  's',  'a@e.com', False, True, True],
+        ['d', '',  '',          False, True, True],
+        ['d', '',  'a@e.com',   False, True, True],
+        ['d', 's',  '',         False, True, True],
+        ['',  's',  '',         False, True, True],
+        ['d', 's',  'a@e.com',  False, True, True],
+        ['',  's',  'a@e.com',  False, True, True],
+        ['', 's', 'a@e.com',   False, True, False],
+        ['', 's', 'a@e.com',   False, False, True],
+
         # is_verified
-        ['',  '',  '',         True, True, True],
-        ['',  '',  'a@e.com',  True, True, True],
-        ['d', '',  '',         True, True, True],
-        ['d', '',  'a@e.com',  True, True, True],
-        ['d', 's',  '',        True, True, True],
-        ['',  's',  '',        True, True, True],
-        ['d', 's',  'a@e.com', True, True, True],
-        ['',  's',  'a@e.com', True, True, True],
+        ['',  '',  '',           True, True, True],
+        ['',  '',  'a@e.com',    True, True, True],
+        ['d', '',  '',           True, True, True],
+        ['d', '',  'a@e.com',    True, True, True],
+        ['d', 's',  '',          True, True, True],
+        ['',  's',  '',          True, True, True],
+        ['d', 's',  'a@e.com',   True, True, True],
+        ['',  's',  'a@e.com',   True, True, True],
+        ['',  's',  'a@e.com',  True, True, False],
+        ['',  's',  'a@e.com',  True, False, True],
     ]
 )
 def test_publish_published(

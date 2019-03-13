@@ -344,7 +344,7 @@ def private_profile():
 def public_profile():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456B'
-    company.is_published_investment_support_directory = True
+    company.is_published_find_a_supplier = True
     company.save()
     return company
 
@@ -352,7 +352,7 @@ def public_profile():
 @pytest.fixture
 def public_profile_with_case_study():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     factories.CompanyCaseStudyFactory(company=company)
     return company
@@ -361,7 +361,7 @@ def public_profile_with_case_study():
 @pytest.fixture
 def public_profile_with_case_studies():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     factories.CompanyCaseStudyFactory(company=company)
     factories.CompanyCaseStudyFactory(company=company)
@@ -372,7 +372,7 @@ def public_profile_with_case_studies():
 def public_profile_software():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456C'
-    company.is_published_investment_support_directory = True
+    company.is_published_find_a_supplier = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES']
     company.save()
     return company
@@ -382,7 +382,7 @@ def public_profile_software():
 def public_profile_cars():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456D'
-    company.is_published_investment_support_directory = True
+    company.is_published_find_a_supplier = True
     company.sectors = ['AUTOMOTIVE']
     company.save()
     return company
@@ -392,7 +392,7 @@ def public_profile_cars():
 def public_profile_smart_cars():
     company = models.Company(**default_public_profile_data)
     company.number = '0123456E'
-    company.is_published_investment_support_directory = True
+    company.is_published_find_a_supplier = True
     company.sectors = ['SOFTWARE_AND_COMPUTER_SERVICES', 'AUTOMOTIVE']
     company.save()
     return company

@@ -18,6 +18,7 @@ class Command(BaseCommand):
                 keywords='test',
                 name='Test company',
                 is_published_investment_support_directory=True,
+                is_published_find_a_supplier=True,
                 verification_code='000000000000',
                 verified_with_code=True,
                 is_verification_letter_sent=True,

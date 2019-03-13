@@ -14,6 +14,7 @@ class Command(BaseCommand):
                 description='Providing the power and beauty of Aardvarks.',
                 summary='Like an Aardvark',
                 is_published_investment_support_directory=True,
+                is_published_find_a_supplier=True,
                 keywords='Ants, Tongue, Anteater',
             )
             factories.CompanyFactory(
@@ -21,6 +22,7 @@ class Command(BaseCommand):
                 description='Providing the stealth and prowess of wolves.',
                 summary='Hunts in packs',
                 is_published_investment_support_directory=True,
+                is_published_find_a_supplier=True,
                 keywords='Packs, Hunting, Stark, Teeth',
             )
             factories.CompanyFactory(
@@ -37,6 +39,7 @@ class Command(BaseCommand):
                 description='Providing the richness of gold.',
                 summary='Golden',
                 is_published_investment_support_directory=True,
+                is_published_find_a_supplier=True,
                 keywords='Rich, Gold, Bank, Shiny',
             )
 
@@ -52,6 +55,7 @@ class Command(BaseCommand):
                 description='Providing the density of lead.',
                 summary='Radiation protection',
                 is_published_investment_support_directory=True,
+                is_published_find_a_supplier=True,
                 keywords='Packs, Thick, Heavy, Metal',
             )
             for j in range(5):

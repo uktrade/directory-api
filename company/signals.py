@@ -28,6 +28,9 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
         instance.is_published_investment_support_directory = all(
             [is_verified, has_synopsis, has_contact]
         )
+        instance.is_published_find_a_supplier = all(
+            [is_verified, has_synopsis, has_contact]
+        )
 
 
 def store_date_published(sender, instance, *args, **kwargs):
