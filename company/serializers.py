@@ -116,6 +116,8 @@ class CompanySerializer(serializers.ModelSerializer):
             'is_exporting_goods',
             'is_exporting_services',
             'is_published',
+            'is_published_investment_support_directory',
+            'is_published_find_a_supplier',
             'is_verification_letter_sent',
             'keywords',
             'linkedin_url',

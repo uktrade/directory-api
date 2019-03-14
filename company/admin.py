@@ -52,6 +52,16 @@ class PublishByCompanyHouseNumberForm(forms.Form):
         help_text='Comma-separated company house numbers'
     )
 
+    options = (
+        ("investment_support_directory", "Investment Support Directory"),
+        ("find_a_supplier", "Find a Supplier"),
+    )
+
+    directories = forms.MultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        choices=options,
+    )
+
     def clean_company_numbers(self):
         numbers = self.cleaned_data['company_numbers'].split(',')
         numbers = [number.strip() for number in numbers if number.strip()]
@@ -82,7 +92,16 @@ class PublishByCompanyHouseNumberView(FormView):
 
     def form_valid(self, form):
         numbers = form.cleaned_data['company_numbers']
-        Company.objects.filter(number__in=numbers).update(is_published=True)
+
+        if 'investment_support_directory' in form.cleaned_data['directories']:
+            Company.objects.filter(number__in=numbers).update(
+                is_published_investment_support_directory=True
+            )
+        if 'find_a_supplier' in form.cleaned_data['directories']:
+            Company.objects.filter(number__in=numbers).update(
+                is_published_find_a_supplier=True
+            )
+
         return super().form_valid(form)
 
 
@@ -94,9 +113,16 @@ class CompanyAdmin(admin.ModelAdmin):
         'postal_full_name', 'address_line_1', 'address_line_2',
         'locality', 'country', 'postal_code', 'po_box',
     )
-    list_display = ('name', 'number', 'is_published')
+    list_display = (
+        'name',
+        'number',
+        'is_published_investment_support_directory',
+        'is_published_find_a_supplier',
+    )
     list_filter = (
-        'is_published', 'verified_with_code',
+        'is_published_investment_support_directory',
+        'is_published_find_a_supplier',
+        'verified_with_code',
         'verified_with_companies_house_oauth2',
     )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent')

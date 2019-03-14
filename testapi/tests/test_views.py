@@ -159,7 +159,7 @@ def test_get_published_companies_check_response_contents(
     twitter_url = 'http://www.twitter.com/testcompany'
     summary = 'few words about our company'
     description = 'we sell cars'
-    is_pubblished = True
+    is_published_investment_support_directory = True
     expected_number_of_results = 1
     expected_number_of_keys = 12
     company = factories.CompanyFactory(
@@ -167,7 +167,10 @@ def test_get_published_companies_check_response_contents(
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,
         twitter_url=twitter_url, summary=summary, description=description,
-        is_published=is_pubblished)
+        is_published_investment_support_directory=(
+            is_published_investment_support_directory
+        )
+    )
     authed_supplier.company = company
     authed_supplier.save()
     company.refresh_from_db()
@@ -206,8 +209,14 @@ def test_get_published_companies_use_optional_filters(
         expected_number_of_results):
     sectors_1 = ["AEROSPACE", "AUTOMOTIVE", "DEFENCE"]
     sectors_2 = ["AEROSPACE", "AUTOMOTIVE"]
-    company_1 = factories.CompanyFactory(is_published=True, sectors=sectors_1)
-    company_2 = factories.CompanyFactory(is_published=True, sectors=sectors_2)
+    company_1 = factories.CompanyFactory(
+        is_published_investment_support_directory=True,
+        sectors=sectors_1
+    )
+    company_2 = factories.CompanyFactory(
+        is_published_investment_support_directory=True,
+        sectors=sectors_2
+    )
     supplier_1 = SupplierFactory.create(sso_id=777)
     supplier_2 = SupplierFactory.create(sso_id=888)
     supplier_1.company = company_1

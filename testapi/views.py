@@ -8,6 +8,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 
 from django.conf import settings
+from django.db.models import Q
 from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
 from testapi.utils import get_matching_companies, \
@@ -50,7 +51,10 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
 
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
-    queryset = Company.objects.filter(is_published=True)
+    queryset = Company.objects.filter(
+        Q(is_published_investment_support_directory=True) |
+        Q(is_published_find_a_supplier=True)
+    )
     permission_classes = []
     lookup_field = 'is_published'
     http_method_names = 'get'

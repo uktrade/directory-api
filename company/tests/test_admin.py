@@ -37,29 +37,53 @@ class PublishCompaniesTestCase(TestCase):
         assert response.status_code == http.client.OK
 
     def test_companies_in_post_set_to_published(self):
-        companies = CompanyFactory.create_batch(5, is_published=False)
-        published_company = CompanyFactory(is_published=True)
+        companies = CompanyFactory.create_batch(
+            7,
+            is_published_investment_support_directory=False,
+            is_published_find_a_supplier=False,
+        )
+        published_company_isd = CompanyFactory(
+            is_published_investment_support_directory=True
+        )
+
         numbers = '{num1},{num2}'.format(
             num1=companies[0].number, num2=companies[3].number)
 
         response = self.client.post(
             reverse('admin:company_company_publish'),
-            {'company_numbers': numbers},
+            {'company_numbers': numbers,
+             'directories': [
+                 'investment_support_directory',
+                 'find_a_supplier'
+             ],
+             },
         )
 
         assert response.status_code == http.client.FOUND
         assert response.url == reverse('admin:company_company_changelist')
 
-        published = Company.objects.filter(is_published=True).values_list(
-            'number', flat=True)
-        assert len(published) == 3
-        assert companies[0].number in published
-        assert companies[3].number in published
-        assert published_company.number in published
+        published_isd = Company.objects.filter(
+            is_published_investment_support_directory=True
+        ).values_list('number', flat=True)
 
-        unpublished = Company.objects.filter(is_published=False).values_list(
-            'number', flat=True)
-        assert len(unpublished) == 3
+        assert len(published_isd) == 3
+        assert companies[0].number in published_isd
+        assert companies[3].number in published_isd
+        assert published_company_isd.number in published_isd
+
+        published_fas = Company.objects.filter(
+            is_published_find_a_supplier=True
+        ).values_list('number', flat=True)
+
+        assert len(published_fas) == 2
+        assert companies[0].number in published_fas
+        assert companies[3].number in published_fas
+
+        unpublished = Company.objects.filter(
+            is_published_investment_support_directory=False,
+            is_published_find_a_supplier=False,
+        ).values_list('number', flat=True)
+        assert len(unpublished) == 5
         assert companies[1].number in unpublished
         assert companies[2].number in unpublished
         assert companies[4].number in unpublished
@@ -151,7 +175,10 @@ def test_companies_publish_form_handles_whitespace():
         num1=companies[0].number, num2=companies[1].number,
         num3=companies[2].number)
     form = admin.PublishByCompanyHouseNumberForm(
-        data={'company_numbers': data}
+        data={
+            'company_numbers': data,
+            'directories': ['investment_support_directory']
+        }
     )
 
     assert form.is_valid() is True

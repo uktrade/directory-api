@@ -97,6 +97,40 @@ def test_company_serializer_untouches_is_published():
 
 
 @pytest.mark.django_db
+def test_company_serializer_is_published_field_with_isd():
+    data = {
+        'number': "01234567",
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+        'firstname': 'test_firstname',
+        'is_published_investment_support_directory': True,
+     }
+    serializer = serializers.CompanySerializer(data=data)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.is_published is True
+
+
+@pytest.mark.django_db
+def test_company_serializer_is_published_field_with_fab():
+    data = {
+        'number': "01234567",
+        'name': 'Earnest Corp',
+        'date_of_creation': '2010-10-10',
+        'firstname': 'test_firstname',
+        'is_published_find_a_supplier': True,
+     }
+    serializer = serializers.CompanySerializer(data=data)
+
+    assert serializer.is_valid(), serializer.errors
+    instance = serializer.save()
+
+    assert instance.is_published is True
+
+
+@pytest.mark.django_db
 def test_company_serializer_sole_trader():
     data = {
         'number': "01234567",

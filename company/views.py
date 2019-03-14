@@ -38,7 +38,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
         models.Company.objects
-        .filter(is_published=True)
+        .filter(is_published_find_a_supplier=True)
         .annotate(supplier_case_studies_count=Count('supplier_case_studies'))
         .annotate(
             has_case_studies=Case(
@@ -77,7 +77,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.CompanyCaseStudy.objects.filter(
-        company__is_published=True
+        company__is_published_find_a_supplier=True
     )
     lookup_field = 'pk'
     permission_classes = []
