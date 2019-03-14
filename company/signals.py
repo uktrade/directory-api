@@ -25,9 +25,6 @@ def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
         has_contact = bool(instance.email_address)
         has_synopsis = bool(instance.description or instance.summary)
         is_verified = instance.is_verified
-        instance.is_published_investment_support_directory = all(
-            [is_verified, has_synopsis, has_contact]
-        )
         instance.is_published_find_a_supplier = all(
             [is_verified, has_synopsis, has_contact]
         )

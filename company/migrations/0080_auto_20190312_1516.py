@@ -15,11 +15,11 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name='company',
             old_name='is_published',
-            new_name='is_published_investment_support_directory',
+            new_name='is_published_find_a_supplier',
         ),
         migrations.AddField(
             model_name='company',
-            name='is_published_find_a_supplier',
-            field=models.BooleanField(default=False, help_text='Companies that have a published profile on FAS completeness - they must have description or summary, be verified, and have an email address.'),
+            name='is_published_investment_support_directory',
+            field=models.BooleanField(default=False, help_text='Companies that have a published profile on investment support. - they must have description or summary, be verified, and have an email address.'),
         ),
     ]
