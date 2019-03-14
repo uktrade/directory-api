@@ -4,6 +4,16 @@ from company import forms, models
 
 
 @pytest.mark.parametrize('value,expected', (
+    ('', ''),
+    (None, ''),
+    ('very long '*100, ''),
+))
+def test_mobile_number_clean(value, expected):
+    field = forms.MobileNumberField(max_length=100)
+    assert field.to_python(value) == expected
+
+
+@pytest.mark.parametrize('value,expected', (
     ('11536552', '11536552'),
     ('6872466', '06872466'),
     ('OC404310', 'OC404310'),
@@ -24,8 +34,12 @@ def test_company_number_clean(value, expected):
 @pytest.mark.parametrize('value,expected', (
     ('www.example.com', 'http://www.example.com'),
     ('https://www.example.co.uk', 'https://www.example.co.uk'),
-    (None, None),
-    ('', None),
+    (None, ''),
+    ('', ''),
+    ('www.example.com (pending)', 'http://www.example.com'),
+    ('www.example.com and thing.com', 'http://www.example.com'),
+    ('www.example.com\nthing.com', 'http://www.example.com'),
+    ('in progress', ''),
 ))
 def test_company_url_clean(value, expected):
     field = forms.CompanyUrlField()
@@ -33,13 +47,13 @@ def test_company_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
-    ('Foo bar on facebook', None),
+    ('Foo bar on facebook', ''),
     ('www.facebook.com/example', 'https://www.facebook.com/example'),
     ('example', 'https://www.facebook.com/example'),
     ('@example', 'https://www.facebook.com/example'),
     ('https://www.facebook.com/example', 'https://www.facebook.com/example'),
-    ('', None),
-    (None, None),
+    ('', ''),
+    (None, ''),
 ))
 def test_facebook_url_clean(value, expected):
     field = forms.FacebookURLField()
@@ -47,13 +61,13 @@ def test_facebook_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
-    ('Foo bar on twitter', None),
+    ('Foo bar on twitter', ''),
     ('www.twitter.com/example', 'https://www.twitter.com/example'),
     ('example', 'https://www.twitter.com/example'),
     ('@example', 'https://www.twitter.com/example'),
     ('https://www.twitter.com/example', 'https://www.twitter.com/example'),
-    ('', None),
-    (None, None),
+    ('', ''),
+    (None, ''),
 ))
 def test_twitter_url_clean(value, expected):
     field = forms.TwitterURLField()
@@ -61,13 +75,13 @@ def test_twitter_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
-    ('Foo bar on linked in', None),
+    ('Foo bar on linked in', ''),
     ('www.linkedin.com/example', 'https://www.linkedin.com/company/example'),
     ('foo', 'https://www.linkedin.com/company/foo'),
     ('@foo', 'https://www.linkedin.com/company/foo'),
     ('https://www.linkedin.com/foo', 'https://www.linkedin.com/company/foo'),
-    ('', None),
-    (None, None),
+    ('', ''),
+    (None, ''),
 ))
 def test_linkedin_url_clean(value, expected):
     field = forms.LinkedInURLField()
@@ -77,7 +91,11 @@ def test_linkedin_url_clean(value, expected):
 @pytest.mark.parametrize('value,expected', (
     ('', models.Company.SOLE_TRADER),
     (None, models.Company.SOLE_TRADER),
-    ('1234567', models.Company.COMPANIES_HOUSE)
+    ('1234567', models.Company.COMPANIES_HOUSE),
+    ('THERE IS NO IN ENGLAND ', models.Company.SOLE_TRADER),
+    ('N/A', models.Company.SOLE_TRADER),
+    ('N/a', models.Company.SOLE_TRADER),
+    ('n/a', models.Company.SOLE_TRADER),
 ))
 def test_company_type_parser(value, expected):
     assert forms.company_type_parser(value) == expected

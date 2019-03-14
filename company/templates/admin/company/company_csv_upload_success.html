@@ -14,10 +14,19 @@
 	<h2>Companies created</h2>
 	<p>Ask the companies to use the below URLs to enrol:</p>
 	<ul>
-		{% for company, signed_number in pairs %}
-		<li><strong>{{ company.name }} ({{ company.email_address }})</strong>{{ company.email }}: {{ enrolment_url}}?key={{ signed_number }}</li>
+		{% for company in created_companies %}
+			<li>{{ company.name }}, {{ company.email_address }}, {{ company.url }}</li>
 		{% endfor %}
 	</ul>
+
+	<h2>Companies skipped</h2>
+	<p>These companies are already enrolled. Ask them to publish to ISD:</p>
+	<ul>
+		{% for company in skipped_companies %}
+			<li>{{ company.name }}, {{ company.email_address }}</li>
+		{% endfor %}
+	</ul>
+
 	<div>
 		<a href="{% url 'admin:company_company_changelist' %}">Continue</a>
 	</div>
