@@ -9,7 +9,7 @@ class PreVerifiedEnrolment(TimeStampedModel):
         max_length=8,
         validators=[shared_validators.company_number],
     )
-    email_address = models.EmailField()
+    email_address = models.EmailField(blank=True, null=True)
     generated_for = models.CharField(
         max_length=1000,
         help_text='The trade organisation the code was created for.'
