@@ -255,6 +255,7 @@ def test_preverified_claim_company_succcess(authed_client):
     supplier = Supplier.objects.first()
     assert supplier.name == 'Foo bar'
     assert supplier.company == company
+    assert supplier.is_company_owner is True
 
 
 @pytest.mark.django_db
