@@ -77,6 +77,7 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
             'company': self.context['company'],
             'sso_id': self.context['request'].user.id,
             'company_email': self.context['request'].user.email,
+            'is_company_owner': True,
         })
 
 
