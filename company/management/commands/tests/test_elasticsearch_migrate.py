@@ -11,10 +11,10 @@ from company.search import CompanyDocType, CaseStudyDocType
 def test_elasticsearch_migrate_turned_on(settings):
     settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = True
     published_company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     unpublished_company = factories.CompanyFactory(
-        is_published_investment_support_directory=False
+        is_published_find_a_supplier=False
     )
 
     published_case_study = factories.CompanyCaseStudyFactory(

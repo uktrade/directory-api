@@ -77,7 +77,7 @@ class Command(management.BaseCommand):
         companies = (
             models.Company.objects
             .prefetch_related('supplier_case_studies')
-            .filter(is_published_investment_support_directory=True)
+            .filter(is_published_find_a_supplier=True)
         )
         company_documents = []
         case_study_documents = []
