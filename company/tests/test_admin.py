@@ -313,9 +313,9 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         company_one, company_two = Company.objects.all()
 
         assert company_one.name == 'Example Compass'
-        assert company_one.address_line_1 == 'Studio: Unit 333 Example'
-        assert company_one.address_line_2 == 'Example Road'
-        assert company_one.postal_code == 'EO21 1DQ'
+        assert company_one.address_line_1 == ''
+        assert company_one.address_line_2 == ''
+        assert company_one.postal_code == ''
         assert company_one.email_address == ''
         assert company_one.mobile_number == '55555555555'
         assert company_one.number == '12355434'

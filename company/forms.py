@@ -146,12 +146,12 @@ class EnrolCompanies(forms.Form):
         next(reader, None)  # skip the headers
         errors = []
         for i, row in enumerate(reader):
-            address = helpers.AddressParser(row[2])
-            form = CompanyModelForm(data={
-                'address_line_1': address.line_1,
-                'address_line_2': address.line_2,
-                'company_type': company_type_parser(row[8]),
-                'country': 'UK',
+            company_type = company_type_parser(row[8])
+            is_uk_isd_company = (
+                self.cleaned_data['generated_for'] == constants.UK_ISD
+            )
+            data = {
+                'company_type': company_type,
                 'facebook_url': row[11],
                 'is_exporting_services': True,
                 'keywords': row[14],
@@ -159,16 +159,23 @@ class EnrolCompanies(forms.Form):
                 'mobile_number': row[5],
                 'name': row[1],
                 'number': row[8],
-                'po_box': address.po_box,
-                'postal_code': address.postal_code,
                 'postal_full_name': row[3],
                 'twitter_url': row[10],
                 'verified_with_preverified_enrolment': True,
                 'website': row[9],
-                'is_uk_isd_company': (
-                    self.cleaned_data['generated_for'] == constants.UK_ISD
-                )
-            })
+                'is_uk_isd_company': is_uk_isd_company,
+            }
+            if company_type == models.Company.SOLE_TRADER:
+                address = helpers.AddressParser(row[2])
+                data.update({
+                    'address_line_1': address.line_1,
+                    'address_line_2': address.line_2,
+                    'country': 'UK',
+                    'po_box': address.po_box,
+                    'postal_code': address.postal_code,
+                })
+
+            form = CompanyModelForm(data=data)
             if form.is_valid():
                 self.created_companies.append({
                     'name': form.instance.name,
@@ -188,7 +195,7 @@ class EnrolCompanies(forms.Form):
                     company = models.Company.objects.get(
                         number=form.instance.number
                     )
-                    company.is_uk_isd_company = True
+                    company.is_uk_isd_company = is_uk_isd_company
                     company.save()
 
                     self.skipped_companies.append({
