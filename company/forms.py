@@ -170,21 +170,27 @@ class EnrolCompanies(forms.Form):
                 )
             })
             if form.is_valid():
-                company = form.save()
                 self.created_companies.append({
-                    'name': row[1],
-                    'number': company.number,
+                    'name': form.instance.name,
+                    'number': form.instance.number,
                     'email_address': row[4],
                 })
+                form.save()
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
-                    'company_number': company.number,
+                    'company_number': form.instance.number,
                 })
                 assert pre_verified_form.is_valid
                 pre_verified_form.save()
             else:
                 if 'number' in form.errors:
+                    company = models.Company.objects.get(
+                        number=form.instance.number
+                    )
+                    company.is_uk_isd_company = True
+                    company.save()
+
                     self.skipped_companies.append({
                         'name': row[1],
                         'email_address': row[4],

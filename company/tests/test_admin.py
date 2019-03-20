@@ -371,6 +371,30 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             'csv_file': ['[Row 3] {"name": ["This field is required."]}']
         }
 
+    def test_create_companies_form_existing(self):
+
+        company = CompanyFactory(number=12355434)
+        assert company.is_uk_isd_company is False
+
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/valid-companies-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:company_company_enrol'),
+            {
+                'generated_for': constants.UK_ISD,
+                'csv_file': open(file_path, 'rb'),
+            }
+        )
+
+        assert response.status_code == 200
+        assert Company.objects.count() == 2
+        company.refresh_from_db()
+
+        assert company.is_uk_isd_company is True
+
 
 def test_company_search_fields_exist():
     """It will raise FieldError if a field don't exist."""
