@@ -313,9 +313,9 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         company_one, company_two = Company.objects.all()
 
         assert company_one.name == 'Example Compass'
-        assert company_one.address_line_1 == 'Studio: Unit 333 Example'
-        assert company_one.address_line_2 == 'Example Road'
-        assert company_one.postal_code == 'EO21 1DQ'
+        assert company_one.address_line_1 == ''
+        assert company_one.address_line_2 == ''
+        assert company_one.postal_code == ''
         assert company_one.email_address == ''
         assert company_one.mobile_number == '55555555555'
         assert company_one.number == '12355434'
@@ -370,6 +370,30 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert response.context_data['form'].errors == {
             'csv_file': ['[Row 3] {"name": ["This field is required."]}']
         }
+
+    def test_create_companies_form_existing(self):
+
+        company = CompanyFactory(number=12355434)
+        assert company.is_uk_isd_company is False
+
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/valid-companies-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:company_company_enrol'),
+            {
+                'generated_for': constants.UK_ISD,
+                'csv_file': open(file_path, 'rb'),
+            }
+        )
+
+        assert response.status_code == 200
+        assert Company.objects.count() == 2
+        company.refresh_from_db()
+
+        assert company.is_uk_isd_company is True
 
 
 def test_company_search_fields_exist():

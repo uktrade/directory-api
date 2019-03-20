@@ -146,12 +146,12 @@ class EnrolCompanies(forms.Form):
         next(reader, None)  # skip the headers
         errors = []
         for i, row in enumerate(reader):
-            address = helpers.AddressParser(row[2])
-            form = CompanyModelForm(data={
-                'address_line_1': address.line_1,
-                'address_line_2': address.line_2,
-                'company_type': company_type_parser(row[8]),
-                'country': 'UK',
+            company_type = company_type_parser(row[8])
+            is_uk_isd_company = (
+                self.cleaned_data['generated_for'] == constants.UK_ISD
+            )
+            data = {
+                'company_type': company_type,
                 'facebook_url': row[11],
                 'is_exporting_services': True,
                 'keywords': row[14],
@@ -159,32 +159,45 @@ class EnrolCompanies(forms.Form):
                 'mobile_number': row[5],
                 'name': row[1],
                 'number': row[8],
-                'po_box': address.po_box,
-                'postal_code': address.postal_code,
                 'postal_full_name': row[3],
                 'twitter_url': row[10],
                 'verified_with_preverified_enrolment': True,
                 'website': row[9],
-                'is_uk_isd_company': (
-                    self.cleaned_data['generated_for'] == constants.UK_ISD
-                )
-            })
+                'is_uk_isd_company': is_uk_isd_company,
+            }
+            if company_type == models.Company.SOLE_TRADER:
+                address = helpers.AddressParser(row[2])
+                data.update({
+                    'address_line_1': address.line_1,
+                    'address_line_2': address.line_2,
+                    'country': 'UK',
+                    'po_box': address.po_box,
+                    'postal_code': address.postal_code,
+                })
+
+            form = CompanyModelForm(data=data)
             if form.is_valid():
-                company = form.save()
                 self.created_companies.append({
-                    'name': row[1],
-                    'number': company.number,
+                    'name': form.instance.name,
+                    'number': form.instance.number,
                     'email_address': row[4],
                 })
+                form.save()
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
-                    'company_number': company.number,
+                    'company_number': form.instance.number,
                 })
                 assert pre_verified_form.is_valid
                 pre_verified_form.save()
             else:
                 if 'number' in form.errors:
+                    company = models.Company.objects.get(
+                        number=form.instance.number
+                    )
+                    company.is_uk_isd_company = is_uk_isd_company
+                    company.save()
+
                     self.skipped_companies.append({
                         'name': row[1],
                         'email_address': row[4],
