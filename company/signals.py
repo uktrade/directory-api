@@ -21,13 +21,8 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
 def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
     if settings.FEATURE_MANUAL_PUBLISH_ENABLED:
         return
-    if not instance.is_published:
-        has_contact = bool(instance.email_address)
-        has_synopsis = bool(instance.description or instance.summary)
-        is_verified = instance.is_verified
-        instance.is_published_find_a_supplier = all(
-            [is_verified, has_synopsis, has_contact]
-        )
+    if instance.is_publishable and not instance.is_published:
+        instance.is_published_find_a_supplier = True
 
 
 def store_date_published(sender, instance, *args, **kwargs):
