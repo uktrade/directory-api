@@ -428,7 +428,7 @@ def search_case_studies_data(settings):
     AEROSPACE = sectors.AEROSPACE
     AIRPORTS = sectors.AIRPORTS
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
     factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
@@ -443,7 +443,7 @@ def search_companies_data(settings):
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -452,7 +452,7 @@ def search_companies_data(settings):
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         sectors=[sectors.AEROSPACE],
         id=2,
@@ -461,7 +461,7 @@ def search_companies_data(settings):
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=3,
@@ -494,7 +494,7 @@ def search_companies_highlighting_data(settings):
             'The wolf cries at night.'
         ),
         summary='Hunts in packs',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -503,7 +503,7 @@ def search_companies_highlighting_data(settings):
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         sectors=[sectors.AEROSPACE],
         id=2,
@@ -518,7 +518,7 @@ def search_companies_ordering_data(settings):
         name='Wolf limited',
         description='',
         summary='Hunts in packs',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Wolf',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
@@ -527,7 +527,7 @@ def search_companies_ordering_data(settings):
         name='Wolf from Gladiators limited',
         description='',
         summary='Hunters',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.FOOD_AND_DRINK, sectors.AIRPORTS],
         id=2,
@@ -536,7 +536,7 @@ def search_companies_ordering_data(settings):
         name='Wolf a kimbo Limited',
         description='pack hunters',
         summary='Hunts in packs',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=3,
@@ -545,7 +545,7 @@ def search_companies_ordering_data(settings):
         name='Wolf among us Limited',
         description='wolf among sheep',
         summary='wooly',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Sheep, big bad, wolf',
         sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=4,
@@ -554,7 +554,7 @@ def search_companies_ordering_data(settings):
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=5,
@@ -757,7 +757,7 @@ def test_company_case_study_create_company_not_published(
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
-        is_published_investment_support_directory=False
+        is_published_find_a_supplier=False
     )
     authed_supplier.company = company
     authed_supplier.save()

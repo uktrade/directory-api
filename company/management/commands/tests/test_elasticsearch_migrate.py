@@ -43,7 +43,7 @@ def test_elasticsearch_migrate_turned_off(settings):
     settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = False
 
     published_company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     published_case_study = factories.CompanyCaseStudyFactory(
         company=published_company
