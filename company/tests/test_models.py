@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 
 from directory_constants.constants import choices
@@ -181,3 +182,39 @@ def test_xss_attack_company(field_name):
 def test_xss_attack_cast_Study(field_name):
     field = models.CompanyCaseStudy._meta.get_field(field_name)
     assert no_html in field.validators
+
+
+@pytest.mark.parametrize(
+    'desciption,summary,email,is_verified,expected', [
+        # has_contact
+        ['',  '',  '',         False, False],
+        ['',  '',  'a@e.com',  False, False],
+        # has_synopsis
+        ['d', '',  '',         False, False],
+        ['d', '',  'a@e.com',  False, False],
+        ['d', 's',  '',        False, False],
+        ['',  's',  '',        False, False],
+        ['d', 's',  'a@e.com', False, False],
+        ['',  's',  'a@e.com', False, False],
+        # is_verified
+        ['',  '',  '',         True,  False],
+        ['',  '',  'a@e.com',  True,  False],
+        ['d', '',  '',         True,  False],
+        ['d', '',  'a@e.com',  True,  True],
+        ['d', 's',  '',        True,  False],
+        ['',  's',  '',        True,  False],
+        ['d', 's',  'a@e.com', True,  True],
+        ['',  's',  'a@e.com', True,  True],
+    ]
+)
+def test_can_publish(
+    desciption, summary, email, is_verified, expected, settings
+):
+    mock_verifed = mock.PropertyMock(return_value=is_verified)
+    with mock.patch('company.models.Company.is_verified', mock_verifed):
+        company = CompanyFactory.build(
+            description=desciption,
+            summary=summary,
+            email_address=email,
+        )
+        assert company.is_publishable is expected

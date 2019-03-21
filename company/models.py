@@ -232,6 +232,13 @@ class Company(TimeStampedModel):
         return self.name
 
     @property
+    def is_publishable(self):
+        has_contact = bool(self.email_address)
+        has_synopsis = bool(self.description or self.summary)
+        is_verified = self.is_verified
+        return all([has_contact, has_synopsis, is_verified])
+
+    @property
     def is_published(self):
         return any([
             self.is_published_investment_support_directory,
