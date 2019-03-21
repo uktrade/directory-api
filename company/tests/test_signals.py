@@ -197,70 +197,53 @@ def test_publish_feature_flagged(
     'desciption,'
     'summary,email,'
     'is_verified,'
-    'is_published_investment_support_directory,'
-    'is_published_find_a_supplier',
+    'is_published_find_a_supplier,',
     [
         # has_contact
-        ['',  '',  '',          False, True, True],
-        ['',  '',  'a@e.com',   False, True, True],
-        ['',  '',  'a@e.com',  False, True, False],
-        ['',  '',  'a@e.com',  False, False, True],
+        ['',  '',  '',          False, True],
+        ['',  '',  'a@e.com',   False, True],
+        ['',  '',  'a@e.com',  False, True],
+        ['',  '',  'a@e.com',  False, False],
         # has_synopsis
-        ['d', '',  '',          False, True, True],
-        ['d', '',  'a@e.com',   False, True, True],
-        ['d', 's',  '',         False, True, True],
-        ['',  's',  '',         False, True, True],
-        ['d', 's',  'a@e.com',  False, True, True],
-        ['',  's',  'a@e.com',  False, True, True],
-        ['', 's', 'a@e.com',   False, True, False],
-        ['', 's', 'a@e.com',   False, False, True],
+        ['d', '',  '',          False, True],
+        ['d', '',  'a@e.com',   False, True],
+        ['d', 's',  '',         False, True],
+        ['',  's',  '',         False, True],
+        ['d', 's',  'a@e.com',  False, True],
+        ['',  's',  'a@e.com',  False, True],
+        ['', 's', 'a@e.com',   False, True],
+        ['', 's', 'a@e.com',   False, False],
 
         # is_verified
-        ['',  '',  '',           True, True, True],
-        ['',  '',  'a@e.com',    True, True, True],
-        ['d', '',  '',           True, True, True],
-        ['d', '',  'a@e.com',    True, True, True],
-        ['d', 's',  '',          True, True, True],
-        ['',  's',  '',          True, True, True],
-        ['d', 's',  'a@e.com',   True, True, True],
-        ['',  's',  'a@e.com',   True, True, True],
-        ['',  's',  'a@e.com',  True, True, False],
-        ['',  's',  'a@e.com',  True, False, True],
+        ['',  '',  '',           True, True],
+        ['',  '',  'a@e.com',    True, True],
+        ['d', '',  '',           True, True],
+        ['d', '',  'a@e.com',    True, True],
+        ['d', 's',  '',          True, True],
+        ['',  's',  '',          True, True],
+        ['d', 's',  'a@e.com',   True, True],
+        ['',  's',  'a@e.com',   True, True],
+        ['',  's',  'a@e.com',  True, True],
+        ['',  's',  'a@e.com',  True, False],
     ]
 )
 def test_publish_published(
-        desciption,
-        summary,
-        email,
-        is_verified,
-        is_published_investment_support_directory,
-        is_published_find_a_supplier
+    desciption, summary, email, is_verified, is_published_find_a_supplier,
 ):
-    fields = {
-        'description': desciption,
-        'summary': summary,
-        'email_address': email,
-        'is_published_investment_support_directory':
-            is_published_investment_support_directory,
-        'is_published_find_a_supplier': is_published_find_a_supplier
-    }
     mock_verifed = mock.PropertyMock(return_value=is_verified)
     with mock.patch('company.models.Company.is_verified', mock_verifed):
-        company = factories.CompanyFactory(**fields)
-        # create
-        assert company.is_published is True
-        # update
-        for field, value in fields.items():
-            setattr(company, field, value)
-        company.save()
-        company.refresh_from_db()
+        company = factories.CompanyFactory(
+            description=desciption,
+            summary=summary,
+            email_address=email,
+            is_published_find_a_supplier=True,
+        )
         assert company.is_published is True
 
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=False,
         is_published_find_a_supplier=False,
     )
 
@@ -271,7 +254,7 @@ def test_store_date_published_unpublished_company():
 @freeze_time()
 def test_store_date_published_published_company_isd_without_date():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         date_published=None
     )
 
@@ -294,7 +277,7 @@ def test_store_date_published_published_isd_company_with_date():
     expected_date = timezone.now()
 
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         date_published=expected_date
     )
 
@@ -315,7 +298,7 @@ def test_store_date_published_published_fab_company_with_date():
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'is_published_investment_support_directory,'
+    'is_published_find_a_supplier,'
     'call_count',
     [
         (False, 0),
@@ -323,13 +306,13 @@ def test_store_date_published_published_fab_company_with_date():
     ]
 )
 def test_save_company_changes_to_elasticsearch(
-    is_published_investment_support_directory,
+    is_published_find_a_supplier,
     call_count,
     mock_elasticsearch_company_save,
 ):
     factories.CompanyFactory(
-        is_published_investment_support_directory=(
-            is_published_investment_support_directory
+        is_published_find_a_supplier=(
+            is_published_find_a_supplier
         )
     )
 
@@ -338,17 +321,17 @@ def test_save_company_changes_to_elasticsearch(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'is_published_investment_support_directory,call_count',
+    'is_published_find_a_supplier,call_count',
     [(False, 0), (True, 2)]
 )
 def test_save_case_study_changes_to_elasticsearch(
-    is_published_investment_support_directory,
+    is_published_find_a_supplier,
     call_count,
     mock_elasticsearch_company_save,
 ):
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=(
-            is_published_investment_support_directory
+        is_published_find_a_supplier=(
+            is_published_find_a_supplier
         )
     )
     factories.CompanyCaseStudyFactory(company=company)
@@ -359,7 +342,7 @@ def test_save_case_study_changes_to_elasticsearch(
 @pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     company_pk = company.pk
 
@@ -374,7 +357,7 @@ def test_delete_company_from_elasticsearch():
 @pytest.mark.django_db
 def test_delete_unpublished_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=False
+        is_published_find_a_supplier=False
     )
     company_pk = company.pk
 
@@ -387,13 +370,13 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
 @pytest.mark.django_db
 def test_delete_unpublish_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
-        is_published_investment_support_directory=True
+        is_published_find_a_supplier=True
     )
     company_pk = company.pk
 
     CompanyDocType.get(id=company_pk)  # not raises if exists
 
-    company.is_published_investment_support_directory = False
+    company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):

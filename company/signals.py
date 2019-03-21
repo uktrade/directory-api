@@ -37,7 +37,7 @@ def store_date_published(sender, instance, *args, **kwargs):
 
 def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
     document = instance.to_doc_type()
-    if instance.is_published:
+    if instance.is_published_find_a_supplier:
         document.save()
     else:
         document.delete(ignore=404)
@@ -48,7 +48,7 @@ def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
 
 
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
-    if instance.company.is_published:
+    if instance.company.is_published_find_a_supplier:
         instance.company.to_doc_type().save()
         instance.to_doc_type().save()
 
