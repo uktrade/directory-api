@@ -8,6 +8,7 @@ import pytest
 from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
+from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 
 from company import constants, admin
@@ -351,6 +352,28 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert pre_verified_queryset[0].generated_for == constants.UK_ISD
         assert pre_verified_queryset[1].company_number == company_two.number
         assert pre_verified_queryset[1].generated_for == constants.UK_ISD
+
+        signer = Signer()
+        assert response.context_data['created_companies'] == [
+            {
+                'name': 'Example Compass',
+                'number': company_one.number,
+                'email_address': 'one@example.com',
+                'url': (
+                    'http://profile.trade.great:8006/profile/enrol/'
+                    'pre-verified/?key=' + signer.sign(company_one.number)
+                )
+            },
+            {
+                'name': 'Example Associates Ltd',
+                'number': company_two.number,
+                'email_address': 'two@example.com',
+                'url': (
+                    'http://profile.trade.great:8006/profile/enrol/'
+                    'pre-verified/?key=' + signer.sign(company_two.number)
+                )
+            }
+        ]
 
     def test_create_companies_form_invalid_enrolment(self):
         file_path = os.path.join(

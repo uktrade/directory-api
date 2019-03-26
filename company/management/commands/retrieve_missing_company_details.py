@@ -8,10 +8,11 @@ class Command(BaseCommand):
     help = 'Retrieves missing data of companies such as date of creation'
 
     def handle(self, *args, **options):
-        querystring = models.Company.objects.exclude(number='')
+        queryset = models.Company.objects.exclude(number='')
+        queryset = queryset.filter(company_type=models.Company.COMPANIES_HOUSE)
         failed = 0
         succeded = 0
-        for company in querystring.filter(date_of_creation__isnull=True):
+        for company in queryset:
             try:
                 date_of_creation = helpers.get_date_of_creation(company.number)
                 company.date_of_creation = date_of_creation

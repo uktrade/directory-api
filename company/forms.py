@@ -177,12 +177,12 @@ class EnrolCompanies(forms.Form):
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
+                form.save()
                 self.created_companies.append({
                     'name': form.instance.name,
                     'number': form.instance.number,
                     'email_address': row[4],
                 })
-                form.save()
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
