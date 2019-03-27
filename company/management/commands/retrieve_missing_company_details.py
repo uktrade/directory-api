@@ -33,7 +33,7 @@ class Command(BaseCommand):
                     company.address_line_1 = address['address_line_1']
                     company.address_line_2 = address['address_line_2']
                     company.locality = address['locality']
-                    company.po_box = address['po_box']
+                    company.po_box = address.get('po_box', '')
                     company.postal_code = address['postal_code']
                 company.save()
                 message = f'Company {company.name} updated'
