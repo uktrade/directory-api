@@ -1,4 +1,3 @@
-from datetime import date
 import http
 from unittest.mock import Mock
 from unittest import mock
@@ -96,20 +95,20 @@ def test_path_and_rename_logos_no_extension():
 
 
 @mock.patch.object(helpers.CompaniesHouseClient, 'retrieve_profile')
-def test_get_date_of_creation_response_ok(mock_retrieve_profile):
+def test_get_profile_response_ok(mock_retrieve_profile):
     mock_retrieve_profile.return_value = profile_api_200()
-    result = helpers.get_date_of_creation('01234567')
+    result = helpers.get_companies_house_profile('01234567')
 
     mock_retrieve_profile.assert_called_once_with(number='01234567')
-    assert result == date(1987, 12, 31)
+    assert result == {'date_of_creation': '1987-12-31'}
 
 
 @mock.patch.object(helpers.CompaniesHouseClient, 'retrieve_profile')
-def test_get_date_of_creation_response_bad(mock_retrieve_profile):
+def test_get_companies_house_profile_response_bad(mock_retrieve_profile):
     mock_retrieve_profile.return_value = profile_api_400()
 
     with pytest.raises(HTTPError):
-        helpers.get_date_of_creation('01234567')
+        helpers.get_companies_house_profile('01234567')
 
 
 @pytest.mark.parametrize('raw_address,line_1,line_2,po_box,postal_code', (

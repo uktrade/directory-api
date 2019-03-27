@@ -1,5 +1,9 @@
-from django.core.management.base import BaseCommand
+from datetime import datetime
+
 from requests import HTTPError
+
+from django.core.management.base import BaseCommand
+from django.db.models import Q
 
 from company import helpers, models
 
@@ -8,25 +12,35 @@ class Command(BaseCommand):
     help = 'Retrieves missing data of companies such as date of creation'
 
     def handle(self, *args, **options):
-        querystring = models.Company.objects.exclude(number='')
+        queryset = models.Company.objects.filter(
+            Q(company_type=models.Company.COMPANIES_HOUSE) &
+            (
+                Q(date_of_creation__isnull=True) |
+                Q(address_line_1__isnull=True) |
+                Q(address_line_1='')
+            )
+        )
         failed = 0
         succeded = 0
-        for company in querystring.filter(date_of_creation__isnull=True):
+        for company in queryset:
             try:
-                date_of_creation = helpers.get_date_of_creation(company.number)
-                company.date_of_creation = date_of_creation
-                company.save()
-                message = 'Company {} date of creation updated'.format(
-                    company.name
+                profile = helpers.get_companies_house_profile(company.number)
+                company.date_of_creation = datetime.strptime(
+                    profile['date_of_creation'], '%Y-%m-%d'
                 )
+                if profile.get('registered_office_address'):
+                    address = profile['registered_office_address']
+                    company.address_line_1 = address['address_line_1']
+                    company.address_line_2 = address['address_line_2']
+                    company.locality = address['locality']
+                    company.po_box = address['po_box']
+                    company.postal_code = address['postal_code']
+                company.save()
+                message = f'Company {company.name} updated'
                 self.stdout.write(self.style.SUCCESS(message))
                 succeded += 1
             except HTTPError as e:
                 self.stdout.write(self.style.ERROR(e.response))
                 failed += 1
-        self.stdout.write(self.style.SUCCESS('{} companies updated'.format(
-            succeded
-        )))
-        self.stdout.write(self.style.WARNING('{} companies failed'.format(
-            failed
-        )))
+        self.stdout.write(self.style.SUCCESS(f'{succeded} companies updated'))
+        self.stdout.write(self.style.WARNING(f'{failed} companies failed'))
