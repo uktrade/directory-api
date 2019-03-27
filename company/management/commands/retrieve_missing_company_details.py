@@ -30,11 +30,11 @@ class Command(BaseCommand):
                 )
                 if profile.get('registered_office_address'):
                     address = profile['registered_office_address']
-                    company.address_line_1 = address['address_line_1']
-                    company.address_line_2 = address['address_line_2']
-                    company.locality = address['locality']
+                    company.address_line_1 = address.get('address_line_1', '')
+                    company.address_line_2 = address.get('address_line_2', '')
+                    company.locality = address.get('locality', '')
                     company.po_box = address.get('po_box', '')
-                    company.postal_code = address['postal_code']
+                    company.postal_code = address.get('postal_code', '')
                 company.save()
                 message = f'Company {company.name} updated'
                 self.stdout.write(self.style.SUCCESS(message))
