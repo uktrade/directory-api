@@ -71,6 +71,20 @@ def test_retrieve_missing_company_address_po_box(
 
 @pytest.mark.django_db
 @patch.object(helpers, 'get_companies_house_profile')
+def test_retrieve_missing_company_missing_date(
+    mock_get_companies_house_profile
+):
+    company = CompanyFactory(date_of_creation=None, number=123)
+    mock_get_companies_house_profile.return_value = {
+        'date_of_creation': '',
+    }
+    call_command('retrieve_missing_company_details')
+    company.refresh_from_db()
+    assert company.date_of_creation is None
+
+
+@pytest.mark.django_db
+@patch.object(helpers, 'get_companies_house_profile')
 def test_retrieve_missing_company_404_case(mock_get_companies_house_profile):
     company = CompanyFactory(date_of_creation=None, number=123)
     mock_get_companies_house_profile.return_value = {
