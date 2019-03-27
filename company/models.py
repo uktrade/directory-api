@@ -65,6 +65,38 @@ class Company(TimeStampedModel):
         ),
         validators=[no_html],
     )
+    expertise_industries = JSONField(
+        blank=True,
+        default=[],
+        help_text=(
+            "The industries that this company has expertise in,"
+            "this allows searching and filtering for this selection"
+        )
+    )
+    expertise_regions = JSONField(
+        blank=True,
+        default=[],
+        help_text=(
+            "The regions that this company has expertise in,"
+            "this allows searching and filtering for this selection"
+        )
+    )
+    expertise_countries = JSONField(
+        blank=True,
+        default=[],
+        help_text=(
+            "The countries that this company has expertise in,"
+            "this allows searching and filtering for this selection"
+        )
+    )
+    expertise_languages = JSONField(
+        blank=True,
+        default=[],
+        help_text=(
+            "The languages that this company has expertise in,"
+            "this allows searching and filtering for this selection"
+        )
+    )
     has_exported_before = models.NullBooleanField()
     is_exporting_goods = models.BooleanField(default=False)
     is_exporting_services = models.BooleanField(default=False)

@@ -144,6 +144,10 @@ class CompanySerializer(serializers.ModelSerializer):
             'export_destinations',
             'export_destinations_other',
             'is_uk_isd_company',
+            'expertise_industries',
+            'expertise_regions',
+            'expertise_countries',
+            'expertise_languages',
         )
         extra_kwargs = {
             'export_status': {'required': False},
