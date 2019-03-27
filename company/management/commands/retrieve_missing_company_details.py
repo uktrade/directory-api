@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from requests import HTTPError
-
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
@@ -25,9 +23,10 @@ class Command(BaseCommand):
         for company in queryset:
             try:
                 profile = helpers.get_companies_house_profile(company.number)
-                company.date_of_creation = datetime.strptime(
-                    profile['date_of_creation'], '%Y-%m-%d'
-                )
+                if profile.get('date_of_creation'):
+                    company.date_of_creation = datetime.strptime(
+                        profile['date_of_creation'], '%Y-%m-%d'
+                    )
                 if profile.get('registered_office_address'):
                     address = profile['registered_office_address']
                     company.address_line_1 = address.get('address_line_1', '')
@@ -39,8 +38,8 @@ class Command(BaseCommand):
                 message = f'Company {company.name} updated'
                 self.stdout.write(self.style.SUCCESS(message))
                 succeded += 1
-            except HTTPError as e:
-                self.stdout.write(self.style.ERROR(e.response))
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(e))
                 failed += 1
         self.stdout.write(self.style.SUCCESS(f'{succeded} companies updated'))
         self.stdout.write(self.style.WARNING(f'{failed} companies failed'))
