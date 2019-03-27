@@ -1,4 +1,3 @@
-from datetime import datetime
 from functools import partial
 from uuid import uuid4
 import http
@@ -17,7 +16,6 @@ import requests
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
-COMPANIES_HOUSE_DATE_FORMAT = '%Y-%m-%d'
 SECTOR_CHOICES = dict(choices.INDUSTRIES)
 
 logger = logging.getLogger(__name__)
@@ -33,31 +31,12 @@ def generate_verification_code():
     )
 
 
-def get_date_of_creation(number):
-    """
-    Returns the date a company was created on companies house.
-
-    Args:
-        number (str): companies house number
-
-    Returns:
-        datetime.date
-
-    Raises:
-        KeyError: The companies house api may change the name of it's fields.
-        requests.exceptions.HTTPError: companies house may return non-200.
-        requests.exceptions.RequestException: A network error could occur.
-        ValueError: The date format companies house returned may be unexpected.
-        ValueError: The companies house api may return invalid json.
-
-    """
-
+def get_companies_house_profile(number):
     response = CompaniesHouseClient.retrieve_profile(number=number)
     if not response.ok:
         raise response.raise_for_status()
     else:
-        raw = response.json()['date_of_creation']
-        return datetime.strptime(raw, COMPANIES_HOUSE_DATE_FORMAT).date()
+        return response.json()
 
 
 class BearerAuth(requests.auth.AuthBase):
