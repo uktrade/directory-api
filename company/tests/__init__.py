@@ -19,6 +19,10 @@ VALID_REQUEST_DATA = {
     'country': 'test_country',
     'export_destinations': ['DE'],
     'export_destinations_other': 'LY',
+    'expertise_industries': ['INS'],
+    'expertise_regions': ['UKG3'],
+    'expertise_countries': ['GB'],
+    'expertise_languages': ['ENG'],
 }
 VALID_REQUEST_DATA_JSON = json.dumps(VALID_REQUEST_DATA)
 
