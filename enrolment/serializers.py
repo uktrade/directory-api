@@ -25,6 +25,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'po_box',
             'postal_code',
             'sectors',
+            'website',
         ]
         extra_kwargs = {
             'address_line_1': {'required': False},
