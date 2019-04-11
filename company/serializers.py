@@ -148,6 +148,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'expertise_regions',
             'expertise_countries',
             'expertise_languages',
+            'expertise_products_services',
         )
         extra_kwargs = {
             'export_status': {'required': False},

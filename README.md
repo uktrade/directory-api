@@ -3,64 +3,38 @@
 [![code-climate-image]][code-climate]
 [![circle-ci-image]][circle-ci]
 [![codecov-image]][codecov]
-[![snyk-image]][snyk]
+[![gitflow-image]][gitflow]
+[![calver-image]][calver]
 
 **[Export Directory API service](https://www.trade.great.gov.uk/)**
 
 ---
-### See also:
-| [directory-api](https://github.com/uktrade/directory-api) | [directory-ui-buyer](https://github.com/uktrade/directory-ui-buyer) | [directory-ui-supplier](https://github.com/uktrade/directory-ui-supplier) | [directory-ui-export-readiness](https://github.com/uktrade/directory-ui-export-readiness) |
-| --- | --- | --- | --- |
-| **[directory-sso](https://github.com/uktrade/directory-sso)** | **[directory-sso-proxy](https://github.com/uktrade/directory-sso-proxy)** | **[directory-sso-profile](https://github.com/uktrade/directory-sso-profile)** |  |
 
-For more information on installation please check the [Developers Onboarding Checklist](https://uktrade.atlassian.net/wiki/spaces/ED/pages/32243946/Developers+onboarding+checklist)
+## Development
 
-## Requirements
-
-[Docker >= 1.10](https://docs.docker.com/engine/installation/)  
-[Docker Compose >= 1.8](https://docs.docker.com/compose/install/)
-
-## Local installation
+### Installing
 
     $ git clone https://github.com/uktrade/directory-api
     $ cd directory-api
-    $ make
+    $ virtualenv .venv -p python3.6
+    $ source .venv/bin/activate
+    $ pip install -r requirements_test.txt
 
-## Running with Docker
-Requires all host environment variables to be set.
+### Requirements
+[Python 3.6](https://www.python.org/downloads/release/python-368/)
+[Postgres 9.5](https://www.postgresql.org/)
+[Redis](https://redis.io/)
 
-    $ make docker_run
 
-### Run debug webserver in Docker
-Provides defaults for all env vars but ``AWS_ACCESS_KEY_ID`` and ``AWS_SECRET_ACCESS_KEY``
+### Configuration
 
-    $ make docker_debug
+Secrets such as API keys and environment specific configurations are placed in `conf/.env` - a file that is not added to version control. You will need to create that file locally in order for the project to run.
 
-### Run tests in Docker
-
-    $ make docker_test
-
-### Host environment variables for docker-compose
-``.env`` files will be automatically created (with ``env_writer.py`` based on ``env.json`` and ``env-postgres.json``) by ``make docker_test``, based on host environment variables with ``DIRECTORY_API_`` prefix.
-
-## Debugging
-
-### Setup debug environment
-Requires locally running PostgreSQL (e.g. [Postgres.app](http://postgresapp.com/) for the Mac)
-
-    $ make debug
-
-### Run debug webserver
-
+### Running the webserver
+    $ source .venv/bin/activate
     $ make debug_webserver
 
-### Run debug celery beat scheduler
-Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
-
-    $ make debug_celery_beat_scheduler
-
-
-### Run debug tests
+### Running the tests
 
     $ make debug_test
 
@@ -68,14 +42,29 @@ Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https:/
 
 For development efficiency a dummy company can be loaded into the database from `fixtures/development.json`. To do this run:
 
-	$ make loaddata
+    $ make loaddata
 
 
 To update `fixtures/development.json` with the current contents of the database run:
 
-	$ make dumpdata
+    $ make dumpdata
 
 Then check the contents of `fixtures/development.json`.
+
+## Celery
+
+### Celery beat
+Run debug celery beat scheduler
+Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
+
+    $ make debug_celery_beat_scheduler
+
+### Celery worker
+
+Some tasks as executed asynchronously such as sending confirmation emails:
+
+    $ make debug_celery_worker
+
 
 ## SSO
 To make sso work locally add the following to your machine's `/etc/hosts`:
@@ -108,6 +97,16 @@ cmd="create_registered_company ch_id_max_8chrs" make debug_manage
 
 Linux (Fedora 27) instructions are available [here](docs/LINUX.md)
 
+## Helpful links
+* [Developers Onboarding Checklist](https://uktrade.atlassian.net/wiki/spaces/ED/pages/32243946/Developers+onboarding+checklist)
+* [Gitflow branching](https://uktrade.atlassian.net/wiki/spaces/ED/pages/737182153/Gitflow+and+releases)
+* [GDS service standards](https://www.gov.uk/service-manual/service-standard)
+* [GDS design principles](https://www.gov.uk/design-principles)
+
+## Related projects:
+https://github.com/uktrade?q=directory
+https://github.com/uktrade?q=great
+
 [code-climate-image]: https://codeclimate.com/github/uktrade/directory-api/badges/issue_count.svg
 [code-climate]: https://codeclimate.com/github/uktrade/directory-api
 
@@ -117,5 +116,9 @@ Linux (Fedora 27) instructions are available [here](docs/LINUX.md)
 [codecov-image]: https://codecov.io/gh/uktrade/directory-api/branch/master/graph/badge.svg
 [codecov]: https://codecov.io/gh/uktrade/directory-api
 
-[snyk-image]: https://snyk.io/test/github/uktrade/directory-api/badge.svg
-[snyk]: https://snyk.io/test/github/uktrade/directory-api
+[gitflow-image]: https://img.shields.io/badge/Branching%20strategy-gitflow-5FBB1C.svg
+[gitflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+
+[calver-image]: https://img.shields.io/badge/Versioning%20strategy-CalVer-5FBB1C.svg
+[calver]: https://calver.org
+

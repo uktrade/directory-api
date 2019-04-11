@@ -94,10 +94,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Docker
-.env
-.env-postgres
-
 # Dynamically created
 .venv
 staticfiles

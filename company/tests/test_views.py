@@ -102,6 +102,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'export_destinations': [],
         'expertise_industries': [],
         'expertise_regions': [],
+        'expertise_products_services': {},
         'expertise_countries': [],
         'expertise_languages': [],
         'export_destinations_other': '',
@@ -157,6 +158,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'export_destinations': ['DE'],
         'expertise_industries': ['INS'],
         'expertise_regions': ['UKG3'],
+        'expertise_products_services': {},
         'expertise_countries': ['GB'],
         'expertise_languages': ['ENG'],
         'export_destinations_other': 'LY',
@@ -212,6 +214,7 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'export_destinations': ['DE'],
         'expertise_industries': ['INS'],
         'expertise_regions': ['UKG3'],
+        'expertise_products_services': {},
         'expertise_countries': ['GB'],
         'expertise_languages': ['ENG'],
         'export_destinations_other': 'LY',
@@ -1670,8 +1673,6 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
         assert hit['_id'] in expected
 
 
-# TODO: Fix
-@pytest.mark.skip(reason="Intermittently failing in dockerhub")
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
