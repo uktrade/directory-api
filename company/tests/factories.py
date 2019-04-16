@@ -22,6 +22,24 @@ class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
         return [random_sector]
 
 
+class FuzzyExpertiseIndustries(factory.fuzzy.BaseFuzzyAttribute):
+    def fuzz(self):
+        expertise_industries = [choice[0] for choice in choices.INDUSTRIES]
+        random_expertise_industries = factory.fuzzy._random.choice(
+            expertise_industries
+        )
+        return [random_expertise_industries]
+
+
+class FuzzyExpertiseCountries(factory.fuzzy.BaseFuzzyAttribute):
+    def fuzz(self):
+        expertise_countries = [choice[0] for choice in choices.COUNTRY_CHOICES]
+        random_expertise_countries = factory.fuzzy._random.choice(
+            expertise_countries
+        )
+        return [random_expertise_countries]
+
+
 class CompanyFactory(factory.django.DjangoModelFactory):
 
     number = factory.Iterator(company_house_number())
@@ -34,6 +52,13 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
     sectors = FuzzySector()
+    expertise_industries = FuzzyExpertiseIndustries()
+    expertise_regions = factory.fuzzy.FuzzyChoice(
+        ['West Midlands', 'East Midlands', 'South East', 'North West'])
+    expertise_languages = factory.fuzzy.FuzzyChoice(
+        ['German', 'Punjabi', 'Spanish'])
+    expertise_products_services = factory.fuzzy.FuzzyChoice(
+        ['Insurance', 'Raising Capital', 'Regulatory Support'])
     website = factory.LazyAttribute(
         lambda company: 'http://%s.example.com' % company.name)
     date_of_creation = None
