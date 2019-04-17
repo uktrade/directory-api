@@ -23,11 +23,13 @@ directory-healthcheck==1.0.1
 directory-sso-api-client==3.0.0
 directory-validators==4.5.1
 dj-database-url==0.4.1
+django-admin-ip-restrictor==1.0.0
 django-celery-beat==1.1.1
 django-environ==0.4.5
 django-field-history==0.7.0
 django-filter==1.0.4
 django-health-check==3.8.0  # via directory-healthcheck
+django-ipware==2.1.0      # via django-admin-ip-restrictor
 django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
