@@ -38,6 +38,7 @@ def test_company_doc_type():
         'expertise_industries': company.expertise_industries,
         'expertise_regions': company.expertise_regions,
         'expertise_languages': company.expertise_languages,
+        'expertise_countries': company.expertise_countries,
         'expertise_products_services': company.expertise_products_services,
         'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,

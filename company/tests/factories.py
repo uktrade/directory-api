@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from company.models import Company, CompanyCaseStudy, CollaboratorInvite, \
     OwnershipInvite
@@ -13,6 +13,10 @@ def company_house_number():
 
 
 EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
+INDUSTRIES_CHOICES = [choice[0] for choice in choices.INDUSTRIES]
+REGION_CHOICES = [choice[0] for choice in choices.EXPERTISE_REGION_CHOICES]
+LANGUAGE_CHOICES = [choice[0] for choice in choices.EXPERTISE_LANGUAGES]
+COUNTRY_CHOICES = [choice[0] for choice in choices.COUNTRY_CHOICES]
 
 
 class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
@@ -20,24 +24,6 @@ class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
         sectors = [choice[0] for choice in choices.INDUSTRIES]
         random_sector = factory.fuzzy._random.choice(sectors)
         return [random_sector]
-
-
-class FuzzyExpertiseIndustries(factory.fuzzy.BaseFuzzyAttribute):
-    def fuzz(self):
-        expertise_industries = [choice[0] for choice in choices.INDUSTRIES]
-        random_expertise_industries = factory.fuzzy._random.choice(
-            expertise_industries
-        )
-        return [random_expertise_industries]
-
-
-class FuzzyExpertiseCountries(factory.fuzzy.BaseFuzzyAttribute):
-    def fuzz(self):
-        expertise_countries = [choice[0] for choice in choices.COUNTRY_CHOICES]
-        random_expertise_countries = factory.fuzzy._random.choice(
-            expertise_countries
-        )
-        return [random_expertise_countries]
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
@@ -52,13 +38,13 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
     sectors = FuzzySector()
-    expertise_industries = FuzzyExpertiseIndustries()
-    expertise_regions = factory.fuzzy.FuzzyChoice(
-        ['West Midlands', 'East Midlands', 'South East', 'North West'])
-    expertise_languages = factory.fuzzy.FuzzyChoice(
-        ['German', 'Punjabi', 'Spanish'])
+
+    expertise_industries = factory.fuzzy.FuzzyChoice(INDUSTRIES_CHOICES)
+    expertise_regions = factory.fuzzy.FuzzyChoice(REGION_CHOICES)
+    expertise_languages = factory.fuzzy.FuzzyChoice(LANGUAGE_CHOICES)
+    expertise_countries = factory.fuzzy.FuzzyChoice(COUNTRY_CHOICES)
     expertise_products_services = factory.fuzzy.FuzzyChoice(
-        ['Insurance', 'Raising Capital', 'Regulatory Support'])
+        ['Regulatory', 'Finance', 'IT'])
     website = factory.LazyAttribute(
         lambda company: 'http://%s.example.com' % company.name)
     date_of_creation = None

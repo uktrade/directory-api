@@ -1,4 +1,3 @@
-from directory_components.helpers import GovukPaaSRemoteIPAddressRetriver  # noqa
 from directory_sso_api_client.client import sso_api_client
 from rest_framework import authentication, exceptions
 from rest_framework.authentication import BasicAuthentication

@@ -1,7 +1,6 @@
 import os
 
 import dj_database_url
-from directory_components.constants import IP_RETRIEVER_NAME_GOV_UK
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
@@ -50,7 +49,6 @@ INSTALLED_APPS = [
     'buyer.apps.BuyerConfig',
     'contact.apps.ContactConfig',
     'notifications.apps.NotificationsConfig',
-    'exportreadiness.apps.ExportReadinessConfig',
     'activitystream.apps.ActivityStreamConfig',
     'exporting.apps.ExportingConfig',
     'directory_constants',
@@ -62,7 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
-    'directory_components.middleware.IPRestrictorMiddleware',
+    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -483,6 +481,10 @@ FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
     'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
 )
 
+# DIRECTORY URLS
+DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str(
+    'DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC', ''
+)
 
 # aws, localhost, or govuk-paas
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
@@ -603,21 +605,6 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
 
-
-# ip-restrictor
-IP_RESTRICTOR_SKIP_CHECK_ENABLED = env.bool(
-    'IP_RESTRICTOR_SKIP_CHECK_ENABLED', False
-)
-IP_RESTRICTOR_SKIP_CHECK_SENDER_ID = env.str(
-    'IP_RESTRICTOR_SKIP_CHECK_SENDER_ID', ''
-)
-IP_RESTRICTOR_SKIP_CHECK_SECRET = env.str(
-    'IP_RESTRICTOR_SKIP_CHECK_SECRET', ''
-)
-IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER = env.str(
-    'IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER',
-    IP_RETRIEVER_NAME_GOV_UK
-)
 RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
 ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
 ALLOWED_ADMIN_IP_RANGES = env.list(

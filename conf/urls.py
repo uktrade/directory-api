@@ -10,7 +10,6 @@ import buyer.views
 import company.views
 import contact.views
 import enrolment.views
-import exportreadiness.views
 import notifications.views
 import supplier.views
 import testapi.views
@@ -205,21 +204,6 @@ urlpatterns = [
         r'^case-study/search/$',
         company.views.CaseStudySearchAPIView.as_view(),
         name='case-study-search',
-    ),
-    url(
-        r'export-readiness/triage/$',
-        exportreadiness.views.TriageResultCreateRetrieveView.as_view(),
-        name='export-readiness-triage-create-retrieve'
-    ),
-    url(
-        r'export-readiness/article-read/$',
-        exportreadiness.views.ArticleReadCreateRetrieveView.as_view(),
-        name='export-readiness-article-read-create-retrieve'
-    ),
-    url(
-        r'export-readiness/task-completed/$',
-        exportreadiness.views.TaskCompletedCreateRetrieveView.as_view(),
-        name='export-readiness-task-completed-create-retrieve'
     ),
     url(
         r'buyer/csv-dump/$',
