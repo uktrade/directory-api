@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.db import models
 
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from core.helpers import TimeStampedModel
 from company.models import Company

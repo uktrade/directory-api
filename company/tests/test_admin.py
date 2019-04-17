@@ -354,6 +354,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert pre_verified_queryset[1].generated_for == constants.UK_ISD
 
         signer = Signer()
+
         assert response.context_data['created_companies'] == [
             {
                 'name': 'Example Compass',

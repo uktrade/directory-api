@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
-from directory_constants.constants import choices
+from directory_constants import choices
 import requests
 
 

@@ -6,7 +6,7 @@ from unittest.mock import call, patch, Mock
 
 from django.core.urlresolvers import reverse
 
-from directory_constants.constants import choices, sectors
+from directory_constants import choices, sectors
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -100,15 +100,16 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'name': 'Test Company',
         'postal_code': company.postal_code,
         'export_destinations': [],
-        'expertise_industries': [],
-        'expertise_regions': [],
-        'expertise_products_services': {},
-        'expertise_countries': [],
-        'expertise_languages': [],
+        'expertise_industries': company.expertise_industries,
+        'expertise_regions': company.expertise_regions,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_countries': company.expertise_countries,
+        'expertise_languages': company.expertise_languages,
         'export_destinations_other': '',
         'company_type': models.Company.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected
 
@@ -156,11 +157,11 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'is_uk_isd_company': False,
         'is_verified': False,
         'export_destinations': ['DE'],
-        'expertise_industries': ['INS'],
-        'expertise_regions': ['UKG3'],
-        'expertise_products_services': {},
-        'expertise_countries': ['GB'],
-        'expertise_languages': ['ENG'],
+        'expertise_industries': company.expertise_industries,
+        'expertise_regions': company.expertise_regions,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_countries': company.expertise_countries,
+        'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
         'company_type': models.Company.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
@@ -212,11 +213,11 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'is_uk_isd_company': False,
         'is_verified': False,
         'export_destinations': ['DE'],
-        'expertise_industries': ['INS'],
-        'expertise_regions': ['UKG3'],
-        'expertise_products_services': {},
-        'expertise_countries': ['GB'],
-        'expertise_languages': ['ENG'],
+        'expertise_industries': company.expertise_industries,
+        'expertise_regions': company.expertise_regions,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_countries': company.expertise_countries,
+        'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
         'company_type': models.Company.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,

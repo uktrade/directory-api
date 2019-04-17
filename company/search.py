@@ -40,6 +40,11 @@ class CompanyDocType(DocType):
     number = field.Text()
     sectors = field.Text(multi=True)
     sectors_label = field.Text(multi=True)
+    expertise_industries = field.Text(multi=True)
+    expertise_regions = field.Text(multi=True)
+    expertise_languages = field.Text(multi=True)
+    expertise_countries = field.Text(multi=True)
+    expertise_products_services = field.Text(multi=True)
     slug = field.Text()
     summary = field.Text()
     twitter_url = field.Text(index='no')
@@ -106,6 +111,11 @@ def company_model_to_doc_type(
         'name',
         'number',
         'sectors',
+        'expertise_industries',
+        'expertise_regions',
+        'expertise_languages',
+        'expertise_countries',
+        'expertise_products_services',
         'slug',
         'summary',
         'twitter_url',

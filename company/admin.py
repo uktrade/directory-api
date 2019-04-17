@@ -1,6 +1,6 @@
 import datetime
 
-from directory_constants.constants.urls import build_great_url
+from directory_constants.urls import build_great_url
 
 from django.contrib import admin
 from django.conf.urls import url

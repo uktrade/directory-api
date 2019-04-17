@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from django.conf import settings
 from django.http import QueryDict

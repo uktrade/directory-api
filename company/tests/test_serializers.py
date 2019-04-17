@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from directory_validators import company as shared_validators
 
-from directory_constants.constants import choices
+from directory_constants import choices
 from pytz import UTC
 
 from company.tests import VALID_REQUEST_DATA

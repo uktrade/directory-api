@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from company.models import Company, CompanyCaseStudy, CollaboratorInvite, \
     OwnershipInvite
@@ -13,6 +13,10 @@ def company_house_number():
 
 
 EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
+INDUSTRIES_CHOICES = [choice[0] for choice in choices.INDUSTRIES]
+REGION_CHOICES = [choice[0] for choice in choices.EXPERTISE_REGION_CHOICES]
+LANGUAGE_CHOICES = [choice[0] for choice in choices.EXPERTISE_LANGUAGES]
+COUNTRY_CHOICES = [choice[0] for choice in choices.COUNTRY_CHOICES]
 
 
 class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
@@ -34,6 +38,13 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
     sectors = FuzzySector()
+
+    expertise_industries = factory.fuzzy.FuzzyChoice(INDUSTRIES_CHOICES)
+    expertise_regions = factory.fuzzy.FuzzyChoice(REGION_CHOICES)
+    expertise_languages = factory.fuzzy.FuzzyChoice(LANGUAGE_CHOICES)
+    expertise_countries = factory.fuzzy.FuzzyChoice(COUNTRY_CHOICES)
+    expertise_products_services = factory.fuzzy.FuzzyChoice(
+        ['Regulatory', 'Finance', 'IT'])
     website = factory.LazyAttribute(
         lambda company: 'http://%s.example.com' % company.name)
     date_of_creation = None

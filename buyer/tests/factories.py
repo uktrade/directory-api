@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from buyer.models import Buyer
 

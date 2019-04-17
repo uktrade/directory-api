@@ -1,6 +1,6 @@
 import uuid
 
-from directory_constants.constants import choices
+from directory_constants import choices
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
 
