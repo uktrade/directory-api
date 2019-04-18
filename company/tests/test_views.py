@@ -1122,7 +1122,7 @@ def test_investment_support_directory(api_client):
         'term': 'bones',
         'page': 1,
         'size': 10,
-        'sectors': [sectors.AEROSPACE],
+        'expertise_industries': [choices.INDUSTRIES[0][0]],
     }
     response = api_client.get(reverse(
         'investment-support-directory-search'), data=data)
