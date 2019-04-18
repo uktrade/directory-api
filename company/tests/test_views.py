@@ -36,6 +36,8 @@ default_public_profile_data = {
     'verified_with_code': True,
 }
 
+IS_ISD = 'is_published_investment_support_directory'
+
 
 @pytest.mark.django_db
 def test_company_retrieve_no_company(authed_client, authed_supplier):
@@ -1198,6 +1200,7 @@ def test_company_paginate_first_page(
 
         assert response.status_code == 200, response.content
         assert mock_search.call_count == 1
+
         assert mock_search.call_args == call(
             body={
                 'highlight': {
@@ -1216,6 +1219,11 @@ def test_company_paginate_first_page(
                                     {
                                         'match_phrase': {
                                             '_all': 'bones'
+                                        }
+                                    },
+                                    {
+                                        'term': {
+                                            IS_ISD: False
                                         }
                                     }
                                 ]
@@ -1462,11 +1470,18 @@ def test_company_search_with_sector_filter(api_client, settings):
                         'query': {
                             'bool': {
                                 'minimum_should_match': 1,
-                                'must': [{
-                                    'match_phrase': {
-                                        '_all': 'bees'
+                                'must': [
+                                    {
+                                        'match_phrase': {
+                                            '_all': 'bees'
+                                        },
+                                    },
+                                    {
+                                        'term': {
+                                            IS_ISD: False
+                                        }
                                     }
-                                }],
+                                ],
                                 'should': [{
                                     'match': {
                                         'sectors': sectors.AEROSPACE
@@ -1606,6 +1621,11 @@ def test_company_search_with_sector_filter_only(api_client, settings):
                         'query': {
                             'bool': {
                                 'minimum_should_match': 1,
+                                'must': [{
+                                    'term': {
+                                        IS_ISD: False
+                                    }
+                                }],
                                 'should': [{
                                     'match': {
                                         'sectors': sectors.AEROSPACE
@@ -1683,6 +1703,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
     results = views.CaseStudySearchAPIView().get_search_results(
         term='', page=1, size=5, sectors=[sector]
     )
+
     hits = results['hits']['hits']
     assert len(hits) == len(expected)
     for hit in hits:
