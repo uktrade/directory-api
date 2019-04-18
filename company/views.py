@@ -277,6 +277,18 @@ class CompanySearchAPIView(SearchBaseView):
         ).highlight('summary', 'description')
 
 
+class InvestmentSupportDirectorySearchAPIView(views.APIView):
+    permission_classes = []
+    serializer_class = serializers.SearchSerializer
+
+    def get(self, request, *args, **kwargs):
+        search_results = {'Results': 'ISD_Search_PlaceHolder'}
+        return Response(
+            data=search_results,
+            status=status.HTTP_200_OK,
+        )
+
+
 class CollaboratorInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.CollaboratorInviteSerializer
     permission_classes = [
