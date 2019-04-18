@@ -1116,6 +1116,21 @@ def test_company_search(mock_get_search_results, api_client):
     )
 
 
+def test_investment_support_directory(api_client):
+
+    data = {
+        'term': 'bones',
+        'page': 1,
+        'size': 10,
+        'expertise_industries': [choices.INDUSTRIES[0][0]],
+    }
+    response = api_client.get(reverse(
+        'investment-support-directory-search'), data=data)
+
+    assert response.status_code == 200
+    assert response.json() == {'Results': 'ISD_Search_PlaceHolder'}
+
+
 @patch('company.views.CompanySearchAPIView.get_search_results')
 def test_company_search_no_sectors(mock_get_search_results, api_client):
     mock_get_search_results.return_value = expected_value = {

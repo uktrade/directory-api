@@ -201,6 +201,11 @@ urlpatterns = [
         name='company-search'
     ),
     url(
+        r'^investment-support-directory/search/$',
+        company.views.InvestmentSupportDirectorySearchAPIView.as_view(),
+        name='investment-support-directory-search'
+    ),
+    url(
         r'^case-study/search/$',
         company.views.CaseStudySearchAPIView.as_view(),
         name='case-study-search',
