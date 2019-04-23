@@ -288,11 +288,22 @@ class CompanySearchAPIView(SearchBaseView):
 
 
 class InvestmentSupportDirectorySearchAPIView(views.APIView):
+
     permission_classes = []
     serializer_class = serializers.SearchSerializer
 
     def get(self, request, *args, **kwargs):
-        search_results = {'Results': 'ISD_Search_PlaceHolder'}
+        serializer = self.serializer_class(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+
+        search_object = search.CompanyDocType.search().query(
+            query.Bool(
+                must=query.MatchPhrase(_all=validated_data.get('term'))
+            )
+        )
+
+        search_results = search_object.execute().to_dict()
         return Response(
             data=search_results,
             status=status.HTTP_200_OK,
