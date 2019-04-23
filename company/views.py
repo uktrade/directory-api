@@ -8,6 +8,7 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.http import Http404
 
 from company import filters, models, pagination, search, serializers
+from company.helpers import InvestmentSupportDirectorySearch
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
@@ -297,11 +298,12 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
 
-        search_object = search.CompanyDocType.search().query(
-            query.Bool(
-                must=query.MatchPhrase(_all=validated_data.get('term'))
-            )
+        query = InvestmentSupportDirectorySearch.create_query_object(
+            validated_data
         )
+        search_object = search.CompanyDocType.search().query(query)
+
+        InvestmentSupportDirectorySearch.create_query_object(validated_data)
 
         search_results = search_object.execute().to_dict()
         return Response(
