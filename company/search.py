@@ -65,6 +65,7 @@ class CompanyDocType(DocType):
         }
     )
     is_showcase_company = field.Boolean()
+    is_published_investment_support_directory = field.Boolean()
 
     class Meta:
         index = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
@@ -121,6 +122,7 @@ def company_model_to_doc_type(
         'twitter_url',
         'website',
         'is_showcase_company',
+        'is_published_investment_support_directory',
     }
     case_study_fields = {
         'description',

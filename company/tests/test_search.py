@@ -46,6 +46,7 @@ def test_company_doc_type():
         'case_study_count': 1,
         'has_single_sector': False,
         'is_showcase_company': False,
+        'is_published_investment_support_directory': False,
         'supplier_case_studies': [
             {
                 'description': case_study.description,
