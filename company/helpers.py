@@ -146,15 +146,14 @@ path_and_rename_supplier_case_study = PathAndRename(
 
 class InvestmentSupportDirectorySearch:
 
-
     def create_query_object(clean_data):
 
-        OPTIONAL_FILTERS = {'sectors':'sector'}
+        OPTIONAL_FILTERS = {'sectors': 'sector'}
         should_filters = []
         must_filters = []
 
         is_published_investment_support_directory = True
-        term=clean_data.get('term')
+        term = clean_data.get('term')
 
         for filter_name, filter_key in OPTIONAL_FILTERS.items():
             filter_values = clean_data.get(filter_name)

@@ -1535,8 +1535,9 @@ def test_investment_support_directory_search_with_sector_filter(
                                 }
                             }],
                         'should': [
-                            {'match': {
-                                'sectors': 'AEROSPACE'
+                            {
+                                'match': {
+                                    'sectors': 'AEROSPACE'
                                 }
                             }
                         ],
@@ -1691,8 +1692,6 @@ def test_company_search_with_sector_filter_only(api_client, settings):
             doc_type=['company_doc_type'],
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
         )
-
-
 
 
 @pytest.mark.rebuild_elasticsearch
