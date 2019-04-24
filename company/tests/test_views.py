@@ -3,7 +3,6 @@ import http
 import uuid
 from io import BytesIO
 from unittest.mock import call, patch, Mock
-
 from django.core.urlresolvers import reverse
 
 from directory_constants import choices, sectors
@@ -1127,7 +1126,6 @@ def test_investment_support_directory(mock_get_search_results, api_client):
             'hits': [None, None],
         },
     }
-
     data = {
         'term': 'bones',
         'page': 1,
@@ -1500,6 +1498,51 @@ def test_company_search_with_sector_filter(api_client, settings):
                     }
                 },
                 'from': 0
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
+
+def test_investment_support_directory_search_with_sector_filter(
+        api_client, settings
+):
+    es = connections.get_connection('default')
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {
+            'term': 'bees',
+            'sectors': [sectors.AEROSPACE],
+            'size': 5,
+            'page': 1,
+        }
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bees'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'should': [
+                            {
+                                'match': {
+                                    'sectors': 'AEROSPACE'
+                                }
+                            }
+                        ],
+                        'minimum_should_match': 1}
+                }
             },
             doc_type=['company_doc_type'],
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]

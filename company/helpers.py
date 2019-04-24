@@ -5,6 +5,7 @@ import logging
 import os
 import re
 from urllib.parse import urljoin
+from elasticsearch_dsl import query
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -141,3 +142,36 @@ path_and_rename_logos = PathAndRename(sub_path="company_logos")
 path_and_rename_supplier_case_study = PathAndRename(
     sub_path="supplier_case_study"
 )
+
+
+class InvestmentSupportDirectorySearch:
+
+    def create_query_object(clean_data):
+
+        OPTIONAL_FILTERS = {'sectors': 'sector'}
+        should_filters = []
+        must_filters = []
+
+        is_published_investment_support_directory = True
+        term = clean_data.get('term')
+
+        for filter_name, filter_key in OPTIONAL_FILTERS.items():
+            filter_values = clean_data.get(filter_name)
+            if filter_values:
+                for filter_value in filter_values:
+                    params = {filter_name: filter_value}
+                    should_filters.append(query.Match(**params))
+        if term:
+            must_filters.append(query.MatchPhrase(_all=term))
+        if is_published_investment_support_directory is not None:
+            must_filters.append(
+                query.Term(
+                    is_published_investment_support_directory=(
+                        is_published_investment_support_directory
+                    )
+                ))
+        return query.Bool(
+            must=must_filters,
+            should=should_filters,
+            minimum_should_match=1 if len(should_filters) else 0,
+        )
