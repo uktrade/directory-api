@@ -1620,6 +1620,70 @@ def test_investment_support_directory_search_with_all_filters(
         )
 
 
+def test_investment_support_directory_search_with_all_filters_muliple(
+        api_client, settings
+):
+    es = connections.get_connection('default')
+
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {
+            'term': 'bees',
+            'expertise_industries': [
+                choices.INDUSTRIES[1][0],
+                choices.INDUSTRIES[2][0]],
+            'expertise_products_services': ['IT', 'REGULATION'],
+            'size': 5,
+            'page': 1,
+        }
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bees'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'should': [
+                            {
+                                'match': {
+                                    'expertise_industries': (
+                                        'ADVANCED_MANUFACTURING')
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_industries': 'AIRPORTS'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'IT'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'REGULATION'
+                                }
+                            },
+                        ],
+                        'minimum_should_match': 1}
+                }
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
 def test_company_search_with_sector_filter_only(api_client, settings):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
