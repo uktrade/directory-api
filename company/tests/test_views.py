@@ -1511,7 +1511,7 @@ def test_investment_support_directory_search_with_sector_filter(
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {
             'term': 'bees',
-            'sectors': [sectors.AEROSPACE],
+            'expertise_industries': [sectors.AEROSPACE],
             'size': 5,
             'page': 1,
         }
@@ -1537,9 +1537,80 @@ def test_investment_support_directory_search_with_sector_filter(
                         'should': [
                             {
                                 'match': {
-                                    'sectors': 'AEROSPACE'
+                                    'expertise_industries': 'AEROSPACE'
                                 }
                             }
+                        ],
+                        'minimum_should_match': 1}
+                }
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
+
+def test_investment_support_directory_search_with_all_filters(
+        api_client, settings
+):
+    es = connections.get_connection('default')
+
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {
+            'term': 'bees',
+            'expertise_industries': choices.INDUSTRIES[1][0],
+            'expertise_regions': choices.EXPERTISE_REGION_CHOICES[1][0],
+            'expertise_countries': choices.COUNTRY_CHOICES[1][0],
+            'expertise_languages': choices.EXPERTISE_LANGUAGES[1][0],
+            'expertise_products_services': ['IT'],
+            'size': 5,
+            'page': 1,
+        }
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bees'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'should': [
+                            {
+                                'match': {
+                                    'expertise_industries': (
+                                        'ADVANCED_MANUFACTURING')
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_regions': 'NORTH_WEST'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_countries': 'AL'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_languages': 'aa'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'IT'
+                                }
+                            },
+
                         ],
                         'minimum_should_match': 1}
                 }
