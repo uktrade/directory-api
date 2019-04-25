@@ -1684,6 +1684,7 @@ def test_investment_support_directory_search_with_all_filters_muliple(
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
         )
 
+
 def test_company_search_with_sector_filter_only(api_client, settings):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
