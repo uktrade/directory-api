@@ -503,6 +503,41 @@ def search_companies_data(settings):
 
 
 @pytest.fixture
+def search_investment_support_directory_data(settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        description='Providing the stealth and prowess of wolves.',
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Aardvark limited',
+        description='Providing the power and beauty of Aardvarks.',
+        summary='Like an Aardvark',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        keywords='Ants, Tongue, Anteater',
+        expertise_industries=[sectors.AEROSPACE],
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Grapeshot limited',
+        description='Providing the destructiveness of grapeshot.',
+        summary='Like naval warfare',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        keywords='Pirates, Ocean, Ship',
+        expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
 def search_companies_highlighting_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
@@ -1874,6 +1909,41 @@ def test_company_search_results(term, sector, expected, search_companies_data):
         term=term, page=1, size=5, sectors=sector,
     )
     hits = results['hits']['hits']
+
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('term,expertise_industries ,expected', [
+    # expertise_industries
+    ['',           [sectors.AEROSPACE],                   ['1', '2']],
+    ['',           [sectors.AEROSPACE, sectors.AIRPORTS], ['1', '2', '3']],
+])
+def test_investment_support_directory_search_results(
+        term,
+        expertise_industries,
+        expected,
+        search_investment_support_directory_data,
+        api_client
+):
+
+    data = {
+        'term': term,
+        'page': '1',
+        'size': '5',
+        'expertise_industries':  expertise_industries
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200
+
+    hits = response.json()['hits']['hits']
 
     assert len(hits) == len(expected)
     for hit in hits:
