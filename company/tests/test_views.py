@@ -1674,7 +1674,6 @@ def test_investment_support_directory_search_with_all_filters_muliple(
         response = api_client.get(reverse(
             'investment-support-directory-search'), data=data)
 
-
         assert response.status_code == 200, response.content
 
         assert mock_search.call_args == call(
