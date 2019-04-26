@@ -2,6 +2,7 @@ import datetime
 import http
 import uuid
 from io import BytesIO
+from collections import OrderedDict
 from unittest.mock import call, patch, Mock
 from django.core.urlresolvers import reverse
 
@@ -1673,7 +1674,9 @@ def test_investment_support_directory_search_with_all_filters_muliple(
         response = api_client.get(reverse(
             'investment-support-directory-search'), data=data)
 
+
         assert response.status_code == 200, response.content
+
         assert mock_search.call_args == call(
             body={
                 'query': {
