@@ -504,7 +504,7 @@ def search_companies_data(settings):
 
 @pytest.fixture
 def search_investment_support_directory_data(settings):
-    factories.CompanyFactory(
+    wolf_company = factories.CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs',
@@ -514,12 +514,11 @@ def search_investment_support_directory_data(settings):
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
     )
-    factories.CompanyFactory(
+    aardvark_company = factories.CompanyFactory(
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
         is_published_investment_support_directory=True,
-        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         expertise_industries=[sectors.AEROSPACE],
         id=2,
@@ -529,12 +528,24 @@ def search_investment_support_directory_data(settings):
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare',
         is_published_investment_support_directory=True,
-        is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         id=3,
     )
+    factories.CompanyCaseStudyFactory(
+        id=1,
+        company=wolf_company,
+        title='Thick case study',
+        description='Gold is delicious.',
+    )
+    factories.CompanyCaseStudyFactory(
+        id=2,
+        company=aardvark_company,
+        title='Thick case study',
+        description='We determined lead sinks in water.',
+    )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture

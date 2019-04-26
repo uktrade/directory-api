@@ -17,6 +17,10 @@ def test_elasticsearch_migrate_turned_on(settings):
         is_published_find_a_supplier=False
     )
 
+    published_investment_support_directory = factories.CompanyFactory(
+        is_published_investment_support_directory=True
+    )
+
     published_case_study = factories.CompanyCaseStudyFactory(
         company=published_company
     )
@@ -25,10 +29,13 @@ def test_elasticsearch_migrate_turned_on(settings):
     )
 
     CompanyDocType.get(id=published_company.pk).delete()
+    CompanyDocType.get(id=published_investment_support_directory.pk).delete()
     CaseStudyDocType.get(id=published_case_study.pk).delete()
     management.call_command('elasticsearch_migrate')
 
     assert CompanyDocType.get(id=published_company.pk) is not None
+    assert CompanyDocType.get(
+        id=published_investment_support_directory.pk) is not None
     assert CaseStudyDocType.get(id=published_case_study.pk) is not None
 
     assert CompanyDocType.get(id=unpublished_company.pk, ignore=404) is None

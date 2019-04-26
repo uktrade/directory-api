@@ -7,6 +7,7 @@ from elasticsearch.exceptions import NotFoundError
 from django.utils.crypto import get_random_string
 from django.core import management
 from django.conf import settings
+from django.db.models import Q
 
 from company import search
 from company import models
@@ -77,7 +78,10 @@ class Command(management.BaseCommand):
         companies = (
             models.Company.objects
             .prefetch_related('supplier_case_studies')
-            .filter(is_published_find_a_supplier=True)
+            .filter(
+                Q(is_published_find_a_supplier=True) | Q(
+                    is_published_investment_support_directory=True)
+            )
         )
         company_documents = []
         case_study_documents = []
