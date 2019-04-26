@@ -95,6 +95,7 @@ class Command(management.BaseCommand):
                     case_study=case_study, index=self.new_case_study_index,
                 )
                 case_study_documents.append(case_study_doc_type.to_dict(True))
+
         bulk(self.client, company_documents)
         bulk(self.client, case_study_documents)
 

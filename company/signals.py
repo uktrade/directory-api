@@ -32,7 +32,9 @@ def store_date_published(sender, instance, *args, **kwargs):
 
 def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
     document = instance.to_doc_type()
-    if instance.is_published_find_a_supplier:
+    if instance.is_published_find_a_supplier or(
+            instance.is_published_investment_support_directory
+    ):
         document.save()
     else:
         document.delete(ignore=404)
