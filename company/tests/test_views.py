@@ -507,30 +507,61 @@ def search_investment_support_directory_data(settings):
     wolf_company = factories.CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
-        summary='Hunts in packs',
+        summary='Hunts in packs common',
         is_published_investment_support_directory=True,
-        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0],
+                           choices.EXPERTISE_REGION_CHOICES[5][0]
+                           ],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0],
+                             choices.EXPERTISE_LANGUAGES[2][0]
+                             ],
+        expertise_countries=[choices.COUNTRY_CHOICES[23][0],
+                             choices.COUNTRY_CHOICES[24][0]
+                             ],
+        expertise_products_services=['Finance', 'IT'],
         id=1,
     )
     aardvark_company = factories.CompanyFactory(
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
-        summary='Like an Aardvark',
+        summary='Like an Aardvark common',
         is_published_investment_support_directory=True,
         keywords='Ants, Tongue, Anteater',
         expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[23][0]],
+        expertise_products_services=['Finance', 'IT'],
         id=2,
     )
     factories.CompanyFactory(
         name='Grapeshot limited',
         description='Providing the destructiveness of grapeshot.',
-        summary='Like naval warfare',
+        summary='Like naval warfare common',
         is_published_investment_support_directory=True,
         keywords='Pirates, Ocean, Ship',
         expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0],
+                           choices.EXPERTISE_REGION_CHOICES[8][0]
+                           ],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[2][0],
+                             choices.EXPERTISE_LANGUAGES[6][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[24][0],
+                             choices.COUNTRY_CHOICES[27][0]
+                             ],
+        expertise_products_services=['IT', 'Regulatory'],
         id=3,
+    )
+    factories.CompanyFactory(
+        name='nonisd limited',
+        description='This is a FAB company.',
+        summary='non fab',
+        is_published_find_a_supplier=True,
+        keywords='Pirates, Ocean, Ship',
+        expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
+        id=4,
     )
     factories.CompanyCaseStudyFactory(
         id=1,
@@ -1666,7 +1697,7 @@ def test_investment_support_directory_search_with_all_filters(
         )
 
 
-def test_investment_support_directory_search_with_all_filters_muliple(
+def test_investment_support_directory_search_with_all_filters_multiple(
         api_client, settings
 ):
     es = connections.get_connection('default')
@@ -1929,14 +1960,54 @@ def test_company_search_results(term, sector, expected, search_companies_data):
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-@pytest.mark.parametrize('term,expertise_industries ,expected', [
+@pytest.mark.parametrize('term,filter_name,filter_value ,expected', [
+    # term
+    ['Wolf', '', '', ['1']],
+    ['Tongue', '', '', ['2']],
+    ['common', '', '', ['1', '2', '3']],
+    ['common', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
     # expertise_industries
-    ['',           [sectors.AEROSPACE],                   ['1', '2']],
-    ['',           [sectors.AEROSPACE, sectors.AIRPORTS], ['1', '2', '3']],
+    ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
+    ['', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
+     ['1', '2', '3']
+     ],
+    # expertise_regions
+    ['', 'expertise_regions', [
+        choices.EXPERTISE_REGION_CHOICES[4][0]], ['1', '2']
+     ],
+    ['', 'expertise_regions', [
+        choices.EXPERTISE_REGION_CHOICES[4][0],
+        choices.EXPERTISE_REGION_CHOICES[5][0]
+    ], ['1', '2', '3']
+     ],
+    # expertise_languages
+    ['', 'expertise_languages', [
+        choices.EXPERTISE_LANGUAGES[0][0]
+    ],
+     ['1', '2']
+     ],
+    ['', 'expertise_languages', [
+        choices.EXPERTISE_LANGUAGES[0][0],
+        choices.EXPERTISE_LANGUAGES[2][0]
+    ],
+     ['1', '2', '3']
+     ],
+    # expertise_countries
+    ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
+    ['', 'expertise_countries', [
+        choices.COUNTRY_CHOICES[23][0],
+        choices.COUNTRY_CHOICES[24][0]
+    ],
+     ['1', '2', '3']
+     ],
+    # expertise_products_services
+    ['', 'expertise_products_services', ['Finance'], ['1', '2']],
+    ['', 'expertise_products_services', ['Finance', 'IT'], ['1', '2', '3']],
 ])
 def test_investment_support_directory_search_results(
         term,
-        expertise_industries,
+        filter_name,
+        filter_value,
         expected,
         search_investment_support_directory_data,
         api_client
@@ -1946,7 +2017,7 @@ def test_investment_support_directory_search_results(
         'term': term,
         'page': '1',
         'size': '5',
-        'expertise_industries':  expertise_industries
+        filter_name:  filter_value,
     }
 
     response = api_client.get(
