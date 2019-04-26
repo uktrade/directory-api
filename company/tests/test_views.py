@@ -511,15 +511,18 @@ def search_investment_support_directory_data(settings):
         is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
-        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0],
-                           choices.EXPERTISE_REGION_CHOICES[5][0]
-                           ],
-        expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0],
-                             choices.EXPERTISE_LANGUAGES[2][0]
-                             ],
-        expertise_countries=[choices.COUNTRY_CHOICES[23][0],
-                             choices.COUNTRY_CHOICES[24][0]
-                             ],
+        expertise_regions=[
+            choices.EXPERTISE_REGION_CHOICES[4][0],
+            choices.EXPERTISE_REGION_CHOICES[5][0]
+        ],
+        expertise_languages=[
+            choices.EXPERTISE_LANGUAGES[0][0],
+            choices.EXPERTISE_LANGUAGES[2][0]
+        ],
+        expertise_countries=[
+            choices.COUNTRY_CHOICES[23][0],
+            choices.COUNTRY_CHOICES[24][0]
+        ],
         expertise_products_services=['Finance', 'IT'],
         id=1,
     )
@@ -1968,38 +1971,43 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     ['common', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
     # expertise_industries
     ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
-    ['', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
-     ['1', '2', '3']
-     ],
+    [
+        '', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
+        ['1', '2', '3']
+    ],
     # expertise_regions
-    ['', 'expertise_regions', [
-        choices.EXPERTISE_REGION_CHOICES[4][0]], ['1', '2']
-     ],
-    ['', 'expertise_regions', [
-        choices.EXPERTISE_REGION_CHOICES[4][0],
-        choices.EXPERTISE_REGION_CHOICES[5][0]
-    ], ['1', '2', '3']
-     ],
+    [
+        '', 'expertise_regions', [choices.EXPERTISE_REGION_CHOICES[4][0]],
+        ['1', '2']
+    ],
+    [
+        '', 'expertise_regions', [
+            choices.EXPERTISE_REGION_CHOICES[4][0],
+            choices.EXPERTISE_REGION_CHOICES[5][0]
+        ],
+        ['1', '2', '3']
+    ],
     # expertise_languages
-    ['', 'expertise_languages', [
-        choices.EXPERTISE_LANGUAGES[0][0]
+    [
+        '', 'expertise_languages', [choices.EXPERTISE_LANGUAGES[0][0]],
+        ['1', '2']
     ],
-     ['1', '2']
-     ],
-    ['', 'expertise_languages', [
-        choices.EXPERTISE_LANGUAGES[0][0],
-        choices.EXPERTISE_LANGUAGES[2][0]
+    [
+        '', 'expertise_languages', [
+            choices.EXPERTISE_LANGUAGES[0][0],
+            choices.EXPERTISE_LANGUAGES[2][0]
+        ],
+        ['1', '2', '3']
     ],
-     ['1', '2', '3']
-     ],
     # expertise_countries
     ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
-    ['', 'expertise_countries', [
-        choices.COUNTRY_CHOICES[23][0],
-        choices.COUNTRY_CHOICES[24][0]
+    [
+        '', 'expertise_countries', [
+            choices.COUNTRY_CHOICES[23][0],
+            choices.COUNTRY_CHOICES[24][0]
+        ],
+        ['1', '2', '3']
     ],
-     ['1', '2', '3']
-     ],
     # expertise_products_services
     ['', 'expertise_products_services', ['Finance'], ['1', '2']],
     ['', 'expertise_products_services', ['Finance', 'IT'], ['1', '2', '3']],
