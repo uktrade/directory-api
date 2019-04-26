@@ -2,7 +2,6 @@ import datetime
 import http
 import uuid
 from io import BytesIO
-from collections import OrderedDict
 from unittest.mock import call, patch, Mock
 from django.core.urlresolvers import reverse
 
