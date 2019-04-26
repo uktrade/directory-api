@@ -147,13 +147,13 @@ path_and_rename_supplier_case_study = PathAndRename(
 class InvestmentSupportDirectorySearch:
 
     OPTIONAL_FILTERS = [
-                'sectors',
-                'expertise_industries',
-                'expertise_regions',
-                'expertise_countries',
-                'expertise_languages',
-                'expertise_products_services'
-                ]
+        'sectors',
+        'expertise_industries',
+        'expertise_regions',
+        'expertise_countries',
+        'expertise_languages',
+        'expertise_products_services'
+    ]
 
     @classmethod
     def create_query_object(cls, clean_data):
