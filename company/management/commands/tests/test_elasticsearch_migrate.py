@@ -10,11 +10,16 @@ from company.search import CompanyDocType, CaseStudyDocType
 @pytest.mark.rebuild_elasticsearch
 def test_elasticsearch_migrate_turned_on(settings):
     settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = True
+
     published_company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
+        is_published_find_a_supplier=True,
     )
     unpublished_company = factories.CompanyFactory(
         is_published_find_a_supplier=False
+    )
+
+    published_investment_support_directory = factories.CompanyFactory(
+        is_published_investment_support_directory=True,
     )
 
     published_case_study = factories.CompanyCaseStudyFactory(
@@ -25,10 +30,14 @@ def test_elasticsearch_migrate_turned_on(settings):
     )
 
     CompanyDocType.get(id=published_company.pk).delete()
+    CompanyDocType.get(id=published_investment_support_directory.pk).delete()
     CaseStudyDocType.get(id=published_case_study.pk).delete()
     management.call_command('elasticsearch_migrate')
 
     assert CompanyDocType.get(id=published_company.pk) is not None
+    assert CompanyDocType.get(
+        id=published_investment_support_directory.pk
+    ) is not None
     assert CaseStudyDocType.get(id=published_case_study.pk) is not None
 
     assert CompanyDocType.get(id=unpublished_company.pk, ignore=404) is None
@@ -45,13 +54,21 @@ def test_elasticsearch_migrate_turned_off(settings):
     published_company = factories.CompanyFactory(
         is_published_find_a_supplier=True
     )
+    published_investment_support_directory = factories.CompanyFactory(
+        is_published_investment_support_directory=True,
+    )
     published_case_study = factories.CompanyCaseStudyFactory(
         company=published_company
     )
 
     CompanyDocType.get(id=published_company.pk, ignore=404).delete()
+    CompanyDocType.get(
+        id=published_investment_support_directory.pk, ignore=404).delete()
     CaseStudyDocType.get(id=published_case_study.pk, ignore=404).delete()
     management.call_command('elasticsearch_migrate')
 
+    assert CompanyDocType.get(
+        id=published_investment_support_directory.pk, ignore=404
+    ) is None
     assert CompanyDocType.get(id=published_company.pk, ignore=404) is None
     assert CaseStudyDocType.get(id=published_case_study.pk, ignore=404) is None

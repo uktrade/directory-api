@@ -503,6 +503,86 @@ def search_companies_data(settings):
 
 
 @pytest.fixture
+def search_investment_support_directory_data(settings):
+    wolf_company = factories.CompanyFactory(
+        name='Wolf limited',
+        description='Providing the stealth and prowess of wolves.',
+        summary='Hunts in packs common',
+        is_published_investment_support_directory=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
+        expertise_regions=[
+            choices.EXPERTISE_REGION_CHOICES[4][0],
+            choices.EXPERTISE_REGION_CHOICES[5][0]
+        ],
+        expertise_languages=[
+            choices.EXPERTISE_LANGUAGES[0][0],
+            choices.EXPERTISE_LANGUAGES[2][0]
+        ],
+        expertise_countries=[
+            choices.COUNTRY_CHOICES[23][0],
+            choices.COUNTRY_CHOICES[24][0]
+        ],
+        expertise_products_services=['Finance', 'IT'],
+        id=1,
+    )
+    aardvark_company = factories.CompanyFactory(
+        name='Aardvark limited',
+        description='Providing the power and beauty of Aardvarks.',
+        summary='Like an Aardvark common',
+        is_published_investment_support_directory=True,
+        keywords='Ants, Tongue, Anteater',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[23][0]],
+        expertise_products_services=['Finance', 'IT'],
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Grapeshot limited',
+        description='Providing the destructiveness of grapeshot.',
+        summary='Like naval warfare common',
+        is_published_investment_support_directory=True,
+        keywords='Pirates, Ocean, Ship',
+        expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0],
+                           choices.EXPERTISE_REGION_CHOICES[8][0]
+                           ],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[2][0],
+                             choices.EXPERTISE_LANGUAGES[6][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[24][0],
+                             choices.COUNTRY_CHOICES[27][0]
+                             ],
+        expertise_products_services=['IT', 'Regulatory'],
+        id=3,
+    )
+    factories.CompanyFactory(
+        name='nonisd limited',
+        description='This is a FAB company.',
+        summary='non fab',
+        is_published_find_a_supplier=True,
+        keywords='Pirates, Ocean, Ship',
+        expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
+        id=4,
+    )
+    factories.CompanyCaseStudyFactory(
+        id=1,
+        company=wolf_company,
+        title='Thick case study',
+        description='Gold is delicious.',
+    )
+    factories.CompanyCaseStudyFactory(
+        id=2,
+        company=aardvark_company,
+        title='Thick case study',
+        description='We determined lead sinks in water.',
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
 def search_companies_highlighting_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
@@ -1511,7 +1591,7 @@ def test_investment_support_directory_search_with_sector_filter(
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {
             'term': 'bees',
-            'sectors': [sectors.AEROSPACE],
+            'expertise_industries': [sectors.AEROSPACE],
             'size': 5,
             'page': 1,
         }
@@ -1537,9 +1617,146 @@ def test_investment_support_directory_search_with_sector_filter(
                         'should': [
                             {
                                 'match': {
-                                    'sectors': 'AEROSPACE'
+                                    'expertise_industries': 'AEROSPACE'
                                 }
                             }
+                        ],
+                        'minimum_should_match': 1}
+                }
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
+
+def test_investment_support_directory_search_with_all_filters(
+        api_client, settings
+):
+    es = connections.get_connection('default')
+
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {
+            'term': 'bees',
+            'expertise_industries': choices.INDUSTRIES[1][0],
+            'expertise_regions': choices.EXPERTISE_REGION_CHOICES[1][0],
+            'expertise_countries': choices.COUNTRY_CHOICES[1][0],
+            'expertise_languages': choices.EXPERTISE_LANGUAGES[1][0],
+            'expertise_products_services': ['IT'],
+            'size': 5,
+            'page': 1,
+        }
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bees'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'should': [
+                            {
+                                'match': {
+                                    'expertise_industries': (
+                                        'ADVANCED_MANUFACTURING')
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_regions': 'NORTH_WEST'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_countries': 'AL'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_languages': 'aa'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'IT'
+                                }
+                            },
+
+                        ],
+                        'minimum_should_match': 1}
+                }
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
+
+def test_investment_support_directory_search_with_all_filters_multiple(
+        api_client, settings
+):
+    es = connections.get_connection('default')
+
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {
+            'term': 'bees',
+            'expertise_industries': [
+                sectors.ADVANCED_MANUFACTURING,
+                sectors.AIRPORTS],
+            'expertise_products_services': ['IT', 'REGULATION'],
+            'size': 5,
+            'page': 1,
+        }
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+
+        assert response.status_code == 200, response.content
+
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bees'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'should': [
+                            {
+                                'match': {
+                                    'expertise_industries': (
+                                        'ADVANCED_MANUFACTURING')
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_industries': 'AIRPORTS'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'IT'
+                                }
+                            },
+                            {
+                                'match': {
+                                    'expertise_products_services': 'REGULATION'
+                                }
+                            },
                         ],
                         'minimum_should_match': 1}
                 }
@@ -1738,6 +1955,86 @@ def test_company_search_results(term, sector, expected, search_companies_data):
         term=term, page=1, size=5, sectors=sector,
     )
     hits = results['hits']['hits']
+
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('term,filter_name,filter_value ,expected', [
+    # term
+    ['Wolf', '', '', ['1']],
+    ['Tongue', '', '', ['2']],
+    ['common', '', '', ['1', '2', '3']],
+    ['common', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
+    # expertise_industries
+    ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
+    [
+        '', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
+        ['1', '2', '3']
+    ],
+    # expertise_regions
+    [
+        '', 'expertise_regions', [choices.EXPERTISE_REGION_CHOICES[4][0]],
+        ['1', '2']
+    ],
+    [
+        '', 'expertise_regions', [
+            choices.EXPERTISE_REGION_CHOICES[4][0],
+            choices.EXPERTISE_REGION_CHOICES[5][0]
+        ],
+        ['1', '2', '3']
+    ],
+    # expertise_languages
+    [
+        '', 'expertise_languages', [choices.EXPERTISE_LANGUAGES[0][0]],
+        ['1', '2']
+    ],
+    [
+        '', 'expertise_languages', [
+            choices.EXPERTISE_LANGUAGES[0][0],
+            choices.EXPERTISE_LANGUAGES[2][0]
+        ],
+        ['1', '2', '3']
+    ],
+    # expertise_countries
+    ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
+    [
+        '', 'expertise_countries', [
+            choices.COUNTRY_CHOICES[23][0],
+            choices.COUNTRY_CHOICES[24][0]
+        ],
+        ['1', '2', '3']
+    ],
+    # expertise_products_services
+    ['', 'expertise_products_services', ['Finance'], ['1', '2']],
+    ['', 'expertise_products_services', ['Finance', 'IT'], ['1', '2', '3']],
+])
+def test_investment_support_directory_search_results(
+        term,
+        filter_name,
+        filter_value,
+        expected,
+        search_investment_support_directory_data,
+        api_client
+):
+
+    data = {
+        'term': term,
+        'page': '1',
+        'size': '5',
+        filter_name:  filter_value,
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200
+
+    hits = response.json()['hits']['hits']
 
     assert len(hits) == len(expected)
     for hit in hits:

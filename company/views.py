@@ -302,9 +302,6 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             validated_data
         )
         search_object = search.CompanyDocType.search().query(query)
-
-        InvestmentSupportDirectorySearch.create_query_object(validated_data)
-
         search_results = search_object.execute().to_dict()
         return Response(
             data=search_results,
