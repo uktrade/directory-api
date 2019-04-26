@@ -1675,8 +1675,8 @@ def test_investment_support_directory_search_with_all_filters_muliple(
         data = {
             'term': 'bees',
             'expertise_industries': [
-                choices.INDUSTRIES[1][0],
-                choices.INDUSTRIES[2][0]],
+                sectors.ADVANCED_MANUFACTURING,
+                sectors.AIRPORTS],
             'expertise_products_services': ['IT', 'REGULATION'],
             'size': 5,
             'page': 1,
