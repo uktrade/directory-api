@@ -166,7 +166,7 @@ class InvestmentSupportDirectorySearch:
         for filter_name in cls.OPTIONAL_FILTERS:
             filter_values = clean_data.get(filter_name)
             if filter_values:
-                for filter_value in filter_values:
+                for filter_value in sorted(filter_values):
                     params = {filter_name: filter_value}
                     should_filters.append(query.Match(**params))
         if term:
@@ -189,3 +189,9 @@ class InvestmentSupportDirectorySearch:
         start = (page - 1) * size
         end = start + size
         return search_object[start:end]
+
+    @staticmethod
+    def apply_highlighting(search_object):
+        return search_object.highlight_options(
+            require_field_match=False,
+        ).highlight('summary', 'description')

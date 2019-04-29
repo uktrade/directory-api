@@ -302,8 +302,12 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             validated_data
         )
 
+        search_object = InvestmentSupportDirectorySearch.apply_highlighting(
+            search_object=search.CompanyDocType.search().query(query)
+        )
+
         search_object = InvestmentSupportDirectorySearch.apply_pagination(
-            search_object=search.CompanyDocType.search().query(query),
+            search_object=search_object,
             page=validated_data['page'],
             size=validated_data['size']
         )
