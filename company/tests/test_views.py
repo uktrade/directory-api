@@ -1427,6 +1427,57 @@ def test_company_paginate_first_page(
         )
 
 
+@pytest.mark.parametrize('page_number,expected_start', [
+    [1, 0],
+    [2, 5],
+    [3, 10],
+    [4, 15],
+    [5, 20],
+    [6, 25],
+    [7, 30],
+    [8, 35],
+    [9, 40],
+])
+def test_investment_support_directory_paginate_first_page(
+    page_number, expected_start, api_client, settings
+):
+    es = connections.get_connection('default')
+    with patch.object(es, 'search', return_value={}) as mock_search:
+        data = {'term': 'bones', 'page': page_number, 'size': 5}
+
+        response = api_client.get(reverse('company-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_count == 1
+        response = api_client.get(reverse(
+            'investment-support-directory-search'), data=data)
+
+        assert response.status_code == 200, response.content
+        assert mock_search.call_args == call(
+            body={
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'match_phrase': {
+                                    '_all': 'bones'
+                                    }
+                            },
+                            {
+                                'term': {
+                                    IS_ISD: True
+                                }
+                            }],
+                        'minimum_should_match': 0}
+                },
+                'from': expected_start,
+                'size': 5
+            },
+            doc_type=['company_doc_type'],
+            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
+        )
+
+
 def test_company_search_with_sector_filter(api_client, settings):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
@@ -1622,7 +1673,9 @@ def test_investment_support_directory_search_with_sector_filter(
                             }
                         ],
                         'minimum_should_match': 1}
-                }
+                },
+                'from': 0,
+                'size': 5
             },
             doc_type=['company_doc_type'],
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
@@ -1693,7 +1746,9 @@ def test_investment_support_directory_search_with_all_filters(
 
                         ],
                         'minimum_should_match': 1}
-                }
+                },
+                'from': 0,
+                'size': 5
             },
             doc_type=['company_doc_type'],
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
@@ -1759,7 +1814,9 @@ def test_investment_support_directory_search_with_all_filters_multiple(
                             },
                         ],
                         'minimum_should_match': 1}
-                }
+                },
+                'from': 0,
+                'size': 5
             },
             doc_type=['company_doc_type'],
             index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
