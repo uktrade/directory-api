@@ -183,3 +183,9 @@ class InvestmentSupportDirectorySearch:
             should=should_filters,
             minimum_should_match=1 if len(should_filters) else 0,
         )
+
+    @staticmethod
+    def apply_pagination(search_object, page, size):
+        start = (page - 1) * size
+        end = start + size
+        return search_object[start:end]

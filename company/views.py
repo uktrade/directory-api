@@ -301,7 +301,13 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         query = InvestmentSupportDirectorySearch.create_query_object(
             validated_data
         )
-        search_object = search.CompanyDocType.search().query(query)
+
+        search_object = InvestmentSupportDirectorySearch.apply_pagination(
+            search_object=search.CompanyDocType.search().query(query),
+            page=validated_data['page'],
+            size=validated_data['size']
+        )
+
         search_results = search_object.execute().to_dict()
         return Response(
             data=search_results,
