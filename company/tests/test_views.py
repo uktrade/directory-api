@@ -613,6 +613,36 @@ def search_companies_highlighting_data(settings):
 
 
 @pytest.fixture
+def search_investment_support_directory_highlighting_data(settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        description=(
+            'Providing the stealth and prowess of wolves. This is a very long '
+            'thing about wolf stuff. Lets see what happens in the test when '
+            'ES encounters a long  description. Perhaps it will concatenate. '
+        ) + ('It is known. ' * 30) + (
+            'The wolf cries at night.'
+        ),
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        keywords='Packs, Hunting, Stark, Teeth',
+        expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Aardvark limited',
+        description='Providing the power and beauty of Aardvarks.',
+        summary='Like an Aardvark',
+        is_published_investment_support_directory=True,
+        keywords='Ants, Tongue, Anteater',
+        expertise_industries=[sectors.AEROSPACE],
+        id=2,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
 def search_companies_ordering_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
@@ -1455,6 +1485,13 @@ def test_investment_support_directory_paginate_first_page(
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'bool': {
                         'must': [
@@ -1652,6 +1689,13 @@ def test_investment_support_directory_search_with_sector_filter(
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'bool': {
                         'must': [
@@ -1703,6 +1747,13 @@ def test_investment_support_directory_search_with_all_filters(
         assert response.status_code == 200, response.content
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'bool': {
                         'must': [
@@ -1777,6 +1828,13 @@ def test_investment_support_directory_search_with_all_filters_multiple(
 
         assert mock_search.call_args == call(
             body={
+                'highlight': {
+                    'fields': {
+                        'summary': {},
+                        'description': {}
+                    },
+                    'require_field_match': False
+                },
                 'query': {
                     'bool': {
                         'must': [
@@ -2146,7 +2204,6 @@ def test_company_search_results_highlight(search_companies_highlighting_data):
         term='power', page=1, size=5, sectors=None,
     )
     hits = results['hits']['hits']
-
     assert hits[0]['highlight'] == {
         'description': [
             'Providing the <em>power</em> and beauty of Aardvarks.'
@@ -2162,6 +2219,59 @@ def test_company_search_results_highlight_long(
     results = views.CompanySearchAPIView().get_search_results(
         term='wolf', page=1, size=5, sectors=None,
     )
+    hits = results['hits']['hits']
+
+    assert '...'.join(hits[0]['highlight']['description']) == (
+        'Providing the stealth and prowess of wolves. This is a very '
+        'long thing about <em>wolf</em> stuff. Lets see... known. It is '
+        'known. It is known. It is known. It is known. It is known. It is '
+        'known. The <em>wolf</em> cries at night.'
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.rebuild_elasticsearch
+def test_investment_support_directory_search_results_highlight(
+        search_investment_support_directory_highlighting_data,
+        api_client,
+):
+    data = {
+        'term': 'power',
+        'page': 1,
+        'size': 5,
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+    assert response.status_code == 200
+    results = response.json()
+    hits = results['hits']['hits']
+
+    assert hits[0]['highlight'] == {
+        'description': [
+            'Providing the <em>power</em> and beauty of Aardvarks.'
+        ]
+    }
+
+
+@pytest.mark.django_db
+@pytest.mark.rebuild_elasticsearch
+def test_investment_support_directory_search_results_highlight_long(
+        search_investment_support_directory_highlighting_data,
+        api_client,
+):
+    data = {
+        'term': 'wolf',
+        'page': 1,
+        'size': 5,
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+    assert response.status_code == 200
+    results = response.json()
     hits = results['hits']['hits']
 
     assert '...'.join(hits[0]['highlight']['description']) == (
