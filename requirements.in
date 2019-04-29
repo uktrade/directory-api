@@ -29,5 +29,5 @@ directory-sso-api-client==3.0.0
 directory-healthcheck==1.0.1
 cryptography==2.3.0
 directory-components==10.0.0
-urllib3>=1.23.0<2.0.0
+urllib3>=1.24.2<2.0.0
 django-admin-ip-restrictor==1.0.0
