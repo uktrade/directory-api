@@ -21,9 +21,9 @@ def test_company_doc_type():
     with patch.object(company, 'logo', new_callable=logo_mock):
         doc = search.company_model_to_doc_type(company)
 
-    expertise_products_services = []
+    expected_expertise_products_services = []
     for key, values in company.expertise_products_services.items():
-        expertise_products_services += values
+        expected_expertise_products_services += values
 
     expected = {
         'date_of_creation': '2000-10-10',
@@ -43,7 +43,7 @@ def test_company_doc_type():
         'expertise_regions': company.expertise_regions,
         'expertise_languages': company.expertise_languages,
         'expertise_countries': company.expertise_countries,
-        'expertise_products_services': expertise_products_services,
+        'expertise_products_services': expected_expertise_products_services,
         'sectors_label': ['Aerospace', 'Airports'],
         'slug': company.slug,
         'summary': company.summary,
