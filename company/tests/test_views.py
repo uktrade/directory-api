@@ -112,6 +112,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
     }
 
     assert response.status_code == status.HTTP_200_OK
+    
     assert response.json() == expected
 
 
