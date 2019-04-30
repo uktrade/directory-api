@@ -523,7 +523,7 @@ def search_investment_support_directory_data(settings):
             choices.COUNTRY_CHOICES[23][0],
             choices.COUNTRY_CHOICES[24][0]
         ],
-        expertise_products_services=['Finance', 'IT'],
+        expertise_products_services={"other": ['Regulatory', 'Finance', 'IT']},
         id=1,
     )
     aardvark_company = factories.CompanyFactory(
@@ -536,7 +536,7 @@ def search_investment_support_directory_data(settings):
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
         expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0]],
         expertise_countries=[choices.COUNTRY_CHOICES[23][0]],
-        expertise_products_services=['Finance', 'IT'],
+        expertise_products_services={"other": ['Regulatory', 'Finance', 'IT']},
         id=2,
     )
     factories.CompanyFactory(
@@ -554,7 +554,7 @@ def search_investment_support_directory_data(settings):
         expertise_countries=[choices.COUNTRY_CHOICES[24][0],
                              choices.COUNTRY_CHOICES[27][0]
                              ],
-        expertise_products_services=['IT', 'Regulatory'],
+        expertise_products_services={"other": ['Regulatory', 'IT']},
         id=3,
     )
     factories.CompanyFactory(
@@ -2177,7 +2177,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
     ['wolf',       None,                ['3', '4', '2', '1']],
-    ['Limited',    None,                ['3', '5', '4', '2', '1']],
+    ['Limited',    None,                ['5', '3', '4', '2', '1']],
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
     ['Grapeshot',  None,                ['2', '5']],
@@ -2193,7 +2193,6 @@ def test_company_search_results_ordering(
     hits = results['hits']['hits']
 
     ordered_hit_ids = [hit['_id'] for hit in hits]
-
     assert ordered_hit_ids == expected
 
 
