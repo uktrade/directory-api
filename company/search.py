@@ -1,41 +1,53 @@
 from urllib.parse import urljoin
 
-from elasticsearch_dsl import field, DocType
+from elasticsearch_dsl import Document, field, Nested, InnerDoc
 
 from django.conf import settings
 
 from company import helpers
 
 
-class FormattedDate(field.Date):
-    def __init__(self, date_format, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.date_format = date_format
+class CaseStudyFieldsMixin:
+    pk = field.Integer(index=False)
+    title = field.Text()
+    short_summary = field.Text()
+    description = field.Text()
+    sector = field.Text()
+    keywords = field.Text()
+    image = field.Text(index=False)
+    company_number = field.Text(index=False)
+    image_one_caption = field.Text()
+    image_two_caption = field.Text()
+    image_three_caption = field.Text()
+    testimonial = field.Text()
+    slug = field.Text(index=False)
 
-    def _deserialize(self, *args, **kwargs):
-        date = super()._deserialize(*args, **kwargs)
-        if date:
-            return date.strftime(self.date_format)
 
-    def to_dict(self, *args, **kwargs):
-        value = super().to_dict(*args, **kwargs)
-        del value['date_format']
-        return value
+class CaseStudyDocument(CaseStudyFieldsMixin, Document):
+
+    class Meta:
+        index = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
 
 
-class CompanyDocType(DocType):
+class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
+    pass
+
+
+class CompanyDocument(Document):
     case_study_count = field.Integer()
-    date_of_creation = FormattedDate(date_format='%Y-%m-%d', index='no')
+    date_of_creation = field.Date(index=False)
+    date_of_creation = field.Date(index=False)
     description = field.Text()
     has_description = field.Boolean()
-    employees = field.Text(index='no')
-    facebook_url = field.Text(index='no')
-    pk = field.Integer(index='no')
+    employees = field.Text(index=False)
+    facebook_url = field.Text(index=False)
+    pk = field.Integer(index=False)
     keywords = field.Text()
-    linkedin_url = field.Text(index='no')
-    logo = field.Text(index='no')
+    linkedin_url = field.Text(index=False)
+    logo = field.Text(index=False)
     has_single_sector = field.Boolean()
-    modified = FormattedDate(date_format='%Y-%m-%dT%H:%M:%S.%fZ', index='no')
+    modified = field.Date(index=False)
+    modified = field.Date(index=False)
     name = field.Text()
     number = field.Text()
     sectors = field.Text(multi=True)
@@ -47,47 +59,14 @@ class CompanyDocType(DocType):
     expertise_products_services = field.Text(multi=True)
     slug = field.Text()
     summary = field.Text()
-    twitter_url = field.Text(index='no')
+    twitter_url = field.Text(index=False)
     website = field.Text()
-    supplier_case_studies = field.Nested(
-        properties={
-            'pk': field.Integer(index='no'),
-            'title': field.Text(),
-            'short_summary': field.Text(),
-            'description': field.Text(),
-            'sector': field.Text(),
-            'keywords': field.Text(),
-            'image_one_caption': field.Text(),
-            'image_two_caption': field.Text(),
-            'image_three_caption': field.Text(),
-            'testimonial': field.Text(),
-            'slug': field.Text(),
-        }
-    )
+    supplier_case_studies = Nested(CaseStudyInnerDoc)
     is_showcase_company = field.Boolean()
     is_published_investment_support_directory = field.Boolean()
 
     class Meta:
         index = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
-
-
-class CaseStudyDocType(DocType):
-    pk = field.Integer(index='no')
-    title = field.Text()
-    short_summary = field.Text()
-    description = field.Text()
-    sector = field.Text()
-    keywords = field.Text()
-    image = field.Text(index='no')
-    company_number = field.Text(index='no')
-    image_one_caption = field.Text()
-    image_two_caption = field.Text()
-    image_three_caption = field.Text()
-    testimonial = field.Text()
-    slug = field.Text(index='no')
-
-    class Meta:
-        index = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
 
 
 def get_absolute_url(url):
@@ -142,7 +121,7 @@ def company_model_to_doc_type(
         'website',
     }
     has_description = getattr(company, 'description', '') != ''
-    company_doc_type = CompanyDocType(
+    company_doc_type = CompanyDocument(
         meta={'id': company.pk, '_index': index},
         pk=str(company.pk),
         case_study_count=company.supplier_case_studies.count(),
@@ -176,7 +155,7 @@ def case_study_model_to_doc_type(
         'slug',
         'title',
     }
-    return CaseStudyDocType(
+    return CaseStudyDocument(
         meta={'id': case_study.pk, '_index': index},
         image=get_absolute_url(
             case_study.image_one.url if case_study.image_one else '',

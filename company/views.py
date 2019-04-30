@@ -230,7 +230,7 @@ class CaseStudySearchAPIView(SearchBaseView):
 
     def create_search_object(self, term, sectors, is_showcase_company):
         query_object = self.create_query_object(term=term, sectors=sectors)
-        return search.CaseStudyDocType.search().query(query_object)
+        return search.CaseStudyDocument.search().query(query_object)
 
     @staticmethod
     def apply_highlighting(search_object):
@@ -253,7 +253,7 @@ class CompanySearchAPIView(SearchBaseView):
             is_showcase_company=is_showcase_company,
             is_published_investment_support_directory=False,
         )
-        return search.CompanyDocType.search().query(
+        return search.CompanyDocument.search().query(
             'function_score',
             query=query_object,
             functions=[
@@ -303,7 +303,7 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         )
 
         search_object = InvestmentSupportDirectorySearch.apply_highlighting(
-            search_object=search.CompanyDocType.search().query(query)
+            search_object=search.CompanyDocument.search().query(query)
         )
 
         search_object = InvestmentSupportDirectorySearch.apply_pagination(

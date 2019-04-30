@@ -8,7 +8,7 @@ import pytest
 from django.utils import timezone
 
 from company.models import Company
-from company.search import CompanyDocType
+from company.search import CompanyDocument
 from company.tests import factories
 
 
@@ -249,12 +249,12 @@ def test_delete_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -267,7 +267,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -277,13 +277,13 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -296,7 +296,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -306,13 +306,13 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db

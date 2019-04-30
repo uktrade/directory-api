@@ -65,12 +65,12 @@ class Command(management.BaseCommand):
     def create_new_indices(self):
         self.create_index(
             name=self.new_company_index,
-            doc_type=search.CompanyDocType,
+            doc_type=search.CompanyDocument,
             alias=self.company_index_alias,
         )
         self.create_index(
             name=self.new_case_study_index,
-            doc_type=search.CaseStudyDocType,
+            doc_type=search.CaseStudyDocument,
             alias=self.case_study_index_alias,
         )
 
