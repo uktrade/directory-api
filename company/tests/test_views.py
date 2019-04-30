@@ -2180,7 +2180,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
     ['Limited',    None,                ['5', '3', '4', '2', '1']],
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
-    ['Grapeshot',  None,                ['5', '2']],
+    ['Grapeshot',  None,                ['2', '5']],
     ['cannons',    None,                ['5', '2']],
     ['guns',       None,                ['5', '2']],
 ])
