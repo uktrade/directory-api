@@ -152,10 +152,9 @@ def company_model_to_doc_type(
         has_single_sector=len(company.sectors) == 1,
         has_description=has_description,
         logo=get_absolute_url(company.logo.url if company.logo else ''),
-        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         expertise_products_services=expertise_products_services,
+        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         **{key: getattr(company, key, '') for key in company_fields},
-
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({
