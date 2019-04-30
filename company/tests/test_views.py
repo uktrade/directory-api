@@ -2181,8 +2181,8 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
     ['Grapeshot',  None,                ['2', '5']],
-    ['cannons',    None,                ['5', '2']],
-    ['guns',       None,                ['5', '2']],
+    ['cannons',    None,                ['2', '5']],
+    ['guns',       None,                ['2', '5']],
 ])
 def test_company_search_results_ordering(
     term, expected, sectors, search_companies_ordering_data
@@ -2193,7 +2193,6 @@ def test_company_search_results_ordering(
     hits = results['hits']['hits']
 
     ordered_hit_ids = [hit['_id'] for hit in hits]
-
     assert ordered_hit_ids == expected
 
 

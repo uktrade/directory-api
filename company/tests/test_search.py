@@ -23,7 +23,7 @@ def test_company_doc_type():
 
     expertise_products_services_expected = []
     for key, values in company.expertise_products_services.items():
-        expertise_products_services_expected += values
+        expertise_products_services_expected.append(values)
 
     expected = {
         'date_of_creation': '2000-10-10',

@@ -143,7 +143,7 @@ def company_model_to_doc_type(
     has_description = getattr(company, 'description', '') != ''
     expertise_products_services = []
     for key, values in company.expertise_products_services.items():
-        expertise_products_services += values
+        expertise_products_services.append(values)
 
     company_doc_type = CompanyDocType(
         meta={'id': company.pk, '_index': index},
