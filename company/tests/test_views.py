@@ -626,7 +626,6 @@ def search_investment_support_directory_highlighting_data(settings):
         summary='Hunts in packs',
         is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
     )
     factories.CompanyFactory(
@@ -635,7 +634,6 @@ def search_investment_support_directory_highlighting_data(settings):
         summary='Like an Aardvark',
         is_published_investment_support_directory=True,
         keywords='Ants, Tongue, Anteater',
-        expertise_industries=[sectors.AEROSPACE],
         id=2,
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
