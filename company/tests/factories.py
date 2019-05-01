@@ -12,18 +12,18 @@ def company_house_number():
         yield str(i)
 
 
-EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
-INDUSTRIES_CHOICES = [choice[0] for choice in choices.INDUSTRIES]
-REGION_CHOICES = [choice[0] for choice in choices.EXPERTISE_REGION_CHOICES]
-LANGUAGE_CHOICES = [choice[0] for choice in choices.EXPERTISE_LANGUAGES]
-COUNTRY_CHOICES = [choice[0] for choice in choices.COUNTRY_CHOICES]
+class FuzzyListChoice(factory.fuzzy.BaseFuzzyAttribute):
 
+    def __init__(self, choice_list):
+        self.choice_list = choice_list
 
-class FuzzySector(factory.fuzzy.BaseFuzzyAttribute):
     def fuzz(self):
-        sectors = [choice[0] for choice in choices.INDUSTRIES]
-        random_sector = factory.fuzzy._random.choice(sectors)
-        return [random_sector]
+        expertise = [choice[0] for choice in self.choice_list]
+        random_expertise = factory.fuzzy._random.choice(expertise)
+        return [random_expertise]
+
+
+EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
@@ -37,12 +37,11 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     keywords = factory.fuzzy.FuzzyText(length=20)
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
-    sectors = FuzzySector()
-
-    expertise_industries = [INDUSTRIES_CHOICES[2]]
-    expertise_regions = [REGION_CHOICES[0]]
-    expertise_languages = [LANGUAGE_CHOICES[3]]
-    expertise_countries = [COUNTRY_CHOICES[1], COUNTRY_CHOICES[5]]
+    sectors = FuzzyListChoice(choices.INDUSTRIES)
+    expertise_industries = FuzzyListChoice(choices.INDUSTRIES)
+    expertise_regions = FuzzyListChoice(choices.EXPERTISE_REGION_CHOICES)
+    expertise_languages = FuzzyListChoice(choices.EXPERTISE_LANGUAGES)
+    expertise_countries = FuzzyListChoice(choices.COUNTRY_CHOICES)
     expertise_products_services = {
         "other": ['Regulatory', 'Finance', 'IT']
     }

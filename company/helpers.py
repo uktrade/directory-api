@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class choices_helper():
 
     @staticmethod
-    def extract_expertise_values(
+    def _extract_expertise_values(
         expertise_values, lookup_choices, lookup_values
     ):
         choices_dict = dict(lookup_choices)
@@ -42,24 +42,24 @@ class choices_helper():
         expertise_countries,
     ):
         expertise_values = []
-        cls.extract_expertise_values(
+        cls._extract_expertise_values(
             expertise_values,
             choices.EXPERTISE_LANGUAGES,
             expertise_languages
         )
 
-        cls.extract_expertise_values(
+        cls._extract_expertise_values(
             expertise_values,
             choices.INDUSTRIES,
             expertise_industries
         )
 
-        cls.extract_expertise_values(
+        cls._extract_expertise_values(
             expertise_values,
             choices.EXPERTISE_REGION_CHOICES,
             expertise_regions
         )
-        cls.extract_expertise_values(
+        cls._extract_expertise_values(
             expertise_values,
             choices.COUNTRY_CHOICES,
             expertise_countries
