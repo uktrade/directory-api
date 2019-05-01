@@ -7,7 +7,9 @@ import requests_mock
 from requests.exceptions import HTTPError
 from requests import Response
 
+from directory_constants import choices
 from company import helpers
+from company.helpers import choices_helper
 
 
 def profile_api_400(*args, **kwargs):
@@ -210,3 +212,56 @@ def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
     assert address.line_2 == line_2
     assert address.po_box == po_box
     assert address.postal_code == postal_code
+
+
+def test_extract_expertise_values():
+
+    expertise_languages = ['ab', 'aa', 'it', 'made-up']
+    expertise_industries = ['ADVANCED_MANUFACTURING', 'AIRPORTS']
+    expertise_regions = ['NORTH_EAST', 'SOUTH_EAST']
+    expertise_countries = ['PT', 'RU']
+
+    expertise_values = []
+
+    expected_values = [
+        'Abkhazian',
+        'Afar',
+        'Italian',
+        'Advanced manufacturing',
+        'Airports',
+        'North East',
+        'South East',
+        'Portugal', 'Russia'
+    ]
+
+    choices_helper.extract_expertise_values(
+        expertise_values,
+        choices.EXPERTISE_LANGUAGES,
+        expertise_languages
+    )
+
+    choices_helper.extract_expertise_values(
+        expertise_values,
+        choices.INDUSTRIES,
+        expertise_industries
+    )
+
+    choices_helper.extract_expertise_values(
+        expertise_values,
+        choices.EXPERTISE_REGION_CHOICES,
+        expertise_regions
+    )
+    choices_helper.extract_expertise_values(
+        expertise_values,
+        choices.COUNTRY_CHOICES,
+        expertise_countries
+    )
+
+    expertise_values_all = choices_helper.get_expertise_values_list(
+        expertise_languages,
+        expertise_industries,
+        expertise_regions,
+        expertise_countries,
+    )
+    assert expertise_values == expected_values
+    assert expertise_values_all == expected_values

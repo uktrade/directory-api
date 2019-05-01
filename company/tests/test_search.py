@@ -6,6 +6,7 @@ import pytest
 
 from company import search
 from company.tests import factories
+from company.helpers import choices_helper
 
 
 @pytest.mark.django_db
@@ -45,6 +46,12 @@ def test_company_doc_type():
         'expertise_countries': company.expertise_countries,
         'expertise_products_services': expected_expertise_products_services,
         'sectors_label': ['Aerospace', 'Airports'],
+        'expertise_labels': choices_helper.get_expertise_values_list(
+            company.expertise_languages,
+            company.expertise_industries,
+            company.expertise_regions,
+            company.expertise_countries,
+        ),
         'slug': company.slug,
         'summary': company.summary,
         'case_study_count': 1,

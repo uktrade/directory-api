@@ -39,10 +39,10 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # logo = factory.django.ImageField()
     sectors = FuzzySector()
 
-    expertise_industries = factory.fuzzy.FuzzyChoice(INDUSTRIES_CHOICES)
-    expertise_regions = factory.fuzzy.FuzzyChoice(REGION_CHOICES)
-    expertise_languages = factory.fuzzy.FuzzyChoice(LANGUAGE_CHOICES)
-    expertise_countries = factory.fuzzy.FuzzyChoice(COUNTRY_CHOICES)
+    expertise_industries = [INDUSTRIES_CHOICES[2]]
+    expertise_regions = [REGION_CHOICES[0]]
+    expertise_languages = [LANGUAGE_CHOICES[3]]
+    expertise_countries = [COUNTRY_CHOICES[1], COUNTRY_CHOICES[5]]
     expertise_products_services = {
         "other": ['Regulatory', 'Finance', 'IT']
     }

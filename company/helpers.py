@@ -22,8 +22,53 @@ SECTOR_CHOICES = dict(choices.INDUSTRIES)
 logger = logging.getLogger(__name__)
 
 
-def get_sector_label(sectors_value):
-    return SECTOR_CHOICES.get(sectors_value)
+class choices_helper():
+
+    @staticmethod
+    def extract_expertise_values(
+        expertise_values, lookup_choices, lookup_values
+    ):
+        choices_dict = dict(lookup_choices)
+        for value in lookup_values:
+            if choices_dict.get(value):
+                expertise_values.append(choices_dict.get(value))
+
+    @classmethod
+    def get_expertise_values_list(
+        cls,
+        expertise_languages,
+        expertise_industries,
+        expertise_regions,
+        expertise_countries,
+    ):
+        expertise_values = []
+        cls.extract_expertise_values(
+            expertise_values,
+            choices.EXPERTISE_LANGUAGES,
+            expertise_languages
+        )
+
+        cls.extract_expertise_values(
+            expertise_values,
+            choices.INDUSTRIES,
+            expertise_industries
+        )
+
+        cls.extract_expertise_values(
+            expertise_values,
+            choices.EXPERTISE_REGION_CHOICES,
+            expertise_regions
+        )
+        cls.extract_expertise_values(
+            expertise_values,
+            choices.COUNTRY_CHOICES,
+            expertise_countries
+        )
+        return expertise_values
+
+    @staticmethod
+    def get_sector_label(sectors_value):
+        return SECTOR_CHOICES.get(sectors_value)
 
 
 def generate_verification_code():
