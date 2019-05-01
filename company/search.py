@@ -95,7 +95,6 @@ def company_model_to_doc_type(
         'expertise_regions',
         'expertise_languages',
         'expertise_countries',
-        'expertise_products_services',
         'slug',
         'summary',
         'twitter_url',
@@ -121,6 +120,10 @@ def company_model_to_doc_type(
         'website',
     }
     has_description = getattr(company, 'description', '') != ''
+    expertise_products_services = []
+    for key, values in company.expertise_products_services.items():
+        expertise_products_services += values
+
     company_doc_type = CompanyDocument(
         meta={'id': company.pk, '_index': index},
         pk=str(company.pk),
@@ -129,12 +132,15 @@ def company_model_to_doc_type(
         has_description=has_description,
         logo=get_absolute_url(company.logo.url if company.logo else ''),
         sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
+        expertise_products_services=expertise_products_services,
         **{key: getattr(company, key, '') for key in company_fields},
+
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({
             key: getattr(case_study, key, '') for key in case_study_fields
         })
+
     return company_doc_type
 
 
