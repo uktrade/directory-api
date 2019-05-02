@@ -4,7 +4,7 @@ from elasticsearch_dsl import field, DocType
 
 from django.conf import settings
 
-from company.helpers import choices_helper
+from company import helpers, serializers
 
 
 class FormattedDate(field.Date):
@@ -142,6 +142,8 @@ def company_model_to_doc_type(
         'website',
     }
     has_description = getattr(company, 'description', '') != ''
+    #company_data_dict = serializers.CompanySerializer(company).data
+    company_parser = helpers.CompanyParser({'test': 'Test'})
     expertise_products_services = []
     for key, values in company.expertise_products_services.items():
         expertise_products_services += values
@@ -154,15 +156,10 @@ def company_model_to_doc_type(
         has_description=has_description,
         logo=get_absolute_url(company.logo.url if company.logo else ''),
         sectors_label=[
-            choices_helper.get_sector_label(v) for v in company.sectors
+            helpers.get_sector_label(v) for v in company.sectors
         ],
         expertise_products_services=expertise_products_services,
-        expertise_labels=choices_helper.get_expertise_values_list(
-            company.expertise_languages,
-            company.expertise_industries,
-            company.expertise_regions,
-            company.expertise_countries,
-        ),
+        expertise_labels=company_parser.expertise_labels_for_search,
         **{key: getattr(company, key, '') for key in company_fields},
 
     )

@@ -12,8 +12,8 @@ from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
 from directory_constants import choices
+import directory_components.helpers
 import requests
-
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
@@ -22,53 +22,8 @@ SECTOR_CHOICES = dict(choices.INDUSTRIES)
 logger = logging.getLogger(__name__)
 
 
-class choices_helper():
-
-    @staticmethod
-    def _extract_expertise_values(
-        expertise_values, lookup_choices, lookup_values
-    ):
-        choices_dict = dict(lookup_choices)
-        for value in lookup_values:
-            if choices_dict.get(value):
-                expertise_values.append(choices_dict.get(value))
-
-    @classmethod
-    def get_expertise_values_list(
-        cls,
-        expertise_languages,
-        expertise_industries,
-        expertise_regions,
-        expertise_countries,
-    ):
-        expertise_values = []
-        cls._extract_expertise_values(
-            expertise_values,
-            choices.EXPERTISE_LANGUAGES,
-            expertise_languages
-        )
-
-        cls._extract_expertise_values(
-            expertise_values,
-            choices.INDUSTRIES,
-            expertise_industries
-        )
-
-        cls._extract_expertise_values(
-            expertise_values,
-            choices.EXPERTISE_REGION_CHOICES,
-            expertise_regions
-        )
-        cls._extract_expertise_values(
-            expertise_values,
-            choices.COUNTRY_CHOICES,
-            expertise_countries
-        )
-        return expertise_values
-
-    @staticmethod
-    def get_sector_label(sectors_value):
-        return SECTOR_CHOICES.get(sectors_value)
+def get_sector_label(sectors_value):
+    return SECTOR_CHOICES.get(sectors_value)
 
 
 def generate_verification_code():
@@ -91,7 +46,19 @@ class BearerAuth(requests.auth.AuthBase):
 
     def __call__(self, r):
         r.headers['Authorization'] = 'Bearer ' + self.token
-        return r
+        return
+
+
+class CompanyParser(directory_components.helpers.CompanyParser):
+
+    @property
+    def expertise_labels_for_search(self):
+        return (
+            self.expertise_industries_label.replace(", ", ",").split(',') +
+            self.expertise_regions_label.replace(", ", ",").split(',') +
+            self.expertise_countries_label.replace(", ", ",").split(',') +
+            self.expertise_languages_label.replace(", ", ",").split(',')
+        )
 
 
 class CompaniesHouseClient:

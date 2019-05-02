@@ -7,8 +7,10 @@ import requests_mock
 from requests.exceptions import HTTPError
 from requests import Response
 
-from company import helpers
-from company.helpers import choices_helper
+from company.tests import factories
+from company import helpers, serializers
+from company.helpers import CompanyParser
+
 
 
 def profile_api_400(*args, **kwargs):
@@ -213,28 +215,31 @@ def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
     assert address.postal_code == postal_code
 
 
-def test_extract_expertise_values():
+@pytest.mark.django_db
+def test_extract_expertise_parser():
 
-    expertise_languages = ['ab', 'aa', 'it', 'made-up']
-    expertise_industries = ['ADVANCED_MANUFACTURING', 'AIRPORTS']
-    expertise_regions = ['NORTH_EAST', 'SOUTH_EAST']
-    expertise_countries = ['PT', 'RU']
+    company = factories.CompanyFactory(
+        expertise_languages=['ab', 'aa', 'it', 'made-up'],
+        expertise_industries=['ADVANCED_MANUFACTURING', 'AIRPORTS'],
+        expertise_regions=['NORTH_EAST', 'SOUTH_EAST'],
+        expertise_countries=['PT', 'RU'],
+        pk=1,
+    )
+
+    company_data_dict = serializers.CompanySerializer(company).data
+
     expected_values = [
-        'Abkhazian',
-        'Afar',
-        'Italian',
         'Advanced manufacturing',
         'Airports',
         'North East',
         'South East',
-        'Portugal', 'Russia'
+        'Portugal',
+        'Russia',
+        'Abkhazian',
+        'Afar',
+        'Italian'
     ]
 
-    expertise_values_all = choices_helper.get_expertise_values_list(
-        expertise_languages,
-        expertise_industries,
-        expertise_regions,
-        expertise_countries,
-    )
-
-    assert expertise_values_all == expected_values
+    company_parser = CompanyParser(company_data_dict)
+    expertise_search_labels = company_parser.expertise_labels_for_search
+    assert expertise_search_labels == expected_values

@@ -6,7 +6,6 @@ import pytest
 
 from company import search
 from company.tests import factories
-from company.helpers import choices_helper
 
 
 @pytest.mark.django_db
