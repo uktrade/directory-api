@@ -13,14 +13,12 @@ from django.utils.translation import ugettext_lazy as _
 from core.helpers import TimeStampedModel
 from field_history.tracker import FieldHistoryTracker
 
-from company import helpers, search
+from company import helpers
 
 
 class Company(TimeStampedModel):
     COMPANIES_HOUSE = 'COMPANIES_HOUSE'
     SOLE_TRADER = 'SOLE_TRADER'
-
-    to_doc_type = search.company_model_to_doc_type
 
     company_type = models.CharField(
         max_length=15,
@@ -299,8 +297,6 @@ class Company(TimeStampedModel):
 
 
 class CompanyCaseStudy(TimeStampedModel):
-
-    to_doc_type = search.case_study_model_to_doc_type
 
     title = models.CharField(
         max_length=100,

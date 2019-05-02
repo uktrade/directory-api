@@ -4,7 +4,7 @@ import datetime
 from freezegun import freeze_time
 import pytest
 
-from company import search
+from company import search, helpers, serializers
 from company.tests import factories
 
 
@@ -20,6 +20,9 @@ def test_company_doc_type():
     logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
     with patch.object(company, 'logo', new_callable=logo_mock):
         doc = search.company_model_to_doc_type(company)
+
+    company_data_dict = serializers.CompanySerializer(company).data
+    company_parser = helpers.CompanyParser(company_data_dict)
 
     expected_expertise_products_services = []
     for key, values in company.expertise_products_services.items():
@@ -45,6 +48,7 @@ def test_company_doc_type():
         'expertise_countries': company.expertise_countries,
         'expertise_products_services': expected_expertise_products_services,
         'sectors_label': ['Aerospace', 'Airports'],
+        'expertise_labels': company_parser.expertise_labels_for_search,
         'slug': company.slug,
         'summary': company.summary,
         'case_study_count': 1,

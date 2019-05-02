@@ -12,8 +12,8 @@ from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
 from directory_constants import choices
+import directory_components.helpers
 import requests
-
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
@@ -47,6 +47,18 @@ class BearerAuth(requests.auth.AuthBase):
     def __call__(self, r):
         r.headers['Authorization'] = 'Bearer ' + self.token
         return r
+
+
+class CompanyParser(directory_components.helpers.CompanyParser):
+
+    @property
+    def expertise_labels_for_search(self):
+        return (
+            self.expertise_industries_label.replace(", ", ",").split(',') +
+            self.expertise_regions_label.replace(", ", ",").split(',') +
+            self.expertise_countries_label.replace(", ", ",").split(',') +
+            self.expertise_languages_label.replace(", ", ",").split(',')
+        )
 
 
 class CompaniesHouseClient:
