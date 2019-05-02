@@ -164,7 +164,7 @@ class InvestmentSupportDirectorySearch:
         'expertise_regions',
         'expertise_countries',
         'expertise_languages',
-        'expertise_products_services'
+        'expertise_products_services_labels'
     ]
 
     @classmethod

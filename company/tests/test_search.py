@@ -46,7 +46,9 @@ def test_company_doc_type():
         'expertise_regions': company.expertise_regions,
         'expertise_languages': company.expertise_languages,
         'expertise_countries': company.expertise_countries,
-        'expertise_products_services': expected_expertise_products_services,
+        'expertise_products_services_labels': (
+            expected_expertise_products_services
+        ),
         'sectors_label': ['Aerospace', 'Airports'],
         'expertise_labels': company_parser.expertise_labels_for_search,
         'slug': company.slug,
