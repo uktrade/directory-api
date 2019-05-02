@@ -142,8 +142,8 @@ def company_model_to_doc_type(
         'website',
     }
     has_description = getattr(company, 'description', '') != ''
-    #company_data_dict = serializers.CompanySerializer(company).data
-    company_parser = helpers.CompanyParser({'test': 'Test'})
+    company_data_dict = serializers.CompanySerializer(company).data
+    company_parser = helpers.CompanyParser(company_data_dict)
     expertise_products_services = []
     for key, values in company.expertise_products_services.items():
         expertise_products_services += values
@@ -161,7 +161,6 @@ def company_model_to_doc_type(
         expertise_products_services=expertise_products_services,
         expertise_labels=company_parser.expertise_labels_for_search,
         **{key: getattr(company, key, '') for key in company_fields},
-
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({

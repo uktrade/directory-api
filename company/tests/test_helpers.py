@@ -12,7 +12,6 @@ from company import helpers, serializers
 from company.helpers import CompanyParser
 
 
-
 def profile_api_400(*args, **kwargs):
     response = Response()
     response.status_code = http.client.BAD_REQUEST
@@ -227,7 +226,6 @@ def test_extract_expertise_parser():
     )
 
     company_data_dict = serializers.CompanySerializer(company).data
-
     expected_values = [
         'Advanced manufacturing',
         'Airports',

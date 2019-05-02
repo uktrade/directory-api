@@ -46,7 +46,7 @@ class BearerAuth(requests.auth.AuthBase):
 
     def __call__(self, r):
         r.headers['Authorization'] = 'Bearer ' + self.token
-        return
+        return r
 
 
 class CompanyParser(directory_components.helpers.CompanyParser):
