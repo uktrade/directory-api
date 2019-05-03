@@ -206,7 +206,7 @@ class SearchSerializer(serializers.Serializer):
         choices=choices.EXPERTISE_LANGUAGES,
         required=False,
     )
-    expertise_products_services_labels = serializers.ListField(required=False)
+    expertise_products_services = serializers.ListField(required=False)
 
     is_showcase_company = serializers.NullBooleanField(required=False)
 

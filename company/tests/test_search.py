@@ -80,6 +80,7 @@ def test_company_doc_type():
         'twitter_url': company.twitter_url,
         'website': company.website,
     }
+
     assert doc.to_dict() == expected
     assert doc.meta.id == company.pk
 
