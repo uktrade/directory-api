@@ -43,7 +43,8 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     expertise_languages = FuzzyListChoice(choices.EXPERTISE_LANGUAGES)
     expertise_countries = FuzzyListChoice(choices.COUNTRY_CHOICES)
     expertise_products_services = {
-        "other": ['Regulatory', 'Finance', 'IT']
+        "other": ['Regulatory', 'Finance', 'IT'],
+        "Finance": ['Insurance'],
     }
     website = factory.LazyAttribute(
         lambda company: 'http://%s.example.com' % company.name)

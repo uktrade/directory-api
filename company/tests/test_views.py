@@ -1736,7 +1736,7 @@ def test_investment_support_directory_search_with_all_filters(
             'expertise_regions': choices.EXPERTISE_REGION_CHOICES[1][0],
             'expertise_countries': choices.COUNTRY_CHOICES[1][0],
             'expertise_languages': choices.EXPERTISE_LANGUAGES[1][0],
-            'expertise_products_services': ['IT'],
+            'expertise_products_services_labels': ['IT'],
             'size': 5,
             'page': 1,
         }
@@ -1789,7 +1789,7 @@ def test_investment_support_directory_search_with_all_filters(
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'IT'
+                                    'expertise_products_services_labels': 'IT'
                                 }
                             },
 
@@ -1815,7 +1815,7 @@ def test_investment_support_directory_search_with_all_filters_multiple(
             'expertise_industries': [
                 sectors.ADVANCED_MANUFACTURING,
                 sectors.AIRPORTS],
-            'expertise_products_services': ['IT', 'REGULATION'],
+            'expertise_products_services_labels': ['IT', 'REGULATION'],
             'size': 5,
             'page': 1,
         }
@@ -1860,12 +1860,13 @@ def test_investment_support_directory_search_with_all_filters_multiple(
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'IT'
+                                    'expertise_products_services_labels': 'IT'
                                 }
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'REGULATION'
+                                    'expertise_products_services_labels': (
+                                        'REGULATION')
                                 }
                             },
                         ],
@@ -2122,8 +2123,10 @@ def test_company_search_results(term, sector, expected, search_companies_data):
         ['1', '2', '3']
     ],
     # expertise_products_services
-    ['', 'expertise_products_services', ['Finance'], ['1', '2']],
-    ['', 'expertise_products_services', ['Finance', 'IT'], ['1', '2', '3']],
+    ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
+    ['', 'expertise_products_services_labels',
+     ['Finance', 'IT'], ['1', '2', '3']
+     ],
 ])
 def test_investment_support_directory_search_results(
         term,
@@ -2209,7 +2212,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
     ['wolf',       None,                ['3', '4', '2', '1']],
-    ['Limited',    None,                ['3', '5', '4', '2', '1']],
+    ['Limited',    None,                ['5', '3', '4', '2', '1']],
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
     ['Grapeshot',  None,                ['2', '5']],
