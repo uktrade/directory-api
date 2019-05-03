@@ -44,6 +44,8 @@ class CompanyDocType(DocType):
     expertise_regions = field.Text(multi=True)
     expertise_languages = field.Text(multi=True)
     expertise_countries = field.Text(multi=True)
+    # Represents Dict as it's the primitive datatype for this field
+    expertise_products_services = field.Object()
     expertise_products_services_labels = field.Text(multi=True)
     expertise_labels = field.Text(multi=True)
     slug = field.Text()
