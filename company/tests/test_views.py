@@ -2212,7 +2212,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
     ['wolf',       None,                ['3', '4', '2', '1']],
-    ['Limited',    None,                ['5', '3', '4', '2', '1']],
+    ['Limited',    None,                ['3', '5', '4', '2', '1']],
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
     ['Grapeshot',  None,                ['2', '5']],
