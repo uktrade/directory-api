@@ -44,7 +44,6 @@ class CompanyDocType(DocType):
     expertise_regions = field.Text(multi=True)
     expertise_languages = field.Text(multi=True)
     expertise_countries = field.Text(multi=True)
-    expertise_products_service = field.Text(multi=True)
     expertise_products_services_labels = field.Text(multi=True)
     expertise_labels = field.Text(multi=True)
     slug = field.Text()
