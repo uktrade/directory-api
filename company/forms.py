@@ -223,7 +223,16 @@ class EnrolCompanies(forms.Form):
 
 class UploadExpertise(forms.Form):
 
+    MSG_PRODUCT_SERVICE_NOT_FOUND = (
+        'Unable to find following products & services'
+    )
+    MSG_COMPANY_NOT_FOUND = 'Company not found'
+    MSG_COMPANY_TOO_MANY = 'More then one company returned'
+
     csv_file = forms.FileField()
+
+    update_errors = []
+    updated_companies = []
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -231,13 +240,6 @@ class UploadExpertise(forms.Form):
 
     @transaction.atomic
     def clean_csv_file(self):
-        self.MSG_PRODUCT_SERVICE_NOT_FOUND = (
-            'Unable to find following products & services'
-        )
-        self.MSG_COMPANY_NOT_FOUND = 'Company not found'
-        self.MSG_COMPANY_TOO_MANY = 'More then one company returned'
-        self.update_errors = []
-        self.updated_companies = []
 
         csv_file = io.TextIOWrapper(
             self.cleaned_data['csv_file'].file, encoding='utf-8'
@@ -253,24 +255,24 @@ class UploadExpertise(forms.Form):
                 'number': row[8],
             }
 
-            if len(data['number']) > 0:
-                company = models.Company.objects.filter(number=data['number'])
+            if data['number']:
+                companies = models.Company.objects.filter(number=data['number'])
             else:
-                company = models.Company.objects.filter(name=data['name'])
+                companies = models.Company.objects.filter(name=data['name'])
 
-            if company.count() == 0:
+            if companies.count() == 0:
                 self.add_bulk_errors(
                     errors=self.update_errors,
                     row_number=i,
                     line_errors=self.MSG_COMPANY_NOT_FOUND),
-            elif company.count() > 1:
+            elif companies.count() > 1:
                 self.add_bulk_errors(
                     errors=self.update_errors,
                     row_number=i,
                     line_errors=self.MSG_COMPANY_TOO_MANY,
                 )
             else:
-                company = company[0]
+                company = companies[0]
                 company.expertise_products_services = (
                     self.parse_products_services(
                         errors=self.update_errors,
@@ -294,22 +296,20 @@ class UploadExpertise(forms.Form):
         expertise_list_not_found = []
         parsed_expertise = {}
         for e in expertise_list:
-            found = False
             for key, values in expertise_dict.items():
 
                 expertise_match = self.match_sequence(e, values)
                 if expertise_match is not None:
-                    found = True
                     if parsed_expertise.get(key):
                         parsed_expertise[key].append(expertise_match)
                         break
                     else:
                         parsed_expertise[key] = [expertise_match]
                         break
-            if found is False:
+            else:
                 expertise_list_not_found.append(e)
 
-        if len(expertise_list_not_found) > 0:
+        if expertise_list_not_found:
             error_message = self.MSG_PRODUCT_SERVICE_NOT_FOUND + ' {}'.format(
                 expertise_list_not_found
             )
