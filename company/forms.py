@@ -256,7 +256,9 @@ class UploadExpertise(forms.Form):
             }
 
             if data['number']:
-                companies = models.Company.objects.filter(number=data['number'])
+                companies = models.Company.objects.filter(
+                    number=data['number']
+                )
             else:
                 companies = models.Company.objects.filter(name=data['name'])
 
