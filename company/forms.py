@@ -230,7 +230,7 @@ class UploadExpertise(forms.Form):
         self.user = user
         super().__init__(*args, **kwargs)
 
-    #@transaction.atomic
+    @transaction.atomic
     def clean_csv_file(self):
         self.MSG_PRODUCT_SERVICE_NOT_FOUND = (
             'Unable to find following products & services'
@@ -254,10 +254,10 @@ class UploadExpertise(forms.Form):
                 'number': row[8],
             }
 
-            company = models.Company.objects.filter(
-                Q(number=data['number']) |
-                Q(name=data['name'])
-            )
+            if len(data['number']) > 0:
+                company = models.Company.objects.filter(number=data['number'])
+            else:
+                company = models.Company.objects.filter(name=data['name'])
 
             if company.count() == 0:
                 self.add_bulk_errors(
@@ -271,17 +271,16 @@ class UploadExpertise(forms.Form):
                     line_errors=self.MSG_COMPANY_TOO_MANY,
                 )
             else:
-
-                company[0].expertise_products_services = (
+                company = company[0]
+                company.expertise_products_services = (
                     self.parse_products_services(
                         errors=self.update_errors,
                         row_number=i,
                         expertise_row=row[15]
                     )
                 )
-
-                company[0].save()
-                self.updated_companies.append(company[0])
+                company.save()
+                self.updated_companies.append(company)
 
     def parse_products_services(self, errors, row_number, expertise_row):
         expertise_list = [x.strip() for x in expertise_row.split(',')]
@@ -294,7 +293,6 @@ class UploadExpertise(forms.Form):
             'Business Support': expertise.BUSINESS_SUPPORT
         }
         expertise_list_not_found = []
-
         parsed_expertise = {}
         for e in expertise_list:
             found = False
@@ -326,7 +324,6 @@ class UploadExpertise(forms.Form):
 
     @staticmethod
     def match_sequence(match_value, sequence_list):
-
         for v in sequence_list:
             match = SequenceMatcher(None, match_value.lower(), v.lower())
             if match.ratio() > 0.9:

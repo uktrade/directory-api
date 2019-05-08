@@ -409,9 +409,9 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             }
         )
 
-        company_1, company_2, company_3, company_4, company_5 = (
-            Company.objects.all()
-        )
+        company_1 = Company.objects.filter(name='Test 1')[0]
+        company_2 = Company.objects.filter(number='74897421')[0]
+        company_3 = Company.objects.filter(name='Test 3')[0]
 
         assert company_1.expertise_products_services == (
             {
@@ -419,27 +419,29 @@ class DownloadCaseStudyCSVTestCase(TestCase):
              'Management Consulting': ['Workforce development'],
              'Human Resources': ['Sourcing and Hiring', 'Succession planning'],
              'Publicity': ['Social Media'],
-             'Business Support': ['Planning consultants']}
+             'Business Support': ['Planning consultants']
+            }
         )
         assert company_2.expertise_products_services == (
             {
+                'Legal': ['Intellectual property'],
                 'Finance': [
                     'Accounting and Tax (including '
                     'registration for VAT and PAYE)'
-                ],
-                'Legal': ['Intellectual property']
+                ]
             }
         )
-        assert company_2.expertise_products_services == {}
-
+        assert company_3.expertise_products_services == {
+            'Legal': ['Immigration'],
+            'Business Support': ['Facilities (water, wifi, electricity)']
+        }
         assert response.context['errors'] == [
-            '[Row 2] "Unable to find following products'
-            '& services [\'Unknown skill\']"',
+            '[Row 1] "Unable to find following'
+            ' products & services [\'Unkown Skill\']"',
             '[Row 3] "More then one company returned"',
-            '[Row 4] "More then one company returned"'
+            '[Row 4] "Company not found"'
         ]
-
-        assert response.context['updated_companies']
+        assert len(response.context['updated_companies']) == 3
 
     def test_create_companies_form_invalid_enrolment(self):
         file_path = os.path.join(
