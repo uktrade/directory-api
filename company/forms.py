@@ -12,7 +12,6 @@ from django.db import transaction
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
 from directory_constants import expertise
-from django.db.models import Q
 
 
 class MobileNumberField(forms.CharField):
