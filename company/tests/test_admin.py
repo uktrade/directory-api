@@ -376,6 +376,71 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             }
         ]
 
+    def test_upload_expertise_companies_form_success(self):
+
+        CompanyFactory(
+            name='Test 1',
+        )
+        CompanyFactory(
+            number='74897421',
+        )
+        CompanyFactory(
+            name='Test 3',
+            number='23242314',
+            expertise_products_services={},
+        )
+        CompanyFactory(
+            name='Test 4',
+            number='',
+        )
+        CompanyFactory(
+            name='Test 4',
+        )
+
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/expertise-company-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:upload_company_expertise'),
+            {
+                'csv_file': open(file_path, 'rb'),
+            }
+        )
+
+        company_1, company_2, company_3, company_4, company_5 = (
+            Company.objects.all()
+        )
+
+        assert company_1.expertise_products_services == (
+            {
+             'Finance': ['Raising Capital'],
+             'Management Consulting': ['Workforce development'],
+             'Human Resources': ['Sourcing and Hiring', 'Succession planning'],
+             'Publicity': ['Social Media'],
+             'Business Support': ['Planning consultants']}
+        )
+        assert company_2.expertise_products_services == (
+            {
+                'Finance': [
+                    'Accounting and Tax (including '
+                    'registration for VAT and PAYE)'
+                ],
+                'Legal': ['Intellectual property']
+            }
+        )
+        assert company_2.expertise_products_services == {}
+
+        assert response.context['errors'] == [
+            '[Row 2] "Unable to find following products'
+            '& services [\'Unknown skill\']"',
+            '[Row 3] "More then one company returned"',
+            '[Row 4] "More then one company returned"'
+        ]
+
+        assert response.context['updated_companies']
+
     def test_create_companies_form_invalid_enrolment(self):
         file_path = os.path.join(
             settings.BASE_DIR,

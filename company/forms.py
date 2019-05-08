@@ -2,6 +2,7 @@ import csv
 import io
 import json
 import re
+from difflib import SequenceMatcher
 
 from directory_components.fields import PaddedCharField
 
@@ -10,6 +11,8 @@ from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
+from directory_constants import expertise
+from django.db.models import Q
 
 
 class MobileNumberField(forms.CharField):
@@ -103,6 +106,7 @@ class CompanyModelForm(forms.ModelForm):
             'is_exporting_services',
             'mobile_number',
             'is_uk_isd_company',
+            'expertise_products_services',
         ]
         field_classes = {
             'number': CompanyNumberField,
@@ -209,6 +213,125 @@ class EnrolCompanies(forms.Form):
         if errors:
             raise forms.ValidationError(errors)
         return self.cleaned_data['csv_file']
+
+    @staticmethod
+    def add_bulk_errors(errors, row_number, line_errors):
+        errors.append('[Row {number}] {errors}'.format(
+            errors=json.dumps(line_errors),
+            number=row_number,
+        ))
+
+
+class UploadExpertise(forms.Form):
+
+    csv_file = forms.FileField()
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    #@transaction.atomic
+    def clean_csv_file(self):
+        self.MSG_PRODUCT_SERVICE_NOT_FOUND = (
+            'Unable to find following products & services'
+        )
+        self.MSG_COMPANY_NOT_FOUND = 'Company not found'
+        self.MSG_COMPANY_TOO_MANY = 'More then one company returned'
+        self.update_errors = []
+        self.updated_companies = []
+
+        csv_file = io.TextIOWrapper(
+            self.cleaned_data['csv_file'].file, encoding='utf-8'
+        )
+        dialect = csv.Sniffer().sniff(csv_file.read(1024))
+        csv_file.seek(0)
+        reader = csv.reader(csv_file, dialect=dialect)
+        next(reader, None)  # skip the headers
+
+        for i, row in enumerate(reader):
+            data = {
+                'name': row[1],
+                'number': row[8],
+            }
+
+            company = models.Company.objects.filter(
+                Q(number=data['number']) |
+                Q(name=data['name'])
+            )
+
+            if company.count() == 0:
+                self.add_bulk_errors(
+                    errors=self.update_errors,
+                    row_number=i,
+                    line_errors=self.MSG_COMPANY_NOT_FOUND),
+            elif company.count() > 1:
+                self.add_bulk_errors(
+                    errors=self.update_errors,
+                    row_number=i,
+                    line_errors=self.MSG_COMPANY_TOO_MANY,
+                )
+            else:
+
+                company[0].expertise_products_services = (
+                    self.parse_products_services(
+                        errors=self.update_errors,
+                        row_number=i,
+                        expertise_row=row[15]
+                    )
+                )
+
+                company[0].save()
+                self.updated_companies.append(company[0])
+
+    def parse_products_services(self, errors, row_number, expertise_row):
+        expertise_list = [x.strip() for x in expertise_row.split(',')]
+        expertise_dict = {
+            'Finance': expertise.FINANCIAL,
+            'Management Consulting': expertise.MANAGEMENT_CONSULTING,
+            'Human Resources': expertise.HUMAN_RESOURCES,
+            'Legal': expertise.LEGAL,
+            'Publicity': expertise.PUBLICITY,
+            'Business Support': expertise.BUSINESS_SUPPORT
+        }
+        expertise_list_not_found = []
+
+        parsed_expertise = {}
+        for e in expertise_list:
+            found = False
+            for key, values in expertise_dict.items():
+
+                expertise_match = self.match_sequence(e, values)
+                if expertise_match is not None:
+                    found = True
+                    if parsed_expertise.get(key):
+                        parsed_expertise[key].append(expertise_match)
+                        break
+                    else:
+                        parsed_expertise[key] = [expertise_match]
+                        break
+            if found is False:
+                expertise_list_not_found.append(e)
+
+        if len(expertise_list_not_found) > 0:
+            error_message = self.MSG_PRODUCT_SERVICE_NOT_FOUND + ' {}'.format(
+                expertise_list_not_found
+            )
+
+            self.add_bulk_errors(
+                errors=errors,
+                row_number=row_number,
+                line_errors=error_message,
+            )
+        return parsed_expertise
+
+    @staticmethod
+    def match_sequence(match_value, sequence_list):
+
+        for v in sequence_list:
+            match = SequenceMatcher(None, match_value.lower(), v.lower())
+            if match.ratio() > 0.9:
+                return v
+        return None
 
     @staticmethod
     def add_bulk_errors(errors, row_number, line_errors):
