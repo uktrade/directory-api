@@ -88,6 +88,7 @@ class CaseStudyDocType(DocType):
     image_three_caption = field.Text()
     testimonial = field.Text()
     slug = field.Text(index='no')
+    company_type = field.Text(index='no')
 
     class Meta:
         index = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
@@ -107,6 +108,7 @@ def company_model_to_doc_type(
     company_fields = {
         'date_of_creation',
         'description',
+        'company_type',
         'employees',
         'facebook_url',
         'keywords',
