@@ -432,10 +432,11 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             'Business Support': ['Facilities (such as WiFI or electricity)']
         }
         assert response.context['errors'] == [
-            '[Row 1] "Unable to find following'
-            ' products & services [\'Unkown Skill\']"',
-            '[Row 3] "More then one company returned"',
-            '[Row 4] "Company not found"'
+            '[Row 3] "Unable to find following products & services '
+            '[\'Unkown Skill\']"',
+            '[Row 5] "More then one company returned - '
+            'Name:Test 4 Number:00000000)"',
+            '[Row 6] "Company not found - Name:Test 9999 Number:00000000)"'
         ]
         assert len(response.context['updated_companies']) == 3
 
