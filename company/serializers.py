@@ -2,12 +2,14 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from django.conf import settings
 from django.http import QueryDict
 
 from company import helpers, models, validators
+from company.helpers import InvestmentSupportDirectorySearch
+
 from supplier.models import Supplier
 
 
@@ -148,6 +150,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'expertise_regions',
             'expertise_countries',
             'expertise_languages',
+            'expertise_products_services',
         )
         extra_kwargs = {
             'export_status': {'required': False},
@@ -178,7 +181,7 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 class SearchSerializer(serializers.Serializer):
 
-    MESSAGE_MISSING_QUERY = 'Please specify a term, sector'
+    MESSAGE_MISSING_QUERY = 'Please specify a term or filter'
 
     term = serializers.CharField(required=False)
     page = serializers.IntegerField()
@@ -187,15 +190,38 @@ class SearchSerializer(serializers.Serializer):
         choices=choices.INDUSTRIES,
         required=False,
     )
+    expertise_industries = serializers.MultipleChoiceField(
+        choices=choices.INDUSTRIES,
+        required=False,
+    )
+    expertise_regions = serializers.MultipleChoiceField(
+        choices=choices.EXPERTISE_REGION_CHOICES,
+        required=False,
+    )
+    expertise_countries = serializers.MultipleChoiceField(
+        choices=choices.COUNTRY_CHOICES,
+        required=False,
+    )
+    expertise_languages = serializers.MultipleChoiceField(
+        choices=choices.EXPERTISE_LANGUAGES,
+        required=False,
+    )
+    expertise_products_services_labels = serializers.ListField(required=False)
 
     is_showcase_company = serializers.NullBooleanField(required=False)
 
     def validate(self, attrs):
-        is_sector_present = attrs.get('sectors') is not None
         is_term_present = attrs.get('term') is not None
-        if not (is_term_present or is_sector_present):
+        is_optional_field_present = self.is_optional_field_present(attrs)
+        if not (is_term_present or is_optional_field_present):
             raise serializers.ValidationError(self.MESSAGE_MISSING_QUERY)
         return attrs
+
+    def is_optional_field_present(self, attrs):
+        for field in InvestmentSupportDirectorySearch.OPTIONAL_FILTERS:
+            if attrs.get(field) is not None:
+                return True
+        return False
 
 
 class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):

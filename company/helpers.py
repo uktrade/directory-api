@@ -5,14 +5,15 @@ import logging
 import os
 import re
 from urllib.parse import urljoin
+from elasticsearch_dsl import query
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
-from directory_constants.constants import choices
+from directory_constants import choices
+import directory_components.helpers
 import requests
-
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
@@ -46,6 +47,18 @@ class BearerAuth(requests.auth.AuthBase):
     def __call__(self, r):
         r.headers['Authorization'] = 'Bearer ' + self.token
         return r
+
+
+class CompanyParser(directory_components.helpers.CompanyParser):
+
+    @property
+    def expertise_labels_for_search(self):
+        return (
+            self.expertise_industries_label.replace(", ", ",").split(',') +
+            self.expertise_regions_label.replace(", ", ",").split(',') +
+            self.expertise_countries_label.replace(", ", ",").split(',') +
+            self.expertise_languages_label.replace(", ", ",").split(',')
+        )
 
 
 class CompaniesHouseClient:
@@ -141,3 +154,56 @@ path_and_rename_logos = PathAndRename(sub_path="company_logos")
 path_and_rename_supplier_case_study = PathAndRename(
     sub_path="supplier_case_study"
 )
+
+
+class InvestmentSupportDirectorySearch:
+
+    OPTIONAL_FILTERS = [
+        'sectors',
+        'expertise_industries',
+        'expertise_regions',
+        'expertise_countries',
+        'expertise_languages',
+        'expertise_products_services_labels'
+    ]
+
+    @classmethod
+    def create_query_object(cls, clean_data):
+        should_filters = []
+        must_filters = []
+
+        is_published_investment_support_directory = True
+        term = clean_data.get('term')
+
+        for filter_name in cls.OPTIONAL_FILTERS:
+            filter_values = clean_data.get(filter_name)
+            if filter_values:
+                for filter_value in sorted(filter_values):
+                    params = {filter_name: filter_value}
+                    should_filters.append(query.Match(**params))
+        if term:
+            must_filters.append(query.MatchPhrase(wildcard=term))
+        if is_published_investment_support_directory is not None:
+            must_filters.append(
+                query.Term(
+                    is_published_investment_support_directory=(
+                        is_published_investment_support_directory
+                    )
+                ))
+        return query.Bool(
+            must=must_filters,
+            should=should_filters,
+            minimum_should_match=1 if len(should_filters) else 0,
+        )
+
+    @staticmethod
+    def apply_pagination(search_object, page, size):
+        start = (page - 1) * size
+        end = start + size
+        return search_object[start:end]
+
+    @staticmethod
+    def apply_highlighting(search_object):
+        return search_object.highlight_options(
+            require_field_match=False,
+        ).highlight('summary', 'description')

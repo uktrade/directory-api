@@ -16,8 +16,6 @@ ratings:
 exclude_paths:
 - "**/tests/"
 - "**/migrations/"
-- "Dockerfile"
-- "docker/"
 - "README.md"
 - "LICENCE"
 - "*.yml"

@@ -8,7 +8,7 @@ test_requirements:
 DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
 DJANGO_MIGRATE_ELASTICSEARCH := python manage.py distributed_elasticsearch_migrate
 FLAKE8 := flake8 . --exclude=migrations,.venv
-PYTEST := pytest . --cov=. --cov-report html --capture=no --cov-config=.coveragerc $(pytest_args)
+PYTEST := pytest . --cov=. --cov-report html --capture=no -vv --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 CODECOV := \
 	if [ "$$CODECOV_REPO_TOKEN" != "" ]; then \
@@ -84,7 +84,7 @@ DEBUG_SET_ENV_VARS := \
 	export FEATURE_TEST_API_ENABLED=true; \
 	export IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER=ipware; \
 	export SOLE_TRADER_NUMBER_SEED=32; \
-	export DIRECTORY_CONSTANTS_URL_EXPORT_READINESS=http://profile.trade.great:8006/
+	export DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC=http://profile.trade.great:8006/
 
 
 TEST_SET_ENV_VARS := \

@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from company.email import CollaboratorNotification, OwnershipChangeNotification
 from company.utils import send_verification_letter
+from company import search
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -31,21 +32,24 @@ def store_date_published(sender, instance, *args, **kwargs):
 
 
 def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
-    document = instance.to_doc_type()
-    if instance.is_published_find_a_supplier:
+    document = search.company_model_to_doc_type(instance)
+    if instance.is_published:
         document.save()
     else:
         document.delete(ignore=404)
 
 
 def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
-    instance.to_doc_type().delete(ignore=404)
+    document = search.company_model_to_doc_type(instance)
+    document.delete(ignore=404)
 
 
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
     if instance.company.is_published_find_a_supplier:
-        instance.company.to_doc_type().save()
-        instance.to_doc_type().save()
+        company_document = search.company_model_to_doc_type(instance.company)
+        case_study_document = search.case_study_model_to_doc_type(instance)
+        company_document.save()
+        case_study_document.save()
 
 
 def send_account_ownership_transfer_notification(

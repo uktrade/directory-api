@@ -1,0 +1,37 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='company' %}">Company</a>
+&rsaquo; <a href="{% url 'admin:company_company_changelist' %}">Companies</a>
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+	<form enctype="multipart/form-data" action="" method="post">
+		{% csrf_token %}
+		{{ form.non_field_errors }}
+		<div>
+			<fieldset class="module aligned">
+				{% for field in form %}
+					<div class="form-row{% if field.errors %} errors{% endif %} field-{{ field.name }}">
+						<div>
+							<label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+							{{ field }}
+							{{ field.errors }}
+							<p class="help">{{ field.help_text|safe }}</p>
+						</div>
+					</div>
+				{% endfor %}
+			</fieldset>
+		<div class="submit-row">
+			<input type="submit" name="_save" class="default" value="Upload Expertise" />
+		</div>
+		</div>
+	</form>
+</div>
+{% endblock %}

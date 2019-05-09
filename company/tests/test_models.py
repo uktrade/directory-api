@@ -1,7 +1,7 @@
 from unittest import mock
 import pytest
 
-from directory_constants.constants import choices
+from directory_constants import choices
 from directory_validators.company import no_html
 
 from django.db import IntegrityError
