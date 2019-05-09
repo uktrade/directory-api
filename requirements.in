@@ -18,7 +18,6 @@ raven==5.19.0
 boto3==1.7.30
 celery[redis]==4.1.0
 requests[security]==2.21.0
-requests-aws4auth==0.9
 elasticsearch-dsl==6.4.0
 waitress==1.1.0
 sigauth==4.0.1

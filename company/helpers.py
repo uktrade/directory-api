@@ -182,7 +182,7 @@ class InvestmentSupportDirectorySearch:
                     params = {filter_name: filter_value}
                     should_filters.append(query.Match(**params))
         if term:
-            must_filters.append(query.MatchPhrase(_all=term))
+            must_filters.append(query.MatchPhrase(wildcard=term))
         if is_published_investment_support_directory is not None:
             must_filters.append(
                 query.Term(

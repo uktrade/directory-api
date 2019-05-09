@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from elasticsearch_dsl import Document, field, Nested, InnerDoc
+from elasticsearch_dsl import Document, field, InnerDoc
 
 from django.conf import settings
 
@@ -8,18 +8,19 @@ from company import helpers, serializers
 
 
 class CaseStudyFieldsMixin:
+    wildcard = field.Text()
     pk = field.Integer(index=False)
-    title = field.Text()
-    short_summary = field.Text()
-    description = field.Text()
-    sector = field.Text()
-    keywords = field.Text()
+    title = field.Text(copy_to='wildcard')
+    short_summary = field.Text(copy_to='wildcard')
+    description = field.Text(copy_to='wildcard')
+    sector = field.Text(copy_to='wildcard')
+    keywords = field.Text(copy_to='wildcard')
     image = field.Text(index=False)
     company_number = field.Text(index=False)
-    image_one_caption = field.Text()
-    image_two_caption = field.Text()
-    image_three_caption = field.Text()
-    testimonial = field.Text()
+    image_one_caption = field.Text(copy_to='wildcard')
+    image_two_caption = field.Text(copy_to='wildcard')
+    image_three_caption = field.Text(copy_to='wildcard')
+    testimonial = field.Text(copy_to='wildcard')
     slug = field.Text(index=False)
 
 
@@ -34,43 +35,58 @@ class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
 
 
 class CompanyDocument(Document):
+    wildcard = field.Text()
     case_study_count = field.Integer()
     date_of_creation = field.Date(index=False)
-    date_of_creation = field.Date(index=False)
-    description = field.Text()
+    description = field.Text(copy_to='wildcard')
     has_description = field.Boolean()
     employees = field.Text(index=False)
     facebook_url = field.Text(index=False)
     pk = field.Integer(index=False)
-    keywords = field.Text()
+    keywords = field.Text(copy_to='wildcard')
     linkedin_url = field.Text(index=False)
     logo = field.Text(index=False)
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
-    modified = field.Date(index=False)
-    name = field.Text()
-    number = field.Text()
-    sectors = field.Text(multi=True)
-    sectors_label = field.Text(multi=True)
-    expertise_industries = field.Text(multi=True)
-    expertise_regions = field.Text(multi=True)
-    expertise_languages = field.Text(multi=True)
-    expertise_countries = field.Text(multi=True)
+    name = field.Text(copy_to='wildcard')
+    number = field.Text(copy_to='wildcard')
+    sectors = field.Text(multi=True, copy_to='wildcard')
+    sectors_label = field.Text(multi=True, copy_to='wildcard')
+    expertise_industries = field.Text(multi=True, copy_to='wildcard')
+    expertise_regions = field.Text(multi=True, copy_to='wildcard')
+    expertise_languages = field.Text(multi=True, copy_to='wildcard')
+    expertise_countries = field.Text(multi=True, copy_to='wildcard')
     # Represents Dict as it's the primitive datatype for this field
     expertise_products_services = field.Object()
-    expertise_products_services_labels = field.Text(multi=True)
-    expertise_labels = field.Text(multi=True)
-    slug = field.Text()
-    summary = field.Text()
+    expertise_products_services_labels = field.Text(
+        multi=True, copy_to='wildcard'
+    )
+    expertise_labels = field.Text(multi=True, copy_to='wildcard')
+    slug = field.Text(copy_to='wildcard')
+    summary = field.Text(copy_to='wildcard')
     twitter_url = field.Text(index=False)
-    website = field.Text()
-    supplier_case_studies = Nested(CaseStudyInnerDoc)
+    website = field.Text(copy_to='wildcard')
+    supplier_case_studies = field.Nested(
+        properties={
+            'pk': field.Integer(index=False),
+            'title': field.Text(copy_to='wildcard'),
+            'short_summary': field.Text(copy_to='wildcard'),
+            'description': field.Text(copy_to='wildcard'),
+            'sector': field.Text(copy_to='wildcard'),
+            'keywords': field.Text(copy_to='wildcard'),
+            'image_one_caption': field.Text(copy_to='wildcard'),
+            'image_two_caption': field.Text(copy_to='wildcard'),
+            'image_three_caption': field.Text(copy_to='wildcard'),
+            'testimonial': field.Text(copy_to='wildcard'),
+            'slug': field.Text(copy_to='wildcard'),
+        }
+    )
     is_showcase_company = field.Boolean()
     is_published_investment_support_directory = field.Boolean()
+    is_published_find_a_supplier = field.Boolean()
 
     class Meta:
         index = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
-
 
 
 def get_absolute_url(url):
@@ -107,6 +123,7 @@ def company_model_to_doc_type(
         'website',
         'is_showcase_company',
         'is_published_investment_support_directory',
+        'is_published_find_a_supplier',
     }
     case_study_fields = {
         'description',

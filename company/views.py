@@ -192,7 +192,7 @@ class SearchBaseView(abc.ABC, views.APIView):
 
     def create_query_object(
         self, term, sectors, is_showcase_company=None,
-        is_published_investment_support_directory=None,
+        is_published_find_a_supplier=None,
     ):
         should_filters = []
         must_filters = []
@@ -204,13 +204,11 @@ class SearchBaseView(abc.ABC, views.APIView):
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
-            must_filters.append(query.MatchPhrase(_all=term))
-        if is_published_investment_support_directory is not None:
+            must_filters.append(query.MatchPhrase(wildcard=term))
+        if is_published_find_a_supplier is not None:
             must_filters.append(
                 query.Term(
-                    is_published_investment_support_directory=(
-                        is_published_investment_support_directory
-                    )
+                    is_published_find_a_supplier=is_published_find_a_supplier
                 ))
         return query.Bool(
             must=must_filters,
@@ -251,7 +249,7 @@ class CompanySearchAPIView(SearchBaseView):
             term=term,
             sectors=sectors,
             is_showcase_company=is_showcase_company,
-            is_published_investment_support_directory=False,
+            is_published_find_a_supplier=True,
         )
         return search.CompanyDocument.search().query(
             'function_score',
