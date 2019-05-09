@@ -1,6 +1,6 @@
 import uuid
 
-from directory_constants.constants import choices
+from directory_constants import choices
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
 
@@ -13,14 +13,12 @@ from django.utils.translation import ugettext_lazy as _
 from core.helpers import TimeStampedModel
 from field_history.tracker import FieldHistoryTracker
 
-from company import helpers, search
+from company import helpers
 
 
 class Company(TimeStampedModel):
     COMPANIES_HOUSE = 'COMPANIES_HOUSE'
     SOLE_TRADER = 'SOLE_TRADER'
-
-    to_doc_type = search.company_model_to_doc_type
 
     company_type = models.CharField(
         max_length=15,
@@ -76,26 +74,22 @@ class Company(TimeStampedModel):
     expertise_regions = JSONField(
         blank=True,
         default=[],
-        help_text=(
-            "The regions that this company has expertise in,"
-            "this allows searching and filtering for this selection"
-        )
+        help_text="The regions that this company has expertise in."
     )
     expertise_countries = JSONField(
         blank=True,
         default=[],
-        help_text=(
-            "The countries that this company has expertise in,"
-            "this allows searching and filtering for this selection"
-        )
+        help_text="The countries that this company has expertise in."
     )
     expertise_languages = JSONField(
         blank=True,
         default=[],
-        help_text=(
-            "The languages that this company has expertise in,"
-            "this allows searching and filtering for this selection"
-        )
+        help_text="The languages that this company has expertise in."
+    )
+    expertise_products_services = JSONField(
+        blank=True,
+        default={},
+        help_text="The products and services the company has expertise in."
     )
     has_exported_before = models.NullBooleanField()
     is_exporting_goods = models.BooleanField(default=False)
@@ -303,8 +297,6 @@ class Company(TimeStampedModel):
 
 
 class CompanyCaseStudy(TimeStampedModel):
-
-    to_doc_type = search.case_study_model_to_doc_type
 
     title = models.CharField(
         max_length=100,

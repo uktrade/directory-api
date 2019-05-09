@@ -1,11 +1,9 @@
 import os
 
 import dj_database_url
-from directory_components.constants import IP_RETRIEVER_NAME_GOV_UK
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
-from requests_aws4auth import AWS4Auth
 
 import healthcheck.backends
 import directory_healthcheck.backends
@@ -50,7 +48,6 @@ INSTALLED_APPS = [
     'buyer.apps.BuyerConfig',
     'contact.apps.ContactConfig',
     'notifications.apps.NotificationsConfig',
-    'exportreadiness.apps.ExportReadinessConfig',
     'activitystream.apps.ActivityStreamConfig',
     'exporting.apps.ExportingConfig',
     'directory_constants',
@@ -62,7 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
-    'directory_components.middleware.IPRestrictorMiddleware',
+    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -334,7 +331,6 @@ LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
 AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
-AWS_QUERYSTRING_AUTH = False
 AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
@@ -484,38 +480,26 @@ FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
     'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
 )
 
+# DIRECTORY URLS
+DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str(
+    'DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC', ''
+)
 
 # aws, localhost, or govuk-paas
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    if 'elasticsearch' in VCAP_SERVICES:
-        ELASTICSEARCH_URL = (
-            VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
-        )
-    else:
-        ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL')
-    connections.create_connection(
-        alias='default',
-        hosts=[ELASTICSEARCH_URL],
-        connection_class=RequestsHttpConnection,
+    services = {
+        item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']
+    }
+    ELASTICSEARCH_INSTANCE_NAME = env.str(
+        'ELASTICSEARCH_INSTANCE_NAME',
+        VCAP_SERVICES['elasticsearch'][0]['instance_name']
     )
-elif ELASTICSEARCH_PROVIDER == 'aws':
     connections.create_connection(
         alias='default',
-        hosts=[{
-            'host': env.str('ELASTICSEARCH_ENDPOINT'),
-            'port': env.int('ELASTICSEARCH_PORT', 443)
-        }],
-        http_auth=AWS4Auth(
-            env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
-            env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-            env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
-            'es'
-        ),
-        use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
-        verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
-        connection_class=RequestsHttpConnection
+        hosts=[services[ELASTICSEARCH_INSTANCE_NAME]['credentials']['uri']],
+        connection_class=RequestsHttpConnection,
     )
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
@@ -604,21 +588,6 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
 
-
-# ip-restrictor
-IP_RESTRICTOR_SKIP_CHECK_ENABLED = env.bool(
-    'IP_RESTRICTOR_SKIP_CHECK_ENABLED', False
-)
-IP_RESTRICTOR_SKIP_CHECK_SENDER_ID = env.str(
-    'IP_RESTRICTOR_SKIP_CHECK_SENDER_ID', ''
-)
-IP_RESTRICTOR_SKIP_CHECK_SECRET = env.str(
-    'IP_RESTRICTOR_SKIP_CHECK_SECRET', ''
-)
-IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER = env.str(
-    'IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER',
-    IP_RETRIEVER_NAME_GOV_UK
-)
 RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
 ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
 ALLOWED_ADMIN_IP_RANGES = env.list(

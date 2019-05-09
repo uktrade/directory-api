@@ -1,6 +1,6 @@
 import datetime
 
-from directory_constants.constants.urls import build_great_url
+from directory_constants.urls import build_great_url
 
 from django.contrib import admin
 from django.conf.urls import url
@@ -12,7 +12,7 @@ from django import forms
 
 from core.helpers import generate_csv_response
 from company.models import Company, CompanyCaseStudy
-from company.forms import EnrolCompanies
+from company.forms import EnrolCompanies, UploadExpertise
 
 
 class CompaniesCreateFormView(FormView):
@@ -38,6 +38,35 @@ class CompaniesCreateFormView(FormView):
             {
                 'created_companies': created_companies,
                 'skipped_companies': form.skipped_companies,
+            }
+        )
+
+
+class CompaniesUploadExpertiseFormView(FormView):
+    form_class = UploadExpertise
+    template_name = 'admin/company/company_expertise_csv_upload_form.html'
+    success_url = reverse_lazy(
+        'admin/company/company_expertise_csv_upload_success.html'
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Expertise Upload'
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+
+        return TemplateResponse(
+            self.request,
+            'admin/company/company_expertise_csv_upload_success.html',
+            {
+                'updated_companies': form.updated_companies,
+                'errors': form.update_errors,
             }
         )
 
@@ -143,6 +172,13 @@ class CompanyAdmin(admin.ModelAdmin):
                     CompaniesCreateFormView.as_view()
                 ),
                 name="company_company_enrol"
+            ),
+            url(
+                r'^expertise-upload/$',
+                self.admin_site.admin_view(
+                    CompaniesUploadExpertiseFormView.as_view()
+                ),
+                name="upload_company_expertise"
             ),
         ]
         return additional_urls + urls

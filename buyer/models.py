@@ -1,4 +1,4 @@
-from directory_constants.constants import choices
+from directory_constants import choices
 
 from django.db import models
 

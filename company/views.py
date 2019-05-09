@@ -8,6 +8,7 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.http import Http404
 
 from company import filters, models, pagination, search, serializers
+from company.helpers import InvestmentSupportDirectorySearch
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
@@ -190,10 +191,12 @@ class SearchBaseView(abc.ABC, views.APIView):
         return search_object.execute().to_dict()
 
     def create_query_object(
-        self, term, sectors, is_showcase_company=None
+        self, term, sectors, is_showcase_company=None,
+        is_published_find_a_supplier=None,
     ):
         should_filters = []
         must_filters = []
+
         if sectors:
             for sector in sectors:
                 params = {self.sector_field_name: sector}
@@ -201,7 +204,12 @@ class SearchBaseView(abc.ABC, views.APIView):
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
-            must_filters.append(query.MatchPhrase(_all=term))
+            must_filters.append(query.MatchPhrase(wildcard=term))
+        if is_published_find_a_supplier is not None:
+            must_filters.append(
+                query.Term(
+                    is_published_find_a_supplier=is_published_find_a_supplier
+                ))
         return query.Bool(
             must=must_filters,
             should=should_filters,
@@ -220,7 +228,7 @@ class CaseStudySearchAPIView(SearchBaseView):
 
     def create_search_object(self, term, sectors, is_showcase_company):
         query_object = self.create_query_object(term=term, sectors=sectors)
-        return search.CaseStudyDocType.search().query(query_object)
+        return search.CaseStudyDocument.search().query(query_object)
 
     @staticmethod
     def apply_highlighting(search_object):
@@ -241,8 +249,9 @@ class CompanySearchAPIView(SearchBaseView):
             term=term,
             sectors=sectors,
             is_showcase_company=is_showcase_company,
+            is_published_find_a_supplier=True,
         )
-        return search.CompanyDocType.search().query(
+        return search.CompanyDocument.search().query(
             'function_score',
             query=query_object,
             functions=[
@@ -275,6 +284,46 @@ class CompanySearchAPIView(SearchBaseView):
         return search_object.highlight_options(
             require_field_match=False,
         ).highlight('summary', 'description')
+
+    def get_search_results(self, *args, **kwargs):
+        results = super().get_search_results(*args, **kwargs)
+        if results:
+            for hit in results['hits']['hits']:
+                item = hit['_source']
+                if 'modified' in item:
+                    item['modified'] = item['modified'].replace('+00:00', 'Z')
+        return results
+
+
+class InvestmentSupportDirectorySearchAPIView(views.APIView):
+
+    permission_classes = []
+    serializer_class = serializers.SearchSerializer
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+
+        query = InvestmentSupportDirectorySearch.create_query_object(
+            validated_data
+        )
+
+        search_object = InvestmentSupportDirectorySearch.apply_highlighting(
+            search_object=search.CompanyDocument.search().query(query)
+        )
+
+        search_object = InvestmentSupportDirectorySearch.apply_pagination(
+            search_object=search_object,
+            page=validated_data['page'],
+            size=validated_data['size']
+        )
+
+        search_results = search_object.execute().to_dict()
+        return Response(
+            data=search_results,
+            status=status.HTTP_200_OK,
+        )
 
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):

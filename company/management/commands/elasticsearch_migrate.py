@@ -7,6 +7,7 @@ from elasticsearch.exceptions import NotFoundError
 from django.utils.crypto import get_random_string
 from django.core import management
 from django.conf import settings
+from django.db.models import Q
 
 from company import search
 from company import models
@@ -46,12 +47,13 @@ class Command(management.BaseCommand):
 
     def create_index(self, name, doc_type, alias):
         index = Index(name)
-        index.doc_type(doc_type)
+        index.document(doc_type)
         index.analyzer(analyzer('english'))
         # give the index an alias (e.g, `company_alias`), so the index is used
         # when the application searches from or inserts into `campaign_alias`.
         index.aliases(**{alias: {}})  # same  as .aliases(company-alias: {})
         index.create()
+        doc_type._index = index
         return index
 
     def get_indices(self, alias_name):
@@ -64,12 +66,12 @@ class Command(management.BaseCommand):
     def create_new_indices(self):
         self.create_index(
             name=self.new_company_index,
-            doc_type=search.CompanyDocType,
+            doc_type=search.CompanyDocument,
             alias=self.company_index_alias,
         )
         self.create_index(
             name=self.new_case_study_index,
-            doc_type=search.CaseStudyDocType,
+            doc_type=search.CaseStudyDocument,
             alias=self.case_study_index_alias,
         )
 
@@ -77,7 +79,10 @@ class Command(management.BaseCommand):
         companies = (
             models.Company.objects
             .prefetch_related('supplier_case_studies')
-            .filter(is_published_find_a_supplier=True)
+            .filter(
+                Q(is_published_find_a_supplier=True) |
+                Q(is_published_investment_support_directory=True)
+            )
         )
         company_documents = []
         case_study_documents = []
@@ -91,6 +96,7 @@ class Command(management.BaseCommand):
                     case_study=case_study, index=self.new_case_study_index,
                 )
                 case_study_documents.append(case_study_doc_type.to_dict(True))
+
         bulk(self.client, company_documents)
         bulk(self.client, case_study_documents)
 

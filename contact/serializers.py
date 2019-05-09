@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from directory_constants.constants import choices
+from directory_constants import choices
 
 
 class MessageToSupplierSerializer(serializers.Serializer):
