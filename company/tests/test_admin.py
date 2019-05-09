@@ -378,13 +378,13 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
     def test_upload_expertise_companies_form_success(self):
 
-        CompanyFactory(
+        company_1 = CompanyFactory(
             name='Test 1',
         )
-        CompanyFactory(
+        company_2 = CompanyFactory(
             number='74897421',
         )
-        CompanyFactory(
+        company_3 = CompanyFactory(
             name='Test 3',
             number='23242314',
             expertise_products_services={},
@@ -409,31 +409,27 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             }
         )
 
-        company_1 = Company.objects.filter(name='Test 1')[0]
-        company_2 = Company.objects.filter(number='74897421')[0]
-        company_3 = Company.objects.filter(name='Test 3')[0]
+        company_1.refresh_from_db()
+        company_2.refresh_from_db()
+        company_3.refresh_from_db()
 
         assert company_1.expertise_products_services == (
             {
-             'Finance': ['Raising Capital'],
+             'Finance': ['Raising capital'],
              'Management Consulting': ['Workforce development'],
-             'Human Resources': ['Sourcing and Hiring', 'Succession planning'],
-             'Publicity': ['Social Media'],
+             'Human Resources': ['Sourcing and hiring', 'Succession planning'],
+             'Publicity': ['Social media'],
              'Business Support': ['Planning consultants']
             }
         )
         assert company_2.expertise_products_services == (
             {
-                'Legal': ['Intellectual property'],
-                'Finance': [
-                    'Accounting and Tax (including '
-                    'registration for VAT and PAYE)'
-                ]
+                'Finance': ['Insurance']
             }
         )
         assert company_3.expertise_products_services == {
             'Legal': ['Immigration'],
-            'Business Support': ['Facilities (water, wifi, electricity)']
+            'Business Support': ['Facilities (such as WiFI or electricity)']
         }
         assert response.context['errors'] == [
             '[Row 1] "Unable to find following'

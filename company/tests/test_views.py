@@ -509,6 +509,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
         expertise_regions=[
@@ -531,6 +532,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         expertise_industries=[sectors.AEROSPACE],
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
@@ -544,6 +546,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0],
@@ -625,6 +628,7 @@ def search_investment_support_directory_highlighting_data(settings):
         ),
         summary='Hunts in packs',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         id=1,
     )
@@ -633,6 +637,7 @@ def search_investment_support_directory_highlighting_data(settings):
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         id=2,
     )

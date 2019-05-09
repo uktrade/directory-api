@@ -24,7 +24,7 @@ elasticsearch-dsl==5.4.0
 waitress==1.1.0
 sigauth==4.0.1
 directory-validators==4.5.1
-directory-constants>=16.3.0,<17.0.0
+directory-constants==16.4.0
 directory-sso-api-client==3.0.0
 directory-healthcheck==1.0.1
 cryptography==2.3.0
