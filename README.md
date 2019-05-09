@@ -22,8 +22,12 @@
 
 ### Requirements
 [Python 3.6](https://www.python.org/downloads/release/python-368/)
+
 [Postgres 9.5](https://www.postgresql.org/)
+
 [Redis](https://redis.io/)
+
+[Elasticsearch](https://www.elastic.co) (Currently works upto v5.6)
 
 
 ### Configuration
