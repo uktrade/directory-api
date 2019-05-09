@@ -490,11 +490,11 @@ ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
     services = {
-        item['instance_name']: item
-        for item in VCAP_SERVICES['elasticsearch'].items()
+        item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']
     }
     ELASTICSEARCH_INSTANCE_NAME = env.str(
-        'ELASTICSEARCH_INSTANCE_NAME', 'directory-api-dev-es6'
+        'ELASTICSEARCH_INSTANCE_NAME',
+        VCAP_SERVICES['elasticsearch'][0]['instance_name']
     )
     connections.create_connection(
         alias='default',
