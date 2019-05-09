@@ -285,6 +285,15 @@ class CompanySearchAPIView(SearchBaseView):
             require_field_match=False,
         ).highlight('summary', 'description')
 
+    def get_search_results(self, *args, **kwargs):
+        results = super().get_search_results(*args, **kwargs)
+        if results:
+            for hit in results['hits']['hits']:
+                item = hit['_source']
+                if 'modified' in item:
+                    item['modified'] = item['modified'].replace('+00:00', 'Z')
+        return results
+
 
 class InvestmentSupportDirectorySearchAPIView(views.APIView):
 
