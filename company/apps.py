@@ -1,13 +1,12 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_save, pre_save, post_delete
 
-from company import signals
-
 
 class CompanyConfig(AppConfig):
     name = 'company'
 
     def ready(self):
+        from company import signals
         pre_save.connect(
             receiver=signals.publish_companies_that_meet_criteria,
             sender='company.Company'

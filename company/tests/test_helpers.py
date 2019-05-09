@@ -7,7 +7,9 @@ import requests_mock
 from requests.exceptions import HTTPError
 from requests import Response
 
-from company import helpers
+from company.tests import factories
+from company import helpers, serializers
+from company.helpers import CompanyParser
 
 
 def profile_api_400(*args, **kwargs):
@@ -210,3 +212,32 @@ def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
     assert address.line_2 == line_2
     assert address.po_box == po_box
     assert address.postal_code == postal_code
+
+
+@pytest.mark.django_db
+def test_extract_expertise_parser():
+
+    company = factories.CompanyFactory(
+        expertise_languages=['ab', 'aa', 'it', 'made-up'],
+        expertise_industries=['ADVANCED_MANUFACTURING', 'AIRPORTS'],
+        expertise_regions=['NORTH_EAST', 'SOUTH_EAST'],
+        expertise_countries=['PT', 'RU'],
+        pk=1,
+    )
+
+    company_data_dict = serializers.CompanySerializer(company).data
+    expected_values = [
+        'Advanced manufacturing',
+        'Airports',
+        'North East',
+        'South East',
+        'Portugal',
+        'Russia',
+        'Abkhazian',
+        'Afar',
+        'Italian'
+    ]
+
+    company_parser = CompanyParser(company_data_dict)
+    expertise_search_labels = company_parser.expertise_labels_for_search
+    assert expertise_search_labels == expected_values

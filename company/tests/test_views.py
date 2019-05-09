@@ -509,6 +509,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the stealth and prowess of wolves.',
         summary='Hunts in packs common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
         expertise_regions=[
@@ -531,6 +532,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
         expertise_industries=[sectors.AEROSPACE],
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
@@ -544,6 +546,7 @@ def search_investment_support_directory_data(settings):
         description='Providing the destructiveness of grapeshot.',
         summary='Like naval warfare common',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0],
@@ -625,8 +628,8 @@ def search_investment_support_directory_highlighting_data(settings):
         ),
         summary='Hunts in packs',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
-        expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
         id=1,
     )
     factories.CompanyFactory(
@@ -634,8 +637,8 @@ def search_investment_support_directory_highlighting_data(settings):
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
         is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
         keywords='Ants, Tongue, Anteater',
-        expertise_industries=[sectors.AEROSPACE],
         id=2,
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
@@ -1738,7 +1741,7 @@ def test_investment_support_directory_search_with_all_filters(
             'expertise_regions': choices.EXPERTISE_REGION_CHOICES[1][0],
             'expertise_countries': choices.COUNTRY_CHOICES[1][0],
             'expertise_languages': choices.EXPERTISE_LANGUAGES[1][0],
-            'expertise_products_services': ['IT'],
+            'expertise_products_services_labels': ['IT'],
             'size': 5,
             'page': 1,
         }
@@ -1791,7 +1794,7 @@ def test_investment_support_directory_search_with_all_filters(
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'IT'
+                                    'expertise_products_services_labels': 'IT'
                                 }
                             },
 
@@ -1817,7 +1820,7 @@ def test_investment_support_directory_search_with_all_filters_multiple(
             'expertise_industries': [
                 sectors.ADVANCED_MANUFACTURING,
                 sectors.AIRPORTS],
-            'expertise_products_services': ['IT', 'REGULATION'],
+            'expertise_products_services_labels': ['IT', 'REGULATION'],
             'size': 5,
             'page': 1,
         }
@@ -1862,12 +1865,13 @@ def test_investment_support_directory_search_with_all_filters_multiple(
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'IT'
+                                    'expertise_products_services_labels': 'IT'
                                 }
                             },
                             {
                                 'match': {
-                                    'expertise_products_services': 'REGULATION'
+                                    'expertise_products_services_labels': (
+                                        'REGULATION')
                                 }
                             },
                         ],
@@ -2124,8 +2128,10 @@ def test_company_search_results(term, sector, expected, search_companies_data):
         ['1', '2', '3']
     ],
     # expertise_products_services
-    ['', 'expertise_products_services', ['Finance'], ['1', '2']],
-    ['', 'expertise_products_services', ['Finance', 'IT'], ['1', '2', '3']],
+    ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
+    ['', 'expertise_products_services_labels',
+     ['Finance', 'IT'], ['1', '2', '3']
+     ],
 ])
 def test_investment_support_directory_search_results(
         term,
@@ -2141,6 +2147,40 @@ def test_investment_support_directory_search_results(
         'page': '1',
         'size': '5',
         filter_name:  filter_value,
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200
+
+    hits = response.json()['hits']['hits']
+
+    assert len(hits) == len(expected)
+    for hit in hits:
+        assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('term, expected', [
+    [sectors.AEROSPACE, ['1', '2']],
+    [choices.COUNTRY_CHOICES[23][0], ['1', '2']],
+    [choices.EXPERTISE_REGION_CHOICES[4][0], ['1', '2']],
+    [choices.EXPERTISE_LANGUAGES[0][0], ['1', '2']],
+])
+def test_investment_support_directory_search_term_expertise(
+        term,
+        expected,
+        search_investment_support_directory_data,
+        api_client
+):
+
+    data = {
+        'term': term,
+        'page': '1',
+        'size': '5',
     }
 
     response = api_client.get(
@@ -2177,7 +2217,7 @@ def test_case_study_search_results(sector, expected, search_case_studies_data):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('term,sectors,expected', [
     ['wolf',       None,                ['3', '4', '2', '1']],
-    ['Limited',    None,                ['5', '3', '4', '2', '1']],
+    ['Limited',    None,                ['3', '5', '4', '2', '1']],
     ['packs',      None,                ['3', '2', '1']],
     ['',           [sectors.AEROSPACE], ['4', '3', '1']],
     ['Grapeshot',  None,                ['2', '5']],
@@ -2191,7 +2231,6 @@ def test_company_search_results_ordering(
         term=term, page=1, size=5, sectors=sectors
     )
     hits = results['hits']['hits']
-
     ordered_hit_ids = [hit['_id'] for hit in hits]
     assert ordered_hit_ids == expected
 

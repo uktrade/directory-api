@@ -4,7 +4,7 @@ from elasticsearch_dsl import Document, field, Nested, InnerDoc
 
 from django.conf import settings
 
-from company import helpers
+from company import helpers, serializers
 
 
 class CaseStudyFieldsMixin:
@@ -56,7 +56,10 @@ class CompanyDocument(Document):
     expertise_regions = field.Text(multi=True)
     expertise_languages = field.Text(multi=True)
     expertise_countries = field.Text(multi=True)
-    expertise_products_services = field.Text(multi=True)
+    # Represents Dict as it's the primitive datatype for this field
+    expertise_products_services = field.Object()
+    expertise_products_services_labels = field.Text(multi=True)
+    expertise_labels = field.Text(multi=True)
     slug = field.Text()
     summary = field.Text()
     twitter_url = field.Text(index=False)
@@ -67,6 +70,7 @@ class CompanyDocument(Document):
 
     class Meta:
         index = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
+
 
 
 def get_absolute_url(url):
@@ -83,6 +87,7 @@ def company_model_to_doc_type(
     company_fields = {
         'date_of_creation',
         'description',
+        'company_type',
         'employees',
         'facebook_url',
         'keywords',
@@ -95,6 +100,7 @@ def company_model_to_doc_type(
         'expertise_regions',
         'expertise_languages',
         'expertise_countries',
+        'expertise_products_services',
         'slug',
         'summary',
         'twitter_url',
@@ -120,9 +126,11 @@ def company_model_to_doc_type(
         'website',
     }
     has_description = getattr(company, 'description', '') != ''
-    expertise_products_services = []
+    company_data_dict = serializers.CompanySerializer(company).data
+    company_parser = helpers.CompanyParser(company_data_dict)
+    expertise_products_services_labels = []
     for key, values in company.expertise_products_services.items():
-        expertise_products_services += values
+        expertise_products_services_labels += values
 
     company_doc_type = CompanyDocument(
         meta={'id': company.pk, '_index': index},
@@ -131,10 +139,12 @@ def company_model_to_doc_type(
         has_single_sector=len(company.sectors) == 1,
         has_description=has_description,
         logo=get_absolute_url(company.logo.url if company.logo else ''),
-        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
-        expertise_products_services=expertise_products_services,
+        sectors_label=[
+            helpers.get_sector_label(v) for v in company.sectors
+        ],
+        expertise_products_services_labels=expertise_products_services_labels,
+        expertise_labels=company_parser.expertise_labels_for_search,
         **{key: getattr(company, key, '') for key in company_fields},
-
     )
     for case_study in company.supplier_case_studies.all():
         company_doc_type.supplier_case_studies.append({

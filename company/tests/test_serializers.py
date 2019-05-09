@@ -323,7 +323,7 @@ def test_company_search_serializer_empty_term_sector():
     ['expertise_regions', [choices.EXPERTISE_REGION_CHOICES[1][0]]],
     ['expertise_countries', [choices.COUNTRY_CHOICES[1][0]]],
     ['expertise_languages', [choices.EXPERTISE_LANGUAGES[1][0]]],
-    ['expertise_products_services', ['IT']],
+    ['expertise_products_services_labels', ['IT']],
 ])
 def test_company_search_serializer_optional_field(field, field_value):
 
