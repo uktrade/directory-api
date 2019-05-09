@@ -97,3 +97,4 @@ Temporary Items
 # Dynamically created
 .venv
 staticfiles
+media

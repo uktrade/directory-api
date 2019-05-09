@@ -2,6 +2,7 @@ from unittest.mock import patch, Mock, PropertyMock
 import datetime
 
 from freezegun import freeze_time
+from freezegun.api import datetime_to_fakedatetime, date_to_fakedate
 import pytest
 
 from company import search, helpers, serializers
@@ -29,7 +30,7 @@ def test_company_doc_type():
         expected_expertise_products_services += values
 
     expected = {
-        'date_of_creation': '2000-10-10',
+        'date_of_creation': date_to_fakedate(company.date_of_creation),
         'description': company.description,
         'employees': company.employees,
         'facebook_url': company.facebook_url,
@@ -37,7 +38,7 @@ def test_company_doc_type():
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': 'http://0.0.0.0:8000/media/thing.jpg',
-        'modified': '2016-11-23T11:21:10.977518Z',
+        'modified': datetime_to_fakedatetime(company.modified),
         'name': company.name,
         'number': company.number,
         'has_description': True,
@@ -57,6 +58,7 @@ def test_company_doc_type():
         'case_study_count': 1,
         'has_single_sector': False,
         'is_showcase_company': False,
+        'is_published_find_a_supplier': False,
         'is_published_investment_support_directory': False,
         'company_type': 'COMPANIES_HOUSE',
         'supplier_case_studies': [

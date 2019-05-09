@@ -4,7 +4,6 @@ import dj_database_url
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
-from requests_aws4auth import AWS4Auth
 
 import healthcheck.backends
 import directory_healthcheck.backends
@@ -490,33 +489,17 @@ DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str(
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    if 'elasticsearch' in VCAP_SERVICES:
-        ELASTICSEARCH_URL = (
-            VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
-        )
-    else:
-        ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL')
-    connections.create_connection(
-        alias='default',
-        hosts=[ELASTICSEARCH_URL],
-        connection_class=RequestsHttpConnection,
+    services = {
+        item['instance_name']: item
+        for item in VCAP_SERVICES['elasticsearch'].items()
+    }
+    ELASTICSEARCH_INSTANCE_NAME = env.str(
+        'ELASTICSEARCH_INSTANCE_NAME', 'directory-api-dev-es6'
     )
-elif ELASTICSEARCH_PROVIDER == 'aws':
     connections.create_connection(
         alias='default',
-        hosts=[{
-            'host': env.str('ELASTICSEARCH_ENDPOINT'),
-            'port': env.int('ELASTICSEARCH_PORT', 443)
-        }],
-        http_auth=AWS4Auth(
-            env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
-            env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-            env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
-            'es'
-        ),
-        use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
-        verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
-        connection_class=RequestsHttpConnection
+        hosts=[services[ELASTICSEARCH_INSTANCE_NAME]['credentials']['uri']],
+        connection_class=RequestsHttpConnection,
     )
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
