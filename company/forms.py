@@ -241,6 +241,9 @@ class UploadExpertise(forms.Form):
     @transaction.atomic
     def clean_csv_file(self):
 
+        self.update_errors = []
+        self.updated_companies = []
+
         csv_file = io.TextIOWrapper(
             self.cleaned_data['csv_file'].file, encoding='utf-8'
         )
@@ -252,34 +255,44 @@ class UploadExpertise(forms.Form):
         for i, row in enumerate(reader):
             data = {
                 'name': row[1],
-                'number': row[8],
+                'number': row[8].rjust(8, '0'),
             }
 
-            if data['number']:
+            company_type = company_type_parser(row[8])
+            if company_type == models.Company.SOLE_TRADER:
+                companies = models.Company.objects.filter(name=data['name'])
+            else:
                 companies = models.Company.objects.filter(
                     number=data['number']
                 )
-            else:
-                companies = models.Company.objects.filter(name=data['name'])
 
             if companies.count() == 0:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i,
-                    line_errors=self.MSG_COMPANY_NOT_FOUND),
+                    row_number=i+2,
+                    line_errors='{} - Name:{} Number:{})'.format(
+                        self.MSG_COMPANY_NOT_FOUND,
+                        data['name'],
+                        data['number']
+                    )
+                )
             elif companies.count() > 1:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i,
-                    line_errors=self.MSG_COMPANY_TOO_MANY,
+                    row_number=i+2,
+                    line_errors='{} - Name:{} Number:{})'.format(
+                        self.MSG_COMPANY_TOO_MANY,
+                        data['name'],
+                        data['number']
+                    )
                 )
             else:
                 company = companies[0]
                 company.expertise_products_services = (
                     self.parse_products_services(
                         errors=self.update_errors,
-                        row_number=i,
-                        expertise_row=row[15]
+                        row_number=i+2,
+                        expertise_row=row[15].strip()
                     )
                 )
                 company.save()
