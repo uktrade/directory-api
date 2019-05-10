@@ -318,7 +318,6 @@ def test_company_search_serializer_empty_term_sector():
 
 
 @pytest.mark.parametrize('field, field_value', [
-    ['sectors', [choices.INDUSTRIES[1][0]]],
     ['expertise_industries', [choices.INDUSTRIES[1][0]]],
     ['expertise_regions', [choices.EXPERTISE_REGION_CHOICES[1][0]]],
     ['expertise_countries', [choices.COUNTRY_CHOICES[1][0]]],
@@ -330,4 +329,5 @@ def test_company_search_serializer_optional_field(field, field_value):
     serializer = serializers.SearchSerializer(
         data={'page': 1, 'size': 10, field: field_value}
     )
+
     assert serializer.is_valid() is True

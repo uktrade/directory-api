@@ -1362,7 +1362,7 @@ def test_company_search_with_sector_filter(api_client, settings):
 
 
 def test_investment_support_directory_search_with_sector_filter(
-        api_client, settings
+    api_client, settings
 ):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}):
@@ -1379,7 +1379,7 @@ def test_investment_support_directory_search_with_sector_filter(
 
 
 def test_investment_support_directory_search_withwildcard_filters(
-        api_client, settings
+    api_client, settings
 ):
     es = connections.get_connection('default')
 
@@ -1569,10 +1569,7 @@ def test_investment_support_directory_search_results(
     [choices.EXPERTISE_LANGUAGES[0][0], ['1', '2']],
 ])
 def test_investment_support_directory_search_term_expertise(
-        term,
-        expected,
-        search_investment_support_directory_data,
-        api_client
+    term, expected, search_investment_support_directory_data, api_client
 ):
 
     data = {
@@ -1592,6 +1589,210 @@ def test_investment_support_directory_search_term_expertise(
     assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
+
+
+@pytest.fixture
+def investment_support_directory_filter_data(settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_EAST'],
+        expertise_countries=['AF'],
+        expertise_languages=['ab'],
+        expertise_products_services={
+            'financial': ['Accounting and tax']
+        },
+        is_published_investment_support_directory=True,
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Wolf corp',
+        expertise_industries=[sectors.AIRPORTS],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Wolf are us',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={},
+        is_published_investment_support_directory=True,
+        id=3
+    )
+    factories.CompanyFactory(
+        name='Ultra Wolf',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=[],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=4,
+    )
+    factories.CompanyFactory(
+        name='Wolf nation',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=[],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=5,
+    )
+    factories.CompanyFactory(
+        name='company of the Wolf',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=[],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=6,
+    )
+    factories.CompanyFactory(
+        name='year of the wolf',
+        expertise_industries=[],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=7,
+    )
+    factories.CompanyFactory(
+        name='Fish corp',  # missing "wolf match"
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        id=8,
+    )
+    factories.CompanyFactory(
+        name='Wolf wild corp',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=False,  # not published
+        id=9,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+
+@pytest.mark.parametrize('filters,expected', [
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+            'expertise_countries': [
+                'AF',  # Afghanistan
+                'AL',  # Albania
+            ],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+
+        },
+        ['1', '2']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+        },
+        ['1', '2', '4']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+        },
+        ['1', '2', '4', '6']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+        },
+        ['1', '2', '3', '4', '6']
+    ),
+    (
+        {'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS]},
+        ['1', '2', '3', '4', '5', '6']
+    ),
+    (
+        {},
+        ['1', '2', '3', '4', '5', '6', '7']
+    ),
+])
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_investment_support_directory_search_filter_and_or(
+    filters, expected, api_client, investment_support_directory_filter_data
+):
+
+    data = {
+        **filters,
+        'term': 'wolf',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert sorted(actual) == expected
 
 
 @pytest.mark.rebuild_elasticsearch
@@ -1668,8 +1869,7 @@ def atest_company_search_results_highlight_long(
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 def test_investment_support_directory_search_results_highlight(
-        search_investment_support_directory_highlighting_data,
-        api_client,
+    search_investment_support_directory_highlighting_data, api_client,
 ):
     data = {
         'term': 'power',
