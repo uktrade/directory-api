@@ -1024,10 +1024,27 @@ def test_public_company_case_study_get(
     assert data['company']['id'] == supplier_case_study.company.pk
 
 
+@pytest.mark.parametrize(
+    'is_investment_support_directory, is_find_a_supplier',
+    [
+        [True, False],
+        [False, True],
+        [True, True],
+    ]
+)
 @pytest.mark.django_db
 def test_company_profile_public_retrieve_public_profile(
-    public_profile, api_client
+    is_investment_support_directory,
+    is_find_a_supplier,
+    public_profile,
+    api_client,
 ):
+    public_profile.is_published_investment_support_directory = (
+        is_investment_support_directory)
+    public_profile.is_published_find_a_supplier = (
+        is_find_a_supplier)
+
+    public_profile.save()
     url = reverse(
         'company-public-profile-detail',
         kwargs={'companies_house_number': public_profile.number}
@@ -1051,10 +1068,30 @@ def test_company_profile_public_404_private_profile(
     assert response.status_code == http.client.NOT_FOUND
 
 
+@pytest.mark.parametrize(
+    'is_investment_support_directory, is_find_a_supplier',
+    [
+        [True, False],
+        [False, True],
+        [True, True],
+    ]
+)
 @pytest.mark.django_db
-def test_company_profile_public_list_profiles(
-    private_profile, public_profile, api_client
+def test_company_profile_public_list_profiles_fas(
+    is_investment_support_directory,
+    is_find_a_supplier,
+    private_profile,
+    public_profile,
+    api_client,
 ):
+
+    public_profile.is_published_investment_support_directory = (
+        is_investment_support_directory)
+    public_profile.is_published_find_a_supplier = (
+        is_find_a_supplier)
+
+    public_profile.save()
+
     url = reverse('company-public-profile-list',)
     response = api_client.get(url)
 
