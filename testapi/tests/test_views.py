@@ -109,6 +109,14 @@ def test_get_published_companies_without_optional_parameters(authed_client):
     assert response.json() == []
 
 
+@pytest.mark.django_db
+def test_get_unpublished_companies_without_optional_parameters(authed_client):
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == []
+
+
 @pytest.mark.parametrize(
     ['limit', 'minimal_number_of_sectors', 'expected_status_code'],
     [
@@ -148,6 +156,49 @@ def test_get_published_companies_with_disabled_test_api_and_unsigned_client(
         client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('published_companies')
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.parametrize(
+    ['limit', 'minimal_number_of_sectors', 'expected_status_code'],
+    [
+        (1, 0, status.HTTP_200_OK),
+        (0, 8, status.HTTP_200_OK),
+        (0, 0, status.HTTP_200_OK),
+        (0, 0, status.HTTP_200_OK),
+        (-1, 0, status.HTTP_200_OK),
+        (-1, -1, status.HTTP_200_OK),
+        (None, 0, status.HTTP_200_OK),
+        (1, None, status.HTTP_200_OK),
+    ])
+@pytest.mark.django_db
+def test_get_unpublished_companies_use_optional_parameters(
+        authed_client, limit, minimal_number_of_sectors, expected_status_code):
+    url = reverse('unpublished_companies')
+    params = {
+        'limit': limit,
+        'minimal_number_of_sectors': minimal_number_of_sectors
+    }
+    response = authed_client.get(url, params=params)
+    assert response.status_code == expected_status_code
+    assert response.json() == []
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_with_disabled_test_api(
+        authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_with_disabled_test_api_and_unsigned_client(
+        client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('unpublished_companies')
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -247,3 +298,59 @@ def test_get_published_companies_use_optional_filters(
             {'minimal_number_of_sectors': minimal_number_of_sectors})
     response = authed_client.get(url, data=params)
     assert len(response.json()) == expected_number_of_results
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_check_response_contents(
+        authed_client, authed_supplier):
+    name = 'Test Company'
+    number = '12345678'
+    email = 'test@user.com'
+    sectors = ["AEROSPACE", "AUTOMOTIVE", "BIOTECHNOLOGY_AND_PHARMACEUTICALS"]
+    employees = '1-10'
+    website = 'http://test.com'
+    keywords = 'keyword1,keyword2,keyword3'
+    facebook_url = 'http://www.facebook.com/testcompany'
+    linkedin_url = 'http://www.linkedin.com/testcompany'
+    twitter_url = 'http://www.twitter.com/testcompany'
+    summary = 'few words about our company'
+    description = 'we sell cars'
+    is_uk_isd_company = True
+    is_published_investment_support_directory = False
+    is_published_find_a_supplier = False
+    expected_number_of_results = 1
+    expected_number_of_keys = 15
+    company = factories.CompanyFactory(
+        name=name, number=number, email_address=email, sectors=sectors,
+        employees=employees, website=website, keywords=keywords,
+        facebook_url=facebook_url, linkedin_url=linkedin_url,
+        twitter_url=twitter_url, summary=summary, description=description,
+        is_uk_isd_company=is_uk_isd_company,
+        is_published_find_a_supplier=is_published_find_a_supplier,
+        is_published_investment_support_directory=(
+            is_published_investment_support_directory
+        ),
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
+    company.refresh_from_db()
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert len(response.json()) == expected_number_of_results
+    found_company = response.json()[0]
+    assert len(found_company.keys()) == expected_number_of_keys
+    assert found_company['name'] == name
+    assert found_company['number'] == number
+    assert found_company['company_email'] == email
+    assert found_company['sectors'] == sectors
+    assert found_company['employees'] == employees
+    assert found_company['keywords'] == keywords
+    assert found_company['website'] == website
+    assert found_company['facebook_url'] == facebook_url
+    assert found_company['twitter_url'] == twitter_url
+    assert found_company['linkedin_url'] == linkedin_url
+    assert found_company['summary'] == summary
+    assert found_company['description'] == description
+    assert found_company['is_uk_isd_company']
+    assert not found_company['is_published_find_a_supplier']
+    assert not found_company['is_published_investment_support_directory']
