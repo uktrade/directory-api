@@ -23,9 +23,14 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     email_address = 'test@user.com'
     verification_code = '1234567890'
     company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
-        email_address='test@user.com', verification_code=verification_code,
-        is_verification_letter_sent=False
+        name='Test Company',
+        date_of_creation=datetime.date(2000, 10, 10),
+        email_address='test@user.com',
+        verification_code=verification_code,
+        is_verification_letter_sent=False,
+        is_uk_isd_company=True,
+        is_published_find_a_supplier=False,
+        is_published_investment_support_directory=False,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -38,6 +43,9 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     assert response.json()['company_email'] == email_address
     assert response.json()['letter_verification_code'] == verification_code
     assert not response.json()['is_verification_letter_sent']
+    assert response.json()['is_uk_isd_company']
+    assert not response.json()['is_published_find_a_supplier']
+    assert not response.json()['is_published_investment_support_directory']
 
 
 @pytest.mark.django_db
@@ -159,17 +167,21 @@ def test_get_published_companies_check_response_contents(
     twitter_url = 'http://www.twitter.com/testcompany'
     summary = 'few words about our company'
     description = 'we sell cars'
+    is_uk_isd_company = True
     is_published_investment_support_directory = True
+    is_published_find_a_supplier = True
     expected_number_of_results = 1
-    expected_number_of_keys = 12
+    expected_number_of_keys = 15
     company = factories.CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,
         twitter_url=twitter_url, summary=summary, description=description,
+        is_uk_isd_company=is_uk_isd_company,
+        is_published_find_a_supplier=is_published_find_a_supplier,
         is_published_investment_support_directory=(
             is_published_investment_support_directory
-        )
+        ),
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -191,6 +203,9 @@ def test_get_published_companies_check_response_contents(
     assert found_company['linkedin_url'] == linkedin_url
     assert found_company['summary'] == summary
     assert found_company['description'] == description
+    assert found_company['is_uk_isd_company']
+    assert found_company['is_published_find_a_supplier']
+    assert found_company['is_published_investment_support_directory']
 
 
 @pytest.mark.parametrize(
