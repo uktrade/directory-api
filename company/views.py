@@ -5,6 +5,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
+from django.db.models import Q
 from django.http import Http404
 
 from company import filters, models, pagination, search, serializers
@@ -39,7 +40,10 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
         models.Company.objects
-        .filter(is_published_find_a_supplier=True)
+        .filter(
+            Q(is_published_find_a_supplier=True) |
+            Q(is_published_investment_support_directory=True)
+        )
         .annotate(supplier_case_studies_count=Count('supplier_case_studies'))
         .annotate(
             has_case_studies=Case(

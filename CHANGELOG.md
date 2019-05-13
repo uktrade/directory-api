@@ -8,6 +8,7 @@
 - [TT-1317](https://uktrade.atlassian.net/browse/TT-1317) Added feature to bulk upload expertise from django admin
 - [TT-1348](https://uktrade.atlassian.net/browse/TT-1348) Added Investment Support Directory search endpoint
 - [TT-1398](https://uktrade.atlassian.net/browse/TT-1398) Populate products and services from keywords
+- [TT-1428](https://uktrade.atlassian.net/browse/TT-1428) fixed 404 ,allow investment support directory companies and FAS to return a profile. 
 
 ### Fixed bugs:
 
