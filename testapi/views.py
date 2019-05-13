@@ -3,16 +3,19 @@ from rest_framework.generics import (
     get_object_or_404,
     DestroyAPIView,
     RetrieveAPIView,
-    GenericAPIView
+    GenericAPIView,
 )
 from rest_framework.response import Response
 
 from django.conf import settings
+from django.core.signing import Signer
 from django.db.models import Q
 from company.models import Company
 from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
-from testapi.utils import get_matching_companies, \
-    get_published_companies_query_params
+from testapi.utils import (
+    get_matching_companies,
+    get_published_companies_query_params,
+)
 
 
 class TestAPIView(GenericAPIView):
@@ -36,10 +39,17 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     def get(self, request, *args, **kwargs):
         ch_id = kwargs['ch_id']
         company = self.get_company(ch_id)
+        signer = Signer()
         response_data = {
             'letter_verification_code': company.verification_code,
             'company_email': company.email_address,
-            'is_verification_letter_sent': company.is_verification_letter_sent
+            'is_verification_letter_sent': company.is_verification_letter_sent,
+            'is_uk_isd_company': company.is_uk_isd_company,
+            'invitation_key': signer.sign(company.number),
+            'is_published_investment_support_directory':
+                company.is_published_investment_support_directory,
+            'is_published_find_a_supplier':
+                company.is_published_find_a_supplier,
         }
         return Response(response_data)
 

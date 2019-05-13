@@ -21,6 +21,11 @@ def prepare_company_data(company):
         'company_email': company.email_address,
         'summary': company.summary,
         'description': company.description,
+        'is_uk_isd_company': company.is_uk_isd_company,
+        'is_published_investment_support_directory':
+            company.is_published_investment_support_directory,
+        'is_published_find_a_supplier':
+            company.is_published_find_a_supplier,
     }
 
 
