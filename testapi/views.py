@@ -75,3 +75,21 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
         response_data = get_matching_companies(
             self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
+
+
+class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
+    serializer_class = PublishedCompaniesSerializer
+    queryset = Company.objects.filter(
+        Q(is_published_investment_support_directory=False) |
+        Q(is_published_find_a_supplier=False)
+    )
+    permission_classes = []
+    lookup_field = 'is_published'
+    http_method_names = 'get'
+
+    def get(self, request, *args, **kwargs):
+        limit, minimal_number_of_sectors = \
+            get_published_companies_query_params(request)
+        response_data = get_matching_companies(
+            self.queryset, limit, minimal_number_of_sectors)
+        return Response(response_data)
