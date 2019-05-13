@@ -1776,7 +1776,6 @@ def investment_support_directory_filter_data(settings):
 def test_investment_support_directory_search_filter_and_or(
     filters, expected, api_client, investment_support_directory_filter_data
 ):
-
     data = {
         **filters,
         'term': 'wolf',
@@ -1793,6 +1792,142 @@ def test_investment_support_directory_search_filter_and_or(
     actual = [hit['_id'] for hit in response.json()['hits']['hits']]
 
     assert sorted(actual) == expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_investment_support_directory_order_sibling_filters(
+    api_client, settings
+):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        expertise_regions=['NORTH_EAST'],
+        is_published_investment_support_directory=True,
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Wolf corp',
+        expertise_regions=['NORTH_WEST', 'NORTH_EAST'],
+        is_published_investment_support_directory=True,
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Wolf land',
+        expertise_regions=['NORTH_WEST'],
+        is_published_investment_support_directory=True,
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_WEST', 'NORTH_EAST'],
+        'term': 'wolf',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['2', '1', '3']
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_investment_support_directory_order_search_term(api_client, settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        summary='Providing wind energy',
+        is_published_investment_support_directory=True,
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Wolf corp',
+        summary='Wind and energy',
+        is_published_investment_support_directory=True,
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Wolf land',
+        summary='Energy and wind',
+        is_published_investment_support_directory=True,
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'term': 'wind energy',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['1', '2', '3']
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_investment_support_directory_order_case_study(api_client, settings):
+    company_one = factories.CompanyFactory(
+        name='Wolf limited',
+        summary='Providing wind energy',
+        is_published_investment_support_directory=True,
+        id=1,
+    )
+    company_two = factories.CompanyFactory(
+        name='Wolf corp',
+        is_published_investment_support_directory=True,
+        id=2,
+    )
+    company_three = factories.CompanyFactory(
+        name='Wolf land',
+        is_published_investment_support_directory=True,
+        id=3,
+    )
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_one,
+        title='Providing wind energy',
+    )
+
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_two,
+        title='Wind and energy',
+    )
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_three,
+        title='Energy and wind',
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    data = {
+        'term': 'wind energy',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['1', '2', '3']
 
 
 @pytest.mark.rebuild_elasticsearch

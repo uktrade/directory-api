@@ -1,5 +1,8 @@
 # Changelog
 
+### Implemented enhancements
+- [TT-1408](https://uktrade.atlassian.net/browse/TT-1408) Customize ISD search results order.
+
 ## [2019.05.09](https://github.com/uktrade/directory-api/releases/tag/2019.05.09)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.04.08...2019.05.09)
 

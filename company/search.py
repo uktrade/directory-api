@@ -36,6 +36,8 @@ class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
 
 class CompanyDocument(Document):
     wildcard = field.Text()
+    casestudy_wildcard = field.Text()
+
     case_study_count = field.Integer()
     date_of_creation = field.Date(index=False)
     description = field.Text(copy_to='wildcard')
@@ -69,16 +71,16 @@ class CompanyDocument(Document):
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index=False),
-            'title': field.Text(copy_to='wildcard'),
-            'short_summary': field.Text(copy_to='wildcard'),
-            'description': field.Text(copy_to='wildcard'),
-            'sector': field.Text(copy_to='wildcard'),
-            'keywords': field.Text(copy_to='wildcard'),
-            'image_one_caption': field.Text(copy_to='wildcard'),
-            'image_two_caption': field.Text(copy_to='wildcard'),
-            'image_three_caption': field.Text(copy_to='wildcard'),
-            'testimonial': field.Text(copy_to='wildcard'),
-            'slug': field.Text(copy_to='wildcard'),
+            'title': field.Text(copy_to='casestudy_wildcard'),
+            'short_summary': field.Text(copy_to='casestudy_wildcard'),
+            'description': field.Text(copy_to='casestudy_wildcard'),
+            'sector': field.Text(copy_to='casestudy_wildcard'),
+            'keywords': field.Text(copy_to='casestudy_wildcard'),
+            'image_one_caption': field.Text(copy_to='casestudy_wildcard'),
+            'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
+            'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
+            'testimonial': field.Text(copy_to='casestudy_wildcard'),
+            'slug': field.Text(copy_to='casestudy_wildcard'),
         }
     )
     is_showcase_company = field.Boolean()
