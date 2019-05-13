@@ -171,11 +171,6 @@ urlpatterns = [
         name='company-public-profile-detail'
     ),
     url(
-        r'^public/company/$',
-        company.views.CompanyPublicProfileViewSet.as_view({'get': 'list'}),
-        name='company-public-profile-list'
-    ),
-    url(
         r'^validate/company-number/$',
         company.views.CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
