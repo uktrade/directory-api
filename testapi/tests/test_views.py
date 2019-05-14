@@ -114,7 +114,8 @@ def test_get_unpublished_companies_without_optional_parameters(authed_client):
     url = reverse('unpublished_companies')
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == []
+    # authed_client fixture creates 1 unpublished company
+    assert len(response.json()) == 1
 
 
 @pytest.mark.parametrize(
@@ -182,7 +183,8 @@ def test_get_unpublished_companies_use_optional_parameters(
     }
     response = authed_client.get(url, params=params)
     assert response.status_code == expected_status_code
-    assert response.json() == []
+    # authed_client fixture creates 1 unpublished company
+    assert len(response.json()) == 1
 
 
 @pytest.mark.django_db
@@ -318,7 +320,8 @@ def test_get_unpublished_companies_check_response_contents(
     is_uk_isd_company = True
     is_published_investment_support_directory = False
     is_published_find_a_supplier = False
-    expected_number_of_results = 1
+    # authed_client fixture creates 1 unpublished company
+    expected_number_of_results = 2
     expected_number_of_keys = 15
     company = factories.CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
@@ -337,7 +340,8 @@ def test_get_unpublished_companies_check_response_contents(
     url = reverse('unpublished_companies')
     response = authed_client.get(url)
     assert len(response.json()) == expected_number_of_results
-    found_company = response.json()[0]
+    # authed_client fixture creates 1 unpublished company
+    found_company = response.json()[1]
     assert len(found_company.keys()) == expected_number_of_keys
     assert found_company['name'] == name
     assert found_company['number'] == number
