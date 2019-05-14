@@ -4,6 +4,10 @@
 - [TT-1408](https://uktrade.atlassian.net/browse/TT-1408) Customize ISD search results order.
 
 ### Fixed bugs:
+- [TT-7](https://uktrade.atlassian.net/browse/TT-7) Fixed Server Error (500) when searching for pre-verified enrolments
+
+- Replaced is_published field in fixtures/development.json from is_published_investment_support_directory & is_published_find_a_supplier
+
 - [TT-1438](https://uktrade.atlassian.net/browse/TT-1438) Fixed inability to search by case study contents.
 
 ## [2019.05.09](https://github.com/uktrade/directory-api/releases/tag/2019.05.09)
