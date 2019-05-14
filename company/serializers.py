@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import QueryDict
 
 from company import helpers, models, validators
-from company.helpers import InvestmentSupportDirectorySearch
 
 from supplier.models import Supplier
 
@@ -181,6 +180,15 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 class SearchSerializer(serializers.Serializer):
 
+    OPTIONAL_FILTERS = [
+        'term',
+        'expertise_industries',
+        'expertise_regions',
+        'expertise_countries',
+        'expertise_languages',
+        'expertise_products_services_labels'
+    ]
+
     MESSAGE_MISSING_QUERY = 'Please specify a term or filter'
 
     term = serializers.CharField(required=False)
@@ -215,10 +223,10 @@ class SearchSerializer(serializers.Serializer):
         is_optional_field_present = self.is_optional_field_present(attrs)
         if not (is_term_present or is_optional_field_present):
             raise serializers.ValidationError(self.MESSAGE_MISSING_QUERY)
-        return attrs
+        return {key: value for key, value in attrs.items() if value}
 
     def is_optional_field_present(self, attrs):
-        for field in InvestmentSupportDirectorySearch.OPTIONAL_FILTERS:
+        for field in self.OPTIONAL_FILTERS:
             if attrs.get(field) is not None:
                 return True
         return False
