@@ -170,9 +170,13 @@ class InvestmentSupportDirectorySearch:
     @classmethod
     def create_query_object(cls, params):
         must = Q('term', is_published_investment_support_directory=True)
-
         if params.get('term'):
-            must &= Q('match_phrase', wildcard=params['term'])
+            must &= (
+                Q('match_phrase', wildcard=params['term']) |
+                Q('match', wildcard=params['term']) |
+                Q('match_phrase', casestudy_wildcard=params['term']) |
+                Q('match', casestudy_wildcard=params['term'])
+            )
 
         filters = [item for item in cls.OPTIONAL_FILTERS if params.get(item)]
 

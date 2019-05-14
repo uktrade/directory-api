@@ -13,7 +13,7 @@ from company.helpers import InvestmentSupportDirectorySearch
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
-from elasticsearch_dsl import query
+from elasticsearch_dsl import query, Q
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -208,7 +208,12 @@ class SearchBaseView(abc.ABC, views.APIView):
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
-            must_filters.append(query.MatchPhrase(wildcard=term))
+            must_filters.append(
+                Q('match_phrase', wildcard=term) |
+                Q('match', wildcard=term) |
+                Q('match_phrase', casestudy_wildcard=term) |
+                Q('match', casestudy_wildcard=term)
+            )
         if is_published_find_a_supplier is not None:
             must_filters.append(
                 query.Term(

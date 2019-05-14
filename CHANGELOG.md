@@ -1,5 +1,11 @@
 # Changelog
 
+### Implemented enhancements
+- [TT-1408](https://uktrade.atlassian.net/browse/TT-1408) Customize ISD search results order.
+
+### Fixed bugs:
+- [TT-1438](https://uktrade.atlassian.net/browse/TT-1438) Fixed inability to search by case study contents.
+
 ## [2019.05.09](https://github.com/uktrade/directory-api/releases/tag/2019.05.09)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.04.08...2019.05.09)
 
