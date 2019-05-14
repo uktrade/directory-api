@@ -23,7 +23,7 @@ class PreVerifiedEnrolment(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.email_address
+        return self.company_number
 
     class Meta:
         unique_together = ['company_number', 'email_address']

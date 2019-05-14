@@ -7,9 +7,10 @@ from enrolment.tests import factories
 
 
 def test_trusted_source_signup_code_str():
-    instance = models.PreVerifiedEnrolment(email_address='jim@example.com')
+    instance = models.PreVerifiedEnrolment(company_number='12345678', email_address='jim@example.com')
 
-    assert str(instance) == 'jim@example.com'
+    assert str(instance) == '12345678'
+    assert type(instance) is not None
 
 
 @pytest.mark.django_db

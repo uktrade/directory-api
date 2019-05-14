@@ -5,10 +5,20 @@
     "fields": {
         "created": "2017-01-11T17:00:46.714Z",
         "modified": "2017-02-15T11:43:30.654Z",
+        "company_type": "COMPANIES_HOUSE",
         "summary": "summary summary summary summary",
         "description": "company that is good and what not",
         "employees": "11-50",
+        "export_destinations": [],
+        "export_destinations_other": "",
+        "expertise_industries": [],
+        "expertise_regions": [],
+        "expertise_countries": [],
+        "expertise_languages": [],
+        "expertise_products_services": {},
         "has_exported_before": true,
+        "is_exporting_goods": false,
+        "is_exporting_services": false,
         "keywords": "goog, jaj",
         "logo": "",
         "name": "Great organisation",
@@ -19,10 +29,15 @@
         ],
         "website": "http://www.google.com",
         "date_of_creation": "2015-03-02",
-        "is_published": true,
+        "is_published_investment_support_directory": true,
+        "is_published_find_a_supplier": true,
+        "date_published": "2019-05-10",
         "verification_code": "743081437077",
+        "verified_with_preverified_enrolment": false,
         "verified_with_code": true,
+        "verified_with_companies_house_oauth2": false,
         "is_verification_letter_sent": false,
+        "date_verification_letter_sent": null,
         "twitter_url": "http://www.twitter.com/asdasd",
         "facebook_url": "http://www.facebook.com/asdasd",
         "linkedin_url": "http://www.linkedin.com/asdasd",
@@ -36,7 +51,9 @@
         "po_box": "",
         "email_address": "jim@example.com",
         "email_full_name": "thing",
-        "slug": "example-company-limited"
+        "slug": "example-company-limited",
+        "is_showcase_company": false,
+        "is_uk_isd_company": false
     }
 },
 {
@@ -45,10 +62,20 @@
     "fields": {
         "created": "2017-01-11T17:00:46.714Z",
         "modified": "2017-02-15T11:43:30.654Z",
+        "company_type": "COMPANIES_HOUSE",
         "summary": "summary summary summary summary",
         "description": "description description description description description",
         "employees": "11-50",
+        "export_destinations": [],
+        "export_destinations_other": "",
+        "expertise_industries": [],
+        "expertise_regions": [],
+        "expertise_countries": [],
+        "expertise_languages": [],
+        "expertise_products_services": {},
         "has_exported_before": true,
+        "is_exporting_goods": false,
+        "is_exporting_services": false,
         "keywords": "goog, jaj organisation",
         "logo": "",
         "name": "Example Company Limited",
@@ -59,10 +86,15 @@
         ],
         "website": "http://www.google.com",
         "date_of_creation": "2015-03-02",
-        "is_published": true,
+        "is_published_investment_support_directory": true,
+        "is_published_find_a_supplier": true,
+        "date_published": "2019-05-10",
         "verification_code": "743081437078",
+        "verified_with_preverified_enrolment": false,
         "verified_with_code": true,
+        "verified_with_companies_house_oauth2": false,
         "is_verification_letter_sent": false,
+        "date_verification_letter_sent": null,
         "twitter_url": "http://www.twitter.com/asdasd",
         "facebook_url": "http://www.facebook.com/asdasd",
         "linkedin_url": "http://www.linkedin.com/asdasd",
@@ -76,7 +108,9 @@
         "po_box": "",
         "email_address": "jim@example.com",
         "email_full_name": "thing",
-        "slug": "example-company-limited"
+        "slug": "example-company-limited",
+        "is_showcase_company": false,
+        "is_uk_isd_company": false
     }
 },
 {
@@ -158,21 +192,6 @@
         "testimonial_company": "",
         "company": 32,
         "slug": "example-company"
-    }
-},
-{
-    "model": "supplier.supplier",
-    "pk": 26,
-    "fields": {
-        "created": "2017-02-17T12:34:35.193Z",
-        "modified": "2017-02-17T12:34:35.193Z",
-        "sso_id": 2,
-        "name": "example user",
-        "company": 32,
-        "company_email": "dev@example.com",
-        "is_active": true,
-        "date_joined": "2017-02-17T12:34:35.193Z",
-        "mobile_number": null
     }
 }
 ]
