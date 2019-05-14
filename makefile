@@ -8,7 +8,7 @@ test_requirements:
 DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
 DJANGO_MIGRATE_ELASTICSEARCH := python manage.py distributed_elasticsearch_migrate
 FLAKE8 := flake8 . --exclude=migrations,.venv
-PYTEST := pytest . --cov=. --cov-report html --capture=no --cov-config=.coveragerc $(pytest_args)
+PYTEST := pytest . --cov=. --cov-report html --capture=no -vv --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 CODECOV := \
 	if [ "$$CODECOV_REPO_TOKEN" != "" ]; then \

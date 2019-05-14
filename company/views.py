@@ -5,6 +5,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
+from django.db.models import Q
 from django.http import Http404
 
 from company import filters, models, pagination, search, serializers
@@ -12,7 +13,7 @@ from company.helpers import InvestmentSupportDirectorySearch
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
-from elasticsearch_dsl import query
+from elasticsearch_dsl import query, Q
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -39,7 +40,10 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
         models.Company.objects
-        .filter(is_published_find_a_supplier=True)
+        .filter(
+            Q(is_published_find_a_supplier=True) |
+            Q(is_published_investment_support_directory=True)
+        )
         .annotate(supplier_case_studies_count=Count('supplier_case_studies'))
         .annotate(
             has_case_studies=Case(
@@ -192,7 +196,7 @@ class SearchBaseView(abc.ABC, views.APIView):
 
     def create_query_object(
         self, term, sectors, is_showcase_company=None,
-        is_published_investment_support_directory=None,
+        is_published_find_a_supplier=None,
     ):
         should_filters = []
         must_filters = []
@@ -204,13 +208,16 @@ class SearchBaseView(abc.ABC, views.APIView):
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
-            must_filters.append(query.MatchPhrase(_all=term))
-        if is_published_investment_support_directory is not None:
+            must_filters.append(
+                Q('match_phrase', wildcard=term) |
+                Q('match', wildcard=term) |
+                Q('match_phrase', casestudy_wildcard=term) |
+                Q('match', casestudy_wildcard=term)
+            )
+        if is_published_find_a_supplier is not None:
             must_filters.append(
                 query.Term(
-                    is_published_investment_support_directory=(
-                        is_published_investment_support_directory
-                    )
+                    is_published_find_a_supplier=is_published_find_a_supplier
                 ))
         return query.Bool(
             must=must_filters,
@@ -230,7 +237,7 @@ class CaseStudySearchAPIView(SearchBaseView):
 
     def create_search_object(self, term, sectors, is_showcase_company):
         query_object = self.create_query_object(term=term, sectors=sectors)
-        return search.CaseStudyDocType.search().query(query_object)
+        return search.CaseStudyDocument.search().query(query_object)
 
     @staticmethod
     def apply_highlighting(search_object):
@@ -251,9 +258,9 @@ class CompanySearchAPIView(SearchBaseView):
             term=term,
             sectors=sectors,
             is_showcase_company=is_showcase_company,
-            is_published_investment_support_directory=False,
+            is_published_find_a_supplier=True,
         )
-        return search.CompanyDocType.search().query(
+        return search.CompanyDocument.search().query(
             'function_score',
             query=query_object,
             functions=[
@@ -287,6 +294,15 @@ class CompanySearchAPIView(SearchBaseView):
             require_field_match=False,
         ).highlight('summary', 'description')
 
+    def get_search_results(self, *args, **kwargs):
+        results = super().get_search_results(*args, **kwargs)
+        if results:
+            for hit in results['hits']['hits']:
+                item = hit['_source']
+                if 'modified' in item:
+                    item['modified'] = item['modified'].replace('+00:00', 'Z')
+        return results
+
 
 class InvestmentSupportDirectorySearchAPIView(views.APIView):
 
@@ -303,7 +319,7 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         )
 
         search_object = InvestmentSupportDirectorySearch.apply_highlighting(
-            search_object=search.CompanyDocType.search().query(query)
+            search_object=search.CompanyDocument.search().query(query)
         )
 
         search_object = InvestmentSupportDirectorySearch.apply_pagination(

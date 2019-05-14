@@ -1,11 +1,12 @@
-from functools import partial
+from functools import partial, reduce
 from uuid import uuid4
 import http
 import logging
+import operator
 import os
 import re
 from urllib.parse import urljoin
-from elasticsearch_dsl import query
+from elasticsearch_dsl import Q
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -159,7 +160,6 @@ path_and_rename_supplier_case_study = PathAndRename(
 class InvestmentSupportDirectorySearch:
 
     OPTIONAL_FILTERS = [
-        'sectors',
         'expertise_industries',
         'expertise_regions',
         'expertise_countries',
@@ -168,32 +168,35 @@ class InvestmentSupportDirectorySearch:
     ]
 
     @classmethod
-    def create_query_object(cls, clean_data):
-        should_filters = []
-        must_filters = []
+    def create_query_object(cls, params):
+        must = Q('term', is_published_investment_support_directory=True)
+        if params.get('term'):
+            must &= (
+                Q('match_phrase', wildcard=params['term']) |
+                Q('match', wildcard=params['term']) |
+                Q('match_phrase', casestudy_wildcard=params['term']) |
+                Q('match', casestudy_wildcard=params['term'])
+            )
 
-        is_published_investment_support_directory = True
-        term = clean_data.get('term')
+        filters = [item for item in cls.OPTIONAL_FILTERS if params.get(item)]
 
-        for filter_name in cls.OPTIONAL_FILTERS:
-            filter_values = clean_data.get(filter_name)
-            if filter_values:
-                for filter_value in sorted(filter_values):
-                    params = {filter_name: filter_value}
-                    should_filters.append(query.Match(**params))
-        if term:
-            must_filters.append(query.MatchPhrase(_all=term))
-        if is_published_investment_support_directory is not None:
-            must_filters.append(
-                query.Term(
-                    is_published_investment_support_directory=(
-                        is_published_investment_support_directory
-                    )
-                ))
-        return query.Bool(
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0,
+        # perform OR operation for items specified in same group eg.,
+        # NORTH_EAST OR NORTH_WEST
+        # AEROSPACE OR AIRPORTS
+        groups = []
+        for name in filters:
+            queries = [Q('match', **{name: item}) for item in params[name]]
+            groups.append(reduce(operator.or_, queries))
+
+        # perform AND operation for different groups e.g.,
+        # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
+        should = reduce(operator.and_, groups) if groups else []
+
+        return Q(
+            'bool',
+            must=must,
+            should=should,
+            minimum_should_match=1 if should else 0,
         )
 
     @staticmethod

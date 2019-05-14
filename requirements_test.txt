@@ -22,7 +22,7 @@ coverage==4.5.2           # via codecov, pytest-cov
 cryptography==2.3
 directory-client-core==4.3.0  # via directory-sso-api-client
 directory-components==10.0.0
-directory-constants==16.0.0
+directory-constants==16.4.0
 directory-healthcheck==1.0.1
 directory-sso-api-client==3.0.0
 directory-validators==4.5.1
@@ -41,8 +41,8 @@ django==1.11.20
 django_extensions==1.6.7
 djangorestframework==3.4.7
 docutils==0.14            # via botocore
-elasticsearch-dsl==5.4.0
-elasticsearch==5.3.0
+elasticsearch-dsl==6.4.0
+elasticsearch==6.3.1      # via elasticsearch-dsl
 factory-boy==2.8.1
 faker==1.0.0              # via factory-boy
 flake8==3.0.4

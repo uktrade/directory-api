@@ -47,12 +47,13 @@ class Command(management.BaseCommand):
 
     def create_index(self, name, doc_type, alias):
         index = Index(name)
-        index.doc_type(doc_type)
+        index.document(doc_type)
         index.analyzer(analyzer('english'))
         # give the index an alias (e.g, `company_alias`), so the index is used
         # when the application searches from or inserts into `campaign_alias`.
         index.aliases(**{alias: {}})  # same  as .aliases(company-alias: {})
         index.create()
+        doc_type._index = index
         return index
 
     def get_indices(self, alias_name):
@@ -65,12 +66,12 @@ class Command(management.BaseCommand):
     def create_new_indices(self):
         self.create_index(
             name=self.new_company_index,
-            doc_type=search.CompanyDocType,
+            doc_type=search.CompanyDocument,
             alias=self.company_index_alias,
         )
         self.create_index(
             name=self.new_case_study_index,
-            doc_type=search.CaseStudyDocType,
+            doc_type=search.CaseStudyDocument,
             alias=self.case_study_index_alias,
         )
 

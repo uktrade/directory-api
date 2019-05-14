@@ -45,7 +45,7 @@ def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
 
 
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
-    if instance.company.is_published_find_a_supplier:
+    if instance.company.is_published:
         company_document = search.company_model_to_doc_type(instance.company)
         case_study_document = search.case_study_model_to_doc_type(instance)
         company_document.save()

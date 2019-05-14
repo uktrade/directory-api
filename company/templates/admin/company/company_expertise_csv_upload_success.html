@@ -1,0 +1,35 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='company' %}">Company</a>
+&rsaquo; <a href="{% url 'admin:company_company_changelist' %}">Companies</a>
+&rsaquo; Uploaded Expertise
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+	<h2>Companies Updated</h2>
+	<p>The following companies products and services expertise field(s) have been updated:</p>
+	<ul>
+		{% for company in updated_companies %}
+			<li>{{ company.name }}, {{ company.number }}, {{ company.expertise_products_services }}</li>
+		{% endfor %}
+	</ul>
+
+	<h2>Companies Error</h2>
+	<p>The following rows contained an error:</p>
+	<ul>
+		{% for e in errors %}
+			<li>{{ e }}</li>
+		{% endfor %}
+	</ul>
+
+	<div>
+		<a href="{% url 'admin:company_company_changelist' %}">Continue</a>
+	</div>
+</div>
+{% endblock %}

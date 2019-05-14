@@ -376,6 +376,70 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             }
         ]
 
+    def test_upload_expertise_companies_form_success(self):
+
+        company_1 = CompanyFactory(
+            name='Test 1',
+        )
+        company_2 = CompanyFactory(
+            number='74897421',
+        )
+        company_3 = CompanyFactory(
+            name='Test 3',
+            number='23242314',
+            expertise_products_services={},
+        )
+        CompanyFactory(
+            name='Test 4',
+            number='',
+        )
+        CompanyFactory(
+            name='Test 4',
+        )
+
+        file_path = os.path.join(
+            settings.BASE_DIR,
+            'company/tests/fixtures/expertise-company-upload.csv'
+        )
+
+        response = self.client.post(
+            reverse('admin:upload_company_expertise'),
+            {
+                'csv_file': open(file_path, 'rb'),
+            }
+        )
+
+        company_1.refresh_from_db()
+        company_2.refresh_from_db()
+        company_3.refresh_from_db()
+
+        assert company_1.expertise_products_services == (
+            {
+             'Finance': ['Raising capital'],
+             'Management Consulting': ['Workforce development'],
+             'Human Resources': ['Sourcing and hiring', 'Succession planning'],
+             'Publicity': ['Social media'],
+             'Business Support': ['Planning consultants']
+            }
+        )
+        assert company_2.expertise_products_services == (
+            {
+                'Finance': ['Insurance']
+            }
+        )
+        assert company_3.expertise_products_services == {
+            'Legal': ['Immigration'],
+            'Business Support': ['Facilities (such as WiFI or electricity)']
+        }
+        assert response.context['errors'] == [
+            '[Row 3] "Unable to find following products & services '
+            '[\'Unkown Skill\']"',
+            '[Row 5] "More then one company returned - '
+            'Name:Test 4 Number:00000000)"',
+            '[Row 6] "Company not found - Name:Test 9999 Number:00000000)"'
+        ]
+        assert len(response.context['updated_companies']) == 3
+
     def test_create_companies_form_invalid_enrolment(self):
         file_path = os.path.join(
             settings.BASE_DIR,
