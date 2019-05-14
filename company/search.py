@@ -29,14 +29,14 @@ class CaseStudyFieldsMixin:
     title = field.Text(copy_to='wildcard')
     short_summary = field.Text(copy_to='wildcard')
     description = field.Text(copy_to='wildcard')
-    sector = field.Text(copy_to='wildcard',)
+    sector = field.Text(copy_to='wildcard')
     keywords = field.Text(copy_to='wildcard')
     image = field.Text(index=False)
     company_number = field.Text(index=False)
     image_one_caption = field.Text(copy_to='wildcard')
     image_two_caption = field.Text(copy_to='wildcard')
     image_three_caption = field.Text(copy_to='wildcard')
-    testimonial = field.Text(copy_to='wildcard',)
+    testimonial = field.Text(copy_to='wildcard')
     slug = field.Text(index=False)
 
 
