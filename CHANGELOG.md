@@ -9,6 +9,7 @@
 - [TT-1348](https://uktrade.atlassian.net/browse/TT-1348) Added Investment Support Directory search endpoint
 - [TT-1398](https://uktrade.atlassian.net/browse/TT-1398) Populate products and services from keywords
 - [TT-1428](https://uktrade.atlassian.net/browse/TT-1428) fixed 404 ,allow investment support directory companies and FAS to return a profile. 
+- [TT-1446](https://uktrade.atlassian.net/browse/TT-1446) Added new testapi endpoint to discover unpublished companies & extra details to testapi responses in order to facilitate automated testing for pre-verified companies.
 
 ### Fixed bugs:
 
