@@ -14,7 +14,7 @@ american_english_analyzer = analysis.analyzer(
         'standard',
         'lowercase',
         'stop',
-        'snowball',
+        search_filters.lovins_stemmer,
         search_filters.american_english_synonyms_filter,
     ],
     char_filter=[
@@ -56,7 +56,9 @@ class CompanyDocument(Document):
 
     case_study_count = field.Integer()
     date_of_creation = field.Date(index=False)
-    description = field.Text(copy_to='wildcard',)
+    description = field.Text(
+        copy_to='wildcard', analyzer=american_english_analyzer
+    )
     has_description = field.Boolean()
     employees = field.Text(index=False)
     facebook_url = field.Text(index=False)
@@ -81,7 +83,9 @@ class CompanyDocument(Document):
     )
     expertise_labels = field.Text(multi=True, copy_to='wildcard')
     slug = field.Text(copy_to='wildcard')
-    summary = field.Text(copy_to='wildcard')
+    summary = field.Text(
+        copy_to='wildcard', analyzer=american_english_analyzer
+    )
     twitter_url = field.Text(index=False)
     website = field.Text(copy_to='wildcard')
     supplier_case_studies = field.Nested(
