@@ -11,7 +11,6 @@ def test_trusted_source_signup_code_str():
                                            email_address='jim@example.com')
 
     assert str(instance) == '12345678'
-    assert type(instance) is not None
 
 
 @pytest.mark.django_db
