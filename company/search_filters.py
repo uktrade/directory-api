@@ -317,3 +317,10 @@ american_english_synonyms_filter = analysis.token_filter(
         "zucchini, courgette"
     )
 )
+
+
+lovins_stemmer = analysis.token_filter(
+    'english_stemmer',
+    type='stemmer',
+    name='lovins',
+)
