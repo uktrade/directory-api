@@ -8,8 +8,7 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
-from company import filters, models, pagination, search, serializers
-from company.helpers import InvestmentSupportDirectorySearch
+from company import filters, helpers, models, pagination, search, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
@@ -312,27 +311,23 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-
-        query = InvestmentSupportDirectorySearch.create_query_object(
-            validated_data
+        params = {
+            key: value for key, value in serializer.validated_data.items()
+            if key in serializer.OPTIONAL_FILTERS
+        }
+        query = helpers.build_search_company_query(params)
+        search_object = (
+            search.CompanyDocument
+            .search()
+            .query(query)
+            .highlight_options(require_field_match=False)
+            .highlight('summary', 'description')
+            .extra(
+                from_=serializer.validated_data['page']-1,
+                size=serializer.validated_data['size']
+            )
         )
-
-        search_object = InvestmentSupportDirectorySearch.apply_highlighting(
-            search_object=search.CompanyDocument.search().query(query)
-        )
-
-        search_object = InvestmentSupportDirectorySearch.apply_pagination(
-            search_object=search_object,
-            page=validated_data['page'],
-            size=validated_data['size']
-        )
-
-        search_results = search_object.execute().to_dict()
-        return Response(
-            data=search_results,
-            status=status.HTTP_200_OK,
-        )
+        return Response(data=search_object.execute().to_dict())
 
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):
