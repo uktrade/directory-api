@@ -1827,6 +1827,81 @@ def test_investment_support_directory_search_filter_and_or_single(
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
+def test_investment_support_directory_search_filter_partial_match(
+    api_client, settings
+):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        expertise_products_services={
+            'Legal': [
+                'Company incorporation',
+                'Immigration'
+            ],
+            'Human Resources': [
+                'Staff onboarding',
+                'Employment and talent research'
+            ],
+            'Business Support': [
+                'Business relocation',
+                'Staff and family relocation'
+            ],
+            'Management Consulting': [
+                'Workforce development',
+                'Strategy and long-term planning'
+            ]
+        },
+        expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
+        expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
+        expertise_regions=[
+            'WALES',
+            'NORTH_EAST',
+            'NORTH_WEST',
+            'YORKSHIRE_AND_HUMBER',
+            'EAST_MIDLANDS',
+            'WEST_MIDLANDS',
+            'EASTERN',
+            'LONDON',
+            'SOUTH_EAST',
+            'SOUTH_WEST',
+        ],
+        expertise_industries=[
+            'Advanced manufacturing',
+            'Aerospace',
+            'Automotive',
+            'Creative and media',
+            'Education and training',
+            'Food and drink',
+            'Healthcare and medical',
+            'Software and computer services',
+            'Retail and luxury'
+        ],
+        id=1,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_EAST'],
+        'expertise_languages': ['es'],
+        'expertise_products_services_labels': [
+            'Employment',
+        ],
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+    assert actual == []
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
 def test_investment_support_directory_order_sibling_filters(
     api_client, settings
 ):

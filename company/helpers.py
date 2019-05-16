@@ -159,6 +159,7 @@ path_and_rename_supplier_case_study = PathAndRename(
 
 def build_search_company_query(params):
     query = Q('term', is_published_investment_support_directory=True)
+
     term = params.pop('term', None)
     if term:
         query &= (
@@ -172,13 +173,8 @@ def build_search_company_query(params):
     # then an AND operation for different groups e.g.,
     # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
     for key, values in params.items():
-        siblings = reduce(
+        query &= reduce(
             operator.or_,
-            [Q('match', **{key: value}) for value in values]
+            [Q('term', **{key: value}) for value in values]
         )
-        if len(values) > 1:
-            query &= Q('bool', should=siblings)
-            query.minimum_should_match = 1
-        else:
-            query &= siblings
     return query
