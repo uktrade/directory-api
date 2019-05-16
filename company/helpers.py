@@ -1,11 +1,12 @@
-from functools import partial
+from functools import partial, reduce
 from uuid import uuid4
 import http
 import logging
+import operator
 import os
 import re
 from urllib.parse import urljoin
-from elasticsearch_dsl import query
+from elasticsearch_dsl import Q
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -156,54 +157,28 @@ path_and_rename_supplier_case_study = PathAndRename(
 )
 
 
-class InvestmentSupportDirectorySearch:
-
-    OPTIONAL_FILTERS = [
-        'sectors',
-        'expertise_industries',
-        'expertise_regions',
-        'expertise_countries',
-        'expertise_languages',
-        'expertise_products_services_labels'
-    ]
-
-    @classmethod
-    def create_query_object(cls, clean_data):
-        should_filters = []
-        must_filters = []
-
-        is_published_investment_support_directory = True
-        term = clean_data.get('term')
-
-        for filter_name in cls.OPTIONAL_FILTERS:
-            filter_values = clean_data.get(filter_name)
-            if filter_values:
-                for filter_value in sorted(filter_values):
-                    params = {filter_name: filter_value}
-                    should_filters.append(query.Match(**params))
-        if term:
-            must_filters.append(query.MatchPhrase(wildcard=term))
-        if is_published_investment_support_directory is not None:
-            must_filters.append(
-                query.Term(
-                    is_published_investment_support_directory=(
-                        is_published_investment_support_directory
-                    )
-                ))
-        return query.Bool(
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0,
+def build_search_company_query(params):
+    query = Q('term', is_published_investment_support_directory=True)
+    term = params.pop('term', None)
+    if term:
+        query &= (
+            Q('match_phrase', wildcard=term) |
+            Q('match', wildcard=term) |
+            Q('match_phrase', casestudy_wildcard=term) |
+            Q('match', casestudy_wildcard=term)
         )
 
-    @staticmethod
-    def apply_pagination(search_object, page, size):
-        start = (page - 1) * size
-        end = start + size
-        return search_object[start:end]
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object.highlight_options(
-            require_field_match=False,
-        ).highlight('summary', 'description')
+    # perform OR operation for items specified in same group and
+    # then an AND operation for different groups e.g.,
+    # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
+    for key, values in params.items():
+        siblings = reduce(
+            operator.or_,
+            [Q('match', **{key: value}) for value in values]
+        )
+        if len(values) > 1:
+            query &= Q('bool', should=siblings)
+            query.minimum_should_match = 1
+        else:
+            query &= siblings
+    return query

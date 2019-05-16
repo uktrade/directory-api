@@ -5,14 +5,14 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
 
 from django.db.models import Case, Count, When, Value, BooleanField
+from django.db.models import Q
 from django.http import Http404
 
-from company import filters, models, pagination, search, serializers
-from company.helpers import InvestmentSupportDirectorySearch
+from company import filters, helpers, models, pagination, search, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
-from elasticsearch_dsl import query
+from elasticsearch_dsl import query, Q as Q_
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -39,7 +39,10 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
         models.Company.objects
-        .filter(is_published_find_a_supplier=True)
+        .filter(
+            Q(is_published_find_a_supplier=True) |
+            Q(is_published_investment_support_directory=True)
+        )
         .annotate(supplier_case_studies_count=Count('supplier_case_studies'))
         .annotate(
             has_case_studies=Case(
@@ -204,7 +207,12 @@ class SearchBaseView(abc.ABC, views.APIView):
         if is_showcase_company is True:
             must_filters.append(query.Term(is_showcase_company=True))
         if term:
-            must_filters.append(query.MatchPhrase(wildcard=term))
+            must_filters.append(
+                Q_('match_phrase', wildcard=term) |
+                Q_('match', wildcard=term) |
+                Q_('match_phrase', casestudy_wildcard=term) |
+                Q_('match', casestudy_wildcard=term)
+            )
         if is_published_find_a_supplier is not None:
             must_filters.append(
                 query.Term(
@@ -303,27 +311,23 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-
-        query = InvestmentSupportDirectorySearch.create_query_object(
-            validated_data
+        params = {
+            key: value for key, value in serializer.validated_data.items()
+            if key in serializer.OPTIONAL_FILTERS
+        }
+        query = helpers.build_search_company_query(params)
+        search_object = (
+            search.CompanyDocument
+            .search()
+            .query(query)
+            .highlight_options(require_field_match=False)
+            .highlight('summary', 'description')
+            .extra(
+                from_=serializer.validated_data['page']-1,
+                size=serializer.validated_data['size']
+            )
         )
-
-        search_object = InvestmentSupportDirectorySearch.apply_highlighting(
-            search_object=search.CompanyDocument.search().query(query)
-        )
-
-        search_object = InvestmentSupportDirectorySearch.apply_pagination(
-            search_object=search_object,
-            page=validated_data['page'],
-            size=validated_data['size']
-        )
-
-        search_results = search_object.execute().to_dict()
-        return Response(
-            data=search_results,
-            status=status.HTTP_200_OK,
-        )
+        return Response(data=search_object.execute().to_dict())
 
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):

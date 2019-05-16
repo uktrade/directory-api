@@ -15,7 +15,7 @@
 	<h2>Companies Updated</h2>
 	<p>The following companies products and services expertise field(s) have been updated:</p>
 	<ul>
-		{% for company in companies_updated %}
+		{% for company in updated_companies %}
 			<li>{{ company.name }}, {{ company.number }}, {{ company.expertise_products_services }}</li>
 		{% endfor %}
 	</ul>

@@ -1,10 +1,26 @@
 from urllib.parse import urljoin
 
-from elasticsearch_dsl import Document, field, InnerDoc
+from elasticsearch_dsl import analysis, Document, field, InnerDoc
 
 from django.conf import settings
 
-from company import helpers, serializers
+from company import helpers, search_filters, serializers
+
+
+american_english_analyzer = analysis.analyzer(
+    'normalize_american_english',
+    tokenizer='standard',
+    filter=[
+        'standard',
+        'lowercase',
+        'stop',
+        search_filters.lovins_stemmer,
+        search_filters.american_english_synonyms_filter,
+    ],
+    char_filter=[
+        search_filters.american_english_normalizer_filter,
+    ]
+)
 
 
 class CaseStudyFieldsMixin:
@@ -35,10 +51,14 @@ class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
 
 
 class CompanyDocument(Document):
-    wildcard = field.Text()
+    wildcard = field.Text(analyzer=american_english_analyzer)
+    casestudy_wildcard = field.Text(analyzer=american_english_analyzer)
+
     case_study_count = field.Integer()
     date_of_creation = field.Date(index=False)
-    description = field.Text(copy_to='wildcard')
+    description = field.Text(
+        copy_to='wildcard', analyzer=american_english_analyzer
+    )
     has_description = field.Boolean()
     employees = field.Text(index=False)
     facebook_url = field.Text(index=False)
@@ -49,7 +69,7 @@ class CompanyDocument(Document):
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
     name = field.Text(copy_to='wildcard')
-    number = field.Text(copy_to='wildcard')
+    number = field.Text(copy_to='wildcard',)
     sectors = field.Text(multi=True, copy_to='wildcard')
     sectors_label = field.Text(multi=True, copy_to='wildcard')
     expertise_industries = field.Text(multi=True, copy_to='wildcard')
@@ -63,22 +83,24 @@ class CompanyDocument(Document):
     )
     expertise_labels = field.Text(multi=True, copy_to='wildcard')
     slug = field.Text(copy_to='wildcard')
-    summary = field.Text(copy_to='wildcard')
+    summary = field.Text(
+        copy_to='wildcard', analyzer=american_english_analyzer
+    )
     twitter_url = field.Text(index=False)
     website = field.Text(copy_to='wildcard')
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index=False),
-            'title': field.Text(copy_to='wildcard'),
-            'short_summary': field.Text(copy_to='wildcard'),
-            'description': field.Text(copy_to='wildcard'),
-            'sector': field.Text(copy_to='wildcard'),
-            'keywords': field.Text(copy_to='wildcard'),
-            'image_one_caption': field.Text(copy_to='wildcard'),
-            'image_two_caption': field.Text(copy_to='wildcard'),
-            'image_three_caption': field.Text(copy_to='wildcard'),
-            'testimonial': field.Text(copy_to='wildcard'),
-            'slug': field.Text(copy_to='wildcard'),
+            'title': field.Text(copy_to='casestudy_wildcard'),
+            'short_summary': field.Text(copy_to='casestudy_wildcard'),
+            'description': field.Text(copy_to='casestudy_wildcard'),
+            'sector': field.Text(copy_to='casestudy_wildcard'),
+            'keywords': field.Text(copy_to='casestudy_wildcard'),
+            'image_one_caption': field.Text(copy_to='casestudy_wildcard'),
+            'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
+            'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
+            'testimonial': field.Text(copy_to='casestudy_wildcard'),
+            'slug': field.Text(copy_to='casestudy_wildcard'),
         }
     )
     is_showcase_company = field.Boolean()
