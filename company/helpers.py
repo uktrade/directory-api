@@ -157,52 +157,28 @@ path_and_rename_supplier_case_study = PathAndRename(
 )
 
 
-class InvestmentSupportDirectorySearch:
-
-    OPTIONAL_FILTERS = [
-        'expertise_industries',
-        'expertise_regions',
-        'expertise_countries',
-        'expertise_languages',
-        'expertise_products_services_labels'
-    ]
-
-    @classmethod
-    def create_query_object(cls, params):
-        must = Q('term', is_published_investment_support_directory=True)
-
-        if params.get('term'):
-            must &= Q('match_phrase', wildcard=params['term'])
-
-        filters = [item for item in cls.OPTIONAL_FILTERS if params.get(item)]
-
-        # perform OR operation for items specified in same group eg.,
-        # NORTH_EAST OR NORTH_WEST
-        # AEROSPACE OR AIRPORTS
-        groups = []
-        for name in filters:
-            queries = [Q('match', **{name: item}) for item in params[name]]
-            groups.append(reduce(operator.or_, queries))
-
-        # perform AND operation for different groups e.g.,
-        # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
-        should = reduce(operator.and_, groups) if groups else []
-
-        return Q(
-            'bool',
-            must=must,
-            should=should,
-            minimum_should_match=1 if should else 0,
+def build_search_company_query(params):
+    query = Q('term', is_published_investment_support_directory=True)
+    term = params.pop('term', None)
+    if term:
+        query &= (
+            Q('match_phrase', wildcard=term) |
+            Q('match', wildcard=term) |
+            Q('match_phrase', casestudy_wildcard=term) |
+            Q('match', casestudy_wildcard=term)
         )
 
-    @staticmethod
-    def apply_pagination(search_object, page, size):
-        start = (page - 1) * size
-        end = start + size
-        return search_object[start:end]
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object.highlight_options(
-            require_field_match=False,
-        ).highlight('summary', 'description')
+    # perform OR operation for items specified in same group and
+    # then an AND operation for different groups e.g.,
+    # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
+    for key, values in params.items():
+        siblings = reduce(
+            operator.or_,
+            [Q('match', **{key: value}) for value in values]
+        )
+        if len(values) > 1:
+            query &= Q('bool', should=siblings)
+            query.minimum_should_match = 1
+        else:
+            query &= siblings
+    return query

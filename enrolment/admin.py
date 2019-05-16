@@ -43,7 +43,7 @@ class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
         'company_number',
         'email_address',
         'generated_for',
-        'generated_by',
+        'generated_by__username',
     )
     list_display = ('company_number', 'email_address', 'generated_for')
     list_filter = ('is_active', 'generated_for')
