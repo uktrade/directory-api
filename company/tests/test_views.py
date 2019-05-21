@@ -1297,8 +1297,8 @@ def test_investment_support_directory_paginate_first_page(
         assert mock_search.call_count == 1
         response = api_client.get(reverse(
             'investment-support-directory-search'), data=data)
-
         assert response.status_code == 200, response.content
+        assert mock_search.call_args[1]['body']['from'] == expected_start
 
 
 def test_company_search_with_sector_filter(api_client, settings):

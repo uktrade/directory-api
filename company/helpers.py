@@ -1,8 +1,7 @@
-from functools import partial, reduce
+from functools import partial
 from uuid import uuid4
 import http
 import logging
-import operator
 import os
 import re
 from urllib.parse import urljoin
@@ -173,8 +172,5 @@ def build_search_company_query(params):
     # then an AND operation for different groups e.g.,
     # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
     for key, values in params.items():
-        query &= reduce(
-            operator.or_,
-            [Q('term', **{key: value}) for value in values]
-        )
+        query &= Q('terms', **{key: list(values)})
     return query

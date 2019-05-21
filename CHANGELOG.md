@@ -1,5 +1,11 @@
 # Changelog
 
+## Pre release
+
+### Fixed bugs
+
+TT-1480 - Fixed pagination
+
 ## [2019.05.16](https://github.com/uktrade/directory-api/releases/tag/2019.05.16)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.09...2019.05.16)
 
