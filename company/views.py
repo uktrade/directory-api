@@ -320,12 +320,14 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         search_object = (
             search.CompanyDocument
             .search()
+            .filter('term', is_published_investment_support_directory=True)
             .query(query)
             .highlight_options(require_field_match=False)
             .highlight('summary', 'description')
             .extra(
                 from_=(serializer.validated_data['page'] - 1) * size,
-                size=size
+                size=size,
+                explain=True,
             )
         )
         return Response(data=search_object.execute().to_dict())
