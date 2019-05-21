@@ -1,5 +1,8 @@
 # Changelog
 
+## [2019.05.16](https://github.com/uktrade/directory-api/releases/tag/2019.05.16)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.09...2019.05.16)
+
 ### Implemented enhancements
 - TT-1408 - Customize ISD search results order.
 
