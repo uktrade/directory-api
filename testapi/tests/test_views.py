@@ -211,7 +211,7 @@ def test_get_published_companies_check_response_contents(
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
-    sectors = ["AEROSPACE", "AUTOMOTIVE", "BIOTECHNOLOGY_AND_PHARMACEUTICALS"]
+    sectors = ['AEROSPACE', 'AUTOMOTIVE', 'BIOTECHNOLOGY_AND_PHARMACEUTICALS']
     employees = '1-10'
     website = 'http://test.com'
     keywords = 'keyword1,keyword2,keyword3'
@@ -275,8 +275,8 @@ def test_get_published_companies_check_response_contents(
 def test_get_published_companies_use_optional_filters(
         authed_client, limit, minimal_number_of_sectors,
         expected_number_of_results):
-    sectors_1 = ["AEROSPACE", "AUTOMOTIVE", "DEFENCE"]
-    sectors_2 = ["AEROSPACE", "AUTOMOTIVE"]
+    sectors_1 = ['AEROSPACE', 'AUTOMOTIVE', 'DEFENCE']
+    sectors_2 = ['AEROSPACE', 'AUTOMOTIVE']
     company_1 = factories.CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_1
@@ -308,7 +308,7 @@ def test_get_unpublished_companies_check_response_contents(
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
-    sectors = ["AEROSPACE", "AUTOMOTIVE", "BIOTECHNOLOGY_AND_PHARMACEUTICALS"]
+    sectors = ['AEROSPACE', 'AUTOMOTIVE', 'BIOTECHNOLOGY_AND_PHARMACEUTICALS']
     employees = '1-10'
     website = 'http://test.com'
     keywords = 'keyword1,keyword2,keyword3'
