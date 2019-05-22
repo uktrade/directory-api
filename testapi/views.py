@@ -1,6 +1,7 @@
 from django.http import Http404
 from rest_framework.generics import (
     get_object_or_404,
+    CreateAPIView,
     DestroyAPIView,
     RetrieveAPIView,
     GenericAPIView,
@@ -11,7 +12,11 @@ from django.conf import settings
 from django.core.signing import Signer
 from django.db.models import Q
 from company.models import Company
-from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
+from testapi.serializers import (
+    CompanySerializer,
+    ISDCompanySerializer,
+    PublishedCompaniesSerializer,
+)
 from testapi.utils import (
     get_matching_companies,
     get_published_companies_query_params,
@@ -93,3 +98,9 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
         response_data = get_matching_companies(
             self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
+
+
+class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
+    serializer_class = ISDCompanySerializer
+    authentication_classes = []
+    permission_classes = []
