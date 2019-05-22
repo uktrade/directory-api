@@ -6,6 +6,7 @@
 
 - TT-1480 - Fixed pagination
 - TT-1463 - Improved ordering of companies that match multiple filters
+- TT-1481 - Allow searching via expertise fields in term
 
 ## [2019.05.16](https://github.com/uktrade/directory-api/releases/tag/2019.05.16)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.09...2019.05.16)

@@ -53,6 +53,7 @@ class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
 class CompanyDocument(Document):
     wildcard = field.Text(analyzer=american_english_analyzer)
     casestudy_wildcard = field.Text(analyzer=american_english_analyzer)
+    keyword_wildcard = field.Keyword()
 
     case_study_count = field.Integer()
     date_of_creation = field.Date(index=False)
@@ -69,48 +70,50 @@ class CompanyDocument(Document):
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
     name = field.Text(copy_to='wildcard')
-    number = field.Keyword(copy_to='wildcard',)
-    sectors = field.Keyword(multi=True, copy_to='wildcard', store=True)
-    sectors_label = field.Keyword(multi=True, copy_to='wildcard', store=True)
+    number = field.Keyword(copy_to='keyword_wildcard',)
+    sectors = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    sectors_label = field.Keyword(
+        multi=True, copy_to='keyword_wildcard', store=True
+    )
     expertise_industries = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
     expertise_regions = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
     expertise_languages = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
     expertise_countries = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
     # Represents Dict as it's the primitive datatype for this field
     expertise_products_services = field.Object()
     expertise_products_services_labels = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
     expertise_labels = field.Keyword(
-        multi=True, copy_to='wildcard', store=True
+        multi=True, copy_to='keyword_wildcard', store=True
     )
-    slug = field.Keyword(copy_to='wildcard', store=True)
+    slug = field.Keyword(copy_to='keyword_wildcard', store=True)
     summary = field.Text(
         copy_to='wildcard', analyzer=american_english_analyzer
     )
     twitter_url = field.Keyword(index=False, store=True)
-    website = field.Keyword(copy_to='wildcard', store=True)
+    website = field.Keyword(copy_to='keyword_wildcard', store=True)
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index=False),
             'title': field.Text(copy_to='casestudy_wildcard'),
             'short_summary': field.Text(copy_to='casestudy_wildcard'),
             'description': field.Text(copy_to='casestudy_wildcard'),
-            'sector': field.Keyword(copy_to='casestudy_wildcard', store=True),
+            'sector': field.Keyword(copy_to='keyword_wildcard', store=True),
             'keywords': field.Text(copy_to='casestudy_wildcard'),
             'image_one_caption': field.Text(copy_to='casestudy_wildcard'),
             'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
             'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
-            'slug': field.Keyword(copy_to='casestudy_wildcard', store=True),
+            'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
         }
     )
     is_showcase_company = field.Boolean()
