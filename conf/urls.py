@@ -226,6 +226,11 @@ urlpatterns = [
         name='company_by_ch_id'
     ),
     url(
+        r'^testapi/isd_company/$',
+        testapi.views.ISDCompanyTestAPIView.as_view(),
+        name='create_test_isd_company'
+    ),
+    url(
         r'^testapi/companies/published/$',
         testapi.views.PublishedCompaniesTestAPIView.as_view(),
         name='published_companies'
