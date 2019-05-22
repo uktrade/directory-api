@@ -358,3 +358,53 @@ def test_get_unpublished_companies_check_response_contents(
     assert found_company['is_uk_isd_company']
     assert not found_company['is_published_find_a_supplier']
     assert not found_company['is_published_investment_support_directory']
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company(authed_client):
+    url = reverse('create_test_isd_company')
+    response = authed_client.post(url)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()['is_uk_isd_company']
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_disabled_test_api(
+        authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('create_test_isd_company')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_disabled_test_api_and_unsigned_client(
+        client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('create_test_isd_company')
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_optional_parameter(authed_client):
+    url = reverse('create_test_isd_company')
+    data = {
+        'is_uk_isd_company': False,
+    }
+    response = authed_client.post(url, data=data)
+    assert response.status_code == status.HTTP_201_CREATED
+    created_company = response.json()
+    assert not created_company['is_uk_isd_company'], created_company
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_unexpected_parameters_are_ignored(
+        authed_client
+):
+    url = reverse('create_test_isd_company')
+    data = {
+        'an_unexpected_parameter': 'unexpected value',
+    }
+    response = authed_client.post(url, data=data)
+    assert response.status_code == status.HTTP_201_CREATED
