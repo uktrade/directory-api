@@ -1,12 +1,12 @@
-from functools import partial, reduce
+from functools import partial
 from uuid import uuid4
 import http
 import logging
-import operator
 import os
 import re
 from urllib.parse import urljoin
 from elasticsearch_dsl import Q
+from elasticsearch_dsl.query import ConstantScore
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -158,27 +158,38 @@ path_and_rename_supplier_case_study = PathAndRename(
 
 
 def build_search_company_query(params):
-    query = Q('term', is_published_investment_support_directory=True)
     term = params.pop('term', None)
-    if term:
-        query &= (
-            Q('match_phrase', wildcard=term) |
-            Q('match', wildcard=term) |
-            Q('match_phrase', casestudy_wildcard=term) |
-            Q('match', casestudy_wildcard=term)
-        )
 
     # perform OR operation for items specified in same group and
     # then an AND operation for different groups e.g.,
     # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
+    # each sibling filter should have equal score with each other
+    must = []
     for key, values in params.items():
-        siblings = reduce(
-            operator.or_,
-            [Q('match', **{key: value}) for value in values]
+        should = [
+            ConstantScore(filter=Q('term', **{key: value})) for value in values
+        ]
+        must.append(Q('bool', should=should, minimum_should_match=1))
+    should = []
+    if term:
+        should.append(
+            Q(
+                'bool',
+                should=[
+                    ConstantScore(filter=Q('term', keyword_wildcard=term)),
+                    ConstantScore(filter=Q('match_phrase', wildcard=term)),
+                    ConstantScore(filter=Q('match', wildcard=term)),
+                    ConstantScore(
+                        filter=Q('match_phrase', casestudy_wildcard=term)
+                    ),
+                    ConstantScore(filter=Q('match', casestudy_wildcard=term))
+                ],
+                minimum_should_match=1
+            )
         )
-        if len(values) > 1:
-            query &= Q('bool', should=siblings)
-            query.minimum_should_match = 1
-        else:
-            query &= siblings
-    return query
+    return Q(
+        'bool',
+        must=must,
+        should=should,
+        minimum_should_match=1 if should else 0
+    )

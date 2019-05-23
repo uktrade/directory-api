@@ -316,15 +316,18 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             if key in serializer.OPTIONAL_FILTERS
         }
         query = helpers.build_search_company_query(params)
+        size = serializer.validated_data['size']
         search_object = (
             search.CompanyDocument
             .search()
+            .filter('term', is_published_investment_support_directory=True)
             .query(query)
             .highlight_options(require_field_match=False)
             .highlight('summary', 'description')
             .extra(
-                from_=serializer.validated_data['page']-1,
-                size=serializer.validated_data['size']
+                from_=(serializer.validated_data['page'] - 1) * size,
+                size=size,
+                explain=True,
             )
         )
         return Response(data=search_object.execute().to_dict())

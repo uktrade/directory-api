@@ -1297,8 +1297,8 @@ def test_investment_support_directory_paginate_first_page(
         assert mock_search.call_count == 1
         response = api_client.get(reverse(
             'investment-support-directory-search'), data=data)
-
         assert response.status_code == 200, response.content
+        assert mock_search.call_args[1]['body']['from'] == expected_start
 
 
 def test_company_search_with_sector_filter(api_client, settings):
@@ -1443,28 +1443,46 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     # expertise_industries
     ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
     [
-        '', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
+        '',
+        'expertise_industries',
+        [sectors.AEROSPACE, sectors.AIRPORTS],
+        ['1', '2', '3'],
+    ],
+    # expertise_industries via q
+    [sectors.AEROSPACE, '', '', ['1', '2']],
+    [
+        '',
+        'expertise_industries',
+        [sectors.AEROSPACE, sectors.AIRPORTS],
         ['1', '2', '3']
     ],
     # expertise_regions
     [
-        '', 'expertise_regions', [choices.EXPERTISE_REGION_CHOICES[4][0]],
+        '',
+        'expertise_regions',
+        [choices.EXPERTISE_REGION_CHOICES[4][0]],
         ['1', '2']
     ],
     [
-        '', 'expertise_regions', [
+        '',
+        'expertise_regions',
+        [
             choices.EXPERTISE_REGION_CHOICES[4][0],
-            choices.EXPERTISE_REGION_CHOICES[5][0]
+            choices.EXPERTISE_REGION_CHOICES[5][0],
         ],
         ['1', '2', '3']
     ],
     # expertise_languages
     [
-        '', 'expertise_languages', [choices.EXPERTISE_LANGUAGES[0][0]],
-        ['1', '2']
+        '',
+        'expertise_languages',
+        [choices.EXPERTISE_LANGUAGES[0][0]],
+        ['1', '2'],
     ],
     [
-        '', 'expertise_languages', [
+        '',
+        'expertise_languages',
+        [
             choices.EXPERTISE_LANGUAGES[0][0],
             choices.EXPERTISE_LANGUAGES[2][0]
         ],
@@ -1473,7 +1491,9 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     # expertise_countries
     ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
     [
-        '', 'expertise_countries', [
+        '',
+        'expertise_countries',
+        [
             choices.COUNTRY_CHOICES[23][0],
             choices.COUNTRY_CHOICES[24][0]
         ],
@@ -1481,19 +1501,21 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     ],
     # expertise_products_services
     ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
-    ['', 'expertise_products_services_labels',
-     ['Finance', 'IT'], ['1', '2', '3']
-     ],
+    [
+        '',
+        'expertise_products_services_labels',
+        ['Finance', 'IT'],
+        ['1', '2', '3']
+    ],
 ])
 def test_investment_support_directory_search_results(
-        term,
-        filter_name,
-        filter_value,
-        expected,
-        search_investment_support_directory_data,
-        api_client
+    term,
+    filter_name,
+    filter_value,
+    expected,
+    search_investment_support_directory_data,
+    api_client
 ):
-
     data = {
         'term': term,
         'page': '1',
@@ -1810,6 +1832,81 @@ def test_investment_support_directory_search_filter_and_or_single(
         'expertise_products_services_labels': [
             'Accounting and tax',
             'Regulatory support'
+        ],
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(
+        reverse('investment-support-directory-search'), data=data
+    )
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+    assert actual == []
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_investment_support_directory_search_filter_partial_match(
+    api_client, settings
+):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        expertise_products_services={
+            'Legal': [
+                'Company incorporation',
+                'Immigration'
+            ],
+            'Human Resources': [
+                'Staff onboarding',
+                'Employment and talent research'
+            ],
+            'Business Support': [
+                'Business relocation',
+                'Staff and family relocation'
+            ],
+            'Management Consulting': [
+                'Workforce development',
+                'Strategy and long-term planning'
+            ]
+        },
+        expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
+        expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
+        expertise_regions=[
+            'WALES',
+            'NORTH_EAST',
+            'NORTH_WEST',
+            'YORKSHIRE_AND_HUMBER',
+            'EAST_MIDLANDS',
+            'WEST_MIDLANDS',
+            'EASTERN',
+            'LONDON',
+            'SOUTH_EAST',
+            'SOUTH_WEST',
+        ],
+        expertise_industries=[
+            'Advanced manufacturing',
+            'Aerospace',
+            'Automotive',
+            'Creative and media',
+            'Education and training',
+            'Food and drink',
+            'Healthcare and medical',
+            'Software and computer services',
+            'Retail and luxury'
+        ],
+        id=1,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_EAST'],
+        'expertise_languages': ['es'],
+        'expertise_products_services_labels': [
+            'Employment',
         ],
         'page': '1',
         'size': '10',
