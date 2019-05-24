@@ -901,7 +901,8 @@ def test_company_case_study_create_company_not_published(
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
-        is_published_find_a_supplier=False
+        is_published_find_a_supplier=False,
+        is_published_investment_support_directory=False,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -1009,11 +1010,14 @@ def test_company_case_study_get(
 
 @pytest.mark.django_db
 def test_public_company_case_study_get(
-    supplier_case_study, supplier, api_client
+    supplier_case_study, supplier, api_client, company
 ):
-    pk = supplier_case_study.pk
+    company.is_published_find_a_supplier = True
+    company.is_published_investment_support_directory = True
+    company.save()
+
     url = reverse(
-        'public-case-study-detail', kwargs={'pk': pk}
+        'public-case-study-detail', kwargs={'pk': supplier_case_study.pk}
     )
 
     response = api_client.get(url)
