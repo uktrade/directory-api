@@ -11,7 +11,7 @@ import pytest
 from freezegun import freeze_time
 from rest_framework.test import APIClient
 from rest_framework import status
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from django.core.urlresolvers import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
