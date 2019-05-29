@@ -3,7 +3,6 @@ import http
 import uuid
 from io import BytesIO
 from unittest.mock import call, patch, Mock
-from django.core.urlresolvers import reverse
 
 from directory_constants import choices, sectors
 from elasticsearch_dsl import Index
@@ -13,6 +12,9 @@ from freezegun import freeze_time
 from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image, ImageDraw
+
+from django.core.urlresolvers import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from company import helpers, models, serializers, views
 from company.tests import (
@@ -288,14 +290,11 @@ def mock_save(self, name, content, max_length=None):
     return Mock(url=content.name)
 
 
-def get_test_image(extension='PNG'):
-    image = Image.new('RGB', (300, 50))
-    draw = ImageDraw.Draw(image)
-    draw.text((0, 0), 'This text is drawn on image')
-    byte_io = BytesIO()
-    image.save(byte_io, extension)
-    byte_io.seek(0)
-    return byte_io
+def get_test_image(extension='png'):
+    bytes_io = BytesIO()
+    Image.new('RGB', (300, 50)).save(bytes_io, extension)
+    bytes_io.seek(0)
+    return SimpleUploadedFile(f'test.{extension}', bytes_io.read())
 
 
 @pytest.fixture(scope='session')
@@ -914,7 +913,7 @@ def test_company_case_study_create_company_not_published(
         'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
-        'image_one': get_test_image(extension='PNG'),
+        'image_one': get_test_image(extension='png'),
         'testimonial': 'very nice',
         'testimonial_name': 'Lord Voldemort',
         'testimonial_job_title': 'Evil overlord',
@@ -923,7 +922,6 @@ def test_company_case_study_create_company_not_published(
     response = authed_client.post(
         reverse('company-case-study'), case_study_data, format='multipart'
     )
-
     assert response.status_code == http.client.CREATED
 
     url = reverse(
