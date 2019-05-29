@@ -2,6 +2,10 @@
 
 ## Pre release
 
+### Fixed bugs
+- No ticket - Upgraded djangorestframework to resolve security vulnerability
+- No ticket - Upgraded directory-client-core to fix inconsistency in cache.
+
 ## [2019.05.23](https://github.com/uktrade/directory-api/releases/tag/2019.05.23)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.16...2019.05.23)
 

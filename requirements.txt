@@ -16,11 +16,11 @@ cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
 contextlib2==0.5.5        # via raven
 cryptography==2.3
-directory-client-core==4.3.0  # via directory-sso-api-client
+directory-client-core==5.1.0
 directory-components==10.0.0
 directory-constants==16.4.0
 directory-healthcheck==1.0.1
-directory-sso-api-client==3.0.0
+directory-sso-api-client==5.0.0
 directory-validators==4.5.1
 dj-database-url==0.4.1
 django-admin-ip-restrictor==1.0.0
@@ -35,7 +35,7 @@ django-redis==4.7.0
 django-storages==1.5.1
 django==1.11.20
 django_extensions==1.6.7
-djangorestframework==3.4.7
+djangorestframework==3.9.1
 docutils==0.14            # via botocore
 elasticsearch-dsl==6.4.0
 elasticsearch==6.3.1      # via elasticsearch-dsl
@@ -55,7 +55,6 @@ python-dateutil==2.6.1    # via botocore, elasticsearch-dsl
 pytz==2017.2              # via celery, directory-validators, django
 raven==5.19.0
 redis==2.10.6             # via celery, django-redis
-requests-aws4auth==0.9
 requests[security]==2.21.0
 s3transfer==0.1.13        # via boto3
 sigauth==4.0.1
