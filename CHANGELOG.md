@@ -1,11 +1,14 @@
 # Changelog
 
 ## Pre release
+
+### Implemented enhancements
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
 
 ### Fixed bugs
 - No ticket - Upgraded djangorestframework to resolve security vulnerability
 - No ticket - Upgraded directory-client-core to fix inconsistency in cache.
+- TT-1438 - Allow searching for companies via case study attributes
 
 ## [2019.05.23](https://github.com/uktrade/directory-api/releases/tag/2019.05.23)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.16...2019.05.23)

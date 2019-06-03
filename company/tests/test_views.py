@@ -1452,6 +1452,8 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     ],
     # expertise_industries via q
     [sectors.AEROSPACE, '', '', ['1', '2']],
+    # expertise_products_services_labels via q
+    ['Regulatory', '', '', ['1', '2', '3']],
     [
         '',
         'expertise_industries',

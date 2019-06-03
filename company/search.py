@@ -37,6 +37,8 @@ class CaseStudyFieldsMixin:
     image_two_caption = field.Text(copy_to='wildcard')
     image_three_caption = field.Text(copy_to='wildcard')
     testimonial = field.Text(copy_to='wildcard')
+    testimonial_name = field.Keyword(copy_to='wildcard')
+    testimonial_job_title = field.Text(copy_to='wildcard')
     slug = field.Text(index=False)
 
 
@@ -113,7 +115,13 @@ class CompanyDocument(Document):
             'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
             'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
+            'website': field.Keyword(copy_to='keyword_wildcard', store=True),
             'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
+            'testimonial_name': field.Keyword(
+                copy_to='keyword_wildcard', store=True
+            ),
+            'testimonial_company': field.Text(copy_to='casestudy_wildcard'),
+            'testimonial_job_title': field.Text(copy_to='casestudy_wildcard'),
         }
     )
     is_showcase_company = field.Boolean()
