@@ -104,7 +104,7 @@ class CompanyDocument(Document):
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index=False),
-            'title': field.Text(copy_to='casestudy_wildcard'),
+            'title': field.Keyword(copy_to='keyword_wildcard',),
             'short_summary': field.Text(copy_to='casestudy_wildcard'),
             'description': field.Text(copy_to='casestudy_wildcard'),
             'sector': field.Keyword(copy_to='keyword_wildcard', store=True),

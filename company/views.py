@@ -323,6 +323,9 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             .search()
             .filter('term', is_published_investment_support_directory=True)
             .query(query)
+            .sort(
+                '-title',
+            )
             .highlight_options(require_field_match=False)
             .highlight('summary', 'description')
             .extra(
