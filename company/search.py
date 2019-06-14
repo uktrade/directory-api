@@ -115,10 +115,10 @@ class CompanyDocument(Document):
             'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
             'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
-            'website': field.Keyword(copy_to='keyword_wildcard', store=True),
+            'website': field.Keyword(copy_to='casestudy_wildcard', store=True),
             'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
             'testimonial_name': field.Keyword(
-                copy_to='keyword_wildcard', store=True
+                copy_to='casestudy_wildcard', store=True
             ),
             'testimonial_company': field.Text(copy_to='casestudy_wildcard'),
             'testimonial_job_title': field.Text(copy_to='casestudy_wildcard'),
