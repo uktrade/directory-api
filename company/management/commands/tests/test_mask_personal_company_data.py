@@ -30,4 +30,3 @@ def test_mask_company_data(new_companies):
         assert masked_company.po_box != new_company.po_box
         assert masked_company.email_address != new_company.email_address
         assert masked_company.email_full_name != new_company.email_full_name
-

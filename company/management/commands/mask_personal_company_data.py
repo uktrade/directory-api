@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         queryset = models.Company.objects.all()
         failed = 0
-        succeded= 0
+        succeded = 0
         for company in queryset:
             try:
                 message = f'Company {company.pk} updated'
