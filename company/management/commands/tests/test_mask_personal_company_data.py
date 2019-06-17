@@ -22,7 +22,6 @@ def test_mask_company_data(new_companies):
 
     for new_company in new_companies:
         masked_company = Company.objects.get(id=new_company.id)
-        assert masked_company.name != new_company.name
         assert masked_company.postal_full_name != new_company.postal_full_name
         assert masked_company.address_line_1 != new_company.address_line_1
         assert masked_company.address_line_2 != new_company.address_line_2

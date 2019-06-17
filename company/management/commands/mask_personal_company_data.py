@@ -15,7 +15,6 @@ class Command(BaseCommand):
             try:
                 message = f'Company {company.pk} updated'
                 company_factory = CompanyFactory()
-                company.name = company_factory.name
                 company.mobile_number = company_factory.mobile_number
                 company.postal_full_name = company_factory.postal_full_name
                 company.address_line_1 = company_factory.address_line_1
