@@ -2,12 +2,17 @@ from django.core.management.base import BaseCommand
 from company.tests.factories import CompanyFactory
 
 from company import models
-
+from supplier import models
+import factory
 
 class Command(BaseCommand):
-    help = 'Masks personal company fields with test data'
+    help = 'Masks personal company/supplier fields with test data'
 
     def handle(self, *args, **options):
+        self.mask_company_data()
+        self.mask_supplier_data()
+
+    def mask_company_data(self):
         queryset = models.Company.objects.all()
         failed = 0
         succeded = 0
@@ -31,3 +36,25 @@ class Command(BaseCommand):
                 failed += 1
         self.stdout.write(self.style.SUCCESS(f'{succeded} companies updated'))
         self.stdout.write(self.style.WARNING(f'{failed} companies failed'))
+
+    def mask_supplier_data(self):
+        queryset = models.Supplier.objects.all()
+        failed = 0
+        succeded = 0
+        for supplier in queryset:
+            try:
+                message = f'supplier {supplier.pk} updated'
+                supplier.name = factory.Faker('company')
+                supplier.company_email = factory.LazyAttribute(
+                    lambda supplier: '%s@example.com' % supplier.name.replace(
+                        ',', '_'
+                    ).replace(' ', '_')
+                )
+                supplier.save()
+                self.stdout.write(self.style.SUCCESS(message))
+                succeded += 1
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(e))
+                failed += 1
+        self.stdout.write(self.style.SUCCESS(f'{succeded} supplier updated'))
+        self.stdout.write(self.style.WARNING(f'{failed} supplier failed'))

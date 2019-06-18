@@ -71,7 +71,9 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     po_box = factory.fuzzy.FuzzyText(length=3)
     email_full_name = factory.Faker('name')
     email_address = factory.LazyAttribute(
-        lambda company: '%s@example.com' % company.name)
+        lambda company: '%s@example.com' % company.name.replace(
+            ',', '_').replace(' ', '_')
+    )
 
     class Meta:
         model = Company
