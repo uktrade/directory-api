@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 from company.tests.factories import CompanyFactory
 
-from company import models
 from supplier import models
 import factory
+
 
 class Command(BaseCommand):
     help = 'Masks personal company/supplier fields with test data'
