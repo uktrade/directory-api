@@ -69,7 +69,10 @@ class CompanyDocument(Document):
     logo = field.Keyword(index=False, store=True)
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
-    name = field.Text(copy_to='wildcard')
+
+    ordering_name = field.Keyword()
+    name = field.Text(copy_to=['wildcard', 'ordering_name'], boost=2)
+
     number = field.Keyword(copy_to='keyword_wildcard',)
     sectors = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
     sectors_label = field.Keyword(
@@ -104,7 +107,7 @@ class CompanyDocument(Document):
     supplier_case_studies = field.Nested(
         properties={
             'pk': field.Integer(index=False),
-            'title': field.Keyword(copy_to='keyword_wildcard',),
+            'title': field.Text(copy_to='keyword_wildcard'),
             'short_summary': field.Text(copy_to='casestudy_wildcard'),
             'description': field.Text(copy_to='casestudy_wildcard'),
             'sector': field.Keyword(copy_to='keyword_wildcard', store=True),
