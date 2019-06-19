@@ -6,7 +6,7 @@ import os
 import re
 from urllib.parse import urljoin
 from elasticsearch_dsl import Q
-from elasticsearch_dsl.query import ConstantScore, FunctionScore, SF
+from elasticsearch_dsl.query import ConstantScore
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -170,7 +170,6 @@ def build_search_company_query(params):
             ConstantScore(filter=Q('term', **{key: value})) for value in values
         ]
         must.append(Q('bool', should=should, minimum_should_match=1))
-
     should = []
     if term:
         should.append(

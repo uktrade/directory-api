@@ -317,7 +317,6 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             if key in serializer.OPTIONAL_FILTERS
         }
         query = helpers.build_search_company_query(params)
-
         size = serializer.validated_data['size']
         search_object = (
             search.CompanyDocument
@@ -344,7 +343,6 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
                 explain=True,
             )
         )
-
         return Response(data=search_object.execute().to_dict())
 
 
