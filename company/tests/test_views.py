@@ -1969,7 +1969,7 @@ def test_investment_support_directory_order_sibling_filters(
 
     actual = [hit['_id'] for hit in response.json()['hits']['hits']]
 
-    assert actual == ['2', '1', '3']
+    assert actual == ['2', '3', '1']
 
 
 @pytest.mark.rebuild_elasticsearch
@@ -2254,9 +2254,13 @@ def test_investment_support_directory_search_results_highlight_long(
     results = response.json()
     hits = results['hits']['hits']
 
+    print(hits[0]['highlight'])
+
     assert hits[0]['highlight']['description'] == [
-        'This is a very long thing about <em>wolf</em> stuff.',
-        'The <em>wolf</em> cries at night.'
+        'Providing the stealth and prowess of wolves. '
+        'This is a very long thing about <em>wolf</em> stuff. Lets see',
+        '. It is known. It is known. It is known. It is known. It is known. '
+        'It is known. It is known. The <em>wolf</em> cries at night.'
     ]
 
 
