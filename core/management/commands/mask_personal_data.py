@@ -3,7 +3,6 @@ from company.tests.factories import CompanyFactory
 from supplier.tests.factories import SupplierFactory
 
 from supplier import models
-import factory
 
 
 class Command(BaseCommand):
