@@ -13,6 +13,7 @@ from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
 
 from elasticsearch_dsl import query, Q as Q_
+from elasticsearch_dsl.query import  FunctionScore, SF
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -316,7 +317,23 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             key: value for key, value in serializer.validated_data.items()
             if key in serializer.OPTIONAL_FILTERS
         }
+        term = params.get('term', None)
+
         query = helpers.build_search_company_query(params)
+
+        if term:
+            query = Q_(
+                'function_score',
+                query=query,
+                functions=[
+                    SF({
+                        'weight': 5,
+                        'filter': Q_('match', name=term)
+                    })
+                ],
+                boost_mode='sum'
+            )
+
         size = serializer.validated_data['size']
         search_object = (
             search.CompanyDocument

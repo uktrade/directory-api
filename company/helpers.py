@@ -178,9 +178,7 @@ def build_search_company_query(params):
                 should=[
                     ConstantScore(filter=Q('term', keyword_wildcard=term)),
                     ConstantScore(filter=Q('match_phrase', wildcard=term)),
-                    ConstantScore(filter=Q('match_phrase', name=term)),
                     ConstantScore(filter=Q('match', wildcard=term)),
-                    ConstantScore(filter=Q('match', name=term)),
                     ConstantScore(
                         filter=Q('match_phrase', casestudy_wildcard=term)
                     ),
