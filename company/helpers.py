@@ -199,7 +199,8 @@ def build_search_company_query(params):
             functions=[
                 SF({
                     'weight': 5,
-                    'filter': Q('match', name=term)
+                    'filter': (Q('match_phrase', name=term) |
+                               Q('match', name=term))
                 })
             ],
             boost_mode='sum'
