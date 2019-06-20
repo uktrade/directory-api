@@ -1969,7 +1969,7 @@ def test_investment_support_directory_order_sibling_filters(
 
     actual = [hit['_id'] for hit in response.json()['hits']['hits']]
 
-    assert actual == ['2', '1', '3']
+    assert actual == ['2', '3', '1']
 
 
 @pytest.mark.rebuild_elasticsearch
