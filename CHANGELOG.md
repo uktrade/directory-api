@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
+- TT-1491 Adding sorting via title and more relevance to query that matches in titles
 
 ### Fixed bugs
 - No ticket - Upgraded djangorestframework to resolve security vulnerability
