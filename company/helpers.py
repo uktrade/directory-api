@@ -6,7 +6,7 @@ import os
 import re
 from urllib.parse import urljoin
 from elasticsearch_dsl import Q
-from elasticsearch_dsl.query import ConstantScore
+from elasticsearch_dsl.query import ConstantScore, SF
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -187,9 +187,28 @@ def build_search_company_query(params):
                 minimum_should_match=1
             )
         )
-    return Q(
-        'bool',
-        must=must,
-        should=should,
-        minimum_should_match=1 if should else 0
-    )
+
+        return Q(
+            'function_score',
+            query=Q(
+                'bool',
+                must=must,
+                should=should,
+                minimum_should_match=1 if should else 0
+            ),
+            functions=[
+                SF({
+                    'weight': 5,
+                    'filter': (Q('match_phrase', name=term) |
+                               Q('match', name=term))
+                })
+            ],
+            boost_mode='sum'
+        )
+    else:
+        return Q(
+            'bool',
+            must=must,
+            should=should,
+            minimum_should_match=1 if should else 0
+        )

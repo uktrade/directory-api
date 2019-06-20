@@ -71,7 +71,8 @@ class CompanyDocument(Document):
     logo = field.Keyword(index=False, store=True)
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
-    name = field.Text(copy_to='wildcard')
+    ordering_name = field.Keyword()
+    name = field.Text(copy_to=['wildcard', 'ordering_name'])
     number = field.Keyword(copy_to='keyword_wildcard',)
     sectors = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
     sectors_label = field.Keyword(
