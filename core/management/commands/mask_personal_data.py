@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from company.tests.factories import CompanyFactory
+from supplier.tests.factories import SupplierFactory
 
 from supplier import models
 import factory
@@ -19,7 +20,7 @@ class Command(BaseCommand):
         for company in queryset:
             try:
                 message = f'Company {company.pk} updated'
-                company_factory = CompanyFactory()
+                company_factory = CompanyFactory.build()
                 company.mobile_number = company_factory.mobile_number
                 company.postal_full_name = company_factory.postal_full_name
                 company.address_line_1 = company_factory.address_line_1
@@ -43,13 +44,11 @@ class Command(BaseCommand):
         succeded = 0
         for supplier in queryset:
             try:
+                supplier_factory = SupplierFactory.build()
                 message = f'supplier {supplier.pk} updated'
-                supplier.name = factory.Faker('company')
-                supplier.company_email = factory.LazyAttribute(
-                    lambda supplier: '%s@example.com' % supplier.name.replace(
-                        ',', '_'
-                    ).replace(' ', '_')
-                )
+                supplier.name = supplier_factory.name
+                supplier.company_email = supplier_factory.company_email
+                supplier.mobile_number = supplier_factory.mobile_number
                 supplier.save()
                 self.stdout.write(self.style.SUCCESS(message))
                 succeded += 1

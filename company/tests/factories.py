@@ -1,5 +1,7 @@
 import factory
 import factory.fuzzy
+from faker import Faker
+
 
 from directory_constants import choices
 
@@ -24,6 +26,10 @@ class FuzzyListChoice(factory.fuzzy.BaseFuzzyAttribute):
 
 
 EMPLOYEES_CHOICES = [choice[0] for choice in choices.EMPLOYEES]
+
+fake = Faker()
+fake.add_provider(factory.Faker('building_number'))
+fake.add_provider(factory.Faker('street_name'))
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
@@ -56,12 +62,11 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     linkedin_url = factory.LazyAttribute(
         lambda company: 'http://linkedin.com/%s' % company.name)
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
-    postal_full_name = factory.fuzzy.FuzzyText(length=12)
     @factory.lazy_attribute
     def address_line_1(self):
         return '{0} {1}'.format(
-            factory.Faker('building_number'),
-            factory.Faker('street_name')
+            fake.building_number(),
+            fake.street_name()
         )
     address_line_2 = factory.Faker('city', locale='en_GB')
     locality = factory.fuzzy.FuzzyText(length=12)
@@ -70,6 +75,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     postal_code = factory.Faker('postcode', locale='en_GB')
     po_box = factory.fuzzy.FuzzyText(length=3)
     email_full_name = factory.Faker('name')
+    postal_full_name = email_full_name
     email_address = factory.LazyAttribute(
         lambda company: '%s@example.com' % company.name.replace(
             ',', '_').replace(' ', '_')

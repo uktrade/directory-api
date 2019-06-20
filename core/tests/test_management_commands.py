@@ -12,22 +12,12 @@ from supplier.models import Supplier
 
 @pytest.fixture()
 def new_companies():
-    new_companies = []
-    for _ in range(10):
-        new_companies.append(
-            CompanyFactory()
-        )
-    return new_companies
+    return CompanyFactory.create_batch(10)
 
 
 @pytest.fixture()
 def new_suppliers():
-    new_suppliers = []
-    for _ in range(10):
-        new_suppliers.append(
-            SupplierFactory()
-        )
-    return new_suppliers
+    return SupplierFactory.create_batch(10)
 
 
 @patch('core.management.commands.distributed_migrate.MigrateCommand.handle')
@@ -75,4 +65,5 @@ def test_mask_data(new_companies, new_suppliers):
     for new_supplier in new_suppliers:
         masked_supplier = Supplier.objects.get(id=new_supplier.id)
         assert masked_supplier.name != new_supplier.name
+        assert masked_supplier.mobile_number != new_supplier.mobile_number
         assert masked_supplier.company_email != new_supplier.company_email
