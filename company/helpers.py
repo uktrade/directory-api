@@ -6,7 +6,7 @@ import os
 import re
 from urllib.parse import urljoin
 from elasticsearch_dsl import Q
-from elasticsearch_dsl.query import ConstantScore
+from elasticsearch_dsl.query import ConstantScore, SF
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -15,6 +15,7 @@ from django.utils.deconstruct import deconstructible
 from directory_constants import choices
 import directory_components.helpers
 import requests
+
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
@@ -187,9 +188,27 @@ def build_search_company_query(params):
                 minimum_should_match=1
             )
         )
-    return Q(
-        'bool',
-        must=must,
-        should=should,
-        minimum_should_match=1 if should else 0
-    )
+
+        return Q(
+            'function_score',
+            query=Q(
+                'bool',
+                must=must,
+                should=should,
+                minimum_should_match=1 if should else 0
+            ),
+            functions=[
+                SF({
+                    'weight': 5,
+                    'filter': Q('match', name=term)
+                })
+            ],
+            boost_mode='sum'
+        )
+    else:
+        return Q(
+            'bool',
+            must=must,
+            should=should,
+            minimum_should_match=1 if should else 0
+        )
