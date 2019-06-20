@@ -16,7 +16,6 @@ from directory_constants import choices
 import directory_components.helpers
 import requests
 
-
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
 SECTOR_CHOICES = dict(choices.INDUSTRIES)
