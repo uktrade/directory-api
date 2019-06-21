@@ -37,7 +37,7 @@ django-ipware==2.1.0      # via django-admin-ip-restrictor
 django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
-django==1.11.20
+django==1.11.21
 django_extensions==1.6.7
 djangorestframework==3.9.1
 docutils==0.14            # via botocore
