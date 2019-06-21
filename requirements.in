@@ -1,4 +1,4 @@
-Django==1.11.20
+Django==1.11.21
 dj-database-url==0.4.1
 django-environ==0.4.5
 django_extensions==1.6.7
@@ -30,4 +30,5 @@ directory-components==10.0.0
 urllib3>=1.24.2<2.0.0
 django-admin-ip-restrictor==1.0.0
 directory-client-core==5.1.0
+factory-boy==2.8.1
 
