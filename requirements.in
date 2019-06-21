@@ -30,3 +30,4 @@ directory-components==10.0.0
 urllib3>=1.24.2<2.0.0
 django-admin-ip-restrictor==1.0.0
 directory-client-core==5.1.0
+
