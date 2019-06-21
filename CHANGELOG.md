@@ -5,6 +5,7 @@
 ### Implemented enhancements
 - TT-1491 Adding sorting via title and more relevance to query that matches in titles
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
+- TT-1558 Add managment command to mask personal company data
 
 ### Fixed bugs
 - No ticket - Upgraded djangorestframework to resolve security vulnerability
