@@ -62,6 +62,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     linkedin_url = factory.LazyAttribute(
         lambda company: 'http://linkedin.com/%s' % company.name)
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
+
     @factory.lazy_attribute
     def address_line_1(self):
         return '{0} {1}'.format(
