@@ -1,9 +1,9 @@
-Django==1.11.20
+Django==1.11.21
 dj-database-url==0.4.1
 django-environ==0.4.5
 django_extensions==1.6.7
 django-field-history==0.7.0
-djangorestframework==3.4.7
+djangorestframework==3.9.1
 django-storages==1.5.1
 django-filter==1.0.4
 kombu==4.1.0
@@ -23,9 +23,12 @@ waitress==1.1.0
 sigauth==4.0.1
 directory-validators==4.5.1
 directory-constants==16.4.0
-directory-sso-api-client==3.0.0
+directory-sso-api-client==5.0.0
 directory-healthcheck==1.0.1
 cryptography==2.3.0
 directory-components==10.0.0
 urllib3>=1.24.2<2.0.0
 django-admin-ip-restrictor==1.0.0
+directory-client-core==5.1.0
+factory-boy==2.8.1
+
