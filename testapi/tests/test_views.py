@@ -366,6 +366,7 @@ def test_create_test_isd_company(authed_client):
     response = authed_client.post(url)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json()['is_uk_isd_company']
+    assert 'pre_verified_key' in response.json()
 
 
 @pytest.mark.django_db

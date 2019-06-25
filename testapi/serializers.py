@@ -1,5 +1,7 @@
 import random
 
+from django.core.signing import Signer
+from rest_framework import serializers
 from rest_framework.serializers import (
     Serializer,
     CharField,
@@ -11,6 +13,7 @@ from directory_constants import choices, sectors, expertise
 
 from company.tests import factories
 from company.models import Company
+from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 
 
 class CompanySerializer(Serializer):
@@ -21,10 +24,44 @@ class CompanySerializer(Serializer):
 
 
 class ISDCompanySerializer(ModelSerializer):
+    number = f'{random.randint(0, 999999):08}'
+    pre_verified_key = serializers.SerializerMethodField()
+
+    def get_pre_verified_key(self, _):
+        """Ignore second argument which is company name"""
+        signer = Signer()
+        return signer.sign(self.number)
 
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = (
+            'id',
+            'summary',
+            'description',
+            'employees',
+            'export_destinations',
+            'export_destinations_other',
+            'expertise_industries',
+            'expertise_regions',
+            'expertise_countries',
+            'expertise_languages',
+            'expertise_products_services',
+            'keywords',
+            'name',
+            'number',
+            'sectors',
+            'website',
+            'verification_code',
+            'twitter_url',
+            'facebook_url',
+            'linkedin_url',
+            'postal_full_name',
+            'address_line_1',
+            'address_line_2',
+            'slug',
+            'is_uk_isd_company',
+            'pre_verified_key',  # include field not present in the Model
+        )
         extra_kwargs = {
             'slug': {
                 'required': False
@@ -58,7 +95,6 @@ class ISDCompanySerializer(ModelSerializer):
         )
 
     def create(self, validated_data):
-        number = f'AT{random.randint(0, 999999):06}'
         countries = self.slice_choices(
             choices.COUNTRY_CHOICES, max_items=15)
         languages = self.slice_choices(
@@ -74,8 +110,8 @@ class ISDCompanySerializer(ModelSerializer):
             random.randint(0, 10)
         )
         wolf_company = factories.CompanyFactory(
-            number=number,
-            name=f'Automated tests {number}',
+            number=self.number,
+            name=f'Automated tests {self.number}',
             description='Delete at will',
             summary='Hunts in packs common',
             is_uk_isd_company=validated_data.get('is_uk_isd_company', True),
@@ -97,14 +133,20 @@ class ISDCompanySerializer(ModelSerializer):
                 'Business Support':
                     self.slice_list(expertise.BUSINESS_SUPPORT),
             },
-            website=f'https://automated.tests.{number}.com',
+            website=f'https://automated.tests.{self.number}.com',
             email_address='',
             email_full_name='',
-            slug=f'auto-tests-isd-company-{number}',
-            twitter_url=f'http://twitter.com/automated-tests-{number}',
-            facebook_url=f'http://facebook.com/automated-tests-{number}',
-            linkedin_url=f'http://linkedin.com/automated-tests-{number}',
+            slug=f'auto-tests-isd-company-{self.number}',
+            twitter_url=f'http://twitter.com/automated-tests-{self.number}',
+            facebook_url=f'http://facebook.com/automated-tests-{self.number}',
+            linkedin_url=f'http://linkedin.com/automated-tests-{self.number}',
         )
+        # Create a pre-verified enrolment entry
+        PreVerifiedEnrolmentFactory(
+            company_number=self.number,
+            email_address="",
+        )
+
         return wolf_company
 
 
