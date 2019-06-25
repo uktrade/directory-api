@@ -37,6 +37,8 @@ class CaseStudyFieldsMixin:
     image_two_caption = field.Text(copy_to='wildcard')
     image_three_caption = field.Text(copy_to='wildcard')
     testimonial = field.Text(copy_to='wildcard')
+    testimonial_name = field.Keyword(copy_to='wildcard')
+    testimonial_job_title = field.Text(copy_to='wildcard')
     slug = field.Text(index=False)
 
 
@@ -69,7 +71,8 @@ class CompanyDocument(Document):
     logo = field.Keyword(index=False, store=True)
     has_single_sector = field.Boolean()
     modified = field.Date(index=False)
-    name = field.Text(copy_to='wildcard')
+    ordering_name = field.Keyword()
+    name = field.Text(copy_to=['wildcard', 'ordering_name'])
     number = field.Keyword(copy_to='keyword_wildcard',)
     sectors = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
     sectors_label = field.Keyword(
@@ -113,7 +116,13 @@ class CompanyDocument(Document):
             'image_two_caption': field.Text(copy_to='casestudy_wildcard'),
             'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
+            'website': field.Keyword(copy_to='casestudy_wildcard', store=True),
             'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
+            'testimonial_name': field.Keyword(
+                copy_to='casestudy_wildcard', store=True
+            ),
+            'testimonial_company': field.Text(copy_to='casestudy_wildcard'),
+            'testimonial_job_title': field.Text(copy_to='casestudy_wildcard'),
         }
     )
     is_showcase_company = field.Boolean()

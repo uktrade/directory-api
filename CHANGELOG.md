@@ -2,6 +2,21 @@
 
 ## Pre release
 
+### Implemented enhancements
+- TT-1491 Adding sorting via title and more relevance to query that matches in titles
+- TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
+- TT-1558 Add managment command to mask personal company data
+- No-ticket move factory-boy to requirement.in and upgrade django to 1.11.21
+
+### Fixed bugs
+- No ticket - Upgraded djangorestframework to resolve security vulnerability
+- No ticket - Upgraded directory-client-core to fix inconsistency in cache.
+- TT-1438 - Allow searching for companies via case study attributes
+- TT-1438 - Add website Testimonial to CaseStudySearch
+
+## [2019.05.23](https://github.com/uktrade/directory-api/releases/tag/2019.05.23)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.16...2019.05.23)
+
 ### Fixed bugs
 
 - TT-1480 - Fixed pagination

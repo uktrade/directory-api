@@ -4,7 +4,7 @@ from rest_framework.authentication import BasicAuthentication
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.crypto import constant_time_compare
 
 from supplier import helpers
 
@@ -86,13 +86,11 @@ class GeckoBasicAuthentication(BasicAuthentication):
     class is to give gecko access to just views that use this
     class and absolutely nothing else."""
 
-    def authenticate_credentials(self, userid, password):
-        username_invalid = (userid != settings.GECKO_API_KEY)
-        password_invalid = (password != settings.GECKO_API_PASS)
-        if username_invalid or password_invalid:
-            raise exceptions.AuthenticationFailed(
-                _('Invalid username/password.'))
-        else:
+    def authenticate_credentials(self, userid, password, request=None):
+        username_ok = constant_time_compare(userid, settings.GECKO_API_KEY)
+        password_ok = constant_time_compare(password, settings.GECKO_API_PASS)
+        if username_ok and password_ok:
             user = User(username=userid)
-
-        return (user, None)
+            return (user, None)
+        else:
+            raise exceptions.AuthenticationFailed('Invalid username/password.')
