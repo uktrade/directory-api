@@ -2,6 +2,9 @@
 
 ## Pre release
 
+## [2019.06.25](https://github.com/uktrade/directory-api/releases/tag/2019.06.25)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.23...2019.06.25)
+
 ### Implemented enhancements
 - TT-1491 Adding sorting via title and more relevance to query that matches in titles
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
