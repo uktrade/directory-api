@@ -186,7 +186,8 @@ class SearchSerializer(serializers.Serializer):
         'expertise_regions',
         'expertise_countries',
         'expertise_languages',
-        'expertise_products_services_labels'
+        'expertise_products_services_labels',
+        'sectors',
     ]
 
     MESSAGE_MISSING_QUERY = 'Please specify a term or filter'
