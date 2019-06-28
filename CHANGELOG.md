@@ -2,6 +2,11 @@
 
 ## Pre release
 
+### Implemented enhancements
+
+- TT-1590 - Port ISD search logic to FAS
+- No ticket - Remove obsolete case study search endpoint
+
 ## [2019.06.25](https://github.com/uktrade/directory-api/releases/tag/2019.06.25)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.23...2019.06.25)
 

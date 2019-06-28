@@ -8,11 +8,11 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
-from company import filters, helpers, models, pagination, search, serializers
+from company import (
+    documents, filters, helpers, models, pagination, serializers
+)
 from core.permissions import IsAuthenticatedSSO
 from supplier.permissions import IsCompanyProfileOwner
-
-from elasticsearch_dsl import query, Q as Q_
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -143,171 +143,15 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
-class SearchBaseView(abc.ABC, views.APIView):
-    http_method_names = ("get", )
-    # `serializer_class` is used for deserializing the search query,
-    # but not for serializing the search results.
-    serializer_class = serializers.SearchSerializer
-    permission_classes = []
-
-    sector_field_name = abc.abstractproperty()
-    apply_highlighting = abc.abstractproperty()
-
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.GET)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        search_results = self.get_search_results(
-            term=validated_data.get('term'),
-            page=validated_data['page'],
-            size=validated_data['size'],
-            sectors=validated_data.get('sectors'),
-            is_showcase_company=validated_data.get('is_showcase_company'),
-        )
-        return Response(
-            data=search_results,
-            status=status.HTTP_200_OK,
-        )
-
-    def get_search_results(
-        self, term, page, size, sectors, is_showcase_company=None
-    ):
-        """Search by term and filter by sector.
-
-        Arguments:
-            term {str}   -- Search term to match on
-            page {int}   -- Page number to query
-            size {int}   -- Number of results per page
-            sectors {str[]} -- Filter companies by these sectors
-
-        Returns:
-            dict -- Companies that match the term
-
-        """
-
-        search_object = self.create_search_object(
-            term=term,
-            sectors=sectors,
-            is_showcase_company=is_showcase_company,
-        )
-        search_object = self.apply_highlighting(search_object)
-        search_object = self.apply_pagination(search_object, page, size)
-        return search_object.execute().to_dict()
-
-    def create_query_object(
-        self, term, sectors, is_showcase_company=None,
-        is_published_find_a_supplier=None,
-    ):
-        should_filters = []
-        must_filters = []
-
-        if sectors:
-            for sector in sectors:
-                params = {self.sector_field_name: sector}
-                should_filters.append(query.Match(**params))
-        if is_showcase_company is True:
-            must_filters.append(query.Term(is_showcase_company=True))
-        if term:
-            must_filters.append(
-                Q_('match_phrase', wildcard=term) |
-                Q_('match', wildcard=term) |
-                Q_('match_phrase', casestudy_wildcard=term) |
-                Q_('match', casestudy_wildcard=term)
-            )
-        if is_published_find_a_supplier is not None:
-            must_filters.append(
-                query.Term(
-                    is_published_find_a_supplier=is_published_find_a_supplier
-                ))
-        return query.Bool(
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0,
-        )
-
-    @staticmethod
-    def apply_pagination(search_object, page, size):
-        start = (page - 1) * size
-        end = start + size
-        return search_object[start:end]
-
-
-class CaseStudySearchAPIView(SearchBaseView):
-    sector_field_name = 'sector'
-
-    def create_search_object(self, term, sectors, is_showcase_company):
-        query_object = self.create_query_object(term=term, sectors=sectors)
-        return search.CaseStudyDocument.search().query(query_object)
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object
-
-
-class CompanySearchAPIView(SearchBaseView):
-    sector_field_name = 'sectors'
-
-    def create_search_object(self, term, sectors, is_showcase_company):
-        no_description = query.Term(has_description=False)
-        has_description = query.Term(has_description=True)
-        no_case_study = query.Term(case_study_count=0)
-        one_case_study = query.Term(case_study_count=1)
-        multiple_case_studies = query.Range(case_study_count={'gt': 1})
-
-        query_object = self.create_query_object(
-            term=term,
-            sectors=sectors,
-            is_showcase_company=is_showcase_company,
-            is_published_find_a_supplier=True,
-        )
-        return search.CompanyDocument.search().query(
-            'function_score',
-            query=query_object,
-            functions=[
-                query.SF({
-                  'weight': 5,
-                  'filter': multiple_case_studies + has_description,
-                }),
-                query.SF({
-                  'weight': 4,
-                  'filter': multiple_case_studies + no_description,
-                }),
-                query.SF({
-                  'weight': 3,
-                  'filter': one_case_study + has_description,
-                }),
-                query.SF({
-                  'weight': 2,
-                  'filter': one_case_study + no_description,
-                }),
-                query.SF({
-                  'weight': 1,
-                  'filter': no_case_study + has_description,
-                }),
-            ],
-            boost_mode='sum',
-        )
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object.highlight_options(
-            require_field_match=False,
-        ).highlight('summary', 'description')
-
-    def get_search_results(self, *args, **kwargs):
-        results = super().get_search_results(*args, **kwargs)
-        if results:
-            for hit in results['hits']['hits']:
-                item = hit['_source']
-                if 'modified' in item:
-                    item['modified'] = item['modified'].replace('+00:00', 'Z')
-        return results
-
-
-class InvestmentSupportDirectorySearchAPIView(views.APIView):
+class AbstractSearchAPIView(abc.ABC, views.APIView):
 
     permission_classes = []
     serializer_class = serializers.SearchSerializer
+
+    @property
+    @abc.abstractmethod
+    def elasticsearch_filter(self):
+        return {}
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
@@ -319,9 +163,9 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         query = helpers.build_search_company_query(params)
         size = serializer.validated_data['size']
         search_object = (
-            search.CompanyDocument
+            documents.CompanyDocument
             .search()
-            .filter('term', is_published_investment_support_directory=True)
+            .filter('term', **self.elasticsearch_filter)
             .query(query)
             .sort(
                 {"_score": {"order": "desc"}},
@@ -332,10 +176,21 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             .extra(
                 from_=(serializer.validated_data['page'] - 1) * size,
                 size=size,
-                explain=True,
             )
         )
         return Response(data=search_object.execute().to_dict())
+
+
+class FindASupplierSearchAPIView(AbstractSearchAPIView):
+    elasticsearch_filter = {
+        'is_published_find_a_supplier': True
+    }
+
+
+class InvestmentSupportDirectorySearchAPIView(AbstractSearchAPIView):
+    elasticsearch_filter = {
+        'is_published_investment_support_directory': True
+    }
 
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):
