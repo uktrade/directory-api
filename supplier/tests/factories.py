@@ -10,8 +10,8 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     name = factory.Faker('name', locale='en_GB')
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
     company_email = factory.LazyAttribute(
-        lambda supplier: '%s@example.com' % supplier.name.replace(
-            ',', '_').replace(' ', '_')
+        lambda supplier: '%s@example.com' % (supplier.name.replace(
+            ',', '_').replace(' ', '_') + str(supplier.sso_id))
     )
     company = factory.SubFactory(CompanyFactory)
 
