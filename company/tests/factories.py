@@ -1,7 +1,7 @@
 import factory
 import factory.fuzzy
 from faker import Faker
-
+from django.utils.text import slugify
 
 from directory_constants import choices
 
@@ -78,8 +78,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(
-        lambda company: '%s@example.com' % company.name.replace(
-            ',', '_').replace(' ', '_')
+        lambda x: f'{slugify(x.name)}@example.com'
     )
 
     class Meta:
