@@ -23,7 +23,7 @@ american_english_analyzer = analysis.analyzer(
 )
 
 
-class CaseStudyFieldsMixin:
+class CaseStudyInnerDoc(InnerDoc):
     wildcard = field.Text()
     pk = field.Integer(index=False)
     title = field.Text(copy_to='wildcard')
@@ -40,16 +40,6 @@ class CaseStudyFieldsMixin:
     testimonial_name = field.Keyword(copy_to='wildcard')
     testimonial_job_title = field.Text(copy_to='wildcard')
     slug = field.Text(index=False)
-
-
-class CaseStudyDocument(CaseStudyFieldsMixin, Document):
-
-    class Meta:
-        index = settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS
-
-
-class CaseStudyInnerDoc(CaseStudyFieldsMixin, InnerDoc):
-    pass
 
 
 class CompanyDocument(Document):
@@ -139,7 +129,7 @@ def get_absolute_url(url):
     return url
 
 
-def company_model_to_doc_type(
+def company_model_to_document(
     company, index=settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
 ):
     # getattr is used on the company to allow this functionton be used in
@@ -213,30 +203,3 @@ def company_model_to_doc_type(
         })
 
     return company_doc_type
-
-
-def case_study_model_to_doc_type(
-    case_study, index=settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS,
-):
-    # getattr is used on the case study to allow this functionton be used in
-    # migrations (historic models wont have all the fields listed below).
-    fields = {
-        'description',
-        'image_one_caption',
-        'image_three_caption',
-        'image_two_caption',
-        'keywords',
-        'pk',
-        'sector',
-        'short_summary',
-        'slug',
-        'title',
-    }
-    return CaseStudyDocument(
-        meta={'id': case_study.pk, '_index': index},
-        image=get_absolute_url(
-            case_study.image_one.url if case_study.image_one else '',
-        ),
-        company_number=case_study.company.number,
-        **{key: getattr(case_study, key, '') for key in fields},
-    )
