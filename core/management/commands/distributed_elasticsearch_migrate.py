@@ -5,4 +5,8 @@ from core.management.commands import helpers
 
 
 class Command(helpers.ExclusiveDistributedHandleMixin, MigrateCommand):
-    lock_id = 'es_migrations'
+    @staticmethod
+    def is_migration_pending():
+        # no harm done to he application if it stars before elsaticsearch
+        # migrations has finished
+        return False

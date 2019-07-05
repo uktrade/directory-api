@@ -9,7 +9,6 @@ django-filter==1.0.4
 kombu==4.1.0
 django-celery-beat==1.1.1
 django-redis==4.7.0
-django-pglocks
 Pillow==4.2.1
 whitenoise==3.2.2
 gunicorn==19.5.0
