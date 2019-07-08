@@ -30,7 +30,6 @@ django-field-history==0.7.0
 django-filter==1.0.4
 django-health-check==3.8.0  # via directory-healthcheck
 django-ipware==2.1.0      # via django-admin-ip-restrictor
-django-pglocks==1.0.2
 django-redis==4.7.0
 django-storages==1.5.1
 django==1.11.22
@@ -50,7 +49,7 @@ monotonic==1.4            # via directory-client-core
 olefile==0.44             # via directory-validators, pillow
 phonenumberslite==7.7.4   # via directory-validators
 pillow==4.2.1
-psycopg2==2.7.6.1
+psycopg2-binary==2.7.6.1
 pycparser==2.18           # via cffi
 pyopenssl==17.5.0         # via requests
 python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker

@@ -9,11 +9,10 @@ django-filter==1.0.4
 kombu==4.1.0
 django-celery-beat==1.1.1
 django-redis==4.7.0
-django-pglocks
 Pillow==4.2.1
 whitenoise==3.2.2
 gunicorn==19.5.0
-psycopg2==2.7.6.1
+psycopg2-binary==2.7.6.1
 raven==5.19.0
 boto3==1.7.30
 celery[redis]==4.1.0
@@ -31,4 +30,3 @@ urllib3>=1.24.2<2.0.0
 django-admin-ip-restrictor==1.0.0
 directory-client-core==5.1.0
 factory-boy==2.8.1
-

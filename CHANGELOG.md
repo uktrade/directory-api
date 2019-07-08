@@ -9,6 +9,9 @@
 - No ticket -  Mask product data make email unique
 - No ticket - Upgrade vulnerable django version to django 1.11.22
 
+### Fixed bugs
+- No ticket - Fixed migrations during deployment
+
 ## [2019.06.25](https://github.com/uktrade/directory-api/releases/tag/2019.06.25)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.23...2019.06.25)
 
