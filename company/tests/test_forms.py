@@ -1,6 +1,7 @@
+from directory_constants import company_types
 import pytest
 
-from company import forms, models
+from company import forms
 
 
 @pytest.mark.parametrize('value,expected', (
@@ -89,13 +90,13 @@ def test_linkedin_url_clean(value, expected):
 
 
 @pytest.mark.parametrize('value,expected', (
-    ('', models.Company.SOLE_TRADER),
-    (None, models.Company.SOLE_TRADER),
-    ('1234567', models.Company.COMPANIES_HOUSE),
-    ('THERE IS NO IN ENGLAND ', models.Company.SOLE_TRADER),
-    ('N/A', models.Company.SOLE_TRADER),
-    ('N/a', models.Company.SOLE_TRADER),
-    ('n/a', models.Company.SOLE_TRADER),
+    ('', company_types.SOLE_TRADER),
+    (None, company_types.SOLE_TRADER),
+    ('1234567', company_types.COMPANIES_HOUSE),
+    ('THERE IS NO IN ENGLAND ', company_types.SOLE_TRADER),
+    ('N/A', company_types.SOLE_TRADER),
+    ('N/a', company_types.SOLE_TRADER),
+    ('n/a', company_types.SOLE_TRADER),
 ))
 def test_company_type_parser(value, expected):
     assert forms.company_type_parser(value) == expected

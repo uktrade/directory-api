@@ -1,6 +1,6 @@
 import uuid
 
-from directory_constants import choices
+from directory_constants import choices, company_types
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
 
@@ -17,16 +17,10 @@ from company import helpers
 
 
 class Company(TimeStampedModel):
-    COMPANIES_HOUSE = 'COMPANIES_HOUSE'
-    SOLE_TRADER = 'SOLE_TRADER'
-
     company_type = models.CharField(
         max_length=15,
-        choices=(
-            (COMPANIES_HOUSE, 'Company in Companies House'),
-            (SOLE_TRADER, 'Company not in Companies House')
-        ),
-        default=COMPANIES_HOUSE
+        choices=choices.COMPANY_TYPES,
+        default=company_types.COMPANIES_HOUSE
     )
     summary = models.CharField(
         max_length=250,
