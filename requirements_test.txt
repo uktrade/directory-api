@@ -58,7 +58,7 @@ olefile==0.44             # via directory-validators, pillow
 phonenumberslite==7.7.4   # via directory-validators
 pillow==4.2.1
 pluggy==0.8.0             # via pytest
-psycopg2==2.7.6.1
+psycopg2-binary==2.7.6.1
 py==1.7.0                 # via pytest
 pycodestyle==2.0.0        # via flake8
 pycparser==2.18           # via cffi

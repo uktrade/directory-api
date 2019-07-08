@@ -76,13 +76,13 @@ class Command(management.BaseCommand):
                 Q(is_published_investment_support_directory=True)
             )
         )
-        company_documents = []
+        data = []
         for company in companies:
             company_doc_type = documents.company_model_to_document(
                 company=company, index=self.new_company_index,
             )
-            company_documents.append(company_doc_type.to_dict(True))
-        bulk(self.client, company_documents)
+            data.append(company_doc_type.to_dict(True))
+        bulk(self.client, data)
 
     def delete_old_indices(self):
         for index_name in self.get_indices(self.company_index_alias):
