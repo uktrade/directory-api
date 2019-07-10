@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from directory_constants import company_types
+
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
@@ -11,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         queryset = models.Company.objects.filter(
-            Q(company_type=models.Company.COMPANIES_HOUSE) &
+            Q(company_type=company_types.COMPANIES_HOUSE) &
             (
                 Q(date_of_creation__isnull=True) |
                 Q(address_line_1__isnull=True) |

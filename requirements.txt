@@ -6,6 +6,7 @@
 #
 amqp==2.2.2               # via kombu
 asn1crypto==0.24.0        # via cryptography
+attrs==19.1.0             # via jsonschema
 beautifulsoup4==4.6.3     # via directory-components
 billiard==3.5.0.3         # via celery
 boto3==1.7.30
@@ -17,8 +18,8 @@ chardet==3.0.4            # via requests
 contextlib2==0.5.5        # via raven
 cryptography==2.3
 directory-client-core==5.1.0
-directory-components==10.0.0
-directory-constants==16.4.0
+directory-components==20.3.1
+directory-constants==18.3.0
 directory-healthcheck==1.0.1
 directory-sso-api-client==5.0.0
 directory-validators==4.5.1
@@ -43,6 +44,7 @@ faker==1.0.7              # via factory-boy
 gunicorn==19.5.0
 idna==2.6                 # via cryptography, requests
 jmespath==0.9.3           # via boto3, botocore
+jsonschema==3.0.1         # via directory-components
 kombu==4.1.0
 mohawk==0.3.4             # via sigauth
 monotonic==1.4            # via directory-client-core
@@ -52,6 +54,7 @@ pillow==4.2.1
 psycopg2-binary==2.7.6.1
 pycparser==2.18           # via cffi
 pyopenssl==17.5.0         # via requests
+pyrsistent==0.15.3        # via jsonschema
 python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker
 pytz==2017.2              # via celery, directory-validators, django
 raven==5.19.0
@@ -59,7 +62,7 @@ redis==2.10.6             # via celery, django-redis
 requests[security]==2.21.0
 s3transfer==0.1.13        # via boto3
 sigauth==4.0.1
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, mohawk, pyopenssl, python-dateutil, w3lib
+six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, jsonschema, mohawk, pyopenssl, pyrsistent, python-dateutil, w3lib
 text-unidecode==1.2       # via faker
 urllib3==1.24.2
 vine==1.1.4               # via amqp
