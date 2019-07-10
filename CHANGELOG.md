@@ -4,6 +4,10 @@
 
 ### Implemented enhancements
 
+- No ticket - Moved over GDS PaaS S3 bucket.
+
+### Implemented enhancements
+
 - TT-1590 - Port ISD search logic to FAS
 - No ticket - Remove obsolete case study search endpoint
 - No ticket -  Mask product data make email unique
