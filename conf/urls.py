@@ -14,6 +14,7 @@ import notifications.views
 import supplier.views
 import testapi.views
 import exporting.views
+import redirects.views
 
 
 admin.autodiscover()
@@ -244,6 +245,11 @@ urlpatterns = [
         r'^enrolment/preverified-company/(?P<key>.*)/$',
         enrolment.views.PreverifiedCompanyView.as_view(),
         name='enrolment-preverified'
+    ),
+    url(
+        r'^redirects/urls/(?P<key>.*)/$',
+        redirects.views.RetrieveRedirect.as_view(),
+        name='source_url'
     ),
 ]
 

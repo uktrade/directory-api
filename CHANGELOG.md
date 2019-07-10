@@ -5,7 +5,8 @@
 ### Implemented enhancements
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
-- TT-1613 Reduce stannp to flag errors from <50 to <10 
+- TT-1613 Reduce stannp to flag errors from <50 to <10
+- GTRANSFORM-69 Automating redirects on great.gov
 
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)

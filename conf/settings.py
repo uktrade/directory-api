@@ -12,6 +12,8 @@ import directory_healthcheck.backends
 env = environ.Env()
 env.read_env()
 
+env.read_env()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'activitystream.apps.ActivityStreamConfig',
     'exporting.apps.ExportingConfig',
+    'redirects.apps.RedirectConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check.db',
