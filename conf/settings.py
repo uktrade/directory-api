@@ -345,6 +345,17 @@ AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
+if 'aws-s3-bucket' in VCAP_SERVICES:
+    credentials = VCAP_SERVICES['aws-s3-bucket'][0]['credentials']
+    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
+    AWS_SECRET_KEY_ID = credentials['aws_secret_access_key']
+    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
+    AWS_S3_REGION_NAME = credentials['aws_region']
+else:
+    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_KEY_ID = env.str('AWS_SECRET_KEY_ID', '')
+    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+    AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
