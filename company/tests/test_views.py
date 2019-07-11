@@ -4,7 +4,7 @@ from io import BytesIO
 import uuid
 from unittest.mock import patch, Mock
 
-from directory_constants import choices, sectors
+from directory_constants import company_types, choices, sectors
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -120,7 +120,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': '',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
 
@@ -177,7 +177,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
     expected.update(VALID_REQUEST_DATA)
@@ -233,7 +233,7 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
     expected.update(VALID_REQUEST_DATA)

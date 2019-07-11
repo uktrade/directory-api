@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.utils import timezone
 
+from directory_constants import company_types
+
 from company.email import CollaboratorNotification, OwnershipChangeNotification
 from company.utils import send_verification_letter
 from company import documents
@@ -70,7 +72,10 @@ def send_account_collaborator_notification(
 
 
 def set_sole_trader_number(sender, instance, *args, **kwargs):
-    if instance._state.adding and instance.company_type == sender.SOLE_TRADER:
+    if (
+        instance._state.adding
+        and instance.company_type == company_types.SOLE_TRADER
+    ):
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url

@@ -11,7 +11,7 @@ from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
-from directory_constants import expertise
+from directory_constants import company_types, expertise
 
 
 class MobileNumberField(forms.CharField):
@@ -120,8 +120,8 @@ class CompanyModelForm(forms.ModelForm):
 def company_type_parser(company_number):
     if company_number:
         if CompanyNumberField(max_length=8).to_python(company_number):
-            return models.Company.COMPANIES_HOUSE
-    return models.Company.SOLE_TRADER
+            return company_types.COMPANIES_HOUSE
+    return company_types.SOLE_TRADER
 
 
 class EnrolCompanies(forms.Form):
@@ -168,7 +168,7 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
-            if company_type == models.Company.SOLE_TRADER:
+            if company_type == company_types.SOLE_TRADER:
                 address = helpers.AddressParser(row[2])
                 data.update({
                     'address_line_1': address.line_1,
@@ -259,7 +259,7 @@ class UploadExpertise(forms.Form):
             }
 
             company_type = company_type_parser(row[8])
-            if company_type == models.Company.SOLE_TRADER:
+            if company_type == company_types.SOLE_TRADER:
                 companies = models.Company.objects.filter(name=data['name'])
             else:
                 companies = models.Company.objects.filter(
