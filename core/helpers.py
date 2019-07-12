@@ -8,10 +8,18 @@ from django_extensions.db.fields import (
 )
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.conf import (
+    settings,
+)
 
 
 def upload_file_object_to_s3(file_object, bucket, key):
-    s3 = boto3.client('s3')
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
     s3.put_object(
         Bucket=bucket,
         Key=key,
@@ -20,7 +28,12 @@ def upload_file_object_to_s3(file_object, bucket, key):
 
 
 def get_file_from_s3(bucket, key):
-    s3 = boto3.client('s3',)
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
     file_object = s3.get_object(
         Bucket=bucket,
         Key=key
