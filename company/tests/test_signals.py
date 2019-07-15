@@ -8,7 +8,7 @@ import pytest
 from django.utils import timezone
 
 from company.models import Company
-from company.search import CompanyDocument
+from company.documents import CompanyDocument
 from company.tests import factories
 
 
@@ -218,26 +218,6 @@ def test_save_company_changes_to_elasticsearch(
             is_published_find_a_supplier
         )
     )
-
-    assert mock_elasticsearch_company_save.call_count == call_count
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    'is_published_find_a_supplier,call_count',
-    [(False, 0), (True, 2)]
-)
-def test_save_case_study_changes_to_elasticsearch(
-    is_published_find_a_supplier,
-    call_count,
-    mock_elasticsearch_company_save,
-):
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=(
-            is_published_find_a_supplier
-        )
-    )
-    factories.CompanyCaseStudyFactory(company=company)
 
     assert mock_elasticsearch_company_save.call_count == call_count
 

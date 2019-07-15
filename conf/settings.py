@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'rest_framework',
+    'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
     'superuser',
@@ -94,6 +95,7 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 
 
 VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
 
 if 'redis' in VCAP_SERVICES:
     REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
@@ -451,6 +453,7 @@ CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = REDIS_CELERY_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
@@ -514,9 +517,6 @@ else:
 
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
-)
-ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
-    'ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS', 'casestudies-alias'
 )
 
 # Activity Stream
