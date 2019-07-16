@@ -2,6 +2,7 @@ import http
 import os
 from unittest import TestCase
 
+from directory_constants import company_types
 from freezegun import freeze_time
 import pytest
 
@@ -326,7 +327,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_one.linkedin_url == (
             'https://www.linkedin.com/company/one'
         )
-        assert company_one.company_type == Company.COMPANIES_HOUSE
+        assert company_one.company_type == company_types.COMPANIES_HOUSE
         assert company_one.is_uk_isd_company is True
 
         assert company_two.name == 'Example Associates Ltd'
@@ -342,7 +343,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_two.linkedin_url == (
             'https://www.linkedin.com/company/two'
         )
-        assert company_two.company_type == Company.SOLE_TRADER
+        assert company_two.company_type == company_types.SOLE_TRADER
         assert company_two.is_uk_isd_company is True
 
         pre_verified_queryset = PreVerifiedEnrolment.objects.all()
@@ -432,10 +433,11 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             'Business Support': ['Facilities (such as WiFI or electricity)']
         }
         assert response.context['errors'] == [
-            '[Row 1] "Unable to find following'
-            ' products & services [\'Unkown Skill\']"',
-            '[Row 3] "More then one company returned"',
-            '[Row 4] "Company not found"'
+            '[Row 3] "Unable to find following products & services '
+            '[\'Unkown Skill\']"',
+            '[Row 5] "More then one company returned - '
+            'Name:Test 4 Number:00000000)"',
+            '[Row 6] "Company not found - Name:Test 9999 Number:00000000)"'
         ]
         assert len(response.context['updated_companies']) == 3
 

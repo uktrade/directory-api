@@ -4,7 +4,6 @@ import dj_database_url
 import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
-from requests_aws4auth import AWS4Auth
 
 import healthcheck.backends
 import directory_healthcheck.backends
@@ -37,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'rest_framework',
+    'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
     'superuser',
@@ -95,6 +95,7 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 
 
 VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
 
 if 'redis' in VCAP_SERVICES:
     REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
@@ -329,13 +330,11 @@ STORAGE_CLASSES = {
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
-AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', 'eu-west-1')
 AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
 # Needed for new AWS regions
 # https://github.com/jschneier/django-storages/issues/203
@@ -344,6 +343,17 @@ AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
+if 'aws-s3-bucket' in VCAP_SERVICES:
+    credentials = VCAP_SERVICES['aws-s3-bucket'][0]['credentials']
+    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
+    AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
+    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
+    AWS_S3_REGION_NAME = credentials['aws_region']
+else:
+    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
+    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+    AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -452,6 +462,7 @@ CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = REDIS_CELERY_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
@@ -490,33 +501,17 @@ DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str(
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    if 'elasticsearch' in VCAP_SERVICES:
-        ELASTICSEARCH_URL = (
-            VCAP_SERVICES['elasticsearch'][0]['credentials']['uri']
-        )
-    else:
-        ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL')
-    connections.create_connection(
-        alias='default',
-        hosts=[ELASTICSEARCH_URL],
-        connection_class=RequestsHttpConnection,
+    services = {
+        item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']
+    }
+    ELASTICSEARCH_INSTANCE_NAME = env.str(
+        'ELASTICSEARCH_INSTANCE_NAME',
+        VCAP_SERVICES['elasticsearch'][0]['instance_name']
     )
-elif ELASTICSEARCH_PROVIDER == 'aws':
     connections.create_connection(
         alias='default',
-        hosts=[{
-            'host': env.str('ELASTICSEARCH_ENDPOINT'),
-            'port': env.int('ELASTICSEARCH_PORT', 443)
-        }],
-        http_auth=AWS4Auth(
-            env.str('ELASTICSEARCH_AWS_ACCESS_KEY_ID', ''),
-            env.str('ELASTICSEARCH_AWS_SECRET_ACCESS_KEY', ''),
-            env.str('ELASTICSEARCH_AWS_REGION', 'eu-west-2'),
-            'es'
-        ),
-        use_ssl=env.bool('ELASTICSEARCH_USE_SSL', True),
-        verify_certs=env.bool('ELASTICSEARCH_VERIFY_CERTS', True),
-        connection_class=RequestsHttpConnection
+        hosts=[services[ELASTICSEARCH_INSTANCE_NAME]['credentials']['uri']],
+        connection_class=RequestsHttpConnection,
     )
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
@@ -531,9 +526,6 @@ else:
 
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
-)
-ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
-    'ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS', 'casestudies-alias'
 )
 
 # Activity Stream

@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.utils import timezone
 
+from directory_constants import company_types
+
 from company.email import CollaboratorNotification, OwnershipChangeNotification
 from company.utils import send_verification_letter
-from company import search
+from company import documents
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -32,7 +34,7 @@ def store_date_published(sender, instance, *args, **kwargs):
 
 
 def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
-    document = search.company_model_to_doc_type(instance)
+    document = documents.company_model_to_document(instance)
     if instance.is_published:
         document.save()
     else:
@@ -40,16 +42,14 @@ def update_company_elasticsearch_document(sender, instance, *args, **kwargs):
 
 
 def delete_company_elasticsearch_document(sender, instance, *args, **kwargs):
-    document = search.company_model_to_doc_type(instance)
+    document = documents.company_model_to_document(instance)
     document.delete(ignore=404)
 
 
 def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
-    if instance.company.is_published_find_a_supplier:
-        company_document = search.company_model_to_doc_type(instance.company)
-        case_study_document = search.case_study_model_to_doc_type(instance)
-        company_document.save()
-        case_study_document.save()
+    if instance.company.is_published:
+        document = documents.company_model_to_document(instance.company)
+        document.save()
 
 
 def send_account_ownership_transfer_notification(
@@ -72,7 +72,10 @@ def send_account_collaborator_notification(
 
 
 def set_sole_trader_number(sender, instance, *args, **kwargs):
-    if instance._state.adding and instance.company_type == sender.SOLE_TRADER:
+    if (
+        instance._state.adding
+        and instance.company_type == company_types.SOLE_TRADER
+    ):
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url

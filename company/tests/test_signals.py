@@ -8,7 +8,7 @@ import pytest
 from django.utils import timezone
 
 from company.models import Company
-from company.search import CompanyDocType
+from company.documents import CompanyDocument
 from company.tests import factories
 
 
@@ -223,38 +223,18 @@ def test_save_company_changes_to_elasticsearch(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'is_published_find_a_supplier,call_count',
-    [(False, 0), (True, 2)]
-)
-def test_save_case_study_changes_to_elasticsearch(
-    is_published_find_a_supplier,
-    call_count,
-    mock_elasticsearch_company_save,
-):
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=(
-            is_published_find_a_supplier
-        )
-    )
-    factories.CompanyCaseStudyFactory(company=company)
-
-    assert mock_elasticsearch_company_save.call_count == call_count
-
-
-@pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
     company = factories.CompanyFactory(
         is_published_find_a_supplier=True
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -267,7 +247,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -277,13 +257,13 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -296,7 +276,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -306,13 +286,13 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocType.get(id=company_pk)  # not raises if exists
+    CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocType.get(id=company_pk)
+        CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db

@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from directory_validators import company as shared_validators
 
-from directory_constants import choices
+from directory_constants import company_types, choices
 from pytz import UTC
 
 from company.tests import VALID_REQUEST_DATA
@@ -145,14 +145,14 @@ def test_company_serializer_sole_trader():
         'locality': 'test_locality',
         'postal_code': 'test_postal_code',
         'country': 'test_country',
-        'company_type': models.Company.SOLE_TRADER,
+        'company_type': company_types.SOLE_TRADER,
     }
     serializer = serializers.CompanySerializer(data=data)
 
     assert serializer.is_valid(), serializer.errors
     instance = serializer.save()
 
-    assert instance.company_type == models.Company.SOLE_TRADER
+    assert instance.company_type == company_types.SOLE_TRADER
     assert instance.number.startswith('ST')
     assert len(instance.number) == 8
 
@@ -318,7 +318,6 @@ def test_company_search_serializer_empty_term_sector():
 
 
 @pytest.mark.parametrize('field, field_value', [
-    ['sectors', [choices.INDUSTRIES[1][0]]],
     ['expertise_industries', [choices.INDUSTRIES[1][0]]],
     ['expertise_regions', [choices.EXPERTISE_REGION_CHOICES[1][0]]],
     ['expertise_countries', [choices.COUNTRY_CHOICES[1][0]]],
@@ -330,4 +329,5 @@ def test_company_search_serializer_optional_field(field, field_value):
     serializer = serializers.SearchSerializer(
         data={'page': 1, 'size': 10, field: field_value}
     )
+
     assert serializer.is_valid() is True

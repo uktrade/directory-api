@@ -1,18 +1,26 @@
 from django.http import Http404
 from rest_framework.generics import (
     get_object_or_404,
+    CreateAPIView,
     DestroyAPIView,
     RetrieveAPIView,
-    GenericAPIView
+    GenericAPIView,
 )
 from rest_framework.response import Response
 
 from django.conf import settings
+from django.core.signing import Signer
 from django.db.models import Q
 from company.models import Company
-from testapi.serializers import CompanySerializer, PublishedCompaniesSerializer
-from testapi.utils import get_matching_companies, \
-    get_published_companies_query_params
+from testapi.serializers import (
+    CompanySerializer,
+    ISDCompanySerializer,
+    PublishedCompaniesSerializer,
+)
+from testapi.utils import (
+    get_matching_companies,
+    get_published_companies_query_params,
+)
 
 
 class TestAPIView(GenericAPIView):
@@ -36,10 +44,17 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     def get(self, request, *args, **kwargs):
         ch_id = kwargs['ch_id']
         company = self.get_company(ch_id)
+        signer = Signer()
         response_data = {
             'letter_verification_code': company.verification_code,
             'company_email': company.email_address,
-            'is_verification_letter_sent': company.is_verification_letter_sent
+            'is_verification_letter_sent': company.is_verification_letter_sent,
+            'is_uk_isd_company': company.is_uk_isd_company,
+            'invitation_key': signer.sign(company.number),
+            'is_published_investment_support_directory':
+                company.is_published_investment_support_directory,
+            'is_published_find_a_supplier':
+                company.is_published_find_a_supplier,
         }
         return Response(response_data)
 
@@ -65,3 +80,27 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
         response_data = get_matching_companies(
             self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
+
+
+class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
+    serializer_class = PublishedCompaniesSerializer
+    queryset = Company.objects.filter(
+        Q(is_published_investment_support_directory=False) |
+        Q(is_published_find_a_supplier=False)
+    )
+    permission_classes = []
+    lookup_field = 'is_published'
+    http_method_names = 'get'
+
+    def get(self, request, *args, **kwargs):
+        limit, minimal_number_of_sectors = \
+            get_published_companies_query_params(request)
+        response_data = get_matching_companies(
+            self.queryset, limit, minimal_number_of_sectors)
+        return Response(response_data)
+
+
+class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
+    serializer_class = ISDCompanySerializer
+    authentication_classes = []
+    permission_classes = []

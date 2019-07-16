@@ -177,7 +177,7 @@ def requests_mocker():
 
 @pytest.fixture
 def mock_elasticsearch_company_save():
-    stub = patch('company.search.CompanyDocType.save')
+    stub = patch('company.documents.CompanyDocument.save')
     yield stub.start()
     stub.stop()
 

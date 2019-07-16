@@ -5,7 +5,8 @@ import logging
 import os
 import re
 from urllib.parse import urljoin
-from elasticsearch_dsl import query
+from elasticsearch_dsl import Q
+from elasticsearch_dsl.query import ConstantScore, SF
 
 from django.conf import settings
 from django.utils.crypto import get_random_string
@@ -156,54 +157,58 @@ path_and_rename_supplier_case_study = PathAndRename(
 )
 
 
-class InvestmentSupportDirectorySearch:
+def build_search_company_query(params):
+    term = params.pop('term', None)
 
-    OPTIONAL_FILTERS = [
-        'sectors',
-        'expertise_industries',
-        'expertise_regions',
-        'expertise_countries',
-        'expertise_languages',
-        'expertise_products_services_labels'
-    ]
-
-    @classmethod
-    def create_query_object(cls, clean_data):
-        should_filters = []
-        must_filters = []
-
-        is_published_investment_support_directory = True
-        term = clean_data.get('term')
-
-        for filter_name in cls.OPTIONAL_FILTERS:
-            filter_values = clean_data.get(filter_name)
-            if filter_values:
-                for filter_value in sorted(filter_values):
-                    params = {filter_name: filter_value}
-                    should_filters.append(query.Match(**params))
-        if term:
-            must_filters.append(query.MatchPhrase(_all=term))
-        if is_published_investment_support_directory is not None:
-            must_filters.append(
-                query.Term(
-                    is_published_investment_support_directory=(
-                        is_published_investment_support_directory
-                    )
-                ))
-        return query.Bool(
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0,
+    # perform OR operation for items specified in same group and
+    # then an AND operation for different groups e.g.,
+    # (NORTH_EAST OR NORTH_WEST) AND (AEROSPACE OR AIRPORTS)
+    # each sibling filter should have equal score with each other
+    must = []
+    for key, values in params.items():
+        should = [
+            ConstantScore(filter=Q('term', **{key: value})) for value in values
+        ]
+        must.append(Q('bool', should=should, minimum_should_match=1))
+    should = []
+    if term:
+        should.append(
+            Q(
+                'bool',
+                should=[
+                    ConstantScore(filter=Q('term', keyword_wildcard=term)),
+                    ConstantScore(filter=Q('match_phrase', wildcard=term)),
+                    ConstantScore(filter=Q('match', wildcard=term)),
+                    ConstantScore(
+                        filter=Q('match_phrase', casestudy_wildcard=term)
+                    ),
+                    ConstantScore(filter=Q('match', casestudy_wildcard=term))
+                ],
+                minimum_should_match=1
+            )
         )
 
-    @staticmethod
-    def apply_pagination(search_object, page, size):
-        start = (page - 1) * size
-        end = start + size
-        return search_object[start:end]
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object.highlight_options(
-            require_field_match=False,
-        ).highlight('summary', 'description')
+        return Q(
+            'function_score',
+            query=Q(
+                'bool',
+                must=must,
+                should=should,
+                minimum_should_match=1 if should else 0
+            ),
+            functions=[
+                SF({
+                    'weight': 5,
+                    'filter': (Q('match_phrase', name=term) |
+                               Q('match', name=term))
+                })
+            ],
+            boost_mode='sum'
+        )
+    else:
+        return Q(
+            'bool',
+            must=must,
+            should=should,
+            minimum_should_match=1 if should else 0
+        )

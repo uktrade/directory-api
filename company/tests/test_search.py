@@ -2,9 +2,10 @@ from unittest.mock import patch, Mock, PropertyMock
 import datetime
 
 from freezegun import freeze_time
+from freezegun.api import datetime_to_fakedatetime, date_to_fakedate
 import pytest
 
-from company import search, helpers, serializers
+from company import documents, helpers, serializers
 from company.tests import factories
 
 
@@ -19,7 +20,7 @@ def test_company_doc_type():
 
     logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
     with patch.object(company, 'logo', new_callable=logo_mock):
-        doc = search.company_model_to_doc_type(company)
+        doc = documents.company_model_to_document(company)
 
     company_data_dict = serializers.CompanySerializer(company).data
     company_parser = helpers.CompanyParser(company_data_dict)
@@ -29,7 +30,7 @@ def test_company_doc_type():
         expected_expertise_products_services += values
 
     expected = {
-        'date_of_creation': '2000-10-10',
+        'date_of_creation': date_to_fakedate(company.date_of_creation),
         'description': company.description,
         'employees': company.employees,
         'facebook_url': company.facebook_url,
@@ -37,7 +38,7 @@ def test_company_doc_type():
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': 'http://0.0.0.0:8000/media/thing.jpg',
-        'modified': '2016-11-23T11:21:10.977518Z',
+        'modified': datetime_to_fakedatetime(company.modified),
         'name': company.name,
         'number': company.number,
         'has_description': True,
@@ -57,6 +58,7 @@ def test_company_doc_type():
         'case_study_count': 1,
         'has_single_sector': False,
         'is_showcase_company': False,
+        'is_published_find_a_supplier': False,
         'is_published_investment_support_directory': False,
         'company_type': 'COMPANIES_HOUSE',
         'supplier_case_studies': [
@@ -93,7 +95,7 @@ def test_company_doc_type_single_sector():
         sectors=['AEROSPACE']
     )
 
-    doc = search.company_model_to_doc_type(company)
+    doc = documents.company_model_to_document(company)
 
     assert doc.to_dict()['has_single_sector'] is True
 
@@ -106,7 +108,7 @@ def test_company_doc_type_single_sector_local_storage(settings):
 
     logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
     with patch.object(company, 'logo', new_callable=logo_mock):
-        doc = search.company_model_to_doc_type(company)
+        doc = documents.company_model_to_document(company)
 
     assert doc.to_dict()['logo'] == 'http://0.0.0.0:8000/media/thing.jpg'
 
@@ -119,60 +121,6 @@ def test_company_doc_type_single_sector_non_local_storage(settings):
 
     logo_mock = PropertyMock(return_value=Mock(url='http://media.com/a.jpg'))
     with patch.object(company, 'logo', new_callable=logo_mock):
-        doc = search.company_model_to_doc_type(company)
+        doc = documents.company_model_to_document(company)
 
     assert doc.to_dict()['logo'] == 'http://media.com/a.jpg'
-
-
-@pytest.mark.django_db
-@freeze_time('2016-11-23T11:21:10.977518Z')
-def test_case_study_doc_type():
-    case_study = factories.CompanyCaseStudyFactory()
-
-    logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
-    with patch.object(case_study, 'image_one', new_callable=logo_mock):
-        doc = search.case_study_model_to_doc_type(case_study)
-
-    expected = {
-        'description': case_study.description,
-        'image_one_caption': case_study.image_one_caption,
-        'image_three_caption': case_study.image_three_caption,
-        'image_two_caption': case_study.image_two_caption,
-        'keywords': case_study.keywords,
-        'pk': case_study.pk,
-        'sector': case_study.sector,
-        'short_summary': case_study.short_summary,
-        'slug': case_study.slug,
-        'title': case_study.title,
-        'company_number': case_study.company.number,
-        'image': 'http://0.0.0.0:8000/media/thing.jpg',
-    }
-
-    assert doc.to_dict() == expected
-    assert doc.meta.id == case_study.pk
-
-
-@pytest.mark.django_db
-def test_case_study_doc_type_single_sector_local_storage(settings):
-    settings.STORAGE_CLASS_NAME = 'local-storage'
-
-    case_study = factories.CompanyCaseStudyFactory()
-
-    logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
-    with patch.object(case_study, 'image_one', new_callable=logo_mock):
-        doc = search.case_study_model_to_doc_type(case_study)
-
-    assert doc.to_dict()['image'] == 'http://0.0.0.0:8000/media/thing.jpg'
-
-
-@pytest.mark.django_db
-def test_case_study_doc_type_single_sector_non_local_storage(settings):
-    settings.STORAGE_CLASS_NAME = 'default'
-
-    case_study = factories.CompanyCaseStudyFactory()
-
-    logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
-    with patch.object(case_study, 'image_one', new_callable=logo_mock):
-        doc = search.case_study_model_to_doc_type(case_study)
-
-    assert doc.to_dict()['image'] == '/media/thing.jpg'

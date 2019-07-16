@@ -1,20 +1,22 @@
 import datetime
 import http
-import uuid
 from io import BytesIO
-from unittest.mock import call, patch, Mock
-from django.core.urlresolvers import reverse
+import uuid
+from unittest.mock import patch, Mock
 
-from directory_constants import choices, sectors
+from directory_constants import company_types, choices, sectors
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
 from freezegun import freeze_time
 from rest_framework.test import APIClient
 from rest_framework import status
-from PIL import Image, ImageDraw
+from PIL import Image
 
-from company import helpers, models, serializers, views
+from django.core.urlresolvers import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from company import helpers, models, serializers
 from company.tests import (
     MockInvalidSerializer,
     MockValidSerializer,
@@ -35,7 +37,18 @@ default_public_profile_data = {
     'verified_with_code': True,
 }
 
-IS_ISD = 'is_published_investment_support_directory'
+
+default_ordering_values = {
+    'keywords': '',
+    'sectors': [],
+    'expertise_industries': [],
+    'expertise_regions': [],
+    'expertise_languages': [],
+    'expertise_countries': [],
+    'expertise_products_services': {},
+    'is_published_investment_support_directory': True,
+    'is_published_find_a_supplier': True,
+}
 
 
 @pytest.mark.django_db
@@ -107,7 +120,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': '',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
 
@@ -164,7 +177,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
     expected.update(VALID_REQUEST_DATA)
@@ -220,7 +233,7 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'expertise_countries': company.expertise_countries,
         'expertise_languages': company.expertise_languages,
         'export_destinations_other': 'LY',
-        'company_type': models.Company.COMPANIES_HOUSE,
+        'company_type': company_types.COMPANIES_HOUSE,
         'is_publishable': company.is_publishable,
     }
     expected.update(VALID_REQUEST_DATA)
@@ -275,14 +288,11 @@ def mock_save(self, name, content, max_length=None):
     return Mock(url=content.name)
 
 
-def get_test_image(extension="PNG"):
-    image = Image.new("RGB", (300, 50))
-    draw = ImageDraw.Draw(image)
-    draw.text((0, 0), "This text is drawn on image")
-    byte_io = BytesIO()
-    image.save(byte_io, extension)
-    byte_io.seek(0)
-    return byte_io
+def get_test_image(extension='png'):
+    bytes_io = BytesIO()
+    Image.new('RGB', (300, 50)).save(bytes_io, extension)
+    bytes_io.seek(0)
+    return SimpleUploadedFile(f'test.{extension}', bytes_io.read())
 
 
 @pytest.fixture(scope='session')
@@ -444,66 +454,7 @@ def supplier(company):
 
 
 @pytest.fixture
-def search_case_studies_data(settings):
-    AEROSPACE = sectors.AEROSPACE
-    AIRPORTS = sectors.AIRPORTS
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
-    factories.CompanyCaseStudyFactory(pk=1, company=company, sector=AEROSPACE)
-    factories.CompanyCaseStudyFactory(pk=2, company=company, sector=AEROSPACE)
-    factories.CompanyCaseStudyFactory(pk=7, company=company, sector=AIRPORTS)
-    factories.CompanyCaseStudyFactory(pk=8, company=company, sector=AIRPORTS)
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
-
-
-@pytest.fixture
-def search_companies_data(settings):
-    wolf_company = factories.CompanyFactory(
-        name='Wolf limited',
-        description='Providing the stealth and prowess of wolves.',
-        summary='Hunts in packs',
-        is_published_find_a_supplier=True,
-        keywords='Packs, Hunting, Stark, Teeth',
-        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
-        id=1,
-    )
-    aardvark_company = factories.CompanyFactory(
-        name='Aardvark limited',
-        description='Providing the power and beauty of Aardvarks.',
-        summary='Like an Aardvark',
-        is_published_find_a_supplier=True,
-        keywords='Ants, Tongue, Anteater',
-        sectors=[sectors.AEROSPACE],
-        id=2,
-    )
-    factories.CompanyFactory(
-        name='Grapeshot limited',
-        description='Providing the destructiveness of grapeshot.',
-        summary='Like naval warfare',
-        is_published_find_a_supplier=True,
-        keywords='Pirates, Ocean, Ship',
-        sectors=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
-        id=3,
-    )
-    factories.CompanyCaseStudyFactory(
-        id=1,
-        company=wolf_company,
-        title='Thick case study',
-        description='Gold is delicious.',
-    )
-    factories.CompanyCaseStudyFactory(
-        id=2,
-        company=aardvark_company,
-        title='Thick case study',
-        description='We determined lead sinks in water.',
-    )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
-
-
-@pytest.fixture
-def search_investment_support_directory_data(settings):
+def search_data(settings):
     wolf_company = factories.CompanyFactory(
         name='Wolf limited',
         description='Providing the stealth and prowess of wolves.',
@@ -524,7 +475,7 @@ def search_investment_support_directory_data(settings):
             choices.COUNTRY_CHOICES[23][0],
             choices.COUNTRY_CHOICES[24][0]
         ],
-        expertise_products_services={"other": ['Regulatory', 'Finance', 'IT']},
+        expertise_products_services={'other': ['Regulatory', 'Finance', 'IT']},
         id=1,
     )
     aardvark_company = factories.CompanyFactory(
@@ -538,7 +489,7 @@ def search_investment_support_directory_data(settings):
         expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0]],
         expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0]],
         expertise_countries=[choices.COUNTRY_CHOICES[23][0]],
-        expertise_products_services={"other": ['Regulatory', 'Finance', 'IT']},
+        expertise_products_services={'other': ['Regulatory', 'Finance', 'IT']},
         id=2,
     )
     factories.CompanyFactory(
@@ -557,17 +508,8 @@ def search_investment_support_directory_data(settings):
         expertise_countries=[choices.COUNTRY_CHOICES[24][0],
                              choices.COUNTRY_CHOICES[27][0]
                              ],
-        expertise_products_services={"other": ['Regulatory', 'IT']},
+        expertise_products_services={'other': ['Regulatory', 'IT']},
         id=3,
-    )
-    factories.CompanyFactory(
-        name='nonisd limited',
-        description='This is a FAB company.',
-        summary='non fab',
-        is_published_find_a_supplier=True,
-        keywords='Pirates, Ocean, Ship',
-        expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
-        id=4,
     )
     factories.CompanyCaseStudyFactory(
         id=1,
@@ -582,7 +524,6 @@ def search_investment_support_directory_data(settings):
         description='We determined lead sinks in water.',
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -612,11 +553,10 @@ def search_companies_highlighting_data(settings):
         id=2,
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
-def search_investment_support_directory_highlighting_data(settings):
+def search_highlighting_data(settings):
     factories.CompanyFactory(
         name='Wolf limited',
         description=(
@@ -627,8 +567,8 @@ def search_investment_support_directory_highlighting_data(settings):
             'The wolf cries at night.'
         ),
         summary='Hunts in packs',
-        is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
+        is_published_investment_support_directory=True,
         keywords='Packs, Hunting, Stark, Teeth',
         id=1,
     )
@@ -636,13 +576,132 @@ def search_investment_support_directory_highlighting_data(settings):
         name='Aardvark limited',
         description='Providing the power and beauty of Aardvarks.',
         summary='Like an Aardvark',
-        is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
+        is_published_investment_support_directory=True,
         keywords='Ants, Tongue, Anteater',
         id=2,
     )
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
-    Index(settings.ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
+def search_data_and_or(settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_EAST'],
+        expertise_countries=['AF'],
+        expertise_languages=['ab'],
+        expertise_products_services={
+            'financial': ['Accounting and tax']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=1,
+    )
+    factories.CompanyFactory(
+        name='Wolf corp',
+        expertise_industries=[sectors.AIRPORTS],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=2,
+    )
+    factories.CompanyFactory(
+        name='Wolf are us',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={},
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=3
+    )
+    factories.CompanyFactory(
+        name='Ultra Wolf',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=[],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=4,
+    )
+    factories.CompanyFactory(
+        name='Wolf nation',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=[],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=5,
+    )
+    factories.CompanyFactory(
+        name='company of the Wolf',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=[],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=6,
+    )
+    factories.CompanyFactory(
+        name='year of the wolf',
+        expertise_industries=[],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=7,
+    )
+    factories.CompanyFactory(
+        name='Fish corp',  # missing 'wolf match'
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        id=8,
+    )
+    factories.CompanyFactory(
+        name='Wolf wild corp',
+        expertise_industries=[sectors.AEROSPACE],
+        expertise_regions=['NORTH_WEST'],
+        expertise_languages=['aa'],
+        expertise_countries=['AL'],
+        expertise_products_services={
+            'management-consulting': ['Business development']
+        },
+        is_published_investment_support_directory=False,  # not published
+        is_published_find_a_supplier=False,  # not published
+        id=9,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -836,9 +895,9 @@ def test_company_case_study_create_invalid_image(
         'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
-        'image_one': get_test_image(extension="BMP"),
-        'image_two': get_test_image(extension="TIFF"),
-        'image_three': get_test_image(extension="GIF"),
+        'image_one': get_test_image(extension='BMP'),
+        'image_two': get_test_image(extension='TIFF'),
+        'image_three': get_test_image(extension='GIF'),
         'testimonial': 'very nice',
         'testimonial_name': 'Lord Voldemort',
         'testimonial_job_title': 'Evil overlord',
@@ -890,7 +949,8 @@ def test_company_case_study_create_company_not_published(
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
-        is_published_find_a_supplier=False
+        is_published_find_a_supplier=False,
+        is_published_investment_support_directory=False,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -902,7 +962,7 @@ def test_company_case_study_create_company_not_published(
         'sector': choices.INDUSTRIES[1][0],
         'website': 'http://www.example.com',
         'keywords': 'good, great',
-        'image_one': get_test_image(extension="PNG"),
+        'image_one': get_test_image(extension='png'),
         'testimonial': 'very nice',
         'testimonial_name': 'Lord Voldemort',
         'testimonial_job_title': 'Evil overlord',
@@ -911,7 +971,6 @@ def test_company_case_study_create_company_not_published(
     response = authed_client.post(
         reverse('company-case-study'), case_study_data, format='multipart'
     )
-
     assert response.status_code == http.client.CREATED
 
     url = reverse(
@@ -998,11 +1057,14 @@ def test_company_case_study_get(
 
 @pytest.mark.django_db
 def test_public_company_case_study_get(
-    supplier_case_study, supplier, api_client
+    supplier_case_study, supplier, api_client, company
 ):
-    pk = supplier_case_study.pk
+    company.is_published_find_a_supplier = True
+    company.is_published_investment_support_directory = True
+    company.save()
+
     url = reverse(
-        'public-case-study-detail', kwargs={'pk': pk}
+        'public-case-study-detail', kwargs={'pk': supplier_case_study.pk}
     )
 
     response = api_client.get(url)
@@ -1026,10 +1088,27 @@ def test_public_company_case_study_get(
     assert data['company']['id'] == supplier_case_study.company.pk
 
 
+@pytest.mark.parametrize(
+    'is_investment_support_directory, is_find_a_supplier',
+    [
+        [True, False],
+        [False, True],
+        [True, True],
+    ]
+)
 @pytest.mark.django_db
 def test_company_profile_public_retrieve_public_profile(
-    public_profile, api_client
+    is_investment_support_directory,
+    is_find_a_supplier,
+    public_profile,
+    api_client,
 ):
+    public_profile.is_published_investment_support_directory = (
+        is_investment_support_directory)
+    public_profile.is_published_find_a_supplier = (
+        is_find_a_supplier)
+
+    public_profile.save()
     url = reverse(
         'company-public-profile-detail',
         kwargs={'companies_house_number': public_profile.number}
@@ -1051,82 +1130,6 @@ def test_company_profile_public_404_private_profile(
     response = api_client.get(url)
 
     assert response.status_code == http.client.NOT_FOUND
-
-
-@pytest.mark.django_db
-def test_company_profile_public_list_profiles(
-    private_profile, public_profile, api_client
-):
-    url = reverse('company-public-profile-list',)
-    response = api_client.get(url)
-
-    assert response.status_code == http.client.OK
-    data = response.json()
-
-    assert data['count'] == 1
-    assert data['results'][0]['id'] == str(public_profile.pk)
-
-
-@pytest.mark.django_db
-def test_company_profile_public_list_profiles_ordering(
-    private_profile, public_profile, public_profile_software,
-    public_profile_with_case_study, public_profile_with_case_studies,
-    public_profile_cars, api_client
-):
-    url = reverse('company-public-profile-list')
-    response = api_client.get(url)
-
-    data = response.json()
-    assert response.status_code == http.client.OK
-
-    expected_sorted_ids = [
-        public_profile_with_case_studies.id,
-        public_profile_with_case_study.id,
-        public_profile_cars.id,
-        public_profile_software.id,
-        public_profile.id,
-    ]
-    actual_sorted_ids = [int(company['id']) for company in data['results']]
-    assert actual_sorted_ids == expected_sorted_ids
-
-
-@pytest.mark.django_db
-def test_company_profile_public_list_profiles_filter_single(
-    public_profile_software, public_profile_cars, public_profile_smart_cars,
-    api_client
-):
-    url = reverse('company-public-profile-list')
-
-    filter_one = {'sectors': 'SOFTWARE_AND_COMPUTER_SERVICES'}
-    parsed_one = api_client.get(url, filter_one).json()
-    parsed_one_ids = [int(item['id']) for item in parsed_one['results']]
-    assert parsed_one['count'] == 2
-    assert public_profile_software.pk in parsed_one_ids
-    assert public_profile_smart_cars.pk in parsed_one_ids
-    assert public_profile_cars.pk not in parsed_one_ids
-
-    filter_two = {'sectors': 'AUTOMOTIVE'}
-    parsed_two = api_client.get(url, filter_two).json()
-    parsed_two_ids = [int(item['id']) for item in parsed_two['results']]
-    assert parsed_two['count'] == 2
-    assert public_profile_cars.pk in parsed_two_ids
-    assert public_profile_smart_cars.pk in parsed_two_ids
-    assert public_profile_software.pk not in parsed_two_ids
-
-
-@pytest.mark.django_db
-def test_company_profile_public_list_profiles_empty_filter(
-    public_profile_software, public_profile_cars, public_profile_smart_cars,
-    api_client
-):
-    url = reverse('company-public-profile-list')
-
-    parsed = api_client.get(url).json()
-    parsed_ids = [int(item['id']) for item in parsed['results']]
-    assert parsed['count'] == 3
-    assert public_profile_software.pk in parsed_ids
-    assert public_profile_smart_cars.pk in parsed_ids
-    assert public_profile_cars.pk in parsed_ids
 
 
 @pytest.mark.django_db
@@ -1203,35 +1206,15 @@ def test_verify_company_with_code_invalid_code(
     assert company.verified_with_code is False
 
 
-@patch('company.views.CompanySearchAPIView.get_search_results')
-def test_company_search(mock_get_search_results, api_client):
-    mock_get_search_results.return_value = expected_value = {
-        'hits': {
-            'total': 2,
-            'hits': [None, None],
-        },
-    }
-    data = {
-        'term': 'bones',
-        'page': 1,
-        'size': 10,
-        'sectors': [sectors.AEROSPACE],
-    }
-    response = api_client.get(reverse('company-search'), data=data)
-
-    assert response.status_code == 200
-    assert response.json() == expected_value
-    assert mock_get_search_results.call_args == call(
-        term='bones',
-        page=1,
-        size=10,
-        sectors={sectors.AEROSPACE},
-        is_showcase_company=None,
-    )
+search_urls = (
+    reverse('investment-support-directory-search'),
+    reverse('find-a-supplier-search'),
+)
 
 
+@pytest.mark.parametrize('url', search_urls)
 @patch('elasticsearch_dsl.response.Response.to_dict')
-def test_investment_support_directory(mock_get_search_results, api_client):
+def test_search(mock_get_search_results, url, api_client):
 
     mock_get_search_results.return_value = expected_value = {
         'hits': {
@@ -1245,496 +1228,50 @@ def test_investment_support_directory(mock_get_search_results, api_client):
         'size': 10,
         'sectors': [choices.INDUSTRIES[0][0]],
     }
-    response = api_client.get(reverse(
-        'investment-support-directory-search'), data=data)
+    response = api_client.get(url, data=data)
 
     assert response.status_code == 200
     assert response.json() == expected_value
 
 
-@patch('company.views.CompanySearchAPIView.get_search_results')
-def test_company_search_no_sectors(mock_get_search_results, api_client):
-    mock_get_search_results.return_value = expected_value = {
-        'hits': {
-            'total': 2,
-            'hits': [None, None],
-        },
-    }
-    data = {'term': 'bones', 'page': 1, 'size': 10}
-    response = api_client.get(reverse('company-search'), data=data)
-
-    assert response.status_code == 200
-    assert response.json() == expected_value
-    assert mock_get_search_results.call_count == 1
-    assert mock_get_search_results.call_args == call(
-        term='bones',
-        page=1,
-        size=10,
-        sectors=set(),
-        is_showcase_company=None,
-    )
-
-
-@patch('company.views.CompanySearchAPIView.get_search_results')
-def test_company_search_showcase(mock_get_search_results, api_client):
-    mock_get_search_results.return_value = expected_value = {
-        'hits': {
-            'total': 2,
-            'hits': [None, None],
-        },
-    }
-    data = {'term': 'abc', 'page': 1, 'size': 10, 'is_showcase_company': True}
-    response = api_client.get(reverse('company-search'), data=data)
-
-    assert response.status_code == 200
-    assert response.json() == expected_value
-    assert mock_get_search_results.call_count == 1
-    assert mock_get_search_results.call_args == call(
-        term='abc',
-        page=1,
-        size=10,
-        sectors=set(),
-        is_showcase_company=True,
-    )
-
-
+@pytest.mark.parametrize('url', search_urls)
 @pytest.mark.parametrize('page_number,expected_start', [
-    [1, 0],
-    [2, 5],
-    [3, 10],
-    [4, 15],
-    [5, 20],
-    [6, 25],
-    [7, 30],
-    [8, 35],
-    [9, 40],
+    [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
 ])
-def test_company_paginate_first_page(
-    page_number, expected_start, api_client, settings
-):
-    es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'term': 'bones', 'page': page_number, 'size': 5}
-        response = api_client.get(reverse('company-search'), data=data)
-
-        assert response.status_code == 200, response.content
-        assert mock_search.call_count == 1
-
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'function_score': {
-                        'query': {
-                            'bool': {
-                                'minimum_should_match': 0,
-                                'must': [
-                                    {
-                                        'match_phrase': {
-                                            '_all': 'bones'
-                                        }
-                                    },
-                                    {
-                                        'term': {
-                                            IS_ISD: False
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        'boost_mode': 'sum',
-                        'functions': [
-                            {
-                                'weight': 5,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 4,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 3,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 2,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 1,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 0
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                },
-                'from': expected_start,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
-
-
-@pytest.mark.parametrize('page_number,expected_start', [
-    [1, 0],
-    [2, 5],
-    [3, 10],
-    [4, 15],
-    [5, 20],
-    [6, 25],
-    [7, 30],
-    [8, 35],
-    [9, 40],
-])
-def test_investment_support_directory_paginate_first_page(
-    page_number, expected_start, api_client, settings
+def test_search_paginate_first_page(
+    url, page_number, expected_start, api_client, settings
 ):
     es = connections.get_connection('default')
     with patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
 
-        response = api_client.get(reverse('company-search'), data=data)
+        response = api_client.get(url, data=data)
 
         assert response.status_code == 200, response.content
         assert mock_search.call_count == 1
-        response = api_client.get(reverse(
-            'investment-support-directory-search'), data=data)
-
-        assert response.status_code == 200, response.content
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'bool': {
-                        'must': [
-                            {
-                                'match_phrase': {
-                                    '_all': 'bones'
-                                    }
-                            },
-                            {
-                                'term': {
-                                    IS_ISD: True
-                                }
-                            }],
-                        'minimum_should_match': 0}
-                },
-                'from': expected_start,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
+        assert mock_search.call_args[1]['body']['from'] == expected_start
 
 
-def test_company_search_with_sector_filter(api_client, settings):
+@pytest.mark.parametrize('url', search_urls)
+def test_search_sector_filter(url, api_client, settings):
     es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}) as mock_search:
+    with patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'sectors': [sectors.AEROSPACE],
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(reverse('company-search'), data=data)
+        response = api_client.get(url, data=data)
 
         assert response.status_code == 200, response.content
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'size': 5,
-                'query': {
-                    'function_score': {
-                        'boost_mode': 'sum',
-                        'functions': [
-                            {
-                                'weight': 5,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 4,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 3,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 2,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 1,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 0
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        ],
-                        'query': {
-                            'bool': {
-                                'minimum_should_match': 1,
-                                'must': [
-                                    {
-                                        'match_phrase': {
-                                            '_all': 'bees'
-                                        },
-                                    },
-                                    {
-                                        'term': {
-                                            IS_ISD: False
-                                        }
-                                    }
-                                ],
-                                'should': [{
-                                    'match': {
-                                        'sectors': sectors.AEROSPACE
-                                    }
-                                }]
-                            }
-                        }
-                    }
-                },
-                'from': 0
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
 
 
-def test_investment_support_directory_search_with_sector_filter(
-        api_client, settings
-):
-    es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {
-            'term': 'bees',
-            'expertise_industries': [sectors.AEROSPACE],
-            'size': 5,
-            'page': 1,
-        }
-        response = api_client.get(reverse(
-            'investment-support-directory-search'), data=data)
-
-        assert response.status_code == 200, response.content
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'bool': {
-                        'must': [
-                            {
-                                'match_phrase': {
-                                    '_all': 'bees'
-                                    }
-                            },
-                            {
-                                'term': {
-                                    IS_ISD: True
-                                }
-                            }],
-                        'should': [
-                            {
-                                'match': {
-                                    'expertise_industries': 'AEROSPACE'
-                                }
-                            }
-                        ],
-                        'minimum_should_match': 1}
-                },
-                'from': 0,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
-
-
-def test_investment_support_directory_search_with_all_filters(
-        api_client, settings
-):
+@pytest.mark.parametrize('url', search_urls)
+def test_search_wildcard_filters(url, api_client, settings):
     es = connections.get_connection('default')
 
-    with patch.object(es, 'search', return_value={}) as mock_search:
+    with patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'expertise_industries': choices.INDUSTRIES[1][0],
@@ -1745,76 +1282,15 @@ def test_investment_support_directory_search_with_all_filters(
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(reverse(
-            'investment-support-directory-search'), data=data)
+        response = api_client.get(url, data=data)
         assert response.status_code == 200, response.content
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'bool': {
-                        'must': [
-                            {
-                                'match_phrase': {
-                                    '_all': 'bees'
-                                    }
-                            },
-                            {
-                                'term': {
-                                    IS_ISD: True
-                                }
-                            }],
-                        'should': [
-                            {
-                                'match': {
-                                    'expertise_industries': (
-                                        'ADVANCED_MANUFACTURING')
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_regions': 'NORTH_WEST'
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_countries': 'AL'
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_languages': 'aa'
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_products_services_labels': 'IT'
-                                }
-                            },
-
-                        ],
-                        'minimum_should_match': 1}
-                },
-                'from': 0,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
 
 
-def test_investment_support_directory_search_with_all_filters_multiple(
-        api_client, settings
-):
+@pytest.mark.parametrize('url', search_urls)
+def test_search_wildcard_filters_multiple(url, api_client, settings):
     es = connections.get_connection('default')
 
-    with patch.object(es, 'search', return_value={}) as mock_search:
+    with patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'expertise_industries': [
@@ -1824,264 +1300,14 @@ def test_investment_support_directory_search_with_all_filters_multiple(
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(reverse(
-            'investment-support-directory-search'), data=data)
+        response = api_client.get(url, data=data)
 
         assert response.status_code == 200, response.content
-
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'bool': {
-                        'must': [
-                            {
-                                'match_phrase': {
-                                    '_all': 'bees'
-                                    }
-                            },
-                            {
-                                'term': {
-                                    IS_ISD: True
-                                }
-                            }],
-                        'should': [
-                            {
-                                'match': {
-                                    'expertise_industries': (
-                                        'ADVANCED_MANUFACTURING')
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_industries': 'AIRPORTS'
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_products_services_labels': 'IT'
-                                }
-                            },
-                            {
-                                'match': {
-                                    'expertise_products_services_labels': (
-                                        'REGULATION')
-                                }
-                            },
-                        ],
-                        'minimum_should_match': 1}
-                },
-                'from': 0,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
-
-
-def test_company_search_with_sector_filter_only(api_client, settings):
-    es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}) as mock_search:
-        data = {'sectors': [sectors.AEROSPACE], 'size': 5, 'page': 1}
-        response = api_client.get(reverse('company-search'), data=data)
-
-        assert response.status_code == 200, response.content
-        assert mock_search.call_args == call(
-            body={
-                'highlight': {
-                    'fields': {
-                        'summary': {},
-                        'description': {}
-                    },
-                    'require_field_match': False
-                },
-                'query': {
-                    'function_score': {
-                        'boost_mode': 'sum',
-                        'functions': [
-                            {
-                                'weight': 5,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 4,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'range': {
-                                                    'case_study_count': {
-                                                        'gt': 1
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 3,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 2,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 1
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': False
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            {
-                                'weight': 1,
-                                'filter': {
-                                    'bool': {
-                                        'must': [
-                                            {
-                                                'term': {
-                                                    'case_study_count': 0
-                                                }
-                                            },
-                                            {
-                                                'term': {
-                                                    'has_description': True
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        ],
-                        'query': {
-                            'bool': {
-                                'minimum_should_match': 1,
-                                'must': [{
-                                    'term': {
-                                        IS_ISD: False
-                                    }
-                                }],
-                                'should': [{
-                                    'match': {
-                                        'sectors': sectors.AEROSPACE
-                                    }
-                                }]
-                            }
-                        },
-                    }
-                },
-                'from': 0,
-                'size': 5
-            },
-            doc_type=['company_doc_type'],
-            index=[settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS]
-        )
 
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-@pytest.mark.parametrize('term,sector,expected', [
-    # sectors
-    ['',           [sectors.AEROSPACE],                   ['1', '2']],
-    ['',           [sectors.AEROSPACE, sectors.AIRPORTS], ['1', '2', '3']],
-    # company name
-    ['wolf',       None,                                  ['1']],
-    ['Aardvark',   None,                                  ['2']],
-    ['grapeshot',  None,                                  ['3']],
-    ['wolf',       [sectors.AEROSPACE, sectors.AIRPORTS], ['1']],
-    ['wolf',       [sectors.AEROSPACE],                   ['1']],
-    ['wolf',       [sectors.AIRPORTS],                    ['1']],
-    ['Aardvark',   [sectors.AEROSPACE, sectors.AIRPORTS], ['2']],
-    # company description
-    ['stealth',    None,                                  ['1']],
-    ['beauty',     None,                                  ['2']],
-    ['Providing',  None,                                  ['1', '2', '3']],
-    ['stealth',    [sectors.AEROSPACE],                   ['1']],
-    ['stealth',    [sectors.FOOD_AND_DRINK],              []],
-    ['beauty',     [sectors.AEROSPACE],                   ['2']],
-    ['beauty',     [sectors.FOOD_AND_DRINK],              []],
-    ['Providing',  [sectors.AEROSPACE],                   ['1', '2']],
-    ['Providing',  ['TECHNOLOGY'],                        []],
-    # company keywords
-    ['Hunting',    None,                                  ['1']],
-    ['Hunting',    [sectors.AEROSPACE, sectors.AIRPORTS], ['1']],
-    ['Hunting',    [sectors.FOOD_AND_DRINK],              []],
-    # case study description
-    ['lead',       None,                                  ['2']],
-    ['lead',       [sectors.AEROSPACE],                   ['2']],
-    ['lead',       [sectors.AEROSPACE, sectors.AIRPORTS], ['2']],
-    ['lead',       [sectors.FOOD_AND_DRINK],              []],
-    # case study title
-    ['case study', None,                                  ['1', '2']],
-    ['case study', [sectors.FOOD_AND_DRINK],              []],
-    ['case study', [sectors.AIRPORTS],                    ['1']],
-
-])
-def test_company_search_results(term, sector, expected, search_companies_data):
-    results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sector,
-    )
-    hits = results['hits']['hits']
-
-    assert len(hits) == len(expected)
-    for hit in hits:
-        assert hit['_id'] in expected
-
-
-@pytest.mark.rebuild_elasticsearch
-@pytest.mark.django_db
+@pytest.mark.parametrize('url', search_urls)
 @pytest.mark.parametrize('term,filter_name,filter_value ,expected', [
     # term
     ['Wolf', '', '', ['1']],
@@ -2091,28 +1317,48 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     # expertise_industries
     ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
     [
-        '', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS],
+        '',
+        'expertise_industries',
+        [sectors.AEROSPACE, sectors.AIRPORTS],
+        ['1', '2', '3'],
+    ],
+    # expertise_industries via q
+    [sectors.AEROSPACE, '', '', ['1', '2']],
+    # expertise_products_services_labels via q
+    ['Regulatory', '', '', ['1', '2', '3']],
+    [
+        '',
+        'expertise_industries',
+        [sectors.AEROSPACE, sectors.AIRPORTS],
         ['1', '2', '3']
     ],
     # expertise_regions
     [
-        '', 'expertise_regions', [choices.EXPERTISE_REGION_CHOICES[4][0]],
+        '',
+        'expertise_regions',
+        [choices.EXPERTISE_REGION_CHOICES[4][0]],
         ['1', '2']
     ],
     [
-        '', 'expertise_regions', [
+        '',
+        'expertise_regions',
+        [
             choices.EXPERTISE_REGION_CHOICES[4][0],
-            choices.EXPERTISE_REGION_CHOICES[5][0]
+            choices.EXPERTISE_REGION_CHOICES[5][0],
         ],
         ['1', '2', '3']
     ],
     # expertise_languages
     [
-        '', 'expertise_languages', [choices.EXPERTISE_LANGUAGES[0][0]],
-        ['1', '2']
+        '',
+        'expertise_languages',
+        [choices.EXPERTISE_LANGUAGES[0][0]],
+        ['1', '2'],
     ],
     [
-        '', 'expertise_languages', [
+        '',
+        'expertise_languages',
+        [
             choices.EXPERTISE_LANGUAGES[0][0],
             choices.EXPERTISE_LANGUAGES[2][0]
         ],
@@ -2121,7 +1367,9 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     # expertise_countries
     ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
     [
-        '', 'expertise_countries', [
+        '',
+        'expertise_countries',
+        [
             choices.COUNTRY_CHOICES[23][0],
             choices.COUNTRY_CHOICES[24][0]
         ],
@@ -2129,19 +1377,22 @@ def test_company_search_results(term, sector, expected, search_companies_data):
     ],
     # expertise_products_services
     ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
-    ['', 'expertise_products_services_labels',
-     ['Finance', 'IT'], ['1', '2', '3']
-     ],
+    [
+        '',
+        'expertise_products_services_labels',
+        ['Finance', 'IT'],
+        ['1', '2', '3']
+    ],
 ])
-def test_investment_support_directory_search_results(
-        term,
-        filter_name,
-        filter_value,
-        expected,
-        search_investment_support_directory_data,
-        api_client
+def test_search_results(
+    url,
+    term,
+    filter_name,
+    filter_value,
+    expected,
+    search_data,
+    api_client
 ):
-
     data = {
         'term': term,
         'page': '1',
@@ -2149,9 +1400,7 @@ def test_investment_support_directory_search_results(
         filter_name:  filter_value,
     }
 
-    response = api_client.get(
-        reverse('investment-support-directory-search'), data=data
-    )
+    response = api_client.get(url, data=data)
 
     assert response.status_code == 200
 
@@ -2162,6 +1411,7 @@ def test_investment_support_directory_search_results(
         assert hit['_id'] in expected
 
 
+@pytest.mark.parametrize('url', search_urls)
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 @pytest.mark.parametrize('term, expected', [
@@ -2170,12 +1420,7 @@ def test_investment_support_directory_search_results(
     [choices.EXPERTISE_REGION_CHOICES[4][0], ['1', '2']],
     [choices.EXPERTISE_LANGUAGES[0][0], ['1', '2']],
 ])
-def test_investment_support_directory_search_term_expertise(
-        term,
-        expected,
-        search_investment_support_directory_data,
-        api_client
-):
+def test_search_term_expertise(url, term, expected, search_data, api_client):
 
     data = {
         'term': term,
@@ -2183,9 +1428,7 @@ def test_investment_support_directory_search_term_expertise(
         'size': '5',
     }
 
-    response = api_client.get(
-        reverse('investment-support-directory-search'), data=data
-    )
+    response = api_client.get(url, data=data)
 
     assert response.status_code == 200
 
@@ -2196,92 +1439,458 @@ def test_investment_support_directory_search_term_expertise(
         assert hit['_id'] in expected
 
 
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.parametrize('filters,expected', [
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+            'expertise_countries': [
+                'AF',  # Afghanistan
+                'AL',  # Albania
+            ],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+
+        },
+        ['1', '2']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+        },
+        ['1', '2', '4']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+            'expertise_products_services_labels': [
+                'Accounting and tax',    # from financial filter
+                'Business development',  # from management consulting filter
+            ],
+        },
+        ['1', '2', '4', '6']
+    ),
+    (
+        {
+            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+            'expertise_languages': [
+                'ab',  # Abkhazian
+                'aa',  # Afar
+            ],
+        },
+        ['1', '2', '3', '4', '6']
+    ),
+    (
+        {'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS]},
+        ['1', '2', '3', '4', '5', '6']
+    ),
+    (
+        {},
+        ['1', '2', '3', '4', '5', '6', '7']
+    ),
+])
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-@pytest.mark.parametrize('sector,expected', [
-    [sectors.AEROSPACE, ['1', '2']],
-    [sectors.AIRPORTS,  ['8', '7']],
-])
-def test_case_study_search_results(sector, expected, search_case_studies_data):
-    results = views.CaseStudySearchAPIView().get_search_results(
-        term='', page=1, size=5, sectors=[sector]
-    )
-
-    hits = results['hits']['hits']
-    assert len(hits) == len(expected)
-    for hit in hits:
-        assert hit['_id'] in expected
-
-
-@pytest.mark.django_db
-@pytest.mark.rebuild_elasticsearch
-@pytest.mark.parametrize('term,sectors,expected', [
-    ['wolf',       None,                ['3', '4', '2', '1']],
-    ['Limited',    None,                ['3', '5', '4', '2', '1']],
-    ['packs',      None,                ['3', '2', '1']],
-    ['',           [sectors.AEROSPACE], ['4', '3', '1']],
-    ['Grapeshot',  None,                ['2', '5']],
-    ['cannons',    None,                ['5', '2']],
-    ['guns',       None,                ['5', '2']],
-])
-def test_company_search_results_ordering(
-    term, expected, sectors, search_companies_ordering_data
+def test_search_filter_and_or(
+    url, filters, expected, api_client, search_data_and_or
 ):
-    results = views.CompanySearchAPIView().get_search_results(
-        term=term, page=1, size=5, sectors=sectors
-    )
-    hits = results['hits']['hits']
-    ordered_hit_ids = [hit['_id'] for hit in hits]
-    assert ordered_hit_ids == expected
-
-
-@pytest.mark.django_db
-@pytest.mark.rebuild_elasticsearch
-def test_company_search_results_highlight(search_companies_highlighting_data):
-    results = views.CompanySearchAPIView().get_search_results(
-        term='power', page=1, size=5, sectors=None,
-    )
-    hits = results['hits']['hits']
-    assert hits[0]['highlight'] == {
-        'description': [
-            'Providing the <em>power</em> and beauty of Aardvarks.'
-        ]
+    data = {
+        **filters,
+        'term': 'wolf',
+        'page': '1',
+        'size': '10',
     }
 
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert sorted(actual) == expected
+
+
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_search_filter_and_or_single(url, api_client, settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        expertise_products_services={
+            'Legal': [
+                'Company incorporation',
+                'Employment',
+                'Immigration'
+            ],
+            'Human Resources': [
+                'Staff onboarding',
+                'Employment and talent research'
+            ],
+            'Business Support': [
+                'Business relocation',
+                'Staff and family relocation'
+            ],
+            'Management Consulting': [
+                'Workforce development',
+                'Strategy and long-term planning'
+            ]
+        },
+        expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
+        expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
+        expertise_regions=[
+            'WALES',
+            'NORTH_EAST',
+            'NORTH_WEST',
+            'YORKSHIRE_AND_HUMBER',
+            'EAST_MIDLANDS',
+            'WEST_MIDLANDS',
+            'EASTERN',
+            'LONDON',
+            'SOUTH_EAST',
+            'SOUTH_WEST',
+        ],
+        expertise_industries=[
+            'Advanced manufacturing',
+            'Aerospace',
+            'Automotive',
+            'Creative and media',
+            'Education and training',
+            'Food and drink',
+            'Healthcare and medical',
+            'Software and computer services',
+            'Retail and luxury'
+        ],
+        id=1,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_EAST'],
+        'expertise_languages': ['es'],
+        'expertise_products_services_labels': [
+            'Accounting and tax',
+            'Regulatory support'
+        ],
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+    assert actual == []
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', search_urls)
+def test_search_filter_partial_match(url, api_client, settings):
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        expertise_products_services={
+            'Legal': [
+                'Company incorporation',
+                'Immigration'
+            ],
+            'Human Resources': [
+                'Staff onboarding',
+                'Employment and talent research'
+            ],
+            'Business Support': [
+                'Business relocation',
+                'Staff and family relocation'
+            ],
+            'Management Consulting': [
+                'Workforce development',
+                'Strategy and long-term planning'
+            ]
+        },
+        expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
+        expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
+        expertise_regions=[
+            'WALES',
+            'NORTH_EAST',
+            'NORTH_WEST',
+            'YORKSHIRE_AND_HUMBER',
+            'EAST_MIDLANDS',
+            'WEST_MIDLANDS',
+            'EASTERN',
+            'LONDON',
+            'SOUTH_EAST',
+            'SOUTH_WEST',
+        ],
+        expertise_industries=[
+            'Advanced manufacturing',
+            'Aerospace',
+            'Automotive',
+            'Creative and media',
+            'Education and training',
+            'Food and drink',
+            'Healthcare and medical',
+            'Software and computer services',
+            'Retail and luxury'
+        ],
+        id=1,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_EAST'],
+        'expertise_languages': ['es'],
+        'expertise_products_services_labels': [
+            'Employment',
+        ],
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+    assert actual == []
+
+
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_search_order_sibling_filters(url, api_client, settings):
+    ordering_values = {**default_ordering_values}
+    del ordering_values['expertise_regions']
+
+    factories.CompanyFactory(
+        **ordering_values,
+        name='Wolf limited',
+        expertise_regions=['NORTH_EAST'],
+        id=1,
+    )
+    factories.CompanyFactory(
+        **ordering_values,
+        name='Wolf corp',
+        expertise_regions=['NORTH_WEST', 'NORTH_EAST'],
+        id=2,
+    )
+    factories.CompanyFactory(
+        **ordering_values,
+        name='Wolf land',
+        expertise_regions=['NORTH_WEST'],
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'expertise_regions': ['NORTH_WEST', 'NORTH_EAST'],
+        'term': 'wolf',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['2', '3', '1']
+
+
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_search_order_search_term(url, api_client, settings):
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf limited',
+        summary='Providing wind energy',
+        id=1,
+    )
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf corp',
+        summary='Wind and energy',
+        id=2,
+    )
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf land',
+        summary='Energy and wind',
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+    data = {
+        'term': 'wind energy',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['1', '2', '3']
+
+
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_search_order_case_study(url, api_client, settings):
+    company_one = factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf limited',
+        summary='Providing wind energy',
+        id=1,
+    )
+    company_two = factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf corp',
+        id=2,
+    )
+    company_three = factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf land',
+        id=3,
+    )
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_one,
+        title='Providing wind energy',
+    )
+
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_two,
+        title='Wind and energy',
+    )
+    factories.CompanyCaseStudyFactory(
+        description='',
+        company=company_three,
+        title='Energy and wind',
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    data = {
+        'term': 'wind energy',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['1', '2', '3']
+
+
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+def test_search_american_english_full_words(url, api_client, settings):
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf limited',
+        summary='Colour and palour or draught beer',
+        id=1,
+    )
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf limited',
+        summary='Colour of draught magic',
+        id=2,
+    )
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf r us',
+        summary='Colourful gremlins',
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    data = {
+        'term': 'colorful draft',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['2', '1', '3']
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', search_urls)
+def test_search_american_english_synonyms(url, api_client, settings):
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Car bonnet',
+        id=1,
+    )
+    factories.CompanyFactory(
+        **default_ordering_values,
+        name='Wolf r us',
+        summary='Colourful gremlins',
+        id=3,
+    )
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    data = {
+        'term': 'car hood',
+        'page': '1',
+        'size': '10',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200, response.json()
+
+    actual = [hit['_id'] for hit in response.json()['hits']['hits']]
+
+    assert actual == ['1']
+
 
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
-def test_company_search_results_highlight_long(
-    search_companies_highlighting_data
-):
-    results = views.CompanySearchAPIView().get_search_results(
-        term='wolf', page=1, size=5, sectors=None,
-    )
-    hits = results['hits']['hits']
-
-    assert '...'.join(hits[0]['highlight']['description']) == (
-        'Providing the stealth and prowess of wolves. This is a very '
-        'long thing about <em>wolf</em> stuff. Lets see... known. It is '
-        'known. It is known. It is known. It is known. It is known. It is '
-        'known. The <em>wolf</em> cries at night.'
-    )
-
-
-@pytest.mark.django_db
-@pytest.mark.rebuild_elasticsearch
-def test_investment_support_directory_search_results_highlight(
-        search_investment_support_directory_highlighting_data,
-        api_client,
-):
+@pytest.mark.parametrize('url', search_urls)
+def test_search_results_highlight(url, search_highlighting_data, api_client):
     data = {
         'term': 'power',
         'page': 1,
         'size': 5,
     }
 
-    response = api_client.get(
-        reverse('investment-support-directory-search'), data=data
-    )
+    response = api_client.get(url, data=data)
+
     assert response.status_code == 200
     results = response.json()
     hits = results['hits']['hits']
@@ -2295,9 +1904,9 @@ def test_investment_support_directory_search_results_highlight(
 
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
-def test_investment_support_directory_search_results_highlight_long(
-        search_investment_support_directory_highlighting_data,
-        api_client,
+@pytest.mark.parametrize('url', search_urls)
+def test_search_results_highlight_long(
+    url, search_highlighting_data, api_client,
 ):
     data = {
         'term': 'wolf',
@@ -2305,19 +1914,16 @@ def test_investment_support_directory_search_results_highlight_long(
         'size': 5,
     }
 
-    response = api_client.get(
-        reverse('investment-support-directory-search'), data=data
-    )
+    response = api_client.get(url, data=data)
+
     assert response.status_code == 200
     results = response.json()
     hits = results['hits']['hits']
 
-    assert '...'.join(hits[0]['highlight']['description']) == (
-        'Providing the stealth and prowess of wolves. This is a very '
-        'long thing about <em>wolf</em> stuff. Lets see... known. It is '
-        'known. It is known. It is known. It is known. It is known. It is '
-        'known. The <em>wolf</em> cries at night.'
-    )
+    assert hits[0]['highlight']['description'] == [
+        'This is a very long thing about <em>wolf</em> stuff.',
+        'The <em>wolf</em> cries at night.'
+    ]
 
 
 @pytest.mark.django_db

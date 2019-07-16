@@ -23,9 +23,14 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     email_address = 'test@user.com'
     verification_code = '1234567890'
     company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
-        email_address='test@user.com', verification_code=verification_code,
-        is_verification_letter_sent=False
+        name='Test Company',
+        date_of_creation=datetime.date(2000, 10, 10),
+        email_address='test@user.com',
+        verification_code=verification_code,
+        is_verification_letter_sent=False,
+        is_uk_isd_company=True,
+        is_published_find_a_supplier=False,
+        is_published_investment_support_directory=False,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -38,6 +43,9 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     assert response.json()['company_email'] == email_address
     assert response.json()['letter_verification_code'] == verification_code
     assert not response.json()['is_verification_letter_sent']
+    assert response.json()['is_uk_isd_company']
+    assert not response.json()['is_published_find_a_supplier']
+    assert not response.json()['is_published_investment_support_directory']
 
 
 @pytest.mark.django_db
@@ -101,6 +109,15 @@ def test_get_published_companies_without_optional_parameters(authed_client):
     assert response.json() == []
 
 
+@pytest.mark.django_db
+def test_get_unpublished_companies_without_optional_parameters(authed_client):
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    # authed_client fixture creates 1 unpublished company
+    assert len(response.json()) == 1
+
+
 @pytest.mark.parametrize(
     ['limit', 'minimal_number_of_sectors', 'expected_status_code'],
     [
@@ -144,13 +161,57 @@ def test_get_published_companies_with_disabled_test_api_and_unsigned_client(
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
+@pytest.mark.parametrize(
+    ['limit', 'minimal_number_of_sectors', 'expected_status_code'],
+    [
+        (1, 0, status.HTTP_200_OK),
+        (0, 8, status.HTTP_200_OK),
+        (0, 0, status.HTTP_200_OK),
+        (0, 0, status.HTTP_200_OK),
+        (-1, 0, status.HTTP_200_OK),
+        (-1, -1, status.HTTP_200_OK),
+        (None, 0, status.HTTP_200_OK),
+        (1, None, status.HTTP_200_OK),
+    ])
+@pytest.mark.django_db
+def test_get_unpublished_companies_use_optional_parameters(
+        authed_client, limit, minimal_number_of_sectors, expected_status_code):
+    url = reverse('unpublished_companies')
+    params = {
+        'limit': limit,
+        'minimal_number_of_sectors': minimal_number_of_sectors
+    }
+    response = authed_client.get(url, params=params)
+    assert response.status_code == expected_status_code
+    # authed_client fixture creates 1 unpublished company
+    assert len(response.json()) == 1
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_with_disabled_test_api(
+        authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_with_disabled_test_api_and_unsigned_client(
+        client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('unpublished_companies')
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
 @pytest.mark.django_db
 def test_get_published_companies_check_response_contents(
         authed_client, authed_supplier):
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
-    sectors = ["AEROSPACE", "AUTOMOTIVE", "BIOTECHNOLOGY_AND_PHARMACEUTICALS"]
+    sectors = ['AEROSPACE', 'AUTOMOTIVE', 'BIOTECHNOLOGY_AND_PHARMACEUTICALS']
     employees = '1-10'
     website = 'http://test.com'
     keywords = 'keyword1,keyword2,keyword3'
@@ -159,17 +220,21 @@ def test_get_published_companies_check_response_contents(
     twitter_url = 'http://www.twitter.com/testcompany'
     summary = 'few words about our company'
     description = 'we sell cars'
+    is_uk_isd_company = True
     is_published_investment_support_directory = True
+    is_published_find_a_supplier = True
     expected_number_of_results = 1
-    expected_number_of_keys = 12
+    expected_number_of_keys = 15
     company = factories.CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,
         twitter_url=twitter_url, summary=summary, description=description,
+        is_uk_isd_company=is_uk_isd_company,
+        is_published_find_a_supplier=is_published_find_a_supplier,
         is_published_investment_support_directory=(
             is_published_investment_support_directory
-        )
+        ),
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -191,6 +256,9 @@ def test_get_published_companies_check_response_contents(
     assert found_company['linkedin_url'] == linkedin_url
     assert found_company['summary'] == summary
     assert found_company['description'] == description
+    assert found_company['is_uk_isd_company']
+    assert found_company['is_published_find_a_supplier']
+    assert found_company['is_published_investment_support_directory']
 
 
 @pytest.mark.parametrize(
@@ -207,8 +275,8 @@ def test_get_published_companies_check_response_contents(
 def test_get_published_companies_use_optional_filters(
         authed_client, limit, minimal_number_of_sectors,
         expected_number_of_results):
-    sectors_1 = ["AEROSPACE", "AUTOMOTIVE", "DEFENCE"]
-    sectors_2 = ["AEROSPACE", "AUTOMOTIVE"]
+    sectors_1 = ['AEROSPACE', 'AUTOMOTIVE', 'DEFENCE']
+    sectors_2 = ['AEROSPACE', 'AUTOMOTIVE']
     company_1 = factories.CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_1
@@ -232,3 +300,111 @@ def test_get_published_companies_use_optional_filters(
             {'minimal_number_of_sectors': minimal_number_of_sectors})
     response = authed_client.get(url, data=params)
     assert len(response.json()) == expected_number_of_results
+
+
+@pytest.mark.django_db
+def test_get_unpublished_companies_check_response_contents(
+        authed_client, authed_supplier):
+    name = 'Test Company'
+    number = '12345678'
+    email = 'test@user.com'
+    sectors = ['AEROSPACE', 'AUTOMOTIVE', 'BIOTECHNOLOGY_AND_PHARMACEUTICALS']
+    employees = '1-10'
+    website = 'http://test.com'
+    keywords = 'keyword1,keyword2,keyword3'
+    facebook_url = 'http://www.facebook.com/testcompany'
+    linkedin_url = 'http://www.linkedin.com/testcompany'
+    twitter_url = 'http://www.twitter.com/testcompany'
+    summary = 'few words about our company'
+    description = 'we sell cars'
+    is_uk_isd_company = True
+    is_published_investment_support_directory = False
+    is_published_find_a_supplier = False
+    # authed_client fixture creates 1 unpublished company
+    expected_number_of_results = 2
+    expected_number_of_keys = 15
+    company = factories.CompanyFactory(
+        name=name, number=number, email_address=email, sectors=sectors,
+        employees=employees, website=website, keywords=keywords,
+        facebook_url=facebook_url, linkedin_url=linkedin_url,
+        twitter_url=twitter_url, summary=summary, description=description,
+        is_uk_isd_company=is_uk_isd_company,
+        is_published_find_a_supplier=is_published_find_a_supplier,
+        is_published_investment_support_directory=(
+            is_published_investment_support_directory
+        ),
+    )
+    authed_supplier.company = company
+    authed_supplier.save()
+    company.refresh_from_db()
+    url = reverse('unpublished_companies')
+    response = authed_client.get(url)
+    assert len(response.json()) == expected_number_of_results
+    # authed_client fixture creates 1 unpublished company
+    found_company = response.json()[1]
+    assert len(found_company.keys()) == expected_number_of_keys
+    assert found_company['name'] == name
+    assert found_company['number'] == number
+    assert found_company['company_email'] == email
+    assert found_company['sectors'] == sectors
+    assert found_company['employees'] == employees
+    assert found_company['keywords'] == keywords
+    assert found_company['website'] == website
+    assert found_company['facebook_url'] == facebook_url
+    assert found_company['twitter_url'] == twitter_url
+    assert found_company['linkedin_url'] == linkedin_url
+    assert found_company['summary'] == summary
+    assert found_company['description'] == description
+    assert found_company['is_uk_isd_company']
+    assert not found_company['is_published_find_a_supplier']
+    assert not found_company['is_published_investment_support_directory']
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company(authed_client):
+    url = reverse('create_test_isd_company')
+    response = authed_client.post(url)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()['is_uk_isd_company']
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_disabled_test_api(
+        authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('create_test_isd_company')
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_disabled_test_api_and_unsigned_client(
+        client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('create_test_isd_company')
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_with_optional_parameter(authed_client):
+    url = reverse('create_test_isd_company')
+    data = {
+        'is_uk_isd_company': False,
+    }
+    response = authed_client.post(url, data=data)
+    assert response.status_code == status.HTTP_201_CREATED
+    created_company = response.json()
+    assert not created_company['is_uk_isd_company'], created_company
+
+
+@pytest.mark.django_db
+def test_create_test_isd_company_unexpected_parameters_are_ignored(
+        authed_client
+):
+    url = reverse('create_test_isd_company')
+    data = {
+        'an_unexpected_parameter': 'unexpected value',
+    }
+    response = authed_client.post(url, data=data)
+    assert response.status_code == status.HTTP_201_CREATED

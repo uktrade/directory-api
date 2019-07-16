@@ -11,7 +11,7 @@ from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
-from directory_constants import expertise
+from directory_constants import company_types, expertise
 
 
 class MobileNumberField(forms.CharField):
@@ -120,8 +120,8 @@ class CompanyModelForm(forms.ModelForm):
 def company_type_parser(company_number):
     if company_number:
         if CompanyNumberField(max_length=8).to_python(company_number):
-            return models.Company.COMPANIES_HOUSE
-    return models.Company.SOLE_TRADER
+            return company_types.COMPANIES_HOUSE
+    return company_types.SOLE_TRADER
 
 
 class EnrolCompanies(forms.Form):
@@ -168,7 +168,7 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
-            if company_type == models.Company.SOLE_TRADER:
+            if company_type == company_types.SOLE_TRADER:
                 address = helpers.AddressParser(row[2])
                 data.update({
                     'address_line_1': address.line_1,
@@ -241,6 +241,9 @@ class UploadExpertise(forms.Form):
     @transaction.atomic
     def clean_csv_file(self):
 
+        self.update_errors = []
+        self.updated_companies = []
+
         csv_file = io.TextIOWrapper(
             self.cleaned_data['csv_file'].file, encoding='utf-8'
         )
@@ -252,34 +255,44 @@ class UploadExpertise(forms.Form):
         for i, row in enumerate(reader):
             data = {
                 'name': row[1],
-                'number': row[8],
+                'number': row[8].rjust(8, '0'),
             }
 
-            if data['number']:
+            company_type = company_type_parser(row[8])
+            if company_type == company_types.SOLE_TRADER:
+                companies = models.Company.objects.filter(name=data['name'])
+            else:
                 companies = models.Company.objects.filter(
                     number=data['number']
                 )
-            else:
-                companies = models.Company.objects.filter(name=data['name'])
 
             if companies.count() == 0:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i,
-                    line_errors=self.MSG_COMPANY_NOT_FOUND),
+                    row_number=i+2,
+                    line_errors='{} - Name:{} Number:{})'.format(
+                        self.MSG_COMPANY_NOT_FOUND,
+                        data['name'],
+                        data['number']
+                    )
+                )
             elif companies.count() > 1:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i,
-                    line_errors=self.MSG_COMPANY_TOO_MANY,
+                    row_number=i+2,
+                    line_errors='{} - Name:{} Number:{})'.format(
+                        self.MSG_COMPANY_TOO_MANY,
+                        data['name'],
+                        data['number']
+                    )
                 )
             else:
                 company = companies[0]
                 company.expertise_products_services = (
                     self.parse_products_services(
                         errors=self.update_errors,
-                        row_number=i,
-                        expertise_row=row[15]
+                        row_number=i+2,
+                        expertise_row=row[15].strip()
                     )
                 )
                 company.save()

@@ -171,11 +171,6 @@ urlpatterns = [
         name='company-public-profile-detail'
     ),
     url(
-        r'^public/company/$',
-        company.views.CompanyPublicProfileViewSet.as_view({'get': 'list'}),
-        name='company-public-profile-list'
-    ),
-    url(
         r'^validate/company-number/$',
         company.views.CompanyNumberValidatorAPIView.as_view(),
         name='validate-company-number'
@@ -197,18 +192,13 @@ urlpatterns = [
     ),
     url(
         r'^company/search/$',
-        company.views.CompanySearchAPIView.as_view(),
-        name='company-search'
+        company.views.FindASupplierSearchAPIView.as_view(),
+        name='find-a-supplier-search'
     ),
     url(
         r'^investment-support-directory/search/$',
         company.views.InvestmentSupportDirectorySearchAPIView.as_view(),
         name='investment-support-directory-search'
-    ),
-    url(
-        r'^case-study/search/$',
-        company.views.CaseStudySearchAPIView.as_view(),
-        name='case-study-search',
     ),
     url(
         r'buyer/csv-dump/$',
@@ -231,9 +221,19 @@ urlpatterns = [
         name='company_by_ch_id'
     ),
     url(
+        r'^testapi/isd_company/$',
+        testapi.views.ISDCompanyTestAPIView.as_view(),
+        name='create_test_isd_company'
+    ),
+    url(
         r'^testapi/companies/published/$',
         testapi.views.PublishedCompaniesTestAPIView.as_view(),
         name='published_companies'
+    ),
+    url(
+        r'^testapi/companies/unpublished/$',
+        testapi.views.UnpublishedCompaniesTestAPIView.as_view(),
+        name='unpublished_companies'
     ),
     url(
         r'^enrolment/preverified-company/(?P<key>.*)/claim/$',
