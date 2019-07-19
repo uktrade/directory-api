@@ -86,7 +86,6 @@ DEBUG_SET_ENV_VARS := \
 	export SOLE_TRADER_NUMBER_SEED=32; \
 	export DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC=http://profile.trade.great:8006/; \
 	export DIRECTORY_FORMS_API_BASE_URL=http://forms.trade.great:8011; \
-	export GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID=22d1803a-8af5-4b06-bc6c-ffc6573c4c7d; \
 	export CELERY_TASK_ALWAYS_EAGER=true
 
 
