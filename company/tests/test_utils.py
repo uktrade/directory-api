@@ -1,6 +1,5 @@
 import datetime
 from unittest import mock
-from django.conf import settings
 
 import pytest
 from django.utils import timezone
@@ -13,7 +12,7 @@ from company import utils
 @pytest.mark.django_db
 @freeze_time()
 @mock.patch('company.utils.stannp_client')
-def test_send_letter_stannp(mock_stannp_client):
+def test_send_letter_stannp(mock_stannp_client, settings):
     settings.FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = False
     company = factories.CompanyFactory(verification_code='test')
     utils.send_verification_letter(company)
@@ -46,7 +45,7 @@ def test_send_letter_stannp(mock_stannp_client):
 @mock.patch(
     'directory_forms_api_client.client.forms_api_client.submit_generic'
 )
-def test_send_letter_govnotify(mock_govnotify_letter_action):
+def test_send_letter_govnotify(mock_govnotify_letter_action, settings):
 
     settings.FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = True
     company = factories.CompanyFactory(verification_code='999999999999')
