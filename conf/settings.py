@@ -332,7 +332,6 @@ DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
 AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
-AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
 AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
@@ -349,7 +348,9 @@ if 'aws-s3-bucket' in VCAP_SERVICES:
     AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
     AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
     AWS_S3_REGION_NAME = credentials['aws_region']
+    AWS_S3_ENCRYPTION = True
 else:
+    AWS_S3_ENCRYPTION = False
     AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
     AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
     AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
