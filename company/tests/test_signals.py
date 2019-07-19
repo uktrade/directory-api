@@ -103,7 +103,10 @@ def test_letter_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     company = factories.CompanyFactory(verification_code='test')
 
-    mock_send_letter.assert_called_with(company=company)
+    mock_send_letter.assert_called_with(
+        company=company,
+        form_url='send_first_verification_letter'
+    )
 
 
 @pytest.mark.django_db

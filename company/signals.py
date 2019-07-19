@@ -18,7 +18,10 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         instance.has_valid_address(),
     ])
     if should_send_letter:
-        send_verification_letter(company=instance)
+        send_verification_letter(
+            company=instance,
+            form_url='send_first_verification_letter',
+        )
 
 
 def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
