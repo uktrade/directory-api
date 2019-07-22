@@ -2,6 +2,10 @@
 
 ## Pre release
 
+### Implemented enhancements
+- TT-1613 Reduce stannp to flag errors from <50 to <10  
+
+
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)
 
