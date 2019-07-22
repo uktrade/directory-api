@@ -71,5 +71,5 @@ def test_stannp_balance_too_low(mock_retrieve_balance):
     backend.run_check()
 
     assert backend.pretty_status() == (
-        'unexpected result: Balance is 49.99. Top up soon.'
+        'unexpected result: Balance is 9.99. Top up soon.'
     )
