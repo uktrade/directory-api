@@ -45,7 +45,10 @@ def test_send_letter_stannp(mock_stannp_client, settings):
 @mock.patch(
     'directory_forms_api_client.client.forms_api_client.submit_generic'
 )
-def test_send_letter_govnotify(mock_govnotify_letter_action, settings):
+def test_send_verification_letter_govnotify(
+        mock_govnotify_letter_action,
+        settings
+):
 
     settings.FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = True
     company = factories.CompanyFactory(verification_code='999999999999')
@@ -80,3 +83,63 @@ def test_send_letter_govnotify(mock_govnotify_letter_action, settings):
     company.refresh_from_db()
     assert company.is_verification_letter_sent
     assert company.date_verification_letter_sent == timezone.now()
+
+
+@pytest.mark.django_db
+@freeze_time()
+@mock.patch(
+    'directory_forms_api_client.client.forms_api_client.submit_generic'
+)
+def test_send_registration_letter_govnotify(
+        mock_govnotify_letter_action,
+        settings
+):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+    company = factories.CompanyFactory()
+
+    assert mock_govnotify_letter_action.call_count == 1
+    expected = {
+        'data': {
+            'address_line_1': company.postal_full_name,
+            'address_line_2': company.address_line_1,
+            'address_line_3': company.address_line_2,
+            'address_line_4': company.locality,
+            'address_line_5': company.country,
+            'address_line_6': company.po_box,
+            'postcode': company.postal_code,
+            'full_name': company.postal_full_name,
+            'company_name': company.name,
+        },
+        'meta': {
+            'action_name': 'gov-notify-letter',
+            'form_url': 'send_first_registration_letter',
+            'sender': {},
+            'spam_control': {},
+            'template_id': settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,
+        }
+    }
+    assert mock_govnotify_letter_action.call_args == mock.call(expected)
+
+    company.refresh_from_db()
+    assert company.is_registration_letter_sent
+    assert company.date_registration_letter_sent == timezone.now()
+
+
+@pytest.mark.django_db
+def test_extract_recipient_address_gov_notify():
+
+    company = factories.CompanyFactory()
+
+    recipient = utils.extract_recipient_address_gov_notify(company=company)
+
+    assert recipient == {
+            'address_line_1': company.postal_full_name,
+            'address_line_2': company.address_line_1,
+            'address_line_3': company.address_line_2,
+            'address_line_4': company.locality,
+            'address_line_5': company.country,
+            'address_line_6': company.po_box,
+            'postcode': company.postal_code,
+            'full_name': company.postal_full_name,
+            'company_name': company.name,
+    }

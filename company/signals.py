@@ -4,7 +4,7 @@ from django.utils import timezone
 from directory_constants import company_types
 
 from company.email import CollaboratorNotification, OwnershipChangeNotification
-from company.utils import send_verification_letter
+from company.utils import send_verification_letter, send_registration_letter
 from company import documents
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
@@ -21,6 +21,20 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         send_verification_letter(
             company=instance,
             form_url='send_first_verification_letter',
+        )
+
+
+def send_first_registration_letter(sender, instance, *args, **kwargs):
+    should_send_letter = all([
+        settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
+        not instance.is_registration_letter_sent,
+        instance.has_valid_address(),
+        instance.company_type == company_types.COMPANIES_HOUSE,
+    ])
+    if should_send_letter:
+        send_registration_letter(
+            company=instance,
+            form_url='send_first_registration_letter',
         )
 
 
