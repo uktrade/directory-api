@@ -64,7 +64,7 @@ def test_sends_registration_letter_post_save(
     assert mock_utils_send_registration_letter.call_count == 1
     assert mock_utils_send_registration_letter.call_args == mock.call(
         company=company,
-        form_url='send_first_registration_letter',
+        form_url='send_company_claimed_letter_automatically_sent',
     )
 
 

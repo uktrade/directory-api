@@ -20,7 +20,7 @@ class CompanyConfig(AppConfig):
             sender='company.Company'
         )
         post_save.connect(
-            receiver=signals.send_first_registration_letter,
+            receiver=signals.send_company_claimed_letter,
             sender='company.Company'
         )
         post_save.connect(

@@ -112,7 +112,7 @@ def test_send_registration_letter_govnotify(
         },
         'meta': {
             'action_name': 'gov-notify-letter',
-            'form_url': 'send_first_registration_letter',
+            'form_url': 'send_company_claimed_letter_automatically_sent',
             'sender': {},
             'spam_control': {},
             'template_id': settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,

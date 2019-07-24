@@ -24,7 +24,7 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         )
 
 
-def send_first_registration_letter(sender, instance, *args, **kwargs):
+def send_company_claimed_letter(sender, instance, *args, **kwargs):
     should_send_letter = all([
         settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
         not instance.is_registration_letter_sent,
@@ -34,7 +34,7 @@ def send_first_registration_letter(sender, instance, *args, **kwargs):
     if should_send_letter:
         send_registration_letter(
             company=instance,
-            form_url='send_first_registration_letter',
+            form_url='send_company_claimed_letter_automatically_sent',
         )
 
 
