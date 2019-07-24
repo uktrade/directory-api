@@ -132,6 +132,8 @@ def test_company_retrieve_view(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_update_with_put(authed_client, authed_supplier):
+    import pdb
+    pdb.set_trace()
     company = factories.CompanyFactory(
         number='01234567',
         has_exported_before=True,
