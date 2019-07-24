@@ -3,7 +3,7 @@
 ## Pre release
 
 ### Implemented enhancements
-- TT-1619 - Sending New Registration Letters
+- TT-1619 - Sending New Registration Letters new env FEATURE_VERIFICATION_LETTERS_ENABLED
 
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)
