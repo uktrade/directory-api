@@ -28,7 +28,6 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
     should_send_letter = all([
         settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
         not instance.is_registration_letter_sent,
-        instance.has_valid_address(),
         instance.company_type == company_types.COMPANIES_HOUSE,
         bool(instance.address_line_1 and instance.postal_code),
     ])

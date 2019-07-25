@@ -50,6 +50,8 @@ def send_verification_letter(company, form_url=None):
 
 def send_registration_letter(company, form_url=None):
     recipient = extract_recipient_address_gov_notify(company)
+    # Override since for registration letter we want to address the company
+    recipient['address_line_1'] = company.name
 
     action = actions.GovNotifyLetterAction(
         template_id=settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,

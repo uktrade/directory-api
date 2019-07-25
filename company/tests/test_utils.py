@@ -100,7 +100,7 @@ def test_send_registration_letter_govnotify(
     assert mock_govnotify_letter_action.call_count == 1
     expected = {
         'data': {
-            'address_line_1': company.postal_full_name,
+            'address_line_1': company.name,
             'address_line_2': company.address_line_1,
             'address_line_3': company.address_line_2,
             'address_line_4': company.locality,
