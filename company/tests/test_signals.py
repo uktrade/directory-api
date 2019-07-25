@@ -71,33 +71,37 @@ def test_sends_registration_letter_post_save(
 @pytest.mark.parametrize(
     'letter_registration_enabled, '
     'is_registration_letter_sent, '
-    'has_valid_address, company_type',
+    'company_type, '
+    'address_line_1, '
+    'postal_code, ',
     [
-        [False, True,  True,  company_types.COMPANIES_HOUSE],
-        [True,  True,  False, company_types.COMPANIES_HOUSE],
-        [True,  True,  True,  company_types.CHARITY],
-        [True,  True,  True,  company_types.PARTNERSHIP],
-        [True,  True,  True,  company_types.SOLE_TRADER],
+        [False, True, company_types.COMPANIES_HOUSE, 'addr', 'N1 8NP'],
+        [True,  True, company_types.COMPANIES_HOUSE, 'addr', 'N1 8NP'],
+        [True,  True, company_types.CHARITY, 'addr', 'N1 8NP'],
+        [True,  True, company_types.PARTNERSHIP, 'addr', 'N1 8NP'],
+        [True,  True, company_types.SOLE_TRADER, 'addr', 'N1 8NP'],
+        [True,  True,  company_types.COMPANIES_HOUSE, '', 'N1 8NP'],
+        [True,  True,  company_types.COMPANIES_HOUSE, 'addr', ''],
     ]
 )
 @mock.patch('company.signals.send_registration_letter')
-@mock.patch('company.models.Company.has_valid_address')
 @pytest.mark.django_db
 def test_does_not_send_registration_letter_conditions(
-        mock_has_valid_address,
         mock_utils_send_registration_letter,
         letter_registration_enabled,
         is_registration_letter_sent,
-        has_valid_address,
         company_type,
+        address_line_1,
+        postal_code,
         settings,
 ):
 
     settings.FEATURE_REGISTRATION_LETTERS_ENABLED = letter_registration_enabled
-    mock_has_valid_address.return_value = has_valid_address
     company = factories.CompanyFactory(
         is_registration_letter_sent=is_registration_letter_sent,
-        company_type=company_type
+        company_type=company_type,
+        address_line_1=address_line_1,
+        postal_code=postal_code,
     )
     assert mock_utils_send_registration_letter.call_count == 0
     company.refresh_from_db()

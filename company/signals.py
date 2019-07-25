@@ -30,6 +30,7 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
         not instance.is_registration_letter_sent,
         instance.has_valid_address(),
         instance.company_type == company_types.COMPANIES_HOUSE,
+        bool(instance.address_line_1 and instance.postal_code),
     ])
     if should_send_letter:
         send_registration_letter(
