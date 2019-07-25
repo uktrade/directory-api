@@ -270,13 +270,6 @@ class Company(TimeStampedModel):
         ])
 
     @property
-    def get_postal_name(self):
-        return any([
-            self.postal_full_name,
-            self.name,
-        ])
-
-    @property
     def public_profile_url(self):
         return settings.FAS_COMPANY_PROFILE_URL.format(number=self.number)
 
@@ -289,11 +282,12 @@ class Company(TimeStampedModel):
         ])
 
     def has_valid_address(self):
-        required_address_fields = bool(
-            self.address_line_1 and self.postal_code
-        )
-        has_postal_name = bool(self.get_postal_name)
-        return bool(required_address_fields and has_postal_name)
+        required_address_fields = [
+            'postal_full_name',
+            'address_line_1',
+            'postal_code',
+        ]
+        return all(getattr(self, field) for field in required_address_fields)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)[:50]
