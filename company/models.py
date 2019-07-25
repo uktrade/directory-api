@@ -158,6 +158,10 @@ class Company(TimeStampedModel):
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
+    is_registration_letter_sent = models.BooleanField(default=False)
+    date_registration_letter_sent = models.DateTimeField(
+        null=True, blank=True
+    )
     date_verification_letter_sent = models.DateTimeField(
         null=True, blank=True
     )

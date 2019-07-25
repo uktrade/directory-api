@@ -296,6 +296,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[3] == row_three
 
     def test_create_companies_form_success(self):
+
         file_path = os.path.join(
             settings.BASE_DIR,
             'company/tests/fixtures/valid-companies-upload.csv'

@@ -10,6 +10,7 @@ import directory_healthcheck.backends
 
 
 env = environ.Env()
+env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -387,6 +388,11 @@ GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
     '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
 )
 
+# Registration letters template id
+GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
+    '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
+)
 
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
@@ -595,6 +601,9 @@ FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
 )
 FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
     'FEATURE_VERIFICATION_LETTERS_ENABLED', False
+)
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool(
+    'FEATURE_REGISTRATION_LETTERS_ENABLED', False
 )
 # If enabled sends via govenotify else uses stannp
 FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = env.bool(
