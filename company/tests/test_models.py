@@ -107,10 +107,43 @@ def test_has_valid_address_all_values_missing():
 
 
 @pytest.mark.django_db
-def test_has_valid_address_all_values_present():
+def test_has_valid_address_all_values_present_postal_full_name():
     company = CompanyFactory(
         name='',
         postal_full_name='Mr Fakingham',
+        address_line_1='123 fake street',
+        postal_code='EM6 6EM',
+    )
+    assert company.has_valid_address() is True
+
+
+@pytest.mark.django_db
+def test_get_postal_name_returns_postal_full_name():
+    company = CompanyFactory(
+        name='',
+        postal_full_name='Mr Fakingham',
+        address_line_1='123 fake street',
+        postal_code='EM6 6EM',
+    )
+    assert company.get_postal_name == company.postal_full_name
+
+
+@pytest.mark.django_db
+def test_get_postal_name_returns_postal_full_name():
+    company = CompanyFactory(
+        name='Test Company',
+        postal_full_name='',
+        address_line_1='123 fake street',
+        postal_code='EM6 6EM',
+    )
+    assert company.get_postal_name == company.name
+
+
+@pytest.mark.django_db
+def test_has_valid_address_all_values_present_company_name():
+    company = CompanyFactory(
+        name='My Test Company',
+        postal_full_name='',
         address_line_1='123 fake street',
         postal_code='EM6 6EM',
     )
