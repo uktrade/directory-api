@@ -11,9 +11,19 @@ from company.models import Company
 from company.documents import CompanyDocument
 from company.tests import factories
 
+from directory_constants import company_types
+
+
+@pytest.fixture(autouse=False)
+def non_registration_sent_company():
+    return factories.CompanyFactory(
+        id=100000000,
+        company_type=company_types.COMPANIES_HOUSE
+    )
+
 
 @pytest.mark.django_db
-def test_sends_verification_letter_post_save(settings):
+def test_sends_verification_letter_stannp_post_save(settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
     with mock.patch('requests.post') as requests_mock:
@@ -41,6 +51,63 @@ def test_sends_verification_letter_post_save(settings):
             'template': 'debug'
         },
     )
+
+
+@pytest.mark.django_db
+@mock.patch('company.signals.send_registration_letter')
+def test_sends_registration_letter_post_save(
+        mock_utils_send_registration_letter, settings
+):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+    company = factories.CompanyFactory()
+
+    assert mock_utils_send_registration_letter.call_count == 1
+    assert mock_utils_send_registration_letter.call_args == mock.call(
+        company=company,
+        form_url='send_company_claimed_letter_automatically_sent',
+    )
+
+
+@pytest.mark.parametrize(
+    'letter_registration_enabled, '
+    'is_registration_letter_sent, '
+    'company_type, '
+    'address_line_1, '
+    'postal_code, ',
+    [
+        [False, True, company_types.COMPANIES_HOUSE, 'addr', 'N1 8NP'],
+        [True,  True, company_types.COMPANIES_HOUSE, 'addr', 'N1 8NP'],
+        [True,  True, company_types.CHARITY, 'addr', 'N1 8NP'],
+        [True,  True, company_types.PARTNERSHIP, 'addr', 'N1 8NP'],
+        [True,  True, company_types.SOLE_TRADER, 'addr', 'N1 8NP'],
+        [True,  True,  company_types.COMPANIES_HOUSE, '', 'N1 8NP'],
+        [True,  True,  company_types.COMPANIES_HOUSE, 'addr', ''],
+    ]
+)
+@mock.patch('company.signals.send_registration_letter')
+@pytest.mark.django_db
+def test_does_not_send_registration_letter_conditions(
+        mock_utils_send_registration_letter,
+        letter_registration_enabled,
+        is_registration_letter_sent,
+        company_type,
+        address_line_1,
+        postal_code,
+        settings,
+):
+
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = letter_registration_enabled
+    company = factories.CompanyFactory(
+        is_registration_letter_sent=is_registration_letter_sent,
+        company_type=company_type,
+        address_line_1=address_line_1,
+        postal_code=postal_code,
+    )
+    assert mock_utils_send_registration_letter.call_count == 0
+    company.refresh_from_db()
+
+    assert company.is_verification_letter_sent is False
+    assert company.date_verification_letter_sent is None
 
 
 @pytest.mark.django_db
@@ -86,7 +153,10 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 
 @pytest.mark.django_db
 @mock.patch('company.signals.send_verification_letter')
-def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
+def test_does_not_send_verification_if_letter_already_sent(
+        mock_send_letter,
+        settings
+):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     factories.CompanyFactory(
         is_verification_letter_sent=True,

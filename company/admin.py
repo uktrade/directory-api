@@ -154,7 +154,7 @@ class CompanyAdmin(admin.ModelAdmin):
         'verified_with_code',
         'verified_with_companies_house_oauth2',
     )
-    readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
+    readonly_fields = ('created', 'modified', 'date_verification_letter_sent', 'date_registration_letter_sent')
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
