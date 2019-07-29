@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 from directory_constants import company_types
 import pytest
-from requests.exceptions import HTTPError
 
 from django.core.management import call_command
 
@@ -70,7 +69,7 @@ def test_retrieve_company_status_handles_error(mock_get_companies_house_profile)
     company = CompanyFactory(number=123)
 
     mock_get_companies_house_profile.side_effect = Exception()
-    
+
     call_command('retrieve_companies_house_company_status')
     company.refresh_from_db()
     assert company.companies_house_company_status == ''
