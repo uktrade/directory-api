@@ -11,7 +11,7 @@ from company.tests.factories import CompanyFactory
 
 @pytest.mark.django_db
 @patch.object(helpers, 'get_companies_house_profile')
-def test_companies_house_missing_active_status(mock_get_companies_house_profile):
+def test_companies_house_active_status(mock_get_companies_house_profile):
     company = CompanyFactory(date_of_creation=None, number=123)
     mock_get_companies_house_profile.return_value = {
         'company_status': 'active',
@@ -24,7 +24,7 @@ def test_companies_house_missing_active_status(mock_get_companies_house_profile)
 
 @pytest.mark.django_db
 @patch.object(helpers, 'get_companies_house_profile')
-def test_companies_house_missing_non_active_status(mock_get_companies_house_profile):
+def test_companies_house_non_active_status(mock_get_companies_house_profile):
     company = CompanyFactory(date_of_creation=None, number=123)
     mock_get_companies_house_profile.return_value = {
         'company_status': 'dissolved',
@@ -32,12 +32,22 @@ def test_companies_house_missing_non_active_status(mock_get_companies_house_prof
     }
     call_command('retrieve_companies_house_company_status')
     company.refresh_from_db()
-    assert company.companies_house_company_status == 'non-active'
+    assert company.companies_house_company_status == 'dissolved'
 
 
 @pytest.mark.django_db
 @patch.object(helpers, 'get_companies_house_profile')
-def test_companies_house_missing_company_status(mock_get_companies_house_profile):
+def test_companies_house_missing_status_on_update(mock_get_companies_house_profile):
+    company = CompanyFactory(date_of_creation=None, number=123, companies_house_company_status='active')
+    mock_get_companies_house_profile.return_value = {}
+    call_command('retrieve_companies_house_company_status')
+    company.refresh_from_db()
+    assert company.companies_house_company_status == ''
+
+
+@pytest.mark.django_db
+@patch.object(helpers, 'get_companies_house_profile')
+def test_companies_house_missing_company_status_new_company(mock_get_companies_house_profile):
     company = CompanyFactory(date_of_creation=None, number=123)
     mock_get_companies_house_profile.return_value = {
     }

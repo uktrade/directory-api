@@ -18,10 +18,9 @@ class Command(BaseCommand):
             try:
                 profile = helpers.get_companies_house_profile(company.number)
                 if profile.get('company_status'):
-                    if profile.get('company_status').lower() == 'active':
-                        company.companies_house_company_status = 'active'
-                    else:
-                        company.companies_house_company_status = 'non-active'
+                    company.companies_house_company_status = profile.get('company_status')
+                else:
+                    company.companies_house_company_status = ''
                 company.save()
                 message = f'Company {company.name} updated'
                 self.stdout.write(self.style.SUCCESS(message))
