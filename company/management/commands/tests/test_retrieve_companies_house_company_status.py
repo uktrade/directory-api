@@ -1,4 +1,3 @@
-import datetime
 from unittest.mock import patch
 
 from directory_constants import company_types
