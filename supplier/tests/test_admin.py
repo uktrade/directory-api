@@ -57,6 +57,7 @@ class DownloadCSVTestCase(TestCase):
         expected_data = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
+            ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_of_creation', '2010-10-10'),
@@ -143,6 +144,7 @@ class DownloadCSVTestCase(TestCase):
         expected_data = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
+            ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_of_creation', '2010-10-10'),
@@ -228,6 +230,7 @@ class DownloadCSVTestCase(TestCase):
         supplier_one_expected = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
+            ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_of_creation', '2010-10-10'),
@@ -291,6 +294,7 @@ class DownloadCSVTestCase(TestCase):
         supplier_two_expected = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
+            ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_of_creation', '2010-10-10'),
