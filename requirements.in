@@ -20,6 +20,7 @@ requests[security]==2.21.0
 elasticsearch-dsl==6.4.0
 waitress==1.1.0
 sigauth==4.0.1
+django-staff-sso-client==0.3.1
 directory-validators==5.1.0
 directory-constants==18.3.0
 directory-sso-api-client==6.0.1
