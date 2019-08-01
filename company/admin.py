@@ -153,6 +153,7 @@ class CompanyAdmin(admin.ModelAdmin):
         'is_published_find_a_supplier',
         'verified_with_code',
         'verified_with_companies_house_oauth2',
+        'companies_house_company_status',
     )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent', 'date_registration_letter_sent')
 

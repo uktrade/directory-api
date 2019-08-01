@@ -248,6 +248,12 @@ class Company(TimeStampedModel):
         'verified_with_code',
         'verified_with_companies_house_oauth2',
     ])
+    companies_house_company_status = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        validators=[no_html],
+    )
 
     class Meta:
         verbose_name_plural = 'companies'
