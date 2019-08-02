@@ -87,7 +87,7 @@ DEBUG_SET_ENV_VARS := \
 	export DIRECTORY_FORMS_API_BASE_URL=http://forms.trade.great:8011; \
 	export CELERY_TASK_ALWAYS_EAGER=true; \
 	export FEATURE_ENFORCE_STAFF_SSO_ENABLED=false; \
-	export AUTHBROKER_CLIENT_ID=debug; \
+    export AUTHBROKER_CLIENT_ID=debug; \
     export AUTHBROKER_CLIENT_SECRET=debug; \
     export STAFF_SSO_AUTHBROKER_URL=https://test.com
 

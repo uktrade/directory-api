@@ -1,23 +1,21 @@
-import pytest
+class Command(BaseCommand):
+    """Pass the username to grant staff status."""
 
-from django.contrib.auth.models import User
-from django.core.management import call_command
+    help = 'Used to create a supplier and company for integration tests.'
 
+    def add_arguments(self, parser):
+        parser.add_argument('username', nargs='+')
 
-@pytest.mark.django_db
-def test_grant_staff_status():
-    username = 'testuser@.com'
-    user = User.objects.create_user(username=username)
-    user.save()
-
-    assert user.is_staff is False
-    call_command('grant_staff_status', username)
-    user.refresh_from_db()
-    assert user.is_staff is True
-
-
-@pytest.mark.django_db
-def test_grant_staff_status_user_no_found():
-
-    username = 'testuser@testuser.com'
-    call_command('grant_staff_status', username)
+    def handle(self, *args, **options):
+        for username in options['username']:
+            try:
+                user = User.objects.get(username=username)
+                user.is_staff = True
+                user.save()
+                self.stdout.write(
+                    self.style.SUCCESS('Successfully granted staff status user "%s"' % user.username)
+                )
+            except User.DoesNotExist:
+                self.stdout.write(
+                    self.style.WARNING('No user found with username "%s"' % username)
+                )
