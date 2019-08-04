@@ -21,6 +21,6 @@ class SignatureCheckMiddleware(
 class AuthenticatedUserPermissionCheckMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view_func, view_args, view_kwarg):
-        if request.user.is_authenticated():
-            if not request.user.is_staff:
+        if request.user is not None:
+            if not request.user.is_staff and request.user.is_authenticated():
                 return HttpResponse('User not authorized for admin access', status=401)
