@@ -8,6 +8,7 @@
 - TT-851 - Companies house status check admin upgrade
 - TT-1613 Reduce stannp to flag errors from <50 to <10 
 - TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON) 
+- TT-1700 - Show error when user doesn't have staff status
 
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)

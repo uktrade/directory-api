@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
-    'superuser',
+    'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
@@ -63,6 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
+    'core.middleware.CheckStaffStatusMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
