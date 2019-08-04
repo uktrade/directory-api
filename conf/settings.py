@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
-    'core.middleware.CheckStaffStatusMiddleware',
+    'core.middleware.AuthenticatedUserPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',

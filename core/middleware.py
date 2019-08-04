@@ -18,7 +18,7 @@ class SignatureCheckMiddleware(
         return super().should_check(request)
 
 
-class CheckStaffStatusMiddleware(MiddlewareMixin):
+class AuthenticatedUserPermissionCheckMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view_func, view_args, view_kwarg):
         if request.user.is_authenticated():

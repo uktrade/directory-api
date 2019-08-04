@@ -8,7 +8,7 @@ SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'core.middleware.SignatureCheckMiddleware',
-    'core.middleware.CheckStaffStatusMiddleware',
+    'core.middleware.AuthenticatedUserPermissionCheckMiddleware',
 ]
 
 
@@ -57,7 +57,7 @@ def test_signature_check_middleware_authbroker_login(admin_client, settings):
 
 
 @pytest.mark.django_db
-def test_check_staff_status_middleware_no_user(client, settings):
+def test_authenticated_user_middleware_no_user(client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
     reload_urlconf()
@@ -68,7 +68,7 @@ def test_check_staff_status_middleware_no_user(client, settings):
 
 
 @pytest.mark.django_db
-def test_check_staff_status_middleware_authorised_no_staff(client, settings, admin_user):
+def test_authenticated_user_middleware_authorised_no_staff(client, settings, admin_user):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
     reload_urlconf()
@@ -80,7 +80,7 @@ def test_check_staff_status_middleware_authorised_no_staff(client, settings, adm
 
 
 @pytest.mark.django_db
-def test_check_staff_status_middleware_authorised_with_staff(client, settings, admin_user):
+def test_authenticated_user_middleware_authorised_with_staff(client, settings, admin_user):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
     reload_urlconf()
