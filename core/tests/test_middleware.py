@@ -8,7 +8,7 @@ SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'core.middleware.SignatureCheckMiddleware',
-    'core.middleware.AuthenticatedUserPermissionCheckMiddleware',
+    'core.middleware.AdminPermissionCheckMiddleware',
 ]
 
 
@@ -66,10 +66,10 @@ def test_authenticated_user_middleware_no_user(client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
     reload_urlconf()
-    response = client.get(reverse('authbroker_client:login'))
+    response = client.get(reverse('admin:login'))
 
     assert response.status_code == 302
-    assert response.url.startswith(settings.AUTHBROKER_URL)
+    assert response.url == reverse('authbroker_client:login')
 
 
 @pytest.mark.django_db
@@ -79,7 +79,7 @@ def test_authenticated_user_middleware_authorised_no_staff(client, settings, adm
     reload_urlconf()
     client.force_login(admin_user)
 
-    response = client.get(reverse('authbroker_client:login'))
+    response = client.get(reverse('admin:login'))
 
     assert response.status_code == 401
 
@@ -92,6 +92,6 @@ def test_authenticated_user_middleware_authorised_with_staff(client, settings, a
     admin_user.is_staff = True
     admin_user.save()
     client.force_login(admin_user)
-    response = client.get(reverse('authbroker_client:login'))
+    response = client.get(reverse('admin:login'))
 
     assert response.status_code == 302

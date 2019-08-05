@@ -9,10 +9,10 @@ class Command(BaseCommand):
     help = 'Used to create a supplier and company for integration tests.'
 
     def add_arguments(self, parser):
-        parser.add_argument('username', nargs='+')
+        parser.add_argument('username', nargs='?')
 
     def handle(self, *args, **options):
-        username = options['username'][0]
+        username = options['username']
         try:
             user = User.objects.get(username=username)
             user.is_staff = True

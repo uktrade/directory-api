@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
-    'core.middleware.AuthenticatedUserPermissionCheckMiddleware',
+    'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -180,7 +180,7 @@ if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     LOGIN_URL = reverse_lazy('authbroker_client:login')
     LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
 
-# authbroker config
+    # authbroker config
 AUTHBROKER_URL = env.str('STAFF_SSO_AUTHBROKER_URL')
 AUTHBROKER_CLIENT_ID = env.str('AUTHBROKER_CLIENT_ID')
 AUTHBROKER_CLIENT_SECRET = env.str('AUTHBROKER_CLIENT_SECRET')
