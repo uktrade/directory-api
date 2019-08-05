@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Used to create a supplier and company for integration tests.'
 
     def add_arguments(self, parser):
-        parser.add_argument('username', nargs='+')
+        parser.add_argument('username')
 
     def handle(self, *args, **options):
         for username in options['username']:
