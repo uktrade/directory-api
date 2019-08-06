@@ -1,5 +1,6 @@
 import os
 
+from django.urls import reverse_lazy
 import dj_database_url
 import environ
 from elasticsearch import RequestsHttpConnection
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
-    'superuser',
+    'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
@@ -56,11 +57,13 @@ INSTALLED_APPS = [
     'directory_healthcheck',
     'health_check.db',
     'health_check.cache',
-    'testapi'
+    'testapi',
+    'authbroker_client',
 ]
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
+    'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -165,6 +168,22 @@ STATICFILES_DIRS = (
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
+
+# SSO config
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', False)
+if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'authbroker_client.backends.AuthbrokerBackend'
+    ]
+
+    LOGIN_URL = reverse_lazy('authbroker_client:login')
+    LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
+
+    # authbroker config
+AUTHBROKER_URL = env.str('STAFF_SSO_AUTHBROKER_URL')
+AUTHBROKER_CLIENT_ID = env.str('AUTHBROKER_CLIENT_ID')
+AUTHBROKER_CLIENT_SECRET = env.str('AUTHBROKER_CLIENT_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')

@@ -36,6 +36,7 @@ django-filter==1.0.4
 django-health-check==3.8.0  # via directory-healthcheck
 django-ipware==2.1.0      # via django-admin-ip-restrictor
 django-redis==4.7.0
+django-staff-sso-client==0.3.1
 django-storages==1.7.1
 django==1.11.22
 django_extensions==1.6.7
@@ -56,6 +57,7 @@ mccabe==0.5.3             # via flake8
 mohawk==0.3.4             # via sigauth
 monotonic==1.5            # via directory-client-core
 more-itertools==4.3.0     # via pytest
+oauthlib==3.0.2           # via requests-oauthlib
 olefile==0.44             # via directory-validators, pillow
 phonenumberslite==7.7.4   # via directory-validators
 pillow==4.2.1
@@ -75,6 +77,7 @@ python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker, freezegun
 pytz==2017.2              # via celery, directory-validators, django
 raven==5.19.0
 redis==2.10.6             # via celery, django-redis
+requests-oauthlib==1.2.0  # via django-staff-sso-client
 requests[security]==2.21.0
 requests_mock==1.1.0
 s3transfer==0.1.13        # via boto3

@@ -85,7 +85,10 @@ DEBUG_SET_ENV_VARS := \
 	export SOLE_TRADER_NUMBER_SEED=32; \
 	export DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC=http://profile.trade.great:8006/; \
 	export DIRECTORY_FORMS_API_BASE_URL=http://forms.trade.great:8011; \
-	export CELERY_TASK_ALWAYS_EAGER=true
+	export CELERY_TASK_ALWAYS_EAGER=true; \
+	export AUTHBROKER_CLIENT_ID=debug; \
+	export AUTHBROKER_CLIENT_SECRET=debug; \
+	export STAFF_SSO_AUTHBROKER_URL=https://www.test.com
 
 
 TEST_SET_ENV_VARS := \

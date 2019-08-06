@@ -105,10 +105,7 @@ class CompanyAdminAuthTestCase(TestCase):
         url = reverse('admin:company_company_publish')
 
         response = self.client.get(url)
-
-        assert response.status_code == http.client.FOUND
-        assert response.url == '/admin/login/?next={redirect_to}'.format(
-            redirect_to=url)
+        assert response.status_code == 401
 
     def test_nonsuperuser_cannot_access_company_publish_view_post(self):
         company = CompanyFactory()
@@ -121,9 +118,7 @@ class CompanyAdminAuthTestCase(TestCase):
         response = self.client.post(
             url, {'company_numbers': company.number})
 
-        assert response.status_code == http.client.FOUND
-        assert response.url == '/admin/login/?next={redirect_to}'.format(
-            redirect_to=url)
+        assert response.status_code == 401
 
     def test_guest_cannot_access_company_publish_view_get(self):
         url = reverse('admin:company_company_publish')
