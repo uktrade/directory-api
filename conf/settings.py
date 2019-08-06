@@ -1,5 +1,6 @@
 import os
 
+from django.urls import reverse_lazy
 import dj_database_url
 import environ
 from elasticsearch import RequestsHttpConnection
@@ -10,6 +11,7 @@ import directory_healthcheck.backends
 
 
 env = environ.Env()
+env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
-    'superuser',
+    'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
@@ -55,11 +57,13 @@ INSTALLED_APPS = [
     'directory_healthcheck',
     'health_check.db',
     'health_check.cache',
-    'testapi'
+    'testapi',
+    'authbroker_client',
 ]
 
 MIDDLEWARE_CLASSES = [
     'core.middleware.SignatureCheckMiddleware',
+    'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -164,6 +168,22 @@ STATICFILES_DIRS = (
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
+
+# SSO config
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', False)
+if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'authbroker_client.backends.AuthbrokerBackend'
+    ]
+
+    LOGIN_URL = reverse_lazy('authbroker_client:login')
+    LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
+
+    # authbroker config
+AUTHBROKER_URL = env.str('STAFF_SSO_AUTHBROKER_URL')
+AUTHBROKER_CLIENT_ID = env.str('AUTHBROKER_CLIENT_ID')
+AUTHBROKER_CLIENT_SECRET = env.str('AUTHBROKER_CLIENT_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
@@ -330,13 +350,9 @@ STORAGE_CLASSES = {
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
-AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
-AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
-AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', 'eu-west-1')
 AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
 # Needed for new AWS regions
 # https://github.com/jschneier/django-storages/issues/203
@@ -345,6 +361,21 @@ AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
+if 'aws-s3-bucket' in VCAP_SERVICES:
+    credentials = VCAP_SERVICES['aws-s3-bucket'][0]['credentials']
+    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
+    AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
+    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
+    AWS_S3_REGION_NAME = credentials['aws_region']
+    AWS_S3_ENCRYPTION = True
+    AWS_DEFAULT_ACL = None
+else:
+    AWS_S3_ENCRYPTION = False
+    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
+    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+    AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
+    AWS_DEFAULT_ACL = 'public-read'
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -360,6 +391,26 @@ STANNP_API_KEY = env.str('STANNP_API_KEY', '')
 STANNP_TEST_MODE = env.bool('STANNP_TEST_MODE', True)
 STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
     'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
+)
+
+# directory forms api client
+DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
+DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
+DIRECTORY_FORMS_API_SENDER_ID = env.str('DIRECTORY_FORMS_API_SENDER_ID')
+DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.int(
+    'DIRECTORY_API_FORMS_DEFAULT_TIMEOUT', 5
+)
+
+# Verification letters sent with govnotify
+GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID',
+    '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
+)
+
+# Registration letters template id
+GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
+    '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
 )
 
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
@@ -569,6 +620,13 @@ FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
 )
 FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
     'FEATURE_VERIFICATION_LETTERS_ENABLED', False
+)
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool(
+    'FEATURE_REGISTRATION_LETTERS_ENABLED', False
+)
+# If enabled sends via govenotify else uses stannp
+FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = env.bool(
+    'FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED', False
 )
 FEATURE_MANUAL_PUBLISH_ENABLED = env.bool(
     'FEATURE_MANUAL_PUBLISH_ENABLED', False

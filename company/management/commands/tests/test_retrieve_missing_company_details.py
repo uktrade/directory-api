@@ -1,10 +1,12 @@
 import datetime
 from unittest.mock import patch
 
+from directory_constants import company_types
 import pytest
+
 from django.core.management import call_command
 
-from company import models, helpers
+from company import helpers
 from company.tests.factories import CompanyFactory
 
 
@@ -98,7 +100,7 @@ def test_retrieve_missing_company_404_case(mock_get_companies_house_profile):
 @patch.object(helpers, 'get_companies_house_profile')
 def test_ignores_sole_traders(mock_get_companies_house_profile):
     company_one = CompanyFactory(date_of_creation=None, number=123)
-    company_two = CompanyFactory(company_type=models.Company.SOLE_TRADER)
+    company_two = CompanyFactory(company_type=company_types.SOLE_TRADER)
 
     mock_get_companies_house_profile.return_value = {
         'date_of_creation': '2016-12-16'

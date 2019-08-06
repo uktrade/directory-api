@@ -31,7 +31,7 @@ class StannpBackend(BaseHealthCheckBackend):
                 )
             else:
                 balance = decimal.Decimal(response.json()['data']['balance'])
-                if balance < 50:
+                if balance < 10:
                     raise ServiceReturnedUnexpectedResult(
                         f'Balance is {balance}. Top up soon.'
                     )

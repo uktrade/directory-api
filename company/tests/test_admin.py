@@ -2,6 +2,7 @@ import http
 import os
 from unittest import TestCase
 
+from directory_constants import company_types
 from freezegun import freeze_time
 import pytest
 
@@ -104,10 +105,7 @@ class CompanyAdminAuthTestCase(TestCase):
         url = reverse('admin:company_company_publish')
 
         response = self.client.get(url)
-
-        assert response.status_code == http.client.FOUND
-        assert response.url == '/admin/login/?next={redirect_to}'.format(
-            redirect_to=url)
+        assert response.status_code == 401
 
     def test_nonsuperuser_cannot_access_company_publish_view_post(self):
         company = CompanyFactory()
@@ -120,9 +118,7 @@ class CompanyAdminAuthTestCase(TestCase):
         response = self.client.post(
             url, {'company_numbers': company.number})
 
-        assert response.status_code == http.client.FOUND
-        assert response.url == '/admin/login/?next={redirect_to}'.format(
-            redirect_to=url)
+        assert response.status_code == 401
 
     def test_guest_cannot_access_company_publish_view_get(self):
         url = reverse('admin:company_company_publish')
@@ -295,6 +291,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[3] == row_three
 
     def test_create_companies_form_success(self):
+
         file_path = os.path.join(
             settings.BASE_DIR,
             'company/tests/fixtures/valid-companies-upload.csv'
@@ -326,7 +323,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_one.linkedin_url == (
             'https://www.linkedin.com/company/one'
         )
-        assert company_one.company_type == Company.COMPANIES_HOUSE
+        assert company_one.company_type == company_types.COMPANIES_HOUSE
         assert company_one.is_uk_isd_company is True
 
         assert company_two.name == 'Example Associates Ltd'
@@ -342,7 +339,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert company_two.linkedin_url == (
             'https://www.linkedin.com/company/two'
         )
-        assert company_two.company_type == Company.SOLE_TRADER
+        assert company_two.company_type == company_types.SOLE_TRADER
         assert company_two.is_uk_isd_company is True
 
         pre_verified_queryset = PreVerifiedEnrolment.objects.all()
