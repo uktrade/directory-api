@@ -62,10 +62,7 @@ class User(TimeStampedModel):
 
     @property
     def is_company_owner(self):
-        if self.role == user_roles.ADMIN:
-            return True
-        else:
-            return False
+        return self.role == user_roles.ADMIN
 
     class Meta:
         ordering = ('-created', '-modified')
