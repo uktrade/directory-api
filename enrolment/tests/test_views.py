@@ -54,7 +54,7 @@ def test_enrolment_viewset_create():
     assert supplier.company == company
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
-    assert supplier.role is user_roles.EDITOR
+    assert supplier.role == user_roles.ADMIN
 
 
 @pytest.mark.django_db
@@ -256,7 +256,7 @@ def test_preverified_claim_company_succcess(authed_client):
     supplier = Supplier.objects.first()
     assert supplier.name == 'Foo bar'
     assert supplier.company == company
-    assert supplier.role is user_roles.ADMIN
+    assert supplier.role == user_roles.ADMIN
 
 
 @pytest.mark.django_db

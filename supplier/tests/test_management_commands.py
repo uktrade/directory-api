@@ -4,6 +4,7 @@ import pytest
 from django.conf import settings
 from django.core.management import call_command
 
+from directory_constants import user_roles
 from supplier.tests.factories import SupplierFactory
 
 
@@ -18,7 +19,7 @@ def test_upload_suppliers_csv_to_s3(mocked_upload_file_object_to_s3):
         name='foobar',
         company_email='foobar@example.com',
         company=None,
-        is_company_owner=True,
+        role=user_roles.ADMIN,
     )
     call_command('generate_suppliers_csv_dump')
     assert mocked_upload_file_object_to_s3.called

@@ -238,11 +238,11 @@ def test_company_collaborators_profile_owner(
 
     supplier_one = factories.SupplierFactory(
         company=authed_supplier.company,
-        role=user_roles.MEMBER,
+        role=user_roles.EDITOR,
     )
     supplier_two = factories.SupplierFactory(
         company=authed_supplier.company,
-        role=user_roles.MEMBER,
+        role=user_roles.EDITOR,
     )
     factories.SupplierFactory()
 

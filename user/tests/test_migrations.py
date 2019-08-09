@@ -1,6 +1,5 @@
 import pytest
 
-from user.tests import factories
 from directory_constants import user_roles
 
 
@@ -10,8 +9,8 @@ def test_populate_user_roles(migration):
     old_apps = migration.before([('user', '0012_user_role')])
     User = old_apps.get_model('user', 'User')
 
-    user_owner = factories.UserFactory()
-    user_non_owner = factories.UserFactory(is_company_owner=False)
+    user_owner = User.objects.create(sso_id=1, is_company_owner=True, company_email='1test')
+    user_non_owner = User.objects.create(sso_id=2, is_company_owner=False, company_email='2test')
 
     new_apps = migration.apply('user', '0013_auto_20190809_1146')
 

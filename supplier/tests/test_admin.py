@@ -111,14 +111,15 @@ class DownloadCSVTestCase(TestCase):
             ('company_email', 'gargoyle@example.com'),
             ('date_joined', '2017-03-21 13:12:00+00:00'),
             ('is_active', 'True'),
-            ('is_company_owner', 'False'),
             ('mobile_number', ''),
             ('name', ''),
+            ('role', 'EDITOR'),
             ('sso_id', '1'),
             ('unsubscribed', 'False'),
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
-
+        import pdb
+        pdb.set_trace()
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 
@@ -198,9 +199,9 @@ class DownloadCSVTestCase(TestCase):
             ('company_email', 'gargoyle@example.com'),
             ('date_joined', '2017-03-21 13:12:00+00:00'),
             ('is_active', 'True'),
-            ('is_company_owner', 'False'),
             ('mobile_number', ''),
             ('name', ''),
+            ('role', 'EDITOR'),
             ('sso_id', '1'),
             ('unsubscribed', 'False'),
         ])
@@ -284,9 +285,9 @@ class DownloadCSVTestCase(TestCase):
             ('company_email', 'gargoyle@example.com'),
             ('date_joined', '2017-03-21 13:12:00+00:00'),
             ('is_active', 'True'),
-            ('is_company_owner', 'False'),
             ('mobile_number', ''),
             ('name', ''),
+            ('role', 'EDITOR'),
             ('sso_id', '1'),
             ('unsubscribed', 'False'),
         ])
@@ -348,9 +349,9 @@ class DownloadCSVTestCase(TestCase):
             ('company_email', '2@example.com'),
             ('date_joined', '2017-03-21 13:12:00+00:00'),
             ('is_active', 'True'),
-            ('is_company_owner', 'False'),
             ('mobile_number', ''),
             ('name', ''),
+            ('role', 'EDITOR'),
             ('sso_id', '2'),
             ('unsubscribed', 'False'),
         ])

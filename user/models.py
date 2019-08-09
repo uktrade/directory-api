@@ -57,7 +57,7 @@ class User(TimeStampedModel):
     role = models.CharField(
         max_length=15,
         choices=choices.USER_ROLES,
-        default=user_roles.MEMBER,
+        default=user_roles.ADMIN,
     )
 
     @property

@@ -57,15 +57,12 @@ class Supplier(TimeStampedModel):
     role = models.CharField(
         max_length=15,
         choices=choices.USER_ROLES,
-        default=user_roles.MEMBER,
+        default=user_roles.EDITOR,
     )
 
     @property
     def is_company_owner(self):
-        if self.role == user_roles.ADMIN:
-            return True
-        else:
-            return False
+        return self.role == user_roles.ADMIN
 
     class Meta:
         ordering = ('-created', '-modified')

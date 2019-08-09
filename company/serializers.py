@@ -373,7 +373,7 @@ class CollaboratorInviteSerializer(
             company_email=instance.collaborator_email,
             defaults={
                 'company': instance.company,
-                'role': user_roles.EDITOR,
+                'role': user_roles.ADMIN,
             }
         )
 

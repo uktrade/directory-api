@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
                 user.role = user_roles.ADMIN
             else:
                 user.role = user_roles.EDITOR
-                user.save()
+            user.save()
 
     dependencies = [
         ('user', '0012_user_role'),

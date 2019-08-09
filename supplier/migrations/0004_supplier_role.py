@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='supplier',
             name='role',
-            field=models.CharField(choices=[('ADMIN', 'Admin'), ('EDITOR', 'Editor'), ('MEMBER', 'Member')], default='MEMBER', max_length=15),
+            field=models.CharField(choices=[('ADMIN', 'Admin'), ('EDITOR', 'Editor'), ('MEMBER', 'Member')], default='EDITOR', max_length=15),
         ),
     ]

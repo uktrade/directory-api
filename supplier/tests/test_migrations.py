@@ -1,6 +1,5 @@
 import pytest
 
-from supplier.tests import factories
 from directory_constants import user_roles
 
 
@@ -10,8 +9,8 @@ def test_populate_supplier_roles(migration):
     old_apps = migration.before([('supplier', '0004_supplier_role')])
     Supplier = old_apps.get_model('supplier', 'Supplier')
 
-    supplier_owner = factories.SupplierFactory(role=user_roles.ADMIN)
-    supplier_non_owner = factories.SupplierFactory(role=user_roles.EDITOR)
+    supplier_owner = Supplier.objects.create(sso_id=1, is_company_owner=True, company_email='1test')
+    supplier_non_owner = Supplier.objects.create(sso_id=2, is_company_owner=False, company_email='2test')
 
     new_apps = migration.apply('supplier', '0005_auto_20190807_1237')
 

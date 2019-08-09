@@ -12,7 +12,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     company_email = factory.LazyAttribute(
         lambda supplier: '%s@example.com' % supplier.name)
     company = factory.SubFactory(CompanyFactory)
-    role = user_roles.MEMBER
+    role = user_roles.ADMIN
 
     class Meta:
         model = User

@@ -2016,6 +2016,7 @@ def test_create_transfer_ownership_invite(authed_client, authed_supplier):
     url = reverse('transfer-ownership-invite')
 
     response = authed_client.post(url, data=data)
+
     assert response.status_code == status.HTTP_201_CREATED
     invite = models.OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
@@ -2172,7 +2173,7 @@ def test_accept_transfer_ownership_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        role=user_roles.ADMIN,
+        role=user_roles.EDITOR,
         company_email=invite.new_owner_email
     ).count() == 1
 
@@ -2210,7 +2211,7 @@ def test_accept_transfer_ownership_invite_case_insensitive(
     assert Supplier.objects.filter(
         company=supplier.company,
         company_email=invite.new_owner_email,
-        role=user_roles.ADMIN,
+        role=user_roles.EDITOR,
     ).count() == 1
 
 
@@ -2450,10 +2451,11 @@ def test_accept_collaborator_invite_case_insensitive(
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is False
+    assert supplier.is_company_owner is True
+    assert supplier.role == user_roles.ADMIN
     assert Supplier.objects.filter(
         company=supplier.company,
-        role=user_roles.MEMBER,
+        role=user_roles.ADMIN,
         company_email=invite.collaborator_email
     ).count() == 1
 
