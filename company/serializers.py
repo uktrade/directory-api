@@ -120,6 +120,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'is_publishable',
             'is_published_investment_support_directory',
             'is_published_find_a_supplier',
+            'is_registration_letter_sent',
             'is_verification_letter_sent',
             'keywords',
             'linkedin_url',

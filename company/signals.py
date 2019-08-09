@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.utils import timezone
 
+from directory_constants import company_types
+
 from company.email import CollaboratorNotification, OwnershipChangeNotification
-from company.utils import send_verification_letter
+from company.utils import send_verification_letter, send_registration_letter
 from company import documents
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
@@ -16,7 +18,24 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         instance.has_valid_address(),
     ])
     if should_send_letter:
-        send_verification_letter(company=instance)
+        send_verification_letter(
+            company=instance,
+            form_url='send_first_verification_letter',
+        )
+
+
+def send_company_claimed_letter(sender, instance, *args, **kwargs):
+    should_send_letter = all([
+        settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
+        not instance.is_registration_letter_sent,
+        instance.company_type == company_types.COMPANIES_HOUSE,
+        bool(instance.address_line_1 and instance.postal_code),
+    ])
+    if should_send_letter:
+        send_registration_letter(
+            company=instance,
+            form_url='send_company_claimed_letter_automatically_sent',
+        )
 
 
 def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
@@ -70,7 +89,10 @@ def send_account_collaborator_notification(
 
 
 def set_sole_trader_number(sender, instance, *args, **kwargs):
-    if instance._state.adding and instance.company_type == sender.SOLE_TRADER:
+    if (
+        instance._state.adding
+        and instance.company_type == company_types.SOLE_TRADER
+    ):
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url

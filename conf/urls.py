@@ -4,6 +4,8 @@ import django
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.urls import reverse_lazy
+from django.views.generic import RedirectView
 
 import activitystream.views
 import buyer.views
@@ -256,3 +258,16 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             name='media'
         ),
     ]
+
+
+if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
+    authbroker_urls = [
+        url(
+            r'^admin/login/$',
+            RedirectView.as_view(url=reverse_lazy('authbroker_client:login'),
+                                 query_string=True, )
+        ),
+        url('^auth/', include('authbroker_client.urls')),
+    ]
+
+    urlpatterns = [url('^', include(authbroker_urls))] + urlpatterns

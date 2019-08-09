@@ -7,7 +7,7 @@ test_requirements:
 
 DJANGO_MIGRATE := python manage.py distributed_migrate --noinput
 DJANGO_MIGRATE_ELASTICSEARCH := python manage.py distributed_elasticsearch_migrate
-FLAKE8 := flake8 . --exclude=migrations,.venv
+FLAKE8 := flake8 . --exclude=migrations,.venv --max-line-length=120
 PYTEST := pytest . --cov=. --cov-report html --capture=no -vv --cov-config=.coveragerc $(pytest_args)
 COLLECT_STATIC := python manage.py collectstatic --noinput
 CODECOV := \
@@ -46,7 +46,6 @@ DEBUG_SET_ENV_VARS := \
 	export COMPANY_EMAIL_CONFIRMATION_URL=debug; \
 	export COMPANY_EMAIL_CONFIRMATION_FROM=debug; \
 	export COMPANY_EMAIL_CONFIRMATION_SUBJECT=debug; \
-	export COMPANIES_HOUSE_API_KEY=debug; \
 	export AWS_STORAGE_BUCKET_NAME=debug; \
 	export SESSION_COOKIE_DOMAIN=.trade.great; \
 	export CSRF_COOKIE_SECURE=false; \
@@ -85,11 +84,18 @@ DEBUG_SET_ENV_VARS := \
 	export IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER=ipware; \
 	export SOLE_TRADER_NUMBER_SEED=32; \
 	export DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC=http://profile.trade.great:8006/; \
-	export CELERY_TASK_ALWAYS_EAGER=true
+	export DIRECTORY_FORMS_API_BASE_URL=http://forms.trade.great:8011; \
+	export CELERY_TASK_ALWAYS_EAGER=true; \
+	export AUTHBROKER_CLIENT_ID=debug; \
+	export AUTHBROKER_CLIENT_SECRET=debug; \
+	export STAFF_SSO_AUTHBROKER_URL=https://www.test.com
 
 
 TEST_SET_ENV_VARS := \
-	export ACTIVITY_STREAM_IP_WHITELIST=1.2.3.4,2.3.4.5
+	export ACTIVITY_STREAM_IP_WHITELIST=1.2.3.4,2.3.4.5; \
+	export COMPANIES_HOUSE_API_KEY=debug; \
+	export DIRECTORY_FORMS_API_API_KEY=debug; \
+	export DIRECTORY_FORMS_API_SENDER_ID=debug_key
 
 
 debug_webserver:
