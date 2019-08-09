@@ -118,8 +118,7 @@ class DownloadCSVTestCase(TestCase):
             ('unsubscribed', 'False'),
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
-        import pdb
-        pdb.set_trace()
+
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 

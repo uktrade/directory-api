@@ -2070,10 +2070,10 @@ def test_remove_collaborators(authed_client, authed_supplier):
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
-    supplier_one = SupplierFactory(company=authed_supplier.company)
-    supplier_two = SupplierFactory(company=authed_supplier.company)
-    supplier_three = SupplierFactory(company=authed_supplier.company)
-    supplier_four = SupplierFactory()
+    supplier_one = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_two = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_three = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_four = SupplierFactory(role=user_roles.EDITOR)
 
     suppliers_before = authed_supplier.company.suppliers.all()
     assert supplier_one in suppliers_before
@@ -2150,7 +2150,7 @@ def test_accept_transfer_ownership_invite(
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
@@ -2173,7 +2173,7 @@ def test_accept_transfer_ownership_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        role=user_roles.EDITOR,
+        role=user_roles.ADMIN,
         company_email=invite.new_owner_email
     ).count() == 1
 
@@ -2187,7 +2187,7 @@ def test_accept_transfer_ownership_invite_case_insensitive(
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email.upper(),
@@ -2211,7 +2211,7 @@ def test_accept_transfer_ownership_invite_case_insensitive(
     assert Supplier.objects.filter(
         company=supplier.company,
         company_email=invite.new_owner_email,
-        role=user_roles.EDITOR,
+        role=user_roles.ADMIN,
     ).count() == 1
 
 
@@ -2399,7 +2399,7 @@ def test_accept_collaborator_invite(
 ):
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email,
@@ -2433,7 +2433,7 @@ def test_accept_collaborator_invite_case_insensitive(
 ):
     authed_supplier.delete()
 
-    supplier = SupplierFactory()
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email.upper(),
@@ -2451,11 +2451,11 @@ def test_accept_collaborator_invite_case_insensitive(
     expected_date = '2016-11-23T11:21:10.977518+00:00'
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is True
-    assert supplier.role == user_roles.ADMIN
+    assert supplier.is_company_owner is False
+    assert supplier.role == user_roles.EDITOR
     assert Supplier.objects.filter(
         company=supplier.company,
-        role=user_roles.ADMIN,
+        role=user_roles.EDITOR,
         company_email=invite.collaborator_email
     ).count() == 1
 
@@ -2562,7 +2562,7 @@ def test_accept_collaborator_invite_requestor_not_legit(
 def test_multi_user_account_management_views_forbidden(
     url, authed_client, authed_supplier
 ):
-    authed_supplier.role = user_roles.MEMBER
+    authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
     response = authed_client.post(url, {})

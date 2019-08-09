@@ -219,7 +219,7 @@ def test_company_collaborators_anon_users():
 def test_company_collaborators_not_profile_owner(
     authed_supplier, authed_client
 ):
-    authed_supplier.role = user_roles.MEMBER
+    authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
     url = reverse('supplier-company-collaborators-list')
