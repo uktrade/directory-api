@@ -18,6 +18,5 @@ class SupplierFactory(factory.django.DjangoModelFactory):
     company = factory.SubFactory(CompanyFactory)
     role = user_roles.ADMIN
 
-
     class Meta:
         model = Supplier
