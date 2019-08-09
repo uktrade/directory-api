@@ -10,8 +10,8 @@ def test_populate_supplier_roles(migration):
     old_apps = migration.before([('supplier', '0004_supplier_role')])
     Supplier = old_apps.get_model('supplier', 'Supplier')
 
-    supplier_owner = factories.SupplierFactory()
-    supplier_non_owner = factories.SupplierFactory(is_company_owner=False)
+    supplier_owner = factories.SupplierFactory(role=user_roles.ADMIN)
+    supplier_non_owner = factories.SupplierFactory(role=user_roles.EDITOR)
 
     new_apps = migration.apply('supplier', '0005_auto_20190807_1237')
 

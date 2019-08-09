@@ -8,9 +8,9 @@ from directory_constants import user_roles
 def test_populate_user_roles(migration):
 
     old_apps = migration.before([('user', '0012_user_role')])
-    Supplier = old_apps.get_model('user', 'User')
+    User = old_apps.get_model('user', 'User')
 
-    user_owner = factories.UserFactory
+    user_owner = factories.UserFactory()
     user_non_owner = factories.UserFactory(is_company_owner=False)
 
     new_apps = migration.apply('user', '0013_auto_20190809_1146')

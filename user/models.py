@@ -53,14 +53,19 @@ class User(TimeStampedModel):
             'Designates whether this user should receive notifications'
         ),
     )
-    role = user_roles.MEMBER
-
 
     role = models.CharField(
         max_length=15,
         choices=choices.USER_ROLES,
         default=user_roles.MEMBER,
     )
+
+    @property
+    def is_company_owner(self):
+        if self.role == user_roles.ADMIN:
+            return True
+        else:
+            return False
 
     class Meta:
         ordering = ('-created', '-modified')

@@ -2014,8 +2014,7 @@ def test_create_transfer_ownership_invite(authed_client, authed_supplier):
 
     data = {'new_owner_email': 'foo@bar.com'}
     url = reverse('transfer-ownership-invite')
-    import pdb
-    pdb.set_trace()
+
     response = authed_client.post(url, data=data)
     assert response.status_code == status.HTTP_201_CREATED
     invite = models.OwnershipInvite.objects.get(

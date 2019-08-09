@@ -233,8 +233,6 @@ def test_company_collaborators_not_profile_owner(
 def test_company_collaborators_profile_owner(
     authed_supplier, authed_client
 ):
-    import pdb
-    pdb.set_trace()
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 

@@ -333,8 +333,6 @@ class OwnershipInviteSerializer(
         }
 
     def update_or_create_supplier(self, instance):
-        import pdb
-        pdb.set_trace()
         Supplier.objects.update_or_create(
             sso_id=self.context['request'].user.id,
             company_email=instance.new_owner_email,
