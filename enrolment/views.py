@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from directory_constants import user_roles
 
 from django.core import signing
 from django.db import transaction
@@ -31,7 +32,7 @@ class EnrolmentCreateAPIView(APIView):
             data={'company': company.id, **request.data}
         )
         supplier_serializer.is_valid(raise_exception=True)
-        supplier_serializer.validated_data['is_company_owner'] = True
+        supplier_serializer.validated_data['role'] = user_roles.ADMIN
         supplier_serializer.save()
 
         return Response(status=status.HTTP_201_CREATED)

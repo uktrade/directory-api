@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from core.helpers import TimeStampedModel
 from company.models import Company
 
+from directory_constants import choices, user_roles
+
 
 class Supplier(TimeStampedModel):
     sso_id = models.PositiveIntegerField(
@@ -51,7 +53,19 @@ class Supplier(TimeStampedModel):
             'Designates whether this user should receive notifications'
         ),
     )
-    is_company_owner = models.BooleanField(default=False)
+
+    role = models.CharField(
+        max_length=15,
+        choices=choices.USER_ROLES,
+        default=user_roles.MEMBER,
+    )
+
+    @property
+    def is_company_owner(self):
+        if self.role == user_roles.ADMIN:
+            return True
+        else:
+            return False
 
     class Meta:
         ordering = ('-created', '-modified')

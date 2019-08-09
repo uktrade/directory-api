@@ -382,7 +382,6 @@ class CompanyCaseStudy(TimeStampedModel):
 
 
 class OwnershipInvite(TimeStampedModel):
-
     uuid = models.UUIDField(default=uuid.uuid4)
     new_owner_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)

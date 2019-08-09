@@ -4,7 +4,6 @@ from django.utils.text import slugify
 from supplier.models import Supplier
 from company.tests.factories import CompanyFactory
 
-
 class SupplierFactory(factory.django.DjangoModelFactory):
     sso_id = factory.Iterator(range(99999999))
     name = factory.Faker('name', locale='en_GB')
@@ -15,7 +14,6 @@ class SupplierFactory(factory.django.DjangoModelFactory):
 
     company = factory.SubFactory(CompanyFactory)
 
-    is_company_owner = True
 
     class Meta:
         model = Supplier

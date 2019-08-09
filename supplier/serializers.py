@@ -29,9 +29,10 @@ class ExternalSupplierSerializer(serializers.ModelSerializer):
             'profile_url',
             'sso_id',
             'is_company_owner',
+            'role',
         )
         extra_kwargs = {
-            'is_company_owner': {'read_only': True},
+            'role': {'read_only': True},
         }
 
     def get_profile_url(self, obj):
@@ -52,5 +53,5 @@ class SupplierSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'sso_id': {'required': True},
             'company': {'required': False},
-            'is_company_owner': {'read_only': True},
+            'role': {'read_only': True},
         }

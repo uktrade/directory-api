@@ -14,6 +14,7 @@ from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 from supplier.models import Supplier
 from supplier.tests.factories import SupplierFactory
+from directory_constants import user_roles
 
 
 @pytest.mark.django_db
@@ -53,7 +54,7 @@ def test_enrolment_viewset_create():
     assert supplier.company == company
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
-    assert supplier.is_company_owner is True
+    assert supplier.role is user_roles.EDITOR
 
 
 @pytest.mark.django_db
@@ -255,7 +256,7 @@ def test_preverified_claim_company_succcess(authed_client):
     supplier = Supplier.objects.first()
     assert supplier.name == 'Foo bar'
     assert supplier.company == company
-    assert supplier.is_company_owner is True
+    assert supplier.role is user_roles.ADMIN
 
 
 @pytest.mark.django_db
