@@ -1,6 +1,5 @@
 import factory
 import factory.fuzzy
-from directory_constants import user_roles
 
 from user.models import User
 from company.tests.factories import CompanyFactory
@@ -12,7 +11,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     company_email = factory.LazyAttribute(
         lambda supplier: '%s@example.com' % supplier.name)
     company = factory.SubFactory(CompanyFactory)
-    role = user_roles.ADMIN
+    is_company_owner = True
 
     class Meta:
         model = User

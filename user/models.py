@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from core.helpers import TimeStampedModel
 from company.models import Company
-from directory_constants import choices, user_roles
 
 
 class User(TimeStampedModel):
@@ -53,16 +52,7 @@ class User(TimeStampedModel):
             'Designates whether this user should receive notifications'
         ),
     )
-
-    role = models.CharField(
-        max_length=15,
-        choices=choices.USER_ROLES,
-        default=user_roles.ADMIN,
-    )
-
-    @property
-    def is_company_owner(self):
-        return self.role == user_roles.ADMIN
+    is_company_owner = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-created', '-modified')
