@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
-from directory_constants import choices
+from directory_constants import choices, user_roles
 
 from django.conf import settings
 from django.http import QueryDict
@@ -338,7 +338,7 @@ class OwnershipInviteSerializer(
             company_email=instance.new_owner_email,
             defaults={
                 'company': instance.company,
-                'is_company_owner': True,
+                'role': user_roles.ADMIN,
             }
         )
 
@@ -373,7 +373,7 @@ class CollaboratorInviteSerializer(
             company_email=instance.collaborator_email,
             defaults={
                 'company': instance.company,
-                'is_company_owner': False,
+                'role': user_roles.EDITOR,
             }
         )
 

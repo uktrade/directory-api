@@ -14,6 +14,7 @@ from supplier.models import Supplier
 from supplier import serializers
 from supplier.helpers import SSOUser
 from supplier.tests import factories, VALID_REQUEST_DATA
+from directory_constants import user_roles
 
 
 @pytest.fixture
@@ -218,7 +219,7 @@ def test_company_collaborators_anon_users():
 def test_company_collaborators_not_profile_owner(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = False
+    authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
     url = reverse('supplier-company-collaborators-list')
@@ -232,16 +233,16 @@ def test_company_collaborators_not_profile_owner(
 def test_company_collaborators_profile_owner(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = True
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
     supplier_one = factories.SupplierFactory(
         company=authed_supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
     )
     supplier_two = factories.SupplierFactory(
         company=authed_supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
     )
     factories.SupplierFactory()
 
@@ -260,7 +261,7 @@ def test_company_collaborators_profile_owner(
 def test_company_collaborators_profile_owner_no_collaborators(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = True
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
     url = reverse('supplier-company-collaborators-list')
