@@ -2,6 +2,12 @@
 
 ## Pre release
 
+### Fixed bugs
+- No ticket - Upgrade django to 1.11.23 to fix vulnerability
+
+## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)
+
 ### Implemented enhancements
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
