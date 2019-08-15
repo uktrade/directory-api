@@ -104,6 +104,11 @@ urlpatterns = [
         name='company-verify-companies-house'
     ),
     url(
+        r'^supplier/company/verify/identity/$',
+        company.views.RequestVerificationWithIdentificationView.as_view(),
+        name='company-verify-identity'
+    ),
+    url(
         r'^supplier/company/case-study/$',
         company.views.CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
