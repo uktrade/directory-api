@@ -297,7 +297,7 @@ def extract_recipient_address_gov_notify(company):
 def send_request_identity_verification_message(supplier):
     action = actions.ZendeskAction(
         subject=REQUEST_IDENTITY_VERIFICATION_SUBJECT,
-        full_name=supplier.name,
+        full_name=supplier.name or 'No name',
         email_address=supplier.company_email,
         service_name=settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME,
         form_url='request-identity-verification',
