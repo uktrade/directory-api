@@ -98,3 +98,4 @@ Temporary Items
 .venv
 staticfiles
 media
+conf/.env

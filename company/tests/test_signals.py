@@ -1,17 +1,15 @@
 import datetime
 from unittest import mock
 
+from directory_constants import company_types
 import elasticsearch
 from freezegun import freeze_time
 import pytest
 
 from django.utils import timezone
 
-from company.models import Company
-from company.documents import CompanyDocument
+from company import documents, models
 from company.tests import factories
-
-from directory_constants import company_types
 
 
 @pytest.fixture(autouse=False)
@@ -54,7 +52,7 @@ def test_sends_verification_letter_stannp_post_save(settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_registration_letter')
+@mock.patch('company.helpers.send_registration_letter')
 def test_sends_registration_letter_post_save(
         mock_utils_send_registration_letter, settings
 ):
@@ -84,7 +82,7 @@ def test_sends_registration_letter_post_save(
         [True,  True,  company_types.COMPANIES_HOUSE, 'addr', ''],
     ]
 )
-@mock.patch('company.signals.send_registration_letter')
+@mock.patch('company.helpers.send_registration_letter')
 @pytest.mark.django_db
 def test_does_not_send_registration_letter_conditions(
         mock_utils_send_registration_letter,
@@ -152,7 +150,7 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_verification_letter')
+@mock.patch('company.helpers.send_verification_letter')
 def test_does_not_send_verification_if_letter_already_sent(
         mock_send_letter,
         settings
@@ -168,7 +166,7 @@ def test_does_not_send_verification_if_letter_already_sent(
 
 @pytest.mark.django_db
 @freeze_time()
-@mock.patch('company.signals.send_verification_letter')
+@mock.patch('company.helpers.send_verification_letter')
 def test_letter_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
     company = factories.CompanyFactory(verification_code='test')
@@ -181,7 +179,7 @@ def test_letter_sent(mock_send_letter, settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_verification_letter')
+@mock.patch('company.helpers.send_verification_letter')
 @mock.patch(
     'company.models.Company.has_valid_address',
     mock.Mock(return_value=False)
@@ -213,7 +211,7 @@ def test_publish(enabled, is_publishable, is_published, expected, settings):
 
     mock_publishable = mock.PropertyMock(return_value=is_publishable)
 
-    with mock.patch.object(Company, 'is_publishable', mock_publishable):
+    with mock.patch.object(models.Company, 'is_publishable', mock_publishable):
         company.save()
     assert company.is_published_find_a_supplier is expected
 
@@ -303,12 +301,12 @@ def test_delete_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -321,7 +319,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -331,13 +329,13 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -350,7 +348,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
@@ -360,31 +358,31 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.OwnershipChangeNotification')
+@mock.patch('company.email.OwnershipChangeNotification')
 def test_account_ownership_transfer_email_notification(mocked_notification):
     factories.OwnershipInviteFactory()
     assert mocked_notification().send_async.called is True
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.CollaboratorNotification')
+@mock.patch('company.email.CollaboratorNotification')
 def test_account_collaborator_email_notification(mocked_notification):
     factories.CollaboratorInviteFactory()
     assert mocked_notification().send_async.called is True
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.CollaboratorNotification')
+@mock.patch('company.email.CollaboratorNotification')
 def test_account_collaborator_email_notification_modified(mocked_notification):
     invite = factories.CollaboratorInviteFactory()
 

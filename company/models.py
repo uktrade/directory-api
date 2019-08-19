@@ -157,14 +157,13 @@ class Company(TimeStampedModel):
     verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
+    verified_with_identity_check = models.BooleanField(default=False)
+    is_identity_check_message_sent = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
     is_registration_letter_sent = models.BooleanField(default=False)
-    date_registration_letter_sent = models.DateTimeField(
-        null=True, blank=True
-    )
-    date_verification_letter_sent = models.DateTimeField(
-        null=True, blank=True
-    )
+    date_registration_letter_sent = models.DateTimeField(null=True, blank=True)
+    date_verification_letter_sent = models.DateTimeField(null=True, blank=True)
+    date_identity_check_message_sent = models.DateTimeField(null=True, blank=True)
     # social links
     twitter_url = models.URLField(
         max_length=255,
