@@ -49,7 +49,8 @@ class SupplierSerializer(serializers.ModelSerializer):
             'date_joined',
             'sso_id',
             'is_company_owner',
-            'role'
+            'role',
+            'name',
         )
         extra_kwargs = {
             'sso_id': {'required': True},
