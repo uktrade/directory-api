@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework import status
-from directory_constants import user_roles
 
 from django.http import Http404
 
@@ -89,10 +88,7 @@ class CompanyCollboratorsListView(ListAPIView):
     serializer_class = serializers.SupplierSerializer
 
     def get_queryset(self):
-        return Supplier.objects.filter(
-            company_id=self.request.user.supplier.company_id,
-            role=user_roles.EDITOR
-        )
+        return Supplier.objects.filter(company_id=self.request.user.supplier.company_id)
 
 
 class SupplierCSVDownloadAPIView(CSVDumpAPIView):

@@ -252,13 +252,13 @@ def test_company_collaborators_profile_owner(
 
     assert response.status_code == 200
     parsed = response.json()
-    supplier_sso_ids = {supplier_one.sso_id, supplier_two.sso_id}
+    supplier_sso_ids = {supplier_one.sso_id, supplier_two.sso_id, authed_supplier.sso_id}
 
     assert {supplier['sso_id'] for supplier in parsed} == supplier_sso_ids
 
 
 @pytest.mark.django_db
-def test_company_collaborators_profile_owner_no_collaborators(
+def test_company_collaborators_profile_owner_collaborators(
     authed_supplier, authed_client
 ):
     authed_supplier.role = user_roles.ADMIN
@@ -269,7 +269,9 @@ def test_company_collaborators_profile_owner_no_collaborators(
     response = authed_client.get(url)
 
     assert response.status_code == 200
-    assert response.json() == []
+    assert response.json() == [
+        serializers.SupplierSerializer(authed_supplier).data
+    ]
 
 
 @pytest.mark.django_db
