@@ -3,7 +3,7 @@ import datetime
 from django.contrib import admin, messages
 from django.http import HttpResponse
 
-from company.utils import send_verification_letter
+from company.helpers import send_verification_letter
 from supplier.helpers import generate_suppliers_csv
 from supplier.models import Supplier
 

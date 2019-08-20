@@ -27,7 +27,6 @@ class EnrolmentCreateAPIView(APIView):
         )
         company_serializer.is_valid(raise_exception=True)
         company = company_serializer.save()
-
         supplier_serializer = self.supplier_serializer_class(
             data={'company': company.id, **request.data}
         )

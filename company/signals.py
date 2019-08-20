@@ -3,9 +3,7 @@ from django.utils import timezone
 
 from directory_constants import company_types
 
-from company.email import CollaboratorNotification, OwnershipChangeNotification
-from company.utils import send_verification_letter, send_registration_letter
-from company import documents
+from company import email, documents, helpers
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -18,7 +16,7 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         instance.has_valid_address(),
     ])
     if should_send_letter:
-        send_verification_letter(
+        helpers.send_verification_letter(
             company=instance,
             form_url='send_first_verification_letter',
         )
@@ -32,7 +30,7 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
         bool(instance.address_line_1 and instance.postal_code),
     ])
     if should_send_letter:
-        send_registration_letter(
+        helpers.send_registration_letter(
             company=instance,
             form_url='send_company_claimed_letter_automatically_sent',
         )
@@ -75,7 +73,7 @@ def send_account_ownership_transfer_notification(
     if not created:
         return
 
-    notification = OwnershipChangeNotification(instance=instance)
+    notification = email.OwnershipChangeNotification(instance=instance)
     notification.send_async()
 
 
@@ -84,7 +82,7 @@ def send_account_collaborator_notification(
 ):
     if not created:
         return
-    notification = CollaboratorNotification(instance=instance)
+    notification = email.CollaboratorNotification(instance=instance)
     notification.send_async()
 
 

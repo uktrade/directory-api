@@ -60,6 +60,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_identity_check_message_sent', ''),
             ('company__date_of_creation', '2010-10-10'),
             ('company__date_published', ''),
             ('company__date_registration_letter_sent', ''),
@@ -81,6 +82,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__id', str(supplier.company.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
+            ('company__is_identity_check_message_sent', 'False'),
             ('company__is_published_find_a_supplier', 'False'),
             ('company__is_published_investment_support_directory', 'False'),
             ('company__is_registration_letter_sent', 'False'),
@@ -106,6 +108,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__twitter_url', ''),
             ('company__verified_with_code', 'False'),
             ('company__verified_with_companies_house_oauth2', 'False'),
+            ('company__verified_with_identity_check', 'False'),
             ('company__verified_with_preverified_enrolment', 'False'),
             ('company__website', 'http://example.com'),
             ('company_email', 'gargoyle@example.com'),
@@ -117,6 +120,7 @@ class DownloadCSVTestCase(TestCase):
             ('sso_id', '1'),
             ('unsubscribed', 'False'),
         ])
+
         actual = str(response.content, 'utf-8').split('\r\n')
 
         assert actual[0] == ','.join(expected_data.keys())
@@ -147,6 +151,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_identity_check_message_sent', ''),
             ('company__date_of_creation', '2010-10-10'),
             ('company__date_published', ''),
             ('company__date_registration_letter_sent', ''),
@@ -168,6 +173,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__id', str(supplier.company.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
+            ('company__is_identity_check_message_sent', 'False'),
             ('company__is_published_find_a_supplier', 'False'),
             ('company__is_published_investment_support_directory', 'False'),
             ('company__is_registration_letter_sent', 'False'),
@@ -193,6 +199,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__twitter_url', ''),
             ('company__verified_with_code', 'False'),
             ('company__verified_with_companies_house_oauth2', 'False'),
+            ('company__verified_with_identity_check', 'False'),
             ('company__verified_with_preverified_enrolment', 'False'),
             ('company__website', 'http://example.com'),
             ('company_email', 'gargoyle@example.com'),
@@ -233,6 +240,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_identity_check_message_sent', ''),
             ('company__date_of_creation', '2010-10-10'),
             ('company__date_published', ''),
             ('company__date_registration_letter_sent', ''),
@@ -254,6 +262,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__id', str(company1.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
+            ('company__is_identity_check_message_sent', 'False'),
             ('company__is_published_find_a_supplier', 'False'),
             ('company__is_published_investment_support_directory', 'False'),
             ('company__is_registration_letter_sent', 'False'),
@@ -279,6 +288,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__twitter_url', ''),
             ('company__verified_with_code', 'False'),
             ('company__verified_with_companies_house_oauth2', 'False'),
+            ('company__verified_with_identity_check', 'False'),
             ('company__verified_with_preverified_enrolment', 'False'),
             ('company__website', 'http://example.com'),
             ('company_email', 'gargoyle@example.com'),
@@ -297,6 +307,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__companies_house_company_status', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
+            ('company__date_identity_check_message_sent', ''),
             ('company__date_of_creation', '2010-10-10'),
             ('company__date_published', ''),
             ('company__date_registration_letter_sent', ''),
@@ -318,6 +329,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__id', str(company2.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
+            ('company__is_identity_check_message_sent', 'False'),
             ('company__is_published_find_a_supplier', 'False'),
             ('company__is_published_investment_support_directory', 'False'),
             ('company__is_registration_letter_sent', 'False'),
@@ -343,6 +355,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__twitter_url', ''),
             ('company__verified_with_code', 'False'),
             ('company__verified_with_companies_house_oauth2', 'False'),
+            ('company__verified_with_identity_check', 'False'),
             ('company__verified_with_preverified_enrolment', 'False'),
             ('company__website', 'http://example.com'),
             ('company_email', '2@example.com'),
@@ -353,6 +366,7 @@ class DownloadCSVTestCase(TestCase):
             ('role', 'EDITOR'),
             ('sso_id', '2'),
             ('unsubscribed', 'False'),
+
         ])
         data = {
             'action': 'download_csv',

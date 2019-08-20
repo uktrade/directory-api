@@ -184,6 +184,6 @@ def mock_elasticsearch_company_save():
 
 @pytest.fixture(autouse=True)
 def elasticsearch_marker(request):
-    if request.node.get_marker('rebuild_elasticsearch'):
+    if request.node.get_closest_marker('rebuild_elasticsearch'):
         # sanitize the companies index before each test that uses it
         call_command('elasticsearch_migrate')

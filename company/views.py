@@ -143,6 +143,13 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
+class RequestVerificationWithIdentificationView(views.APIView):
+
+    def post(self, request, *args, **kwargs):
+        helpers.send_request_identity_verification_message(self.request.user.supplier)
+        return Response()
+
+
 class AbstractSearchAPIView(abc.ABC, views.APIView):
 
     permission_classes = []
