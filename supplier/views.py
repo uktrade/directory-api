@@ -1,6 +1,6 @@
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
@@ -99,3 +99,15 @@ class SupplierCSVDownloadAPIView(CSVDumpAPIView):
     bucket = settings.CSV_DUMP_BUCKET_NAME
     key = settings.SUPPLIERS_CSV_FILE_NAME
     filename = settings.SUPPLIERS_CSV_FILE_NAME
+
+
+class RegisterCollaboratorRequestView(CreateAPIView):
+    serializer_class = serializers.RegisterCollaboratorRequestSerializer
+    permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        data = {'company_email': serializer.instance.company.email_address}
+        return Response(data, status=201)

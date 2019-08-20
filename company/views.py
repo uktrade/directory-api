@@ -254,3 +254,4 @@ class CollaboratorRequestView(generics.CreateAPIView):
         self.perform_create(serializer)
         data = {'company_email': serializer.instance.company.email_address}
         return Response(data, status=201)
+
