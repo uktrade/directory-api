@@ -5,6 +5,7 @@
 ### Implemented enhancements
 - TT-1733 - Added request identity verification feature
 - TT-1733 - Allow name to be provided on supplier create
+- TT-1716 - Allow disconnecting self from company
 
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability

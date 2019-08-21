@@ -1,18 +1,19 @@
-from django.conf import settings
+from directory_constants import user_roles
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
+from rest_framework.views import APIView
 from rest_framework import status
 
+from django.conf import settings
 from django.http import Http404
 
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
-from supplier import gecko, serializers, permissions
-from supplier.models import Supplier
+from supplier import gecko, serializers, models, permissions, views
 from notifications import notifications
 
 
@@ -31,7 +32,7 @@ class SupplierRetrieveExternalAPIView(APIView):
 
 
 class SupplierSSOListExternalAPIView(ListAPIView):
-    queryset = Supplier.objects.all()
+    queryset = models.Supplier.objects.all()
     authentication_classes = []
     permission_classes = []
 
@@ -88,10 +89,31 @@ class CompanyCollboratorsListView(ListAPIView):
     serializer_class = serializers.SupplierSerializer
 
     def get_queryset(self):
-        return Supplier.objects.filter(company_id=self.request.user.supplier.company_id)
+        return models.Supplier.objects.filter(company_id=self.request.user.supplier.company_id)
 
 
 class SupplierCSVDownloadAPIView(CSVDumpAPIView):
     bucket = settings.CSV_DUMP_BUCKET_NAME
     key = settings.SUPPLIERS_CSV_FILE_NAME
     filename = settings.SUPPLIERS_CSV_FILE_NAME
+
+
+class CollaboratorDisconnectView(views.APIView):
+    MESSAGE_ADMIN_NEEDED = 'A business profile must have at least one admin'
+
+    permission_classes = [IsAuthenticatedSSO]
+
+    def get_object(self):
+        return self.request.user.supplier
+
+    def post(self, request, *args, **kwargs):
+        supplier = self.get_object()
+        suppliers = supplier.company.suppliers.all()
+
+        if suppliers.filter(role=user_roles.ADMIN).exclude(pk=supplier.pk).count() == 0:
+            raise ValidationError(self.MESSAGE_ADMIN_NEEDED)
+
+        supplier.company = None
+        supplier.role = user_roles.MEMBER
+        supplier.save()
+        return Response()
