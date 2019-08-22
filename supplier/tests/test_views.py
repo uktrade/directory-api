@@ -9,7 +9,7 @@ from rest_framework.test import APIClient
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from supplier import helpers, models, serializers, views
+from supplier import helpers, models, serializers
 from supplier.tests import factories, VALID_REQUEST_DATA
 
 
@@ -222,7 +222,7 @@ def test_company_collaborators_not_profile_owner(
 
     response = authed_client.get(url)
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -305,7 +305,7 @@ def test_disconnect_supplier_sole_admin(authed_supplier, authed_client):
     response = authed_client.post(url)
 
     assert response.status_code == 400
-    assert response.json() == [views.CollaboratorDisconnectView.MESSAGE_ADMIN_NEEDED]
+    assert response.json() == [helpers.MESSAGE_ADMIN_NEEDED]
 
 
 @pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))

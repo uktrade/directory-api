@@ -8,11 +8,9 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
-from company import (
-    documents, filters, helpers, models, pagination, serializers
-)
+from company import documents, filters, helpers, models, pagination, permissions, serializers
 from core.permissions import IsAuthenticatedSSO
-from supplier.permissions import IsCompanyProfileOwner
+from supplier.helpers import validate_other_admins_connected_to_company
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -202,18 +200,12 @@ class InvestmentSupportDirectorySearchAPIView(AbstractSearchAPIView):
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.CollaboratorInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
 
 class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
 
 class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
@@ -232,10 +224,7 @@ class TransferOwnershipInviteRetrieveUpdateAPIView(
 
 class RemoveCollaboratorsView(views.APIView):
     serializer_class = serializers.RemoveCollaboratorsSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
     def get_queryset(self):
         return self.request.user.supplier.company.suppliers.exclude(
@@ -245,8 +234,8 @@ class RemoveCollaboratorsView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         sso_ids = serializer.validated_data['sso_ids']
+        validate_other_admins_connected_to_company(company=self.request.user.supplier.company, sso_ids=sso_ids)
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
 

@@ -3,7 +3,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 from rest_framework import status
 
@@ -13,7 +12,7 @@ from django.http import Http404
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
-from supplier import gecko, serializers, models, permissions, views
+from supplier import gecko, helpers, models, serializers, views
 from notifications import notifications
 
 
@@ -82,10 +81,7 @@ class UnsubscribeSupplierAPIView(APIView):
 
 
 class CompanyCollboratorsListView(ListAPIView):
-    permission_classes = [
-        IsAuthenticatedSSO,
-        permissions.IsCompanyProfileOwner
-    ]
+    permission_classes = [IsAuthenticatedSSO]
     serializer_class = serializers.SupplierSerializer
 
     def get_queryset(self):
@@ -99,7 +95,6 @@ class SupplierCSVDownloadAPIView(CSVDumpAPIView):
 
 
 class CollaboratorDisconnectView(views.APIView):
-    MESSAGE_ADMIN_NEEDED = 'A business profile must have at least one admin'
 
     permission_classes = [IsAuthenticatedSSO]
 
@@ -108,11 +103,7 @@ class CollaboratorDisconnectView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()
-        suppliers = supplier.company.suppliers.all()
-
-        if suppliers.filter(role=user_roles.ADMIN).exclude(pk=supplier.pk).count() == 0:
-            raise ValidationError(self.MESSAGE_ADMIN_NEEDED)
-
+        helpers.validate_other_admins_connected_to_company(company=supplier.company, sso_ids=[supplier.sso_id])
         supplier.company = None
         supplier.role = user_roles.MEMBER
         supplier.save()

@@ -2105,6 +2105,7 @@ def test_remove_collaborators(authed_client, authed_supplier):
 def test_remove_collaborators_cannot_remove_self(
     authed_client, authed_supplier
 ):
+    SupplierFactory(company=authed_supplier.company, role=user_roles.ADMIN)
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
