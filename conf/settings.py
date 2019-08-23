@@ -600,7 +600,6 @@ DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
 DIRECTORY_HEALTHCHECK_BACKENDS = [
     directory_healthcheck.backends.SingleSignOnBackend,
     healthcheck.backends.ElasticSearchCheckBackend,
-    healthcheck.backends.StannpBackend,
     # health_check.db.backends.DatabaseBackend and
     # health_check.cache.CacheBackend are also registered in
     # INSTALLED_APPS's health_check.db and health_check.cache
