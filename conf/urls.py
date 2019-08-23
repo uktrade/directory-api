@@ -158,7 +158,7 @@ urlpatterns = [
         name='collaborator-request'
     ),
     url(
-        r'^supplier/company/add-new-collaborator/$',
+        r'^supplier/company/add-collaborator/$',
         supplier.views.RegisterCollaboratorRequestView.as_view(),
         name='register-company-collaborator-request'
     ),
