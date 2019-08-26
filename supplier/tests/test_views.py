@@ -15,6 +15,7 @@ from supplier import serializers
 from supplier.helpers import SSOUser
 from supplier.tests import factories, VALID_REQUEST_DATA
 from directory_constants import user_roles
+import datetime
 
 
 @pytest.fixture
@@ -297,3 +298,29 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
             filename=settings.SUPPLIERS_CSV_FILE_NAME
         )
     )
+
+
+@pytest.mark.django_db
+def test_register_collaborator_request_view(
+        authed_supplier, authed_client
+):
+    company = factories.CompanyFactory(
+        name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
+    )
+    authed_supplier.company = company
+    data = {
+        'name': 'Abc',
+        'company': company,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+        'role': user_roles.MEMBER
+    }
+
+    url = reverse('register-company-collaborator-request')
+    response = authed_client.post(
+        url,
+        data=data
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.content == 'company_email: abc@def.com'
