@@ -1,21 +1,18 @@
 import base64
 from unittest.mock import call, patch, Mock
-import http
+
+from directory_constants import user_roles
+import pytest
+import datetime
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-import pytest
-
-from rest_framework import status
-from rest_framework.test import APIClient
-
-from supplier.models import Supplier
-from supplier import serializers
-from supplier.helpers import SSOUser
+from supplier import helpers, models, serializers
 from supplier.tests import factories, VALID_REQUEST_DATA
 from directory_constants import user_roles
-import datetime
 
 
 @pytest.fixture
@@ -64,7 +61,7 @@ def test_supplier_retrieve_no_supplier(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_gecko_num_registered_supplier_view_returns_correct_json():
     client = APIClient()
-    Supplier.objects.create(**VALID_REQUEST_DATA)
+    models.Supplier.objects.create(**VALID_REQUEST_DATA)
     # Use basic auth with user=gecko and pass=X
     encoded_creds = base64.b64encode(
         'gecko:X'.encode('ascii')).decode("ascii")
@@ -112,7 +109,7 @@ def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
 
     authed_supplier.refresh_from_db()
-    assert response.status_code == http.client.OK
+    assert response.status_code == 200
     assert authed_supplier.unsubscribed is True
     assert mock_task.delay.called
 
@@ -134,7 +131,7 @@ def test_unsubscribe_supplier_email_confirmation(
 def test_external_supplier_details_get_bearer_auth(
     mock_authenticate_credentials, client, authed_supplier, settings
 ):
-    sso_user = SSOUser(id=authed_supplier.sso_id, email='test@example.com')
+    sso_user = helpers.SSOUser(id=authed_supplier.sso_id, email='test@example.com')
     mock_authenticate_credentials.return_value = (sso_user, '123')
 
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
@@ -227,7 +224,7 @@ def test_company_collaborators_not_profile_owner(
 
     response = authed_client.get(url)
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -298,6 +295,37 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
             filename=settings.SUPPLIERS_CSV_FILE_NAME
         )
     )
+
+
+def test_disconnect_supplier_sole_admin(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 400
+    assert response.json() == [helpers.MESSAGE_ADMIN_NEEDED]
+
+
+@pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
+@pytest.mark.django_db
+def test_disconnect_supplier_multiple_admin(authed_supplier, authed_client, role):
+    authed_supplier.role = role
+    authed_supplier.save()
+    factories.SupplierFactory(role=user_roles.ADMIN, company=authed_supplier.company)
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 200
+
+    authed_supplier.refresh_from_db()
+
+    assert authed_supplier.company is None
+    assert authed_supplier.role == user_roles.MEMBER
 
 
 @pytest.mark.django_db

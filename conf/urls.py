@@ -139,6 +139,11 @@ urlpatterns = [
         name='remove-collaborators'
     ),
     url(
+        r'^supplier/company/disconnect/',
+        supplier.views.CollaboratorDisconnectView.as_view(),
+        name='company-disconnect-supplier'
+    ),
+    url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
         company.views.CompanyCaseStudyViewSet.as_view({
             'get': 'retrieve',
