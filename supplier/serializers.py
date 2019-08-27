@@ -2,9 +2,8 @@ from rest_framework import serializers
 
 from supplier.models import Supplier
 from company.models import Company
-from directory_constants import choices, user_roles
+from directory_constants import user_roles
 
-from django.conf import settings
 from django.http import QueryDict
 
 
