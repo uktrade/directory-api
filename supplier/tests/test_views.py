@@ -2,7 +2,6 @@ import base64
 from unittest.mock import call, patch, Mock
 
 import pytest
-import datetime
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -326,28 +325,3 @@ def test_disconnect_supplier_multiple_admin(authed_supplier, authed_client, role
 
     assert authed_supplier.company is None
     assert authed_supplier.role == user_roles.MEMBER
-
-
-@pytest.mark.django_db
-def test_register_collaborator_request_view(authed_client):
-    company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
-    )
-    data = {
-        'company_number': company.number,
-        'sso_id': 300,
-        'name': 'Abc',
-        'company': company,
-        'company_email': 'abc@def.com',
-        'mobile_number': 9876543210,
-        'role': user_roles.MEMBER
-    }
-
-    url = reverse('register-company-collaborator-request')
-    response = authed_client.post(
-        url,
-        data=data
-    )
-
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == {"company_email": "abc@def.com"}

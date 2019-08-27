@@ -1,6 +1,6 @@
 from directory_constants import user_roles
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -108,15 +108,3 @@ class CollaboratorDisconnectView(views.APIView):
         supplier.role = user_roles.MEMBER
         supplier.save()
         return Response()
-
-
-class RegisterCollaboratorRequestView(CreateAPIView):
-    serializer_class = serializers.RegisterCollaboratorRequestSerializer
-    permission_classes = []
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        data = {'company_email': serializer.instance.company_email}
-        return Response(data, status=201)

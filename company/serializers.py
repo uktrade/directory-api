@@ -8,6 +8,7 @@ from django.conf import settings
 from django.http import QueryDict
 
 from company import helpers, models, validators
+from company.models import Company
 
 from supplier.models import Supplier
 
@@ -407,3 +408,26 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
         else:
             data['company'] = company.pk
         return super().to_internal_value(data)
+
+
+class AddCollaboratorSerializer(serializers.ModelSerializer):
+
+    company = serializers.SlugRelatedField(slug_field='number',
+                                           queryset=Company.objects.all())
+
+    class Meta:
+        model = Supplier
+        fields = (
+            'sso_id',
+            'name',
+            'company',
+            'company_email',
+            'mobile_number',
+            'role'
+        )
+
+        extra_kwargs = {
+            'role': {
+                'default': user_roles.MEMBER
+            }
+        }

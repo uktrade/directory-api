@@ -1,5 +1,6 @@
 import abc
 
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -8,6 +9,7 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
+import company.serializers
 from company import documents, filters, helpers, models, pagination, permissions, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.helpers import validate_other_admins_connected_to_company
@@ -249,4 +251,16 @@ class CollaboratorRequestView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         data = {'company_email': serializer.instance.company.email_address}
+        return Response(data, status=201)
+
+
+class AddCollaboratorView(CreateAPIView):
+    serializer_class = company.serializers.AddCollaboratorSerializer
+    permission_classes = []
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        data = {'company_email': serializer.instance.company_email}
         return Response(data, status=201)

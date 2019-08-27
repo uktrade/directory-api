@@ -1,10 +1,6 @@
 from rest_framework import serializers
 
 from supplier.models import Supplier
-from company.models import Company
-from directory_constants import user_roles
-
-from django.http import QueryDict
 
 
 class ExternalSupplierSerializer(serializers.ModelSerializer):
@@ -61,34 +57,3 @@ class SupplierSerializer(serializers.ModelSerializer):
             'company': {'required': False},
             'role': {'read_only': True},
         }
-
-
-class RegisterCollaboratorRequestSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Supplier
-        fields = (
-            'sso_id',
-            'name',
-            'company',
-            'company_email',
-            'mobile_number',
-            'role'
-        )
-
-    def to_internal_value(self, data):
-        if isinstance(data, QueryDict):
-            data = data.dict()
-        try:
-            company = Company.objects.get(number=data['company_number'])
-        except Company.DoesNotExist:
-            raise serializers.ValidationError({
-                '__all__': 'Company does not exist'
-            })
-        else:
-            data['company'] = company.pk
-
-        if not data.get('role', ''):
-            data['role'] = user_roles.MEMBER
-
-        return super().to_internal_value(data)
