@@ -1,5 +1,6 @@
 import pytest
 
+from rest_framework import serializers as rest_serializers
 from company.tests.factories import CompanyFactory
 from supplier import serializers
 from supplier.tests import VALID_REQUEST_DATA
@@ -82,3 +83,36 @@ def test_register_collaborator_serializer_fail():
     serializer = serializers.RegisterCollaboratorRequestSerializer(data=data)
 
     assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_register_collaborator_serializer_company_not_found():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'company_number': -1,
+        'name': 'Abc',
+        'company': company,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.RegisterCollaboratorRequestSerializer(data=data)
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_register_collaborator_serializer_default_user_role():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'company_number': company.number,
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+    }
+    serializer = serializers.RegisterCollaboratorRequestSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
