@@ -295,6 +295,7 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
         )
     )
 
+
 @pytest.mark.django_db
 def test_disconnect_supplier_sole_admin(authed_supplier, authed_client):
     authed_supplier.role = user_roles.ADMIN
@@ -350,4 +351,3 @@ def test_register_collaborator_request_view(authed_client):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {"company_email": "abc@def.com"}
-
