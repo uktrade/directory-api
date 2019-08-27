@@ -350,3 +350,4 @@ def test_register_collaborator_request_view(authed_client):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {"company_email": "abc@def.com"}
+
