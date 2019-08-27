@@ -1,7 +1,6 @@
 import base64
 from unittest.mock import call, patch, Mock
 
-from directory_constants import user_roles
 import pytest
 import datetime
 from rest_framework import status
@@ -296,7 +295,7 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
         )
     )
 
-
+@pytest.mark.django_db
 def test_disconnect_supplier_sole_admin(authed_supplier, authed_client):
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
@@ -329,14 +328,13 @@ def test_disconnect_supplier_multiple_admin(authed_supplier, authed_client, role
 
 
 @pytest.mark.django_db
-def test_register_collaborator_request_view(
-        authed_supplier, authed_client
-):
+def test_register_collaborator_request_view(authed_client):
     company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
+        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
     )
-    authed_supplier.company = company
     data = {
+        'company_number': company.number,
+        'sso_id': 300,
         'name': 'Abc',
         'company': company,
         'company_email': 'abc@def.com',
@@ -351,4 +349,4 @@ def test_register_collaborator_request_view(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.content == 'company_email: abc@def.com'
+    assert response.json() == {"company_email": "abc@def.com"}

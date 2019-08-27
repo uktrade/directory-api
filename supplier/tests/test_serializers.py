@@ -3,6 +3,7 @@ import pytest
 from company.tests.factories import CompanyFactory
 from supplier import serializers
 from supplier.tests import VALID_REQUEST_DATA
+from directory_constants import user_roles
 
 
 @pytest.mark.django_db
@@ -45,3 +46,39 @@ def test_supplier_with_company_serializer_save():
 
     supplier = serializer.save()
     assert supplier.company == company
+
+
+@pytest.mark.django_db
+def test_register_collaborator_serializer_save():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'company_number': company.number,
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.RegisterCollaboratorRequestSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
+    assert member.company == company
+
+
+@pytest.mark.django_db
+def test_register_collaborator_serializer_fail():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'company_number': company.number,
+        'name': 'Abc',
+        'company': company,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.RegisterCollaboratorRequestSerializer(data=data)
+
+    assert serializer.is_valid() is False

@@ -1930,9 +1930,10 @@ def test_search_results_highlight_long(
     hits = results['hits']['hits']
 
     assert hits[0]['highlight']['description'] == [
-        'This is a very long thing about <em>wolf</em> stuff.',
-        'The <em>wolf</em> cries at night.'
-    ]
+        'Providing the stealth and prowess of wolves. This is a very long thing about '
+        '<em>wolf</em> stuff. Lets see',
+        '. It is known. It is known. It is known. It is known. It is known. It is '
+        'known. It is known. The <em>wolf</em> cries at night.']
 
 
 @pytest.mark.django_db

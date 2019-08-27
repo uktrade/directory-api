@@ -92,8 +92,4 @@ class RegisterCollaboratorRequestSerializer(serializers.ModelSerializer):
         if not data.get('role', ''):
             data['role'] = user_roles.MEMBER
 
-        print(data)
-
         return super().to_internal_value(data)
-
-    pass

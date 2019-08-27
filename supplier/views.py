@@ -118,6 +118,6 @@ class RegisterCollaboratorRequestView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        data = {'company_email': serializer.instance.company.email_address}
+        data = {'company_email': serializer.instance.company_email}
         return Response(data, status=201)
 
