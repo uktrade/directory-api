@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import QueryDict
 
 from company import helpers, models, validators
-from company.models import Company
 
 from supplier.models import Supplier
 
@@ -413,7 +412,7 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
 class AddCollaboratorSerializer(serializers.ModelSerializer):
 
     company = serializers.SlugRelatedField(slug_field='number',
-                                           queryset=Company.objects.all())
+                                           queryset=models.Company.objects.all())
 
     class Meta:
         model = Supplier
