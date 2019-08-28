@@ -16,6 +16,7 @@ american_english_analyzer = analysis.analyzer(
         'stop',
         search_filters.lovins_stemmer,
         search_filters.american_english_synonyms_filter,
+        search_filters.companies_stopwords_filter,
     ],
     char_filter=[
         search_filters.american_english_normalizer_filter,
@@ -88,7 +89,7 @@ class CompanyDocument(Document):
     expertise_labels = field.Keyword(
         multi=True, copy_to='keyword_wildcard', store=True
     )
-    slug = field.Keyword(copy_to='keyword_wildcard', store=True)
+    slug = field.Text(copy_to='wildcard', store=True)
     summary = field.Text(
         copy_to='wildcard', analyzer=american_english_analyzer
     )
@@ -107,7 +108,7 @@ class CompanyDocument(Document):
             'image_three_caption': field.Text(copy_to='casestudy_wildcard'),
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
             'website': field.Keyword(copy_to='casestudy_wildcard', store=True),
-            'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
+            'slug': field.Text(copy_to='wildcard', store=True),
             'testimonial_name': field.Keyword(
                 copy_to='casestudy_wildcard', store=True
             ),

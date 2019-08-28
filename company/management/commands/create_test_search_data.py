@@ -8,29 +8,10 @@ class Command(BaseCommand):
     help = 'Create a companies and case studies to facilitate testing search.'
 
     def handle(self, *args, **options):
-        for i in range(30):
+        for i in range(100):
             factories.CompanyFactory(
-                name='Aardvark limited {}'.format(i),
-                description='Providing the power and beauty of Aardvarks.',
-                summary='Like an Aardvark',
                 is_published_investment_support_directory=True,
                 is_published_find_a_supplier=True,
-                keywords='Ants, Tongue, Anteater',
-            )
-            factories.CompanyFactory(
-                name='Wolf limited {}'.format(i),
-                description='Providing the stealth and prowess of wolves.',
-                summary='Hunts in packs',
-                is_published_investment_support_directory=True,
-                is_published_find_a_supplier=True,
-                keywords='Packs, Hunting, Stark, Teeth',
-            )
-            factories.CompanyFactory(
-                name='Grapeshot limited {}'.format(i),
-                description='Providing the destructiveness of grapeshot.',
-                summary='Like naval warfare',
-                is_published_investment_support_directory=True,
-                keywords='Pirates, Ocean, Ship',
             )
 
         for i in range(10):
