@@ -257,10 +257,3 @@ class CollaboratorRequestView(generics.CreateAPIView):
 class AddCollaboratorView(CreateAPIView):
     serializer_class = company.serializers.AddCollaboratorSerializer
     permission_classes = []
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        data = {'company_email': serializer.instance.company_email}
-        return Response(data, status=201)

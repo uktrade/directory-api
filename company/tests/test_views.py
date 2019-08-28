@@ -2645,7 +2645,7 @@ def test_add_collaborator_view(authed_client):
         'name': 'Abc',
         'company': company.number,
         'company_email': 'abc@def.com',
-        'mobile_number': 9876543210,
+        'mobile_number': '9876543210',
         'role': user_roles.MEMBER
     }
 
@@ -2656,4 +2656,4 @@ def test_add_collaborator_view(authed_client):
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == {"company_email": "abc@def.com"}
+    assert response.json() == data
