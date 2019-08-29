@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.utils import timezone
 
-from directory_constants import company_types
+from directory_constants import company_types, user_roles
 
-from company import email, documents, helpers
+from company import email, documents, helpers, models
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -77,9 +77,7 @@ def send_account_ownership_transfer_notification(
     notification.send_async()
 
 
-def send_account_collaborator_notification(
-    sender, instance, created, *args, **kwargs
-):
+def send_account_collaborator_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
     notification = email.CollaboratorNotification(instance=instance)
@@ -98,3 +96,32 @@ def set_sole_trader_number(sender, instance, *args, **kwargs):
         # avoids clash with companies house numbers as there is no ST prefix
         # https://www.doorda.com/kb/article/company-number-prefixes.html
         instance.number = f'ST{number:06}'
+
+
+
+def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
+    models.CollaborationInvite.objects.update_or_create(
+        uuid=instance.uuid,
+        defaults={
+            'collaborator_email': instance.new_owner_email,
+            'company': instance.company,
+            'requestor': instance.requestor,
+            'accepted': instance.accepted,
+            'accepted_date': instance.accepted_date,
+            'role': user_roles.ADMIN,
+        }
+    )
+
+def create_collaboration_invite_from_collaborator_invite(sender, instance, created, *args, **kwargs):
+    models.CollaborationInvite.objects.update_or_create(
+        uuid=instance.uuid,
+        defaults={
+            'collaborator_email': instance.collaborator_email,
+            'company': instance.company,
+            'requestor': instance.requestor,
+            'accepted': instance.accepted,
+            'accepted_date': instance.accepted_date,
+            'role': user_roles.EDITOR,
+        }
+    )
+

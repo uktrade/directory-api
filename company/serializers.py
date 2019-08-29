@@ -407,3 +407,23 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
         else:
             data['company'] = company.pk
         return super().to_internal_value(data)
+
+
+class CollaborationInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollaborationInvite
+        fields = (
+            'uuid',
+            'collaborator_email',
+            'company',
+            'requestor',
+            'accepted',
+            'accepted_date',
+            'role',
+        )
+        extra_kwargs = {
+            'accepted': {'write_only': True},
+            'company': {'read_only': False},
+            'requestor': {'required': False},
+            'uuid': {'read_only': True},
+        }

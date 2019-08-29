@@ -1,7 +1,7 @@
 import datetime
 from unittest import mock
 
-from directory_constants import company_types
+from directory_constants import company_types, user_roles
 import elasticsearch
 from freezegun import freeze_time
 import pytest
@@ -392,3 +392,27 @@ def test_account_collaborator_email_notification_modified(mocked_notification):
     invite.save()
 
     assert mocked_notification().send_async.call_count == 1
+
+
+@pytest.mark.django_db
+def test_create_collaboration_invite_from_ownership_invite():
+    invite = factories.OwnershipInviteFactory()
+
+    collaboration_invite = models.CollaborationInvite.objects.get(uuid=invite.uuid)
+
+    assert collaboration_invite.collaborator_email == invite.new_owner_email
+    assert collaboration_invite.company.pk == invite.company.pk
+    assert collaboration_invite.requestor.pk == invite.requestor.pk
+    assert collaboration_invite.role == user_roles.ADMIN
+
+
+@pytest.mark.django_db
+def test_create_collaboration_invite_from_collaborator_invite():
+    invite = factories.CollaboratorInviteFactory()
+
+    collaboration_invite = models.CollaborationInvite.objects.get(uuid=invite.uuid)
+
+    assert collaboration_invite.collaborator_email == invite.collaborator_email
+    assert collaboration_invite.company.pk == invite.company.pk
+    assert collaboration_invite.requestor.pk == invite.requestor.pk
+    assert collaboration_invite.role == user_roles.EDITOR

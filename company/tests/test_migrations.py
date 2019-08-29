@@ -1,21 +1,18 @@
 import pytest
 
-
-def get_expertise_for_company(model_class, model):
-    return model_class.objects.get(pk=model.pk).expertise_products_services
+from directory_constants import user_roles
 
 
 @pytest.mark.django_db
 def test_populate_products_services(migration):
-    app_name = 'company'
-    model_name = 'Company'
-    historic_apps = migration.before([
-        (app_name, '0083_auto_20190409_1640')
-    ])
+    historic_apps = migration.before([('company', '0089_auto_20190829_0845')])
 
-    HistoricCompany = historic_apps.get_model(app_name, model_name)
+    Company = historic_apps.get_model('company', 'Company')
+    Supplier = historic_apps.get_model('supplier', 'Supplier')
+    CollaboratorInvite = historic_apps.get_model('company', 'CollaboratorInvite')
+    OwnershipInvite = historic_apps.get_model('company', 'OwnershipInvite')
 
-    default_company_details = dict(
+    company = Company.objects.create(
         name='private company',
         website='http://example.com',
         description='Company description',
@@ -24,50 +21,38 @@ def test_populate_products_services(migration):
         email_address='thing@example.com',
         verified_with_code=True,
     )
-
-    company_a = HistoricCompany.objects.create(
-        **default_company_details,
-        keywords='foo,bar,baz',
-        expertise_products_services={},
-    )
-    company_b = HistoricCompany.objects.create(
-        **default_company_details,
-        keywords='foo, bar',
-        expertise_products_services={'other': ['baz']},
-    )
-    company_c = HistoricCompany.objects.create(
-        **default_company_details,
-        keywords='foo, bar ',
-        expertise_products_services={'financial': []},
-    )
-    company_d = HistoricCompany.objects.create(
-        **default_company_details,
-        keywords='',
-        expertise_products_services={'financial': ['foo']},
-    )
-    company_e = HistoricCompany.objects.create(
-        **default_company_details,
-        keywords='',
-        expertise_products_services={'other': []},
+    supplier = Supplier.objects.create(
+        company=company,
+        sso_id=1,
+        name='jim example',
+        company_email='jim@example.com',
     )
 
-    apps = migration.apply(app_name, '0084_auto_20190508_0849')
-    Company = apps.get_model(app_name, model_name)
+    collaborator_invite = CollaboratorInvite.objects.create(
+        uuid='2327f510-3291-4aa1-8d75-3b78e50377a6',
+        collaborator_email='collaborator@example.com',
+        company=company,
+        requestor=supplier,
+    )
+    ownership_invite = OwnershipInvite.objects.create(
+        uuid='2327f510-3291-4aa1-8d75-3b78e50377a2',
+        new_owner_email='owner@example.com',
+        company=company,
+        requestor=supplier,
+    )
 
-    assert get_expertise_for_company(model_class=Company, model=company_a) == {
-        'other': ['foo', 'bar', 'baz']
-    }
-    assert get_expertise_for_company(model_class=Company, model=company_b) == {
-        'other': ['baz', 'foo', 'bar']
-    }
-    assert get_expertise_for_company(model_class=Company, model=company_c) == {
-        'other': ['foo', 'bar'],
-        'financial': []
-    }
-    assert get_expertise_for_company(model_class=Company, model=company_d) == {
-        'other': [],
-        'financial': ['foo']
-    }
-    assert get_expertise_for_company(model_class=Company, model=company_e) == {
-        'other': []
-    }
+    apps = migration.apply('company', '0090_auto_20190829_0845')
+    CollaborationInvite = apps.get_model('company', 'CollaborationInvite')
+
+    assert CollaborationInvite.objects.count() == 2
+    invite_one = CollaborationInvite.objects.get(uuid=collaborator_invite.uuid)
+    assert invite_one.collaborator_email == collaborator_invite.collaborator_email
+    assert invite_one.company.pk == collaborator_invite.company.pk
+    assert invite_one.requestor.pk == collaborator_invite.requestor.pk
+    assert invite_one.role == user_roles.EDITOR
+
+    invite_two = CollaborationInvite.objects.get(uuid=ownership_invite.uuid)
+    assert invite_two.collaborator_email == ownership_invite.new_owner_email
+    assert invite_two.company.pk == ownership_invite.company.pk
+    assert invite_two.requestor.pk == ownership_invite.requestor.pk
+    assert invite_two.role == user_roles.ADMIN

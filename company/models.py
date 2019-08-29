@@ -431,6 +431,20 @@ class CollaboratorInvite(TimeStampedModel):
         )
 
 
+class CollaborationInvite(TimeStampedModel):
+
+    uuid = models.UUIDField(default=uuid.uuid4)
+    collaborator_email = models.EmailField()
+    company = models.ForeignKey(Company)
+    requestor = models.ForeignKey('supplier.Supplier')
+    accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(null=True, blank=True)
+    role = models.CharField(max_length=15, choices=choices.USER_ROLES)
+
+    class Meta:
+        unique_together = ('collaborator_email', 'company')
+
+
 class CollaboratorRequest(TimeStampedModel):
     collaborator_email = models.EmailField()
     company = models.ForeignKey(Company)

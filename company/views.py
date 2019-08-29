@@ -250,3 +250,15 @@ class CollaboratorRequestView(generics.CreateAPIView):
         self.perform_create(serializer)
         data = {'company_email': serializer.instance.company.email_address}
         return Response(data, status=201)
+
+
+class CollaborationInviteViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CollaborationInviteSerializer
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+    queryset = models.CollaborationInvite.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(
+            requestor=self.request.user.supplier.pk,
+            company=self.request.user.supplier.company.pk,
+        )
