@@ -2757,8 +2757,9 @@ def test_collaboration_invite_create(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-def test_collaboration_invite_list(authed_client):
-    invite = factories.CollaborationInviteFactory()
+def test_collaboration_invite_list(authed_client, authed_supplier):
+    factories.CollaborationInviteFactory()  # expect this to not be in the response as it's for a different company
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite')
     response = authed_client.get(url)
@@ -2778,8 +2779,8 @@ def test_collaboration_invite_list(authed_client):
 
 
 @pytest.mark.django_db
-def test_collaboration_invite_retrieve(authed_client):
-    invite = factories.CollaborationInviteFactory()
+def test_collaboration_invite_retrieve(authed_client, authed_supplier):
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
     response = authed_client.get(url)
@@ -2797,8 +2798,8 @@ def test_collaboration_invite_retrieve(authed_client):
 
 
 @pytest.mark.django_db
-def test_collaboration_invite_update(authed_client):
-    invite = factories.CollaborationInviteFactory()
+def test_collaboration_invite_update(authed_client, authed_supplier):
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
@@ -2813,3 +2814,13 @@ def test_collaboration_invite_update(authed_client):
         'role': invite.role,
         'accepted': True
     }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_delete(authed_client, authed_supplier):
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
+
+    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    response = authed_client.delete(url)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT

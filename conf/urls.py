@@ -140,7 +140,9 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
-        company.views.CollaborationInviteViewSet.as_view({'get': 'retrieve', 'patch': 'partial_update'}),
+        company.views.CollaborationInviteViewSet.as_view({
+            'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'
+        }),
         name='collaboration-invite-retrieve'
     ),
     url(
