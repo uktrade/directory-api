@@ -409,10 +409,29 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 
+class CollaborationInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollaborationInvite
+        fields = (
+            'uuid',
+            'collaborator_email',
+            'company',
+            'requestor',
+            'accepted',
+            'accepted_date',
+            'role',
+        )
+        extra_kwargs = {
+            'company': {'required': False},  # passed in .save by the view, not in the request
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'uuid': {'read_only': True},
+            'accepted': {'required': False},
+        }
+
+
 class AddCollaboratorSerializer(serializers.ModelSerializer):
 
-    company = serializers.SlugRelatedField(slug_field='number',
-                                           queryset=models.Company.objects.all())
+    company = serializers.SlugRelatedField(slug_field='number', queryset=models.Company.objects.all())
 
     class Meta:
         model = Supplier

@@ -2097,7 +2097,7 @@ def test_verify_companies_house_good_access_token(
 def test_create_transfer_ownership_invite(authed_client, authed_supplier):
 
     data = {'new_owner_email': 'foo@bar.com'}
-    url = reverse('transfer-ownership-invite')
+    url = reverse('old-transfer-ownership-invite')
 
     response = authed_client.post(url, data=data)
 
@@ -2136,7 +2136,7 @@ def test_create_duplicated_transfer_ownership_invite(
         'company': authed_supplier.company.pk,
     }
     response = authed_client.post(
-        reverse('transfer-ownership-invite'),
+        reverse('old-transfer-ownership-invite'),
         data=data,
         format='json'
     )
@@ -2211,7 +2211,7 @@ def test_retrieve_transfer_ownership_invite(
     invite.save()
 
     response = authed_client.get(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)})
     )
 
@@ -2244,7 +2244,7 @@ def test_accept_transfer_ownership_invite(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2281,7 +2281,7 @@ def test_accept_transfer_ownership_invite_case_insensitive(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2317,7 +2317,7 @@ def test_accept_wrong_transfer_ownership_invite(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2356,7 +2356,7 @@ def test_accept_transfer_ownership_invite_to_collaborator(
         requestor=existing_owner,
     )
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2379,7 +2379,7 @@ def test_accept_transfer_ownership_invite_supplier_has_other_company(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2412,7 +2412,7 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2434,7 +2434,7 @@ def test_company_create_collaboration_invite(
     authed_client, authed_supplier
 ):
     data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
+    url = reverse('old-collaboration-invite-create')
     response = authed_client.post(url, data=data)
 
     invite = models.CollaboratorInvite.objects.get(
@@ -2465,7 +2465,7 @@ def test_company_create_duplicated_collaboration_invite(
     )
 
     data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
+    url = reverse('old-collaboration-invite-create')
     response = authed_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2493,7 +2493,7 @@ def test_accept_collaborator_invite(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == 200
@@ -2527,7 +2527,7 @@ def test_accept_collaborator_invite_case_insensitive(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == 200
@@ -2562,7 +2562,7 @@ def test_accept_wrong_collaborator_invite(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2591,7 +2591,7 @@ def test_accept_collaborator_invite_supplier_has_other_company(
         requestor=authed_supplier,
     )
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
@@ -2622,7 +2622,7 @@ def test_accept_collaborator_invite_requestor_not_legit(
         requestor=supplier
     )
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
@@ -2640,9 +2640,9 @@ def test_accept_collaborator_invite_requestor_not_legit(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('url', (
-    reverse('collaboration-invite-create'),
+    reverse('old-collaboration-invite-create'),
     reverse('remove-collaborators'),
-    reverse('transfer-ownership-invite'),
+    reverse('old-transfer-ownership-invite'),
 ))
 def test_multi_user_account_management_views_forbidden(
     url, authed_client, authed_supplier
@@ -2735,3 +2735,81 @@ def test_add_collaborator_view(authed_client):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == data
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_create(authed_client, authed_supplier):
+    data = {'collaborator_email': 'jim@example.com', 'role': user_roles.ADMIN}
+
+    url = reverse('collaboration-invite')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_201_CREATED, response.json()
+    assert response.json() == {
+        'uuid': mock.ANY,
+        'collaborator_email': data['collaborator_email'],
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'accepted_date': None,
+        'role': data['role'],
+        'accepted': False,
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_list(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite')
+    response = authed_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'uuid': str(invite.uuid),
+            'collaborator_email': invite.collaborator_email,
+            'company': invite.company.pk,
+            'requestor': invite.requestor.pk,
+            'accepted_date': invite.accepted_date,
+            'role': invite.role,
+            'accepted': False,
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_retrieve(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    response = authed_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': invite.accepted_date,
+        'role': invite.role,
+        'accepted': False,
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_update(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': invite.accepted_date,
+        'role': invite.role,
+        'accepted': True
+    }
