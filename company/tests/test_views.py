@@ -2824,3 +2824,29 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
     response = authed_client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
+def test_change_collaborator_role(authed_client, authed_supplier, role):
+    supplier = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+
+    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+
+    response = authed_client.patch(url, {'role': role})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['role'] == role
+    supplier.refresh_from_db()
+    assert supplier.role == role
+
+
+@pytest.mark.django_db
+def test_change_collaborator_role_wrong_company(authed_client, authed_supplier):
+    supplier = SupplierFactory(role=user_roles.EDITOR)
+
+    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+
+    response = authed_client.patch(url, {'role': user_roles.ADMIN})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
