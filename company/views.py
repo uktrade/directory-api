@@ -74,9 +74,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return self.write_serializer_class
 
     def get_queryset(self):
-        return self.queryset.filter(
-            company_id=self.request.user.supplier.company_id
-        )
+        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -229,9 +227,7 @@ class RemoveCollaboratorsView(views.APIView):
     permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
     def get_queryset(self):
-        return self.request.user.supplier.company.suppliers.exclude(
-            pk=self.request.user.supplier.pk
-        )
+        return self.request.user.supplier.company.suppliers.exclude(pk=self.request.user.supplier.pk)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -259,6 +255,9 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
     queryset = models.CollaborationInvite.objects.all()
     lookup_field = 'uuid'
+
+    def get_queryset(self):
+        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
 
     def perform_create(self, serializer):
         serializer.save(
