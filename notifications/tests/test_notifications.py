@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch, MagicMock, PropertyMock, ANY
+from unittest.mock import patch, MagicMock, PropertyMock
 
 import pytest
 
@@ -9,7 +9,7 @@ from django.core import mail
 from django.utils import timezone
 
 from buyer.tests.factories import BuyerFactory
-from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from company.tests.factories import CompanyFactory
 from notifications import email, notifications
 from notifications.models import (
     SupplierEmailNotification,
