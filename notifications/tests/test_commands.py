@@ -10,7 +10,7 @@ from django.core.management.base import CommandError
 @patch('notifications.notifications.verification_code_not_given')
 @patch('notifications.notifications.new_companies_in_sector')
 def test_notify_command_runs_functions_in_daily_type(
-    mock_new_companies, mock_verify_code, mock_login, mock_case_studies
+    mock_new_companies, mock_verify_code, mock_login
 ):
     call_command('send_notifications', type='daily')
 
@@ -23,7 +23,7 @@ def test_notify_command_runs_functions_in_daily_type(
 @patch('notifications.notifications.verification_code_not_given')
 @patch('notifications.notifications.new_companies_in_sector')
 def test_notify_command_runs_functions_in_weekly_type(
-    mock_new_companies, mock_verify_code, mock_login, mock_case_studies
+    mock_new_companies, mock_verify_code, mock_login
 ):
     call_command('send_notifications', type='weekly')
 
