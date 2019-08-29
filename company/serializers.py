@@ -427,3 +427,25 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'requestor': {'required': False},
             'uuid': {'read_only': True},
         }
+
+
+class AddCollaboratorSerializer(serializers.ModelSerializer):
+
+    company = serializers.SlugRelatedField(slug_field='number', queryset=models.Company.objects.all())
+
+    class Meta:
+        model = Supplier
+        fields = (
+            'sso_id',
+            'name',
+            'company',
+            'company_email',
+            'mobile_number',
+            'role'
+        )
+
+        extra_kwargs = {
+            'role': {
+                'default': user_roles.MEMBER
+            }
+        }

@@ -786,6 +786,64 @@ def search_companies_ordering_data(settings):
 
 
 @pytest.fixture
+def search_companies_stopwords(settings):
+
+    factories.CompanyFactory(
+        name='mycompany ltd',
+        description='',
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        keywords='Packs, Hunting, Stark, Wolf',
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=1,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf ltd',
+        description='',
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        keywords='Packs, Hunting, Stark, Wolf',
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=2,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        id=3,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf plc',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        id=4,
+    )
+
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
 def companies_house_oauth_invalid_access_token(requests_mocker):
     return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
@@ -1418,6 +1476,26 @@ def test_search_results(
     assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.parametrize('stop_term', ['limited', 'plc', 'ltd'])
+def test_search_results_stopwords(url, stop_term, search_companies_stopwords, api_client):
+    data = {
+        'term': 'mycompany {stop_term}',
+        'page': '1',
+        'size': '5',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200
+
+    hits = response.json()['hits']['hits']
+    assert len(hits) == 1
+    assert hits[0]['_id'] == '1'
 
 
 @pytest.mark.parametrize('url', search_urls)
@@ -2633,3 +2711,27 @@ def test_request_identity_verification(mock_send_request_identity_message, authe
     assert response.status_code == 200
     assert mock_send_request_identity_message.call_count == 1
     assert mock_send_request_identity_message.call_args == mock.call(authed_supplier)
+
+
+@pytest.mark.django_db
+def test_add_collaborator_view(authed_client):
+    company = factories.CompanyFactory(
+        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
+    )
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': '9876543210',
+        'role': user_roles.MEMBER
+    }
+
+    url = reverse('register-company-collaborator-request')
+    response = authed_client.post(
+        url,
+        data=data
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == data

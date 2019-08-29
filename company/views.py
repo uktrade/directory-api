@@ -1,5 +1,6 @@
 import abc
 
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -8,6 +9,7 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
+import company.serializers
 from company import documents, filters, helpers, models, pagination, permissions, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.helpers import validate_other_admins_connected_to_company
@@ -252,6 +254,7 @@ class CollaboratorRequestView(generics.CreateAPIView):
         return Response(data, status=201)
 
 
+
 class CollaborationInviteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CollaborationInviteSerializer
     permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
@@ -262,3 +265,8 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
             requestor=self.request.user.supplier.pk,
             company=self.request.user.supplier.company.pk,
         )
+
+
+class AddCollaboratorView(CreateAPIView):
+    serializer_class = company.serializers.AddCollaboratorSerializer
+    permission_classes = []
