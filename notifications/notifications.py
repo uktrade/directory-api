@@ -8,24 +8,6 @@ from notifications import constants, email, helpers
 from supplier.models import Supplier
 
 
-def no_case_studies():
-    now = datetime.utcnow()
-    days_ago = now - timedelta(days=settings.NO_CASE_STUDIES_DAYS)
-    suppliers = Supplier.objects.filter(
-        company__supplier_case_studies__isnull=True,
-        date_joined__year=days_ago.year,
-        date_joined__month=days_ago.month,
-        date_joined__day=days_ago.day,
-        unsubscribed=False,
-        company__is_uk_isd_company=False,
-    ).exclude(
-        supplieremailnotification__category=constants.NO_CASE_STUDIES,
-    )
-    for supplier in suppliers:
-        notification = email.NoCaseStudiesNotification(supplier)
-        notification.send()
-
-
 def hasnt_logged_in():
     now = datetime.utcnow()
     days_ago = now - timedelta(days=settings.HASNT_LOGGED_IN_DAYS)

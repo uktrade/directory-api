@@ -430,7 +430,6 @@ NO_CASE_STUDIES_SUBJECT = env.str(
     'NO_CASE_STUDIES_SUBJECT',
     'Get seen by more international buyers by improving your profile'
 )
-NO_CASE_STUDIES_DAYS = env.int('NO_CASE_STUDIES_DAYS', 8)
 NO_CASE_STUDIES_URL = env.str(
     'NO_CASE_STUDIES_URL',
     'https://find-a-buyer.export.great.gov.uk/company/case-study/edit/'
