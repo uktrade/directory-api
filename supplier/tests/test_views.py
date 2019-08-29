@@ -1,7 +1,6 @@
 import base64
 from unittest.mock import call, patch, Mock
 
-from directory_constants import user_roles
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -11,6 +10,7 @@ from django.core.urlresolvers import reverse
 
 from supplier import helpers, models, serializers
 from supplier.tests import factories, VALID_REQUEST_DATA
+from directory_constants import user_roles
 
 
 @pytest.fixture

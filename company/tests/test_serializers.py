@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from directory_validators import company as shared_validators
 
-from directory_constants import company_types, choices
+from directory_constants import company_types, choices, user_roles
 from pytz import UTC
 
 from company.tests import VALID_REQUEST_DATA
@@ -331,3 +331,67 @@ def test_company_search_serializer_optional_field(field, field_value):
     )
 
     assert serializer.is_valid() is True
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_save():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
+    assert member.company == company
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_fail():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_company_not_found():
+    data = {
+        'name': 'Abc',
+        'company': -1,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_default_user_role():
+    company = CompanyFactory(name='Test Company')
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
