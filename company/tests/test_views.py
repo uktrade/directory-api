@@ -2735,3 +2735,59 @@ def test_add_collaborator_view(authed_client):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == data
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_create(authed_client, authed_supplier):
+    data = {'collaborator_email': 'jim@example.com', 'role': user_roles.ADMIN}
+
+    url = reverse('collaboration-invite')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == {
+        'uuid': mock.ANY,
+        'collaborator_email': data['collaborator_email'],
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'accepted_date': None,
+        'role': data['role'],
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_list(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite')
+    response = authed_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'uuid': str(invite.uuid),
+            'collaborator_email': invite.collaborator_email,
+            'company': invite.company.pk,
+            'requestor': invite.requestor.pk,
+            'accepted_date': invite.accepted_date,
+            'role': invite.role
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_retrieve(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    response = authed_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': invite.accepted_date,
+        'role': invite.role
+    }

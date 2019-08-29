@@ -98,7 +98,6 @@ def set_sole_trader_number(sender, instance, *args, **kwargs):
         instance.number = f'ST{number:06}'
 
 
-
 def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
     models.CollaborationInvite.objects.update_or_create(
         uuid=instance.uuid,
@@ -112,6 +111,7 @@ def create_collaboration_invite_from_ownership_invite(sender, instance, created,
         }
     )
 
+
 def create_collaboration_invite_from_collaborator_invite(sender, instance, created, *args, **kwargs):
     models.CollaborationInvite.objects.update_or_create(
         uuid=instance.uuid,
@@ -124,4 +124,3 @@ def create_collaboration_invite_from_collaborator_invite(sender, instance, creat
             'role': user_roles.EDITOR,
         }
     )
-
