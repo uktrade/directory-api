@@ -441,9 +441,6 @@ class CollaborationInvite(TimeStampedModel):
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
 
-    class Meta:
-        unique_together = ('collaborator_email', 'company')
-
 
 class CollaboratorRequest(TimeStampedModel):
     collaborator_email = models.EmailField()

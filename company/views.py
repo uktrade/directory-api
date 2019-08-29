@@ -260,14 +260,11 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
     queryset = models.CollaborationInvite.objects.all()
     lookup_field = 'uuid'
 
-    def get_serializer(self, *args, **kwargs):
-        if 'data' in kwargs:
-            kwargs['data'] = {
-                **kwargs['data'].dict(),
-                'requestor': self.request.user.supplier.pk,
-                'company': self.request.user.supplier.company.pk,
-            }
-        return super().get_serializer(*args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(
+            requestor=self.request.user.supplier,
+            company=self.request.user.supplier.company,
+        )
 
 
 class AddCollaboratorView(CreateAPIView):

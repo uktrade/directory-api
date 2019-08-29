@@ -2744,7 +2744,7 @@ def test_collaboration_invite_create(authed_client, authed_supplier):
     url = reverse('collaboration-invite')
     response = authed_client.post(url, data=data)
 
-    assert response.status_code == status.HTTP_201_CREATED
+    assert response.status_code == status.HTTP_201_CREATED, response.json()
     assert response.json() == {
         'uuid': mock.ANY,
         'collaborator_email': data['collaborator_email'],
@@ -2752,6 +2752,7 @@ def test_collaboration_invite_create(authed_client, authed_supplier):
         'requestor': authed_supplier.pk,
         'accepted_date': None,
         'role': data['role'],
+        'accepted': False,
     }
 
 
@@ -2770,7 +2771,8 @@ def test_collaboration_invite_list(authed_client):
             'company': invite.company.pk,
             'requestor': invite.requestor.pk,
             'accepted_date': invite.accepted_date,
-            'role': invite.role
+            'role': invite.role,
+            'accepted': False,
         }
     ]
 
@@ -2789,5 +2791,25 @@ def test_collaboration_invite_retrieve(authed_client):
         'company': invite.company.pk,
         'requestor': invite.requestor.pk,
         'accepted_date': invite.accepted_date,
-        'role': invite.role
+        'role': invite.role,
+        'accepted': False,
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_update(authed_client):
+    invite = factories.CollaborationInviteFactory()
+
+    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': invite.accepted_date,
+        'role': invite.role,
+        'accepted': True
     }

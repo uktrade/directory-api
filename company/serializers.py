@@ -422,10 +422,10 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'role',
         )
         extra_kwargs = {
-            'accepted': {'write_only': True},
-            'company': {'read_only': False},
-            'requestor': {'required': False},
+            'company': {'required': False},  # passed in .save by the view, not in the request
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
             'uuid': {'read_only': True},
+            'accepted': {'required': False},
         }
 
 
