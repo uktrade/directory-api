@@ -8,6 +8,7 @@
 - TT-1716 - Allow disconnecting self from company
 - TT-1734 - Allow adding second user as member to a company profile
 - TT-1716 - Company search stop words
+- TT-1761 - Remove fab casestudies notification
 
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
