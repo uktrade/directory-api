@@ -6,6 +6,7 @@
 - TT-1733 - Added request identity verification feature
 - TT-1733 - Allow name to be provided on supplier create
 - TT-1716 - Allow disconnecting self from company
+- TT-1734 - Allow adding second user as member to a company profile
 - TT-1716 - Company search stop words
 
 ### Fixed bugs
