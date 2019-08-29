@@ -17,7 +17,6 @@ american_english_analyzer = analysis.analyzer(
         search_filters.companies_stopwords_filter,
         search_filters.lovins_stemmer,
         search_filters.american_english_synonyms_filter,
-        search_filters.english_stopwords_filter,
     ],
     char_filter=[
         search_filters.american_english_normalizer_filter,

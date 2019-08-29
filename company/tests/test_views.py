@@ -1484,7 +1484,7 @@ def test_search_results(
 @pytest.mark.parametrize('stop_term', ['limited', 'plc', 'ltd'])
 def test_search_results_stopwords(url, stop_term, search_companies_stopwords, api_client):
     data = {
-        'term': 'mycompany {0}'.format(stop_term),
+        'term': 'mycompany {stop_term}',
         'page': '1',
         'size': '5',
     }

@@ -6,12 +6,6 @@ companies_stopwords_filter = analysis.token_filter(
     stopwords=['limited', 'ltd', 'plc', 'llp', 'lp', 'rc', 'partnership', 'ngo']
 )
 
-english_stopwords_filter = analysis.token_filter(
-    'english_stopwords',
-    type='stop',
-    stopwords=['and', '&', '+', ',', 'the']
-)
-
 american_english_normalizer_filter = analysis.char_filter(
     'american_english_normalizer',
     type='mapping',
