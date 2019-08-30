@@ -129,7 +129,7 @@ urlpatterns = [
         name='old-collaboration-invite-create'
     ),
     url(
-        r'^supplier/company/collaborator-invite/(?P<uuid>.*)/',
+        r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
         company.views.CollaboratorInviteRetrieveUpdateAPIView.as_view(),
         name='old-collaboration-invite-detail'
     ),
@@ -139,7 +139,7 @@ urlpatterns = [
         name='collaboration-invite'
     ),
     url(
-        r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
+        r'^supplier/company/collaborator-invite/(?P<uuid>.*)/',
         company.views.CollaborationInviteViewSet.as_view({
             'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'
         }),
