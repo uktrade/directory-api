@@ -95,7 +95,6 @@ class SupplierCSVDownloadAPIView(CSVDumpAPIView):
 
 
 class CollaboratorDisconnectView(views.APIView):
-
     permission_classes = [IsAuthenticatedSSO]
 
     def get_object(self):

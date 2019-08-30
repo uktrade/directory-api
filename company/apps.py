@@ -47,3 +47,11 @@ class CompanyConfig(AppConfig):
             receiver=signals.set_sole_trader_number,
             sender='company.Company'
         )
+        post_save.connect(
+            receiver=signals.create_collaboration_invite_from_ownership_invite,
+            sender='company.OwnershipInvite'
+        )
+        post_save.connect(
+            receiver=signals.create_collaboration_invite_from_collaborator_invite,
+            sender='company.CollaboratorInvite'
+        )

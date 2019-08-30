@@ -116,22 +116,34 @@ urlpatterns = [
     url(
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         company.views.TransferOwnershipInviteRetrieveUpdateAPIView.as_view(),
-        name='transfer-ownership-invite-detail'
+        name='old-transfer-ownership-invite-detail'
     ),
     url(
         r'^supplier/company/transfer-ownership-invite/$',
         company.views.TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite'
+        name='old-transfer-ownership-invite'
     ),
     url(
         r'^supplier/company/collaboration-invite/$',
         company.views.CollaboratorInviteCreateView.as_view(),
-        name='collaboration-invite-create'
+        name='old-collaboration-invite-create'
+    ),
+    url(
+        r'^supplier/company/collaborator-invite/(?P<uuid>.*)/',
+        company.views.CollaboratorInviteRetrieveUpdateAPIView.as_view(),
+        name='old-collaboration-invite-detail'
+    ),
+    url(
+        r'^supplier/company/collaborator-invite/$',
+        company.views.CollaborationInviteViewSet.as_view({'post': 'create', 'get': 'list'}),
+        name='collaboration-invite'
     ),
     url(
         r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
-        company.views.CollaboratorInviteRetrieveUpdateAPIView.as_view(),
-        name='collaboration-invite-detail'
+        company.views.CollaborationInviteViewSet.as_view({
+            'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'
+        }),
+        name='collaboration-invite-retrieve'
     ),
     url(
         r'^supplier/company/remove-collaborators/',
@@ -166,6 +178,11 @@ urlpatterns = [
         r'^supplier/company/add-collaborator/$',
         company.views.AddCollaboratorView.as_view(),
         name='register-company-collaborator-request'
+    ),
+    url(
+        r'^supplier/company/change-collaborator-role/(?P<sso_id>\d+)/$',
+        company.views.ChangeCollaboratorRoleView.as_view(),
+        name='change-collaborator-role'
     ),
     url(
         r'^supplier/$',

@@ -1,12 +1,11 @@
+from directory_constants import choices, user_roles
 import factory
 import factory.fuzzy
 from faker import Faker
+
 from django.utils.text import slugify
 
-from directory_constants import choices
-
-from company.models import Company, CompanyCaseStudy, CollaboratorInvite, \
-    OwnershipInvite
+from company import models
 
 
 def company_house_number():
@@ -82,7 +81,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     )
 
     class Meta:
-        model = Company
+        model = models.Company
 
 
 class CompanyCaseStudyFactory(factory.django.DjangoModelFactory):
@@ -92,7 +91,7 @@ class CompanyCaseStudyFactory(factory.django.DjangoModelFactory):
     company = factory.SubFactory(CompanyFactory)
 
     class Meta:
-        model = CompanyCaseStudy
+        model = models.CompanyCaseStudy
 
 
 class CollaboratorInviteFactory(factory.django.DjangoModelFactory):
@@ -104,7 +103,7 @@ class CollaboratorInviteFactory(factory.django.DjangoModelFactory):
     accepted_date = None
 
     class Meta:
-        model = CollaboratorInvite
+        model = models.CollaboratorInvite
 
 
 class OwnershipInviteFactory(factory.django.DjangoModelFactory):
@@ -116,4 +115,17 @@ class OwnershipInviteFactory(factory.django.DjangoModelFactory):
     accepted_date = None
 
     class Meta:
-        model = OwnershipInvite
+        model = models.OwnershipInvite
+
+
+class CollaborationInviteFactory(factory.django.DjangoModelFactory):
+
+    collaborator_email = factory.Sequence(lambda n: '{}@example.com'.format(n))
+    company = factory.SubFactory(CompanyFactory)
+    requestor = factory.SubFactory('supplier.tests.factories.SupplierFactory')
+    accepted = False
+    accepted_date = None
+    role = user_roles.EDITOR
+
+    class Meta:
+        model = models.CollaborationInvite

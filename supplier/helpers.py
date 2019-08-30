@@ -47,7 +47,9 @@ def generate_suppliers_csv(file_object, queryset):
         'company__ownershipinvite',
         'ownershipinvite',
         'company__collaboratorinvite',
-        'collaboratorinvite'
+        'collaboratorinvite',
+        'collaborationinvite',
+        'company__collaborationinvite',
     )
     fieldnames = [field.name for field in Supplier._meta.get_fields()
                   if field.name not in csv_excluded_fields]
