@@ -180,6 +180,11 @@ urlpatterns = [
         name='register-company-collaborator-request'
     ),
     url(
+        r'^supplier/company/change-collaborator-role/(?P<sso_id>\d+)/$',
+        company.views.ChangeCollaboratorRoleView.as_view(),
+        name='change-collaborator-role'
+    ),
+    url(
         r'^supplier/$',
         supplier.views.SupplierRetrieveUpdateAPIView.as_view(),
         name='supplier'

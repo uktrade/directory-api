@@ -1,6 +1,6 @@
 import abc
 
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -13,6 +13,7 @@ import company.serializers
 from company import documents, filters, helpers, models, pagination, permissions, serializers
 from core.permissions import IsAuthenticatedSSO
 from supplier.helpers import validate_other_admins_connected_to_company
+from supplier.models import Supplier
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -214,9 +215,7 @@ class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'uuid'
 
 
-class TransferOwnershipInviteRetrieveUpdateAPIView(
-    generics.RetrieveUpdateAPIView
-):
+class TransferOwnershipInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
     queryset = models.OwnershipInvite.objects.all()
     lookup_field = 'uuid'
@@ -268,4 +267,13 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
 
 class AddCollaboratorView(CreateAPIView):
     serializer_class = company.serializers.AddCollaboratorSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticatedSSO]
+
+
+class ChangeCollaboratorRoleView(UpdateAPIView):
+    serializer_class = company.serializers.ChangeCollaboratorRoleSerializer
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+    lookup_field = 'sso_id'
+
+    def get_queryset(self):
+        return Supplier.objects.filter(company_id=self.request.user.supplier.company_id)

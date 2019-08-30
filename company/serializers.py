@@ -449,3 +449,9 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
                 'default': user_roles.MEMBER
             }
         }
+
+
+class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supplier
+        fields = ('role',)
