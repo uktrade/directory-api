@@ -143,7 +143,7 @@ urlpatterns = [
         company.views.CollaborationInviteViewSet.as_view({
             'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'
         }),
-        name='collaboration-invite-retrieve'
+        name='collaboration-invite-detail'
     ),
     url(
         r'^supplier/company/remove-collaborators/',
