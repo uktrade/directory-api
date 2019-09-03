@@ -23,13 +23,13 @@ def test_upload_file_object_to_s3(mocked_boto3, data_science_settings):
     helpers.upload_file_object_to_s3(
         file_object=file_object,
         bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        key=data_science_settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
+        key='key',
     )
     assert mocked_boto3.client().put_object.called
     assert mocked_boto3.client().put_object.call_args == mock.call(
         Body=file_object.getvalue(),
         Bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        Key=data_science_settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
+        Key='key',
     )
 
 
@@ -37,10 +37,10 @@ def test_upload_file_object_to_s3(mocked_boto3, data_science_settings):
 def test_get_file_from_s3(mocked_boto3, data_science_settings):
     helpers.get_file_from_s3(
         bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        key=data_science_settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+        key='key'
     )
     assert mocked_boto3.client().get_object.called
     assert mocked_boto3.client().get_object.call_args == mock.call(
         Bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        Key=data_science_settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+        Key='key'
     )

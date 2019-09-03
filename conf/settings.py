@@ -363,6 +363,7 @@ AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
 AWS_S3_DEFAULT_BINDING_BUCKET_NAME = env.str('AWS_S3_DEFAULT_BINDING_BUCKET_NAME')
 AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME = env.str('AWS_S3_DATASCIENCE_BINDING_BUCKET_NAME')
+AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = ''
 
 if 'aws-s3-bucket' in VCAP_SERVICES:
     for aws_paas_bucket in VCAP_SERVICES['aws-s3-bucket']:
@@ -612,7 +613,6 @@ DIRECTORY_HEALTHCHECK_BACKENDS = [
     # INSTALLED_APPS's health_check.db and health_check.cache
 ]
 
-CSV_DUMP_BUCKET_NAME = env.str('CSV_DUMP_BUCKET_NAME')
 CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'

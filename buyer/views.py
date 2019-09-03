@@ -12,6 +12,6 @@ class BuyerCreateAPIView(CreateAPIView):
 
 
 class BuyerCSVDownloadAPIView(CSVDumpAPIView):
-    bucket = settings.CSV_DUMP_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
     key = settings.BUYERS_CSV_FILE_NAME
     filename = settings.BUYERS_CSV_FILE_NAME

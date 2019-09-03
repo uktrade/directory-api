@@ -89,7 +89,7 @@ class CompanyCollboratorsListView(ListAPIView):
 
 
 class SupplierCSVDownloadAPIView(CSVDumpAPIView):
-    bucket = settings.CSV_DUMP_BUCKET_NAME
+    bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
     key = settings.SUPPLIERS_CSV_FILE_NAME
     filename = settings.SUPPLIERS_CSV_FILE_NAME
 
