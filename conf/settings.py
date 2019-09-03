@@ -366,23 +366,31 @@ AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME = env.str('AWS_S3_DATASCIENCE_BINDING_BU
 AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = ''
 
 if 'aws-s3-bucket' in VCAP_SERVICES:
-    for aws_paas_bucket in VCAP_SERVICES['aws-s3-bucket']:
-        if aws_paas_bucket['name'] == AWS_S3_DEFAULT_BINDING_BUCKET_NAME:
-            credentials = aws_paas_bucket['credentials']
-            AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
-            AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
-            AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
-            AWS_S3_REGION_NAME = credentials['aws_region']
-            AWS_S3_ENCRYPTION = True
-            AWS_DEFAULT_ACL = None
-        elif aws_paas_bucket['name'] == AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME:
-            credentials = aws_paas_bucket['credentials']
-            AWS_ACCESS_KEY_ID_DATA_SCIENCE = credentials['aws_access_key_id']
-            AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = credentials['aws_secret_access_key']
-            AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = credentials['bucket_name']
-            AWS_S3_REGION_NAME_DATA_SCIENCE = credentials['aws_region']
-            AWS_S3_ENCRYPTION_DATA_SCIENCE = True
-            AWS_DEFAULT_ACL_DATA_SCIENCE = None
+    bucket_credentials_map = {
+        item['name']: item
+        for item in VCAP_SERVICES['aws-s3-bucket']
+    }
+
+    default_credentials = bucket_credentials_map[AWS_S3_DEFAULT_BINDING_BUCKET_NAME]
+    datascience_credentials = bucket_credentials_map[AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME]
+
+    # Setting up the the main S3 PaSS bucket
+    credentials = default_credentials['credentials']
+    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
+    AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
+    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
+    AWS_S3_REGION_NAME = credentials['aws_region']
+    AWS_S3_ENCRYPTION = True
+    AWS_DEFAULT_ACL = None
+
+    # Setting up the the datascience s3 PaSS bucket
+    credentials = datascience_credentials['credentials']
+    AWS_ACCESS_KEY_ID_DATA_SCIENCE = credentials['aws_access_key_id']
+    AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = credentials['aws_secret_access_key']
+    AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = credentials['bucket_name']
+    AWS_S3_REGION_NAME_DATA_SCIENCE = credentials['aws_region']
+    AWS_S3_ENCRYPTION_DATA_SCIENCE = True
+    AWS_DEFAULT_ACL_DATA_SCIENCE = None
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
