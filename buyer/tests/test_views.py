@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 
 from buyer import models
+from core.tests.test_views import reload_urlconf
 
 
 @pytest.mark.django_db
@@ -36,6 +37,9 @@ def test_create_buyer_deserialization(client):
        Mock(return_value=True))
 @patch('core.views.get_file_from_s3')
 def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):
+    settings.STORAGE_CLASS_NAME = 'default'
+    settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
+    reload_urlconf()
     mocked_body = Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
     mocked_get_file_from_s3.return_value = {
