@@ -428,6 +428,22 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'accepted': {'required': False},
         }
 
+    def update(self, instance, validated_data):
+        if validated_data.get('accepted') is True:
+            validated_data['accepted_date'] = now()
+            self.update_or_create_supplier(instance)
+        return super().update(instance, validated_data)
+
+    def update_or_create_supplier(self, collaborator_invite):
+        Supplier.objects.update_or_create(
+            sso_id=self.context['request'].user.id,
+            company_email=collaborator_invite.collaborator_email,
+            defaults={
+                'company': collaborator_invite.company,
+                'role': collaborator_invite.role,
+            }
+        )
+
 
 class AddCollaboratorSerializer(serializers.ModelSerializer):
 

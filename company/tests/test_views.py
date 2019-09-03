@@ -2799,6 +2799,9 @@ def test_collaboration_invite_retrieve(client, authed_supplier):
 
 @pytest.mark.django_db
 def test_collaboration_invite_update(authed_client, authed_supplier):
+    # at this point the user's supplier has not yet been created
+    authed_supplier.delete()
+
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
@@ -2810,10 +2813,13 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
         'collaborator_email': invite.collaborator_email,
         'company': invite.company.pk,
         'requestor': invite.requestor.pk,
-        'accepted_date': invite.accepted_date,
+        'accepted_date': mock.ANY,
         'role': invite.role,
         'accepted': True
     }
+    supplier = Supplier.objects.get(company_email=invite.collaborator_email)
+    assert supplier.company == invite.company
+    assert supplier.role == invite.role
 
 
 @pytest.mark.django_db
