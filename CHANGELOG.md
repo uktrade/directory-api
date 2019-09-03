@@ -6,14 +6,17 @@
 - TT-1733 - Added request identity verification feature
 - TT-1733 - Allow name to be provided on supplier create
 - TT-1716 - Allow disconnecting self from company
+- TT-1727 - Consolidate collaboration models in backwards compatible way.
 - TT-1734 - Allow adding second user as member to a company profile
 - TT-1716 - Company search stop words
 - TT-1761 - Remove fab casestudies notification
- 
+
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable
     AWS_S3_DEFAULT_BINDING_BUCKET_NAME, AWS_S3_DATASCIENCE_BINDING_BUCKET_NAME
-
+- TT-1727 - Allow changing role of collaborator
+- TT-1748 - Allow anonymous user retrieving collaboration invite
+ 
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 
