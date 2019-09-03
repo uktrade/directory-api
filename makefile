@@ -88,7 +88,10 @@ DEBUG_SET_ENV_VARS := \
 	export CELERY_TASK_ALWAYS_EAGER=true; \
 	export AUTHBROKER_CLIENT_ID=debug; \
 	export AUTHBROKER_CLIENT_SECRET=debug; \
-	export STAFF_SSO_AUTHBROKER_URL=https://www.test.com
+	export STAFF_SSO_AUTHBROKER_URL=https://www.test.com; \
+	export AWS_S3_DEFAULT_BINDING_BUCKET_NAME=debug; \
+	export AWS_S3_DATASCIENCE_BINDING_BUCKET_NAME=debug
+
 
 
 TEST_SET_ENV_VARS := \
