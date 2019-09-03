@@ -10,7 +10,8 @@
 - TT-1734 - Allow adding second user as member to a company profile
 - TT-1716 - Company search stop words
 - TT-1727 - Allow changing role of collaborator
-
+- TT-1748 - Allow anonymous user retrieving collaboration invite
+ 
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 
