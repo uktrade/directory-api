@@ -19,7 +19,7 @@ def test_company_doc_type():
     case_study = factories.CompanyCaseStudyFactory(company=company)
 
     logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
-    
+
     with patch.object(company, 'logo', new_callable=logo_mock):
         doc = documents.company_model_to_document(company)
 
