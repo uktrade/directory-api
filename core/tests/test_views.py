@@ -16,6 +16,13 @@ def reload_urlconf(urlconf=None):
         import_module(urlconf)
 
 
+def reload_module(module):
+    if module in sys.modules:
+        reload(sys.modules[module])
+    else:
+        import_module(module)
+
+
 def test_force_staff_sso(client):
     """Test that URLs and redirects are in place."""
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True

@@ -11,13 +11,9 @@ class BuyerCreateAPIView(CreateAPIView):
     permission_classes = []
 
 
-class BuyerCSVDownloadAPIView(CSVDumpAPIView):
-    key = settings.BUYERS_CSV_FILE_NAME
-    filename = settings.BUYERS_CSV_FILE_NAME
-
-    def __init__(self):
-        self.bucket = self.aws_bucket_name
-
-    @property
-    def aws_bucket_name(self):
-        return settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
+if settings.STORAGE_CLASS_NAME == 'default':
+    # this view only works if s3 is in use (s3 is default. in local dev local storage is used
+    class BuyerCSVDownloadAPIView(CSVDumpAPIView):
+        bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
+        key = settings.BUYERS_CSV_FILE_NAME
+        filename = settings.BUYERS_CSV_FILE_NAME
