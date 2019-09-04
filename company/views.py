@@ -257,12 +257,14 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'retrieve':
             permission_classes = []
+        elif self.action == 'partial_update':
+            permission_classes = [IsAuthenticatedSSO]
         else:
             permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        if self.action == 'retrieve':
+        if self.action in ['retrieve', 'partial_update']:
             return self.queryset
         return self.queryset.filter(company_id=self.request.user.supplier.company_id)
 
