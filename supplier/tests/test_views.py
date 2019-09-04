@@ -281,6 +281,7 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
     reload_module('supplier.views')
     reload_module('buyer.views')
     reload_urlconf()
+    
     mocked_body = Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
     mocked_get_file_from_s3.return_value = {
