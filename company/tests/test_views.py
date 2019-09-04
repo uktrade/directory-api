@@ -2779,11 +2779,11 @@ def test_collaboration_invite_list(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-def test_collaboration_invite_retrieve(authed_client, authed_supplier):
+def test_collaboration_invite_retrieve(client, authed_supplier):
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
-    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
-    response = authed_client.get(url)
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
+    response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
@@ -2801,7 +2801,7 @@ def test_collaboration_invite_retrieve(authed_client, authed_supplier):
 def test_collaboration_invite_update(authed_client, authed_supplier):
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
-    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
 
     assert response.status_code == status.HTTP_200_OK
@@ -2820,7 +2820,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
 def test_collaboration_invite_delete(authed_client, authed_supplier):
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
-    url = reverse('collaboration-invite-retrieve', kwargs={'uuid': invite.uuid})
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT

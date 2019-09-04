@@ -251,11 +251,19 @@ class CollaboratorRequestView(generics.CreateAPIView):
 
 class CollaborationInviteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CollaborationInviteSerializer
-    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
     queryset = models.CollaborationInvite.objects.all()
     lookup_field = 'uuid'
 
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            permission_classes = []
+        else:
+            permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
+        if self.action == 'retrieve':
+            return self.queryset
         return self.queryset.filter(company_id=self.request.user.supplier.company_id)
 
     def perform_create(self, serializer):
