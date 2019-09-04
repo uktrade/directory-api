@@ -89,7 +89,7 @@ class CompanyCollboratorsListView(ListAPIView):
 
 
 if settings.STORAGE_CLASS_NAME == 'default':
-    # this view only works if s3 is in use (s3 is default. in local dev local storage is used
+    # this view only works if s3 is in use (s3 is default. in local dev local storage is used)
     class SupplierCSVDownloadAPIView(CSVDumpAPIView):
         bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
         key = settings.SUPPLIERS_CSV_FILE_NAME
