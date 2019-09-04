@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from core.tests.test_views import reload_urlconf, reload_module
+from core.tests.test_views import reload_modules_urlconf
 
 from supplier import helpers, models, serializers
 from supplier.tests import factories, VALID_REQUEST_DATA
@@ -278,9 +278,7 @@ def test_company_collaborators_profile_owner_collaborators(
 def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
     settings.STORAGE_CLASS_NAME = 'default'
     settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
-    reload_module('supplier.views')
-    reload_module('buyer.views')
-    reload_urlconf()
+    reload_modules_urlconf(modules=['supplier.views', 'buyer.views'])
     mocked_body = Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
     mocked_get_file_from_s3.return_value = {

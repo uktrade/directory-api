@@ -7,7 +7,7 @@ import pytest
 
 from django.conf import settings
 
-from core.tests.test_views import reload_urlconf
+from core.tests.test_views import reload_modules_urlconf
 from company import documents, helpers, serializers
 from company.tests import factories
 
@@ -16,7 +16,7 @@ from company.tests import factories
 @freeze_time('2016-11-23T11:21:10.977518Z')
 def test_company_doc_type():
     settings.STORAGE_CLASS_NAME = 'local-storage'
-    reload_urlconf()
+    reload_modules_urlconf()
     company = factories.CompanyFactory(
         date_of_creation=datetime.date(2000, 10, 10),
         sectors=['AEROSPACE', 'AIRPORTS']

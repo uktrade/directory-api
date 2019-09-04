@@ -1,7 +1,7 @@
 import pytest
 
 from django.urls import reverse
-from core.tests.test_views import reload_urlconf
+from core.tests.test_views import reload_modules_urlconf
 from django.contrib.auth.models import User
 
 SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES = [
@@ -24,7 +24,7 @@ def admin_user():
 def test_signature_check_middleware_admin(admin_client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
 
     response = admin_client.get(reverse('admin:auth_user_changelist'))
 
@@ -35,7 +35,7 @@ def test_signature_check_middleware_healthcheck(admin_client, settings):
 
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
 
     response = admin_client.get(reverse('healthcheck:ping'))
 
@@ -45,7 +45,7 @@ def test_signature_check_middleware_healthcheck(admin_client, settings):
 def test_signature_check_middleware_admin_login(admin_client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
     response = admin_client.get(reverse('admin:login'))
 
     assert response.status_code == 302
@@ -54,7 +54,7 @@ def test_signature_check_middleware_admin_login(admin_client, settings):
 def test_signature_check_middleware_authbroker_login(admin_client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
 
     response = admin_client.get(reverse('authbroker_client:login'))
 
@@ -65,7 +65,7 @@ def test_signature_check_middleware_authbroker_login(admin_client, settings):
 def test_authenticated_user_middleware_no_user(client, settings):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
     response = client.get(reverse('admin:login'))
 
     assert response.status_code == 302
@@ -76,7 +76,7 @@ def test_authenticated_user_middleware_no_user(client, settings):
 def test_authenticated_user_middleware_authorised_no_staff(client, settings, admin_user):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
     client.force_login(admin_user)
 
     response = client.get(reverse('admin:login'))
@@ -88,7 +88,7 @@ def test_authenticated_user_middleware_authorised_no_staff(client, settings, adm
 def test_authenticated_user_middleware_authorised_with_staff(client, settings, admin_user):
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
-    reload_urlconf()
+    reload_modules_urlconf()
     admin_user.is_staff = True
     admin_user.save()
     client.force_login(admin_user)
