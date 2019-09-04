@@ -88,10 +88,12 @@ class CompanyCollboratorsListView(ListAPIView):
         return models.Supplier.objects.filter(company_id=self.request.user.supplier.company_id)
 
 
-class SupplierCSVDownloadAPIView(CSVDumpAPIView):
-    bucket = settings.CSV_DUMP_BUCKET_NAME
-    key = settings.SUPPLIERS_CSV_FILE_NAME
-    filename = settings.SUPPLIERS_CSV_FILE_NAME
+if settings.STORAGE_CLASS_NAME == 'default':
+    # this view only works if s3 is in use (s3 is default. in local dev local storage is used)
+    class SupplierCSVDownloadAPIView(CSVDumpAPIView):
+        bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
+        key = settings.SUPPLIERS_CSV_FILE_NAME
+        filename = settings.SUPPLIERS_CSV_FILE_NAME
 
 
 class CollaboratorDisconnectView(views.APIView):

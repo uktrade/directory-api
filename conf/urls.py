@@ -235,16 +235,6 @@ urlpatterns = [
         name='investment-support-directory-search'
     ),
     url(
-        r'buyer/csv-dump/$',
-        buyer.views.BuyerCSVDownloadAPIView.as_view(),
-        name='buyer-csv-dump'
-    ),
-    url(
-        r'supplier/csv-dump/$',
-        supplier.views.SupplierCSVDownloadAPIView.as_view(),
-        name='supplier-csv-dump'
-    ),
-    url(
         r'exporting/offices/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficesByPostCode.as_view(),
         name='offices-by-postcode'
@@ -288,6 +278,19 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             django.views.static.serve,
             {'document_root': settings.MEDIA_ROOT},
             name='media'
+        ),
+    ]
+elif settings.STORAGE_CLASS_NAME == 'default':
+    urlpatterns += [
+        url(
+            r'buyer/csv-dump/$',
+            buyer.views.BuyerCSVDownloadAPIView.as_view(),
+            name='buyer-csv-dump'
+        ),
+        url(
+            r'supplier/csv-dump/$',
+            supplier.views.SupplierCSVDownloadAPIView.as_view(),
+            name='supplier-csv-dump'
         ),
     ]
 
