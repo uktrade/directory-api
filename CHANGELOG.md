@@ -20,6 +20,7 @@
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 - TT-1768 - Fix elasticsearch migrate
+- No ticket  - Fix datascience s3 bucket ()
 
 ## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)

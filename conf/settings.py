@@ -388,8 +388,6 @@ if 'aws-s3-bucket' in VCAP_SERVICES:
     AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = credentials['aws_secret_access_key']
     AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = credentials['bucket_name']
     AWS_S3_REGION_NAME_DATA_SCIENCE = credentials['aws_region']
-    AWS_S3_ENCRYPTION_DATA_SCIENCE = True
-    AWS_DEFAULT_ACL_DATA_SCIENCE = None
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
