@@ -89,6 +89,11 @@ urlpatterns = [
         name='gecko-total-registered-suppliers'
     ),
     url(
+        r'^supplier/(?P<sso_id>[0-9]+)/$',
+        supplier.views.SupplierRetrieveAPIView.as_view(),
+        name='supplier-retrieve-sso-id'
+    ),
+    url(
         r'^supplier/company/$',
         company.views.CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
