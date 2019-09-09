@@ -30,8 +30,6 @@ def test_upload_file_object_to_s3(mocked_boto3, data_science_settings):
         Body=file_object.getvalue(),
         Bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
         Key='key',
-        ACL=settings.AWS_DEFAULT_ACL_DATA_SCIENCE,
-        ServerSideEncryption=settings.AWS_S3_ENCRYPTION_DATA_SCIENCE,
     )
 
 

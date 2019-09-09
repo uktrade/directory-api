@@ -24,8 +24,6 @@ def upload_file_object_to_s3(file_object, bucket, key):
         Bucket=bucket,
         Key=key,
         Body=file_object.getvalue(),
-        ACL=settings.AWS_DEFAULT_ACL_DATA_SCIENCE,
-        ServerSideEncryption=settings.AWS_S3_ENCRYPTION_DATA_SCIENCE,
     )
 
 
