@@ -1,6 +1,6 @@
 from directory_constants import user_roles
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -109,3 +109,11 @@ class CollaboratorDisconnectView(views.APIView):
         supplier.role = user_roles.MEMBER
         supplier.save()
         return Response()
+
+
+class SupplierRetrieveAPIView(RetrieveAPIView):
+    serializer_class = serializers.SupplierSerializer
+    queryset = models.Supplier.objects.all()
+    permission_classes = []
+    lookup_url_kwarg = 'sso_id'
+    lookup_field = 'sso_id'
