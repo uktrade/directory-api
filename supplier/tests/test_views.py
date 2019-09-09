@@ -332,3 +332,15 @@ def test_disconnect_supplier_multiple_admin(authed_supplier, authed_client, role
 
     assert authed_supplier.company is None
     assert authed_supplier.role == user_roles.MEMBER
+
+
+@pytest.mark.django_db
+def test_supplier_retrieve_sso_id(client):
+
+    supplier = factories.SupplierFactory()
+
+    url = reverse('supplier-retrieve-sso-id', kwargs={'sso_id': supplier.sso_id})
+
+    response = client.get(url)
+
+    assert response.json()['sso_id'] == supplier.sso_id
