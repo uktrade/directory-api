@@ -3,12 +3,36 @@
 ## Pre release
 
 ### Implemented enhancements
+- TT-1733 - Added request identity verification feature
+- TT-1733 - Allow name to be provided on supplier create
+- TT-1716 - Allow disconnecting self from company
+- TT-1727 - Consolidate collaboration models in backwards compatible way.
+- TT-1734 - Allow adding second user as member to a company profile
+- TT-1716 - Company search stop words
+- TT-1761 - Remove fab casestudies notification
+- TT-1727 - Allow changing role of collaborator
+- TT-1748 - Allow anonymous user retrieving collaboration invite
+
+## Breaking changes
+- TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
+    AWS_S3_DEFAULT_BINDING_BUCKET_NAME, AWS_S3_DATASCIENCE_BINDING_BUCKET_NAME
+ 
+### Fixed bugs
+- No ticket - Upgrade django to 1.11.23 to fix vulnerability
+- TT-1768 - Fix elasticsearch migrate
+- No ticket  - Fix datascience s3 bucket ()
+
+## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)
+
+### Implemented enhancements
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
 - TT-851 - Companies house status check admin upgrade
 - TT-1613 Reduce stannp to flag errors from <50 to <10 
 - TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON) 
 - TT-1700 - Show error when user doesn't have staff status
+- TT-1735 - Forms & Directory-API SSO display message for 1st time users
 
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)

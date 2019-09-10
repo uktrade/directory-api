@@ -1,11 +1,9 @@
 from django.conf import settings
 from django.utils import timezone
 
-from directory_constants import company_types
+from directory_constants import company_types, user_roles
 
-from company.email import CollaboratorNotification, OwnershipChangeNotification
-from company.utils import send_verification_letter, send_registration_letter
-from company import documents
+from company import email, documents, helpers, models
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -18,7 +16,7 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         instance.has_valid_address(),
     ])
     if should_send_letter:
-        send_verification_letter(
+        helpers.send_verification_letter(
             company=instance,
             form_url='send_first_verification_letter',
         )
@@ -32,7 +30,7 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
         bool(instance.address_line_1 and instance.postal_code),
     ])
     if should_send_letter:
-        send_registration_letter(
+        helpers.send_registration_letter(
             company=instance,
             form_url='send_company_claimed_letter_automatically_sent',
         )
@@ -75,16 +73,14 @@ def send_account_ownership_transfer_notification(
     if not created:
         return
 
-    notification = OwnershipChangeNotification(instance=instance)
+    notification = email.OwnershipChangeNotification(instance=instance)
     notification.send_async()
 
 
-def send_account_collaborator_notification(
-    sender, instance, created, *args, **kwargs
-):
+def send_account_collaborator_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
-    notification = CollaboratorNotification(instance=instance)
+    notification = email.CollaboratorNotification(instance=instance)
     notification.send_async()
 
 
@@ -100,3 +96,31 @@ def set_sole_trader_number(sender, instance, *args, **kwargs):
         # avoids clash with companies house numbers as there is no ST prefix
         # https://www.doorda.com/kb/article/company-number-prefixes.html
         instance.number = f'ST{number:06}'
+
+
+def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
+    models.CollaborationInvite.objects.update_or_create(
+        uuid=instance.uuid,
+        defaults={
+            'collaborator_email': instance.new_owner_email,
+            'company': instance.company,
+            'requestor': instance.requestor,
+            'accepted': instance.accepted,
+            'accepted_date': instance.accepted_date,
+            'role': user_roles.ADMIN,
+        }
+    )
+
+
+def create_collaboration_invite_from_collaborator_invite(sender, instance, created, *args, **kwargs):
+    models.CollaborationInvite.objects.update_or_create(
+        uuid=instance.uuid,
+        defaults={
+            'collaborator_email': instance.collaborator_email,
+            'company': instance.company,
+            'requestor': instance.requestor,
+            'accepted': instance.accepted,
+            'accepted_date': instance.accepted_date,
+            'role': user_roles.EDITOR,
+        }
+    )

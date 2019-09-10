@@ -27,10 +27,7 @@ def test_elasticsearch_migrate_turned_on(settings):
     management.call_command('elasticsearch_migrate')
 
     assert CompanyDocument.get(id=published_company.pk) is not None
-    assert CompanyDocument.get(
-        id=published_investment_support_directory.pk
-    ) is not None
-
+    assert CompanyDocument.get(id=published_investment_support_directory.pk) is not None
     assert CompanyDocument.get(id=unpublished_company.pk, ignore=404) is None
 
 

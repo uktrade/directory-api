@@ -17,7 +17,7 @@ class Command(BaseCommand):
         upload_file_object_to_s3(
             file_object=file_object,
             key=key,
-            bucket=settings.CSV_DUMP_BUCKET_NAME,
+            bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
         )
         self.stdout.write(
             self.style.SUCCESS(

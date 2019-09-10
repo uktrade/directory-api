@@ -89,6 +89,11 @@ urlpatterns = [
         name='gecko-total-registered-suppliers'
     ),
     url(
+        r'^supplier/(?P<sso_id>[0-9]+)/$',
+        supplier.views.SupplierRetrieveAPIView.as_view(),
+        name='supplier-retrieve-sso-id'
+    ),
+    url(
         r'^supplier/company/$',
         company.views.CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
@@ -104,6 +109,11 @@ urlpatterns = [
         name='company-verify-companies-house'
     ),
     url(
+        r'^supplier/company/verify/identity/$',
+        company.views.RequestVerificationWithIdentificationView.as_view(),
+        name='company-verify-identity'
+    ),
+    url(
         r'^supplier/company/case-study/$',
         company.views.CompanyCaseStudyViewSet.as_view({'post': 'create'}),
         name='company-case-study',
@@ -111,27 +121,44 @@ urlpatterns = [
     url(
         r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
         company.views.TransferOwnershipInviteRetrieveUpdateAPIView.as_view(),
-        name='transfer-ownership-invite-detail'
+        name='old-transfer-ownership-invite-detail'
     ),
     url(
         r'^supplier/company/transfer-ownership-invite/$',
         company.views.TransferOwnershipInviteCreateView.as_view(),
-        name='transfer-ownership-invite'
+        name='old-transfer-ownership-invite'
     ),
     url(
         r'^supplier/company/collaboration-invite/$',
         company.views.CollaboratorInviteCreateView.as_view(),
-        name='collaboration-invite-create'
+        name='old-collaboration-invite-create'
     ),
     url(
         r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
         company.views.CollaboratorInviteRetrieveUpdateAPIView.as_view(),
+        name='old-collaboration-invite-detail'
+    ),
+    url(
+        r'^supplier/company/collaborator-invite/$',
+        company.views.CollaborationInviteViewSet.as_view({'post': 'create', 'get': 'list'}),
+        name='collaboration-invite'
+    ),
+    url(
+        r'^supplier/company/collaborator-invite/(?P<uuid>.*)/',
+        company.views.CollaborationInviteViewSet.as_view({
+            'get': 'retrieve', 'patch': 'partial_update', 'delete': 'destroy'
+        }),
         name='collaboration-invite-detail'
     ),
     url(
         r'^supplier/company/remove-collaborators/',
         company.views.RemoveCollaboratorsView.as_view(),
         name='remove-collaborators'
+    ),
+    url(
+        r'^supplier/company/disconnect/',
+        supplier.views.CollaboratorDisconnectView.as_view(),
+        name='company-disconnect-supplier'
     ),
     url(
         r'^supplier/company/case-study/(?P<pk>[0-9]+)/$',
@@ -151,6 +178,16 @@ urlpatterns = [
         r'^supplier/company/collaborator-request/$',
         company.views.CollaboratorRequestView.as_view(),
         name='collaborator-request'
+    ),
+    url(
+        r'^supplier/company/add-collaborator/$',
+        company.views.AddCollaboratorView.as_view(),
+        name='register-company-collaborator-request'
+    ),
+    url(
+        r'^supplier/company/change-collaborator-role/(?P<sso_id>\d+)/$',
+        company.views.ChangeCollaboratorRoleView.as_view(),
+        name='change-collaborator-role'
     ),
     url(
         r'^supplier/$',
@@ -203,16 +240,6 @@ urlpatterns = [
         name='investment-support-directory-search'
     ),
     url(
-        r'buyer/csv-dump/$',
-        buyer.views.BuyerCSVDownloadAPIView.as_view(),
-        name='buyer-csv-dump'
-    ),
-    url(
-        r'supplier/csv-dump/$',
-        supplier.views.SupplierCSVDownloadAPIView.as_view(),
-        name='supplier-csv-dump'
-    ),
-    url(
         r'exporting/offices/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficesByPostCode.as_view(),
         name='offices-by-postcode'
@@ -256,6 +283,19 @@ if settings.STORAGE_CLASS_NAME == 'local-storage':
             django.views.static.serve,
             {'document_root': settings.MEDIA_ROOT},
             name='media'
+        ),
+    ]
+elif settings.STORAGE_CLASS_NAME == 'default':
+    urlpatterns += [
+        url(
+            r'buyer/csv-dump/$',
+            buyer.views.BuyerCSVDownloadAPIView.as_view(),
+            name='buyer-csv-dump'
+        ),
+        url(
+            r'supplier/csv-dump/$',
+            supplier.views.SupplierCSVDownloadAPIView.as_view(),
+            name='supplier-csv-dump'
         ),
     ]
 

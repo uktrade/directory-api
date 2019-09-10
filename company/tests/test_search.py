@@ -5,6 +5,9 @@ from freezegun import freeze_time
 from freezegun.api import datetime_to_fakedatetime, date_to_fakedate
 import pytest
 
+from django.conf import settings
+
+from core.tests.test_views import reload_urlconf
 from company import documents, helpers, serializers
 from company.tests import factories
 
@@ -12,6 +15,8 @@ from company.tests import factories
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
 def test_company_doc_type():
+    settings.STORAGE_CLASS_NAME = 'local-storage'
+    reload_urlconf()
     company = factories.CompanyFactory(
         date_of_creation=datetime.date(2000, 10, 10),
         sectors=['AEROSPACE', 'AIRPORTS']

@@ -1,19 +1,17 @@
 import base64
 from unittest.mock import call, patch, Mock
-import http
-
-from django.conf import settings
-from django.core.urlresolvers import reverse
 
 import pytest
-
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from supplier.models import Supplier
-from supplier import serializers
-from supplier.helpers import SSOUser
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from core.tests.test_views import reload_urlconf, reload_module
+
+from supplier import helpers, models, serializers
 from supplier.tests import factories, VALID_REQUEST_DATA
+from directory_constants import user_roles
 
 
 @pytest.fixture
@@ -62,7 +60,7 @@ def test_supplier_retrieve_no_supplier(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_gecko_num_registered_supplier_view_returns_correct_json():
     client = APIClient()
-    Supplier.objects.create(**VALID_REQUEST_DATA)
+    models.Supplier.objects.create(**VALID_REQUEST_DATA)
     # Use basic auth with user=gecko and pass=X
     encoded_creds = base64.b64encode(
         'gecko:X'.encode('ascii')).decode("ascii")
@@ -110,7 +108,7 @@ def test_unsubscribe_supplier(mock_task, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
 
     authed_supplier.refresh_from_db()
-    assert response.status_code == http.client.OK
+    assert response.status_code == 200
     assert authed_supplier.unsubscribed is True
     assert mock_task.delay.called
 
@@ -132,7 +130,7 @@ def test_unsubscribe_supplier_email_confirmation(
 def test_external_supplier_details_get_bearer_auth(
     mock_authenticate_credentials, client, authed_supplier, settings
 ):
-    sso_user = SSOUser(id=authed_supplier.sso_id, email='test@example.com')
+    sso_user = helpers.SSOUser(id=authed_supplier.sso_id, email='test@example.com')
     mock_authenticate_credentials.return_value = (sso_user, '123')
 
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
@@ -218,30 +216,30 @@ def test_company_collaborators_anon_users():
 def test_company_collaborators_not_profile_owner(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = False
+    authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
     url = reverse('supplier-company-collaborators-list')
 
     response = authed_client.get(url)
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
 def test_company_collaborators_profile_owner(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = True
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
     supplier_one = factories.SupplierFactory(
         company=authed_supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
     )
     supplier_two = factories.SupplierFactory(
         company=authed_supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
     )
     factories.SupplierFactory()
 
@@ -251,16 +249,16 @@ def test_company_collaborators_profile_owner(
 
     assert response.status_code == 200
     parsed = response.json()
-    supplier_sso_ids = {supplier_one.sso_id, supplier_two.sso_id}
+    supplier_sso_ids = {supplier_one.sso_id, supplier_two.sso_id, authed_supplier.sso_id}
 
     assert {supplier['sso_id'] for supplier in parsed} == supplier_sso_ids
 
 
 @pytest.mark.django_db
-def test_company_collaborators_profile_owner_no_collaborators(
+def test_company_collaborators_profile_owner_collaborators(
     authed_supplier, authed_client
 ):
-    authed_supplier.is_company_owner = True
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
     url = reverse('supplier-company-collaborators-list')
@@ -268,7 +266,9 @@ def test_company_collaborators_profile_owner_no_collaborators(
     response = authed_client.get(url)
 
     assert response.status_code == 200
-    assert response.json() == []
+    assert response.json() == [
+        serializers.SupplierSerializer(authed_supplier).data
+    ]
 
 
 @pytest.mark.django_db
@@ -276,6 +276,12 @@ def test_company_collaborators_profile_owner_no_collaborators(
        Mock(return_value=True))
 @patch('core.views.get_file_from_s3')
 def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
+    settings.STORAGE_CLASS_NAME = 'default'
+    settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
+    reload_module('supplier.views')
+    reload_module('buyer.views')
+    reload_urlconf()
+
     mocked_body = Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
     mocked_get_file_from_s3.return_value = {
@@ -294,3 +300,47 @@ def test_supplier_csv_dump(mocked_get_file_from_s3, authed_client):
             filename=settings.SUPPLIERS_CSV_FILE_NAME
         )
     )
+
+
+@pytest.mark.django_db
+def test_disconnect_supplier_sole_admin(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 400
+    assert response.json() == [helpers.MESSAGE_ADMIN_NEEDED]
+
+
+@pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
+@pytest.mark.django_db
+def test_disconnect_supplier_multiple_admin(authed_supplier, authed_client, role):
+    authed_supplier.role = role
+    authed_supplier.save()
+    factories.SupplierFactory(role=user_roles.ADMIN, company=authed_supplier.company)
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 200
+
+    authed_supplier.refresh_from_db()
+
+    assert authed_supplier.company is None
+    assert authed_supplier.role == user_roles.MEMBER
+
+
+@pytest.mark.django_db
+def test_supplier_retrieve_sso_id(client):
+
+    supplier = factories.SupplierFactory()
+
+    url = reverse('supplier-retrieve-sso-id', kwargs={'sso_id': supplier.sso_id})
+
+    response = client.get(url)
+
+    assert response.json()['sso_id'] == supplier.sso_id

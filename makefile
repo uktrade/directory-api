@@ -78,7 +78,6 @@ DEBUG_SET_ENV_VARS := \
 	export FAB_OWNERSHIP_URL=http://buyer.trade.great:8001/account/transfer/accept/?invite_key={uuid}; \
 	export FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?invite_key={uuid}; \
 	export HEALTH_CHECK_TOKEN=debug; \
-	export CSV_DUMP_BUCKET_NAME=debug; \
 	export CSV_DUMP_AUTH_TOKEN=debug; \
 	export FEATURE_TEST_API_ENABLED=true; \
 	export IP_RESTRICTOR_REMOTE_IP_ADDRESS_RETRIEVER=ipware; \
@@ -89,6 +88,7 @@ DEBUG_SET_ENV_VARS := \
 	export AUTHBROKER_CLIENT_ID=debug; \
 	export AUTHBROKER_CLIENT_SECRET=debug; \
 	export STAFF_SSO_AUTHBROKER_URL=https://www.test.com
+
 
 
 TEST_SET_ENV_VARS := \
