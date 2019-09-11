@@ -12,6 +12,7 @@
 - TT-1761 - Remove fab casestudies notification
 - TT-1727 - Allow changing role of collaborator
 - TT-1748 - Allow anonymous user retrieving collaboration invite
+- No ticket - Refactor makefile and speed up tests
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
