@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -99,3 +98,4 @@ Temporary Items
 staticfiles
 media
 conf/.env
+conf/env/secrets-do-not-commit
