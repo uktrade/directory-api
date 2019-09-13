@@ -365,33 +365,18 @@ AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
-if 'aws-s3-bucket' in VCAP_SERVICES:
-    AWS_S3_DEFAULT_BINDING_BUCKET_NAME = env.str('AWS_S3_DEFAULT_BINDING_BUCKET_NAME')
-    AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME = env.str('AWS_S3_DATASCIENCE_BINDING_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
+AWS_S3_ENCRYPTION = True
+AWS_DEFAULT_ACL = None
 
-    bucket_credentials_map = {
-        item['name']: item
-        for item in VCAP_SERVICES['aws-s3-bucket']
-    }
-
-    default_credentials = bucket_credentials_map[AWS_S3_DEFAULT_BINDING_BUCKET_NAME]
-    datascience_credentials = bucket_credentials_map[AWS_S3_DATA_SCIENCE_BINDING_BUCKET_NAME]
-
-    # Setting up the the main S3 PaSS bucket
-    credentials = default_credentials['credentials']
-    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
-    AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
-    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
-    AWS_S3_REGION_NAME = credentials['aws_region']
-    AWS_S3_ENCRYPTION = True
-    AWS_DEFAULT_ACL = None
-
-    # Setting up the the datascience s3 PaSS bucket
-    credentials = datascience_credentials['credentials']
-    AWS_ACCESS_KEY_ID_DATA_SCIENCE = credentials['aws_access_key_id']
-    AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = credentials['aws_secret_access_key']
-    AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = credentials['bucket_name']
-    AWS_S3_REGION_NAME_DATA_SCIENCE = credentials['aws_region']
+# Setting up the the datascience s3 PaSS bucket
+AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.str('AWS_ACCESS_KEY_ID_DATA_SCIENCE', '')
+AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.str('AWS_SECRET_ACCESS_KEY_DATA_SCIENCE', '')
+AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.str('AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE', '')
+AWS_S3_REGION_NAME_DATA_SCIENCE = env.str('AWS_S3_REGION_NAME_DATA_SCIENCE', '')
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
