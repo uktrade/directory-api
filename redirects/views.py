@@ -11,7 +11,7 @@ class RetrieveRedirect(APIView):
 
     def get(self, request, *args, **kwargs):
         serializer_class = serializers.RedirectSerializer
-        source_url = '/'+kwargs['key']+'/'
+        source_url = kwargs['key']
         try:
             obj = models.Redirect.objects.filter(source_url=source_url)
             resp = serializer_class(obj.first()).data
