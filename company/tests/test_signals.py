@@ -294,6 +294,7 @@ def test_save_company_changes_to_elasticsearch(
     assert mock_elasticsearch_company_save.call_count == call_count
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -309,6 +310,7 @@ def test_delete_company_from_elasticsearch():
         documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -322,6 +324,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
         documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -338,6 +341,7 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
         documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_fab_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -351,6 +355,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
         documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_fab_company_from_elasticsearch():
     company = factories.CompanyFactory(

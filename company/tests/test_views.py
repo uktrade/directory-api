@@ -1279,6 +1279,7 @@ search_urls = (
 )
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 @mock.patch('elasticsearch_dsl.response.Response.to_dict')
 def test_search(mock_get_search_results, url, api_client):
@@ -1301,6 +1302,7 @@ def test_search(mock_get_search_results, url, api_client):
     assert response.json() == expected_value
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 @pytest.mark.parametrize('page_number,expected_start', [
     [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
@@ -1319,6 +1321,7 @@ def test_search_paginate_first_page(
         assert mock_search.call_args[1]['body']['from'] == expected_start
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_sector_filter(url, api_client, settings):
     es = connections.get_connection('default')
@@ -1334,6 +1337,7 @@ def test_search_sector_filter(url, api_client, settings):
         assert response.status_code == 200, response.content
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_wildcard_filters(url, api_client, settings):
     es = connections.get_connection('default')
@@ -1353,6 +1357,7 @@ def test_search_wildcard_filters(url, api_client, settings):
         assert response.status_code == 200, response.content
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_wildcard_filters_multiple(url, api_client, settings):
     es = connections.get_connection('default')
