@@ -112,6 +112,7 @@ def mock_forms_api_gov_notify_email_action():
     yield stub
     stub.stop()
 
+
 @pytest.fixture
 def enable_signature_check(mock_signature_check):
     mock_signature_check.stop()
