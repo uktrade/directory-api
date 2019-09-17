@@ -414,6 +414,11 @@ GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
     '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
 )
 
+GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID',
+    'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+)
+
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
 GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')

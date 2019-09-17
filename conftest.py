@@ -105,6 +105,13 @@ def mock_signature_check():
     stub.stop()
 
 
+@pytest.fixture(autouse=True)
+def mock_forms_api_gov_notify_email_action():
+    stub = mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
+    stub.start()
+    yield stub
+    stub.stop()
+
 @pytest.fixture
 def enable_signature_check(mock_signature_check):
     mock_signature_check.stop()

@@ -414,3 +414,43 @@ def test_send_request_identity_verification_message(mock_submit, settings):
     company.refresh_from_db()
     assert company.is_identity_check_message_sent
     assert company.date_identity_check_message_sent == timezone.now()
+
+
+@pytest.mark.django_db
+@mock.patch(
+    'directory_forms_api_client.actions.GovNotifyEmailAction'
+)
+def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
+    mock_gov_notify_email_action.stop()
+    collaboration_invite = factories.CollaborationInviteFactory()
+
+    assert mock_gov_notify_email_action.call_count == 1
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=collaboration_invite.collaborator_email,
+        form_url='send_new_invite_collaborator_notification',
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID
+    )
+
+
+@pytest.mark.django_db
+def test_extract_invite_details_name():
+    collaboration_invite = factories.CollaborationInviteFactory(requestor__name='example')
+    extracted_invite = helpers.extract_invite_details(collaboration_invite)
+    expected = {
+        'login_url': collaboration_invite.invite_link,
+        'name': 'example',
+        'company_name': collaboration_invite.company.name
+    }
+    assert extracted_invite == expected
+
+
+@pytest.mark.django_db
+def test_extract_invite_details_email():
+    collaboration_invite = factories.CollaborationInviteFactory(requestor__name=None, requestor__company_email='test@test.com')
+    extracted_invite = helpers.extract_invite_details(collaboration_invite)
+    expected = {
+        'login_url': collaboration_invite.invite_link,
+        'name': 'test@test.com',
+        'company_name': collaboration_invite.company.name
+    }
+    assert extracted_invite == expected

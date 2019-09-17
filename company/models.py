@@ -441,6 +441,12 @@ class CollaborationInvite(TimeStampedModel):
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
 
+    @property
+    def invite_link(self):
+        return settings.FAB_COLLABORATOR_URL.format(
+            uuid=self.uuid
+        )
+
 
 class CollaboratorRequest(TimeStampedModel):
     collaborator_email = models.EmailField()

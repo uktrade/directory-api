@@ -421,3 +421,19 @@ def test_create_collaboration_invite_from_collaborator_invite():
     assert collaboration_invite.company.pk == invite.company.pk
     assert collaboration_invite.requestor.pk == invite.requestor.pk
     assert collaboration_invite.role == user_roles.EDITOR
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_invite_email')
+def test_send_new_invite_collaboration_notification(mock_send_invite_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    assert mock_send_invite_email.call_count == 1
+    assert mock_send_invite_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        form_url='send_new_invite_collaborator_notification',
+    )
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+
+    assert mock_send_invite_email.call_count == 1
