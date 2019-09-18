@@ -4,22 +4,8 @@ clean:
 	-find . -type f -name "*.pyc" -delete
 	-find . -type d -name "__pycache__" -delete
 
-
 pytest:
-	ENV_FILES='test,dev' \
-	pytest $(ARGUMENTS) \
-	--ignore=node_modules \
-	--ignore=conf/celery.py \
-	--capture=no \
-	--nomigrations \
-	--reuse-db \
-	-W ignore::DeprecationWarning \
-	-vv
-
-flake8:
-	flake8 . \
-	--exclude=.venv,venv,node_modules,migrations \
-	--max-line-length=120
+	ENV_FILES='test,dev' pytest $(ARGUMENTS)
 
 manage:
 	ENV_FILES='secrets-do-not-commit,dev' ./manage.py $(ARGUMENTS)
@@ -48,4 +34,4 @@ beat:
 	ENV_FILES='secrets-do-not-commit,dev' celery -A conf beat -l info -S django
 
 
-.PHONY: clean pytest flake8 manage webserver requirements install_requirements css worker beat
+.PHONY: clean pytest manage webserver requirements install_requirements css worker beat

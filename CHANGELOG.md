@@ -13,6 +13,7 @@
 - TT-1727 - Allow changing role of collaborator
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
+- No ticket - Remove mobile number unique constraint
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
