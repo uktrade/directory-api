@@ -439,18 +439,66 @@ def test_extract_invite_details_name():
     expected = {
         'login_url': collaboration_invite.invite_link,
         'name': 'example',
-        'company_name': collaboration_invite.company.name
+        'company_name': collaboration_invite.company.name,
+        'role': collaboration_invite.role
     }
     assert extracted_invite == expected
 
 
 @pytest.mark.django_db
 def test_extract_invite_details_email():
-    collaboration_invite = factories.CollaborationInviteFactory(requestor__name=None, requestor__company_email='test@test.com')
+    collaboration_invite = factories.CollaborationInviteFactory(
+        requestor__name=None, requestor__company_email='test@test.com'
+    )
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
     expected = {
         'login_url': collaboration_invite.invite_link,
         'name': 'test@test.com',
-        'company_name': collaboration_invite.company.name
+        'company_name': collaboration_invite.company.name,
+        'role': collaboration_invite.role
     }
     assert extracted_invite == expected
+
+
+@pytest.mark.django_db
+def test_is_invitee_other_company_member():
+    existing_member = SupplierFactory()
+    collaboration_invite = factories.CollaborationInviteFactory(
+        collaborator_email=existing_member.company_email,
+        requestor__company_email='test@test.com',
+        company=existing_member.company
+    )
+    is_member = helpers.is_invitee_other_company_member(
+        collaboration_invite=collaboration_invite,
+    )
+
+    assert is_member is True
+
+
+@pytest.mark.django_db
+def test_is_invitee_other_company_member_not_member():
+    collaboration_invite = factories.CollaborationInviteFactory(
+        requestor__name=None, requestor__company_email='test@test.com'
+    )
+
+    is_member = helpers.is_invitee_other_company_member(
+        collaboration_invite=collaboration_invite,
+    )
+
+    assert is_member is False
+
+
+@pytest.mark.django_db
+def test_get_other_company_name():
+    existing_member = SupplierFactory()
+
+    collaboration_invite = factories.CollaborationInviteFactory(
+        collaborator_email=existing_member.company_email,
+        requestor__company_email='test@test.com',
+        company=existing_member.company
+    )
+    other_company_name = helpers.get_other_company_name(
+        collaboration_invite=collaboration_invite,
+    )
+
+    assert existing_member.company.name == other_company_name

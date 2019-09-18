@@ -1,6 +1,6 @@
 import datetime
 
-from directory_constants.urls import build_great_url
+from directory_constants.urls import domestic
 
 from django.contrib import admin
 from django.conf.urls import url
@@ -26,7 +26,7 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = build_great_url('profile/enrol/pre-verified/')
+        url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
         signer = Signer()
         created_companies = [
             {**company, 'url': url + '?key=' + signer.sign(company['number'])}

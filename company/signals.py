@@ -80,10 +80,16 @@ def send_account_ownership_transfer_notification(
 def send_new_invite_collaboration_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
-    helpers.send_new_user_invite_email(
-        collaboration_invite=instance,
-        form_url='send_new_invite_collaborator_notification'
-    )
+    if helpers.is_invitee_other_company_member(collaboration_invite=instance):
+        helpers.send_new_user_invite_email_existing_company(
+            collaboration_invite=instance,
+            form_url='send_new_invite_collaborator_notification_existing'
+        )
+    else:
+        helpers.send_new_user_invite_email(
+            collaboration_invite=instance,
+            form_url='send_new_invite_collaborator_notification'
+        )
 
 
 def send_account_collaborator_notification(sender, instance, created, *args, **kwargs):

@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from company import documents, models
 from company.tests import factories
+from supplier.tests.factories import SupplierFactory
 
 
 @pytest.fixture(autouse=False)
@@ -431,6 +432,28 @@ def test_send_new_invite_collaboration_notification(mock_send_invite_email):
     assert mock_send_invite_email.call_args == mock.call(
         collaboration_invite=collaboration_invite,
         form_url='send_new_invite_collaborator_notification',
+    )
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+
+    assert mock_send_invite_email.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_invite_email_existing_company')
+def test_send_new_invite_collaboration_notification_existing_other_compant(mock_send_invite_email):
+    existing_member = SupplierFactory()
+
+    collaboration_invite = factories.CollaborationInviteFactory(
+        collaborator_email=existing_member.company_email,
+        requestor__company_email='test@test.com',
+        company=existing_member.company
+    )
+    assert mock_send_invite_email.call_count == 1
+    assert mock_send_invite_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        form_url='send_new_invite_collaborator_notification_existing',
     )
 
     collaboration_invite.accepted = True

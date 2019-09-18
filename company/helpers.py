@@ -18,6 +18,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
+from django.apps import apps
 
 
 from company.stannp import stannp_client
@@ -310,6 +311,7 @@ def send_request_identity_verification_message(supplier):
     company.date_identity_check_message_sent = timezone.now()
     company.save()
 
+
 def send_new_user_invite_email(collaboration_invite, form_url=None):
     invite_details = extract_invite_details(collaboration_invite)
     action = actions.GovNotifyEmailAction(
@@ -322,12 +324,47 @@ def send_new_user_invite_email(collaboration_invite, form_url=None):
     response.raise_for_status()
 
 
+def send_new_user_invite_email_existing_company(collaboration_invite, form_url=None):
+    invite_details = extract_invite_details(collaboration_invite)
+    invite_details['other_company_name'] = get_other_company_name(collaboration_invite)
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.collaborator_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()
+
+
 def extract_invite_details(collaboration_invite):
     return {
-        'login_url': collaboration_invite.invite_link ,
+        'login_url': collaboration_invite.invite_link,
         'name': (
                 collaboration_invite.requestor.name or
                 collaboration_invite.requestor.company_email
             ),
-        'company_name': collaboration_invite.company.name
+        'company_name': collaboration_invite.company.name,
+        'role': collaboration_invite.role
     }
+
+
+def get_other_company_name(collaboration_invite):
+    Supplier = apps.get_model('supplier', 'Supplier')
+    other_supplier = Supplier.objects.get(
+        company_email=collaboration_invite.collaborator_email,
+        company__id=collaboration_invite.company.id
+        )
+    return other_supplier.company.name
+
+
+def is_invitee_other_company_member(collaboration_invite):
+    Supplier = apps.get_model('supplier', 'Supplier')
+
+    if Supplier.objects.filter(
+        company_email=collaboration_invite.collaborator_email,
+        company__id=collaboration_invite.company.id
+    ).count() > 0:
+        return True
+    else:
+        return False
