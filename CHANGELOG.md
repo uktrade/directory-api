@@ -14,7 +14,8 @@
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
 - No ticket - Remove mobile number unique constraint
-- TT-1714 - Implement Collaborator Notifications
+- TT-1714 - Implement Collaborator Notifications 
+- TT-1841 - change admin email sent
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
