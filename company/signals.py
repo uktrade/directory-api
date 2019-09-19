@@ -82,8 +82,6 @@ def send_new_invite_collaboration_notification(sender, instance, created, *args,
         return
 
     existing_company = helpers.get_user_company(collaboration_invite=instance)
-    import pdb
-    pdb.set_trace()
     if existing_company and existing_company.company:
         helpers.send_new_user_invite_email_existing_company(
             collaboration_invite=instance,
