@@ -3,6 +3,7 @@ import http
 from unittest import mock
 
 from directory_forms_api_client.client import forms_api_client
+from directory_constants.urls import domestic
 from freezegun import freeze_time
 import pytest
 import requests_mock
@@ -457,8 +458,11 @@ def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, 
 def test_extract_invite_details_name():
     collaboration_invite = factories.CollaborationInviteFactory(requestor__name='example')
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
+    invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
+        uuid=collaboration_invite.uuid
+    )
     expected = {
-        'login_url': collaboration_invite.invite_link,
+        'login_url': invite_link,
         'name': 'example',
         'company_name': collaboration_invite.company.name,
         'role': collaboration_invite.role.capitalize()
@@ -472,8 +476,12 @@ def test_extract_invite_details_email():
         requestor__name=None, requestor__company_email='test@test.com'
     )
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
+    invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
+        uuid=collaboration_invite.uuid
+    )
+
     expected = {
-        'login_url': collaboration_invite.invite_link,
+        'login_url': invite_link,
         'name': 'test@test.com',
         'company_name': collaboration_invite.company.name,
         'role': collaboration_invite.role.capitalize()
@@ -482,44 +490,24 @@ def test_extract_invite_details_email():
 
 
 @pytest.mark.django_db
-def test_is_invitee_other_company_member():
+def test_get_user_company_name():
     existing_member = SupplierFactory()
+
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
         requestor__company_email='test@test.com',
-        company=existing_member.company
     )
-    is_member = helpers.is_invitee_other_company_member(
-        collaboration_invite=collaboration_invite,
-    )
+    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite)
 
-    assert is_member is True
+    assert existing_member.company.name is not user_company.name
 
 
 @pytest.mark.django_db
-def test_is_invitee_other_company_member_not_member():
+def test_get_user_company_not_member():
     collaboration_invite = factories.CollaborationInviteFactory(
         requestor__name=None, requestor__company_email='test@test.com'
     )
 
-    is_member = helpers.is_invitee_other_company_member(
-        collaboration_invite=collaboration_invite,
-    )
+    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite)
 
-    assert is_member is False
-
-
-@pytest.mark.django_db
-def test_get_other_company_name():
-    existing_member = SupplierFactory()
-
-    collaboration_invite = factories.CollaborationInviteFactory(
-        collaborator_email=existing_member.company_email,
-        requestor__company_email='test@test.com',
-        company=existing_member.company
-    )
-    other_company_name = helpers.get_other_company_name(
-        collaboration_invite=collaboration_invite,
-    )
-
-    assert existing_member.company.name == other_company_name
+    assert user_company is None

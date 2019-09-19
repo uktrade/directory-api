@@ -80,10 +80,13 @@ def send_account_ownership_transfer_notification(
 def send_new_invite_collaboration_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
-    if helpers.is_invitee_other_company_member(collaboration_invite=instance):
+
+    existing_company = helpers.get_user_company(collaboration_invite=instance)
+    if existing_company:
         helpers.send_new_user_invite_email_existing_company(
             collaboration_invite=instance,
-            form_url='send_new_invite_collaborator_notification_existing'
+            existing_company_name=existing_company.company.name,
+            form_url='send_new_invite_collaborator_notification_existing',
         )
     else:
         helpers.send_new_user_invite_email(

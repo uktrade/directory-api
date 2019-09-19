@@ -1,7 +1,6 @@
 import uuid
 
 from directory_constants import choices, company_types
-from directory_constants.urls import domestic
 from directory_validators import enrolment as shared_validators
 from directory_validators.company import no_html
 
@@ -441,11 +440,6 @@ class CollaborationInvite(TimeStampedModel):
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
-    @property
-    def invite_link(self):
-        return domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
-            uuid=self.uuid
-        )
 
 
 class CollaboratorRequest(TimeStampedModel):

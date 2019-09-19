@@ -442,17 +442,17 @@ def test_send_new_invite_collaboration_notification(mock_send_invite_email):
 
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_new_user_invite_email_existing_company')
-def test_send_new_invite_collaboration_notification_existing_other_compant(mock_send_invite_email):
+def test_send_new_invite_collaboration_notification_existing_company(mock_send_invite_email):
     existing_member = SupplierFactory()
 
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
         requestor__company_email='test@test.com',
-        company=existing_member.company
     )
     assert mock_send_invite_email.call_count == 1
     assert mock_send_invite_email.call_args == mock.call(
         collaboration_invite=collaboration_invite,
+        existing_company_name=existing_member.company.name,
         form_url='send_new_invite_collaborator_notification_existing',
     )
 
