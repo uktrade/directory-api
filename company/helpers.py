@@ -345,7 +345,7 @@ def extract_invite_details(collaboration_invite):
                 collaboration_invite.requestor.company_email
             ),
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role
+        'role': collaboration_invite.role.capitalize()
     }
 
 

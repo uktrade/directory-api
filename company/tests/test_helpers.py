@@ -421,7 +421,7 @@ def test_send_request_identity_verification_message(mock_submit, settings):
     'directory_forms_api_client.actions.GovNotifyEmailAction'
 )
 def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
-    mock_gov_notify_email_action.stop()
+
     collaboration_invite = factories.CollaborationInviteFactory()
 
     assert mock_gov_notify_email_action.call_count == 1
@@ -433,6 +433,27 @@ def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
 
 
 @pytest.mark.django_db
+@mock.patch(
+    'directory_forms_api_client.actions.GovNotifyEmailAction'
+)
+def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, settings):
+    mock_gov_notify_email_action.stop()
+    existing_member = SupplierFactory()
+    collaboration_invite = factories.CollaborationInviteFactory(
+        collaborator_email=existing_member.company_email,
+        requestor__company_email='test@test.com',
+        company=existing_member.company
+    )
+
+    assert mock_gov_notify_email_action.call_count == 1
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=collaboration_invite.collaborator_email,
+        form_url='send_new_invite_collaborator_notification_existing',
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID
+    )
+
+
+@pytest.mark.django_db
 def test_extract_invite_details_name():
     collaboration_invite = factories.CollaborationInviteFactory(requestor__name='example')
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
@@ -440,7 +461,7 @@ def test_extract_invite_details_name():
         'login_url': collaboration_invite.invite_link,
         'name': 'example',
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role
+        'role': collaboration_invite.role.capitalize()
     }
     assert extracted_invite == expected
 
@@ -455,7 +476,7 @@ def test_extract_invite_details_email():
         'login_url': collaboration_invite.invite_link,
         'name': 'test@test.com',
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role
+        'role': collaboration_invite.role.capitalize()
     }
     assert extracted_invite == expected
 
