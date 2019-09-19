@@ -13,6 +13,7 @@
 - TT-1727 - Allow changing role of collaborator
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
+- No ticket - Remove mobile number unique constraint
 - TT-1714 - Implement Collaborator Notifications
 
 ## Breaking changes
