@@ -476,6 +476,3 @@ def test_send_new_invite_collaboration_notification_existing_supplier_only(mock_
         collaboration_invite=collaboration_invite,
         form_url='send_new_invite_collaborator_notification',
     )
-
-
-
