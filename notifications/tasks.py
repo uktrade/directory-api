@@ -16,12 +16,6 @@ def lock_acquired(lock_name):
 
 
 @app.task
-def no_case_studies():
-    if lock_acquired('no_case_studies'):
-        notifications.no_case_studies()
-
-
-@app.task
 def hasnt_logged_in():
     if lock_acquired('hasnt_logged_in'):
         notifications.hasnt_logged_in()

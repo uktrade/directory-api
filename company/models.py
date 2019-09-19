@@ -98,10 +98,7 @@ class Company(TimeStampedModel):
         default='',
         blank=True,
     )
-    name = models.CharField(
-        max_length=255,
-        validators=[no_html],
-    )
+    name = models.TextField(validators=[no_html])
     number = models.CharField(
         help_text=(
             'For companies registered in companies house this is their '
