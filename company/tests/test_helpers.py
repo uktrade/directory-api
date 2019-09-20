@@ -499,7 +499,7 @@ def test_get_user_company_name():
     )
     user_company = helpers.get_user_company(collaboration_invite=collaboration_invite)
 
-    assert existing_member.company.name is not user_company.name
+    assert existing_member.name is not user_company.name
 
 
 @pytest.mark.django_db

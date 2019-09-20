@@ -354,7 +354,6 @@ def extract_invite_details(collaboration_invite):
 
 
 def get_user_company(collaboration_invite):
-    Supplier = apps.get_model('supplier', 'Supplier')
-    return Supplier.objects.filter(
-        company_email=collaboration_invite.collaborator_email
-        ).first()
+    #This import is required for lazy loading. Remove when we refactor and remove helpers from Company
+    from company.models import Company
+    return Company.objects.filter(suppliers__company_email=collaboration_invite.collaborator_email).first()
