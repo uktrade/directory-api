@@ -21,7 +21,7 @@ class Supplier(TimeStampedModel):
     )
     date_joined = models.DateTimeField(verbose_name='date joined', default=timezone.now,)
     # deprecated in favour of company.models.Company.contact_details
-    mobile_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    mobile_number = models.CharField(max_length=20, null=True, blank=True)
     unsubscribed = models.BooleanField(
         verbose_name='unsubscribed',
         default=False,

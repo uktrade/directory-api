@@ -55,3 +55,7 @@ class CompanyConfig(AppConfig):
             receiver=signals.create_collaboration_invite_from_collaborator_invite,
             sender='company.CollaboratorInvite'
         )
+        post_save.connect(
+            receiver=signals.send_new_invite_collaboration_notification,
+            sender='company.CollaborationInvite'
+        )
