@@ -81,7 +81,7 @@ def send_new_invite_collaboration_notification(sender, instance, created, *args,
     if not created:
         return
 
-    existing_company = helpers.get_user_company(collaboration_invite=instance)
+    existing_company = helpers.get_user_company(collaboration_invite=instance, companies=models.Company.objects.all())
     if existing_company:
         helpers.send_new_user_invite_email_existing_company(
             collaboration_invite=instance,

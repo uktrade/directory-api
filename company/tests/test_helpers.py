@@ -15,6 +15,7 @@ from django.utils import timezone
 from company.tests import factories
 from company import helpers, serializers
 from company.helpers import CompanyParser
+from company.models import Company
 from supplier.tests.factories import SupplierFactory
 
 
@@ -497,7 +498,7 @@ def test_get_user_company_name():
         collaborator_email=existing_member.company_email,
         requestor__company_email='test@test.com',
     )
-    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite)
+    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite, companies=Company.objects.all())
 
     assert existing_member.name is not user_company.name
 
@@ -508,6 +509,6 @@ def test_get_user_company_not_member():
         requestor__name=None, requestor__company_email='test@test.com'
     )
 
-    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite)
+    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite, companies=Company.objects.all())
 
     assert user_company is None
