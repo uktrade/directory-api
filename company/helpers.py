@@ -19,8 +19,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
-from django.apps import apps
-
 
 from company.stannp import stannp_client
 
