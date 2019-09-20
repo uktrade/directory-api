@@ -8,33 +8,6 @@ from notifications import constants, email, helpers
 from supplier.models import Supplier
 
 
-def hasnt_logged_in():
-    now = datetime.utcnow()
-    days_ago = now - timedelta(days=settings.HASNT_LOGGED_IN_DAYS)
-    start_datetime = days_ago.replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
-    end_datetime = days_ago.replace(
-        hour=23, minute=59, second=59, microsecond=999999
-    )
-
-    login_data = sso_api_client.user.get_last_login(
-        start=start_datetime, end=end_datetime
-    ).json()
-
-    sso_ids = [sso_user['id'] for sso_user in login_data]
-    suppliers = Supplier.objects.filter(
-        sso_id__in=sso_ids,
-        company__is_uk_isd_company=False,
-    ).exclude(
-        supplieremailnotification__category=constants.HASNT_LOGGED_IN,
-    )
-
-    for supplier in suppliers:
-        notification = email.HasNotLoggedInRecentlyNotification(supplier)
-        notification.send()
-
-
 def verification_code_not_given():
     verification_code_not_given_first_reminder()
     verification_code_not_given_seconds_reminder()
