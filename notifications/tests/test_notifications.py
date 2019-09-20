@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 
 import pytest
 

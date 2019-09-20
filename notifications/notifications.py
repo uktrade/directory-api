@@ -1,11 +1,6 @@
-from datetime import timedelta, datetime
-
 from django.conf import settings
 
-from directory_sso_api_client.client import sso_api_client
-
 from notifications import constants, email, helpers
-from supplier.models import Supplier
 
 
 def verification_code_not_given():
