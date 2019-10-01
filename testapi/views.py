@@ -1,16 +1,19 @@
 from django.http import Http404
 from rest_framework.generics import (
-    get_object_or_404,
     CreateAPIView,
     DestroyAPIView,
-    RetrieveAPIView,
     GenericAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+    get_object_or_404,
 )
 from rest_framework.response import Response
 
 from django.conf import settings
 from django.core.signing import Signer
 from django.db.models import Q
+from rest_framework.utils import json
+
 from company.models import Company
 from testapi.serializers import (
     CompanySerializer,
@@ -31,19 +34,22 @@ class TestAPIView(GenericAPIView):
         return super().dispatch(*args, **kwargs)
 
 
-class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
+class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
     permission_classes = []
     lookup_field = 'number'
-    http_method_names = ('get', 'delete')
+    http_method_names = ('get', 'delete', 'patch')
 
-    def get_company(self, ch_id):
-        return get_object_or_404(Company, number=ch_id)
+    def get_company(self, ch_id_or_name):
+        try:
+            return get_object_or_404(Company, number=ch_id_or_name)
+        except Http404:
+            return get_object_or_404(Company, name=ch_id_or_name)
 
     def get(self, request, *args, **kwargs):
-        ch_id = kwargs['ch_id']
-        company = self.get_company(ch_id)
+        ch_id_or_name = kwargs['ch_id_or_name']
+        company = self.get_company(ch_id_or_name)
         signer = Signer()
         response_data = {
             'letter_verification_code': company.verification_code,
@@ -55,13 +61,34 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
                 company.is_published_investment_support_directory,
             'is_published_find_a_supplier':
                 company.is_published_find_a_supplier,
+            'is_identity_check_message_sent':
+                company.is_identity_check_message_sent,
+            'verified_with_identity_check':
+                company.verified_with_identity_check,
         }
         return Response(response_data)
 
     def delete(self, request, *args, **kwargs):
-        ch_id = kwargs['ch_id']
-        self.get_company(ch_id).delete()
+        ch_id_or_name = kwargs['ch_id_or_name']
+        self.get_company(ch_id_or_name).delete()
         return Response(status=204)
+
+    def patch(self, request, *args, **kwargs):
+        ch_id_or_name = kwargs['ch_id_or_name']
+        data = json.loads(request.data)
+        company = self.get_company(ch_id_or_name)
+        should_save = False
+        if 'verified_with_identity_check' in data:
+            company.verified_with_identity_check = data.get('verified_with_identity_check')
+            should_save = True
+        if 'verified_with_code' in data:
+            company.verified_with_code = data.get('verified_with_identity_check')
+            should_save = True
+        if should_save:
+            company.save()
+            return Response(status=204)
+        else:
+            return Response(status=200, data=json.dumps({"message": "Nothing to save"}))
 
 
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
