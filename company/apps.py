@@ -59,3 +59,7 @@ class CompanyConfig(AppConfig):
             receiver=signals.send_new_invite_collaboration_notification,
             sender='company.CollaborationInvite'
         )
+        pre_save.connect(
+            receiver=signals.send_acknowledgement_admin_email_on_invite_accept,
+            sender='company.CollaborationInvite'
+        )
