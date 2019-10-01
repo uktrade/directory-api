@@ -10,15 +10,15 @@ from supplier.tests.factories import SupplierFactory
 
 
 @pytest.mark.django_db
-def test_get_existing_company_by_ch_id(authed_client, authed_supplier):
+def test_get_existing_company_by_ch_id_or_name(authed_client, authed_supplier):
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_check_contents_of_get_existing_company_by_ch_id(
+def test_check_contents_of_get_existing_company_by_ch_id_or_name(
         authed_client, authed_supplier):
     email_address = 'test@user.com'
     verification_code = '1234567890'
@@ -37,7 +37,7 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     company.refresh_from_db()
     assert company.verification_code
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert 'letter_verification_code' in response.json()
     assert response.json()['company_email'] == email_address
@@ -49,54 +49,54 @@ def test_check_contents_of_get_existing_company_by_ch_id(
 
 
 @pytest.mark.django_db
-def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
+def test_get_company_by_ch_id_or_name_with_disabled_test_api(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    url = reverse('company_by_ch_id', kwargs={'ch_id': '12345678'})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': '12345678'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
-def test_get_existing_company_by_ch_id_with_disabled_test_api(
+def test_get_existing_company_by_ch_id_or_name_with_disabled_test_api(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 def test_get_company_by_non_existing_ch_id(client):
-    url = reverse('company_by_ch_id', kwargs={'ch_id': 'nonexisting'})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'nonexisting'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
+def test_delete_existing_company_by_ch_id_or_name(authed_client, authed_supplier):
     number = authed_supplier.company.number
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert models.Company.objects.filter(number=number).exists() is False
 
 
 @pytest.mark.django_db
-def test_delete_non_existing_company_by_ch_id(authed_client):
+def test_delete_non_existing_company_by_ch_id_or_name(authed_client):
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': 'invalid'})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'invalid'})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_ch_id_with_disabled_testapi(
+def test_delete_existing_company_by_ch_id_or_name_with_disabled_testapi(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
