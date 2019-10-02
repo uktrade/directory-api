@@ -2,6 +2,7 @@ version: 2
 
 jobs:
   test:
+    working_directory: /tmp/cci-test
     docker:
       - image: circleci/python:3.6.6
       - image: circleci/postgres:9.5-alpine-ram
@@ -55,8 +56,13 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            make pytest -- --cov=. --cov-config=.coveragerc --cov-report=term
+            mkdir test-reports
+            make pytest -- --cov=. --cov-config=.coveragerc --cov-report=term --junitxml=test-reports/junit.xml
             codecov
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
   flake8:
     docker:
       - image: circleci/python:3.6.6

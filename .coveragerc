@@ -5,6 +5,7 @@ omit =
     */migrations/*
     */tests/*
     .venv/*
+    venv/*
     conftest.py
     conf/wsgi.py
     conf/settings.py
