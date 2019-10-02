@@ -81,7 +81,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
             company.verified_with_identity_check = data.get('verified_with_identity_check')
             should_save = True
         if 'verified_with_code' in data:
-            company.verified_with_code = data.get('verified_with_identity_check')
+            company.verified_with_code = data.get('verified_with_code')
             should_save = True
         if should_save:
             company.save()
