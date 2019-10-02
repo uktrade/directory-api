@@ -106,6 +106,17 @@ def test_patch_existing_company_by_name_to_verify_identity(authed_client, authed
 
 
 @pytest.mark.django_db
+def test_patch_existing_company_with_no_data_get_200_and_message(authed_client, authed_supplier):
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number},
+    )
+    data = {}
+    response = authed_client.patch(url, data=data)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['message'] == 'Nothing to save'
+
+
+@pytest.mark.django_db
 def test_patch_existing_company_by_name_to_verify_with_code(authed_client, authed_supplier):
     url = reverse(
         'company_by_ch_id_or_name', kwargs={
