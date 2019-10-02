@@ -10,7 +10,7 @@ from supplier.tests.factories import SupplierFactory
 
 
 @pytest.mark.django_db
-def test_get_existing_company_by_ch_id_or_name(authed_client, authed_supplier):
+def test_get_existing_company_by_ch_id(authed_client, authed_supplier):
     url = reverse(
         'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
@@ -18,7 +18,7 @@ def test_get_existing_company_by_ch_id_or_name(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-def test_check_contents_of_get_existing_company_by_ch_id_or_name(
+def test_check_contents_of_get_existing_company_by_ch_id(
         authed_client, authed_supplier):
     email_address = 'test@user.com'
     verification_code = '1234567890'
@@ -49,7 +49,7 @@ def test_check_contents_of_get_existing_company_by_ch_id_or_name(
 
 
 @pytest.mark.django_db
-def test_get_company_by_ch_id_or_name_with_disabled_test_api(client, settings):
+def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': '12345678'})
     response = client.get(url)
@@ -57,7 +57,7 @@ def test_get_company_by_ch_id_or_name_with_disabled_test_api(client, settings):
 
 
 @pytest.mark.django_db
-def test_get_existing_company_by_ch_id_or_name_with_disabled_test_api(
+def test_get_existing_company_by_ch_id_with_disabled_test_api(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
@@ -74,7 +74,7 @@ def test_get_company_by_non_existing_ch_id(client):
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_ch_id_or_name(authed_client, authed_supplier):
+def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
     number = authed_supplier.company.number
     url = reverse(
         'company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
@@ -92,7 +92,7 @@ def test_delete_non_existing_company_by_ch_id_or_name(authed_client):
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_ch_id_or_name_with_disabled_testapi(
+def test_delete_existing_company_by_ch_id_with_disabled_testapi(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
