@@ -76,20 +76,11 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
 
     def patch(self, request, *args, **kwargs):
         ch_id_or_name = kwargs['ch_id_or_name']
-        data = request.data
         company = self.get_company(ch_id_or_name)
-        should_save = False
-        if 'verified_with_identity_check' in data:
-            company.verified_with_identity_check = data.get('verified_with_identity_check')
-            should_save = True
-        if 'verified_with_code' in data:
-            company.verified_with_code = data.get('verified_with_code')
-            should_save = True
-        if should_save:
-            company.save()
-            return Response(status=204)
-        else:
-            return Response(status=200, data={"message": "Nothing to save"})
+        serializer = self.serializer_class(instance=company, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=204)
 
 
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
