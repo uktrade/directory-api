@@ -17,6 +17,7 @@
 - TT-1714 - Implement Collaborator Notifications 
 - TT-1841 - Send admin emails for exiting company in signals 
 - TT-1761 - Remove notification hasn't logged-in
+- TT-1923 - allow to programmatically change verification flags via testapi
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
