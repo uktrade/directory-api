@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.core.signing import Signer
 from django.db.models import Q
-from rest_framework.utils import json
 
 from company.models import Company
 from testapi.serializers import (
@@ -75,7 +74,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
 
     def patch(self, request, *args, **kwargs):
         ch_id_or_name = kwargs['ch_id_or_name']
-        data = json.loads(request.data)
+        data = request.data
         company = self.get_company(ch_id_or_name)
         should_save = False
         if 'verified_with_identity_check' in data:
@@ -88,7 +87,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
             company.save()
             return Response(status=204)
         else:
-            return Response(status=200, data=json.dumps({"message": "Nothing to save"}))
+            return Response(status=200, data={"message": "Nothing to save"})
 
 
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
