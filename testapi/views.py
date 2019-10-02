@@ -64,6 +64,8 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
                 company.is_identity_check_message_sent,
             'verified_with_identity_check':
                 company.verified_with_identity_check,
+            'verified_with_code':
+                company.verified_with_code,
         }
         return Response(response_data)
 
