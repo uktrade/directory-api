@@ -55,6 +55,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
+            mkdir test-reports
             make pytest -- --cov=. --cov-config=.coveragerc --cov-report=term --junitxml=test-reports/junit.xml
             codecov
       - store_test_results:
