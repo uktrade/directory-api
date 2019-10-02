@@ -99,7 +99,7 @@ def test_patch_existing_company_by_name_to_verify_identity(authed_client, authed
     }
     response = authed_client.patch(url, data=data)
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    
+
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.json()['verified_with_identity_check']
