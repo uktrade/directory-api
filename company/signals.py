@@ -4,6 +4,7 @@ from django.utils import timezone
 from directory_constants import company_types, user_roles
 
 from company import email, documents, helpers, models
+from supplier.models import Supplier
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -130,7 +131,7 @@ def create_collaboration_invite_from_ownership_invite(sender, instance, created,
     )
 
 
-def create_collaboration_invite_from_collaborator_invite(sender, instance, created, *args, **kwargs):
+def create_collaboration_invite_from_collaborator_invite(sender, instance, *args, **kwargs):
     models.CollaborationInvite.objects.update_or_create(
         uuid=instance.uuid,
         defaults={
@@ -142,3 +143,18 @@ def create_collaboration_invite_from_collaborator_invite(sender, instance, creat
             'role': user_roles.EDITOR,
         }
     )
+
+
+def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, **kwargs):
+    if not instance._state.adding:
+        pre_save_instance = sender.objects.get(pk=instance.pk)
+        if instance.accepted and not pre_save_instance.accepted:
+            supplier_name = helpers.get_supplier_name_by_email(
+                collaboration_invite=instance,
+                suppliers=Supplier.objects.all()
+            )
+            helpers.send_new_user_alert_invite_accepted_email(
+                collaboration_invite=instance,
+                collaborator_name=supplier_name,
+                form_url='send_acknowledgement_admin_email_on_invite_accept'
+            )

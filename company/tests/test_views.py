@@ -2810,7 +2810,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
-    response = authed_client.patch(url, data={'accepted': True})
+    response = authed_client.patch(url, data={'accepted': True, 'name': 'new supplier'})
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
@@ -2825,6 +2825,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     supplier = Supplier.objects.get(company_email=invite.collaborator_email)
     assert supplier.company == invite.company
     assert supplier.role == invite.role
+    assert supplier.name == 'new supplier'
 
 
 @pytest.mark.django_db
