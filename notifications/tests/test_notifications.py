@@ -6,7 +6,7 @@ import pytest
 from freezegun import freeze_time
 
 from django.core import mail
-from django.utils import timezone
+from django.utils import html, timezone
 
 from buyer.tests.factories import BuyerFactory
 from company.tests.factories import CompanyFactory
@@ -103,7 +103,7 @@ def test_ver_code_email_has_expected_vars_in_template(mock_task, settings):
     assert len(mock_task.delay.call_args_list) == 1
     call_args = mock_task.delay.call_args[1]
     assert call_args['from_email'] == settings.FAB_FROM_EMAIL
-    assert supplier.name in call_args['text_body']
+    assert html.escape(supplier.name) in call_args['text_body']
     assert supplier.name in call_args['html_body']
     assert expected_url in call_args['text_body']
     assert expected_url in call_args['html_body']

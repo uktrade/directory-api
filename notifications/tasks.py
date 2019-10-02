@@ -16,6 +16,11 @@ def lock_acquired(lock_name):
 
 
 @app.task
+def hasnt_logged_in():
+    if lock_acquired('hasnt_logged_in'):
+        notifications.hasnt_logged_in()
+
+
 def verification_code_not_given():
     if lock_acquired('verification_code_not_given'):
         notifications.verification_code_not_given()
