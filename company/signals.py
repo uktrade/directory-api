@@ -149,7 +149,7 @@ def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, *
     if not instance._state.adding:
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
-            supplier_name = helpers.get_supplier_name_by_email(
+            supplier_name = helpers.get_supplier_alias_by_email(
                 collaboration_invite=instance,
                 suppliers=Supplier.objects.all()
             )

@@ -355,7 +355,7 @@ def get_user_company(collaboration_invite, companies):
     return companies.filter(suppliers__company_email=collaboration_invite.collaborator_email).first()
 
 
-def get_supplier_name_by_email(collaboration_invite, suppliers):
+def get_supplier_alias_by_email(collaboration_invite, suppliers):
     supplier = suppliers.filter(company_email=collaboration_invite.collaborator_email).first()
     if supplier and supplier.name:
         return supplier.name
@@ -364,15 +364,16 @@ def get_supplier_name_by_email(collaboration_invite, suppliers):
 
 
 def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator_name, form_url=None):
-    invite_details = {'company_name': collaboration_invite.company.name}
-    invite_details['name'] = collaborator_name
-    invite_details['profile_remove_member_url'] = domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/'
-    invite_details['email'] = collaboration_invite.collaborator_email
+    invite_details = {
+        'company_name': collaboration_invite.company.name,
+        'name':  collaborator_name,
+        'profile_remove_member_url':  domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+        'email':  collaboration_invite.collaborator_email
+    }
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_invite.requestor.company_email,
         template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID,
         form_url=form_url,
-
     )
     response = action.save(invite_details)
     response.raise_for_status()

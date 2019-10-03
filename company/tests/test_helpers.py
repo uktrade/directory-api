@@ -516,13 +516,13 @@ def test_get_user_company_not_member():
 
 
 @pytest.mark.django_db
-def test_get_supplier_name_by_email():
+def test_get_supplier_alias_by_email():
     collaboration_invite = factories.CollaborationInviteFactory(
         requestor__name=None, requestor__company_email='test@test.com'
     )
 
     supplier = SupplierFactory.create(company_email=collaboration_invite.collaborator_email)
-    supplier_name = helpers.get_supplier_name_by_email(
+    supplier_name = helpers.get_supplier_alias_by_email(
         collaboration_invite=collaboration_invite,
         suppliers=Supplier.objects.all()
     )
@@ -530,12 +530,12 @@ def test_get_supplier_name_by_email():
 
 
 @pytest.mark.django_db
-def test_get_supplier_name_by_email_no_supplier():
+def test_get_supplier_alias_by_email_no_supplier():
     collaboration_invite = factories.CollaborationInviteFactory(
         requestor__name=None, requestor__company_email='test@test.com'
     )
 
-    supplier_name = helpers.get_supplier_name_by_email(
+    supplier_name = helpers.get_supplier_alias_by_email(
         collaboration_invite=collaboration_invite,
         suppliers=Supplier.objects.all()
     )
