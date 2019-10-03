@@ -59,7 +59,10 @@ def sso_session_request_active_user(
         url,
         json={
             'id': authed_supplier.sso_id,
-            'email': authed_supplier.company_email
+            'email': authed_supplier.company_email,
+            'first_name': 'supplier1',
+            'last_name': 'bloggs',
+
         }
     )
 
@@ -75,7 +78,9 @@ def sso_oauth2_request_active_user(
         url,
         json={
             'id': authed_supplier.sso_id,
-            'email': authed_supplier.company_email
+            'email': authed_supplier.company_email,
+            'first_name': 'supplier2',
+            'last_name': 'bloggs',
         }
     )
 

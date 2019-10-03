@@ -2810,8 +2810,9 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
-    response = authed_client.patch(url, data={'accepted': True, 'name': 'new supplier'})
-
+    response = authed_client.patch(url, data={'accepted': True})
+    import pdb
+    pdb.set_trace()
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
@@ -2825,7 +2826,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     supplier = Supplier.objects.get(company_email=invite.collaborator_email)
     assert supplier.company == invite.company
     assert supplier.role == invite.role
-    assert supplier.name == 'new supplier'
+    assert supplier.name == 'supplier1 bloggs'
 
 
 @pytest.mark.django_db

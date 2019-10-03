@@ -431,7 +431,7 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
-            self.update_or_create_supplier(instance, self.context['request'].data['name'])
+            self.update_or_create_supplier(instance, self.context['request'].user.full_name)
         return super().update(instance, validated_data)
 
     def update_or_create_supplier(self, collaborator_invite, name):
