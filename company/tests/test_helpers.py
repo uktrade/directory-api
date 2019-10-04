@@ -16,6 +16,7 @@ from company.tests import factories
 from company import helpers, serializers
 from company.helpers import CompanyParser
 from company.models import Company
+from supplier.models import Supplier
 from supplier.tests.factories import SupplierFactory
 
 
@@ -512,3 +513,49 @@ def test_get_user_company_not_member():
     user_company = helpers.get_user_company(collaboration_invite=collaboration_invite, companies=Company.objects.all())
 
     assert user_company is None
+
+
+@pytest.mark.django_db
+def test_get_supplier_alias_by_email():
+    collaboration_invite = factories.CollaborationInviteFactory(
+        requestor__name=None, requestor__company_email='test@test.com'
+    )
+
+    supplier = SupplierFactory.create(company_email=collaboration_invite.collaborator_email)
+    supplier_name = helpers.get_supplier_alias_by_email(
+        collaboration_invite=collaboration_invite,
+        suppliers=Supplier.objects.all()
+    )
+    assert supplier_name == supplier.name
+
+
+@pytest.mark.django_db
+def test_get_supplier_alias_by_email_no_supplier():
+    collaboration_invite = factories.CollaborationInviteFactory(
+        requestor__name=None, requestor__company_email='test@test.com'
+    )
+
+    supplier_name = helpers.get_supplier_alias_by_email(
+        collaboration_invite=collaboration_invite,
+        suppliers=Supplier.objects.all()
+    )
+
+    assert supplier_name == collaboration_invite.collaborator_email
+
+
+@pytest.mark.django_db
+@mock.patch(
+    'directory_forms_api_client.actions.GovNotifyEmailAction'
+)
+def test_send_admin_new_user_alert_invite_accepted_email(mock_gov_notify_email_action, settings):
+    collaboration_invite = factories.CollaborationInviteFactory()
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+
+    assert mock_gov_notify_email_action.call_count == 2
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=collaboration_invite.requestor.company_email,
+        form_url='send_acknowledgement_admin_email_on_invite_accept',
+        template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID
+    )

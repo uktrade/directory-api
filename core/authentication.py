@@ -34,7 +34,12 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
         if not response.ok:
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
         sso_data = response.json()
-        sso_user = helpers.SSOUser(id=sso_data['id'], email=sso_data['email'])
+
+        sso_user = helpers.SSOUser(
+            id=sso_data['id'],
+            email=sso_data['email'],
+            user_profile=sso_data.get('user_profile'),
+        )
         return (sso_user, session_id)
 
     def authenticate_header(self, request):

@@ -460,3 +460,48 @@ def test_send_new_invite_collaboration_notification_existing_company(mock_send_i
     collaboration_invite.save()
 
     assert mock_send_invite_email.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    SupplierFactory.create(company_email=collaboration_invite.collaborator_email, name='myname')
+
+    assert mock_send_invite_accepted_email.call_count == 0
+    collaboration_invite.accepted = True
+    collaboration_invite.accepted_date = datetime.date.today()
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+    assert mock_send_invite_accepted_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        collaborator_name='myname',
+        form_url='send_acknowledgement_admin_email_on_invite_accept',
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept_modified(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+
+    assert mock_send_invite_accepted_email.call_count == 0
+    collaboration_invite.accepted = False
+    collaboration_invite.save()
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+
+    collaboration_invite.collaborator_email = 'change@nochance.com'
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept_delete(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    collaboration_invite.delete()
+
+    assert mock_send_invite_accepted_email.call_count == 0
