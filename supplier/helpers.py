@@ -14,11 +14,10 @@ MESSAGE_ADMIN_NEEDED = 'A business profile must have at least one admin'
 
 
 class SSOUser:
-    def __init__(self, id, email, first_name=None, last_name=None):
+    def __init__(self, id, email, user_profile=None):
         self.id = id
         self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
+        self.user_profile = user_profile
 
     @property
     def pk(self):
@@ -32,6 +31,16 @@ class SSOUser:
             return self.first_name
         else:
             return ''
+
+    @property
+    def first_name(self):
+        if self.user_profile and self.user_profile.get('first_name'):
+            return self.user_profile['first_name']
+
+    @property
+    def last_name(self):
+        if self.user_profile and self.user_profile.get('last_name'):
+            return self.user_profile['last_name']
 
     @cached_property
     def supplier(self):
