@@ -426,7 +426,7 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'requestor': {'required': False},  # passed in .save by the view, not in the request
             'uuid': {'read_only': True},
             'accepted': {'required': False},
-         }
+        }
 
     def update(self, instance, validated_data):
         if validated_data.get('accepted') is True:
