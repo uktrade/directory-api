@@ -105,6 +105,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'address_line_2',
             'company_type',
             'country',
+            'created',
             'date_of_creation',
             'description',
             'email_address',
