@@ -19,6 +19,7 @@
 - TT-1761 - Remove notification hasn't logged-in
 - TT-1923 - allow to programmatically change verification flags via testapi
 - TT-1910 - admin send new invite accepted email
+- TT-1911 - Expose created timestamp for company serializer
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
