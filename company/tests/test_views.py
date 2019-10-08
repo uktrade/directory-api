@@ -2811,7 +2811,6 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
-
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
@@ -2825,6 +2824,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     supplier = Supplier.objects.get(company_email=invite.collaborator_email)
     assert supplier.company == invite.company
     assert supplier.role == invite.role
+    assert supplier.name == 'supplier1 bloggs'
 
 
 @pytest.mark.django_db
