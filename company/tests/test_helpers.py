@@ -389,13 +389,21 @@ def test_extract_recipient_address_gov_notify():
 
 @pytest.mark.django_db
 @freeze_time()
+@mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
 @mock.patch.object(forms_api_client, 'submit_generic')
-def test_send_request_identity_verification_message(mock_submit, settings):
+def test_send_request_identity_verification_message(mock_submit, mock_gov_email, settings):
 
     supplier = SupplierFactory.create()
     company = supplier.company
 
     helpers.send_request_identity_verification_message(supplier)
+
+    assert mock_gov_email.call_count == 1
+    assert mock_gov_email.call_args == mock.call(
+        email_address=supplier.company_email,
+        form_url='send_request_identity_verification_message',
+        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID
+    )
 
     assert mock_submit.call_count == 1
     expected = {

@@ -280,6 +280,7 @@ class Company(TimeStampedModel):
         return any([
             self.verified_with_preverified_enrolment,
             self.verified_with_code,
+            self.verified_with_identity_check,
             self.verified_with_companies_house_oauth2,
         ])
 

@@ -505,3 +505,28 @@ def test_send_acknowledgement_admin_email_on_invite_accept_delete(mock_send_invi
     collaboration_invite.delete()
 
     assert mock_send_invite_accepted_email.call_count == 0
+
+
+@pytest.mark.django_db
+def test_set_companies_house_number():
+    company = factories.CompanyFactory(company_type=company_types.COMPANIES_HOUSE, number=10101010)
+    assert company.number == 10101010
+
+
+@pytest.mark.parametrize(
+    'company_type, '
+    'company_prefix, ',
+    [
+        [company_types.SOLE_TRADER, 'ST'],
+        [company_types.PARTNERSHIP, 'LP'],
+        [company_types.CHARITY, 'CE'],
+    ]
+)
+@pytest.mark.django_db
+def test_set_non_companies_house_number(company_type, company_prefix, settings):
+
+    company = factories.CompanyFactory(company_type=company_type)
+
+    seed = settings.SOLE_TRADER_NUMBER_SEED + 1
+
+    assert company.number == f'{company_prefix}{seed:06}'

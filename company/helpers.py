@@ -30,6 +30,12 @@ REQUEST_IDENTITY_VERIFICATION_SUBJECT = 'Request for identity verification'
 
 logger = logging.getLogger(__name__)
 
+company_prefix_map = {
+    choices.company_types.CHARITY: 'CE',
+    choices.company_types.SOLE_TRADER: 'ST',
+    choices.company_types.PARTNERSHIP: 'LP',
+}
+
 
 def get_sector_label(sectors_value):
     return SECTOR_CHOICES.get(sectors_value)
@@ -304,11 +310,29 @@ def send_request_identity_verification_message(supplier):
     )
     response = action.save({})
     response.raise_for_status()
+    # Send the user an email instructions on how to request verification
+    notify_non_ch_verification_request(
+        email=supplier.company_email,
+        company_name=supplier.company.name,
+        form_url='send_request_identity_verification_message'
+    )
     company = supplier.company
 
     company.is_identity_check_message_sent = True
     company.date_identity_check_message_sent = timezone.now()
     company.save()
+
+
+def notify_non_ch_verification_request(email, company_name, form_url):
+    action = actions.GovNotifyEmailAction(
+        email_address=email,
+        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save({
+        'company_name': company_name,
+    })
+    response.raise_for_status()
 
 
 def send_new_user_invite_email(collaboration_invite, form_url=None):

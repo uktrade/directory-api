@@ -103,18 +103,19 @@ def send_account_collaborator_notification(sender, instance, created, *args, **k
     notification.send_async()
 
 
-def set_sole_trader_number(sender, instance, *args, **kwargs):
+def set_non_companies_house_number(sender, instance, *args, **kwargs):
     if (
         instance._state.adding
-        and instance.company_type == company_types.SOLE_TRADER
+        and instance.company_type != company_types.COMPANIES_HOUSE
     ):
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url
         number = pk + settings.SOLE_TRADER_NUMBER_SEED
+        company_prefix = helpers.company_prefix_map[instance.company_type]
         # avoids clash with companies house numbers as there is no ST prefix
         # https://www.doorda.com/kb/article/company-number-prefixes.html
-        instance.number = f'ST{number:06}'
+        instance.number = f'{company_prefix}{number:06}'
 
 
 def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
