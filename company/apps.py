@@ -44,7 +44,7 @@ class CompanyConfig(AppConfig):
             sender='company.CollaboratorInvite'
         )
         pre_save.connect(
-            receiver=signals.set_sole_trader_number,
+            receiver=signals.set_non_companies_house_number,
             sender='company.Company'
         )
         post_save.connect(
