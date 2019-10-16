@@ -30,6 +30,12 @@ REQUEST_IDENTITY_VERIFICATION_SUBJECT = 'Request for identity verification'
 
 logger = logging.getLogger(__name__)
 
+company_prefix_map = {
+    choices.company_types.CHARITY: 'CE',
+    choices.company_types.SOLE_TRADER: 'ST',
+    choices.company_types.PARTNERSHIP: 'LP',
+}
+
 
 def get_sector_label(sectors_value):
     return SECTOR_CHOICES.get(sectors_value)
