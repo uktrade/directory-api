@@ -520,6 +520,7 @@ def test_set_companies_house_number():
         [company_types.SOLE_TRADER, 'ST'],
         [company_types.PARTNERSHIP, 'LP'],
         [company_types.CHARITY, 'CE'],
+        ['OTHER', 'OT'],
     ]
 )
 @pytest.mark.django_db
