@@ -17,6 +17,7 @@ class CompanySerializer(ModelSerializer):
     class Meta:
         model = Company
         fields = (
+            'number',
             'verification_code',
             'email_address',
             'is_verification_letter_sent',

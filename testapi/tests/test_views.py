@@ -48,6 +48,7 @@ def test_check_contents_of_get_existing_company_by_ch_id(
         'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert 'letter_verification_code' in response.json()
+    assert response.json()['number'] == company.number
     assert response.json()['company_email'] == email_address
     assert response.json()['letter_verification_code'] == verification_code
     assert not response.json()['is_verification_letter_sent']
