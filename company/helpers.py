@@ -34,6 +34,7 @@ company_prefix_map = {
     choices.company_types.CHARITY: 'CE',
     choices.company_types.SOLE_TRADER: 'ST',
     choices.company_types.PARTNERSHIP: 'LP',
+    'OTHER': 'OT',
 }
 
 
