@@ -51,6 +51,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
         company = self.get_company(ch_id_or_name)
         signer = Signer()
         response_data = {
+            'number': company.number,
             'letter_verification_code': company.verification_code,
             'company_email': company.email_address,
             'is_verification_letter_sent': company.is_verification_letter_sent,
