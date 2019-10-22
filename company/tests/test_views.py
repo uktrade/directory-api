@@ -2,9 +2,9 @@ import datetime
 import http
 from io import BytesIO
 import uuid
-from unittest.mock import patch, Mock
+from unittest import mock
 
-from directory_constants import company_types, choices, sectors
+from directory_constants import company_types, choices, sectors, user_roles
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
 import pytest
@@ -73,56 +73,59 @@ def test_company_retrieve_view(authed_client, authed_supplier):
     response = authed_client.get(reverse('company'))
 
     expected = {
+        'address_line_1': company.address_line_1,
+        'address_line_2': company.address_line_2,
+        'company_type': company_types.COMPANIES_HOUSE,
+        'country': company.country,
         'date_of_creation': '2000-10-10',
+        'description': company.description,
         'email_address': company.email_address,
         'email_full_name': company.email_full_name,
         'employees': company.employees,
+        'expertise_countries': company.expertise_countries,
+        'expertise_industries': company.expertise_industries,
+        'expertise_languages': company.expertise_languages,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_regions': company.expertise_regions,
+        'export_destinations': [],
+        'export_destinations_other': '',
         'facebook_url': company.facebook_url,
+        'has_exported_before': company.has_exported_before,
         'has_valid_address': True,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
-        'is_published_investment_support_directory': False,
-        'is_published_find_a_supplier': False,
+        'is_identity_check_message_sent': False,
+        'is_publishable': company.is_publishable,
         'is_published': False,
-        'is_verification_letter_sent': False,
+        'is_published_find_a_supplier': False,
+        'is_published_investment_support_directory': False,
         'is_registration_letter_sent': False,
+        'is_uk_isd_company': False,
+        'is_verification_letter_sent': False,
+        'is_verified': False,
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
+        'locality': company.locality,
         'logo': None,
+        'mobile_number': company.mobile_number,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
+        'name': 'Test Company',
+        'number': company.number,
         'po_box': company.po_box,
+        'postal_code': company.postal_code,
+        'postal_full_name': company.postal_full_name,
         'sectors': company.sectors,
         'slug': 'test-company',
         'summary': company.summary,
         'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
-        'verified_with_preverified_enrolment': False,
         'verified_with_companies_house_oauth2': False,
-        'is_uk_isd_company': False,
-        'is_verified': False,
-        'country': company.country,
-        'mobile_number': company.mobile_number,
-        'address_line_1': company.address_line_1,
-        'address_line_2': company.address_line_2,
-        'postal_full_name': company.postal_full_name,
-        'number': company.number,
+        'verified_with_identity_check': False,
+        'verified_with_preverified_enrolment': False,
         'website': company.website,
-        'description': company.description,
-        'has_exported_before': company.has_exported_before,
-        'locality': company.locality,
-        'name': 'Test Company',
-        'postal_code': company.postal_code,
-        'export_destinations': [],
-        'expertise_industries': company.expertise_industries,
-        'expertise_regions': company.expertise_regions,
-        'expertise_products_services': company.expertise_products_services,
-        'expertise_countries': company.expertise_countries,
-        'expertise_languages': company.expertise_languages,
-        'export_destinations_other': '',
-        'company_type': company_types.COMPANIES_HOUSE,
-        'is_publishable': company.is_publishable,
     }
 
     assert response.status_code == status.HTTP_200_OK
@@ -144,22 +147,35 @@ def test_company_update_with_put(authed_client, authed_supplier):
     )
 
     expected = {
+        'company_type': company_types.COMPANIES_HOUSE,
         'email_address': company.email_address,
         'email_full_name': company.email_full_name,
         'employees': company.employees,
+        'expertise_countries': company.expertise_countries,
+        'expertise_industries': company.expertise_industries,
+        'expertise_languages': company.expertise_languages,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_regions': company.expertise_regions,
+        'export_destinations': ['DE'],
+        'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
-        'is_published_investment_support_directory': False,
-        'is_published_find_a_supplier': False,
+        'is_identity_check_message_sent': False,
+        'is_publishable': company.is_publishable,
         'is_published': False,
-        'is_verification_letter_sent': False,
+        'is_published_find_a_supplier': False,
+        'is_published_investment_support_directory': False,
         'is_registration_letter_sent': False,
+        'is_uk_isd_company': False,
+        'is_verification_letter_sent': False,
+        'is_verified': False,
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': None,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
         'po_box': company.po_box,
         'sectors': company.sectors,
@@ -168,19 +184,9 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
-        'verified_with_preverified_enrolment': False,
         'verified_with_companies_house_oauth2': False,
-        'is_uk_isd_company': False,
-        'is_verified': False,
-        'export_destinations': ['DE'],
-        'expertise_industries': company.expertise_industries,
-        'expertise_regions': company.expertise_regions,
-        'expertise_products_services': company.expertise_products_services,
-        'expertise_countries': company.expertise_countries,
-        'expertise_languages': company.expertise_languages,
-        'export_destinations_other': 'LY',
-        'company_type': company_types.COMPANIES_HOUSE,
-        'is_publishable': company.is_publishable,
+        'verified_with_identity_check': False,
+        'verified_with_preverified_enrolment': False,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
@@ -189,7 +195,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
-def test_company_update_with_patch(authed_client, authed_supplier):
+def test_company_update_with_mock_patch(authed_client, authed_supplier):
     company = factories.CompanyFactory(
         number='01234567',
     )
@@ -201,22 +207,35 @@ def test_company_update_with_patch(authed_client, authed_supplier):
     )
 
     expected = {
+        'company_type': company_types.COMPANIES_HOUSE,
         'email_address': company.email_address,
         'email_full_name': company.email_full_name,
         'employees': company.employees,
+        'expertise_countries': company.expertise_countries,
+        'expertise_industries': company.expertise_industries,
+        'expertise_languages': company.expertise_languages,
+        'expertise_products_services': company.expertise_products_services,
+        'expertise_regions': company.expertise_regions,
+        'export_destinations': ['DE'],
+        'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
-        'is_published_investment_support_directory': False,
-        'is_published_find_a_supplier': False,
+        'is_identity_check_message_sent': False,
+        'is_publishable': company.is_publishable,
         'is_published': False,
-        'is_verification_letter_sent': False,
+        'is_published_find_a_supplier': False,
+        'is_published_investment_support_directory': False,
         'is_registration_letter_sent': False,
+        'is_uk_isd_company': False,
+        'is_verification_letter_sent': False,
+        'is_verified': False,
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': None,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
         'po_box': company.po_box,
         'sectors': company.sectors,
@@ -225,19 +244,9 @@ def test_company_update_with_patch(authed_client, authed_supplier):
         'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
-        'verified_with_preverified_enrolment': False,
         'verified_with_companies_house_oauth2': False,
-        'is_uk_isd_company': False,
-        'is_verified': False,
-        'export_destinations': ['DE'],
-        'expertise_industries': company.expertise_industries,
-        'expertise_regions': company.expertise_regions,
-        'expertise_products_services': company.expertise_products_services,
-        'expertise_countries': company.expertise_countries,
-        'expertise_languages': company.expertise_languages,
-        'export_destinations_other': 'LY',
-        'company_type': company_types.COMPANIES_HOUSE,
-        'is_publishable': company.is_publishable,
+        'verified_with_identity_check': False,
+        'verified_with_preverified_enrolment': False,
     }
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
@@ -266,7 +275,7 @@ def test_company_not_update_modified(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+@mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_rejects_invalid_data(
     mock_get_serializer, client
 ):
@@ -278,7 +287,7 @@ def test_company_number_validator_rejects_invalid_data(
 
 
 @pytest.mark.django_db
-@patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
+@mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
 def test_company_number_validator_accepts_valid_data(
     mock_get_serializer, client
 ):
@@ -288,7 +297,7 @@ def test_company_number_validator_accepts_valid_data(
 
 
 def mock_save(self, name, content, max_length=None):
-    return Mock(url=content.name)
+    return mock.Mock(url=content.name)
 
 
 def get_test_image(extension='png'):
@@ -780,6 +789,64 @@ def search_companies_ordering_data(settings):
 
 
 @pytest.fixture
+def search_companies_stopwords(settings):
+
+    factories.CompanyFactory(
+        name='mycompany ltd',
+        description='',
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        keywords='Packs, Hunting, Stark, Wolf',
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=1,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf ltd',
+        description='',
+        summary='Hunts in packs',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        keywords='Packs, Hunting, Stark, Wolf',
+        sectors=[sectors.AEROSPACE, sectors.AIRPORTS],
+        id=2,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf limited',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        id=3,
+    )
+
+    factories.CompanyFactory(
+        name='Wolf plc',
+        is_published_investment_support_directory=True,
+        is_published_find_a_supplier=True,
+        website='https://dontgothere.com',
+        linkedin_url='linkedin_url',
+        twitter_url='test_url',
+        facebook_url='facebook_url',
+        id=4,
+    )
+
+    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+
+
+@pytest.fixture
 def companies_house_oauth_invalid_access_token(requests_mocker):
     return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
@@ -833,7 +900,7 @@ def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_update(
     company_data, authed_client, authed_supplier, company
 ):
@@ -853,7 +920,7 @@ def test_company_update(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
     case_study_data, authed_client, authed_supplier, company,
     mock_elasticsearch_company_save
@@ -884,7 +951,7 @@ def test_company_case_study_create(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_invalid_image(
     authed_client, authed_supplier, company
 ):
@@ -914,7 +981,7 @@ def test_company_case_study_create_invalid_image(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_not_an_image(
     video, authed_client, authed_supplier, company,
 ):
@@ -944,7 +1011,7 @@ def test_company_case_study_create_not_an_image(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create_company_not_published(
     video, authed_client, authed_supplier
 ):
@@ -985,7 +1052,7 @@ def test_company_case_study_create_company_not_published(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
     supplier_case_study, authed_supplier, authed_client,
     mock_elasticsearch_company_save
@@ -1008,7 +1075,7 @@ def test_company_case_study_update(
 
 
 @pytest.mark.django_db
-@patch('django.core.files.storage.Storage.save', mock_save)
+@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_delete(
     supplier_case_study, authed_supplier, authed_client
 ):
@@ -1139,7 +1206,7 @@ def test_company_profile_public_404_private_profile(
 def test_verify_company_with_code(authed_client, authed_supplier, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
-    with patch('requests.post'):
+    with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
             'name': 'Test Company',
@@ -1178,7 +1245,7 @@ def test_verify_company_with_code_invalid_code(
 ):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
 
-    with patch('requests.post'):
+    with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
             'name': 'Test Company',
@@ -1215,8 +1282,9 @@ search_urls = (
 )
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-@patch('elasticsearch_dsl.response.Response.to_dict')
+@mock.patch('elasticsearch_dsl.response.Response.to_dict')
 def test_search(mock_get_search_results, url, api_client):
 
     mock_get_search_results.return_value = expected_value = {
@@ -1237,6 +1305,7 @@ def test_search(mock_get_search_results, url, api_client):
     assert response.json() == expected_value
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 @pytest.mark.parametrize('page_number,expected_start', [
     [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
@@ -1245,7 +1314,7 @@ def test_search_paginate_first_page(
     url, page_number, expected_start, api_client, settings
 ):
     es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}) as mock_search:
+    with mock.patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
 
         response = api_client.get(url, data=data)
@@ -1255,10 +1324,11 @@ def test_search_paginate_first_page(
         assert mock_search.call_args[1]['body']['from'] == expected_start
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_sector_filter(url, api_client, settings):
     es = connections.get_connection('default')
-    with patch.object(es, 'search', return_value={}):
+    with mock.patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'sectors': [sectors.AEROSPACE],
@@ -1270,11 +1340,12 @@ def test_search_sector_filter(url, api_client, settings):
         assert response.status_code == 200, response.content
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_wildcard_filters(url, api_client, settings):
     es = connections.get_connection('default')
 
-    with patch.object(es, 'search', return_value={}):
+    with mock.patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'expertise_industries': choices.INDUSTRIES[1][0],
@@ -1289,11 +1360,12 @@ def test_search_wildcard_filters(url, api_client, settings):
         assert response.status_code == 200, response.content
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
 def test_search_wildcard_filters_multiple(url, api_client, settings):
     es = connections.get_connection('default')
 
-    with patch.object(es, 'search', return_value={}):
+    with mock.patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
             'expertise_industries': [
@@ -1412,6 +1484,26 @@ def test_search_results(
     assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
+
+
+@pytest.mark.rebuild_elasticsearch
+@pytest.mark.django_db
+@pytest.mark.parametrize('url', search_urls)
+@pytest.mark.parametrize('stop_term', ['limited', 'plc', 'ltd'])
+def test_search_results_stopwords(url, stop_term, search_companies_stopwords, api_client):
+    data = {
+        'term': 'mycompany {stop_term}',
+        'page': '1',
+        'size': '5',
+    }
+
+    response = api_client.get(url, data=data)
+
+    assert response.status_code == 200
+
+    hits = response.json()['hits']['hits']
+    assert len(hits) == 1
+    assert hits[0]['_id'] == '1'
 
 
 @pytest.mark.parametrize('url', search_urls)
@@ -2009,17 +2101,19 @@ def test_verify_companies_house_good_access_token(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_create_transfer_ownership_invite(authed_client, authed_supplier):
 
     data = {'new_owner_email': 'foo@bar.com'}
-    url = reverse('transfer-ownership-invite')
+    url = reverse('old-transfer-ownership-invite')
+
     response = authed_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_201_CREATED
     invite = models.OwnershipInvite.objects.get(
         new_owner_email='foo@bar.com'
     )
+
     assert response.json() == {
         'uuid': str(invite.uuid),
         'company': authed_supplier.company.pk,
@@ -2033,7 +2127,7 @@ def test_create_transfer_ownership_invite(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_create_duplicated_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -2050,7 +2144,7 @@ def test_create_duplicated_transfer_ownership_invite(
         'company': authed_supplier.company.pk,
     }
     response = authed_client.post(
-        reverse('transfer-ownership-invite'),
+        reverse('old-transfer-ownership-invite'),
         data=data,
         format='json'
     )
@@ -2065,21 +2159,13 @@ def test_create_duplicated_transfer_ownership_invite(
 
 @pytest.mark.django_db
 def test_remove_collaborators(authed_client, authed_supplier):
-    authed_supplier.is_company_owner = True
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
-    supplier_one = SupplierFactory(
-        company=authed_supplier.company, is_company_owner=False
-    )
-    supplier_two = SupplierFactory(
-        company=authed_supplier.company, is_company_owner=False
-    )
-    supplier_three = SupplierFactory(
-        company=authed_supplier.company, is_company_owner=False
-    )
-    supplier_four = SupplierFactory(
-        is_company_owner=False
-    )
+    supplier_one = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_two = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_three = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    supplier_four = SupplierFactory(role=user_roles.EDITOR)
 
     suppliers_before = authed_supplier.company.suppliers.all()
     assert supplier_one in suppliers_before
@@ -2105,7 +2191,8 @@ def test_remove_collaborators(authed_client, authed_supplier):
 def test_remove_collaborators_cannot_remove_self(
     authed_client, authed_supplier
 ):
-    authed_supplier.is_company_owner = True
+    SupplierFactory(company=authed_supplier.company, role=user_roles.ADMIN)
+    authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
     assert authed_supplier in authed_supplier.company.suppliers.all()
@@ -2119,7 +2206,7 @@ def test_remove_collaborators_cannot_remove_self(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_retrieve_transfer_ownership_invite(
         authed_client,
         authed_supplier):
@@ -2132,7 +2219,7 @@ def test_retrieve_transfer_ownership_invite(
     invite.save()
 
     response = authed_client.get(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)})
     )
 
@@ -2149,14 +2236,14 @@ def test_retrieve_transfer_ownership_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=False)
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email,
@@ -2165,7 +2252,7 @@ def test_accept_transfer_ownership_invite(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2179,21 +2266,21 @@ def test_accept_transfer_ownership_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True,
+        role=user_roles.ADMIN,
         company_email=invite.new_owner_email
     ).count() == 1
 
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_transfer_ownership_invite_case_insensitive(
         authed_client,
         authed_supplier):
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=False)
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = models.OwnershipInvite(
         new_owner_email=authed_supplier.company_email.upper(),
@@ -2202,7 +2289,7 @@ def test_accept_transfer_ownership_invite_case_insensitive(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2217,19 +2304,19 @@ def test_accept_transfer_ownership_invite_case_insensitive(
     assert Supplier.objects.filter(
         company=supplier.company,
         company_email=invite.new_owner_email,
-        is_company_owner=True
+        role=user_roles.ADMIN,
     ).count() == 1
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_wrong_transfer_ownership_invite(
         authed_client,
         authed_supplier):
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=True)
+    supplier = SupplierFactory(role=user_roles.ADMIN)
 
     invite = models.OwnershipInvite(
         new_owner_email='foo@bar.com',
@@ -2238,7 +2325,7 @@ def test_accept_wrong_transfer_ownership_invite(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2253,12 +2340,12 @@ def test_accept_wrong_transfer_ownership_invite(
     assert invite.accepted_date is None
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True
+        role=user_roles.ADMIN
     ).count() == 1
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_transfer_ownership_invite_to_collaborator(
     authed_client, authed_supplier
 ):
@@ -2268,7 +2355,7 @@ def test_accept_transfer_ownership_invite_to_collaborator(
     company = factories.CompanyFactory()
     existing_owner = SupplierFactory(
         company=company,
-        is_company_owner=True,
+        role=user_roles.ADMIN,
         company_email='owner@example.com',
     )
     invite = models.OwnershipInvite.objects.create(
@@ -2277,7 +2364,7 @@ def test_accept_transfer_ownership_invite_to_collaborator(
         requestor=existing_owner,
     )
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2289,7 +2376,7 @@ def test_accept_transfer_ownership_invite_to_collaborator(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_transfer_ownership_invite_supplier_has_other_company(
     authed_client, authed_supplier
 ):
@@ -2300,7 +2387,7 @@ def test_accept_transfer_ownership_invite_supplier_has_other_company(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2316,7 +2403,7 @@ def test_accept_transfer_ownership_invite_supplier_has_other_company(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_transfer_ownership_invite_requestor_not_legit(
         authed_client,
         authed_supplier):
@@ -2333,7 +2420,7 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
     )
     invite.save()
     response = authed_client.patch(
-        reverse('transfer-ownership-invite-detail',
+        reverse('old-transfer-ownership-invite-detail',
                 kwargs={'uuid': str(invite.uuid)}),
         {'accepted': True}
     )
@@ -2350,12 +2437,12 @@ def test_accept_transfer_ownership_invite_requestor_not_legit(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_company_create_collaboration_invite(
     authed_client, authed_supplier
 ):
     data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
+    url = reverse('old-collaboration-invite-create')
     response = authed_client.post(url, data=data)
 
     invite = models.CollaboratorInvite.objects.get(
@@ -2375,7 +2462,7 @@ def test_company_create_collaboration_invite(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_company_create_duplicated_collaboration_invite(
     authed_client, authed_supplier
 ):
@@ -2386,7 +2473,7 @@ def test_company_create_duplicated_collaboration_invite(
     )
 
     data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('collaboration-invite-create')
+    url = reverse('old-collaboration-invite-create')
     response = authed_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2399,13 +2486,13 @@ def test_company_create_duplicated_collaboration_invite(
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_collaborator_invite(
     authed_client, authed_supplier
 ):
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=False)
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email,
@@ -2414,7 +2501,7 @@ def test_accept_collaborator_invite(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == 200
@@ -2426,20 +2513,20 @@ def test_accept_collaborator_invite(
     assert supplier.is_company_owner is False
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
         company_email=invite.collaborator_email
     ).count() == 1
 
 
 @pytest.mark.django_db
 @freeze_time('2016-11-23T11:21:10.977518Z')
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_collaborator_invite_case_insensitive(
     authed_client, authed_supplier
 ):
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=False)
+    supplier = SupplierFactory(role=user_roles.EDITOR)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email=authed_supplier.company_email.upper(),
@@ -2448,7 +2535,7 @@ def test_accept_collaborator_invite_case_insensitive(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == 200
@@ -2458,22 +2545,23 @@ def test_accept_collaborator_invite_case_insensitive(
     assert invite.accepted is True
     assert invite.accepted_date.isoformat() == expected_date
     assert supplier.is_company_owner is False
+    assert supplier.role == user_roles.EDITOR
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=False,
+        role=user_roles.EDITOR,
         company_email=invite.collaborator_email
     ).count() == 1
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_wrong_collaborator_invite(
     authed_client, authed_supplier
 ):
 
     authed_supplier.delete()
 
-    supplier = SupplierFactory(is_company_owner=True)
+    supplier = SupplierFactory(role=user_roles.ADMIN)
 
     invite = factories.CollaboratorInviteFactory(
         collaborator_email='foo@bar.com',
@@ -2482,7 +2570,7 @@ def test_accept_wrong_collaborator_invite(
     )
 
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2495,12 +2583,12 @@ def test_accept_wrong_collaborator_invite(
     assert invite.accepted_date is None
     assert Supplier.objects.filter(
         company=supplier.company,
-        is_company_owner=True
+        role=user_roles.ADMIN
     ).count() == 1
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_collaborator_invite_supplier_has_other_company(
     authed_client, authed_supplier
 ):
@@ -2511,7 +2599,7 @@ def test_accept_collaborator_invite_supplier_has_other_company(
         requestor=authed_supplier,
     )
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
@@ -2526,7 +2614,7 @@ def test_accept_collaborator_invite_supplier_has_other_company(
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email', Mock())
+@mock.patch('core.tasks.send_email', mock.Mock())
 def test_accept_collaborator_invite_requestor_not_legit(
         authed_client,
         authed_supplier):
@@ -2542,7 +2630,7 @@ def test_accept_collaborator_invite_requestor_not_legit(
         requestor=supplier
     )
     url = reverse(
-        'collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
+        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
     )
     response = authed_client.patch(url, {'accepted': True})
     error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
@@ -2560,14 +2648,14 @@ def test_accept_collaborator_invite_requestor_not_legit(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('url', (
-    reverse('collaboration-invite-create'),
+    reverse('old-collaboration-invite-create'),
     reverse('remove-collaborators'),
-    reverse('transfer-ownership-invite'),
+    reverse('old-transfer-ownership-invite'),
 ))
 def test_multi_user_account_management_views_forbidden(
     url, authed_client, authed_supplier
 ):
-    authed_supplier.is_company_owner = False
+    authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
     response = authed_client.post(url, {})
@@ -2619,3 +2707,160 @@ def test_collaborator_multiple_times(client):
     response = client.post(url, data, format='json')
 
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+@mock.patch.object(helpers, 'send_request_identity_verification_message')
+def test_request_identity_verification(mock_send_request_identity_message, authed_client, authed_supplier):
+    url = reverse('company-verify-identity')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 200
+    assert mock_send_request_identity_message.call_count == 1
+    assert mock_send_request_identity_message.call_args == mock.call(authed_supplier)
+
+
+@pytest.mark.django_db
+def test_add_collaborator_view(authed_client):
+    company = factories.CompanyFactory(
+        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
+    )
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': '9876543210',
+        'role': user_roles.MEMBER
+    }
+
+    url = reverse('register-company-collaborator-request')
+    response = authed_client.post(
+        url,
+        data=data
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == data
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_create(authed_client, authed_supplier):
+    data = {'collaborator_email': 'jim@example.com', 'role': user_roles.ADMIN}
+
+    url = reverse('collaboration-invite')
+    response = authed_client.post(url, data=data)
+
+    assert response.status_code == status.HTTP_201_CREATED, response.json()
+    assert response.json() == {
+        'uuid': mock.ANY,
+        'collaborator_email': data['collaborator_email'],
+        'company': authed_supplier.company.pk,
+        'requestor': authed_supplier.pk,
+        'accepted_date': None,
+        'role': data['role'],
+        'accepted': False,
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_list(authed_client, authed_supplier):
+    factories.CollaborationInviteFactory()  # expect this to not be in the response as it's for a different company
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
+
+    url = reverse('collaboration-invite')
+    response = authed_client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {
+            'uuid': str(invite.uuid),
+            'collaborator_email': invite.collaborator_email,
+            'company': invite.company.pk,
+            'requestor': invite.requestor.pk,
+            'accepted_date': invite.accepted_date,
+            'role': invite.role,
+            'accepted': False,
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_retrieve(client, authed_supplier):
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
+
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': invite.accepted_date,
+        'role': invite.role,
+        'accepted': False,
+    }
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_update(authed_client, authed_supplier):
+    # at this point the user's supplier has not yet been created
+    authed_supplier.delete()
+
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
+
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'requestor': invite.requestor.pk,
+        'accepted_date': mock.ANY,
+        'role': invite.role,
+        'accepted': True
+    }
+    supplier = Supplier.objects.get(company_email=invite.collaborator_email)
+    assert supplier.company == invite.company
+    assert supplier.role == invite.role
+    assert supplier.name == 'supplier1 bloggs'
+
+
+@pytest.mark.django_db
+def test_collaboration_invite_delete(authed_client, authed_supplier):
+    invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
+
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
+    response = authed_client.delete(url)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
+def test_change_collaborator_role(authed_client, authed_supplier, role):
+    supplier = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+
+    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+
+    response = authed_client.patch(url, {'role': role})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['role'] == role
+    supplier.refresh_from_db()
+    assert supplier.role == role
+
+
+@pytest.mark.django_db
+def test_change_collaborator_role_wrong_company(authed_client, authed_supplier):
+    supplier = SupplierFactory(role=user_roles.EDITOR)
+
+    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+
+    response = authed_client.patch(url, {'role': user_roles.ADMIN})
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND

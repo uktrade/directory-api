@@ -1,5 +1,6 @@
 import abc
 
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
@@ -8,11 +9,11 @@ from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
-from company import (
-    documents, filters, helpers, models, pagination, serializers
-)
+import company.serializers
+from company import documents, filters, helpers, models, pagination, permissions, serializers
 from core.permissions import IsAuthenticatedSSO
-from supplier.permissions import IsCompanyProfileOwner
+from supplier.helpers import validate_other_admins_connected_to_company
+from supplier.models import Supplier
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -74,9 +75,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return self.write_serializer_class
 
     def get_queryset(self):
-        return self.queryset.filter(
-            company_id=self.request.user.supplier.company_id
-        )
+        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -143,6 +142,13 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
+class RequestVerificationWithIdentificationView(views.APIView):
+
+    def post(self, request, *args, **kwargs):
+        helpers.send_request_identity_verification_message(self.request.user.supplier)
+        return Response()
+
+
 class AbstractSearchAPIView(abc.ABC, views.APIView):
 
     permission_classes = []
@@ -195,18 +201,12 @@ class InvestmentSupportDirectorySearchAPIView(AbstractSearchAPIView):
 
 class CollaboratorInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.CollaboratorInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
 
 class TransferOwnershipInviteCreateView(generics.CreateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
 
 class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
@@ -215,9 +215,7 @@ class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     lookup_field = 'uuid'
 
 
-class TransferOwnershipInviteRetrieveUpdateAPIView(
-    generics.RetrieveUpdateAPIView
-):
+class TransferOwnershipInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.OwnershipInviteSerializer
     queryset = models.OwnershipInvite.objects.all()
     lookup_field = 'uuid'
@@ -225,21 +223,16 @@ class TransferOwnershipInviteRetrieveUpdateAPIView(
 
 class RemoveCollaboratorsView(views.APIView):
     serializer_class = serializers.RemoveCollaboratorsSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
     def get_queryset(self):
-        return self.request.user.supplier.company.suppliers.exclude(
-            pk=self.request.user.supplier.pk
-        )
+        return self.request.user.supplier.company.suppliers.exclude(pk=self.request.user.supplier.pk)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         sso_ids = serializer.validated_data['sso_ids']
+        validate_other_admins_connected_to_company(company=self.request.user.supplier.company, sso_ids=sso_ids)
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
 
@@ -254,3 +247,43 @@ class CollaboratorRequestView(generics.CreateAPIView):
         self.perform_create(serializer)
         data = {'company_email': serializer.instance.company.email_address}
         return Response(data, status=201)
+
+
+class CollaborationInviteViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CollaborationInviteSerializer
+    queryset = models.CollaborationInvite.objects.all()
+    lookup_field = 'uuid'
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            permission_classes = []
+        elif self.action == 'partial_update':
+            permission_classes = [IsAuthenticatedSSO]
+        else:
+            permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if self.action in ['retrieve', 'partial_update']:
+            return self.queryset
+        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            requestor=self.request.user.supplier,
+            company=self.request.user.supplier.company,
+        )
+
+
+class AddCollaboratorView(CreateAPIView):
+    serializer_class = company.serializers.AddCollaboratorSerializer
+    permission_classes = [IsAuthenticatedSSO]
+
+
+class ChangeCollaboratorRoleView(UpdateAPIView):
+    serializer_class = company.serializers.ChangeCollaboratorRoleSerializer
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+    lookup_field = 'sso_id'
+
+    def get_queryset(self):
+        return Supplier.objects.filter(company_id=self.request.user.supplier.company_id)

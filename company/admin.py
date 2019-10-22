@@ -1,6 +1,6 @@
 import datetime
 
-from directory_constants.urls import build_great_url
+from directory_constants.urls import domestic
 
 from django.contrib import admin
 from django.conf.urls import url
@@ -11,7 +11,7 @@ from django.views.generic import FormView
 from django import forms
 
 from core.helpers import generate_csv_response
-from company.models import Company, CompanyCaseStudy
+from company import models
 from company.forms import EnrolCompanies, UploadExpertise
 
 
@@ -26,7 +26,7 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = build_great_url('profile/enrol/pre-verified/')
+        url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
         signer = Signer()
         created_companies = [
             {**company, 'url': url + '?key=' + signer.sign(company['number'])}
@@ -95,17 +95,12 @@ class PublishByCompanyHouseNumberForm(forms.Form):
         numbers = self.cleaned_data['company_numbers'].split(',')
         numbers = [number.strip() for number in numbers if number.strip()]
 
-        number_of_companies = Company.objects.filter(
-            number__in=numbers).count()
+        number_of_companies = models.Company.objects.filter(number__in=numbers).count()
         if number_of_companies != len(numbers):
-            numbers_in_db = Company.objects.filter(
-                number__in=numbers).values_list('number', flat=True)
-            invalid_numbers = [number for number in numbers
-                               if number not in numbers_in_db]
-            error_msg = self.COMPANY_DOESNT_EXIST_MSG.format(
-                numbers=', '.join(invalid_numbers))
+            numbers_in_db = models.Company.objects.filter(number__in=numbers).values_list('number', flat=True)
+            invalid_numbers = [number for number in numbers if number not in numbers_in_db]
+            error_msg = self.COMPANY_DOESNT_EXIST_MSG.format(numbers=', '.join(invalid_numbers))
             raise forms.ValidationError(error_msg)
-
         return numbers
 
 
@@ -123,18 +118,14 @@ class PublishByCompanyHouseNumberView(FormView):
         numbers = form.cleaned_data['company_numbers']
 
         if 'investment_support_directory' in form.cleaned_data['directories']:
-            Company.objects.filter(number__in=numbers).update(
-                is_published_investment_support_directory=True
-            )
+            models.Company.objects.filter(number__in=numbers).update(is_published_investment_support_directory=True)
         if 'find_a_supplier' in form.cleaned_data['directories']:
-            Company.objects.filter(number__in=numbers).update(
-                is_published_find_a_supplier=True
-            )
+            models.Company.objects.filter(number__in=numbers).update(is_published_find_a_supplier=True)
 
         return super().form_valid(form)
 
 
-@admin.register(Company)
+@admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     search_fields = (
         'name', 'description', 'keywords',
@@ -185,7 +176,7 @@ class CompanyAdmin(admin.ModelAdmin):
         return additional_urls + urls
 
 
-@admin.register(CompanyCaseStudy)
+@admin.register(models.CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
     search_fields = (
@@ -214,3 +205,10 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
     download_csv.short_description = (
         "Download CSV report for selected case studies"
     )
+
+
+@admin.register(models.CollaborationInvite)
+class CollaborationInviteAdmin(admin.ModelAdmin):
+    search_fields = ('uuid', 'company__name', 'company__number', 'collaborator_email')
+    list_display = ('uuid', 'collaborator_email', 'company')
+    list_filter = ('accepted', 'role')

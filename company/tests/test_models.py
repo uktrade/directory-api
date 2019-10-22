@@ -126,22 +126,24 @@ def test_public_profile_url(settings):
     assert company.public_profile_url == 'http://profile/1234567'
 
 
-@pytest.mark.parametrize('code,preverfiied,oauth2,expected', [
-    [False, False, False, False],
-    [False, False, True,  True],
-    [False, True,  False, True],
-    [False, True,  True,  True],
-    [True,  False, True,  True],
-    [True,  False, True,  True],
-    [True,  False, False, True],
-    [True,  True,  False, True],
-    [True,  True,  True,  True],
+@pytest.mark.parametrize('code,preverfiied,oauth2,identity,expected', [
+    [False, False, False, False, False],
+    [False, False, True,  False,  True],
+    [False, True,  False, False,  True],
+    [False, True,  True,  True,   True],
+    [True,  False, True,  False,  True],
+    [True,  False, True,  False,  True],
+    [True,  False, False, False,  True],
+    [True,  True,  False, False,  True],
+    [False, False, False, True,   True],
+    [True,  True,  True,  True,   True],
 ])
-def test_company_is_verified(code, preverfiied, oauth2, expected):
+def test_company_is_verified(code, preverfiied, oauth2, identity, expected):
     company = CompanyFactory.build(
         verified_with_preverified_enrolment=preverfiied,
         verified_with_code=code,
         verified_with_companies_house_oauth2=oauth2,
+        verified_with_identity_check=identity,
     )
     assert company.is_verified is expected
 

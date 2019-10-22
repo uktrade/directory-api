@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from elasticsearch_dsl import analysis, Document, field, InnerDoc
+from elasticsearch_dsl import analysis, Document, field, InnerDoc, MetaField
 
 from django.conf import settings
 
@@ -14,6 +14,7 @@ american_english_analyzer = analysis.analyzer(
         'standard',
         'lowercase',
         'stop',
+        search_filters.companies_stopwords_filter,
         search_filters.lovins_stemmer,
         search_filters.american_english_synonyms_filter,
     ],
@@ -48,6 +49,7 @@ class CompanyDocument(Document):
     keyword_wildcard = field.Keyword()
 
     case_study_count = field.Integer()
+    company_type = field.Keyword(index=False, store=True)
     date_of_creation = field.Date(index=False)
     description = field.Text(
         copy_to='wildcard', analyzer=american_english_analyzer
@@ -81,7 +83,7 @@ class CompanyDocument(Document):
         multi=True, copy_to='keyword_wildcard', store=True
     )
     # Represents Dict as it's the primitive datatype for this field
-    expertise_products_services = field.Object()
+    expertise_products_services = field.Object(dynamic=True)
     expertise_products_services_labels = field.Keyword(
         multi=True, copy_to='keyword_wildcard', store=True
     )
@@ -120,7 +122,10 @@ class CompanyDocument(Document):
     is_published_find_a_supplier = field.Boolean()
 
     class Meta:
-        index = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
+        dynamic = MetaField('strict')
+
+    class Index:
+        name = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
 
 
 def get_absolute_url(url):
@@ -129,9 +134,7 @@ def get_absolute_url(url):
     return url
 
 
-def company_model_to_document(
-    company, index=settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
-):
+def company_model_to_document(company, index=settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS):
     # getattr is used on the company to allow this functionton be used in
     # migrations (historic models wont have all the fields listed below).
     company_fields = {
@@ -183,23 +186,22 @@ def company_model_to_document(
     for key, values in company.expertise_products_services.items():
         expertise_products_services_labels += values
 
-    company_doc_type = CompanyDocument(
+    document = CompanyDocument(
         meta={'id': company.pk, '_index': index},
         pk=str(company.pk),
         case_study_count=company.supplier_case_studies.count(),
         has_single_sector=len(company.sectors) == 1,
         has_description=has_description,
         logo=get_absolute_url(company.logo.url if company.logo else ''),
-        sectors_label=[
-            helpers.get_sector_label(v) for v in company.sectors
-        ],
+        sectors_label=[helpers.get_sector_label(v) for v in company.sectors],
         expertise_products_services_labels=expertise_products_services_labels,
         expertise_labels=company_parser.expertise_labels_for_search,
         **{key: getattr(company, key, '') for key in company_fields},
     )
+
     for case_study in company.supplier_case_studies.all():
-        company_doc_type.supplier_case_studies.append({
+        document.supplier_case_studies.append({
             key: getattr(case_study, key, '') for key in case_study_fields
         })
 
-    return company_doc_type
+    return document

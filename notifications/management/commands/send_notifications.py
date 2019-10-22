@@ -15,8 +15,6 @@ class Command(BaseCommand):
         )
 
     def run_daily(self):
-        notifications.no_case_studies()
-        notifications.hasnt_logged_in()
         notifications.verification_code_not_given()
 
     def run_weekly(self):

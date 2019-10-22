@@ -6,14 +6,16 @@ from django.urls import clear_url_caches
 from django.urls import reverse
 
 
-def reload_urlconf(urlconf=None):
+def reload_urlconf():
     clear_url_caches()
-    if urlconf is None:
-        urlconf = settings.ROOT_URLCONF
-    if urlconf in sys.modules:
-        reload(sys.modules[urlconf])
+    reload_module(settings.ROOT_URLCONF)
+
+
+def reload_module(module):
+    if module in sys.modules:
+        reload(sys.modules[module])
     else:
-        import_module(urlconf)
+        import_module(module)
 
 
 def test_force_staff_sso(client):

@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 from uuid import uuid4
 import http
@@ -5,22 +6,36 @@ import logging
 import os
 import re
 from urllib.parse import urljoin
+
+from directory_constants import choices
+from directory_constants.urls import domestic
+import directory_components.helpers
+from directory_forms_api_client import actions
 from elasticsearch_dsl import Q
 from elasticsearch_dsl.query import ConstantScore, SF
+import requests
 
 from django.conf import settings
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
-from directory_constants import choices
-import directory_components.helpers
-import requests
+from company.stannp import stannp_client
+
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
 SECTOR_CHOICES = dict(choices.INDUSTRIES)
+REQUEST_IDENTITY_VERIFICATION_SUBJECT = 'Request for identity verification'
 
 logger = logging.getLogger(__name__)
+
+company_prefix_map = {
+    choices.company_types.CHARITY: 'CE',
+    choices.company_types.SOLE_TRADER: 'ST',
+    choices.company_types.PARTNERSHIP: 'LP',
+    'OTHER': 'OT',
+}
 
 
 def get_sector_label(sectors_value):
@@ -212,3 +227,178 @@ def build_search_company_query(params):
             should=should,
             minimum_should_match=1 if should else 0
         )
+
+
+def send_verification_letter(company, form_url=None):
+    if settings.FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED:
+        recipient = extract_recipient_address_gov_notify(company)
+        recipient['verification_code'] = company.verification_code
+
+        action = actions.GovNotifyLetterAction(
+            template_id=settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID,
+            form_url=form_url,
+
+        )
+        action.save(recipient)
+
+    else:
+        recipient = {
+            'postal_full_name': company.postal_full_name,
+            'address_line_1': company.address_line_1,
+            'address_line_2': company.address_line_2,
+            'locality': company.locality,
+            'country': company.country,
+            'postal_code': company.postal_code,
+            'po_box': company.po_box,
+            'custom_fields': [
+                ('full_name', company.postal_full_name),
+                ('company_name', company.name),
+                ('verification_code', company.verification_code),
+                ('date', datetime.date.today().strftime('%d/%m/%Y')),
+                ('company', company.name),
+            ]
+        }
+
+        stannp_client.send_letter(
+            template=settings.STANNP_VERIFICATION_LETTER_TEMPLATE_ID,
+            recipient=recipient
+        )
+
+    company.is_verification_letter_sent = True
+    company.date_verification_letter_sent = timezone.now()
+    company.save()
+
+
+def send_registration_letter(company, form_url=None):
+    recipient = extract_recipient_address_gov_notify(company)
+    # Override since for registration letter we want to address the company
+    recipient['address_line_1'] = company.name
+
+    action = actions.GovNotifyLetterAction(
+        template_id=settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(recipient)
+    response.raise_for_status()
+
+    company.is_registration_letter_sent = True
+    company.date_registration_letter_sent = timezone.now()
+    company.save()
+
+
+def extract_recipient_address_gov_notify(company):
+    return {
+            'address_line_1': company.postal_full_name,
+            'address_line_2': company.address_line_1,
+            'address_line_3': company.address_line_2,
+            'address_line_4': company.locality,
+            'address_line_5': company.country,
+            'address_line_6': company.po_box,
+            'postcode': company.postal_code,
+            'full_name': company.postal_full_name,
+            'company_name': company.name,
+    }
+
+
+def send_request_identity_verification_message(supplier):
+    action = actions.ZendeskAction(
+        subject=REQUEST_IDENTITY_VERIFICATION_SUBJECT,
+        full_name=supplier.name or 'No name',
+        email_address=supplier.company_email,
+        service_name=settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME,
+        form_url='request-identity-verification',
+    )
+    response = action.save({})
+    response.raise_for_status()
+    # Send the user an email instructions on how to request verification
+    notify_non_ch_verification_request(
+        email=supplier.company_email,
+        company_name=supplier.company.name,
+        form_url='send_request_identity_verification_message'
+    )
+    company = supplier.company
+
+    company.is_identity_check_message_sent = True
+    company.date_identity_check_message_sent = timezone.now()
+    company.save()
+
+
+def notify_non_ch_verification_request(email, company_name, form_url):
+    action = actions.GovNotifyEmailAction(
+        email_address=email,
+        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save({
+        'company_name': company_name,
+    })
+    response.raise_for_status()
+
+
+def send_new_user_invite_email(collaboration_invite, form_url=None):
+    invite_details = extract_invite_details(collaboration_invite)
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.collaborator_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()
+
+
+def send_new_user_invite_email_existing_company(collaboration_invite, existing_company_name, form_url=None):
+    invite_details = extract_invite_details(collaboration_invite)
+    invite_details['other_company_name'] = existing_company_name
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.collaborator_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()
+
+
+def extract_invite_details(collaboration_invite):
+    invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
+        uuid=collaboration_invite.uuid
+    )
+    return {
+        'login_url': invite_link,
+        'name': (
+                collaboration_invite.requestor.name or
+                collaboration_invite.requestor.company_email
+            ),
+        'company_name': collaboration_invite.company.name,
+        'role': collaboration_invite.role.capitalize()
+    }
+
+
+def get_user_company(collaboration_invite, companies):
+    return companies.filter(suppliers__company_email=collaboration_invite.collaborator_email).first()
+
+
+def get_supplier_alias_by_email(collaboration_invite, suppliers):
+    supplier = suppliers.filter(company_email=collaboration_invite.collaborator_email).first()
+    if supplier and supplier.name:
+        return supplier.name
+    else:
+        return collaboration_invite.collaborator_email
+
+
+def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator_name, form_url=None):
+    invite_details = {
+        'company_name': collaboration_invite.company.name,
+        'name':  collaborator_name,
+        'profile_remove_member_url':  domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+        'email':  collaboration_invite.collaborator_email
+    }
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.requestor.company_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()

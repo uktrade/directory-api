@@ -1,4 +1,4 @@
-from directory_constants import company_types
+from directory_constants import company_types, user_roles
 from rest_framework import serializers
 
 from company.models import Company
@@ -79,7 +79,7 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
             'company': self.context['company'],
             'sso_id': self.context['request'].user.id,
             'company_email': self.context['request'].user.email,
-            'is_company_owner': True,
+            'role': user_roles.ADMIN,
         })
 
 

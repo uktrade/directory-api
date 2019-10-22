@@ -98,10 +98,7 @@ class Company(TimeStampedModel):
         default='',
         blank=True,
     )
-    name = models.CharField(
-        max_length=255,
-        validators=[no_html],
-    )
+    name = models.TextField(validators=[no_html])
     number = models.CharField(
         help_text=(
             'For companies registered in companies house this is their '
@@ -157,14 +154,13 @@ class Company(TimeStampedModel):
     verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
+    verified_with_identity_check = models.BooleanField(default=False)
+    is_identity_check_message_sent = models.BooleanField(default=False)
     is_verification_letter_sent = models.BooleanField(default=False)
     is_registration_letter_sent = models.BooleanField(default=False)
-    date_registration_letter_sent = models.DateTimeField(
-        null=True, blank=True
-    )
-    date_verification_letter_sent = models.DateTimeField(
-        null=True, blank=True
-    )
+    date_registration_letter_sent = models.DateTimeField(null=True, blank=True)
+    date_verification_letter_sent = models.DateTimeField(null=True, blank=True)
+    date_identity_check_message_sent = models.DateTimeField(null=True, blank=True)
     # social links
     twitter_url = models.URLField(
         max_length=255,
@@ -284,6 +280,7 @@ class Company(TimeStampedModel):
         return any([
             self.verified_with_preverified_enrolment,
             self.verified_with_code,
+            self.verified_with_identity_check,
             self.verified_with_companies_house_oauth2,
         ])
 
@@ -382,7 +379,6 @@ class CompanyCaseStudy(TimeStampedModel):
 
 
 class OwnershipInvite(TimeStampedModel):
-
     uuid = models.UUIDField(default=uuid.uuid4)
     new_owner_email = models.EmailField(unique=True)
     company = models.ForeignKey(Company)
@@ -431,6 +427,17 @@ class CollaboratorInvite(TimeStampedModel):
         return settings.FAB_COLLABORATOR_URL.format(
             uuid=self.uuid
         )
+
+
+class CollaborationInvite(TimeStampedModel):
+
+    uuid = models.UUIDField(default=uuid.uuid4)
+    collaborator_email = models.EmailField()
+    company = models.ForeignKey(Company)
+    requestor = models.ForeignKey('supplier.Supplier')
+    accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(null=True, blank=True)
+    role = models.CharField(max_length=15, choices=choices.USER_ROLES)
 
 
 class CollaboratorRequest(TimeStampedModel):

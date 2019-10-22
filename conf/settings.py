@@ -11,7 +11,8 @@ import directory_healthcheck.backends
 
 
 env = environ.Env()
-env.read_env()
+for env_file in env.list('ENV_FILES', default=[]):
+    env.read_env(f'conf/env/{env_file}')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -150,7 +151,10 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = env.str(
+    'STATICFILES_STORAGE',
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -361,21 +365,19 @@ AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
 
-if 'aws-s3-bucket' in VCAP_SERVICES:
-    credentials = VCAP_SERVICES['aws-s3-bucket'][0]['credentials']
-    AWS_ACCESS_KEY_ID = credentials['aws_access_key_id']
-    AWS_SECRET_ACCESS_KEY = credentials['aws_secret_access_key']
-    AWS_STORAGE_BUCKET_NAME = credentials['bucket_name']
-    AWS_S3_REGION_NAME = credentials['aws_region']
-    AWS_S3_ENCRYPTION = True
-    AWS_DEFAULT_ACL = None
-else:
-    AWS_S3_ENCRYPTION = False
-    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
-    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
-    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
-    AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
-    AWS_DEFAULT_ACL = 'public-read'
+AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
+AWS_S3_ENCRYPTION = True
+AWS_DEFAULT_ACL = None
+
+# Setting up the the datascience s3 bucket
+AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.str('AWS_ACCESS_KEY_ID_DATA_SCIENCE', '')
+AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.str('AWS_SECRET_ACCESS_KEY_DATA_SCIENCE', '')
+AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.str('AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE', '')
+AWS_S3_REGION_NAME_DATA_SCIENCE = env.str('AWS_S3_REGION_NAME_DATA_SCIENCE', '')
+
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -397,9 +399,8 @@ STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
 DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
 DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
 DIRECTORY_FORMS_API_SENDER_ID = env.str('DIRECTORY_FORMS_API_SENDER_ID')
-DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.int(
-    'DIRECTORY_API_FORMS_DEFAULT_TIMEOUT', 5
-)
+DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.int('DIRECTORY_API_FORMS_DEFAULT_TIMEOUT', 5)
+DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.str('DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME', 'api')
 
 # Verification letters sent with govnotify
 GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
@@ -412,6 +413,25 @@ GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
     'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
     '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
 )
+
+GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID',
+    'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+)
+GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID',
+    'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
+)
+GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID',
+    '439a8415-52d8-4975-b230-15cd34305bb5'
+)
+
+GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.str(
+    'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID',
+    'a63f948f-978e-4554-86da-c525bfabbaff'
+)
+
 
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
@@ -606,7 +626,6 @@ DIRECTORY_HEALTHCHECK_BACKENDS = [
     # INSTALLED_APPS's health_check.db and health_check.cache
 ]
 
-CSV_DUMP_BUCKET_NAME = env.str('CSV_DUMP_BUCKET_NAME')
 CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'

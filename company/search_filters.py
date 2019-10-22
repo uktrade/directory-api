@@ -1,5 +1,10 @@
 from elasticsearch_dsl import analysis
 
+companies_stopwords_filter = analysis.token_filter(
+    'companies_stopwords',
+    type='stop',
+    stopwords=['limited', 'ltd', 'plc', 'llp', 'lp', 'rc', 'partnership', 'ngo']
+)
 
 american_english_normalizer_filter = analysis.char_filter(
     'american_english_normalizer',

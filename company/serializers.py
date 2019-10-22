@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from directory_validators import company as shared_validators
-from directory_constants import choices
+from directory_constants import choices, user_roles
 
 from django.conf import settings
 from django.http import QueryDict
@@ -105,6 +105,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'address_line_2',
             'company_type',
             'country',
+            'created',
             'date_of_creation',
             'description',
             'email_address',
@@ -122,6 +123,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'is_published_find_a_supplier',
             'is_registration_letter_sent',
             'is_verification_letter_sent',
+            'is_identity_check_message_sent',
             'keywords',
             'linkedin_url',
             'locality',
@@ -142,6 +144,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'verified_with_code',
             'verified_with_preverified_enrolment',
             'verified_with_companies_house_oauth2',
+            'verified_with_identity_check',
             'is_verified',
             'export_destinations',
             'export_destinations_other',
@@ -338,7 +341,7 @@ class OwnershipInviteSerializer(
             company_email=instance.new_owner_email,
             defaults={
                 'company': instance.company,
-                'is_company_owner': True,
+                'role': user_roles.ADMIN,
             }
         )
 
@@ -373,7 +376,7 @@ class CollaboratorInviteSerializer(
             company_email=instance.collaborator_email,
             defaults={
                 'company': instance.company,
-                'is_company_owner': False,
+                'role': user_roles.EDITOR,
             }
         )
 
@@ -405,3 +408,68 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
         else:
             data['company'] = company.pk
         return super().to_internal_value(data)
+
+
+class CollaborationInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollaborationInvite
+        fields = (
+            'uuid',
+            'collaborator_email',
+            'company',
+            'requestor',
+            'accepted',
+            'accepted_date',
+            'role',
+        )
+        extra_kwargs = {
+            'company': {'required': False},  # passed in .save by the view, not in the request
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'uuid': {'read_only': True},
+            'accepted': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        if validated_data.get('accepted') is True:
+            validated_data['accepted_date'] = now()
+            self.update_or_create_supplier(instance, self.context['request'].user.full_name)
+        return super().update(instance, validated_data)
+
+    def update_or_create_supplier(self, collaborator_invite, name):
+        Supplier.objects.update_or_create(
+            sso_id=self.context['request'].user.id,
+            company_email=collaborator_invite.collaborator_email,
+            name=name,
+            defaults={
+                'company': collaborator_invite.company,
+                'role': collaborator_invite.role,
+            }
+        )
+
+
+class AddCollaboratorSerializer(serializers.ModelSerializer):
+
+    company = serializers.SlugRelatedField(slug_field='number', queryset=models.Company.objects.all())
+
+    class Meta:
+        model = Supplier
+        fields = (
+            'sso_id',
+            'name',
+            'company',
+            'company_email',
+            'mobile_number',
+            'role'
+        )
+
+        extra_kwargs = {
+            'role': {
+                'default': user_roles.MEMBER
+            }
+        }
+
+
+class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supplier
+        fields = ('role',)
