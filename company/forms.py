@@ -4,7 +4,7 @@ import json
 import re
 from difflib import SequenceMatcher
 
-from directory_components.fields import PaddedCharField
+from directory_components.forms.fields import PaddedCharField
 
 from django import forms
 from django.db import transaction

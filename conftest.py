@@ -59,7 +59,8 @@ def sso_session_request_active_user(
         url,
         json={
             'id': authed_supplier.sso_id,
-            'email': authed_supplier.company_email
+            'email': authed_supplier.company_email,
+            'user_profile': {'first_name': 'supplier1', 'last_name': 'bloggs'},
         }
     )
 
@@ -75,7 +76,7 @@ def sso_oauth2_request_active_user(
         url,
         json={
             'id': authed_supplier.sso_id,
-            'email': authed_supplier.company_email
+            'email': authed_supplier.company_email,
         }
     )
 
@@ -100,6 +101,14 @@ def authed_client(
 @pytest.fixture(autouse=True)
 def mock_signature_check():
     stub = mock.patch('sigauth.helpers.RequestSignatureChecker.test_signature')
+    stub.start()
+    yield stub
+    stub.stop()
+
+
+@pytest.fixture(autouse=True)
+def mock_forms_api_gov_notify_email_action():
+    stub = mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
     stub.start()
     yield stub
     stub.stop()

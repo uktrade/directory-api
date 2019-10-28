@@ -1,12 +1,12 @@
 from datetime import timedelta, datetime
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 
 import pytest
 
 from freezegun import freeze_time
 
 from django.core import mail
-from django.utils import timezone
+from django.utils import html, timezone
 
 from buyer.tests.factories import BuyerFactory
 from company.tests.factories import CompanyFactory
@@ -103,7 +103,7 @@ def test_ver_code_email_has_expected_vars_in_template(mock_task, settings):
     assert len(mock_task.delay.call_args_list) == 1
     call_args = mock_task.delay.call_args[1]
     assert call_args['from_email'] == settings.FAB_FROM_EMAIL
-    assert supplier.name in call_args['text_body']
+    assert html.escape(supplier.name) in call_args['text_body']
     assert supplier.name in call_args['html_body']
     assert expected_url in call_args['text_body']
     assert expected_url in call_args['html_body']
@@ -352,10 +352,7 @@ def test_sends_ver_code_email_to_expected_users(mock_task):
         SupplierEmailNotificationFactory(
             supplier=supplier, category='verification_code_not_given',
             date_sent=eight_days_ago)
-    SupplierEmailNotificationFactory(
-        supplier=suppliers8[1], category='hasnt_logged_in')
-    SupplierEmailNotificationFactory(
-        supplier=suppliers16[1], category='hasnt_logged_in')
+
     notifications.verification_code_not_given()
 
     assert mock_task.delay.call_count == 4
@@ -367,180 +364,7 @@ def test_sends_ver_code_email_to_expected_users(mock_task):
     assert call_args[3][1]['recipient_email'] == suppliers16[0].company_email
     objs = SupplierEmailNotification.objects.all()
 
-    assert objs.count() == 11
-
-
-@freeze_time('2017-01-31 17:13:34')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_sends_log_in_email_when_not_logged_in_for_30_days(mock_task):
-    expected_subject = email.HasNotLoggedInRecentlyNotification.subject
-    suppliers = SupplierFactory.create_batch(3)
-    mocked_json = [
-        {'id': suppliers[1].sso_id, 'last_login': '2017-01-01T21:04:39Z'},
-    ]
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=mocked_json)
-        )
-    )
-
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    mocked_api.assert_called_once_with(
-        start=datetime(2017, 1, 1, 0, 0, 0, 0),
-        end=datetime(2017, 1, 1, 23, 59, 59, 999999)
-    )
-    assert len(mock_task.delay.call_args_list) == 1
-    call_args = mock_task.delay.call_args[1]
-    assert call_args['recipient_email'] == suppliers[1].company_email
-    assert call_args['subject'] == expected_subject
-    assert suppliers[1].name in call_args['text_body']
-    assert suppliers[1].name in call_args['html_body']
-
-
-@freeze_time('2017-01-31 17:13:34')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-@patch('notifications.email.HasNotLoggedInRecentlyNotification.zendesk_url',
-       PropertyMock(return_value='http://help.zendesk.com'))
-def test_log_in_email_has_expected_vars_in_template(mock_task, settings):
-    settings.HASNT_LOGGED_IN_URL = 'http://great.gov.uk/looooogin?next=a'
-    settings.HASNT_LOGGED_IN_UTM = 'utm=1'
-    expected_url = 'http://great.gov.uk/looooogin?next=a&utm=1'
-    supplier = SupplierFactory()
-    mocked_json = [
-        {'id': supplier.sso_id, 'last_login': '2017-01-01T21:04:39Z'},
-    ]
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=mocked_json)
-        )
-    )
-    mail.outbox = []  # reset after emails sent by signals
-
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    assert len(mock_task.delay.call_args_list) == 1
-    call_args = mock_task.delay.call_args[1]
-    assert call_args['from_email'] == settings.FAB_FROM_EMAIL
-    assert supplier.name in call_args['text_body']
-    assert supplier.name in call_args['html_body']
-    assert expected_url in call_args['text_body']
-    assert expected_url in call_args['html_body']
-    assert 'http://help.zendesk.com' in call_args['text_body']
-    assert 'http://help.zendesk.com' in call_args['html_body']
-
-
-@freeze_time('2016-12-09 12:30:00')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_doesnt_send_log_in_email_when_api_returns_no_users(mock_task):
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=[])
-        )
-    )
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    assert mock_task.delay.called is False
-
-
-@freeze_time('2017-04-01 12:00:00')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_log_in_email_uses_settings_for_no_of_days_and_subject(
-        mock_task, settings):
-    settings.HASNT_LOGGED_IN_DAYS = 1
-    expected_subject = email.HasNotLoggedInRecentlyNotification.subject
-    supplier = SupplierFactory()
-    mocked_json = [
-        {'id': supplier.sso_id, 'last_login': '2017-03-31T01:54:15Z'},
-    ]
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=mocked_json)
-        )
-    )
-
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    mocked_api.assert_called_once_with(
-        start=datetime(2017, 3, 31, 0, 0, 0, 0),
-        end=datetime(2017, 3, 31, 23, 59, 59, 999999),
-    )
-
-    call_args = mock_task.delay.call_args_list
-    assert len(call_args) == 1
-    assert call_args[0][1]['subject'] == expected_subject
-
-
-@freeze_time('2017-04-01 12:00:00')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_doesnt_send_log_in_email_if_log_in_email_already_sent(mock_task):
-    suppliers = SupplierFactory.create_batch(2)
-    SupplierEmailNotificationFactory(
-        supplier=suppliers[0], category='no_case_studies')
-    SupplierEmailNotificationFactory(
-        supplier=suppliers[1], category='hasnt_logged_in')
-    mocked_json = [
-        {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
-        {'id': suppliers[1].sso_id, 'last_login': '2017-03-02T13:18:15Z'},
-    ]
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=mocked_json)
-        )
-    )
-
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    assert mock_task.delay.call_count == 1
-    call_args = mock_task.delay.call_args_list
-    assert len(call_args) == 1
-    assert call_args[0][1]['recipient_email'] == suppliers[0].company_email
-
-    assert SupplierEmailNotification.objects.all().count() == 3
-
-
-@freeze_time('2017-04-01 12:00:00')
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_sends_log_in_email_to_expected_users(mock_task, settings):
-    suppliers = SupplierFactory.create_batch(4)
-    mocked_json = [
-        {'id': suppliers[0].sso_id, 'last_login': '2017-03-02T02:14:15Z'},
-        {'id': suppliers[1].sso_id, 'last_login': '2017-03-02T13:18:15Z'},
-        {'id': suppliers[2].sso_id, 'last_login': '2017-03-02T15:43:15Z'},
-    ]
-    mocked_api = MagicMock(
-        return_value=MagicMock(
-            json=MagicMock(return_value=mocked_json)
-        )
-    )
-    SupplierEmailNotificationFactory(
-        supplier=suppliers[1], category='no_case_studies')
-    SupplierEmailNotificationFactory(
-        supplier=suppliers[0], category='hasnt_logged_in')
-
-    with patch(LAST_LOGIN_API_METHOD, mocked_api):
-        notifications.hasnt_logged_in()
-
-    assert mock_task.delay.call_count == 2
-    call_args = mock_task.delay.call_args_list
-    assert len(call_args) == 2
-    assert call_args[0][1]['recipient_email'] == suppliers[1].company_email
-    assert call_args[1][1]['recipient_email'] == suppliers[2].company_email
-    expected_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
-    assert expected_url in call_args[0][1]['text_body']
-    objs = SupplierEmailNotification.objects.all()
-    assert objs.count() == 4
+    assert objs.count() == 9
 
 
 @freeze_time()

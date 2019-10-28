@@ -4,6 +4,7 @@ from django.utils import timezone
 from directory_constants import company_types, user_roles
 
 from company import email, documents, helpers, models
+from supplier.models import Supplier
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -77,6 +78,24 @@ def send_account_ownership_transfer_notification(
     notification.send_async()
 
 
+def send_new_invite_collaboration_notification(sender, instance, created, *args, **kwargs):
+    if not created:
+        return
+
+    existing_company = helpers.get_user_company(collaboration_invite=instance, companies=models.Company.objects.all())
+    if existing_company:
+        helpers.send_new_user_invite_email_existing_company(
+            collaboration_invite=instance,
+            existing_company_name=existing_company.name,
+            form_url='send_new_invite_collaborator_notification_existing',
+        )
+    else:
+        helpers.send_new_user_invite_email(
+            collaboration_invite=instance,
+            form_url='send_new_invite_collaborator_notification'
+        )
+
+
 def send_account_collaborator_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
@@ -84,18 +103,19 @@ def send_account_collaborator_notification(sender, instance, created, *args, **k
     notification.send_async()
 
 
-def set_sole_trader_number(sender, instance, *args, **kwargs):
+def set_non_companies_house_number(sender, instance, *args, **kwargs):
     if (
         instance._state.adding
-        and instance.company_type == company_types.SOLE_TRADER
+        and instance.company_type != company_types.COMPANIES_HOUSE
     ):
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url
         number = pk + settings.SOLE_TRADER_NUMBER_SEED
+        company_prefix = helpers.company_prefix_map[instance.company_type]
         # avoids clash with companies house numbers as there is no ST prefix
         # https://www.doorda.com/kb/article/company-number-prefixes.html
-        instance.number = f'ST{number:06}'
+        instance.number = f'{company_prefix}{number:06}'
 
 
 def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
@@ -112,7 +132,7 @@ def create_collaboration_invite_from_ownership_invite(sender, instance, created,
     )
 
 
-def create_collaboration_invite_from_collaborator_invite(sender, instance, created, *args, **kwargs):
+def create_collaboration_invite_from_collaborator_invite(sender, instance, *args, **kwargs):
     models.CollaborationInvite.objects.update_or_create(
         uuid=instance.uuid,
         defaults={
@@ -124,3 +144,18 @@ def create_collaboration_invite_from_collaborator_invite(sender, instance, creat
             'role': user_roles.EDITOR,
         }
     )
+
+
+def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, **kwargs):
+    if not instance._state.adding:
+        pre_save_instance = sender.objects.get(pk=instance.pk)
+        if instance.accepted and not pre_save_instance.accepted:
+            supplier_name = helpers.get_supplier_alias_by_email(
+                collaboration_invite=instance,
+                suppliers=Supplier.objects.all()
+            )
+            helpers.send_new_user_alert_invite_accepted_email(
+                collaboration_invite=instance,
+                collaborator_name=supplier_name,
+                form_url='send_acknowledgement_admin_email_on_invite_accept'
+            )

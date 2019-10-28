@@ -8,6 +8,7 @@ import re
 from urllib.parse import urljoin
 
 from directory_constants import choices
+from directory_constants.urls import domestic
 import directory_components.helpers
 from directory_forms_api_client import actions
 from elasticsearch_dsl import Q
@@ -19,7 +20,6 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 
-
 from company.stannp import stannp_client
 
 
@@ -29,6 +29,13 @@ SECTOR_CHOICES = dict(choices.INDUSTRIES)
 REQUEST_IDENTITY_VERIFICATION_SUBJECT = 'Request for identity verification'
 
 logger = logging.getLogger(__name__)
+
+company_prefix_map = {
+    choices.company_types.CHARITY: 'CE',
+    choices.company_types.SOLE_TRADER: 'ST',
+    choices.company_types.PARTNERSHIP: 'LP',
+    'OTHER': 'OT',
+}
 
 
 def get_sector_label(sectors_value):
@@ -318,8 +325,94 @@ def send_request_identity_verification_message(supplier):
         'company sub-type': supplier.company.company_type,
     })
     response.raise_for_status()
+    # Send the user an email instructions on how to request verification
+    notify_non_ch_verification_request(
+        email=supplier.company_email,
+        company_name=supplier.company.name,
+        form_url='send_request_identity_verification_message'
+    )
     company = supplier.company
 
     company.is_identity_check_message_sent = True
     company.date_identity_check_message_sent = timezone.now()
     company.save()
+
+
+def notify_non_ch_verification_request(email, company_name, form_url):
+    action = actions.GovNotifyEmailAction(
+        email_address=email,
+        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save({
+        'company_name': company_name,
+    })
+    response.raise_for_status()
+
+
+def send_new_user_invite_email(collaboration_invite, form_url=None):
+    invite_details = extract_invite_details(collaboration_invite)
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.collaborator_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()
+
+
+def send_new_user_invite_email_existing_company(collaboration_invite, existing_company_name, form_url=None):
+    invite_details = extract_invite_details(collaboration_invite)
+    invite_details['other_company_name'] = existing_company_name
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.collaborator_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
+        form_url=form_url,
+
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()
+
+
+def extract_invite_details(collaboration_invite):
+    invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
+        uuid=collaboration_invite.uuid
+    )
+    return {
+        'login_url': invite_link,
+        'name': (
+                collaboration_invite.requestor.name or
+                collaboration_invite.requestor.company_email
+            ),
+        'company_name': collaboration_invite.company.name,
+        'role': collaboration_invite.role.capitalize()
+    }
+
+
+def get_user_company(collaboration_invite, companies):
+    return companies.filter(suppliers__company_email=collaboration_invite.collaborator_email).first()
+
+
+def get_supplier_alias_by_email(collaboration_invite, suppliers):
+    supplier = suppliers.filter(company_email=collaboration_invite.collaborator_email).first()
+    if supplier and supplier.name:
+        return supplier.name
+    else:
+        return collaboration_invite.collaborator_email
+
+
+def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator_name, form_url=None):
+    invite_details = {
+        'company_name': collaboration_invite.company.name,
+        'name':  collaborator_name,
+        'profile_remove_member_url':  domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+        'email':  collaboration_invite.collaborator_email
+    }
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_invite.requestor.company_email,
+        template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save(invite_details)
+    response.raise_for_status()

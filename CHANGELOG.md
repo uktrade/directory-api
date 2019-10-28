@@ -14,6 +14,15 @@
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
 - No ticket - Remove mobile number unique constraint
+- TT-1714 - Implement Collaborator Notifications 
+- TT-1841 - Send admin emails for exiting company in signals 
+- TT-1761 - Remove notification hasn't logged-in
+- TT-1923 - allow to programmatically change verification flags via testapi
+- TT-1910 - admin send new invite accepted email
+- TT-1911 - Expose created timestamp for company serializer
+- TT-2012 - Add non-ch request verification email
+- TT-2013 - Generate company number for all non registered companies
+- TT-2027 - Make testapi to return company number (for testing non-CH companies)
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
@@ -23,6 +32,8 @@
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 - TT-1768 - Fix elasticsearch migrate
 - TT-1538  - Fix datascience s3 bucket - read from vault see above
+- TT-1289 - Allow company names longer than 250 chars
+- TT-2011 - Handle verified with id
 - TT-2064 - Submit user details with request to verify
 
 ## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)

@@ -98,10 +98,7 @@ class Company(TimeStampedModel):
         default='',
         blank=True,
     )
-    name = models.CharField(
-        max_length=255,
-        validators=[no_html],
-    )
+    name = models.TextField(validators=[no_html])
     number = models.CharField(
         help_text=(
             'For companies registered in companies house this is their '
@@ -283,6 +280,7 @@ class Company(TimeStampedModel):
         return any([
             self.verified_with_preverified_enrolment,
             self.verified_with_code,
+            self.verified_with_identity_check,
             self.verified_with_companies_house_oauth2,
         ])
 

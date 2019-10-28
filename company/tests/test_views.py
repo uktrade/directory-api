@@ -109,6 +109,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'locality': company.locality,
         'logo': None,
         'mobile_number': company.mobile_number,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
         'name': 'Test Company',
         'number': company.number,
@@ -174,6 +175,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': None,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
         'po_box': company.po_box,
         'sectors': company.sectors,
@@ -233,6 +235,7 @@ def test_company_update_with_mock_patch(authed_client, authed_supplier):
         'keywords': company.keywords,
         'linkedin_url': company.linkedin_url,
         'logo': None,
+        'created': '2016-11-23T11:21:10.977518Z',
         'modified': '2016-11-23T11:21:10.977518Z',
         'po_box': company.po_box,
         'sectors': company.sectors,
@@ -2811,7 +2814,6 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
-
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
@@ -2825,6 +2827,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
     supplier = Supplier.objects.get(company_email=invite.collaborator_email)
     assert supplier.company == invite.company
     assert supplier.role == invite.role
+    assert supplier.name == 'supplier1 bloggs'
 
 
 @pytest.mark.django_db

@@ -105,6 +105,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'address_line_2',
             'company_type',
             'country',
+            'created',
             'date_of_creation',
             'description',
             'email_address',
@@ -431,13 +432,14 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
-            self.update_or_create_supplier(instance)
+            self.update_or_create_supplier(instance, self.context['request'].user.full_name)
         return super().update(instance, validated_data)
 
-    def update_or_create_supplier(self, collaborator_invite):
+    def update_or_create_supplier(self, collaborator_invite, name):
         Supplier.objects.update_or_create(
             sso_id=self.context['request'].user.id,
             company_email=collaborator_invite.collaborator_email,
+            name=name,
             defaults={
                 'company': collaborator_invite.company,
                 'role': collaborator_invite.role,

@@ -245,9 +245,9 @@ urlpatterns = [
         name='offices-by-postcode'
     ),
     url(
-        r'^testapi/company/(?P<ch_id>.*)/$',
+        r'^testapi/company/(?P<ch_id_or_name>.*)/$',
         testapi.views.CompanyTestAPIView.as_view(),
-        name='company_by_ch_id'
+        name='company_by_ch_id_or_name'
     ),
     url(
         r'^testapi/isd_company/$',
