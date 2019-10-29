@@ -407,7 +407,19 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
 
     assert mock_submit.call_count == 1
     expected = {
-        'data': {},
+        'data': {
+            'name': supplier.name,
+            'email': supplier.company_email,
+            'company name': supplier.company.name,
+            'company address': [
+                supplier.company.address_line_1,
+                supplier.company.address_line_2,
+                supplier.company.locality,
+                supplier.company.country,
+                supplier.company.postal_code,
+            ],
+            'company sub-type': supplier.company.company_type,
+        },
         'meta': {
             'action_name': 'zendesk',
             'form_url': 'request-identity-verification',
