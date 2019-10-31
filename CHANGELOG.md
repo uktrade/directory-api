@@ -3,6 +3,15 @@
 ## Pre release
 
 ### Implemented enhancements
+- TT-2027 - Make testapi to return company number (for testing non-CH companies)
+
+### Fixed bugs
+- TT-2064 - Submit user details with request to verify
+
+## [2019.10.22](https://github.com/uktrade/directory-api/releases/tag/2019.10.22)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.08.22...2019.10.22)
+
+### Implemented enhancements
 - TT-1733 - Added request identity verification feature
 - TT-1733 - Allow name to be provided on supplier create
 - TT-1716 - Allow disconnecting self from company
@@ -22,7 +31,7 @@
 - TT-1911 - Expose created timestamp for company serializer
 - TT-2012 - Add non-ch request verification email
 - TT-2013 - Generate company number for all non registered companies
-- TT-2027 - Make testapi to return company number (for testing non-CH companies)
+
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
@@ -34,7 +43,6 @@
 - TT-1538  - Fix datascience s3 bucket - read from vault see above
 - TT-1289 - Allow company names longer than 250 chars
 - TT-2011 - Handle verified with id
-- TT-2064 - Submit user details with request to verify
 
 ## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)
