@@ -181,7 +181,7 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/add-collaborator/$',
-        company.views.AddCollaboratorView.as_view(),
+        company.views.AddCollaboratorView.as_view({'post': 'create'}),
         name='register-company-collaborator-request'
     ),
     url(

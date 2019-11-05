@@ -4,6 +4,7 @@ from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
+from rest_framework.exceptions import ValidationError
 
 from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
@@ -275,9 +276,23 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
         )
 
 
-class AddCollaboratorView(CreateAPIView):
+class AddCollaboratorView(viewsets.ModelViewSet):
     serializer_class = company.serializers.AddCollaboratorSerializer
     permission_classes = [IsAuthenticatedSSO]
+    queryset = Supplier.objects.all()
+    lookup_field = 'sso_id'
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            error_codes = e.get_codes()
+            if 'sso_id' in error_codes and error_codes['sso_id'][0] == 'unique':
+                lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+                self.kwargs[lookup_url_kwarg] = request.data['sso_id']
+                return super().update(request, *args, **kwargs)
+            else:
+                raise e
 
 
 class ChangeCollaboratorRoleView(UpdateAPIView):
