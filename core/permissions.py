@@ -1,8 +1,9 @@
-from django.conf import settings
-from django.utils.crypto import constant_time_compare
 from rest_framework import permissions
 
-from supplier.helpers import SSOUser
+from django.conf import settings
+from django.utils.crypto import constant_time_compare
+
+from company.helpers import SSOUser
 
 
 class IsAuthenticatedSSO(permissions.BasePermission):

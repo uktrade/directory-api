@@ -4,11 +4,9 @@ import pytest
 from django.core.management import call_command
 from django.core.management.commands import migrate
 
-from company.tests.factories import CompanyFactory
-from supplier.tests.factories import SupplierFactory
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 
-from company.models import Company
-from supplier.models import Supplier
+from company.models import Company, CompanyUser
 from core.management.commands import distributed_migrate
 
 
@@ -19,7 +17,7 @@ def new_companies():
 
 @pytest.fixture()
 def new_suppliers():
-    return SupplierFactory.create_batch(10)
+    return CompanyUserFactory.create_batch(10)
 
 
 @pytest.mark.django_db
@@ -37,7 +35,7 @@ def test_mask_data(new_companies, new_suppliers):
         assert masked_company.email_full_name != new_company.email_full_name
 
     for new_supplier in new_suppliers:
-        masked_supplier = Supplier.objects.get(id=new_supplier.id)
+        masked_supplier = CompanyUser.objects.get(id=new_supplier.id)
         assert masked_supplier.name != new_supplier.name
         assert masked_supplier.mobile_number != new_supplier.mobile_number
         assert masked_supplier.company_email != new_supplier.company_email

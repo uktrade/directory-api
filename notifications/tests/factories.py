@@ -2,18 +2,15 @@ import factory
 import factory.fuzzy
 
 from notifications import models, constants
-from supplier.tests.factories import SupplierFactory
+from company.tests.factories import CompanyUserFactory
 
 
-SUPPLIER_CATEGORY_CHOICES = [
-    i[0] for i in constants.SUPPLIER_NOTIFICATION_CATEGORIES]
-BUYER_CATEGORY_CHOICES = [
-    i[0] for i in constants.BUYER_NOTIFICATION_CATEGORIES]
+SUPPLIER_CATEGORY_CHOICES = [i[0] for i in constants.SUPPLIER_NOTIFICATION_CATEGORIES]
+BUYER_CATEGORY_CHOICES = [i[0] for i in constants.BUYER_NOTIFICATION_CATEGORIES]
 
 
 class SupplierEmailNotificationFactory(factory.django.DjangoModelFactory):
-
-    supplier = factory.SubFactory(SupplierFactory)
+    company_user = factory.SubFactory(CompanyUserFactory)
     category = factory.fuzzy.FuzzyChoice(SUPPLIER_CATEGORY_CHOICES)
 
     class Meta:

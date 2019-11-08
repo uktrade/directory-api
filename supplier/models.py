@@ -7,6 +7,7 @@ from company.models import Company
 from directory_constants import choices, user_roles
 
 
+# deprecated. use company.CompanyUser instead
 class Supplier(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')

@@ -11,26 +11,26 @@ def verification_code_not_given():
 def verification_code_not_given_first_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS
     category = constants.VERIFICATION_CODE_NOT_GIVEN
-    suppliers = helpers.get_unverified_suppliers(days_ago).filter(
+    company_users = helpers.get_unverified_suppliers(days_ago).filter(
         company__is_uk_isd_company=False,
     ).exclude(
         supplieremailnotification__category=category,
     )
-    for supplier in suppliers:
-        notification = email.VerificationWaitingNotification(supplier)
+    for company_user in company_users:
+        notification = email.VerificationWaitingNotification(company_user)
         notification.send()
 
 
 def verification_code_not_given_seconds_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL
     category = constants.VERIFICATION_CODE_2ND_EMAIL
-    suppliers = helpers.get_unverified_suppliers(days_ago).filter(
+    company_users = helpers.get_unverified_suppliers(days_ago).filter(
         company__is_uk_isd_company=False,
     ).exclude(
         supplieremailnotification__category=category,
     )
-    for supplier in suppliers:
-        notification = email.VerificationStillWaitingNotification(supplier)
+    for company_user in company_users:
+        notification = email.VerificationStillWaitingNotification(company_user)
         notification.send()
 
 
@@ -48,8 +48,8 @@ def new_companies_in_sector():
             notification.send()
 
 
-def supplier_unsubscribed(supplier):
-    notification = email.SupplierUbsubscribed(supplier)
+def supplier_unsubscribed(company_user):
+    notification = email.SupplierUbsubscribed(company_user)
     notification.send()
 
 

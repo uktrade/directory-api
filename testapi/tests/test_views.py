@@ -1,12 +1,12 @@
 import datetime
 
 import pytest
-from django.core.urlresolvers import reverse
 from rest_framework import status
 
-from company import models
-from company.tests import factories
-from supplier.tests.factories import SupplierFactory
+from django.core.urlresolvers import reverse
+
+from company.models import Company
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 
 
 @pytest.mark.django_db
@@ -30,7 +30,7 @@ def test_check_contents_of_get_existing_company_by_ch_id(
         authed_client, authed_supplier):
     email_address = 'test@user.com'
     verification_code = '1234567890'
-    company = factories.CompanyFactory(
+    company = CompanyFactory(
         name='Test Company',
         date_of_creation=datetime.date(2000, 10, 10),
         email_address='test@user.com',
@@ -141,7 +141,7 @@ def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
         'company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert models.Company.objects.filter(number=number).exists() is False
+    assert Company.objects.filter(number=number).exists() is False
 
 
 @pytest.mark.django_db
@@ -151,7 +151,7 @@ def test_delete_existing_company_by_name(authed_client, authed_supplier):
         'company_by_ch_id_or_name', kwargs={'ch_id_or_name': name})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert models.Company.objects.filter(name=name).exists() is False
+    assert Company.objects.filter(name=name).exists() is False
 
 
 @pytest.mark.django_db
@@ -306,7 +306,7 @@ def test_get_published_companies_check_response_contents(
     is_published_find_a_supplier = True
     expected_number_of_results = 1
     expected_number_of_keys = 15
-    company = factories.CompanyFactory(
+    company = CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,
@@ -358,16 +358,16 @@ def test_get_published_companies_use_optional_filters(
         expected_number_of_results):
     sectors_1 = ['AEROSPACE', 'AUTOMOTIVE', 'DEFENCE']
     sectors_2 = ['AEROSPACE', 'AUTOMOTIVE']
-    company_1 = factories.CompanyFactory(
+    company_1 = CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_1
     )
-    company_2 = factories.CompanyFactory(
+    company_2 = CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_2
     )
-    supplier_1 = SupplierFactory.create(sso_id=777)
-    supplier_2 = SupplierFactory.create(sso_id=888)
+    supplier_1 = CompanyUserFactory.create(sso_id=777)
+    supplier_2 = CompanyUserFactory.create(sso_id=888)
     supplier_1.company = company_1
     supplier_1.save()
     supplier_2.company = company_2
@@ -404,7 +404,7 @@ def test_get_unpublished_companies_check_response_contents(
     # authed_client fixture creates 1 unpublished company
     expected_number_of_results = 2
     expected_number_of_keys = 15
-    company = factories.CompanyFactory(
+    company = CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,

@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 from django.core.management import call_command
 
 from company import documents, helpers
-from supplier.tests.factories import SupplierFactory
+from company.tests import factories
 
 
 def pytest_runtest_setup(item):
@@ -44,17 +44,12 @@ def authed_supplier():
 
     """
 
-    return SupplierFactory.create(sso_id=999)
+    return factories.CompanyUserFactory.create()
 
 
 @pytest.fixture
-def sso_session_request_active_user(
-    authed_supplier, requests_mocker, settings
-):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL,
-        'api/v1/session-user/?session_key=123'
-    )
+def sso_session_request_active_user(authed_supplier, requests_mocker, settings):
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'api/v1/session-user/?session_key=123')
     return requests_mocker.get(
         url,
         json={
@@ -66,12 +61,8 @@ def sso_session_request_active_user(
 
 
 @pytest.fixture
-def sso_oauth2_request_active_user(
-    authed_supplier, requests_mocker, settings
-):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
-    )
+def sso_oauth2_request_active_user(authed_supplier, requests_mocker, settings):
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
     return requests_mocker.get(
         url,
         json={
@@ -82,9 +73,7 @@ def sso_oauth2_request_active_user(
 
 
 @pytest.fixture
-def authed_client(
-    sso_session_request_active_user, sso_oauth2_request_active_user
-):
+def authed_client(sso_session_request_active_user, sso_oauth2_request_active_user):
     """
     core.authentication.SessionAuthenticationSSO passes the session header
     "123" to sso, but the fixtures sso_session_request_active_user and

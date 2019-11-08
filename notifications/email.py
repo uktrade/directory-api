@@ -41,20 +41,17 @@ class NotificationBase(abc.ABC):
 class SupplierNotificationBase(NotificationBase):
     from_email = settings.FAB_FROM_EMAIL
 
-    def __init__(self, supplier):
-        self.supplier = supplier
+    def __init__(self, company_user):
+        self.company_user = company_user
 
     @property
     def recipient(self):
-        return Recipient(
-            name=self.supplier.name,
-            email=self.supplier.company_email
-        )
+        return Recipient(name=self.company_user.name, email=self.company_user.company_email)
 
     def send(self):
         text_body, html_body = self.get_bodies()
         models.SupplierEmailNotification.objects.create(
-            supplier=self.supplier,
+            company_user=self.company_user,
             category=self.category
         )
         core.tasks.send_email.delay(

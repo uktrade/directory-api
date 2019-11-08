@@ -13,11 +13,7 @@ from requests import Response
 from django.utils import timezone
 
 from company.tests import factories
-from company import helpers, serializers
-from company.helpers import CompanyParser
-from company.models import Company
-from supplier.models import Supplier
-from supplier.tests.factories import SupplierFactory
+from company import helpers, models, serializers
 
 
 def profile_api_400(*args, **kwargs):
@@ -246,7 +242,7 @@ def test_extract_expertise_parser():
         'Italian'
     ]
 
-    company_parser = CompanyParser(company_data_dict)
+    company_parser = helpers.CompanyParser(company_data_dict)
     expertise_search_labels = company_parser.expertise_labels_for_search
     assert expertise_search_labels == expected_values
 
@@ -393,7 +389,7 @@ def test_extract_recipient_address_gov_notify():
 @mock.patch.object(forms_api_client, 'submit_generic')
 def test_send_request_identity_verification_message(mock_submit, mock_gov_email, settings):
 
-    supplier = SupplierFactory.create()
+    supplier = factories.CompanyUserFactory.create()
     company = supplier.company
 
     helpers.send_request_identity_verification_message(supplier)
@@ -461,10 +457,10 @@ def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
 )
 def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, settings):
     mock_gov_notify_email_action.stop()
-    existing_member = SupplierFactory()
+    existing_member = factories.CompanyUserFactory()
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
-        requestor__company_email='test@test.com',
+        company_user__company_email='test@test.com',
         company=existing_member.company
     )
 
@@ -478,7 +474,7 @@ def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, 
 
 @pytest.mark.django_db
 def test_extract_invite_details_name():
-    collaboration_invite = factories.CollaborationInviteFactory(requestor__name='example')
+    collaboration_invite = factories.CollaborationInviteFactory(company_user__name='example')
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
     invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
         uuid=collaboration_invite.uuid
@@ -495,7 +491,7 @@ def test_extract_invite_details_name():
 @pytest.mark.django_db
 def test_extract_invite_details_email():
     collaboration_invite = factories.CollaborationInviteFactory(
-        requestor__name=None, requestor__company_email='test@test.com'
+        company_user__name=None, company_user__company_email='test@test.com'
     )
     extracted_invite = helpers.extract_invite_details(collaboration_invite)
     invite_link = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/collaborate/user-account/?invite_key={uuid}'.format(
@@ -513,13 +509,15 @@ def test_extract_invite_details_email():
 
 @pytest.mark.django_db
 def test_get_user_company_name():
-    existing_member = SupplierFactory()
+    existing_member = factories.CompanyUserFactory()
 
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
-        requestor__company_email='test@test.com',
+        company_user__company_email='test@test.com',
     )
-    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite, companies=Company.objects.all())
+    user_company = helpers.get_user_company(
+        collaboration_invite=collaboration_invite, companies=models.Company.objects.all()
+    )
 
     assert existing_member.name is not user_company.name
 
@@ -527,10 +525,12 @@ def test_get_user_company_name():
 @pytest.mark.django_db
 def test_get_user_company_not_member():
     collaboration_invite = factories.CollaborationInviteFactory(
-        requestor__name=None, requestor__company_email='test@test.com'
+        company_user__name=None, company_user__company_email='test@test.com'
     )
 
-    user_company = helpers.get_user_company(collaboration_invite=collaboration_invite, companies=Company.objects.all())
+    user_company = helpers.get_user_company(
+        collaboration_invite=collaboration_invite, companies=models.Company.objects.all()
+    )
 
     assert user_company is None
 
@@ -538,13 +538,13 @@ def test_get_user_company_not_member():
 @pytest.mark.django_db
 def test_get_supplier_alias_by_email():
     collaboration_invite = factories.CollaborationInviteFactory(
-        requestor__name=None, requestor__company_email='test@test.com'
+        company_user__name=None, company_user__company_email='test@test.com'
     )
 
-    supplier = SupplierFactory.create(company_email=collaboration_invite.collaborator_email)
+    supplier = factories.CompanyUserFactory.create(company_email=collaboration_invite.collaborator_email)
     supplier_name = helpers.get_supplier_alias_by_email(
         collaboration_invite=collaboration_invite,
-        suppliers=Supplier.objects.all()
+        company_users=models.CompanyUser.objects.all()
     )
     assert supplier_name == supplier.name
 
@@ -552,12 +552,12 @@ def test_get_supplier_alias_by_email():
 @pytest.mark.django_db
 def test_get_supplier_alias_by_email_no_supplier():
     collaboration_invite = factories.CollaborationInviteFactory(
-        requestor__name=None, requestor__company_email='test@test.com'
+        company_user__name=None, company_user__company_email='test@test.com'
     )
 
     supplier_name = helpers.get_supplier_alias_by_email(
         collaboration_invite=collaboration_invite,
-        suppliers=Supplier.objects.all()
+        company_users=models.CompanyUser.objects.all()
     )
 
     assert supplier_name == collaboration_invite.collaborator_email
@@ -575,7 +575,30 @@ def test_send_admin_new_user_alert_invite_accepted_email(mock_gov_notify_email_a
 
     assert mock_gov_notify_email_action.call_count == 2
     assert mock_gov_notify_email_action.call_args == mock.call(
-        email_address=collaboration_invite.requestor.company_email,
+        email_address=collaboration_invite.company_user.company_email,
         form_url='send_acknowledgement_admin_email_on_invite_accept',
         template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID
     )
+
+
+def test_sso_user_pk():
+    user = helpers.SSOUser(id=123, email='123@example.com')
+
+    assert user.pk == 123
+
+
+def test_sso_full_name():
+    user_profile = {'first_name': 'big', 'last_name': 'name'}
+    user = helpers.SSOUser(id=123, email='123@example.com', user_profile=user_profile)
+    user_no_profile = helpers.SSOUser(id=123, email='123@example.com')
+
+    user_profile_first_name = {'first_name': 'big'}
+    user_profile_last_name = {'last_name': 'name'}
+
+    user_first_name = helpers.SSOUser(id=123, email='123@example.com', user_profile=user_profile_first_name)
+    user_last_name = helpers.SSOUser(id=123, email='123@example.com', user_profile=user_profile_last_name)
+
+    assert user.full_name == 'big name'
+    assert user_no_profile.full_name == ''
+    assert user_first_name.full_name == 'big'
+    assert user_last_name.full_name == ''

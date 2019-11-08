@@ -1,7 +1,7 @@
 import datetime
 from unittest import mock
 
-from directory_constants import company_types, user_roles
+from directory_constants import company_types
 import elasticsearch
 from freezegun import freeze_time
 import pytest
@@ -10,7 +10,6 @@ from django.utils import timezone
 
 from company import documents, models
 from company.tests import factories
-from supplier.tests.factories import SupplierFactory
 
 
 @pytest.fixture(autouse=False)
@@ -206,9 +205,7 @@ def test_unknown_address_not_send_letters(mock_send_letter, settings):
 def test_publish(enabled, is_publishable, is_published, expected, settings):
     settings.FEATURE_MANUAL_PUBLISH_ENABLED = enabled
 
-    company = factories.CompanyFactory.build(
-        is_published_find_a_supplier=is_published
-    )
+    company = factories.CompanyFactory.build(is_published_find_a_supplier=is_published)
 
     mock_publishable = mock.PropertyMock(return_value=is_publishable)
 
@@ -219,9 +216,7 @@ def test_publish(enabled, is_publishable, is_published, expected, settings):
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=False,
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=False,)
 
     assert company.date_published is None
 
@@ -374,57 +369,6 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
 
 
 @pytest.mark.django_db
-@mock.patch('company.email.OwnershipChangeNotification')
-def test_account_ownership_transfer_email_notification(mocked_notification):
-    factories.OwnershipInviteFactory()
-    assert mocked_notification().send_async.called is True
-
-
-@pytest.mark.django_db
-@mock.patch('company.email.CollaboratorNotification')
-def test_account_collaborator_email_notification(mocked_notification):
-    factories.CollaboratorInviteFactory()
-    assert mocked_notification().send_async.called is True
-
-
-@pytest.mark.django_db
-@mock.patch('company.email.CollaboratorNotification')
-def test_account_collaborator_email_notification_modified(mocked_notification):
-    invite = factories.CollaboratorInviteFactory()
-
-    # now modify it
-
-    invite.accepted = True
-    invite.save()
-
-    assert mocked_notification().send_async.call_count == 1
-
-
-@pytest.mark.django_db
-def test_create_collaboration_invite_from_ownership_invite():
-    invite = factories.OwnershipInviteFactory()
-
-    collaboration_invite = models.CollaborationInvite.objects.get(uuid=invite.uuid)
-
-    assert collaboration_invite.collaborator_email == invite.new_owner_email
-    assert collaboration_invite.company.pk == invite.company.pk
-    assert collaboration_invite.requestor.pk == invite.requestor.pk
-    assert collaboration_invite.role == user_roles.ADMIN
-
-
-@pytest.mark.django_db
-def test_create_collaboration_invite_from_collaborator_invite():
-    invite = factories.CollaboratorInviteFactory()
-
-    collaboration_invite = models.CollaborationInvite.objects.get(uuid=invite.uuid)
-
-    assert collaboration_invite.collaborator_email == invite.collaborator_email
-    assert collaboration_invite.company.pk == invite.company.pk
-    assert collaboration_invite.requestor.pk == invite.requestor.pk
-    assert collaboration_invite.role == user_roles.EDITOR
-
-
-@pytest.mark.django_db
 @mock.patch('company.helpers.send_new_user_invite_email')
 def test_send_new_invite_collaboration_notification(mock_send_invite_email):
     collaboration_invite = factories.CollaborationInviteFactory()
@@ -443,11 +387,11 @@ def test_send_new_invite_collaboration_notification(mock_send_invite_email):
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_new_user_invite_email_existing_company')
 def test_send_new_invite_collaboration_notification_existing_company(mock_send_invite_email):
-    existing_member = SupplierFactory()
+    existing_member = factories.CompanyUserFactory()
 
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
-        requestor__company_email='test@test.com',
+        company_user__company_email='test@test.com',
     )
     assert mock_send_invite_email.call_count == 1
     assert mock_send_invite_email.call_args == mock.call(
@@ -466,7 +410,7 @@ def test_send_new_invite_collaboration_notification_existing_company(mock_send_i
 @mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
 def test_send_acknowledgement_admin_email_on_invite_accept(mock_send_invite_accepted_email):
     collaboration_invite = factories.CollaborationInviteFactory()
-    SupplierFactory.create(company_email=collaboration_invite.collaborator_email, name='myname')
+    factories.CompanyUserFactory.create(company_email=collaboration_invite.collaborator_email, name='myname')
 
     assert mock_send_invite_accepted_email.call_count == 0
     collaboration_invite.accepted = True

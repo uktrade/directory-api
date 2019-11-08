@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.crypto import constant_time_compare
 
-from supplier import helpers
+from company.helpers import SSOUser
 
 
 class SessionAuthenticationSSO(authentication.BaseAuthentication):
@@ -35,7 +35,7 @@ class SessionAuthenticationSSO(authentication.BaseAuthentication):
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
         sso_data = response.json()
 
-        sso_user = helpers.SSOUser(
+        sso_user = SSOUser(
             id=sso_data['id'],
             email=sso_data['email'],
             user_profile=sso_data.get('user_profile'),
@@ -74,7 +74,7 @@ class Oauth2AuthenticationSSO(authentication.BaseAuthentication):
             raise exceptions.AuthenticationFailed(self.message_invalid_session)
 
         sso_data = response.json()
-        sso_user = helpers.SSOUser(id=sso_data['id'], email=sso_data['email'])
+        sso_user = SSOUser(id=sso_data['id'], email=sso_data['email'])
         return (sso_user, bearer_token)
 
     def authenticate_header(self, request):
