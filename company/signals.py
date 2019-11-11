@@ -36,13 +36,6 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
         )
 
 
-def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
-    if settings.FEATURE_MANUAL_PUBLISH_ENABLED:
-        return
-    if instance.is_publishable and not instance.is_published:
-        instance.is_published_find_a_supplier = True
-
-
 def store_date_published(sender, instance, *args, **kwargs):
     if instance.is_published and not instance.date_published:
         instance.date_published = timezone.now()
@@ -121,7 +114,7 @@ def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, *
     if not instance._state.adding:
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
-            supplier_name = helpers.get_supplier_alias_by_email(
+            supplier_name = helpers.get_company_user_alias_by_email(
                 collaboration_invite=instance,
                 company_users=models.CompanyUser.objects.all()
             )

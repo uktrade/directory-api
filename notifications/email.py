@@ -112,9 +112,7 @@ class VerificationWaitingNotification(SupplierNotificationBase):
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
 
     def get_context_data(self):
-        return super().get_context_data(
-            verification_url=settings.VERIFICATION_CODE_URL,
-        )
+        return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL)
 
 
 class VerificationStillWaitingNotification(SupplierNotificationBase):
@@ -125,9 +123,7 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
 
     def get_context_data(self):
-        return super().get_context_data(
-            verification_url=settings.VERIFICATION_CODE_URL,
-        )
+        return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL,)
 
 
 class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):

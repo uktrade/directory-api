@@ -17,9 +17,12 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from core.helpers import SSOUser, CompaniesHouseClient
 from core.tests.test_views import reload_urlconf, reload_module
 from company import helpers, models, serializers
-from company.tests import factories, MockInvalidSerializer, MockValidSerializer, VALID_REQUEST_DATA
+from company.tests import (
+    factories, MockInvalidSerializer, MockValidSerializer, VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
+)
 
 
 default_public_profile_data = {
@@ -114,7 +117,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'sectors': company.sectors,
         'slug': 'test-company',
         'summary': company.summary,
-        'company_user_case_studies': [],
+        'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_companies_house_oauth2': False,
@@ -137,9 +140,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
     authed_supplier.company = company
     authed_supplier.save()
 
-    response = authed_client.put(
-        reverse('company'), VALID_REQUEST_DATA, format='json'
-    )
+    response = authed_client.put(reverse('company'), VALID_REQUEST_DATA, format='json')
 
     expected = {
         'company_type': company_types.COMPANIES_HOUSE,
@@ -176,7 +177,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'sectors': company.sectors,
         'slug': 'test-company',
         'summary': company.summary,
-        'company_user_case_studies': [],
+        'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_companies_house_oauth2': False,
@@ -236,7 +237,7 @@ def test_company_update_with_mock_patch(authed_client, authed_supplier):
         'sectors': company.sectors,
         'slug': 'test-company',
         'summary': company.summary,
-        'company_user_case_studies': [],
+        'supplier_case_studies': [],
         'twitter_url': company.twitter_url,
         'verified_with_code': False,
         'verified_with_companies_house_oauth2': False,
@@ -851,7 +852,7 @@ def companies_house_oauth_invalid_access_token(requests_mocker):
 
 @pytest.fixture
 def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number='{number}rad'.format(number=authed_supplier.company.number)
     )
     return requests_mocker.get(
@@ -866,7 +867,7 @@ def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
 
 @pytest.fixture
 def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
     return requests_mocker.get(
@@ -881,7 +882,7 @@ def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
 
 @pytest.fixture
 def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
     return requests_mocker.get(
@@ -1199,8 +1200,6 @@ def test_company_profile_public_404_private_profile(
 
 @pytest.mark.django_db
 def test_verify_company_with_code(authed_client, authed_supplier, settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
     with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
@@ -1235,11 +1234,7 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
 
 
 @pytest.mark.django_db
-def test_verify_company_with_code_invalid_code(
-    authed_client, authed_supplier, settings
-):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
+def test_verify_company_with_code_invalid_code(authed_client, authed_supplier, settings):
     with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
@@ -2406,10 +2401,9 @@ def test_company_user_retrieve_no_company_user(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_gecko_num_registered_company_user_view_returns_correct_json():
     client = APIClient()
-    models.CompanyUser.objects.create(**VALID_REQUEST_DATA)
+    models.CompanyUser.objects.create(**VALID_SUPPLIER_REQUEST_DATA)
     # Use basic auth with user=gecko and pass=X
-    encoded_creds = base64.b64encode(
-        'gecko:X'.encode('ascii')).decode("ascii")
+    encoded_creds = base64.b64encode('gecko:X'.encode('ascii')).decode("ascii")
     client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
 
     response = client.get(reverse('gecko-total-registered-suppliers'))
@@ -2474,7 +2468,7 @@ def test_unsubscribe_company_user_email_confirmation(
 def test_external_company_user_details_get_bearer_auth(
     mock_authenticate_credentials, client, authed_supplier, settings
 ):
-    sso_user = helpers.SSOUser(id=authed_supplier.sso_id, email='test@example.com')
+    sso_user = SSOUser(id=authed_supplier.sso_id, email='test@example.com')
     mock_authenticate_credentials.return_value = (sso_user, '123')
 
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
@@ -2612,7 +2606,7 @@ def test_company_collaborators_profile_owner_collaborators(authed_supplier, auth
 def test_company_user_csv_dump(mocked_get_file_from_s3, authed_client):
     settings.STORAGE_CLASS_NAME = 'default'
     settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
-    reload_module('supplier.views')
+    reload_module('company.views')
     reload_module('buyer.views')
     reload_urlconf()
 

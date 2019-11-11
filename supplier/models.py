@@ -1,3 +1,5 @@
+import warnings
+
 from django.db import models
 from django.utils import timezone
 
@@ -39,3 +41,7 @@ class Supplier(TimeStampedModel):
 
     def __str__(self):
         return self.company_email
+
+    def save(self, *args, **kwargs):
+        warnings.warn(f"{self.__class__} is deprecated. Use company.CompanUser instead.", DeprecationWarning)
+        return super().save(*args, **kwargs)

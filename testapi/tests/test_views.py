@@ -11,23 +11,22 @@ from company.tests.factories import CompanyFactory, CompanyUserFactory
 
 @pytest.mark.django_db
 def test_get_existing_company_by_ch_id(authed_client, authed_supplier):
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
 def test_get_existing_company_by_name(authed_client, authed_supplier):
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_check_contents_of_get_existing_company_by_ch_id(
-        authed_client, authed_supplier):
+def test_check_contents_of_get_existing_company_by_ch_id(authed_client, authed_supplier, settings):
+    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+
     email_address = 'test@user.com'
     verification_code = '1234567890'
     company = CompanyFactory(
@@ -43,18 +42,21 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     authed_supplier.company = company
     authed_supplier.save()
     company.refresh_from_db()
+
     assert company.verification_code
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+
     response = authed_client.get(url)
-    assert 'letter_verification_code' in response.json()
-    assert response.json()['number'] == company.number
-    assert response.json()['company_email'] == email_address
-    assert response.json()['letter_verification_code'] == verification_code
-    assert not response.json()['is_verification_letter_sent']
-    assert response.json()['is_uk_isd_company']
-    assert not response.json()['is_published_find_a_supplier']
-    assert not response.json()['is_published_investment_support_directory']
+
+    parsed = response.json()
+    assert 'letter_verification_code' in parsed
+    assert parsed['number'] == company.number
+    assert parsed['company_email'] == email_address
+    assert parsed['letter_verification_code'] == verification_code
+    assert parsed['is_verification_letter_sent']
+    assert parsed['is_uk_isd_company']
+    assert not parsed['is_published_find_a_supplier']
+    assert not parsed['is_published_investment_support_directory']
 
 
 @pytest.mark.django_db
@@ -384,8 +386,7 @@ def test_get_published_companies_use_optional_filters(
 
 
 @pytest.mark.django_db
-def test_get_unpublished_companies_check_response_contents(
-        authed_client, authed_supplier):
+def test_get_unpublished_companies_check_response_contents(authed_client, authed_supplier):
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
@@ -404,16 +405,23 @@ def test_get_unpublished_companies_check_response_contents(
     # authed_client fixture creates 1 unpublished company
     expected_number_of_results = 2
     expected_number_of_keys = 15
+
     company = CompanyFactory(
-        name=name, number=number, email_address=email, sectors=sectors,
-        employees=employees, website=website, keywords=keywords,
-        facebook_url=facebook_url, linkedin_url=linkedin_url,
-        twitter_url=twitter_url, summary=summary, description=description,
+        name=name,
+        number=number,
+        email_address=email,
+        sectors=sectors,
+        employees=employees,
+        website=website,
+        keywords=keywords,
+        facebook_url=facebook_url,
+        linkedin_url=linkedin_url,
+        twitter_url=twitter_url,
+        summary=summary,
+        description=description,
         is_uk_isd_company=is_uk_isd_company,
         is_published_find_a_supplier=is_published_find_a_supplier,
-        is_published_investment_support_directory=(
-            is_published_investment_support_directory
-        ),
+        is_published_investment_support_directory=is_published_investment_support_directory,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -422,6 +430,7 @@ def test_get_unpublished_companies_check_response_contents(
     response = authed_client.get(url)
     assert len(response.json()) == expected_number_of_results
     # authed_client fixture creates 1 unpublished company
+
     found_company = response.json()[1]
     assert len(found_company.keys()) == expected_number_of_keys
     assert found_company['name'] == name

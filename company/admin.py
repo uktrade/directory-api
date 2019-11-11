@@ -84,7 +84,7 @@ class PublishByCompanyHouseNumberForm(forms.Form):
 
     options = (
         ("investment_support_directory", "Investment Support Directory"),
-        ("find_a_supplier", "Find a Supplier"),
+        ("find_a_supplier", "Find a CompanyUser"),
     )
 
     directories = forms.MultipleChoiceField(
@@ -216,7 +216,7 @@ class CollaborationInviteAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.CompanyUser)
-class SupplierAdmin(admin.ModelAdmin):
+class CompanyUserAdmin(admin.ModelAdmin):
 
     search_fields = (
         'sso_id', 'name', 'mobile_number', 'company_email', 'company__name',
@@ -235,7 +235,7 @@ class SupplierAdmin(admin.ModelAdmin):
                 datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             )
         )
-        helpers.generate_suppliers_csv(file_object=response, queryset=queryset)
+        helpers.generate_company_users_csv(file_object=response, queryset=queryset)
         return response
 
     download_csv.short_description = (

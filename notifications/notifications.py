@@ -48,7 +48,7 @@ def new_companies_in_sector():
             notification.send()
 
 
-def supplier_unsubscribed(company_user):
+def company_user_unsubscribed(company_user):
     notification = email.SupplierUbsubscribed(company_user)
     notification.send()
 

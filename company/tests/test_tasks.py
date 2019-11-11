@@ -14,4 +14,4 @@ def test_retrieve_companies_house_company_status(mocked_call_command):
 @mock.patch('company.tasks.call_command')
 def test_suppliers_csv_upload(mocked_call_command):
     tasks.suppliers_csv_upload()
-    mocked_call_command.assert_called_once_with('generate_suppliers_csv_dump')
+    mocked_call_command.assert_called_once_with('generate_company_users_csv_dump')

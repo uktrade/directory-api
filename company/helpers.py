@@ -1,11 +1,5 @@
-from functools import partial
-from urllib.parse import urljoin
-from uuid import uuid4
 import csv
-import datetime
-import http
 import logging
-import os
 import re
 
 from directory_constants import choices, user_roles
@@ -14,22 +8,16 @@ import directory_components.helpers
 from directory_forms_api_client import actions
 from elasticsearch_dsl import Q
 from elasticsearch_dsl.query import ConstantScore, SF
-import requests
 from rest_framework.serializers import ValidationError
 
 from django.conf import settings
 from django.db.models import BooleanField, Case, Count, When, Value
 from django.utils import timezone
-from django.utils.functional import cached_property
-from django.utils.crypto import get_random_string
-from django.utils.deconstruct import deconstructible
 
-from company.stannp import stannp_client
 from company import models
 
 
 MESSAGE_ADMIN_NEEDED = 'A business profile must have at least one admin'
-MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
 SECTOR_CHOICES = dict(choices.INDUSTRIES)
 REQUEST_IDENTITY_VERIFICATION_SUBJECT = 'Request for identity verification'
@@ -48,29 +36,6 @@ def get_sector_label(sectors_value):
     return SECTOR_CHOICES.get(sectors_value)
 
 
-def generate_verification_code():
-    return get_random_string(
-        length=12, allowed_chars='0123456789'
-    )
-
-
-def get_companies_house_profile(number):
-    response = CompaniesHouseClient.retrieve_profile(number=number)
-    if not response.ok:
-        raise response.raise_for_status()
-    else:
-        return response.json()
-
-
-class BearerAuth(requests.auth.AuthBase):
-    def __init__(self, token):
-        self.token = token
-
-    def __call__(self, r):
-        r.headers['Authorization'] = 'Bearer ' + self.token
-        return r
-
-
 class CompanyParser(directory_components.helpers.CompanyParser):
 
     @property
@@ -81,56 +46,6 @@ class CompanyParser(directory_components.helpers.CompanyParser):
             self.expertise_countries_label.replace(", ", ",").split(',') +
             self.expertise_languages_label.replace(", ", ",").split(',')
         )
-
-
-class CompaniesHouseClient:
-    api_key = settings.COMPANIES_HOUSE_API_KEY
-    make_api_url = partial(urljoin, 'https://api.companieshouse.gov.uk')
-    make_oauth2_url = partial(urljoin, 'https://account.companieshouse.gov.uk')
-    endpoints = {
-        'profile': make_api_url('company/{number}'),
-        'verify-oauth2-access-token': make_oauth2_url('oauth2/verify'),
-    }
-    session = requests.Session()
-    session.mount(
-        'https',
-        requests.adapters.HTTPAdapter(max_retries=3),
-    )
-
-    @classmethod
-    def get_http_basic_auth(cls):
-        return requests.auth.HTTPBasicAuth(cls.api_key, '')
-
-    @classmethod
-    def get(cls, url, params={}, auth=None):
-        auth = auth or cls.get_http_basic_auth
-        response = cls.session.get(url=url, params=params, auth=auth())
-        if response.status_code == http.client.UNAUTHORIZED:
-            logger.error(MESSAGE_AUTH_FAILED)
-        return response
-
-    @classmethod
-    def retrieve_profile(cls, number):
-        url = cls.endpoints['profile'].format(number=number)
-        return cls.get(url)
-
-    @classmethod
-    def verify_access_token(cls, access_token):
-        url = cls.endpoints['verify-oauth2-access-token']
-        auth = BearerAuth(token=access_token)
-        return cls.session.get(url=url, auth=auth)
-
-
-@deconstructible
-class PathAndRename:
-
-    def __init__(self, sub_path):
-        self.path = sub_path
-
-    def __call__(self, instance, filename):
-        _, ext = os.path.splitext(filename)
-        random_filename = '{}{}'.format(uuid4().hex, ext)
-        return os.path.join(self.path, random_filename)
 
 
 class AddressParser:
@@ -171,13 +86,6 @@ class AddressParser:
         return matches[0].strip() if matches else ''
 
 
-path_and_rename_logos = PathAndRename(sub_path="company_logos")
-
-path_and_rename_supplier_case_study = PathAndRename(
-    sub_path="supplier_case_study"
-)
-
-
 def build_search_company_query(params):
     term = params.pop('term', None)
 
@@ -200,9 +108,7 @@ def build_search_company_query(params):
                     ConstantScore(filter=Q('term', keyword_wildcard=term)),
                     ConstantScore(filter=Q('match_phrase', wildcard=term)),
                     ConstantScore(filter=Q('match', wildcard=term)),
-                    ConstantScore(
-                        filter=Q('match_phrase', casestudy_wildcard=term)
-                    ),
+                    ConstantScore(filter=Q('match_phrase', casestudy_wildcard=term)),
                     ConstantScore(filter=Q('match', casestudy_wildcard=term))
                 ],
                 minimum_should_match=1
@@ -217,13 +123,7 @@ def build_search_company_query(params):
                 should=should,
                 minimum_should_match=1 if should else 0
             ),
-            functions=[
-                SF({
-                    'weight': 5,
-                    'filter': (Q('match_phrase', name=term) |
-                               Q('match', name=term))
-                })
-            ],
+            functions=[SF({'weight': 5, 'filter': Q('match_phrase', name=term) | Q('match', name=term)})],
             boost_mode='sum'
         )
     else:
@@ -236,39 +136,13 @@ def build_search_company_query(params):
 
 
 def send_verification_letter(company, form_url=None):
-    if settings.FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED:
-        recipient = extract_recipient_address_gov_notify(company)
-        recipient['verification_code'] = company.verification_code
-
-        action = actions.GovNotifyLetterAction(
-            template_id=settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID,
-            form_url=form_url,
-
-        )
-        action.save(recipient)
-
-    else:
-        recipient = {
-            'postal_full_name': company.postal_full_name,
-            'address_line_1': company.address_line_1,
-            'address_line_2': company.address_line_2,
-            'locality': company.locality,
-            'country': company.country,
-            'postal_code': company.postal_code,
-            'po_box': company.po_box,
-            'custom_fields': [
-                ('full_name', company.postal_full_name),
-                ('company_name', company.name),
-                ('verification_code', company.verification_code),
-                ('date', datetime.date.today().strftime('%d/%m/%Y')),
-                ('company', company.name),
-            ]
-        }
-
-        stannp_client.send_letter(
-            template=settings.STANNP_VERIFICATION_LETTER_TEMPLATE_ID,
-            recipient=recipient
-        )
+    template_id = settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID
+    action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
+    response = action.save({
+        **extract_recipient_address_gov_notify(company),
+        'verification_code': company.verification_code,
+    })
+    response.raise_for_status()
 
     company.is_verification_letter_sent = True
     company.date_verification_letter_sent = timezone.now()
@@ -276,16 +150,12 @@ def send_verification_letter(company, form_url=None):
 
 
 def send_registration_letter(company, form_url=None):
-    recipient = extract_recipient_address_gov_notify(company)
-    # Override since for registration letter we want to address the company
-    recipient['address_line_1'] = company.name
-
-    action = actions.GovNotifyLetterAction(
-        template_id=settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,
-        form_url=form_url,
-
-    )
-    response = action.save(recipient)
+    template_id = settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID
+    action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
+    response = action.save({
+        **extract_recipient_address_gov_notify(company),
+        'address_line_1': company.name  # Override since for registration letter we want to address the company
+    })
     response.raise_for_status()
 
     company.is_registration_letter_sent = True
@@ -295,56 +165,56 @@ def send_registration_letter(company, form_url=None):
 
 def extract_recipient_address_gov_notify(company):
     return {
-            'address_line_1': company.postal_full_name,
-            'address_line_2': company.address_line_1,
-            'address_line_3': company.address_line_2,
-            'address_line_4': company.locality,
-            'address_line_5': company.country,
-            'address_line_6': company.po_box,
-            'postcode': company.postal_code,
-            'full_name': company.postal_full_name,
-            'company_name': company.name,
+        'address_line_1': company.postal_full_name,
+        'address_line_2': company.address_line_1,
+        'address_line_3': company.address_line_2,
+        'address_line_4': company.locality,
+        'address_line_5': company.country,
+        'address_line_6': company.po_box,
+        'postcode': company.postal_code,
+        'full_name': company.postal_full_name,
+        'company_name': company.name,
     }
 
 
-def send_request_identity_verification_message(supplier):
-    name = supplier.name or 'No name'
+def send_request_identity_verification_message(company_user):
+    name = company_user.name or 'No name'
     action = actions.ZendeskAction(
         subject=REQUEST_IDENTITY_VERIFICATION_SUBJECT,
         full_name=name,
-        email_address=supplier.company_email,
+        email_address=company_user.company_email,
         service_name=settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME,
         form_url='request-identity-verification',
     )
     address_lines = [
-        supplier.company.address_line_1,
-        supplier.company.address_line_2,
-        supplier.company.locality,
-        supplier.company.country,
-        supplier.company.postal_code,
+        company_user.company.address_line_1,
+        company_user.company.address_line_2,
+        company_user.company.locality,
+        company_user.company.country,
+        company_user.company.postal_code,
     ]
     response = action.save({
         'name': name,
-        'email': supplier.company_email,
-        'company name': supplier.company.name,
+        'email': company_user.company_email,
+        'company name': company_user.company.name,
         'company address': [line for line in address_lines if line],
-        'company sub-type': supplier.company.company_type,
+        'company sub-type': company_user.company.company_type,
     })
     response.raise_for_status()
     # Send the user an email instructions on how to request verification
-    notify_non_ch_verification_request(
-        email=supplier.company_email,
-        company_name=supplier.company.name,
+    notify_non_companies_house_verification_request(
+        email=company_user.company_email,
+        company_name=company_user.company.name,
         form_url='send_request_identity_verification_message'
     )
-    company = supplier.company
+    company = company_user.company
 
     company.is_identity_check_message_sent = True
     company.date_identity_check_message_sent = timezone.now()
     company.save()
 
 
-def notify_non_ch_verification_request(email, company_name, form_url):
+def notify_non_companies_house_verification_request(email, company_name, form_url):
     action = actions.GovNotifyEmailAction(
         email_address=email,
         template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
@@ -397,7 +267,7 @@ def get_user_company(collaboration_invite, companies):
     return companies.filter(company_users__company_email=collaboration_invite.collaborator_email).first()
 
 
-def get_supplier_alias_by_email(collaboration_invite, company_users):
+def get_company_user_alias_by_email(collaboration_invite, company_users):
     company_user = company_users.filter(company_email=collaboration_invite.collaborator_email).first()
     if company_user and company_user.name:
         return company_user.name
@@ -421,44 +291,7 @@ def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator
     response.raise_for_status()
 
 
-class SSOUser:
-    def __init__(self, id, email, user_profile=None):
-        self.id = id
-        self.email = email
-        self.user_profile = user_profile
-
-    @property
-    def pk(self):
-        return self.id
-
-    @property
-    def full_name(self):
-        if self.first_name and self.last_name:
-            return f'{self.first_name} {self.last_name}'
-        elif self.first_name:
-            return self.first_name
-        else:
-            return ''
-
-    @property
-    def first_name(self):
-        if self.user_profile and self.user_profile.get('first_name'):
-            return self.user_profile['first_name']
-
-    @property
-    def last_name(self):
-        if self.user_profile and self.user_profile.get('last_name'):
-            return self.user_profile['last_name']
-
-    @cached_property
-    def supplier(self):
-        try:
-            return models.CompanyUser.objects.get(sso_id=self.id)
-        except models.CompanyUser.DoesNotExist:
-            return None
-
-
-def generate_suppliers_csv(file_object, queryset):
+def generate_company_users_csv(file_object, queryset):
     csv_excluded_fields = (
         'id',
         'company',

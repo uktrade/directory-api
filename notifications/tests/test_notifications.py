@@ -2,7 +2,6 @@ from datetime import timedelta, datetime
 from unittest.mock import patch, PropertyMock
 
 import pytest
-
 from freezegun import freeze_time
 
 from django.core import mail
@@ -207,9 +206,7 @@ def test_sends_ver_code_email_when_8_days_passed_but_not_to_the_minute(
 @freeze_time('2016-12-16 19:11')
 @pytest.mark.django_db
 @patch('core.tasks.send_email')
-def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(
-        mock_task, settings
-):
+def test_sends_ver_code_email_when_16_days_passed_but_not_to_the_minute(mock_task, settings):
     company_user_2_verification_sent = datetime(2016, 11, 30, 23, 59, 59)
     company_user_1 = CompanyUserFactory(
         company__verified_with_code=False,
@@ -294,10 +291,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email1(
 
 @pytest.mark.django_db
 @patch('core.tasks.send_email')
-def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
-        mock_task, settings
-):
-    expected_subject = email.VerificationStillWaitingNotification.subject
+def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(mock_task, settings):
     settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = 1
     settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = 'bla bla'
     one_day_ago = timezone.now() - timedelta(days=1)
@@ -322,7 +316,7 @@ def test_ver_code_email_uses_settings_for_no_of_days_and_subject_for_email2(
     assert len(mock_task.delay.call_args_list) == 1
     call_args = mock_task.delay.call_args[1]
     assert call_args['recipient_email'] == company_user.company_email
-    assert call_args['subject'] == expected_subject
+    assert call_args['subject'] == email.VerificationStillWaitingNotification.subject
 
 
 @pytest.mark.django_db
@@ -587,7 +581,7 @@ def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
 @patch('core.tasks.send_email')
 def test_company_user_unsubscribed(mock_task):
     company_user = CompanyUserFactory()
-    notifications.supplier_unsubscribed(company_user)
+    notifications.company_user_unsubscribed(company_user)
 
     assert len(mock_task.delay.call_args_list) == 1
     call_args = mock_task.delay.call_args[1]

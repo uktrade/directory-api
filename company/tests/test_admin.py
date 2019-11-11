@@ -235,7 +235,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[1] == row_one
 
     def test_download_csv_multiple_multiple_case_studies(self):
-        case_studies = models.CompanyCaseStudyFactory.create_batch(3)
+        case_studies = CompanyCaseStudyFactory.create_batch(3)
         data = {
             'action': 'download_csv',
             '_selected_action': models.CompanyCaseStudy.objects.all().values_list(
@@ -600,7 +600,7 @@ class DownloadCSVTestCase(TestCase):
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 
-    def test_download_csv_company__sectors_is_empty(self):
+    def test_download_csv_company_sectors_is_empty(self):
         company = models.Company.objects.create(
             **COMPANY_DATA,
             sectors=[]

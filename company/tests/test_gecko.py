@@ -12,13 +12,13 @@ def test_gecko_num_registered_supplier_correct():
         CompanyUser(sso_id=3, company_email='3@example.com', mobile_number='3'),
     ])
 
-    gecko_json = gecko.total_registered_suppliers()
+    gecko_json = gecko.total_registered_company_users()
 
     expected = {
       "item": [
         {
           "value": 3,
-          "text": "Total registered suppliers"
+          "text": "Total registered company users"
         }
       ]
     }

@@ -24,5 +24,5 @@ class Command(BaseCommand):
     def generate_csv_file():
         file_object = io.StringIO()
         queryset = models.CompanyUser.objects.exclude(company__isnull=True)
-        helpers.generate_suppliers_csv(file_object=file_object, queryset=queryset,)
+        helpers.generate_company_users_csv(file_object=file_object, queryset=queryset,)
         return file_object

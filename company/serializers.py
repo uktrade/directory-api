@@ -7,7 +7,8 @@ from directory_constants import choices, user_roles
 from django.conf import settings
 from django.http import QueryDict
 
-from company import helpers, models, validators
+from company import models, validators
+from core.helpers import CompaniesHouseClient
 
 
 class AllowedFormatImageField(serializers.ImageField):
@@ -204,7 +205,7 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
     access_token = serializers.CharField()
 
     def validate_access_token(self, value):
-        response = helpers.CompaniesHouseClient.verify_access_token(value)
+        response = CompaniesHouseClient.verify_access_token(value)
         if not response.ok:
             raise serializers.ValidationError(self.MESSAGE_BAD_ACCESS_TOKEN)
         data = response.json()

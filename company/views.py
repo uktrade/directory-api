@@ -309,7 +309,7 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
     http_method_names = ("get", )
 
     def get(self, request, format=None):
-        return Response(gecko.total_registered_suppliers())
+        return Response(gecko.total_registered_company_users())
 
 
 class CompanyUserUnsubscribeAPIView(views.APIView):
@@ -318,10 +318,10 @@ class CompanyUserUnsubscribeAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
-        supplier = self.request.user.supplier
-        supplier.unsubscribed = True
-        supplier.save()
-        notifications.supplier_unsubscribed(supplier=supplier)
+        company_user = self.request.user.supplier
+        company_user.unsubscribed = True
+        company_user.save()
+        notifications.company_user_unsubscribed(company_user=company_user)
         return Response(
             data={
                 "status_code": status.HTTP_200_OK,
@@ -347,7 +347,7 @@ class CollaboratorDisconnectView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()
-        helpers.helpers.validate_other_admins_connected_to_company(
+        helpers.validate_other_admins_connected_to_company(
             company=supplier.company, sso_ids=[supplier.sso_id]
         )
         supplier.company = None

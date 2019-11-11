@@ -3,7 +3,7 @@ from rest_framework import permissions
 from django.conf import settings
 from django.utils.crypto import constant_time_compare
 
-from company.helpers import SSOUser
+from core import helpers
 
 
 class IsAuthenticatedSSO(permissions.BasePermission):
@@ -12,14 +12,11 @@ class IsAuthenticatedSSO(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return isinstance(request.user, SSOUser)
+        return isinstance(request.user, helpers.SSOUser)
 
 
 class IsAuthenticatedCSVDump(permissions.BasePermission):
     """Allow token access to data science team."""
 
     def has_permission(self, request, view):
-        return constant_time_compare(
-            request.GET.get('token'),
-            settings.CSV_DUMP_AUTH_TOKEN
-        )
+        return constant_time_compare(request.GET.get('token'), settings.CSV_DUMP_AUTH_TOKEN)

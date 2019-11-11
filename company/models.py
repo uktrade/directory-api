@@ -13,7 +13,7 @@ from django.utils import timezone
 from core.helpers import TimeStampedModel
 from field_history.tracker import FieldHistoryTracker
 
-from company import helpers
+from core.helpers import generate_verification_code, path_and_rename_logos, path_and_rename_supplier_case_study
 
 
 class Company(TimeStampedModel):
@@ -34,7 +34,7 @@ class Company(TimeStampedModel):
     is_exporting_goods = models.BooleanField(default=False)
     is_exporting_services = models.BooleanField(default=False)
     keywords = models.TextField(blank=True, default='', validators=[no_html])
-    logo = models.ImageField(upload_to=helpers.path_and_rename_logos, default='', blank=True)
+    logo = models.ImageField(upload_to=path_and_rename_logos, default='', blank=True)
     name = models.TextField(validators=[no_html])
     number = models.CharField(
         help_text=(
@@ -65,7 +65,7 @@ class Company(TimeStampedModel):
         )
     )
     date_published = models.DateField(null=True, blank=True)
-    verification_code = models.CharField(max_length=255, blank=True, default=helpers.generate_verification_code)
+    verification_code = models.CharField(max_length=255, blank=True, default=generate_verification_code)
     verified_with_preverified_enrolment = models.BooleanField(default=False)
     verified_with_code = models.BooleanField(default=False)
     verified_with_companies_house_oauth2 = models.BooleanField(default=False)
@@ -147,13 +147,13 @@ class CompanyCaseStudy(TimeStampedModel):
     sector = models.CharField(choices=choices.INDUSTRIES, max_length=100)
     website = models.URLField(max_length=255, blank=True, default='')
     keywords = models.TextField(validators=[no_html])
-    image_one = models.ImageField(upload_to=helpers.path_and_rename_supplier_case_study, blank=True, default='')
-    image_two = models.ImageField(upload_to=helpers.path_and_rename_supplier_case_study, blank=True, default='')
-    image_three = models.ImageField(upload_to=helpers.path_and_rename_supplier_case_study, blank=True, default='')
+    image_one = models.ImageField(upload_to=path_and_rename_supplier_case_study, blank=True, default='')
+    image_two = models.ImageField(upload_to=path_and_rename_supplier_case_study, blank=True, default='')
+    image_three = models.ImageField(upload_to=path_and_rename_supplier_case_study, blank=True, default='')
     image_one_caption = models.CharField(max_length=200, blank=True, default='', validators=[no_html])
     image_two_caption = models.CharField(max_length=200, blank=True, default='', validators=[no_html])
     image_three_caption = models.CharField(max_length=200, blank=True, default='', validators=[no_html])
-    video_one = models.FileField(upload_to=helpers.path_and_rename_supplier_case_study, blank=True, default='')
+    video_one = models.FileField(upload_to=path_and_rename_supplier_case_study, blank=True, default='')
     testimonial = models.CharField(max_length=1000, blank=True, default='', validators=[no_html])
     testimonial_name = models.CharField(max_length=255, blank=True, default='', validators=[no_html],)
     testimonial_job_title = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
