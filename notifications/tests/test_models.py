@@ -4,7 +4,7 @@ from notifications.tests.factories import (
 
 def test_supplieremailnotifications_str_method():
     instance = SupplierEmailNotificationFactory.build(
-        supplier__company_email='test@example.com',
+        company_user__company_email='test@example.com',
         category='no_case_studies'
     )
     assert str(instance) == 'test@example.com: no_case_studies'

@@ -51,34 +51,25 @@ class CompanyFactory(factory.django.DjangoModelFactory):
         "other": ['Regulatory', 'Finance', 'IT'],
         "Finance": ['Insurance'],
     }
-    website = factory.LazyAttribute(
-        lambda company: 'http://%s.example.com' % company.name)
+    website = factory.LazyAttribute(lambda company: f'http://{company.name}.example.com')
     date_of_creation = None
-    twitter_url = factory.LazyAttribute(
-        lambda company: 'http://twitter.com/%s' % company.name)
-    facebook_url = factory.LazyAttribute(
-        lambda company: 'http://facebook.com/%s' % company.name)
-    linkedin_url = factory.LazyAttribute(
-        lambda company: 'http://linkedin.com/%s' % company.name)
+    twitter_url = factory.LazyAttribute(lambda company: f'http://twitter.com/{company.name}')
+    facebook_url = factory.LazyAttribute(lambda company: f'http://facebook.com/{company.name}')
+    linkedin_url = factory.LazyAttribute(lambda company: f'http://linkedin.com/{company.name}')
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
 
     @factory.lazy_attribute
     def address_line_1(self):
-        return '{0} {1}'.format(
-            fake.building_number(),
-            fake.street_name()
-        )
+        return '{0} {1}'.format(fake.building_number(), fake.street_name())
+
     address_line_2 = factory.Faker('city', locale='en_GB')
     locality = factory.fuzzy.FuzzyText(length=12)
-    country = factory.fuzzy.FuzzyChoice(
-        ['Germany', 'China', 'Japan', 'Saudi Arabia', 'Nigeria'])
+    country = factory.fuzzy.FuzzyChoice(['Germany', 'China', 'Japan', 'Saudi Arabia', 'Nigeria'])
     postal_code = factory.Faker('postcode', locale='en_GB')
     po_box = factory.fuzzy.FuzzyText(length=3)
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
-    email_address = factory.LazyAttribute(
-        lambda x: f'{slugify(x.name)}@example.com'
-    )
+    email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
 
     class Meta:
         model = models.Company
@@ -94,38 +85,26 @@ class CompanyCaseStudyFactory(factory.django.DjangoModelFactory):
         model = models.CompanyCaseStudy
 
 
-class CollaboratorInviteFactory(factory.django.DjangoModelFactory):
-
-    collaborator_email = factory.Sequence(lambda n: '{}@example.com'.format(n))
-    company = factory.SubFactory(CompanyFactory)
-    requestor = factory.SubFactory('supplier.tests.factories.SupplierFactory')
-    accepted = False
-    accepted_date = None
-
-    class Meta:
-        model = models.CollaboratorInvite
-
-
-class OwnershipInviteFactory(factory.django.DjangoModelFactory):
-
-    new_owner_email = factory.Sequence(lambda n: '{}@example.com'.format(n))
-    company = factory.SubFactory(CompanyFactory)
-    requestor = factory.SubFactory('supplier.tests.factories.SupplierFactory')
-    accepted = False
-    accepted_date = None
-
-    class Meta:
-        model = models.OwnershipInvite
-
-
 class CollaborationInviteFactory(factory.django.DjangoModelFactory):
 
-    collaborator_email = factory.Sequence(lambda n: '{}@example.com'.format(n))
+    collaborator_email = factory.Sequence(lambda n: f'{n}@example.com')
     company = factory.SubFactory(CompanyFactory)
-    requestor = factory.SubFactory('supplier.tests.factories.SupplierFactory')
+    company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory')
     accepted = False
     accepted_date = None
     role = user_roles.EDITOR
 
     class Meta:
         model = models.CollaborationInvite
+
+
+class CompanyUserFactory(factory.django.DjangoModelFactory):
+    sso_id = factory.Iterator(range(99999999))
+    name = factory.Faker('name', locale='en_GB')
+    mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
+    company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
+    company = factory.SubFactory(CompanyFactory)
+    role = user_roles.ADMIN
+
+    class Meta:
+        model = models.CompanyUser

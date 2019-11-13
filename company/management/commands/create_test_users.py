@@ -1,7 +1,6 @@
 from django.core.management import BaseCommand
 
-from company.models import Company
-from supplier.models import Supplier
+from company import models
 
 
 class Command(BaseCommand):
@@ -14,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for sso_id in options['sso_id']:
-            company = Company.objects.create(
+            company = models.Company.objects.create(
                 employees='1-10',
                 export_status='ONE_TWO_YEARS_AGO',
                 has_exported_before=True,
@@ -26,7 +25,7 @@ class Command(BaseCommand):
                 verified_with_code=True,
                 is_verification_letter_sent=True,
             )
-            user = Supplier.objects.create(sso_id=sso_id, company=company)
+            user = models.CompanyUser.objects.create(sso_id=sso_id, company=company)
 
             self.stdout.write(
                 self.style.SUCCESS('Successfully created user "%s"' % user.id)

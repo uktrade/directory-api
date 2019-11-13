@@ -19,10 +19,7 @@ from testapi.serializers import (
     ISDCompanySerializer,
     PublishedCompaniesSerializer,
 )
-from testapi.utils import (
-    get_matching_companies,
-    get_published_companies_query_params,
-)
+from testapi.utils import get_matching_companies, get_published_companies_query_params
 
 
 class TestAPIView(GenericAPIView):

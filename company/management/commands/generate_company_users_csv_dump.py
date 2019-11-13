@@ -4,8 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 from core.helpers import upload_file_object_to_s3
-from supplier.helpers import generate_suppliers_csv
-from supplier.models import Supplier
+from company import helpers, models
 
 
 class Command(BaseCommand):
@@ -19,17 +18,11 @@ class Command(BaseCommand):
             key=key,
             bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
         )
-        self.stdout.write(
-            self.style.SUCCESS(
-                'All done, bye!'
-            )
-        )
+        self.stdout.write(self.style.SUCCESS('All done, bye!'))
 
     @staticmethod
     def generate_csv_file():
         file_object = io.StringIO()
-        generate_suppliers_csv(
-            file_object=file_object,
-            queryset=Supplier.objects.exclude(company__isnull=True),
-        )
+        queryset = models.CompanyUser.objects.exclude(company__isnull=True)
+        helpers.generate_company_users_csv(file_object=file_object, queryset=queryset,)
         return file_object

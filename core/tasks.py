@@ -5,9 +5,7 @@ from conf.celery import app
 
 
 @app.task(autoretry_for=(TimeoutError, ))
-def send_email(
-    subject, text_body, html_body, recipient_email, from_email
-):
+def send_email(subject, text_body, html_body, recipient_email, from_email):
     message = EmailMultiAlternatives(
         subject=subject,
         body=text_body,

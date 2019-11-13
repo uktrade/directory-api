@@ -168,7 +168,7 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
-            if company_type == company_types.SOLE_TRADER:
+            if company_type != company_types.COMPANIES_HOUSE:
                 address = helpers.AddressParser(row[2])
                 data.update({
                     'address_line_1': address.line_1,
