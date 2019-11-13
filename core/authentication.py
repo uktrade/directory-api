@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.crypto import constant_time_compare
 
-from supplier import helpers
+from core import helpers
 
 
 class SessionAuthenticationSSO(authentication.BaseAuthentication):

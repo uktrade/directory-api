@@ -1,10 +1,9 @@
 from django.conf import settings
 from django.utils import timezone
 
-from directory_constants import company_types, user_roles
+from directory_constants import company_types
 
 from company import email, documents, helpers, models
-from supplier.models import Supplier
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
@@ -35,13 +34,6 @@ def send_company_claimed_letter(sender, instance, *args, **kwargs):
             company=instance,
             form_url='send_company_claimed_letter_automatically_sent',
         )
-
-
-def publish_companies_that_meet_criteria(sender, instance, *args, **kwargs):
-    if settings.FEATURE_MANUAL_PUBLISH_ENABLED:
-        return
-    if instance.is_publishable and not instance.is_published:
-        instance.is_published_find_a_supplier = True
 
 
 def store_date_published(sender, instance, *args, **kwargs):
@@ -118,41 +110,13 @@ def set_non_companies_house_number(sender, instance, *args, **kwargs):
         instance.number = f'{company_prefix}{number:06}'
 
 
-def create_collaboration_invite_from_ownership_invite(sender, instance, created, *args, **kwargs):
-    models.CollaborationInvite.objects.update_or_create(
-        uuid=instance.uuid,
-        defaults={
-            'collaborator_email': instance.new_owner_email,
-            'company': instance.company,
-            'requestor': instance.requestor,
-            'accepted': instance.accepted,
-            'accepted_date': instance.accepted_date,
-            'role': user_roles.ADMIN,
-        }
-    )
-
-
-def create_collaboration_invite_from_collaborator_invite(sender, instance, *args, **kwargs):
-    models.CollaborationInvite.objects.update_or_create(
-        uuid=instance.uuid,
-        defaults={
-            'collaborator_email': instance.collaborator_email,
-            'company': instance.company,
-            'requestor': instance.requestor,
-            'accepted': instance.accepted,
-            'accepted_date': instance.accepted_date,
-            'role': user_roles.EDITOR,
-        }
-    )
-
-
 def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, **kwargs):
     if not instance._state.adding:
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
-            supplier_name = helpers.get_supplier_alias_by_email(
+            supplier_name = helpers.get_company_user_alias_by_email(
                 collaboration_invite=instance,
-                suppliers=Supplier.objects.all()
+                company_users=models.CompanyUser.objects.all()
             )
             helpers.send_new_user_alert_invite_accepted_email(
                 collaboration_invite=instance,

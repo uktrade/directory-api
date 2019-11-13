@@ -32,22 +32,19 @@ class DownloadCSVTestCase(TestCase):
 
         data = {
             'action': 'download_csv',
-            '_selected_action': SupplierEmailNotification.objects.all(
-            ).values_list('pk', flat=True)
+            '_selected_action': SupplierEmailNotification.objects.all().values_list('pk', flat=True)
         }
         response = self.client.post(
-            reverse(
-                'admin:notifications_supplieremailnotification_changelist'
-            ),
+            reverse('admin:notifications_supplieremailnotification_changelist'),
             data,
             follow=True
         )
 
         expected_data = OrderedDict([
             ('category', str(supplier_email_notification.category)),
+            ('company_user', str(supplier_email_notification.company_user.id)),
             ('date_sent', str(supplier_email_notification.date_sent)),
             ('id', str(supplier_email_notification.id)),
-            ('supplier', str(supplier_email_notification.supplier.id)),
         ])
         actual = str(response.content, 'utf-8').split('\r\n')
 
@@ -55,7 +52,7 @@ class DownloadCSVTestCase(TestCase):
         assert actual[1] == ','.join(expected_data.values())
 
     def test_download_csv_supplier_email_notification_no_company(self):
-        SupplierEmailNotificationFactory(supplier__company=None)
+        SupplierEmailNotificationFactory(company_user__company=None)
 
         response = self.client.get(
             reverse('admin:notifications_supplieremailnotification_changelist')
@@ -64,27 +61,25 @@ class DownloadCSVTestCase(TestCase):
         assert response.status_code == 200
 
     def test_download_csv_multiple_supplier_email_notifications(self):
-        supplier_email_notifications = (
-            SupplierEmailNotificationFactory.create_batch(3)
-        )
+        supplier_email_notifications = SupplierEmailNotificationFactory.create_batch(3)
 
         supplier_email_notification_one_expected_data = OrderedDict([
             ('category', str(supplier_email_notifications[2].category)),
+            ('company_user', str(supplier_email_notifications[2].company_user.id)),
             ('date_sent', str(supplier_email_notifications[2].date_sent)),
             ('id', str(supplier_email_notifications[2].id)),
-            ('supplier', str(supplier_email_notifications[2].supplier.id)),
         ])
         supplier_email_notification_two_expected_data = OrderedDict([
             ('category', str(supplier_email_notifications[1].category)),
+            ('company_user', str(supplier_email_notifications[1].company_user.id)),
             ('date_sent', str(supplier_email_notifications[1].date_sent)),
             ('id', str(supplier_email_notifications[1].id)),
-            ('supplier', str(supplier_email_notifications[1].supplier.id)),
         ])
         supplier_email_notification_three_expected_data = OrderedDict([
             ('category', str(supplier_email_notifications[0].category)),
+            ('company_user', str(supplier_email_notifications[0].company_user.id)),
             ('date_sent', str(supplier_email_notifications[0].date_sent)),
             ('id', str(supplier_email_notifications[0].id)),
-            ('supplier', str(supplier_email_notifications[0].supplier.id)),
         ])
 
         data = {

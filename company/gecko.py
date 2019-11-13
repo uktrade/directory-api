@@ -1,15 +1,14 @@
-from supplier.models import Supplier
+from company.models import CompanyUser
 
 
-def total_registered_suppliers():
+def total_registered_company_users():
     # We're using the Number & Secondary Stat widget (and json format)
     # https://developer-custom.geckoboard.com/#number-and-secondary-stat
-    num_registered = Supplier.objects.count()
     return {
         "item": [
             {
-              "value": num_registered,
-              "text": "Total registered suppliers"
+              "value": CompanyUser.objects.count(),
+              "text": "Total registered company users"
             }
           ]
     }

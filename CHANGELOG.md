@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 - TT-2027 - Make testapi to return company number (for testing non-CH companies)
+- TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
 
 ### Fixed bugs
 - TT-2064 - Submit user details with request to verify
@@ -31,7 +32,6 @@
 - TT-1911 - Expose created timestamp for company serializer
 - TT-2012 - Add non-ch request verification email
 - TT-2013 - Generate company number for all non registered companies
-
 
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
