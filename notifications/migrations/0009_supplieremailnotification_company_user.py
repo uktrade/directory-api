@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0094_collaborationinvite_company_user'),
+        ('company', '0093_companyuser'),
         ('notifications', '0008_auto_20180103_1719'),
     ]
 
@@ -17,7 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='supplieremailnotification',
             name='company_user',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='company.CompanyUser'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='company.CompanyUser'),
             preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='supplieremailnotification',
+            name='supplier',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='supplier.Supplier'),
         ),
     ]
