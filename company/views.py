@@ -33,8 +33,8 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        if self.request.user.supplier and self.request.user.supplier.company:
-            return self.request.user.supplier.company
+        if self.request.user.company:
+            return self.request.user.company
         raise Http404()
 
 
@@ -77,7 +77,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return self.write_serializer_class
 
     def get_queryset(self):
-        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
+        return self.queryset.filter(company_id=self.request.user.company.id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -103,7 +103,7 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
 
-        company = self.request.user.supplier.company
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
             context={'expected_code': company.verification_code}
@@ -132,7 +132,7 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
     serializer_class = serializers.VerifyCompanyWithCompaniesHouseSerializer
 
     def post(self, request, *args, **kwargs):
-        company = self.request.user.supplier.company
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
             context={'company_number': company.number}
@@ -147,7 +147,7 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
 class RequestVerificationWithIdentificationView(views.APIView):
 
     def post(self, request, *args, **kwargs):
-        helpers.send_request_identity_verification_message(self.request.user.supplier)
+        helpers.send_request_identity_verification_message(self.request.user.company_user)
         return Response()
 
 
@@ -202,15 +202,13 @@ class RemoveCollaboratorsView(views.APIView):
     permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
     def get_queryset(self):
-        return self.request.user.supplier.company.company_users.exclude(pk=self.request.user.supplier.pk)
+        return self.request.user.company.company_users.exclude(pk=self.request.user.company_user.pk)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         sso_ids = serializer.validated_data['sso_ids']
-        helpers.validate_other_admins_connected_to_company(
-            company=self.request.user.supplier.company, sso_ids=sso_ids
-        )
+        helpers.validate_other_admins_connected_to_company(company=self.request.user.company, sso_ids=sso_ids)
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
 
@@ -244,12 +242,12 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action in ['retrieve', 'partial_update']:
             return self.queryset
-        return self.queryset.filter(company_id=self.request.user.supplier.company_id)
+        return self.queryset.filter(company_id=self.request.user.company.id)
 
     def perform_create(self, serializer):
         serializer.save(
-            company_user=self.request.user.supplier,
-            company=self.request.user.supplier.company,
+            company_user=self.request.user.company_user,
+            company=self.request.user.company,
         )
 
 
@@ -264,7 +262,7 @@ class ChangeCollaboratorRoleView(generics.UpdateAPIView):
     lookup_field = 'sso_id'
 
     def get_queryset(self):
-        return models.CompanyUser.objects.filter(company_id=self.request.user.supplier.company_id)
+        return models.CompanyUser.objects.filter(company_id=self.request.user.company.id)
 
 
 class CompanyUserRetrieveAPIView(views.APIView):
@@ -275,9 +273,9 @@ class CompanyUserRetrieveAPIView(views.APIView):
     ]
 
     def get(self, request):
-        if not self.request.user.supplier:
+        if not self.request.user.company_user:
             raise Http404()
-        serializer = self.serializer_class(request.user.supplier)
+        serializer = self.serializer_class(request.user.company_user)
         return Response(serializer.data)
 
 
@@ -297,9 +295,9 @@ class CompanyUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanyUserSerializer
 
     def get_object(self):
-        if not self.request.user.supplier:
+        if not self.request.user.company_user:
             raise Http404()
-        return self.request.user.supplier
+        return self.request.user.company_user
 
 
 class GeckoTotalRegisteredCompanyUser(views.APIView):
@@ -318,7 +316,7 @@ class CompanyUserUnsubscribeAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
-        company_user = self.request.user.supplier
+        company_user = self.request.user.company_user
         company_user.unsubscribed = True
         company_user.save()
         notifications.company_user_unsubscribed(company_user=company_user)
@@ -336,14 +334,14 @@ class CompanyCollboratorsListView(generics.ListAPIView):
     serializer_class = serializers.CompanyUserSerializer
 
     def get_queryset(self):
-        return models.CompanyUser.objects.filter(company_id=self.request.user.supplier.company_id)
+        return models.CompanyUser.objects.filter(company_id=self.request.user.company.id)
 
 
 class CollaboratorDisconnectView(views.APIView):
     permission_classes = [IsAuthenticatedSSO]
 
     def get_object(self):
-        return self.request.user.supplier
+        return self.request.user.company_user
 
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()

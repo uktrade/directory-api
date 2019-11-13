@@ -160,12 +160,17 @@ class SSOUser:
             return self.user_profile['last_name']
 
     @cached_property
-    def supplier(self):
+    def company_user(self):
         from company.models import CompanyUser
         try:
-            return CompanyUser.objects.get(sso_id=self.id)
+            return CompanyUser.objects.select_related('company').get(sso_id=self.id)
         except CompanyUser.DoesNotExist:
             return None
+
+    @property
+    def company(self):
+        if self.company_user:
+            return self.company_user.company
 
 
 class CompaniesHouseClient:

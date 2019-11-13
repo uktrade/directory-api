@@ -55,7 +55,7 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if isinstance(data, QueryDict):
             data = data.dict()
-        data['company'] = self.context['request'].user.supplier.company.pk
+        data['company'] = self.context['request'].user.company.pk
         return super().to_internal_value(data)
 
 
