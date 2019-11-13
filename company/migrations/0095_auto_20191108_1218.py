@@ -31,7 +31,7 @@ def forwards(apps, schema_editor):
     	notifiction.save()
 
     for invite in CollaborationInvite.objects.all():
-        invite.company_user = CompanyUser.objects.get(sso_id=invite.supplier.sso_id)
+        invite.company_user = CompanyUser.objects.get(sso_id=invite.requestor.sso_id)
         invite.save()
 
 
