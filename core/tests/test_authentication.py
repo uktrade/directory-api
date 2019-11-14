@@ -69,7 +69,7 @@ def test_sso_session_authentication_ok_session_id(
     response = SessionAuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
-    assert request.user.supplier.sso_id == authed_supplier.sso_id
+    assert request.user.company_user.sso_id == authed_supplier.sso_id
     assert mock_get_session_user.call_args == call('123')
 
 
@@ -115,7 +115,7 @@ def test_sso_oauth2_authentication_ok_oauth_token(
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
-    assert request.user.supplier.sso_id == authed_supplier.sso_id
+    assert request.user.company_user.sso_id == authed_supplier.sso_id
     assert mock_get_oauth2_user_profile.call_args == call('123')
 
 

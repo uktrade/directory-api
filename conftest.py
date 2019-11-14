@@ -72,7 +72,7 @@ def authed_client(sso_session_request_active_user, sso_oauth2_request_active_use
     "123" to sso, but the fixtures sso_session_request_active_user and
     sso_oauth2_request_active_user will ensure that the authed_supplier fixture
     is instead returned - resulting in authed_supplier being added to
-    `request.user.supplier`.
+    `request.user.company_user`.
 
     """
 

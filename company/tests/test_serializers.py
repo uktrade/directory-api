@@ -270,10 +270,8 @@ def test_company_number_serializer_validators():
 def test_company_case_study_explicit_value(case_study_data):
     request = Mock()
     company = factories.CompanyFactory()
-    request.user.supplier.company = company
-    serializer = serializers.CompanyCaseStudySerializer(
-        data=case_study_data, context={'request': request}
-    )
+    request.user.company = company
+    serializer = serializers.CompanyCaseStudySerializer(data=case_study_data, context={'request': request})
 
     assert serializer.is_valid()
     data = serializer.validated_data
@@ -282,12 +280,8 @@ def test_company_case_study_explicit_value(case_study_data):
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
     assert data['testimonial_name'] == case_study_data['testimonial_name']
-    assert data['testimonial_job_title'] == (
-        case_study_data['testimonial_job_title']
-    )
-    assert data['testimonial_company'] == (
-        case_study_data['testimonial_company']
-    )
+    assert data['testimonial_job_title'] == case_study_data['testimonial_job_title']
+    assert data['testimonial_company'] == case_study_data['testimonial_company']
 
 
 @pytest.mark.django_db
