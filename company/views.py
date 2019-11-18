@@ -238,7 +238,7 @@ class CollaborationInviteViewSet(viewsets.ModelViewSet):
         elif self.action == 'partial_update':
             permission_classes = [IsAuthenticatedSSO]
         else:
-            permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+            permission_classes = [IsAuthenticatedSSO]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):

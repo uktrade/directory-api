@@ -243,6 +243,12 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
 
 
 class CollaborationInviteSerializer(serializers.ModelSerializer):
+    requestor_email = serializers.EmailField(
+        source='company_user.company_email', required=False, read_only=True
+    )
+    requestor_sso_id = serializers.IntegerField(
+        source='company_user.sso_id', required=False, read_only=True
+    )
     class Meta:
         model = models.CollaborationInvite
         fields = (
@@ -250,6 +256,8 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'collaborator_email',
             'company',
             'company_user',
+            'requestor_email',
+            'requestor_sso_id',
             'accepted',
             'accepted_date',
             'role',
