@@ -242,6 +242,26 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 
+class CollaborationRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CollaborationRequest
+        fields = (
+            'uuid',
+            'requestor',
+            'name',
+            'role',
+            'accepted',
+            'accepted_date',
+        )
+        extra_kwargs = {
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'name': {'required': False},  # passed in .save by the view, not in the request
+            'uuid': {'read_only': True},
+            'accepted': {'required': False},
+        }
+
+
 class CollaborationInviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CollaborationInvite

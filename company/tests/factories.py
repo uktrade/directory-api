@@ -98,6 +98,18 @@ class CollaborationInviteFactory(factory.django.DjangoModelFactory):
         model = models.CollaborationInvite
 
 
+class CollaborationRequestFactory(factory.django.DjangoModelFactory):
+
+    requestor = factory.SubFactory('company.tests.factories.CompanyUserFactory')
+    accepted = False
+    accepted_date = None
+    role = user_roles.ADMIN
+    name = factory.Faker('name', locale='en_GB')
+
+    class Meta:
+        model = models.CollaborationRequest
+
+
 class CompanyUserFactory(factory.django.DjangoModelFactory):
     sso_id = factory.Iterator(range(99999999))
     name = factory.Faker('name', locale='en_GB')

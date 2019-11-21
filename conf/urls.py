@@ -159,6 +159,19 @@ urlpatterns = [
         name='collaborator-request'
     ),
     url(
+        r'^supplier/company/collaboration-request/$',
+        company.views.CollaborationRequestView.as_view(
+            ({'post': 'create', 'get': 'list'})),
+        name='collaboration-request'
+    ),
+    url(
+        r'^supplier/company/collaboration-request/(?P<uuid>.*)/$',
+        company.views.CollaborationRequestView.as_view(
+            {'patch': 'partial_update', 'delete': 'destroy'}
+        ),
+        name='collaboration-request-detail'
+    ),
+    url(
         r'^supplier/company/add-collaborator/$',
         company.views.AddCollaboratorView.as_view(),
         name='register-company-collaborator-request'

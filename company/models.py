@@ -221,3 +221,12 @@ class CollaboratorRequest(TimeStampedModel):
 
     class Meta:
         unique_together = ('collaborator_email', 'company')
+
+
+class CollaborationRequest(TimeStampedModel):
+    uuid = models.UUIDField(default=uuid.uuid4)
+    requestor = models.ForeignKey(CompanyUser)
+    accepted = models.BooleanField(default=False)
+    accepted_date = models.DateTimeField(null=True, blank=True)
+    role = models.CharField(max_length=15, choices=choices.USER_ROLES)
+    name = models.CharField(max_length=100, blank=True,)

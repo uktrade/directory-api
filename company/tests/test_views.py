@@ -2167,6 +2167,70 @@ def test_collaborator_request(client):
 
 
 @pytest.mark.django_db
+def test_collaboration_request_create(authed_supplier, authed_client):
+
+    url = reverse('collaboration-request')
+    data = {
+        'role': user_roles.ADMIN,
+     }
+    response = authed_client.post(url, data, format='json')
+    assert response.status_code == 201
+    collaboration_request = models.CollaborationRequest.objects.get(requestor=authed_supplier)
+    assert collaboration_request.name == authed_supplier.name
+    assert collaboration_request.role == user_roles.ADMIN
+    assert collaboration_request.accepted is False
+    assert collaboration_request.accepted_date is None
+
+
+@pytest.mark.django_db
+def test_collaboration_request_list(authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+    factories.CollaborationRequestFactory()
+    response = authed_client.get(reverse('collaboration-request'))
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+            {
+                'uuid': str(collaboration_request.uuid),
+                'requestor': collaboration_request.requestor.id,
+                'name': collaboration_request.name,
+                'role': collaboration_request.role,
+                'accepted': False,
+                'accepted_date': None
+            }
+    ]
+
+
+@pytest.mark.django_db
+def test_collaboration_request_delete(authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+    pk = collaboration_request.uuid
+
+    url = reverse('collaboration-request-detail', kwargs={'uuid': pk})
+    response = authed_client.delete(url)
+
+    assert response.status_code == http.client.NO_CONTENT
+    assert models.CollaborationRequest.objects.filter(pk=pk).exists() is False
+
+
+@pytest.mark.django_db
+def test_collaboration_request_update(authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+
+    url = reverse('collaboration-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+                'uuid': str(collaboration_request.uuid),
+                'requestor': collaboration_request.requestor.id,
+                'name': collaboration_request.name,
+                'role': collaboration_request.role,
+                'accepted': True,
+                'accepted_date': mock.ANY
+    }
+
+
+
+@pytest.mark.django_db
 def test_collaborator_request_incorrect_number(client):
     url = reverse('collaborator-request')
     data = {
@@ -2297,11 +2361,10 @@ def test_collaboration_invite_retrieve(client, authed_supplier):
 def test_collaboration_invite_update(authed_client, authed_supplier):
     # at this point the user's supplier has not yet been created
     authed_supplier.delete()
-
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
-
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
@@ -2326,6 +2389,27 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
     response = authed_client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    invite = factories.CollaborationInviteFactory(
+        company=authed_supplier.company)
+
+    url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        'uuid': str(invite.uuid),
+        'collaborator_email': invite.collaborator_email,
+        'company': invite.company.pk,
+        'company_user': invite.company_user.pk,
+        'accepted_date': mock.ANY,
+        'role': invite.role,
+        'accepted': True
+    }
+    company_user = models.CompanyUser.objects.get(
+        company_email=invite.collaborator_email)
+    assert company_user.company == invite.company
+    assert company_user.role == invite.role
+    assert company_user.name == 'supplier1 bloggs'
 
 
 @pytest.mark.django_db
