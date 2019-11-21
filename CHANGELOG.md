@@ -10,6 +10,7 @@
 - TT-2064 - Submit user details with request to verify
 - TT-2168 - Expose company user name in registration email
 - no ticket - Upgrade django
+- TT-2145 - validate non-companies-house-companies address during bulk create
 
 ## [2019.10.22](https://github.com/uktrade/directory-api/releases/tag/2019.10.22)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.08.22...2019.10.22)

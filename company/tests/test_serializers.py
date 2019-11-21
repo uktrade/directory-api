@@ -190,19 +190,6 @@ def test_company_serializer_has_keywords_shared_serializers():
 
 
 @pytest.mark.django_db
-def test_company_serializer_doesnt_accept_number_under_8_chars():
-    data = {'number': "1234567"}
-    serializer = serializers.CompanySerializer(data=data)
-
-    valid = serializer.is_valid()
-
-    assert valid is False
-    assert 'number' in serializer.errors
-    error_msg = 'Company number must be 8 characters'
-    assert error_msg in serializer.errors['number']
-
-
-@pytest.mark.django_db
 def test_company_serializer_doesnt_accept_number_over_8_chars():
     data = {
         'number': "012345678",
