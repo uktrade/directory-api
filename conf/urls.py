@@ -42,26 +42,9 @@ activity_stream_urls = [
 
 
 urlpatterns = [
-    url(
-        r'^healthcheck/',
-        include(
-            healthcheck_urls,
-            namespace='healthcheck',
-            app_name='healthcheck',
-        )
-    ),
-    url(
-        r'^admin/',
-        include(admin.site.urls)
-    ),
-    url(
-        r'^activity-stream/',
-        include(
-            activity_stream_urls,
-            namespace='activity-stream',
-            app_name='activity-stream',
-        )
-    ),
+    url(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
+    url(r'^admin/', admin.site.urls),
+    url(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     url(
         r'^enrolment/$',
         enrolment.views.EnrolmentCreateAPIView.as_view(),

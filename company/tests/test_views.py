@@ -14,7 +14,7 @@ from rest_framework import status
 from PIL import Image
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from core.helpers import SSOUser, CompaniesHouseClient
@@ -272,9 +272,7 @@ def test_company_not_update_modified(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 @mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-def test_company_number_validator_rejects_invalid_data(
-    mock_get_serializer, client
-):
+def test_company_number_validator_rejects_invalid_data(mock_get_serializer, client):
     serializer = MockInvalidSerializer(data={})
     mock_get_serializer.return_value = serializer
     response = client.get(reverse('validate-company-number'), {})
@@ -284,16 +282,10 @@ def test_company_number_validator_rejects_invalid_data(
 
 @pytest.mark.django_db
 @mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-def test_company_number_validator_accepts_valid_data(
-    mock_get_serializer, client
-):
+def test_company_number_validator_accepts_valid_data(mock_get_serializer, client):
     mock_get_serializer.return_value = MockValidSerializer(data={})
     response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_200_OK
-
-
-def mock_save(self, name, content, max_length=None):
-    return mock.Mock(url=content.name)
 
 
 def get_test_image(extension='png'):
@@ -896,10 +888,7 @@ def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_update(
-    company_data, authed_client, authed_supplier, company
-):
+def test_company_update(company_data, authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -916,10 +905,8 @@ def test_company_update(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
-    case_study_data, authed_client, authed_supplier, company,
-    mock_elasticsearch_company_save
+    case_study_data, authed_client, authed_supplier, company, mock_elasticsearch_company_save
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -947,10 +934,7 @@ def test_company_case_study_create(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_invalid_image(
-    authed_client, authed_supplier, company
-):
+def test_company_case_study_create_invalid_image(authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -977,10 +961,7 @@ def test_company_case_study_create_invalid_image(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_not_an_image(
-    video, authed_client, authed_supplier, company,
-):
+def test_company_case_study_create_not_an_image(video, authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -1007,11 +988,7 @@ def test_company_case_study_create_not_an_image(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_company_not_published(
-    video, authed_client, authed_supplier
-):
-
+def test_company_case_study_create_company_not_published(video, authed_client, authed_supplier):
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
@@ -1048,10 +1025,8 @@ def test_company_case_study_create_company_not_published(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
-    company_user_case_study, authed_supplier, authed_client,
-    mock_elasticsearch_company_save
+    company_user_case_study, authed_supplier, authed_client, mock_elasticsearch_company_save
 ):
     authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
@@ -1071,10 +1046,7 @@ def test_company_case_study_update(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_delete(
-    company_user_case_study, authed_supplier, authed_client
-):
+def test_company_case_study_delete(company_user_case_study, authed_supplier, authed_client):
     authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
@@ -1090,9 +1062,7 @@ def test_company_case_study_delete(
 
 
 @pytest.mark.django_db
-def test_company_case_study_get(
-    company_user_case_study, authed_supplier, authed_client
-):
+def test_company_case_study_get(company_user_case_study, authed_supplier, authed_client):
     authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
@@ -1122,9 +1092,7 @@ def test_company_case_study_get(
 
 
 @pytest.mark.django_db
-def test_public_company_case_study_get(
-    company_user_case_study, supplier, api_client, company
-):
+def test_public_company_case_study_get(company_user_case_study, supplier, api_client, company):
     company.is_published_find_a_supplier = True
     company.is_published_investment_support_directory = True
     company.save()
@@ -1164,10 +1132,7 @@ def test_public_company_case_study_get(
 )
 @pytest.mark.django_db
 def test_company_profile_public_retrieve_public_profile(
-    is_investment_support_directory,
-    is_find_a_supplier,
-    public_profile,
-    api_client,
+    is_investment_support_directory, is_find_a_supplier, public_profile, api_client,
 ):
     public_profile.is_published_investment_support_directory = (
         is_investment_support_directory)
@@ -1186,9 +1151,7 @@ def test_company_profile_public_retrieve_public_profile(
 
 
 @pytest.mark.django_db
-def test_company_profile_public_404_private_profile(
-    private_profile, api_client
-):
+def test_company_profile_public_404_private_profile(private_profile, api_client):
     url = reverse(
         'company-public-profile-detail',
         kwargs={'companies_house_number': private_profile.number}
@@ -1300,9 +1263,7 @@ def test_search(mock_get_search_results, url, api_client):
 @pytest.mark.parametrize('page_number,expected_start', [
     [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
 ])
-def test_search_paginate_first_page(
-    url, page_number, expected_start, api_client, settings
-):
+def test_search_paginate_first_page(url, page_number, expected_start, api_client, settings):
     es = connections.get_connection('default')
     with mock.patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
@@ -1449,15 +1410,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
         ['1', '2', '3']
     ],
 ])
-def test_search_results(
-    url,
-    term,
-    filter_name,
-    filter_value,
-    expected,
-    search_data,
-    api_client
-):
+def test_search_results(url, term, filter_name, filter_value, expected, search_data, api_client):
     data = {
         'term': term,
         'page': '1',
@@ -1596,9 +1549,7 @@ def test_search_term_expertise(url, term, expected, search_data, api_client):
 ])
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-def test_search_filter_and_or(
-    url, filters, expected, api_client, search_data_and_or
-):
+def test_search_filter_and_or(url, filters, expected, api_client, search_data_and_or):
     data = {
         **filters,
         'term': 'wolf',
@@ -1990,9 +1941,7 @@ def test_search_results_highlight(url, search_highlighting_data, api_client):
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-def test_search_results_highlight_long(
-    url, search_highlighting_data, api_client,
-):
+def test_search_results_highlight_long(url, search_highlighting_data, api_client,):
     data = {
         'term': 'wolf',
         'page': 1,
@@ -2012,9 +1961,7 @@ def test_search_results_highlight_long(
 
 
 @pytest.mark.django_db
-def test_verify_companies_house_missing_access_token(
-    authed_client, authed_supplier
-):
+def test_verify_companies_house_missing_access_token(authed_client, authed_supplier):
     url = reverse('company-verify-companies-house')
     response = authed_client.post(url)  # missing access_token
 
@@ -2078,8 +2025,7 @@ def test_verify_companies_house_expired_access_token(
 
 @pytest.mark.django_db
 def test_verify_companies_house_good_access_token(
-    companies_house_oauth_valid_token, authed_supplier, authed_client,
-    mock_elasticsearch_company_save
+    companies_house_oauth_valid_token, authed_supplier, authed_client, mock_elasticsearch_company_save
 ):
     url = reverse('company-verify-companies-house')
     response = authed_client.post(url, {'access_token': '123'})
@@ -2123,9 +2069,7 @@ def test_remove_collaborators(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-def test_remove_collaborators_cannot_remove_self(
-    authed_client, authed_supplier
-):
+def test_remove_collaborators_cannot_remove_self(authed_client, authed_supplier):
     factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.ADMIN)
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
@@ -2484,9 +2428,7 @@ def test_external_company_user_details_get_bearer_auth(
 
 
 @pytest.mark.django_db
-def test_external_company_user_details_get_sso_auth(
-    authed_client, authed_supplier, settings
-):
+def test_external_company_user_details_get_sso_auth(authed_client, authed_supplier, settings):
     settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
     expected = serializers.ExternalCompanyUserSerializer(authed_supplier).data
 

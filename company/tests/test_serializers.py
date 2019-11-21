@@ -5,8 +5,7 @@ import pytest
 
 from freezegun import freeze_time
 
-from directory_validators import company as shared_validators
-
+import directory_validators.string
 from directory_constants import company_types, choices, user_roles
 from pytz import UTC
 
@@ -187,8 +186,7 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
 def test_company_serializer_has_keywords_shared_serializers():
     serializer = serializers.CompanySerializer()
     validators = serializer.fields['keywords'].validators
-    assert shared_validators.keywords_special_characters in validators
-    assert shared_validators.keywords_word_limit in validators
+    assert directory_validators.string.no_special_characters in validators
 
 
 @pytest.mark.django_db

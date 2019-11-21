@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 import pytest
 from django.conf import settings
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from buyer import models
