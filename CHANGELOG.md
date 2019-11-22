@@ -3,6 +3,81 @@
 ## Pre release
 
 ### Implemented enhancements
+- TT-2027 - Make testapi to return company number (for testing non-CH companies)
+- TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
+
+### Fixed bugs
+- TT-2064 - Submit user details with request to verify
+- TT-2168 - Expose company user name in registration email
+- no ticket - Upgrade django
+- TT-2145 - validate non-companies-house-companies address during bulk create
+
+## [2019.10.22](https://github.com/uktrade/directory-api/releases/tag/2019.10.22)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.08.22...2019.10.22)
+
+### Implemented enhancements
+- TT-1733 - Added request identity verification feature
+- TT-1733 - Allow name to be provided on supplier create
+- TT-1716 - Allow disconnecting self from company
+- TT-1727 - Consolidate collaboration models in backwards compatible way.
+- TT-1734 - Allow adding second user as member to a company profile
+- TT-1716 - Company search stop words
+- TT-1761 - Remove fab casestudies notification
+- TT-1727 - Allow changing role of collaborator
+- TT-1748 - Allow anonymous user retrieving collaboration invite
+- No ticket - Refactor makefile and speed up tests
+- No ticket - Remove mobile number unique constraint
+- TT-1714 - Implement Collaborator Notifications 
+- TT-1841 - Send admin emails for exiting company in signals 
+- TT-1761 - Remove notification hasn't logged-in
+- TT-1923 - allow to programmatically change verification flags via testapi
+- TT-1910 - admin send new invite accepted email
+- TT-1911 - Expose created timestamp for company serializer
+- TT-2012 - Add non-ch request verification email
+- TT-2013 - Generate company number for all non registered companies
+
+## Breaking changes
+- TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
+    ENSURE TO SET DATASCIENCE AWS SETTINGS IN VAULT
+ 
+### Fixed bugs
+- No ticket - Upgrade django to 1.11.23 to fix vulnerability
+- TT-1768 - Fix elasticsearch migrate
+- TT-1538  - Fix datascience s3 bucket - read from vault see above
+- TT-1289 - Allow company names longer than 250 chars
+- TT-2011 - Handle verified with id
+
+## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)
+
+### Implemented enhancements
+- TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
+- no ticket - Increase flake8 Char limit to 120
+- TT-851 - Companies house status check admin upgrade
+- TT-1613 Reduce stannp to flag errors from <50 to <10 
+- TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON) 
+- TT-1700 - Show error when user doesn't have staff status
+- TT-1735 - Forms & Directory-API SSO display message for 1st time users
+
+## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)
+
+### Implemented enhancements
+
+- No ticket - Moved over GDS PaaS S3 bucket.
+- TT-1574 - Support more non-companies house companies
+- TT-1590 - Port ISD search logic to FAS
+- No ticket - Remove obsolete case study search endpoint
+- No ticket -  Mask product data make email unique
+- No ticket - Upgrade vulnerable django version to django 1.11.22
+
+### Fixed bugs
+- No ticket - Fixed migrations during deployment
+
+## [2019.06.25](https://github.com/uktrade/directory-api/releases/tag/2019.06.25)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.23...2019.06.25)
+
+### Implemented enhancements
 - TT-1491 Adding sorting via title and more relevance to query that matches in titles
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
 - TT-1558 Add managment command to mask personal company data

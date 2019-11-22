@@ -1,8 +1,8 @@
+from directory_constants import company_types, user_roles
 from rest_framework import serializers
 
-from company.models import Company
+from company.models import Company, CompanyUser
 from enrolment import models
-from supplier.models import Supplier
 
 
 class CompanyEnrolmentSerializer(serializers.ModelSerializer):
@@ -35,11 +35,11 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'po_box': {'required': False},
             'postal_code': {'required': False},
             'sectors': {'required': False},
-            'company_type': {'default': Company.COMPANIES_HOUSE}
+            'company_type': {'default': company_types.COMPANIES_HOUSE},
         }
 
     def create(self, validated_data):
-        if validated_data['company_type'] == Company.COMPANIES_HOUSE:
+        if validated_data['company_type'] == company_types.COMPANIES_HOUSE:
             queryset = models.PreVerifiedEnrolment.objects.filter(
                 company_number=validated_data['number'],
                 email_address=validated_data['email_address'],
@@ -67,7 +67,7 @@ class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
 class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Supplier
+        model = CompanyUser
         fields = [
             'name',
         ]
@@ -78,7 +78,7 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
             'company': self.context['company'],
             'sso_id': self.context['request'].user.id,
             'company_email': self.context['request'].user.email,
-            'is_company_owner': True,
+            'role': user_roles.ADMIN,
         })
 
 

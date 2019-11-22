@@ -1,17 +1,18 @@
 import datetime
 
-from directory_constants.urls import build_great_url
+from directory_constants.urls import domestic
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.conf.urls import url
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.signing import Signer
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.views.generic import FormView
 from django import forms
 
 from core.helpers import generate_csv_response
-from company.models import Company, CompanyCaseStudy
+from company import helpers, models
 from company.forms import EnrolCompanies, UploadExpertise
 
 
@@ -26,7 +27,7 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = build_great_url('profile/enrol/pre-verified/')
+        url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
         signer = Signer()
         created_companies = [
             {**company, 'url': url + '?key=' + signer.sign(company['number'])}
@@ -83,7 +84,7 @@ class PublishByCompanyHouseNumberForm(forms.Form):
 
     options = (
         ("investment_support_directory", "Investment Support Directory"),
-        ("find_a_supplier", "Find a Supplier"),
+        ("find_a_supplier", "Find a CompanyUser"),
     )
 
     directories = forms.MultipleChoiceField(
@@ -95,17 +96,12 @@ class PublishByCompanyHouseNumberForm(forms.Form):
         numbers = self.cleaned_data['company_numbers'].split(',')
         numbers = [number.strip() for number in numbers if number.strip()]
 
-        number_of_companies = Company.objects.filter(
-            number__in=numbers).count()
+        number_of_companies = models.Company.objects.filter(number__in=numbers).count()
         if number_of_companies != len(numbers):
-            numbers_in_db = Company.objects.filter(
-                number__in=numbers).values_list('number', flat=True)
-            invalid_numbers = [number for number in numbers
-                               if number not in numbers_in_db]
-            error_msg = self.COMPANY_DOESNT_EXIST_MSG.format(
-                numbers=', '.join(invalid_numbers))
+            numbers_in_db = models.Company.objects.filter(number__in=numbers).values_list('number', flat=True)
+            invalid_numbers = [number for number in numbers if number not in numbers_in_db]
+            error_msg = self.COMPANY_DOESNT_EXIST_MSG.format(numbers=', '.join(invalid_numbers))
             raise forms.ValidationError(error_msg)
-
         return numbers
 
 
@@ -123,18 +119,14 @@ class PublishByCompanyHouseNumberView(FormView):
         numbers = form.cleaned_data['company_numbers']
 
         if 'investment_support_directory' in form.cleaned_data['directories']:
-            Company.objects.filter(number__in=numbers).update(
-                is_published_investment_support_directory=True
-            )
+            models.Company.objects.filter(number__in=numbers).update(is_published_investment_support_directory=True)
         if 'find_a_supplier' in form.cleaned_data['directories']:
-            Company.objects.filter(number__in=numbers).update(
-                is_published_find_a_supplier=True
-            )
+            models.Company.objects.filter(number__in=numbers).update(is_published_find_a_supplier=True)
 
         return super().form_valid(form)
 
 
-@admin.register(Company)
+@admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     search_fields = (
         'name', 'description', 'keywords',
@@ -153,8 +145,9 @@ class CompanyAdmin(admin.ModelAdmin):
         'is_published_find_a_supplier',
         'verified_with_code',
         'verified_with_companies_house_oauth2',
+        'companies_house_company_status',
     )
-    readonly_fields = ('created', 'modified', 'date_verification_letter_sent')
+    readonly_fields = ('created', 'modified', 'date_verification_letter_sent', 'date_registration_letter_sent')
 
     def get_urls(self):
         urls = super(CompanyAdmin, self).get_urls()
@@ -184,7 +177,7 @@ class CompanyAdmin(admin.ModelAdmin):
         return additional_urls + urls
 
 
-@admin.register(CompanyCaseStudy)
+@admin.register(models.CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
     search_fields = (
@@ -213,3 +206,63 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
     download_csv.short_description = (
         "Download CSV report for selected case studies"
     )
+
+
+@admin.register(models.CollaborationInvite)
+class CollaborationInviteAdmin(admin.ModelAdmin):
+    search_fields = ('uuid', 'company__name', 'company__number', 'collaborator_email')
+    list_display = ('uuid', 'collaborator_email', 'company')
+    list_filter = ('accepted', 'role')
+
+
+@admin.register(models.CompanyUser)
+class CompanyUserAdmin(admin.ModelAdmin):
+
+    search_fields = (
+        'sso_id', 'name', 'mobile_number', 'company_email', 'company__name',
+        'company__description', 'company__number', 'company__website',
+    )
+    readonly_fields = ('created', 'modified',)
+    actions = ['download_csv', 'resend_letter']
+
+    def download_csv(self, request, queryset):
+        """
+        Generates CSV report of all suppliers, with company details included.
+        """
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = (
+            'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(
+                datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+            )
+        )
+        helpers.generate_company_users_csv(file_object=response, queryset=queryset)
+        return response
+
+    download_csv.short_description = (
+        "Download CSV report for selected suppliers"
+    )
+
+    def resend_letter(self, request, queryset):
+        total_selected_users = queryset.count()
+        not_verified_users_queryset = queryset.select_related(
+            'company'
+        ).exclude(
+                company__verified_with_code=True
+        )
+        not_verified_users_count = not_verified_users_queryset.count()
+
+        for supplier in not_verified_users_queryset:
+            helpers.send_verification_letter(supplier.company)
+
+        messages.success(
+            request,
+            'Verification letter resent to {} users'.format(
+                not_verified_users_count
+            )
+        )
+        messages.warning(
+            request,
+            '{} users skipped'.format(
+                total_selected_users - not_verified_users_count
+            )
+        )

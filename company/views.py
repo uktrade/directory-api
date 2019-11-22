@@ -1,18 +1,21 @@
 import abc
 
+from directory_constants import user_roles
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework import generics, viewsets, views, status
+from rest_framework.permissions import IsAuthenticated
 
+from django.conf import settings
 from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
 from django.http import Http404
 
-from company import filters, helpers, models, pagination, search, serializers
+from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
+from core import authentication
 from core.permissions import IsAuthenticatedSSO
-from supplier.permissions import IsCompanyProfileOwner
-
-from elasticsearch_dsl import query, Q as Q_
+from core.views import CSVDumpAPIView
+from notifications import notifications
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -30,8 +33,8 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanySerializer
 
     def get_object(self):
-        if self.request.user.supplier and self.request.user.supplier.company:
-            return self.request.user.supplier.company
+        if self.request.user.company:
+            return self.request.user.company
         raise Http404()
 
 
@@ -74,9 +77,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
         return self.write_serializer_class
 
     def get_queryset(self):
-        return self.queryset.filter(
-            company_id=self.request.user.supplier.company_id
-        )
+        return self.queryset.filter(company_id=self.request.user.company.id)
 
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -91,7 +92,7 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
 
 class VerifyCompanyWithCodeAPIView(views.APIView):
     """
-    Confirms Supplier's relationship with Company by providing proof of
+    Confirms CompanyUser's relationship with Company by providing proof of
     access to the Company's physical address.
 
     """
@@ -102,7 +103,7 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
 
-        company = self.request.user.supplier.company
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
             context={'expected_code': company.verification_code}
@@ -123,7 +124,7 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
 class VerifyCompanyWithCompaniesHouseView(views.APIView):
     """
-    Confirms Supplier's relationship with Company by providing proof of
+    Confirms CompanyUser's relationship with Company by providing proof of
     being able to login to the Company's Companies House profile.
 
     """
@@ -131,7 +132,7 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
     serializer_class = serializers.VerifyCompanyWithCompaniesHouseSerializer
 
     def post(self, request, *args, **kwargs):
-        company = self.request.user.supplier.company
+        company = self.request.user.company
         serializer = self.serializer_class(
             data=request.data,
             context={'company_number': company.number}
@@ -143,171 +144,22 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
-class SearchBaseView(abc.ABC, views.APIView):
-    http_method_names = ("get", )
-    # `serializer_class` is used for deserializing the search query,
-    # but not for serializing the search results.
-    serializer_class = serializers.SearchSerializer
-    permission_classes = []
+class RequestVerificationWithIdentificationView(views.APIView):
 
-    sector_field_name = abc.abstractproperty()
-    apply_highlighting = abc.abstractproperty()
-
-    def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.GET)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        search_results = self.get_search_results(
-            term=validated_data.get('term'),
-            page=validated_data['page'],
-            size=validated_data['size'],
-            sectors=validated_data.get('sectors'),
-            is_showcase_company=validated_data.get('is_showcase_company'),
-        )
-        return Response(
-            data=search_results,
-            status=status.HTTP_200_OK,
-        )
-
-    def get_search_results(
-        self, term, page, size, sectors, is_showcase_company=None
-    ):
-        """Search by term and filter by sector.
-
-        Arguments:
-            term {str}   -- Search term to match on
-            page {int}   -- Page number to query
-            size {int}   -- Number of results per page
-            sectors {str[]} -- Filter companies by these sectors
-
-        Returns:
-            dict -- Companies that match the term
-
-        """
-
-        search_object = self.create_search_object(
-            term=term,
-            sectors=sectors,
-            is_showcase_company=is_showcase_company,
-        )
-        search_object = self.apply_highlighting(search_object)
-        search_object = self.apply_pagination(search_object, page, size)
-        return search_object.execute().to_dict()
-
-    def create_query_object(
-        self, term, sectors, is_showcase_company=None,
-        is_published_find_a_supplier=None,
-    ):
-        should_filters = []
-        must_filters = []
-
-        if sectors:
-            for sector in sectors:
-                params = {self.sector_field_name: sector}
-                should_filters.append(query.Match(**params))
-        if is_showcase_company is True:
-            must_filters.append(query.Term(is_showcase_company=True))
-        if term:
-            must_filters.append(
-                Q_('match_phrase', wildcard=term) |
-                Q_('match', wildcard=term) |
-                Q_('match_phrase', casestudy_wildcard=term) |
-                Q_('match', casestudy_wildcard=term)
-            )
-        if is_published_find_a_supplier is not None:
-            must_filters.append(
-                query.Term(
-                    is_published_find_a_supplier=is_published_find_a_supplier
-                ))
-        return query.Bool(
-            must=must_filters,
-            should=should_filters,
-            minimum_should_match=1 if len(should_filters) else 0,
-        )
-
-    @staticmethod
-    def apply_pagination(search_object, page, size):
-        start = (page - 1) * size
-        end = start + size
-        return search_object[start:end]
+    def post(self, request, *args, **kwargs):
+        helpers.send_request_identity_verification_message(self.request.user.company_user)
+        return Response()
 
 
-class CaseStudySearchAPIView(SearchBaseView):
-    sector_field_name = 'sector'
-
-    def create_search_object(self, term, sectors, is_showcase_company):
-        query_object = self.create_query_object(term=term, sectors=sectors)
-        return search.CaseStudyDocument.search().query(query_object)
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object
-
-
-class CompanySearchAPIView(SearchBaseView):
-    sector_field_name = 'sectors'
-
-    def create_search_object(self, term, sectors, is_showcase_company):
-        no_description = query.Term(has_description=False)
-        has_description = query.Term(has_description=True)
-        no_case_study = query.Term(case_study_count=0)
-        one_case_study = query.Term(case_study_count=1)
-        multiple_case_studies = query.Range(case_study_count={'gt': 1})
-
-        query_object = self.create_query_object(
-            term=term,
-            sectors=sectors,
-            is_showcase_company=is_showcase_company,
-            is_published_find_a_supplier=True,
-        )
-        return search.CompanyDocument.search().query(
-            'function_score',
-            query=query_object,
-            functions=[
-                query.SF({
-                  'weight': 5,
-                  'filter': multiple_case_studies + has_description,
-                }),
-                query.SF({
-                  'weight': 4,
-                  'filter': multiple_case_studies + no_description,
-                }),
-                query.SF({
-                  'weight': 3,
-                  'filter': one_case_study + has_description,
-                }),
-                query.SF({
-                  'weight': 2,
-                  'filter': one_case_study + no_description,
-                }),
-                query.SF({
-                  'weight': 1,
-                  'filter': no_case_study + has_description,
-                }),
-            ],
-            boost_mode='sum',
-        )
-
-    @staticmethod
-    def apply_highlighting(search_object):
-        return search_object.highlight_options(
-            require_field_match=False,
-        ).highlight('summary', 'description')
-
-    def get_search_results(self, *args, **kwargs):
-        results = super().get_search_results(*args, **kwargs)
-        if results:
-            for hit in results['hits']['hits']:
-                item = hit['_source']
-                if 'modified' in item:
-                    item['modified'] = item['modified'].replace('+00:00', 'Z')
-        return results
-
-
-class InvestmentSupportDirectorySearchAPIView(views.APIView):
+class AbstractSearchAPIView(abc.ABC, views.APIView):
 
     permission_classes = []
     serializer_class = serializers.SearchSerializer
+
+    @property
+    @abc.abstractmethod
+    def elasticsearch_filter(self):
+        return {}
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
@@ -319,9 +171,9 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
         query = helpers.build_search_company_query(params)
         size = serializer.validated_data['size']
         search_object = (
-            search.CompanyDocument
+            documents.CompanyDocument
             .search()
-            .filter('term', is_published_investment_support_directory=True)
+            .filter('term', **self.elasticsearch_filter)
             .query(query)
             .sort(
                 {"_score": {"order": "desc"}},
@@ -332,59 +184,31 @@ class InvestmentSupportDirectorySearchAPIView(views.APIView):
             .extra(
                 from_=(serializer.validated_data['page'] - 1) * size,
                 size=size,
-                explain=True,
             )
         )
         return Response(data=search_object.execute().to_dict())
 
 
-class CollaboratorInviteCreateView(generics.CreateAPIView):
-    serializer_class = serializers.CollaboratorInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+class FindASupplierSearchAPIView(AbstractSearchAPIView):
+    elasticsearch_filter = {'is_published_find_a_supplier': True}
 
 
-class TransferOwnershipInviteCreateView(generics.CreateAPIView):
-    serializer_class = serializers.OwnershipInviteSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
-
-
-class CollaboratorInviteRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    serializer_class = serializers.CollaboratorInviteSerializer
-    queryset = models.CollaboratorInvite.objects.all()
-    lookup_field = 'uuid'
-
-
-class TransferOwnershipInviteRetrieveUpdateAPIView(
-    generics.RetrieveUpdateAPIView
-):
-    serializer_class = serializers.OwnershipInviteSerializer
-    queryset = models.OwnershipInvite.objects.all()
-    lookup_field = 'uuid'
+class InvestmentSupportDirectorySearchAPIView(AbstractSearchAPIView):
+    elasticsearch_filter = {'is_published_investment_support_directory': True}
 
 
 class RemoveCollaboratorsView(views.APIView):
     serializer_class = serializers.RemoveCollaboratorsSerializer
-    permission_classes = [
-        IsAuthenticatedSSO,
-        IsCompanyProfileOwner,
-    ]
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
 
     def get_queryset(self):
-        return self.request.user.supplier.company.suppliers.exclude(
-            pk=self.request.user.supplier.pk
-        )
+        return self.request.user.company.company_users.exclude(pk=self.request.user.company_user.pk)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         sso_ids = serializer.validated_data['sso_ids']
+        helpers.validate_other_admins_connected_to_company(company=self.request.user.company, sso_ids=sso_ids)
         self.get_queryset().filter(sso_id__in=sso_ids).update(company=None)
         return Response()
 
@@ -399,3 +223,148 @@ class CollaboratorRequestView(generics.CreateAPIView):
         self.perform_create(serializer)
         data = {'company_email': serializer.instance.company.email_address}
         return Response(data, status=201)
+
+
+class CollaborationInviteViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CollaborationInviteSerializer
+    queryset = models.CollaborationInvite.objects.all()
+    lookup_field = 'uuid'
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            permission_classes = []
+        elif self.action == 'partial_update':
+            permission_classes = [IsAuthenticatedSSO]
+        else:
+            permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if self.action in ['retrieve', 'partial_update']:
+            return self.queryset
+        return self.queryset.filter(company_id=self.request.user.company.id)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            company_user=self.request.user.company_user,
+            company=self.request.user.company,
+        )
+
+
+class AddCollaboratorView(generics.CreateAPIView):
+    serializer_class = serializers.AddCollaboratorSerializer
+    permission_classes = [IsAuthenticatedSSO]
+
+
+class ChangeCollaboratorRoleView(generics.UpdateAPIView):
+    serializer_class = serializers.ChangeCollaboratorRoleSerializer
+    permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+    lookup_field = 'sso_id'
+
+    def get_queryset(self):
+        return models.CompanyUser.objects.filter(company_id=self.request.user.company.id)
+
+
+class CompanyUserRetrieveAPIView(views.APIView):
+    serializer_class = serializers.ExternalCompanyUserSerializer
+    authentication_classes = [
+        authentication.Oauth2AuthenticationSSO,
+        authentication.SessionAuthenticationSSO,
+    ]
+
+    def get(self, request):
+        if not self.request.user.company_user:
+            raise Http404()
+        serializer = self.serializer_class(request.user.company_user)
+        return Response(serializer.data)
+
+
+class CompanyUserSSOListAPIView(generics.ListAPIView):
+    queryset = models.CompanyUser.objects.all()
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        # normally DRF loops over the queryset and calls the serializer on each
+        # supplier- which is much less performant than calling `values_list`
+        sso_ids = self.queryset.values_list('sso_id', flat=True)
+        return Response(data=sso_ids)
+
+
+class CompanyUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.CompanyUserSerializer
+
+    def get_object(self):
+        if not self.request.user.company_user:
+            raise Http404()
+        return self.request.user.company_user
+
+
+class GeckoTotalRegisteredCompanyUser(views.APIView):
+    permission_classes = (IsAuthenticated, )
+    authentication_classes = (authentication.GeckoBasicAuthentication, )
+    renderer_classes = (JSONRenderer, )
+    http_method_names = ("get", )
+
+    def get(self, request, format=None):
+        return Response(gecko.total_registered_company_users())
+
+
+class CompanyUserUnsubscribeAPIView(views.APIView):
+
+    http_method_names = ("post", )
+
+    def post(self, request, *args, **kwargs):
+        """Unsubscribes supplier from notifications"""
+        company_user = self.request.user.company_user
+        company_user.unsubscribed = True
+        company_user.save()
+        notifications.company_user_unsubscribed(company_user=company_user)
+        return Response(
+            data={
+                "status_code": status.HTTP_200_OK,
+                "detail": "CompanyUser unsubscribed"
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class CompanyCollboratorsListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.CompanyUserSerializer
+
+    def get_queryset(self):
+        return models.CompanyUser.objects.filter(company_id=self.request.user.company.id)
+
+
+class CollaboratorDisconnectView(views.APIView):
+    permission_classes = [IsAuthenticatedSSO]
+
+    def get_object(self):
+        return self.request.user.company_user
+
+    def post(self, request, *args, **kwargs):
+        supplier = self.get_object()
+        helpers.validate_other_admins_connected_to_company(
+            company=supplier.company, sso_ids=[supplier.sso_id]
+        )
+        supplier.company = None
+        supplier.role = user_roles.MEMBER
+        supplier.save()
+        return Response()
+
+
+class CompanyUserSSORetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = serializers.CompanyUserSerializer
+    queryset = models.CompanyUser.objects.all()
+    permission_classes = []
+    lookup_url_kwarg = 'sso_id'
+    lookup_field = 'sso_id'
+
+
+if settings.STORAGE_CLASS_NAME == 'default':
+    # this view only works if s3 is in use (s3 is default. in local dev local storage is used)
+    class CompanyUserCSVDownloadAPIView(CSVDumpAPIView):
+        bucket = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
+        key = settings.SUPPLIERS_CSV_FILE_NAME
+        filename = settings.SUPPLIERS_CSV_FILE_NAME

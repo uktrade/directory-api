@@ -1,5 +1,6 @@
 import os
 
+from django.urls import reverse_lazy
 import dj_database_url
 import environ
 from elasticsearch import RequestsHttpConnection
@@ -10,6 +11,8 @@ import directory_healthcheck.backends
 
 
 env = environ.Env()
+for env_file in env.list('ENV_FILES', default=[]):
+    env.read_env(f'conf/env/{env_file}')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -36,9 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'rest_framework',
+    'django_extensions',
     'django_celery_beat',
     'raven.contrib.django.raven_compat',
-    'superuser',
+    'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
     'enrolment.apps.EnrolmentConfig',
@@ -54,11 +58,13 @@ INSTALLED_APPS = [
     'directory_healthcheck',
     'health_check.db',
     'health_check.cache',
-    'testapi'
+    'testapi',
+    'authbroker_client',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'core.middleware.SignatureCheckMiddleware',
+    'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -84,7 +90,6 @@ TEMPLATES = [
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader',
             ],
         },
     },
@@ -94,6 +99,7 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 
 
 VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
 
 if 'redis' in VCAP_SERVICES:
     REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
@@ -144,7 +150,10 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = env.str(
+    'STATICFILES_STORAGE',
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -162,6 +171,22 @@ STATICFILES_DIRS = (
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
+
+# SSO config
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', False)
+if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+        'authbroker_client.backends.AuthbrokerBackend'
+    ]
+
+    LOGIN_URL = reverse_lazy('authbroker_client:login')
+    LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
+
+    # authbroker config
+AUTHBROKER_URL = env.str('STAFF_SSO_AUTHBROKER_URL')
+AUTHBROKER_CLIENT_ID = env.str('AUTHBROKER_CLIENT_ID')
+AUTHBROKER_CLIENT_SECRET = env.str('AUTHBROKER_CLIENT_SECRET')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
@@ -328,13 +353,9 @@ STORAGE_CLASSES = {
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
-AWS_DEFAULT_ACL = 'public-read'
 AWS_AUTO_CREATE_BUCKET = True
-AWS_S3_ENCRYPTION = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
-AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', 'eu-west-1')
 AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
 # Needed for new AWS regions
 # https://github.com/jschneier/django-storages/issues/203
@@ -342,6 +363,19 @@ AWS_S3_SIGNATURE_VERSION = env.str('AWS_S3_SIGNATURE_VERSION', 's3v4')
 AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
 AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
+
+AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
+AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
+AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
+AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
+AWS_S3_ENCRYPTION = True
+AWS_DEFAULT_ACL = None
+
+# Setting up the the datascience s3 bucket
+AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.str('AWS_ACCESS_KEY_ID_DATA_SCIENCE', '')
+AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.str('AWS_SECRET_ACCESS_KEY_DATA_SCIENCE', '')
+AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.str('AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE', '')
+AWS_S3_REGION_NAME_DATA_SCIENCE = env.str('AWS_S3_REGION_NAME_DATA_SCIENCE', '')
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
@@ -352,13 +386,43 @@ SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', True)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', True)
 
-# Verification letters sent with stannp.com
+# directory forms api client
+DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
+DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
+DIRECTORY_FORMS_API_SENDER_ID = env.str('DIRECTORY_FORMS_API_SENDER_ID')
+DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.int('DIRECTORY_API_FORMS_DEFAULT_TIMEOUT', 5)
+DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.str('DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME', 'api')
 
-STANNP_API_KEY = env.str('STANNP_API_KEY', '')
-STANNP_TEST_MODE = env.bool('STANNP_TEST_MODE', True)
-STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
-    'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
+# Verification letters sent with govnotify
+GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID',
+    '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
 )
+
+# Registration letters template id
+GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
+    '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
+)
+
+GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID',
+    'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+)
+GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID',
+    'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
+)
+GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.str(
+    'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID',
+    '439a8415-52d8-4975-b230-15cd34305bb5'
+)
+
+GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.str(
+    'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID',
+    'a63f948f-978e-4554-86da-c525bfabbaff'
+)
+
 
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
@@ -451,6 +515,7 @@ CELERY_BROKER_URL = REDIS_CELERY_URL
 CELERY_RESULT_BACKEND = REDIS_CELERY_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
@@ -515,9 +580,6 @@ else:
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
     'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
 )
-ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS = env.str(
-    'ELASTICSEARCH_CASE_STUDY_INDEX_ALIAS', 'casestudies-alias'
-)
 
 # Activity Stream
 ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
@@ -550,13 +612,11 @@ DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
 DIRECTORY_HEALTHCHECK_BACKENDS = [
     directory_healthcheck.backends.SingleSignOnBackend,
     healthcheck.backends.ElasticSearchCheckBackend,
-    healthcheck.backends.StannpBackend,
     # health_check.db.backends.DatabaseBackend and
     # health_check.cache.CacheBackend are also registered in
     # INSTALLED_APPS's health_check.db and health_check.cache
 ]
 
-CSV_DUMP_BUCKET_NAME = env.str('CSV_DUMP_BUCKET_NAME')
 CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
@@ -564,15 +624,10 @@ SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
 FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
 FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
-FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
-    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True
-)
-FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
-    'FEATURE_VERIFICATION_LETTERS_ENABLED', False
-)
-FEATURE_MANUAL_PUBLISH_ENABLED = env.bool(
-    'FEATURE_MANUAL_PUBLISH_ENABLED', False
-)
+FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool('FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True)
+
+FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool('FEATURE_VERIFICATION_LETTERS_ENABLED', False)
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool('FEATURE_REGISTRATION_LETTERS_ENABLED', False)
 
 # directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')

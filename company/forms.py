@@ -4,14 +4,14 @@ import json
 import re
 from difflib import SequenceMatcher
 
-from directory_components.fields import PaddedCharField
+from directory_components.forms.fields import PaddedCharField
 
 from django import forms
 from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
-from directory_constants import expertise
+from directory_constants import company_types, expertise
 
 
 class MobileNumberField(forms.CharField):
@@ -120,8 +120,8 @@ class CompanyModelForm(forms.ModelForm):
 def company_type_parser(company_number):
     if company_number:
         if CompanyNumberField(max_length=8).to_python(company_number):
-            return models.Company.COMPANIES_HOUSE
-    return models.Company.SOLE_TRADER
+            return company_types.COMPANIES_HOUSE
+    return company_types.SOLE_TRADER
 
 
 class EnrolCompanies(forms.Form):
@@ -150,9 +150,7 @@ class EnrolCompanies(forms.Form):
         errors = []
         for i, row in enumerate(reader):
             company_type = company_type_parser(row[8])
-            is_uk_isd_company = (
-                self.cleaned_data['generated_for'] == constants.UK_ISD
-            )
+            is_uk_isd_company = self.cleaned_data['generated_for'] == constants.UK_ISD
             data = {
                 'company_type': company_type,
                 'facebook_url': row[11],
@@ -168,7 +166,7 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
-            if company_type == models.Company.SOLE_TRADER:
+            if company_type != company_types.COMPANIES_HOUSE:
                 address = helpers.AddressParser(row[2])
                 data.update({
                     'address_line_1': address.line_1,
@@ -177,6 +175,12 @@ class EnrolCompanies(forms.Form):
                     'po_box': address.po_box,
                     'postal_code': address.postal_code,
                 })
+                if not address.line_1 or not address.postal_code:
+                    self.add_bulk_errors(
+                        errors=errors,
+                        row_number=i+2,
+                        line_errors='Invalid address. Must have line 1, line 2, and postal code. comma delimited.',
+                    )
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
@@ -191,7 +195,7 @@ class EnrolCompanies(forms.Form):
                     'generated_by': self.user.pk,
                     'company_number': form.instance.number,
                 })
-                assert pre_verified_form.is_valid
+                assert pre_verified_form.is_valid()
                 pre_verified_form.save()
             else:
                 if 'number' in form.errors:
@@ -259,7 +263,7 @@ class UploadExpertise(forms.Form):
             }
 
             company_type = company_type_parser(row[8])
-            if company_type == models.Company.SOLE_TRADER:
+            if company_type == company_types.SOLE_TRADER:
                 companies = models.Company.objects.filter(name=data['name'])
             else:
                 companies = models.Company.objects.filter(

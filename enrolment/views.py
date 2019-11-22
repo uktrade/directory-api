@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from directory_constants import user_roles
 
 from django.core import signing
 from django.db import transaction
@@ -9,14 +10,14 @@ from django.shortcuts import get_object_or_404, Http404
 
 from company.models import Company
 from enrolment import models, serializers
-from supplier.serializers import SupplierSerializer
+from company.serializers import CompanyUserSerializer
 
 
 class EnrolmentCreateAPIView(APIView):
 
     http_method_names = ("post", )
     company_serializer_class = serializers.CompanyEnrolmentSerializer
-    supplier_serializer_class = SupplierSerializer
+    supplier_serializer_class = CompanyUserSerializer
     permission_classes = []
 
     @transaction.atomic
@@ -26,12 +27,11 @@ class EnrolmentCreateAPIView(APIView):
         )
         company_serializer.is_valid(raise_exception=True)
         company = company_serializer.save()
-
         supplier_serializer = self.supplier_serializer_class(
             data={'company': company.id, **request.data}
         )
         supplier_serializer.is_valid(raise_exception=True)
-        supplier_serializer.validated_data['is_company_owner'] = True
+        supplier_serializer.validated_data['role'] = user_roles.ADMIN
         supplier_serializer.save()
 
         return Response(status=status.HTTP_201_CREATED)
@@ -61,13 +61,11 @@ class LookupSignedCompanyNumberMixin:
             return get_object_or_404(
                 Company.objects.all(),
                 number=number,
-                suppliers__isnull=True,
+                company_users__isnull=True,
             )
 
 
-class PreverifiedCompanyView(
-    LookupSignedCompanyNumberMixin, generics.RetrieveAPIView
-):
+class PreverifiedCompanyView(LookupSignedCompanyNumberMixin, generics.RetrieveAPIView):
     http_method_names = ('get', )
     serializer_class = serializers.PreverifiedCompanySerializer
     permission_classes = []
@@ -76,9 +74,7 @@ class PreverifiedCompanyView(
         return self.lookup_company()
 
 
-class PreverifiedCompanyClaim(
-    LookupSignedCompanyNumberMixin, generics.CreateAPIView
-):
+class PreverifiedCompanyClaim(LookupSignedCompanyNumberMixin, generics.CreateAPIView):
     http_method_names = ('post',)
     serializer_class = serializers.ClaimPreverifiedCompanySerializer
 

@@ -6,7 +6,7 @@
 [![gitflow-image]][gitflow]
 [![calver-image]][calver]
 
-**[Export Directory API service](https://www.trade.great.gov.uk/)**
+**[GREAT platform API](https://www.great.gov.uk/)**
 
 ---
 
@@ -18,7 +18,7 @@
     $ cd directory-api
     $ virtualenv .venv -p python3.6
     $ source .venv/bin/activate
-    $ pip install -r requirements_test.txt
+    $ make install_requirements
 
 ### Requirements
 [Python 3.6](https://www.python.org/downloads/release/python-368/)
@@ -26,44 +26,28 @@
 [Redis](https://redis.io/)
 
 
-### Configuration
+#### Configuration
 
-Secrets such as API keys and environment specific configurations are placed in `conf/.env` - a file that is not added to version control. You will need to create that file locally in order for the project to run.
+Secrets such as API keys and environment specific configurations are placed in `conf/env/secrets-do-not-commit` - a file that is not added to version control. To create a template secrets file with dummy values run `make init_secrets`.
 
-### Running the webserver
-    $ source .venv/bin/activate
-    $ make debug_webserver
+### Commands
 
-### Running the tests
-
-    $ make debug_test
-
-### Development data
-
-For development efficiency a dummy company can be loaded into the database from `fixtures/development.json`. To do this run:
-
-    $ make loaddata
-
-
-To update `fixtures/development.json` with the current contents of the database run:
-
-    $ make dumpdata
-
-Then check the contents of `fixtures/development.json`.
-
-## Celery
-
-### Celery beat
-Run debug celery beat scheduler
-Requires Redis (e.g. [Install and config Redis on Mac OS X via Homebrew](https://medium.com/@petehouston/install-and-config-redis-on-mac-os-x-via-homebrew-eb8df9a4f298#.v37jynm6p) for the Mac)
-
-    $ make debug_celery_beat_scheduler
-
-### Celery worker
-
-Some tasks as executed asynchronously such as sending confirmation emails:
-
-    $ make debug_celery_worker
+| Command                       | Description |
+| ----------------------------- | ------------|
+| make clean                    | Delete pyc files |
+| make pytest                   | Run all tests |
+| make pytest test_foo.py       | Run all tests in file called test_foo.py |
+| make pytest -- --last-failed` | Run the last tests to fail |
+| make pytest -- -k foo         | Run the test called foo |
+| make pytest -- <foo>          | Run arbitrary pytest command |
+| make manage <foo>             | Run arbitrary management command |
+| make webserver                | Run the development web server |
+| make requirements             | Compile the requirements file |
+| make install_requirements     | Installed the compile requirements file |
+| make css                      | Compile scss to css |
+| make init_secrets             | Create your secret env var file |
+| make worker                   | Run the celery worker |
+| make beat                     | Run the celery beat scheduler |
 
 
 ## SSO
@@ -86,12 +70,6 @@ Therefore to make cookie sharing work in development we need the apps to be runn
  - `directory-ui-supplier` and `directory-sso` must both be running on sibling subdomains (with same parent domain)
  - `directory-sso` must be told to target cookies at the parent domain.
 
-## Manage commands
-
-Create registered company in your local environment:
-```bash
-cmd="create_registered_company ch_id_max_8chrs" make debug_manage
-```
 
 ## Linux setup
 

@@ -1,28 +1,35 @@
 import datetime
 
 import pytest
-from django.core.urlresolvers import reverse
 from rest_framework import status
 
-from company import models
-from company.tests import factories
-from supplier.tests.factories import SupplierFactory
+from django.urls import reverse
+
+from company.models import Company
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 
 
 @pytest.mark.django_db
 def test_get_existing_company_by_ch_id(authed_client, authed_supplier):
-    url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_200_OK
 
 
 @pytest.mark.django_db
-def test_check_contents_of_get_existing_company_by_ch_id(
-        authed_client, authed_supplier):
+def test_get_existing_company_by_name(authed_client, authed_supplier):
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_check_contents_of_get_existing_company_by_ch_id(authed_client, authed_supplier, settings):
+    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+
     email_address = 'test@user.com'
     verification_code = '1234567890'
-    company = factories.CompanyFactory(
+    company = CompanyFactory(
         name='Test Company',
         date_of_creation=datetime.date(2000, 10, 10),
         email_address='test@user.com',
@@ -35,23 +42,35 @@ def test_check_contents_of_get_existing_company_by_ch_id(
     authed_supplier.company = company
     authed_supplier.save()
     company.refresh_from_db()
+
     assert company.verification_code
-    url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+
     response = authed_client.get(url)
-    assert 'letter_verification_code' in response.json()
-    assert response.json()['company_email'] == email_address
-    assert response.json()['letter_verification_code'] == verification_code
-    assert not response.json()['is_verification_letter_sent']
-    assert response.json()['is_uk_isd_company']
-    assert not response.json()['is_published_find_a_supplier']
-    assert not response.json()['is_published_investment_support_directory']
+
+    parsed = response.json()
+    assert 'letter_verification_code' in parsed
+    assert parsed['number'] == company.number
+    assert parsed['company_email'] == email_address
+    assert parsed['letter_verification_code'] == verification_code
+    assert parsed['is_verification_letter_sent']
+    assert parsed['is_uk_isd_company']
+    assert not parsed['is_published_find_a_supplier']
+    assert not parsed['is_published_investment_support_directory']
 
 
 @pytest.mark.django_db
 def test_get_company_by_ch_id_with_disabled_test_api(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    url = reverse('company_by_ch_id', kwargs={'ch_id': '12345678'})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': '12345678'})
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_company_by_name_with_disabled_test_api(client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'non existing company'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -61,32 +80,86 @@ def test_get_existing_company_by_ch_id_with_disabled_test_api(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 def test_get_company_by_non_existing_ch_id(client):
-    url = reverse('company_by_ch_id', kwargs={'ch_id': 'nonexisting'})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'nonexisting'})
     response = client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_patch_existing_company_by_name_to_verify_identity(authed_client, authed_supplier):
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number},
+    )
+    data = {
+        'verified_with_identity_check': True
+    }
+    response = authed_client.patch(url, data=data)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['verified_with_identity_check']
+
+
+@pytest.mark.django_db
+def test_patch_existing_company_with_no_data(authed_client, authed_supplier):
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number},
+    )
+    data = {}
+    response = authed_client.patch(url, data=data)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db
+def test_patch_existing_company_by_name_to_verify_with_code(authed_client, authed_supplier):
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={
+            'ch_id_or_name': authed_supplier.company.number
+        },
+    )
+    data = {
+        'verified_with_code': True
+    }
+    response = authed_client.patch(url, data=data)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['verified_with_code']
 
 
 @pytest.mark.django_db
 def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
     number = authed_supplier.company.number
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert models.Company.objects.filter(number=number).exists() is False
+    assert Company.objects.filter(number=number).exists() is False
 
 
 @pytest.mark.django_db
-def test_delete_non_existing_company_by_ch_id(authed_client):
+def test_delete_existing_company_by_name(authed_client, authed_supplier):
+    name = authed_supplier.company.name
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': 'invalid'})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': name})
+    response = authed_client.delete(url)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert Company.objects.filter(name=name).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_non_existing_company_by_ch_id_or_name(authed_client):
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'invalid'})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -96,7 +169,17 @@ def test_delete_existing_company_by_ch_id_with_disabled_testapi(
         authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse(
-        'company_by_ch_id', kwargs={'ch_id': authed_supplier.company.number})
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+    response = authed_client.delete(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_existing_company_by_name_with_disabled_testapi(
+        authed_client, authed_supplier, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    url = reverse(
+        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -225,7 +308,7 @@ def test_get_published_companies_check_response_contents(
     is_published_find_a_supplier = True
     expected_number_of_results = 1
     expected_number_of_keys = 15
-    company = factories.CompanyFactory(
+    company = CompanyFactory(
         name=name, number=number, email_address=email, sectors=sectors,
         employees=employees, website=website, keywords=keywords,
         facebook_url=facebook_url, linkedin_url=linkedin_url,
@@ -277,16 +360,16 @@ def test_get_published_companies_use_optional_filters(
         expected_number_of_results):
     sectors_1 = ['AEROSPACE', 'AUTOMOTIVE', 'DEFENCE']
     sectors_2 = ['AEROSPACE', 'AUTOMOTIVE']
-    company_1 = factories.CompanyFactory(
+    company_1 = CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_1
     )
-    company_2 = factories.CompanyFactory(
+    company_2 = CompanyFactory(
         is_published_investment_support_directory=True,
         sectors=sectors_2
     )
-    supplier_1 = SupplierFactory.create(sso_id=777)
-    supplier_2 = SupplierFactory.create(sso_id=888)
+    supplier_1 = CompanyUserFactory.create(sso_id=777)
+    supplier_2 = CompanyUserFactory.create(sso_id=888)
     supplier_1.company = company_1
     supplier_1.save()
     supplier_2.company = company_2
@@ -303,8 +386,7 @@ def test_get_published_companies_use_optional_filters(
 
 
 @pytest.mark.django_db
-def test_get_unpublished_companies_check_response_contents(
-        authed_client, authed_supplier):
+def test_get_unpublished_companies_check_response_contents(authed_client, authed_supplier):
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
@@ -323,16 +405,23 @@ def test_get_unpublished_companies_check_response_contents(
     # authed_client fixture creates 1 unpublished company
     expected_number_of_results = 2
     expected_number_of_keys = 15
-    company = factories.CompanyFactory(
-        name=name, number=number, email_address=email, sectors=sectors,
-        employees=employees, website=website, keywords=keywords,
-        facebook_url=facebook_url, linkedin_url=linkedin_url,
-        twitter_url=twitter_url, summary=summary, description=description,
+
+    company = CompanyFactory(
+        name=name,
+        number=number,
+        email_address=email,
+        sectors=sectors,
+        employees=employees,
+        website=website,
+        keywords=keywords,
+        facebook_url=facebook_url,
+        linkedin_url=linkedin_url,
+        twitter_url=twitter_url,
+        summary=summary,
+        description=description,
         is_uk_isd_company=is_uk_isd_company,
         is_published_find_a_supplier=is_published_find_a_supplier,
-        is_published_investment_support_directory=(
-            is_published_investment_support_directory
-        ),
+        is_published_investment_support_directory=is_published_investment_support_directory,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -341,6 +430,7 @@ def test_get_unpublished_companies_check_response_contents(
     response = authed_client.get(url)
     assert len(response.json()) == expected_number_of_results
     # authed_client fixture creates 1 unpublished company
+
     found_company = response.json()[1]
     assert len(found_company.keys()) == expected_number_of_keys
     assert found_company['name'] == name

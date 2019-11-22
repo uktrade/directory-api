@@ -1,4 +1,4 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from healthcheck import backends
 
@@ -19,57 +19,3 @@ def test_elasticsearch_ping_ok(mock_get_connection):
     backend.run_check()
 
     assert backend.pretty_status() == 'working'
-
-
-@patch('company.stannp.stannp_client.retrieve_balance',
-       Mock(side_effect=Exception('oops')))
-def test_stannp_balance_connection_error():
-    backend = backends.StannpBackend()
-    backend.run_check()
-
-    assert backend.pretty_status() == 'unavailable: (Stannp) oops'
-
-
-@patch('company.stannp.stannp_client.retrieve_balance',
-       Mock(return_value=Mock(status_code=500)))
-def test_stannp_balance_not_ok():
-    backend = backends.StannpBackend()
-    backend.run_check()
-
-    assert backend.pretty_status() == (
-        'unexpected result: Stannp returned 500 status code'
-    )
-
-
-@patch('company.stannp.stannp_client.retrieve_balance')
-def test_stannp_balance_ok(mock_retrieve_balance):
-    mock_retrieve_balance.return_value = Mock(
-        status_code=200,
-        json=lambda: {
-            'data': {
-                'balance': '100.02'
-            }
-        }
-    )
-    backend = backends.StannpBackend()
-    backend.run_check()
-
-    assert backend.pretty_status() == 'working'
-
-
-@patch('company.stannp.stannp_client.retrieve_balance')
-def test_stannp_balance_too_low(mock_retrieve_balance):
-    mock_retrieve_balance.return_value = Mock(
-        status_code=200,
-        json=lambda: {
-            'data': {
-                'balance': '49.99'
-            }
-        }
-    )
-    backend = backends.StannpBackend()
-    backend.run_check()
-
-    assert backend.pretty_status() == (
-        'unexpected result: Balance is 49.99. Top up soon.'
-    )

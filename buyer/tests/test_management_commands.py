@@ -13,10 +13,11 @@ from buyer.tests.factories import BuyerFactory
 )
 def test_upload_buyers_csv_to_s3(mocked_upload_file_object_to_s3):
     BuyerFactory.create_batch(5)
+    settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_ds_bucket'
     call_command('generate_buyers_csv_dump')
     assert mocked_upload_file_object_to_s3.called
     assert mocked_upload_file_object_to_s3.call_args == mock.call(
         file_object=mock.ANY,
         key=settings.BUYERS_CSV_FILE_NAME,
-        bucket=settings.CSV_DUMP_BUCKET_NAME,
+        bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
     )

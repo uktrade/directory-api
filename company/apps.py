@@ -8,15 +8,15 @@ class CompanyConfig(AppConfig):
     def ready(self):
         from company import signals
         pre_save.connect(
-            receiver=signals.publish_companies_that_meet_criteria,
-            sender='company.Company'
-        )
-        pre_save.connect(
             receiver=signals.store_date_published,
             sender='company.Company'
         )
         post_save.connect(
             receiver=signals.send_first_verification_letter,
+            sender='company.Company'
+        )
+        post_save.connect(
+            receiver=signals.send_company_claimed_letter,
             sender='company.Company'
         )
         post_save.connect(
@@ -31,15 +31,15 @@ class CompanyConfig(AppConfig):
             receiver=signals.delete_company_elasticsearch_document,
             sender='company.Company',
         )
-        post_save.connect(
-            receiver=signals.send_account_ownership_transfer_notification,
-            sender='company.OwnershipInvite'
+        pre_save.connect(
+            receiver=signals.set_non_companies_house_number,
+            sender='company.Company'
         )
         post_save.connect(
-            receiver=signals.send_account_collaborator_notification,
-            sender='company.CollaboratorInvite'
+            receiver=signals.send_new_invite_collaboration_notification,
+            sender='company.CollaborationInvite'
         )
         pre_save.connect(
-            receiver=signals.set_sole_trader_number,
-            sender='company.Company'
+            receiver=signals.send_acknowledgement_admin_email_on_invite_accept,
+            sender='company.CollaborationInvite'
         )

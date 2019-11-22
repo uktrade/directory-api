@@ -63,13 +63,13 @@ class Oauth2AuthenticationSSOView(BaseTestView):
 @patch.object(sso_api_client.user, 'get_session_user',
               wraps=sso_api_client.user.get_session_user)
 def test_sso_session_authentication_ok_session_id(
-    mock_get_session_user, sso_session_request_active_user, rf
+    mock_get_session_user, sso_session_request_active_user, rf, authed_supplier
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = SessionAuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
-    assert request.user.supplier.sso_id == 999
+    assert request.user.company_user.sso_id == authed_supplier.sso_id
     assert mock_get_session_user.call_args == call('123')
 
 
@@ -109,13 +109,13 @@ def test_sso_session_authentication_bad_session_value(
 @patch.object(sso_api_client.user, 'get_oauth2_user_profile',
               wraps=sso_api_client.user.get_oauth2_user_profile)
 def test_sso_oauth2_authentication_ok_oauth_token(
-    mock_get_oauth2_user_profile, sso_oauth2_request_active_user, rf
+    mock_get_oauth2_user_profile, sso_oauth2_request_active_user, rf, authed_supplier
 ):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='Bearer 123')
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 200
-    assert request.user.supplier.sso_id == 999
+    assert request.user.company_user.sso_id == authed_supplier.sso_id
     assert mock_get_oauth2_user_profile.call_args == call('123')
 
 

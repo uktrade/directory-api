@@ -5,7 +5,6 @@ from rest_framework import serializers
 from rest_framework.serializers import (
     Serializer,
     CharField,
-    BooleanField,
     ListField,
     ModelSerializer,
 )
@@ -16,11 +15,20 @@ from company.models import Company
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 
 
-class CompanySerializer(Serializer):
+class CompanySerializer(ModelSerializer):
 
-    letter_verification_code = CharField(max_length=10, read_only=True)
-    company_email = CharField(max_length=200, read_only=True)
-    is_verification_letter_sent = BooleanField(read_only=True)
+    class Meta:
+        model = Company
+        fields = (
+            'number',
+            'verification_code',
+            'email_address',
+            'is_verification_letter_sent',
+            'is_identity_check_message_sent',
+            'verified_with_identity_check',
+            'verified_with_code',
+        )
+        extra_kwargs = {}
 
 
 class ISDCompanySerializer(ModelSerializer):

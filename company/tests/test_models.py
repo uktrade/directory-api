@@ -1,14 +1,12 @@
 from unittest import mock
 import pytest
 
-from directory_constants import choices
-from directory_validators.company import no_html
+from directory_constants import choices, user_roles
+from directory_validators.string import no_html
 
 from django.db import IntegrityError
+from django_extensions.db.fields import ModificationDateTimeField, CreationDateTimeField
 
-from django_extensions.db.fields import (
-    ModificationDateTimeField, CreationDateTimeField
-)
 from company import models
 from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
 
@@ -109,6 +107,7 @@ def test_has_valid_address_all_values_missing():
 @pytest.mark.django_db
 def test_has_valid_address_all_values_present():
     company = CompanyFactory(
+        name='',
         postal_full_name='Mr Fakingham',
         address_line_1='123 fake street',
         postal_code='EM6 6EM',
@@ -125,22 +124,24 @@ def test_public_profile_url(settings):
     assert company.public_profile_url == 'http://profile/1234567'
 
 
-@pytest.mark.parametrize('code,preverfiied,oauth2,expected', [
-    [False, False, False, False],
-    [False, False, True,  True],
-    [False, True,  False, True],
-    [False, True,  True,  True],
-    [True,  False, True,  True],
-    [True,  False, True,  True],
-    [True,  False, False, True],
-    [True,  True,  False, True],
-    [True,  True,  True,  True],
+@pytest.mark.parametrize('code,preverfiied,oauth2,identity,expected', [
+    [False, False, False, False, False],
+    [False, False, True,  False,  True],
+    [False, True,  False, False,  True],
+    [False, True,  True,  True,   True],
+    [True,  False, True,  False,  True],
+    [True,  False, True,  False,  True],
+    [True,  False, False, False,  True],
+    [True,  True,  False, False,  True],
+    [False, False, False, True,   True],
+    [True,  True,  True,  True,   True],
 ])
-def test_company_is_verified(code, preverfiied, oauth2, expected):
+def test_company_is_verified(code, preverfiied, oauth2, identity, expected):
     company = CompanyFactory.build(
         verified_with_preverified_enrolment=preverfiied,
         verified_with_code=code,
         verified_with_companies_house_oauth2=oauth2,
+        verified_with_identity_check=identity,
     )
     assert company.is_verified is expected
 
@@ -218,3 +219,33 @@ def test_can_publish(
             email_address=email,
         )
         assert company.is_publishable is expected
+
+
+@pytest.mark.django_db
+def test_supplier_model_str():
+    company_user = models.CompanyUser(company_email='jim@example.com')
+
+    assert str(company_user) == 'jim@example.com'
+
+
+def test_user_model_has_update_create_timestamps():
+    field_names = [field.name for field in models.CompanyUser._meta.get_fields()]
+
+    assert 'created' in field_names
+    created_field = models.CompanyUser._meta.get_field('created')
+    assert created_field.__class__ is CreationDateTimeField
+
+    assert 'modified' in field_names
+    modified_field = models.CompanyUser._meta.get_field('modified')
+    assert modified_field.__class__ is ModificationDateTimeField
+
+
+@pytest.mark.django_db
+def test_user_model_is_company_owner_true():
+    assert models.CompanyUser(role=user_roles.ADMIN).is_company_owner is True
+
+
+@pytest.mark.django_db
+def test_user_model_is_company_owner_false():
+    assert models.CompanyUser(role=user_roles.EDITOR).is_company_owner is False
+    assert models.CompanyUser(role=user_roles.MEMBER).is_company_owner is False

@@ -9,15 +9,18 @@ from notifications import models
 @admin.register(models.SupplierEmailNotification)
 class SupplierEmailNotificationAdmin(admin.ModelAdmin):
     search_fields = (
-        'supplier__company_email', 'supplier__name',
-        'supplier__company__name', 'supplier__company__number')
+        'company_user__company_email',
+        'company_user__name',
+        'company_user__company__name',
+        'company_user__company__number'
+    )
     readonly_fields = ('date_sent', )
-    list_display = ('supplier', 'company_name', 'category', 'date_sent')
+    list_display = ('company_user', 'company_name', 'category', 'date_sent')
     list_filter = ('category',)
     date_hierarchy = 'date_sent'
 
     actions = ['download_csv']
-    csv_excluded_fields = ()
+    csv_excluded_fields = ('supplier',)
     csv_filename = 'find-a-buyer_supplier_email_notifications_{}.csv'.format(
         datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     )
@@ -38,7 +41,7 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
     )
 
     def company_name(self, obj):
-        return obj.supplier.company.name if obj.supplier.company else None
+        return obj.company_user.company.name if obj.company_user.company else None
 
 
 @admin.register(models.AnonymousEmailNotification)

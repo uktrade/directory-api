@@ -5,19 +5,17 @@ import pytest
 
 from freezegun import freeze_time
 
-from directory_validators import company as shared_validators
-
-from directory_constants import choices
+import directory_validators.string
+from directory_constants import company_types, choices, user_roles
 from pytz import UTC
 
-from company.tests import VALID_REQUEST_DATA
 from company import models, serializers, validators
-from company.tests.factories import CompanyFactory
+from company.tests import factories, VALID_REQUEST_DATA
 
 
 @pytest.fixture
 def company():
-    return CompanyFactory()
+    return factories.CompanyFactory()
 
 
 @pytest.fixture
@@ -145,14 +143,14 @@ def test_company_serializer_sole_trader():
         'locality': 'test_locality',
         'postal_code': 'test_postal_code',
         'country': 'test_country',
-        'company_type': models.Company.SOLE_TRADER,
+        'company_type': company_types.SOLE_TRADER,
     }
     serializer = serializers.CompanySerializer(data=data)
 
     assert serializer.is_valid(), serializer.errors
     instance = serializer.save()
 
-    assert instance.company_type == models.Company.SOLE_TRADER
+    assert instance.company_type == company_types.SOLE_TRADER
     assert instance.number.startswith('ST')
     assert len(instance.number) == 8
 
@@ -188,21 +186,7 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
 def test_company_serializer_has_keywords_shared_serializers():
     serializer = serializers.CompanySerializer()
     validators = serializer.fields['keywords'].validators
-    assert shared_validators.keywords_special_characters in validators
-    assert shared_validators.keywords_word_limit in validators
-
-
-@pytest.mark.django_db
-def test_company_serializer_doesnt_accept_number_under_8_chars():
-    data = {'number': "1234567"}
-    serializer = serializers.CompanySerializer(data=data)
-
-    valid = serializer.is_valid()
-
-    assert valid is False
-    assert 'number' in serializer.errors
-    error_msg = 'Company number must be 8 characters'
-    assert error_msg in serializer.errors['number']
+    assert directory_validators.string.no_special_characters in validators
 
 
 @pytest.mark.django_db
@@ -270,11 +254,9 @@ def test_company_number_serializer_validators():
 @pytest.mark.django_db
 def test_company_case_study_explicit_value(case_study_data):
     request = Mock()
-    company = CompanyFactory()
-    request.user.supplier.company = company
-    serializer = serializers.CompanyCaseStudySerializer(
-        data=case_study_data, context={'request': request}
-    )
+    company = factories.CompanyFactory()
+    request.user.company = company
+    serializer = serializers.CompanyCaseStudySerializer(data=case_study_data, context={'request': request})
 
     assert serializer.is_valid()
     data = serializer.validated_data
@@ -283,12 +265,8 @@ def test_company_case_study_explicit_value(case_study_data):
     assert data['website'] == case_study_data['website']
     assert data['testimonial'] == case_study_data['testimonial']
     assert data['testimonial_name'] == case_study_data['testimonial_name']
-    assert data['testimonial_job_title'] == (
-        case_study_data['testimonial_job_title']
-    )
-    assert data['testimonial_company'] == (
-        case_study_data['testimonial_company']
-    )
+    assert data['testimonial_job_title'] == case_study_data['testimonial_job_title']
+    assert data['testimonial_company'] == case_study_data['testimonial_company']
 
 
 @pytest.mark.django_db
@@ -331,3 +309,116 @@ def test_company_search_serializer_optional_field(field, field_value):
     )
 
     assert serializer.is_valid() is True
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_save():
+    company = factories.CompanyFactory(name='Test Company')
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
+    assert member.company == company
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_fail():
+    company = factories.CompanyFactory(name='Test Company')
+    data = {
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_company_not_found():
+    data = {
+        'name': 'Abc',
+        'company': -1,
+        'company_email': 'abc@def.com',
+        'role': user_roles.MEMBER
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_default_user_role():
+    company = factories.CompanyFactory(name='Test Company')
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
+
+
+@pytest.mark.django_db
+def test_supplier_serializer_defaults_to_empty_string():
+    data = {
+        "sso_id": '1',
+        "company_email": "henry@example.com",
+    }
+    serializer = serializers.CompanyUserSerializer(data=data)
+    assert serializer.is_valid()
+
+    supplier = serializer.save()
+
+    # NOTE: This test is just for peace of mind that we handle
+    # optional fields in a consistent manner
+    assert supplier.name == ''
+
+
+@pytest.mark.django_db
+def test_supplier_serializer_save():
+    serializer = serializers.CompanyUserSerializer(data={
+        "sso_id": 1,
+        "company_email": "gargoyle@example.com",
+        "date_joined": "2017-03-21T13:12:00Z",
+    })
+    serializer.is_valid(raise_exception=True)
+
+    supplier = serializer.save()
+
+    assert supplier.sso_id == 1
+    assert supplier.company_email == "gargoyle@example.com"
+    assert supplier.date_joined.year == 2017
+    assert supplier.date_joined.month == 3
+    assert supplier.date_joined.day == 21
+
+
+@pytest.mark.django_db
+def test_supplier_with_company_serializer_save():
+    company = factories.CompanyFactory.create(number='01234567')
+    serializer = serializers.CompanyUserSerializer(data={
+        'sso_id': 1,
+        'company_email': 'gargoyle@example.com',
+        'date_joined': '2017-03-21T13:12:00Z',
+        'company': company.pk
+    })
+    serializer.is_valid(raise_exception=True)
+
+    supplier = serializer.save()
+    assert supplier.company == company

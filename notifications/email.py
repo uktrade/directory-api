@@ -41,20 +41,17 @@ class NotificationBase(abc.ABC):
 class SupplierNotificationBase(NotificationBase):
     from_email = settings.FAB_FROM_EMAIL
 
-    def __init__(self, supplier):
-        self.supplier = supplier
+    def __init__(self, company_user):
+        self.company_user = company_user
 
     @property
     def recipient(self):
-        return Recipient(
-            name=self.supplier.name,
-            email=self.supplier.company_email
-        )
+        return Recipient(name=self.company_user.name, email=self.company_user.company_email)
 
     def send(self):
         text_body, html_body = self.get_bodies()
         models.SupplierEmailNotification.objects.create(
-            supplier=self.supplier,
+            company_user=self.company_user,
             category=self.category
         )
         core.tasks.send_email.delay(
@@ -107,20 +104,6 @@ class NoCaseStudiesNotification(SupplierNotificationBase):
         )
 
 
-class HasNotLoggedInRecentlyNotification(SupplierNotificationBase):
-    html_template = 'hasnt_logged_in_email.html'
-    category = constants.HASNT_LOGGED_IN
-    subject = settings.HASNT_LOGGED_IN_SUBJECT
-    text_template = 'hasnt_logged_in_email.txt'
-    unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
-
-    def get_context_data(self):
-        return super().get_context_data(
-            login_url=settings.HASNT_LOGGED_IN_URL,
-            utm_params=settings.HASNT_LOGGED_IN_UTM,
-        )
-
-
 class VerificationWaitingNotification(SupplierNotificationBase):
     html_template = 'verification_code_not_given_email.html'
     category = constants.VERIFICATION_CODE_NOT_GIVEN
@@ -129,9 +112,7 @@ class VerificationWaitingNotification(SupplierNotificationBase):
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
 
     def get_context_data(self):
-        return super().get_context_data(
-            verification_url=settings.VERIFICATION_CODE_URL,
-        )
+        return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL)
 
 
 class VerificationStillWaitingNotification(SupplierNotificationBase):
@@ -142,9 +123,7 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
 
     def get_context_data(self):
-        return super().get_context_data(
-            verification_url=settings.VERIFICATION_CODE_URL,
-        )
+        return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL,)
 
 
 class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):

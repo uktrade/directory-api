@@ -9,4 +9,4 @@ from company.models import Company
 def test_create_search_data():
     management.call_command('create_test_search_data')
 
-    assert Company.objects.count() == 110
+    assert Company.objects.count() == 120

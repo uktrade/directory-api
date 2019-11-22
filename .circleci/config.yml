@@ -1,39 +1,30 @@
 version: 2
 
-# Machines configs
-machine_python3_postgres: &machine_python3_postgres_redis
-  docker:
-    - image: circleci/python:3.6.6
-    - image: circleci/postgres:9.5-alpine-ram
-      environment:
-        POSTGRES_USER: debug
-        POSTGRES_PASSWORD: debug
-        POSTGRES_DB: directory_api_debug
-    - image: circleci/redis:3.2-alpine
-    - image: docker.elastic.co/elasticsearch/elasticsearch:6.7.1
-      ports: ["9200:9200"]
-      environment:
-        # Set memory
-        ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-        # Disable security
-        xpack.security.enabled: "false"
-        xpack.monitoring.enabled: "false"
-        xpack.graph.enabled: "false"
-        xpack.watcher.enabled: "false"
-        # Run in development mode to ignore bootstrap checks
-        transport.host: "localhost"
-
-
-# Individual (shared) steps.
-step_checkout_repo: &step_checkout_repo
-  checkout
-
-
 jobs:
   test:
-    <<: *machine_python3_postgres_redis
+    working_directory: /tmp/cci-test
+    docker:
+      - image: circleci/python:3.6.6
+      - image: circleci/postgres:9.5-alpine-ram
+        environment:
+          POSTGRES_USER: debug
+          POSTGRES_PASSWORD: debug
+          POSTGRES_DB: directory_api_debug
+      - image: circleci/redis:3.2-alpine
+      - image: docker.elastic.co/elasticsearch/elasticsearch:6.7.1
+        ports: ["9200:9200"]
+        environment:
+          # Set memory
+          ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+          # Disable security
+          xpack.security.enabled: "false"
+          xpack.monitoring.enabled: "false"
+          xpack.graph.enabled: "false"
+          xpack.watcher.enabled: "false"
+          # Run in development mode to ignore bootstrap checks
+          transport.host: "localhost"
     steps:
-      - *step_checkout_repo
+      - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
@@ -43,8 +34,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements_test.txt
+            make install_requirements
       - save_cache:
           key: v1-deps-{{ checksum "requirements_test.txt" }}
           paths:
@@ -66,13 +56,18 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            make debug_pytest
+            mkdir test-reports
+            make pytest -- --cov=. --cov-config=.coveragerc --cov-report=term --junitxml=test-reports/junit.xml
             codecov
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
   flake8:
     docker:
       - image: circleci/python:3.6.6
     steps:
-      - *step_checkout_repo
+      - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
@@ -81,7 +76,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install flake8
-            flake8 . --exclude=migrations,venv
+            flake8
 
 workflows:
   version: 2

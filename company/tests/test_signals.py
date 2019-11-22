@@ -1,82 +1,27 @@
 import datetime
 from unittest import mock
 
+from directory_constants import company_types
 import elasticsearch
 from freezegun import freeze_time
 import pytest
 
 from django.utils import timezone
 
-from company.models import Company
-from company.search import CompanyDocument
+from company import documents, models
 from company.tests import factories
 
 
-@pytest.mark.django_db
-def test_sends_verification_letter_post_save(settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
-    with mock.patch('requests.post') as requests_mock:
-        company = factories.CompanyFactory()
-
-    company.refresh_from_db()
-    assert company.verification_code
-
-    requests_mock.assert_called_once_with(
-        'https://dash.stannp.com/api/v1/letters/create',
-        auth=('debug', ''),
-        data={
-            'test': True,
-            'recipient[company_name]': company.name,
-            'recipient[country]': company.country,
-            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
-            'recipient[address1]': company.address_line_1,
-            'recipient[full_name]': company.postal_full_name,
-            'recipient[city]': company.locality,
-            'recipient[company]': company.name,
-            'recipient[postcode]': company.postal_code,
-            'recipient[title]': company.postal_full_name,
-            'recipient[address2]': company.address_line_2,
-            'recipient[verification_code]': company.verification_code,
-            'template': 'debug'
-        },
+@pytest.fixture(autouse=False)
+def non_registration_sent_company():
+    return factories.CompanyFactory(
+        id=100000000,
+        company_type=company_types.COMPANIES_HOUSE
     )
 
 
 @pytest.mark.django_db
-def test_does_not_send_verification_letter_on_update(settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
-    with mock.patch('requests.post') as requests_mock:
-        company = factories.CompanyFactory(name="Original name")
-        company.name = "Changed name"
-        company.save()
-
-    requests_mock.assert_called_once_with(
-        'https://dash.stannp.com/api/v1/letters/create',
-        auth=('debug', ''),
-        data={
-            'test': True,
-            'recipient[company_name]': 'Original name',
-            'recipient[country]': company.country,
-            'recipient[date]': datetime.date.today().strftime('%d/%m/%Y'),
-            'recipient[address1]': company.address_line_1,
-            'recipient[full_name]': company.postal_full_name,
-            'recipient[city]': company.locality,
-            'recipient[company]': 'Original name',
-            'recipient[postcode]': company.postal_code,
-            'recipient[title]': company.postal_full_name,
-            'recipient[address2]': company.address_line_2,
-            'recipient[verification_code]': company.verification_code,
-            'template': 'debug'
-        },
-    )
-
-
-@pytest.mark.django_db
-def test_does_not_overwrite_verification_code_if_already_set(settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
+def test_does_not_overwrite_verification_code_if_already_set():
     with mock.patch('requests.post'):
         company = factories.CompanyFactory(verification_code='test')
 
@@ -85,9 +30,8 @@ def test_does_not_overwrite_verification_code_if_already_set(settings):
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_verification_letter')
-def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+@mock.patch('company.helpers.send_verification_letter')
+def test_does_not_send_verification_if_letter_already_sent(mock_send_letter):
     factories.CompanyFactory(
         is_verification_letter_sent=True,
         verification_code='test',
@@ -98,57 +42,52 @@ def test_does_not_send_if_letter_already_sent(mock_send_letter, settings):
 
 @pytest.mark.django_db
 @freeze_time()
-@mock.patch('company.signals.send_verification_letter')
+@mock.patch('company.helpers.send_verification_letter')
 def test_letter_sent(mock_send_letter, settings):
     settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+
     company = factories.CompanyFactory(verification_code='test')
 
-    mock_send_letter.assert_called_with(company=company)
+    assert mock_send_letter.call_count == 1
+    assert mock_send_letter.call_args == mock.call(
+        company=company,
+        form_url='send_first_verification_letter'
+    )
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.send_verification_letter')
+@mock.patch('company.helpers.send_verification_letter')
 @mock.patch(
     'company.models.Company.has_valid_address',
     mock.Mock(return_value=False)
 )
-def test_unknown_address_not_send_letters(mock_send_letter, settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
+def test_unknown_address_not_send_letters(mock_send_letter):
     factories.CompanyFactory()
 
     mock_send_letter.send_letter.assert_not_called()
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('enabled,is_publishable,is_published,expected', [
-    [True, True, True, True],
-    [True, True, False, False],
-    [True, False, False, False],
-    [True, False, True, True],
-    [False, False, False, False],
-    [False, False, True, True],
-    [False, True, True, True],
-    [False, True, False, True],
-])
-def test_publish(enabled, is_publishable, is_published, expected, settings):
-    settings.FEATURE_MANUAL_PUBLISH_ENABLED = enabled
+@pytest.mark.parametrize('is_publishable,is_published,expected', [
+    [True, True, True],
+    [True, False, False],
+    [False, False, False],
+    [False, True, True],
 
-    company = factories.CompanyFactory.build(
-        is_published_find_a_supplier=is_published
-    )
+])
+def test_publish(is_publishable, is_published, expected, settings):
+    company = factories.CompanyFactory.build(is_published_find_a_supplier=is_published)
 
     mock_publishable = mock.PropertyMock(return_value=is_publishable)
 
-    with mock.patch.object(Company, 'is_publishable', mock_publishable):
+    with mock.patch.object(models.Company, 'is_publishable', mock_publishable):
         company.save()
     assert company.is_published_find_a_supplier is expected
 
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=False,
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=False,)
 
     assert company.date_published is None
 
@@ -200,48 +139,16 @@ def test_store_date_published_published_fab_company_with_date():
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'is_published_find_a_supplier,'
-    'call_count',
-    [
-        (False, 0),
-        (True, 1),
-    ]
-)
+@pytest.mark.parametrize('is_published_find_a_supplier,' 'call_count', [(False, 0), (True, 1)])
 def test_save_company_changes_to_elasticsearch(
-    is_published_find_a_supplier,
-    call_count,
-    mock_elasticsearch_company_save,
+    is_published_find_a_supplier, call_count, mock_elasticsearch_company_save
 ):
-    factories.CompanyFactory(
-        is_published_find_a_supplier=(
-            is_published_find_a_supplier
-        )
-    )
+    factories.CompanyFactory(is_published_find_a_supplier=is_published_find_a_supplier)
 
     assert mock_elasticsearch_company_save.call_count == call_count
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    'is_published_find_a_supplier,call_count',
-    [(False, 0), (True, 2)]
-)
-def test_save_case_study_changes_to_elasticsearch(
-    is_published_find_a_supplier,
-    call_count,
-    mock_elasticsearch_company_save,
-):
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=(
-            is_published_find_a_supplier
-        )
-    )
-    factories.CompanyCaseStudyFactory(company=company)
-
-    assert mock_elasticsearch_company_save.call_count == call_count
-
-
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -249,14 +156,15 @@ def test_delete_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -267,9 +175,10 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_isd_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -277,15 +186,16 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_fab_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -296,9 +206,10 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
     company.delete()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
+@pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_fab_company_from_elasticsearch():
     company = factories.CompanyFactory(
@@ -306,37 +217,119 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
     )
     company_pk = company.pk
 
-    CompanyDocument.get(id=company_pk)  # not raises if exists
+    documents.CompanyDocument.get(id=company_pk)  # not raises if exists
 
     company.is_published_find_a_supplier = False
     company.save()
 
     with pytest.raises(elasticsearch.exceptions.NotFoundError):
-        CompanyDocument.get(id=company_pk)
+        documents.CompanyDocument.get(id=company_pk)
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.OwnershipChangeNotification')
-def test_account_ownership_transfer_email_notification(mocked_notification):
-    factories.OwnershipInviteFactory()
-    assert mocked_notification().send_async.called is True
+@mock.patch('company.helpers.send_new_user_invite_email')
+def test_send_new_invite_collaboration_notification(mock_send_invite_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    assert mock_send_invite_email.call_count == 1
+    assert mock_send_invite_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        form_url='send_new_invite_collaborator_notification',
+    )
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+
+    assert mock_send_invite_email.call_count == 1
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.CollaboratorNotification')
-def test_account_collaborator_email_notification(mocked_notification):
-    factories.CollaboratorInviteFactory()
-    assert mocked_notification().send_async.called is True
+@mock.patch('company.helpers.send_new_user_invite_email_existing_company')
+def test_send_new_invite_collaboration_notification_existing_company(mock_send_invite_email):
+    existing_member = factories.CompanyUserFactory()
+
+    collaboration_invite = factories.CollaborationInviteFactory(
+        collaborator_email=existing_member.company_email,
+        company_user__company_email='test@test.com',
+    )
+    assert mock_send_invite_email.call_count == 1
+    assert mock_send_invite_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        existing_company_name=existing_member.company.name,
+        form_url='send_new_invite_collaborator_notification_existing',
+    )
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+
+    assert mock_send_invite_email.call_count == 1
 
 
 @pytest.mark.django_db
-@mock.patch('company.signals.CollaboratorNotification')
-def test_account_collaborator_email_notification_modified(mocked_notification):
-    invite = factories.CollaboratorInviteFactory()
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    factories.CompanyUserFactory.create(company_email=collaboration_invite.collaborator_email, name='myname')
 
-    # now modify it
+    assert mock_send_invite_accepted_email.call_count == 0
+    collaboration_invite.accepted = True
+    collaboration_invite.accepted_date = datetime.date.today()
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+    assert mock_send_invite_accepted_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        collaborator_name='myname',
+        form_url='send_acknowledgement_admin_email_on_invite_accept',
+    )
 
-    invite.accepted = True
-    invite.save()
 
-    assert mocked_notification().send_async.call_count == 1
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept_modified(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+
+    assert mock_send_invite_accepted_email.call_count == 0
+    collaboration_invite.accepted = False
+    collaboration_invite.save()
+
+    collaboration_invite.accepted = True
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+
+    collaboration_invite.collaborator_email = 'change@nochance.com'
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_accept_delete(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    collaboration_invite.delete()
+
+    assert mock_send_invite_accepted_email.call_count == 0
+
+
+@pytest.mark.django_db
+def test_set_companies_house_number():
+    company = factories.CompanyFactory(company_type=company_types.COMPANIES_HOUSE, number=10101010)
+    assert company.number == 10101010
+
+
+@pytest.mark.parametrize(
+    'company_type, '
+    'company_prefix, ',
+    [
+        [company_types.SOLE_TRADER, 'ST'],
+        [company_types.PARTNERSHIP, 'LP'],
+        [company_types.CHARITY, 'CE'],
+        ['OTHER', 'OT'],
+    ]
+)
+@pytest.mark.django_db
+def test_set_non_companies_house_number(company_type, company_prefix, settings):
+
+    company = factories.CompanyFactory(company_type=company_type)
+
+    seed = settings.SOLE_TRADER_NUMBER_SEED + 1
+
+    assert company.number == f'{company_prefix}{seed:06}'
