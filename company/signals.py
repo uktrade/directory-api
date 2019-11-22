@@ -13,6 +13,7 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
         settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
         not instance.is_verification_letter_sent,
         not instance.verified_with_preverified_enrolment,
+        instance.company_type == company_types.COMPANIES_HOUSE,
         instance.has_valid_address(),
     ])
     if should_send_letter:

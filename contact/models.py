@@ -18,9 +18,7 @@ class MessageToSupplier(TimeStampedModel):
         choices=choices.INDUSTRIES,
         max_length=255,
     )
-    recipient = models.ForeignKey(
-        Company, related_name='messages', null=True
-    )
+    recipient = models.ForeignKey(Company, related_name='messages', null=True, on_delete=models.SET_NULL)
     is_sent = models.BooleanField(default=False)
 
     def __str__(self):

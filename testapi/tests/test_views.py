@@ -3,7 +3,7 @@ import datetime
 import pytest
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from company.models import Company
 from company.tests.factories import CompanyFactory, CompanyUserFactory

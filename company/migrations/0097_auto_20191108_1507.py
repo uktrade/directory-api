@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import core.helpers
-import directory_validators.company
+import directory_validators.string
 import django.contrib.postgres.fields.jsonb
 import django.core.validators
 from django.db import migrations, models
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='company',
             name='export_destinations_other',
-            field=models.CharField(blank=True, default='', max_length=1000, validators=[directory_validators.company.no_html]),
+            field=models.CharField(blank=True, default='', max_length=1000, validators=[directory_validators.string.no_html]),
         ),
         migrations.AlterField(
             model_name='company',
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='company',
             name='number',
-            field=models.CharField(blank=True, help_text='For companies registered in companies house this is their companies house number. For non-companies house companies this is a randomly string.', max_length=8, null=True, unique=True, validators=[django.core.validators.RegexValidator(code='invalid_company_number', message='Company number must be 8 characters', regex='^[A-Za-z0-9]{8}$'), directory_validators.company.no_html]),
+            field=models.CharField(blank=True, help_text='For companies registered in companies house this is their companies house number. For non-companies house companies this is a randomly string.', max_length=8, null=True, unique=True, validators=[django.core.validators.RegexValidator(code='invalid_company_number', message='Company number must be 8 characters', regex='^[A-Za-z0-9]{8}$'), directory_validators.string.no_html]),
         ),
         migrations.AlterField(
             model_name='company',

@@ -5,8 +5,7 @@ import pytest
 
 from freezegun import freeze_time
 
-from directory_validators import company as shared_validators
-
+import directory_validators.string
 from directory_constants import company_types, choices, user_roles
 from pytz import UTC
 
@@ -187,21 +186,7 @@ def test_company_serializer_doesnt_allow_changing_modified_timestamp():
 def test_company_serializer_has_keywords_shared_serializers():
     serializer = serializers.CompanySerializer()
     validators = serializer.fields['keywords'].validators
-    assert shared_validators.keywords_special_characters in validators
-    assert shared_validators.keywords_word_limit in validators
-
-
-@pytest.mark.django_db
-def test_company_serializer_doesnt_accept_number_under_8_chars():
-    data = {'number': "1234567"}
-    serializer = serializers.CompanySerializer(data=data)
-
-    valid = serializer.is_valid()
-
-    assert valid is False
-    assert 'number' in serializer.errors
-    error_msg = 'Company number must be 8 characters'
-    assert error_msg in serializer.errors['number']
+    assert directory_validators.string.no_special_characters in validators
 
 
 @pytest.mark.django_db

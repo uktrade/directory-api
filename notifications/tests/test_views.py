@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 @pytest.mark.django_db

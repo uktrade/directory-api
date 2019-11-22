@@ -1,7 +1,7 @@
 from django.utils.timezone import now
 from rest_framework import serializers
 
-from directory_validators import company as shared_validators
+import directory_validators.string
 from directory_constants import choices, user_roles
 
 from django.conf import settings
@@ -74,7 +74,7 @@ class CompanySerializer(serializers.ModelSerializer):
     supplier_case_studies = CompanyCaseStudySerializer(many=True, required=False, read_only=True)
     has_valid_address = serializers.SerializerMethodField()
     keywords = serializers.CharField(
-        validators=[shared_validators.keywords_word_limit, shared_validators.keywords_special_characters],
+        validators=[directory_validators.string.word_limit(10), directory_validators.string.no_special_characters],
         required=False
     )
 
