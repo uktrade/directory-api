@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 import pytest
 
 from django.core import signing
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from company.models import Company, CompanyUser
 from company.tests.factories import CompanyFactory, CompanyUserFactory

@@ -2,7 +2,7 @@ from unittest import mock
 import pytest
 
 from directory_constants import choices, user_roles
-from directory_validators.company import no_html
+from directory_validators.string import no_html
 
 from django.db import IntegrityError
 from django_extensions.db.fields import ModificationDateTimeField, CreationDateTimeField

@@ -139,8 +139,10 @@ def send_verification_letter(company, form_url=None):
     template_id = settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID
     action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
     response = action.save({
-        **extract_recipient_address_gov_notify(company),
+        'full_name': company.postal_full_name,
+        'address_line_1': company.postal_full_name,
         'verification_code': company.verification_code,
+        **extract_recipient_address_gov_notify(company),
     })
     response.raise_for_status()
 
@@ -153,8 +155,9 @@ def send_registration_letter(company, form_url=None):
     template_id = settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID
     action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
     response = action.save({
+        'full_name': company.company_users.first().name,
+        'address_line_1': company.name,
         **extract_recipient_address_gov_notify(company),
-        'address_line_1': company.name  # Override since for registration letter we want to address the company
     })
     response.raise_for_status()
 
@@ -165,14 +168,12 @@ def send_registration_letter(company, form_url=None):
 
 def extract_recipient_address_gov_notify(company):
     return {
-        'address_line_1': company.postal_full_name,
         'address_line_2': company.address_line_1,
         'address_line_3': company.address_line_2,
         'address_line_4': company.locality,
         'address_line_5': company.country,
         'address_line_6': company.po_box,
         'postcode': company.postal_code,
-        'full_name': company.postal_full_name,
         'company_name': company.name,
     }
 

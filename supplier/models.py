@@ -13,7 +13,7 @@ from directory_constants import choices, user_roles
 class Supplier(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
-    company = models.ForeignKey(Company, related_name='suppliers', null=True, blank=True)
+    company = models.ForeignKey(Company, related_name='suppliers', null=True, blank=True, on_delete=models.SET_NULL)
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
         verbose_name='active',

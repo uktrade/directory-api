@@ -12,7 +12,7 @@ from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from company import admin, constants, models
 from company.tests import VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
