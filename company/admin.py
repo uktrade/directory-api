@@ -216,7 +216,7 @@ class CollaborationInviteAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.CollaborationRequest)
-class CollaborationInviteAdmin(admin.ModelAdmin):
+class CollaborationRequest(admin.ModelAdmin):
     search_fields = ('uuid', 'requestor',)
     list_display = ('uuid', 'requestor',)
     list_filter = ('accepted', 'role')

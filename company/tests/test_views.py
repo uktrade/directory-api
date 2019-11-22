@@ -2393,8 +2393,6 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.delete(url)
-    import pdb
-    pdb.set_trace()
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
     invite = factories.CollaborationInviteFactory(
