@@ -244,11 +244,17 @@ class CollaboratorRequestSerializer(serializers.ModelSerializer):
 
 class CollaborationRequestSerializer(serializers.ModelSerializer):
 
+    requestor_sso_id = serializers.IntegerField(
+        source='requestor.sso_id', required=False, read_only=True
+    )
+
     class Meta:
+
         model = models.CollaborationRequest
         fields = (
             'uuid',
             'requestor',
+            'requestor_sso_id',
             'name',
             'role',
             'accepted',
@@ -260,6 +266,12 @@ class CollaborationRequestSerializer(serializers.ModelSerializer):
             'uuid': {'read_only': True},
             'accepted': {'required': False},
         }
+
+    def update(self, instance, validated_data):
+        if validated_data.get('accepted') is True:
+            validated_data['accepted_date'] = now()
+            instance.requestor.role = instance.role
+        return super().update(instance, validated_data)
 
 
 class CollaborationInviteSerializer(serializers.ModelSerializer):

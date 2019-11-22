@@ -2201,8 +2201,8 @@ def test_collaboration_request_list(authed_supplier, authed_client):
 
 
 @pytest.mark.django_db
-def test_collaboration_request_delete(authed_supplier, authed_client):
-    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+def test_collaboration_request_delete(requestor_member, authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor_member)
     pk = collaboration_request.uuid
 
     url = reverse('collaboration-request-detail', kwargs={'uuid': pk})
@@ -2212,22 +2212,28 @@ def test_collaboration_request_delete(authed_supplier, authed_client):
     assert models.CollaborationRequest.objects.filter(pk=pk).exists() is False
 
 
+@freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_collaboration_request_update(authed_supplier, authed_client):
-    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+    requestor = factories.CompanyUserFactory(role=user_roles.MEMBER)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor, role=user_roles.ADMIN)
 
     url = reverse('collaboration-request-detail', kwargs={'uuid': collaboration_request.uuid})
     response = authed_client.patch(url, data={'accepted': True})
     assert response.status_code == status.HTTP_200_OK
+
     assert response.json() == {
                 'uuid': str(collaboration_request.uuid),
                 'requestor': collaboration_request.requestor.id,
+                'requestor_sso_id': collaboration_request.requestor.sso_id,
                 'name': collaboration_request.name,
                 'role': collaboration_request.role,
                 'accepted': True,
-                'accepted_date': mock.ANY
+                'accepted_date': '2016-11-23T11:21:10.977518Z',
     }
 
+    authed_supplier.refresh_from_db()
+    assert authed_supplier.role == user_roles.ADMIN
 
 
 @pytest.mark.django_db
@@ -2387,7 +2393,8 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.delete(url)
-
+    import pdb
+    pdb.set_trace()
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
     invite = factories.CollaborationInviteFactory(
@@ -2395,6 +2402,7 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
 
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
