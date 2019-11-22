@@ -176,7 +176,8 @@ def test_send_verification_letter_govnotify(mock_forms_api_gov_notify_letter):
 @pytest.mark.django_db
 @freeze_time()
 def test_send_registration_letter_govnotify(mock_forms_api_gov_notify_letter):
-    company = factories.CompanyFactory()
+    company_user = factories.CompanyUserFactory(name='Jim Example')
+    company = company_user.company
     helpers.send_registration_letter(company, form_url='send_company_claimed_letter_automatically_sent')
     assert mock_forms_api_gov_notify_letter.call_count == 1
     assert mock_forms_api_gov_notify_letter.call_args == mock.call(
@@ -191,7 +192,7 @@ def test_send_registration_letter_govnotify(mock_forms_api_gov_notify_letter):
         'address_line_5': company.country,
         'address_line_6': company.po_box,
         'postcode': company.postal_code,
-        'full_name': company.postal_full_name,
+        'full_name': 'Jim Example',
         'company_name': company.name,
     })
 
@@ -202,21 +203,19 @@ def test_send_registration_letter_govnotify(mock_forms_api_gov_notify_letter):
 
 @pytest.mark.django_db
 def test_extract_recipient_address_gov_notify():
-
-    company = factories.CompanyFactory()
+    company_user = factories.CompanyUserFactory(name='Jack Example')
+    company = company_user.company
 
     recipient = helpers.extract_recipient_address_gov_notify(company=company)
 
     assert recipient == {
-            'address_line_1': company.postal_full_name,
-            'address_line_2': company.address_line_1,
-            'address_line_3': company.address_line_2,
-            'address_line_4': company.locality,
-            'address_line_5': company.country,
-            'address_line_6': company.po_box,
-            'postcode': company.postal_code,
-            'full_name': company.postal_full_name,
-            'company_name': company.name,
+        'address_line_2': company.address_line_1,
+        'address_line_3': company.address_line_2,
+        'address_line_4': company.locality,
+        'address_line_5': company.country,
+        'address_line_6': company.po_box,
+        'postcode': company.postal_code,
+        'company_name': company.name,
     }
 
 

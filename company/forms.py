@@ -150,9 +150,7 @@ class EnrolCompanies(forms.Form):
         errors = []
         for i, row in enumerate(reader):
             company_type = company_type_parser(row[8])
-            is_uk_isd_company = (
-                self.cleaned_data['generated_for'] == constants.UK_ISD
-            )
+            is_uk_isd_company = self.cleaned_data['generated_for'] == constants.UK_ISD
             data = {
                 'company_type': company_type,
                 'facebook_url': row[11],
@@ -177,6 +175,12 @@ class EnrolCompanies(forms.Form):
                     'po_box': address.po_box,
                     'postal_code': address.postal_code,
                 })
+                if not address.line_1 or not address.postal_code:
+                    self.add_bulk_errors(
+                        errors=errors,
+                        row_number=i+2,
+                        line_errors='Invalid address. Must have line 1, line 2, and postal code. comma delimited.',
+                    )
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
@@ -191,7 +195,7 @@ class EnrolCompanies(forms.Form):
                     'generated_by': self.user.pk,
                     'company_number': form.instance.number,
                 })
-                assert pre_verified_form.is_valid
+                assert pre_verified_form.is_valid()
                 pre_verified_form.save()
             else:
                 if 'number' in form.errors:

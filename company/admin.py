@@ -4,7 +4,7 @@ from directory_constants.urls import domestic
 
 from django.contrib import admin, messages
 from django.conf.urls import url
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.signing import Signer
 from django.http import HttpResponse
 from django.template.response import TemplateResponse

@@ -1,8 +1,7 @@
 import uuid
 
 from directory_constants import choices, company_types, user_roles
-from directory_validators import enrolment as shared_validators
-from directory_validators.company import no_html
+from directory_validators.string import no_html
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -42,7 +41,7 @@ class Company(TimeStampedModel):
             'house companies this is a randomly string.'
         ),
         max_length=8,
-        validators=[shared_validators.company_number, no_html],
+        validators=[no_html],
         unique=True,
         null=True,
         blank=True,
@@ -158,7 +157,7 @@ class CompanyCaseStudy(TimeStampedModel):
     testimonial_name = models.CharField(max_length=255, blank=True, default='', validators=[no_html],)
     testimonial_job_title = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
     testimonial_company = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
-    company = models.ForeignKey(Company, related_name='supplier_case_studies')
+    company = models.ForeignKey(Company, related_name='supplier_case_studies', on_delete=models.CASCADE)
     slug = models.SlugField()
 
     class Meta:
@@ -175,7 +174,9 @@ class CompanyCaseStudy(TimeStampedModel):
 class CompanyUser(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
-    company = models.ForeignKey(Company, related_name='company_users', null=True, blank=True)
+    company = models.ForeignKey(
+        Company, related_name='company_users', null=True, blank=True, on_delete=models.SET_NULL
+    )
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
         verbose_name='active',
@@ -207,9 +208,10 @@ class CollaborationInvite(TimeStampedModel):
 
     uuid = models.UUIDField(default=uuid.uuid4)
     collaborator_email = models.EmailField()
-    company = models.ForeignKey(Company, null=True, blank=True)
-    requestor = models.ForeignKey('supplier.Supplier', null=True, blank=True)  # deprecated. user company_user
-    company_user = models.ForeignKey(CompanyUser)
+    company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.CASCADE)
+    # deprecated. user company_user
+    requestor = models.ForeignKey('supplier.Supplier', null=True, blank=True, on_delete=models.CASCADE)
+    company_user = models.ForeignKey(CompanyUser, on_delete=models.CASCADE)
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
