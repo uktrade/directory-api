@@ -155,21 +155,16 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/collaborator-request/$',
-        company.views.CollaboratorRequestView.as_view(),
+        company.views.CollaborationRequestView.as_view(
+            ({'post': 'create', 'get': 'list'})),
         name='collaborator-request'
     ),
     url(
-        r'^supplier/company/collaboration-request/$',
-        company.views.CollaborationRequestView.as_view(
-            ({'post': 'create', 'get': 'list'})),
-        name='collaboration-request'
-    ),
-    url(
-        r'^supplier/company/collaboration-request/(?P<uuid>.*)/$',
+        r'^supplier/company/collaborator-request/(?P<uuid>.*)/$',
         company.views.CollaborationRequestView.as_view(
             {'patch': 'partial_update', 'delete': 'destroy'}
         ),
-        name='collaboration-request-detail'
+        name='collaborator-request-detail'
     ),
     url(
         r'^supplier/company/add-collaborator/$',

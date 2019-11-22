@@ -213,19 +213,6 @@ class RemoveCollaboratorsView(views.APIView):
         return Response()
 
 
-class CollaboratorRequestView(generics.CreateAPIView):
-    # deprecated in favour of CollaborationRequestView request once released
-    serializer_class = serializers.CollaboratorRequestSerializer
-    permission_classes = []
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        data = {'company_email': serializer.instance.company.email_address}
-        return Response(data, status=201)
-
-
 class CollaborationRequestView(viewsets.ModelViewSet):
     serializer_class = serializers.CollaborationRequestSerializer
     queryset = models.CollaborationRequest.objects.all()

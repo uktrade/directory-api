@@ -204,6 +204,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         self.freezer.stop()
 
     def test_download_csv_single_case_study(self):
+
         case_study = CompanyCaseStudyFactory()
 
         data = {
@@ -527,7 +528,6 @@ class DownloadCSVTestCase(TestCase):
             data,
             follow=True
         )
-
         expected_data = OrderedDict([
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
