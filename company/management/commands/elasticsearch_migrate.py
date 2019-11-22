@@ -5,7 +5,6 @@ from django.utils.crypto import get_random_string
 from django.core import management
 from django.conf import settings
 from django.db.models import Q
-import requests
 
 from company import documents
 from company import models
@@ -48,14 +47,6 @@ class Command(management.BaseCommand):
         index_template = documents.CompanyDocument._index.as_template(ALIAS, PATTERN)
         index_template.save()
 
-    def delete_old_indexs(self):
-        for ii in self.client.indices.get_alias('*'):
-            if not ii.startswith('companies'):
-                print(ii)
-            else:
-                print(f'deleting {ii}')
-                requests.delete(f'http://localhost:9200/{ii}?master_timeout=60s')
-
     def populate_new_indices(self):
         companies = (
             models.Company.objects
@@ -80,7 +71,6 @@ class Command(management.BaseCommand):
 
     def handle(self, *args, **options):
         if settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX:
-            self.delete_old_indexs()
             self.create_index_template()
             self.client.indices.create(self.new_index_name)
             self.populate_new_indices()
