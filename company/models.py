@@ -219,7 +219,7 @@ class CollaborationInvite(TimeStampedModel):
 
 class CollaborationRequest(TimeStampedModel):
     uuid = models.UUIDField(default=uuid.uuid4)
-    requestor = models.ForeignKey(CompanyUser)
+    requestor = models.ForeignKey(CompanyUser, on_delete=models.CASCADE)
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
