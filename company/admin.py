@@ -215,6 +215,15 @@ class CollaborationInviteAdmin(admin.ModelAdmin):
     list_filter = ('accepted', 'role')
 
 
+@admin.register(models.CollaborationRequest)
+class CollaborationRequestAdmin(admin.ModelAdmin):
+    search_fields = ('uuid', 'role', 'requestor', )
+
+    readonly_fields = ('accepted', 'accepted_date',)
+    list_display = ('uuid', 'requestor', 'role')
+    list_filter = ('accepted', 'role')
+
+
 @admin.register(models.CompanyUser)
 class CompanyUserAdmin(admin.ModelAdmin):
 

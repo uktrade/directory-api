@@ -219,27 +219,35 @@ class RemoveCollaboratorsSerializer(serializers.Serializer):
     sso_ids = serializers.ListField(child=serializers.IntegerField())
 
 
-class CollaboratorRequestSerializer(serializers.ModelSerializer):
+class CollaborationRequestSerializer(serializers.ModelSerializer):
+
+    requestor_sso_id = serializers.IntegerField(source='requestor.sso_id', required=False, read_only=True)
 
     class Meta:
-        model = models.CollaboratorRequest
-        fields = (
-            'collaborator_email',
-            'company',
-        )
 
-    def to_internal_value(self, data):
-        if isinstance(data, QueryDict):
-            data = data.dict()
-        try:
-            company = models.Company.objects.get(number=data['company_number'])
-        except models.Company.DoesNotExist:
-            raise serializers.ValidationError({
-                '__all__': 'Company does not exist'
-            })
-        else:
-            data['company'] = company.pk
-        return super().to_internal_value(data)
+        model = models.CollaborationRequest
+        fields = (
+            'uuid',
+            'requestor',
+            'requestor_sso_id',
+            'name',
+            'role',
+            'accepted',
+            'accepted_date',
+        )
+        extra_kwargs = {
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'name': {'required': False},  # passed in .save by the view, not in the request
+            'uuid': {'read_only': True},
+            'accepted': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        if validated_data.get('accepted') is True:
+            validated_data['accepted_date'] = now()
+            instance.requestor.role = instance.role
+            instance.requestor.save()
+        return super().update(instance, validated_data)
 
 
 class CollaborationInviteSerializer(serializers.ModelSerializer):

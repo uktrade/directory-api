@@ -213,16 +213,26 @@ class RemoveCollaboratorsView(views.APIView):
         return Response()
 
 
-class CollaboratorRequestView(generics.CreateAPIView):
-    serializer_class = serializers.CollaboratorRequestSerializer
-    permission_classes = []
+class CollaborationRequestView(viewsets.ModelViewSet):
+    serializer_class = serializers.CollaborationRequestSerializer
+    queryset = models.CollaborationRequest.objects.all()
+    lookup_field = 'uuid'
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        data = {'company_email': serializer.instance.company.email_address}
-        return Response(data, status=201)
+    def get_permissions(self):
+        if self.action == 'partial_update':
+            permission_classes = [IsAuthenticatedSSO, permissions.IsCompanyAdmin]
+        else:
+            permission_classes = [IsAuthenticatedSSO]
+        return [permission() for permission in permission_classes]
+
+    def perform_create(self, serializer):
+        serializer.save(
+            requestor=self.request.user.company_user,
+            name=self.request.user.company_user.name,
+        )
+
+    def get_queryset(self):
+        return self.queryset.filter(requestor__company__id=self.request.user.company.id)
 
 
 class CollaborationInviteViewSet(viewsets.ModelViewSet):

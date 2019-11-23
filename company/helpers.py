@@ -313,6 +313,7 @@ def generate_company_users_csv(file_object, queryset):
         'collaboratorinvite',
         'collaborationinvite',
         'company__collaborationinvite',
+        'collaborationrequest'
     )
     fieldnames = [field.name for field in models.CompanyUser._meta.get_fields()
                   if field.name not in csv_excluded_fields]

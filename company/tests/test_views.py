@@ -2096,49 +2096,85 @@ def test_multi_user_account_management_views_forbidden(authed_client, authed_sup
 
 
 @pytest.mark.django_db
-def test_collaborator_request(client):
-    company = factories.CompanyFactory()
+def test_collaboration_request_create(authed_supplier, authed_client):
 
     url = reverse('collaborator-request')
     data = {
-        'company_number': company.number,
-        'collaborator_email': 'test@example.com',
-    }
-    response = client.post(url, data, format='json')
-
+        'role': user_roles.ADMIN,
+     }
+    response = authed_client.post(url, data, format='json')
     assert response.status_code == 201
-    assert response.json() == {'company_email': company.email_address}
+    collaboration_request = models.CollaborationRequest.objects.get(requestor=authed_supplier)
+    assert collaboration_request.name == authed_supplier.name
+    assert collaboration_request.role == user_roles.ADMIN
+    assert collaboration_request.accepted is False
+    assert collaboration_request.accepted_date is None
 
 
 @pytest.mark.django_db
-def test_collaborator_request_incorrect_number(client):
-    url = reverse('collaborator-request')
-    data = {
-        'company_number': 'asdsadas',
-        'collaborator_email': 'test@example.com',
-    }
-    response = client.post(url, data, format='json')
-
-    assert response.status_code == 400
-    assert response.json() == {'__all__': 'Company does not exist'}
+def test_collaboration_request_list(authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+    factories.CollaborationRequestFactory()
+    response = authed_client.get(reverse('collaborator-request'))
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+            {
+                'uuid': str(collaboration_request.uuid),
+                'requestor': collaboration_request.requestor.id,
+                'requestor_sso_id': collaboration_request.requestor.sso_id,
+                'name': collaboration_request.name,
+                'role': collaboration_request.role,
+                'accepted': False,
+                'accepted_date': None
+            }
+    ]
 
 
 @pytest.mark.django_db
-def test_collaborator_multiple_times(client):
-    company = factories.CompanyFactory()
+def test_collaboration_request_delete(authed_supplier, authed_client):
+    requestor = factories.CompanyUserFactory(company=authed_supplier.company)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor)
+    pk = collaboration_request.uuid
 
-    url = reverse('collaborator-request')
+    url = reverse('collaborator-request-detail', kwargs={'uuid': pk})
+    response = authed_client.delete(url)
+
+    assert response.status_code == http.client.NO_CONTENT
+    assert models.CollaborationRequest.objects.filter(pk=pk).exists() is False
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_collaboration_request_update(authed_supplier, authed_client):
+    requestor = factories.CompanyUserFactory(role=user_roles.MEMBER, company=authed_supplier.company)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor, role=user_roles.ADMIN)
+
+    url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+    assert response.status_code == status.HTTP_200_OK
     data = {
-        'company_number': company.number,
-        'collaborator_email': 'test@example.com',
+        'uuid': str(collaboration_request.uuid),
+        'requestor': collaboration_request.requestor.id,
+        'requestor_sso_id': collaboration_request.requestor.sso_id,
+        'name': collaboration_request.name,
+        'role': collaboration_request.role,
+        'accepted': True,
+        'accepted_date': '2016-11-23T11:21:10.977518Z',
     }
-    response = client.post(url, data, format='json')
+    assert response.json() == data
 
-    assert response.status_code == 201
+    requestor.refresh_from_db()
+    assert requestor.role == user_roles.ADMIN
 
-    response = client.post(url, data, format='json')
 
-    assert response.status_code == 400
+@pytest.mark.django_db
+def test_collaboration_request_update_different_company(authed_client):
+    collaboration_request = factories.CollaborationRequestFactory()
+
+    url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
@@ -2241,11 +2277,10 @@ def test_collaboration_invite_retrieve(client, authed_supplier):
 def test_collaboration_invite_update(authed_client, authed_supplier):
     # at this point the user's supplier has not yet been created
     authed_supplier.delete()
-
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
-
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
@@ -2506,14 +2541,8 @@ def test_company_collaborators_profile_owner(authed_supplier, authed_client):
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
-    company_user_one = factories.CompanyUserFactory(
-        company=authed_supplier.company,
-        role=user_roles.EDITOR,
-    )
-    company_user_two = factories.CompanyUserFactory(
-        company=authed_supplier.company,
-        role=user_roles.EDITOR,
-    )
+    company_user_one = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_two = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
     factories.CompanyUserFactory()
 
     url = reverse('supplier-company-collaborators-list')
