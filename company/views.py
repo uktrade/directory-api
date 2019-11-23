@@ -232,8 +232,6 @@ class CollaborationRequestView(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        if self.action in ['destroy', 'partial_update']:
-            return self.queryset
         return self.queryset.filter(requestor__company__id=self.request.user.company.id)
 
 

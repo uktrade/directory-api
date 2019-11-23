@@ -217,6 +217,14 @@ class CollaborationInvite(TimeStampedModel):
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
 
 
+class CollaboratorRequest(TimeStampedModel):
+    collaborator_email = models.EmailField()
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('collaborator_email', 'company')
+
+
 class CollaborationRequest(TimeStampedModel):
     uuid = models.UUIDField(default=uuid.uuid4)
     requestor = models.ForeignKey(CompanyUser, on_delete=models.CASCADE)

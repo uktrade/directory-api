@@ -11,7 +11,7 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0099_auto_20191108_1638'),
+        ('company', '0100_auto_20191121_1142'),
     ]
 
     operations = [

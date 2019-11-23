@@ -216,7 +216,7 @@ class CollaborationInviteAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.CollaborationRequest)
-class CollaborationRequest(admin.ModelAdmin):
+class CollaborationRequestAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'role', 'requestor', )
 
     readonly_fields = ('accepted', 'accepted_date',)

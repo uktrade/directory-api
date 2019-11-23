@@ -49,11 +49,6 @@ default_ordering_values = {
 }
 
 
-@pytest.fixture
-def company_user_member():
-    return factories.CompanyUserFactory.create(role=user_roles.MEMBER)
-
-
 @pytest.mark.django_db
 def test_company_retrieve_no_company(authed_client, authed_supplier):
     authed_supplier.company = None
@@ -2136,8 +2131,9 @@ def test_collaboration_request_list(authed_supplier, authed_client):
 
 
 @pytest.mark.django_db
-def test_collaboration_request_delete(company_user_member, authed_client):
-    collaboration_request = factories.CollaborationRequestFactory(requestor=company_user_member)
+def test_collaboration_request_delete(authed_supplier, authed_client):
+    requestor = factories.CompanyUserFactory(company=authed_supplier.company)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor)
     pk = collaboration_request.uuid
 
     url = reverse('collaborator-request-detail', kwargs={'uuid': pk})
@@ -2150,7 +2146,7 @@ def test_collaboration_request_delete(company_user_member, authed_client):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_collaboration_request_update(authed_supplier, authed_client):
-    requestor = factories.CompanyUserFactory(role=user_roles.MEMBER)
+    requestor = factories.CompanyUserFactory(role=user_roles.MEMBER, company=authed_supplier.company)
     collaboration_request = factories.CollaborationRequestFactory(requestor=requestor, role=user_roles.ADMIN)
 
     url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
@@ -2167,8 +2163,18 @@ def test_collaboration_request_update(authed_supplier, authed_client):
     }
     assert response.json() == data
 
-    authed_supplier.refresh_from_db()
-    assert authed_supplier.role == user_roles.ADMIN
+    requestor.refresh_from_db()
+    assert requestor.role == user_roles.ADMIN
+
+
+@pytest.mark.django_db
+def test_collaboration_request_update_different_company(authed_client):
+    collaboration_request = factories.CollaborationRequestFactory()
+
+    url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db

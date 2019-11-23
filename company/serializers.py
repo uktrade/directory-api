@@ -221,9 +221,7 @@ class RemoveCollaboratorsSerializer(serializers.Serializer):
 
 class CollaborationRequestSerializer(serializers.ModelSerializer):
 
-    requestor_sso_id = serializers.IntegerField(
-        source='requestor.sso_id', required=False, read_only=True
-    )
+    requestor_sso_id = serializers.IntegerField(source='requestor.sso_id', required=False, read_only=True)
 
     class Meta:
 
@@ -248,6 +246,7 @@ class CollaborationRequestSerializer(serializers.ModelSerializer):
         if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
             instance.requestor.role = instance.role
+            instance.requestor.save()
         return super().update(instance, validated_data)
 
 
