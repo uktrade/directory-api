@@ -5,8 +5,76 @@ from rest_framework import status
 
 from django.urls import reverse
 
+from buyer.tests.factories import BuyerFactory
 from company.models import Company
 from company.tests.factories import CompanyFactory, CompanyUserFactory
+
+
+@pytest.mark.django_db
+def test_get_buyer_by_email(authed_client):
+    buyer = BuyerFactory()
+    url = reverse('buyer_by_email', kwargs={'email': buyer.email})
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['name'] == buyer.name
+    assert response.json()['email'] == buyer.email
+    assert response.json()['sector'] == buyer.sector
+    assert response.json()['country'] == buyer.country
+    assert response.json()['company_name'] == buyer.company_name
+
+
+@pytest.mark.django_db
+def test_get_buyer_by_email_as_anonymous_client(client):
+    url = reverse('buyer_by_email', kwargs={'email': 'some@email.com'})
+    response = client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_buyer_by_email_with_disabled_test_api(authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    buyer = BuyerFactory()
+    url = reverse('buyer_by_email', kwargs={'email': buyer.email})
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_get_buyer_by_email_not_found(authed_client):
+    url = reverse('buyer_by_email', kwargs={'email': 'doesnotexist@email.com'})
+    response = authed_client.get(url)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json()['detail'] == 'Not found.'
+
+
+@pytest.mark.parametrize(
+    'method',
+    [
+        'delete',
+        'head',
+        'options',
+        'patch',
+        'post',
+        'put',
+        'trace',
+    ]
+)
+@pytest.mark.django_db
+def test_get_buyer_by_email_does_not_accept_all_http_methods(
+        authed_client, client, method
+):
+    url = reverse('buyer_by_email', kwargs={'email': 'some@email.com'})
+    methods = {
+        'delete': authed_client.delete,
+        'head': client.head,
+        'options': authed_client.options,
+        'patch': authed_client.patch,
+        'post': authed_client.post,
+        'put': authed_client.put,
+        'trace': client.trace,
+    }
+    response = methods[method](url, data=None)
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 
 
 @pytest.mark.django_db
