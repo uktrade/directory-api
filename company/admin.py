@@ -1,19 +1,83 @@
-import datetime
+from datetime import timedelta
 
 from directory_constants.urls import domestic
 
-from django.contrib import admin, messages
+from django import forms
 from django.conf.urls import url
-from django.urls import reverse_lazy
+from django.contrib import admin, messages
 from django.core.signing import Signer
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import FormView
-from django import forms
 
 from core.helpers import generate_csv_response
 from company import helpers, models
 from company.forms import EnrolCompanies, UploadExpertise
+
+
+class GDPRComplianceFilter(admin.SimpleListFilter):
+    title = 'GDPR compliance'
+    parameter_name = 'gpr'
+
+    def lookups(self, request, model_admin):
+        return (
+            (True, 'is not compliant'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            three_years_ago = timezone.now() - timedelta(days=365 * 3)
+            queryset = queryset.filter(modified__date__lte=three_years_ago)
+        return queryset
+
+
+class PublishedLocationFilter(admin.SimpleListFilter):
+    title = 'places published'
+    parameter_name = 'published_location_name'
+    ISD = 'ISD'
+    FAS = 'FAS'
+    ALL = 'ALL'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.FAS, 'Find a Supplier'),
+            (self.ISD, 'Investment Support Directory'),
+            (self.ALL, 'Either'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        isd = queryset.filter(is_published_investment_support_directory=True)
+        fas = queryset.filter(is_published_find_a_supplier=True)
+        if value == self.ALL:
+            queryset = isd | fas
+        elif value == self.ISD:
+            queryset = isd
+        elif value == self.FAS:
+            queryset = fas
+        return queryset
+
+
+class VerificationMethodFilter(admin.SimpleListFilter):
+    title = 'verification method'
+    parameter_name = 'verification_method'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('verified_with_preverified_enrolment', 'Preverified'),
+            ('verified_with_code', 'Letter'),
+            ('verified_with_companies_house_oauth2', 'Companies House'),
+            ('verified_with_identity_check', 'Identity check'),
+        )
+
+    def queryset(self, request, queryset):
+        field = self.value()
+        if field:
+            queryset = queryset.filter(**{field: True})
+        return queryset
 
 
 class CompaniesCreateFormView(FormView):
@@ -141,11 +205,10 @@ class CompanyAdmin(admin.ModelAdmin):
         'is_published_find_a_supplier',
     )
     list_filter = (
-        'is_published_investment_support_directory',
-        'is_published_find_a_supplier',
-        'verified_with_code',
-        'verified_with_companies_house_oauth2',
+        PublishedLocationFilter,
+        VerificationMethodFilter,
         'companies_house_company_status',
+        GDPRComplianceFilter,
     )
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent', 'date_registration_letter_sent')
 
@@ -188,8 +251,7 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     actions = ['download_csv']
 
-    csv_filename = 'find-a-buyer_case_studies_{}.csv'.format(
-                datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    csv_filename = 'find-a-buyer_case_studies_{}.csv'.format(timezone.now().strftime("%Y%m%d%H%M%S"))
     csv_excluded_fields = []
 
     def download_csv(self, request, queryset):
@@ -240,9 +302,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
         """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = (
-            'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(
-                datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-            )
+            'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(timezone.now().strftime("%Y%m%d%H%M%S"))
         )
         helpers.generate_company_users_csv(file_object=response, queryset=queryset)
         return response

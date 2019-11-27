@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import timedelta
 import http
 import os
 from unittest import TestCase
@@ -11,12 +12,13 @@ import pytest
 from django.conf import settings
 from django.test import Client
 from django.contrib.auth.models import User
+from django.contrib.admin import site
 from django.core.signing import Signer
 from django.urls import reverse
+from django.utils import timezone
 
 from company import admin, constants, models
-from company.tests import VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
-from company.tests.factories import CompanyFactory, CompanyCaseStudyFactory
+from company.tests import factories, VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
 from enrolment.models import PreVerifiedEnrolment
 
 
@@ -41,12 +43,12 @@ class PublishCompaniesTestCase(TestCase):
         assert response.status_code == http.client.OK
 
     def test_companies_in_post_set_to_published(self):
-        companies = CompanyFactory.create_batch(
+        companies = factories.CompanyFactory.create_batch(
             7,
             is_published_investment_support_directory=False,
             is_published_find_a_supplier=False,
         )
-        published_company_isd = CompanyFactory(is_published_investment_support_directory=True)
+        published_company_isd = factories.CompanyFactory(is_published_investment_support_directory=True)
 
         numbers = '{num1},{num2}'.format(
             num1=companies[0].number, num2=companies[3].number)
@@ -108,7 +110,7 @@ class CompanyAdminAuthTestCase(TestCase):
         assert response.status_code == 401
 
     def test_nonsuperuser_cannot_access_company_publish_view_post(self):
-        company = CompanyFactory()
+        company = factories.CompanyFactory()
         user = User.objects.create_user(username='user', email='user@example.com', password='test')
         self.client.force_login(user)
         url = reverse('admin:company_company_publish')
@@ -129,7 +131,7 @@ class CompanyAdminAuthTestCase(TestCase):
 
     def test_guest_cannot_access_company_publish_view_post(self):
         url = reverse('admin:company_company_publish')
-        company = CompanyFactory()
+        company = factories.CompanyFactory()
 
         response = self.client.post(
             url, {'company_numbers': company.number})
@@ -152,7 +154,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
     assert form.errors['company_numbers'] == [msg]
 
     # some exist, some don't
-    company = CompanyFactory()
+    company = factories.CompanyFactory()
     data = {
         'company_numbers': '{num},23456789'.format(num=company.number)
     }
@@ -165,7 +167,7 @@ def test_companies_publish_form_doesnt_allow_numbers_that_dont_exist():
 
 @pytest.mark.django_db
 def test_companies_publish_form_handles_whitespace():
-    companies = CompanyFactory.create_batch(3)
+    companies = factories.CompanyFactory.create_batch(3)
     data = '    {num1},{num2} , {num3},'.format(
         num1=companies[0].number, num2=companies[1].number,
         num3=companies[2].number)
@@ -205,7 +207,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
     def test_download_csv_single_case_study(self):
 
-        case_study = CompanyCaseStudyFactory()
+        case_study = factories.CompanyCaseStudyFactory()
 
         data = {
             'action': 'download_csv',
@@ -236,7 +238,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[1] == row_one
 
     def test_download_csv_multiple_multiple_case_studies(self):
-        case_studies = CompanyCaseStudyFactory.create_batch(3)
+        case_studies = factories.CompanyCaseStudyFactory.create_batch(3)
         data = {
             'action': 'download_csv',
             '_selected_action': models.CompanyCaseStudy.objects.all().values_list(
@@ -374,22 +376,22 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
     def test_upload_expertise_companies_form_success(self):
 
-        company_1 = CompanyFactory(
+        company_1 = factories.CompanyFactory(
             name='Test 1',
         )
-        company_2 = CompanyFactory(
+        company_2 = factories.CompanyFactory(
             number='74897421',
         )
-        company_3 = CompanyFactory(
+        company_3 = factories.CompanyFactory(
             name='Test 3',
             number='23242314',
             expertise_products_services={},
         )
-        CompanyFactory(
+        factories.CompanyFactory(
             name='Test 4',
             number='',
         )
-        CompanyFactory(
+        factories.CompanyFactory(
             name='Test 4',
         )
 
@@ -457,7 +459,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
     def test_create_companies_form_existing(self):
 
-        company = CompanyFactory(number=12355434)
+        company = factories.CompanyFactory(number=12355434)
         assert company.is_uk_isd_company is False
 
         file_path = os.path.join(
@@ -907,3 +909,137 @@ class ResendLetterTestCase(TestCase):
             response.request,
             '1 users skipped'
         )
+
+
+@pytest.fixture
+def superuser():
+    return User.objects.create_superuser(username='admin', email='admin@example.com', password='test')
+
+
+@pytest.mark.django_db
+def test_GDPR_compliance_filter(rf, superuser):
+    three_years_ago = 365 * 3
+
+    with freeze_time(timezone.now() - timedelta(days=three_years_ago + 1)):
+        company_one = factories.CompanyFactory()
+
+    with freeze_time(timezone.now() - timedelta(days=three_years_ago)):
+        company_two = factories.CompanyFactory()
+
+    with freeze_time(timezone.now() - timedelta(days=three_years_ago - 1)):
+        company_three = factories.CompanyFactory()
+
+    modeladmin = admin.CompanyAdmin(models.Company, site)
+    request = rf.get('/', {'gpr': True})
+    request.user = superuser
+    changelist = modeladmin.get_changelist_instance(request)
+    queryset = changelist.get_queryset(request)
+
+    assert queryset.count() == 2
+    assert company_one in queryset
+    assert company_two in queryset
+    assert company_three not in queryset
+
+
+@pytest.mark.django_db
+def test_published_location_filter(rf, superuser):
+    company_one = factories.CompanyFactory(
+        is_published_investment_support_directory=True, is_published_find_a_supplier=True
+    )
+    company_two = factories.CompanyFactory(
+        is_published_investment_support_directory=True, is_published_find_a_supplier=False
+    )
+    company_three = factories.CompanyFactory(
+        is_published_investment_support_directory=False, is_published_find_a_supplier=False
+    )
+    company_four = factories.CompanyFactory(
+        is_published_investment_support_directory=False, is_published_find_a_supplier=True
+    )
+
+    modeladmin = admin.CompanyAdmin(models.Company, site)
+    request = rf.get('/', {'published_location_name': 'FAS'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 2
+    assert company_one in queryset
+    assert company_two not in queryset
+    assert company_three not in queryset
+    assert company_four in queryset
+
+    request = rf.get('/', {'published_location_name': 'ISD'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 2
+    assert company_one in queryset
+    assert company_two in queryset
+    assert company_three not in queryset
+    assert company_four not in queryset
+
+    request = rf.get('/', {'published_location_name': 'ALL'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 3
+    assert company_one in queryset
+    assert company_two in queryset
+    assert company_three not in queryset
+    assert company_four in queryset
+
+
+@pytest.mark.django_db
+def test_verification_method_filter(rf, superuser):
+    company_one = factories.CompanyFactory(verified_with_preverified_enrolment=True)
+    company_two = factories.CompanyFactory(verified_with_code=True)
+    company_three = factories.CompanyFactory(verified_with_companies_house_oauth2=True)
+    company_four = factories.CompanyFactory(verified_with_identity_check=True)
+
+    modeladmin = admin.CompanyAdmin(models.Company, site)
+
+    request = rf.get('/', {'verification_method': 'verified_with_preverified_enrolment'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 1
+    assert company_one in queryset
+    assert company_two not in queryset
+    assert company_three not in queryset
+    assert company_four not in queryset
+
+    request = rf.get('/', {'verification_method': 'verified_with_code'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 1
+    assert company_one not in queryset
+    assert company_two in queryset
+    assert company_three not in queryset
+    assert company_four not in queryset
+
+    request = rf.get('/', {'verification_method': 'verified_with_companies_house_oauth2'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 1
+    assert company_one not in queryset
+    assert company_two not in queryset
+    assert company_three in queryset
+    assert company_four not in queryset
+
+    request = rf.get('/', {'verification_method': 'verified_with_identity_check'})
+    request.user = superuser
+
+    queryset = modeladmin.get_changelist_instance(request).get_queryset(request)
+
+    assert queryset.count() == 1
+    assert company_one not in queryset
+    assert company_two not in queryset
+    assert company_three not in queryset
+    assert company_four in queryset
