@@ -6,6 +6,7 @@
 - TT-2027 - Make testapi to return company number (for testing non-CH companies)
 - TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
 - TT-2194 - TestApi: add endpoint to get buyer details by email
+- TT-2198 - TestApi: add endpoint to delete companies created by automated tests
 
 ### Fixed bugs
 - TT-2064 - Submit user details with request to verify
