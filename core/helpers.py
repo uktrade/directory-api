@@ -1,16 +1,28 @@
 import csv
+from functools import partial
+import http
+import logging
+import os
+from urllib.parse import urljoin
+from uuid import uuid4
 
 import boto3
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+import requests
 
+from django.conf import settings
 from django.db import models
-from django_extensions.db.fields import (
-    CreationDateTimeField, ModificationDateTimeField,
-)
 from django.http import HttpResponse
+from django.utils.crypto import get_random_string
+from django.utils.deconstruct import deconstructible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.conf import (
-    settings,
-)
+
+
+logger = logging.getLogger(__name__)
+
+
+MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 
 
 def upload_file_object_to_s3(file_object, bucket, key):
@@ -90,3 +102,122 @@ class TimeStampedModel(models.Model):
         get_latest_by = 'modified'
         ordering = ('-modified', '-created',)
         abstract = True
+
+
+class BearerAuth(requests.auth.AuthBase):
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        r.headers['Authorization'] = 'Bearer ' + self.token
+        return r
+
+
+@deconstructible
+class PathAndRename:
+
+    def __init__(self, sub_path):
+        self.path = sub_path
+
+    def __call__(self, instance, filename):
+        _, ext = os.path.splitext(filename)
+        random_filename = '{}{}'.format(uuid4().hex, ext)
+        return os.path.join(self.path, random_filename)
+
+
+path_and_rename_logos = PathAndRename(sub_path="company_logos")
+
+path_and_rename_supplier_case_study = PathAndRename(sub_path="supplier_case_study")
+
+
+class SSOUser:
+    def __init__(self, id, email, user_profile=None):
+        self.id = id
+        self.email = email
+        self.user_profile = user_profile
+
+    @property
+    def pk(self):
+        return self.id
+
+    @property
+    def full_name(self):
+        if self.first_name and self.last_name:
+            return f'{self.first_name} {self.last_name}'
+        elif self.first_name:
+            return self.first_name
+        else:
+            return ''
+
+    @property
+    def first_name(self):
+        if self.user_profile and self.user_profile.get('first_name'):
+            return self.user_profile['first_name']
+
+    @property
+    def last_name(self):
+        if self.user_profile and self.user_profile.get('last_name'):
+            return self.user_profile['last_name']
+
+    @cached_property
+    def company_user(self):
+        from company.models import CompanyUser
+        try:
+            return CompanyUser.objects.select_related('company').get(sso_id=self.id)
+        except CompanyUser.DoesNotExist:
+            return None
+
+    @property
+    def company(self):
+        if self.company_user:
+            return self.company_user.company
+
+
+class CompaniesHouseClient:
+    api_key = settings.COMPANIES_HOUSE_API_KEY
+    make_api_url = partial(urljoin, 'https://api.companieshouse.gov.uk')
+    make_oauth2_url = partial(urljoin, 'https://account.companieshouse.gov.uk')
+    endpoints = {
+        'profile': make_api_url('company/{number}'),
+        'verify-oauth2-access-token': make_oauth2_url('oauth2/verify'),
+    }
+    session = requests.Session()
+    session.mount(
+        'https',
+        requests.adapters.HTTPAdapter(max_retries=3),
+    )
+
+    @classmethod
+    def get_http_basic_auth(cls):
+        return requests.auth.HTTPBasicAuth(cls.api_key, '')
+
+    @classmethod
+    def get(cls, url, params={}, auth=None):
+        auth = auth or cls.get_http_basic_auth
+        response = cls.session.get(url=url, params=params, auth=auth())
+        if response.status_code == http.client.UNAUTHORIZED:
+            logger.error(MESSAGE_AUTH_FAILED)
+        return response
+
+    @classmethod
+    def retrieve_profile(cls, number):
+        url = cls.endpoints['profile'].format(number=number)
+        return cls.get(url)
+
+    @classmethod
+    def verify_access_token(cls, access_token):
+        url = cls.endpoints['verify-oauth2-access-token']
+        auth = BearerAuth(token=access_token)
+        return cls.session.get(url=url, auth=auth)
+
+
+def get_companies_house_profile(number):
+    response = CompaniesHouseClient.retrieve_profile(number=number)
+    if not response.ok:
+        raise response.raise_for_status()
+    else:
+        return response.json()
+
+
+def generate_verification_code():
+    return get_random_string(length=12, allowed_chars='0123456789')

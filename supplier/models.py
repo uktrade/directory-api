@@ -1,3 +1,5 @@
+import warnings
+
 from django.db import models
 from django.utils import timezone
 
@@ -7,10 +9,11 @@ from company.models import Company
 from directory_constants import choices, user_roles
 
 
+# deprecated. use company.CompanyUser instead
 class Supplier(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
-    company = models.ForeignKey(Company, related_name='suppliers', null=True, blank=True)
+    company = models.ForeignKey(Company, related_name='suppliers', null=True, blank=True, on_delete=models.SET_NULL)
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
         verbose_name='active',
@@ -38,3 +41,7 @@ class Supplier(TimeStampedModel):
 
     def __str__(self):
         return self.company_email
+
+    def save(self, *args, **kwargs):
+        warnings.warn(f"{self.__class__} is deprecated. Use company.CompanUser instead.", DeprecationWarning)
+        return super().save(*args, **kwargs)

@@ -1,19 +1,12 @@
 from django.db import models
-from directory_validators import enrolment as shared_validators
 
 from core.helpers import TimeStampedModel
 
 
 class PreVerifiedEnrolment(TimeStampedModel):
-    company_number = models.CharField(
-        max_length=8,
-        validators=[shared_validators.company_number],
-    )
+    company_number = models.CharField(max_length=8)
     email_address = models.EmailField(blank=True, null=True)
-    generated_for = models.CharField(
-        max_length=1000,
-        help_text='The trade organisation the code was created for.'
-    )
+    generated_for = models.CharField(max_length=1000, help_text='The trade organisation the code was created for.')
     generated_by = models.ForeignKey(
         'auth.User',
         on_delete=models.SET_NULL,

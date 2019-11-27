@@ -6,12 +6,8 @@ from django.core.signing import Signer
 from django.conf import settings
 
 from buyer.models import Buyer
-from supplier.models import Supplier
-from company.models import Company
-from notifications.models import (
-    AnonymousUnsubscribe,
-    AnonymousEmailNotification,
-)
+from company.models import Company, CompanyUser
+from notifications.models import AnonymousUnsubscribe, AnonymousEmailNotification
 from notifications import constants
 
 
@@ -91,7 +87,7 @@ def get_anonymous_unsubscribe_url(email):
 
 def get_unverified_suppliers(days_ago):
     letter_sent_date = datetime.utcnow() - timedelta(days=days_ago)
-    return Supplier.objects.filter(
+    return CompanyUser.objects.filter(
         company__verified_with_code=False,
         company__date_verification_letter_sent__date=letter_sent_date,
         unsubscribed=False,

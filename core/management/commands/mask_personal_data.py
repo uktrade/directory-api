@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
-from company.tests.factories import CompanyFactory
-from supplier.tests.factories import SupplierFactory
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 
-from supplier import models
+from company.models import Company, CompanyUser
 
 
 class Command(BaseCommand):
@@ -13,7 +12,7 @@ class Command(BaseCommand):
         self.mask_supplier_data()
 
     def mask_company_data(self):
-        queryset = models.Company.objects.all()
+        queryset = Company.objects.all()
         failed = 0
         succeded = 0
         for company in queryset:
@@ -38,12 +37,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING(f'{failed} companies failed'))
 
     def mask_supplier_data(self):
-        queryset = models.Supplier.objects.all()
         failed = 0
         succeded = 0
-        for supplier in queryset:
+        for supplier in CompanyUser.objects.all():
             try:
-                supplier_factory = SupplierFactory.build()
+                supplier_factory = CompanyUserFactory.build()
                 message = f'supplier {supplier.pk} updated'
                 supplier.name = supplier_factory.name
                 supplier.company_email = supplier_factory.company_email

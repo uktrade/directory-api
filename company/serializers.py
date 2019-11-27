@@ -1,43 +1,30 @@
 from django.utils.timezone import now
 from rest_framework import serializers
 
-from directory_validators import company as shared_validators
+import directory_validators.string
 from directory_constants import choices, user_roles
 
 from django.conf import settings
 from django.http import QueryDict
 
-from company import helpers, models, validators
-
-from supplier.models import Supplier
+from company import models, validators
+from core.helpers import CompaniesHouseClient
 
 
 class AllowedFormatImageField(serializers.ImageField):
 
     def to_internal_value(self, data):
         file = super().to_internal_value(data)
-
         if file.image.format.upper() not in settings.ALLOWED_IMAGE_FORMATS:
-            raise serializers.ValidationError(
-                "Invalid image format, allowed formats: {}".format(
-                    ", ".join(settings.ALLOWED_IMAGE_FORMATS)
-                )
-            )
-
+            allowed = ", ".join(settings.ALLOWED_IMAGE_FORMATS)
+            raise serializers.ValidationError(f"Invalid image format, allowed formats: {allowed}")
         return file
 
 
 class CompanyCaseStudySerializer(serializers.ModelSerializer):
-
-    image_one = AllowedFormatImageField(
-        max_length=None, allow_empty_file=False, use_url=True, required=False
-    )
-    image_two = AllowedFormatImageField(
-        max_length=None, allow_empty_file=False, use_url=True, required=False
-    )
-    image_three = AllowedFormatImageField(
-        max_length=None, allow_empty_file=False, use_url=True, required=False
-    )
+    image_one = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
+    image_two = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
+    image_three = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
 
     class Meta:
         model = models.CompanyCaseStudy
@@ -68,7 +55,7 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if isinstance(data, QueryDict):
             data = data.dict()
-        data['company'] = self.context['request'].user.supplier.company.pk
+        data['company'] = self.context['request'].user.company.pk
         return super().to_internal_value(data)
 
 
@@ -83,18 +70,11 @@ class CompanySerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField()
     sectors = serializers.JSONField(required=False)
-    logo = AllowedFormatImageField(
-        max_length=None, allow_empty_file=False, use_url=True, required=False
-    )
-    supplier_case_studies = CompanyCaseStudySerializer(
-        many=True, required=False, read_only=True
-    )
+    logo = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
+    supplier_case_studies = CompanyCaseStudySerializer(many=True, required=False, read_only=True)
     has_valid_address = serializers.SerializerMethodField()
     keywords = serializers.CharField(
-        validators=[
-            shared_validators.keywords_word_limit,
-            shared_validators.keywords_special_characters
-        ],
+        validators=[directory_validators.string.word_limit(10), directory_validators.string.no_special_characters],
         required=False
     )
 
@@ -167,9 +147,7 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class CompanyNumberValidatorSerializer(serializers.Serializer):
-    number = serializers.CharField(validators=[
-        validators.company_unique,
-    ])
+    number = serializers.CharField(validators=[validators.company_unique])
 
 
 class VerifyCompanyWithCodeSerializer(serializers.Serializer):
@@ -177,9 +155,7 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
     def validate_code(self, value):
         if value != self.context['expected_code']:
-            raise serializers.ValidationError(
-                "Invalid company verification code"
-            )
+            raise serializers.ValidationError('Invalid company verification code')
 
 
 class SearchSerializer(serializers.Serializer):
@@ -199,28 +175,12 @@ class SearchSerializer(serializers.Serializer):
     term = serializers.CharField(required=False)
     page = serializers.IntegerField()
     size = serializers.IntegerField()
-    sectors = serializers.MultipleChoiceField(
-        choices=choices.INDUSTRIES,
-        required=False,
-    )
-    expertise_industries = serializers.MultipleChoiceField(
-        choices=choices.INDUSTRIES,
-        required=False,
-    )
-    expertise_regions = serializers.MultipleChoiceField(
-        choices=choices.EXPERTISE_REGION_CHOICES,
-        required=False,
-    )
-    expertise_countries = serializers.MultipleChoiceField(
-        choices=choices.COUNTRY_CHOICES,
-        required=False,
-    )
-    expertise_languages = serializers.MultipleChoiceField(
-        choices=choices.EXPERTISE_LANGUAGES,
-        required=False,
-    )
+    sectors = serializers.MultipleChoiceField(choices=choices.INDUSTRIES, required=False)
+    expertise_industries = serializers.MultipleChoiceField(choices=choices.INDUSTRIES, required=False)
+    expertise_regions = serializers.MultipleChoiceField(choices=choices.EXPERTISE_REGION_CHOICES, required=False)
+    expertise_countries = serializers.MultipleChoiceField(choices=choices.COUNTRY_CHOICES, required=False)
+    expertise_languages = serializers.MultipleChoiceField(choices=choices.EXPERTISE_LANGUAGES, required=False)
     expertise_products_services_labels = serializers.ListField(required=False)
-
     is_showcase_company = serializers.NullBooleanField(required=False)
 
     def validate(self, attrs):
@@ -245,7 +205,7 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
     access_token = serializers.CharField()
 
     def validate_access_token(self, value):
-        response = helpers.CompaniesHouseClient.verify_access_token(value)
+        response = CompaniesHouseClient.verify_access_token(value)
         if not response.ok:
             raise serializers.ValidationError(self.MESSAGE_BAD_ACCESS_TOKEN)
         data = response.json()
@@ -255,159 +215,39 @@ class VerifyCompanyWithCompaniesHouseSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.MESSAGE_EXPIRED)
 
 
-class InviteSerializerMixin:
+class RemoveCollaboratorsSerializer(serializers.Serializer):
+    sso_ids = serializers.ListField(child=serializers.IntegerField())
 
-    MESSAGE_ALREADY_HAS_COMPANY = 'User already has a company'
-    MESSAGE_WRONG_INVITE = 'User accepting an incorrect invite'
-    MESSAGE_INVALID_REQUESTOR = 'Requestor is not legit'
 
-    def to_internal_value(self, data):
-        if isinstance(data, QueryDict):
-            data = data.dict()
-        if not self.partial:
-            data['requestor'] = self.context['request'].user.supplier.pk
-            data['company'] = self.context['request'].user.supplier.company.pk
-        return super().to_internal_value(data)
+class CollaborationRequestSerializer(serializers.ModelSerializer):
 
-    def validate(self, data):
-        if data.get('accepted', False):
-            self.check_different_company_connection()
-            self.check_email()
-            self.check_requestor()
-        return super().validate(data)
+    requestor_sso_id = serializers.IntegerField(source='requestor.sso_id', required=False, read_only=True)
+
+    class Meta:
+
+        model = models.CollaborationRequest
+        fields = (
+            'uuid',
+            'requestor',
+            'requestor_sso_id',
+            'name',
+            'role',
+            'accepted',
+            'accepted_date',
+        )
+        extra_kwargs = {
+            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'name': {'required': False},  # passed in .save by the view, not in the request
+            'uuid': {'read_only': True},
+            'accepted': {'required': False},
+        }
 
     def update(self, instance, validated_data):
         if validated_data.get('accepted') is True:
             validated_data['accepted_date'] = now()
-        instance = super().update(instance, validated_data)
-        self.update_or_create_supplier(instance)
-        return instance
-
-    def check_different_company_connection(self):
-        user = self.context['request'].user
-        if (
-            user.supplier and
-            user.supplier.company and
-            user.supplier.company != self.instance.company
-        ):
-            raise serializers.ValidationError({
-                self.email_field_name: self.MESSAGE_ALREADY_HAS_COMPANY
-            })
-
-    def check_email(self):
-        user = self.context['request'].user
-        email_value = getattr(self.instance, self.email_field_name)
-        if email_value.lower() != user.email.lower():
-            raise serializers.ValidationError({
-                self.email_field_name: self.MESSAGE_WRONG_INVITE
-            })
-
-    def check_requestor(self):
-        queryset = self.instance.company.suppliers.all()
-        if self.instance.requestor not in queryset:
-            raise serializers.ValidationError({
-                'requestor': self.MESSAGE_INVALID_REQUESTOR
-            })
-
-
-class OwnershipInviteSerializer(
-    InviteSerializerMixin, serializers.ModelSerializer
-):
-    email_field_name = 'new_owner_email'
-
-    company_name = serializers.CharField(read_only=True, source='company.name')
-
-    class Meta:
-        model = models.OwnershipInvite
-        fields = (
-            'accepted',
-            'company',
-            'company_name',
-            'new_owner_email',
-            'requestor',
-            'uuid',
-        )
-
-        extra_kwargs = {
-            'accepted': {'write_only': True},
-            'company': {'required': False},
-            'requestor': {'required': False},
-            'uuid': {'read_only': True},
-        }
-
-    def update_or_create_supplier(self, instance):
-        Supplier.objects.update_or_create(
-            sso_id=self.context['request'].user.id,
-            company_email=instance.new_owner_email,
-            defaults={
-                'company': instance.company,
-                'role': user_roles.ADMIN,
-            }
-        )
-
-
-class CollaboratorInviteSerializer(
-    InviteSerializerMixin, serializers.ModelSerializer
-):
-    email_field_name = 'collaborator_email'
-
-    company_name = serializers.CharField(read_only=True, source='company.name')
-
-    class Meta:
-        model = models.CollaboratorInvite
-        fields = (
-            'accepted',
-            'collaborator_email',
-            'company',
-            'company_name',
-            'requestor',
-            'uuid',
-        )
-        extra_kwargs = {
-            'accepted': {'write_only': True},
-            'company': {'read_only': False},
-            'requestor': {'required': False},
-            'uuid': {'read_only': True},
-        }
-
-    def update_or_create_supplier(self, instance):
-        Supplier.objects.update_or_create(
-            sso_id=self.context['request'].user.id,
-            company_email=instance.collaborator_email,
-            defaults={
-                'company': instance.company,
-                'role': user_roles.EDITOR,
-            }
-        )
-
-
-class RemoveCollaboratorsSerializer(serializers.Serializer):
-    sso_ids = serializers.ListField(
-        child=serializers.IntegerField()
-    )
-
-
-class CollaboratorRequestSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.CollaboratorRequest
-        fields = (
-            'collaborator_email',
-            'company',
-        )
-
-    def to_internal_value(self, data):
-        if isinstance(data, QueryDict):
-            data = data.dict()
-        try:
-            company = models.Company.objects.get(number=data['company_number'])
-        except models.Company.DoesNotExist:
-            raise serializers.ValidationError({
-                '__all__': 'Company does not exist'
-            })
-        else:
-            data['company'] = company.pk
-        return super().to_internal_value(data)
+            instance.requestor.role = instance.role
+            instance.requestor.save()
+        return super().update(instance, validated_data)
 
 
 class CollaborationInviteSerializer(serializers.ModelSerializer):
@@ -417,14 +257,14 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             'uuid',
             'collaborator_email',
             'company',
-            'requestor',
+            'company_user',
             'accepted',
             'accepted_date',
             'role',
         )
         extra_kwargs = {
             'company': {'required': False},  # passed in .save by the view, not in the request
-            'requestor': {'required': False},  # passed in .save by the view, not in the request
+            'company_user': {'required': False},  # passed in .save by the view, not in the request
             'uuid': {'read_only': True},
             'accepted': {'required': False},
         }
@@ -436,7 +276,7 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def update_or_create_supplier(self, collaborator_invite, name):
-        Supplier.objects.update_or_create(
+        models.CompanyUser.objects.update_or_create(
             sso_id=self.context['request'].user.id,
             company_email=collaborator_invite.collaborator_email,
             name=name,
@@ -452,7 +292,7 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
     company = serializers.SlugRelatedField(slug_field='number', queryset=models.Company.objects.all())
 
     class Meta:
-        model = Supplier
+        model = models.CompanyUser
         fields = (
             'sso_id',
             'name',
@@ -471,5 +311,57 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
 
 class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Supplier
+        model = models.CompanyUser
         fields = ('role',)
+
+
+class ExternalCompanyUserSerializer(serializers.ModelSerializer):
+
+    company_number = serializers.ReadOnlyField(source='company.number')
+    company_name = serializers.ReadOnlyField(source='company.name')
+    company_export_status = serializers.ReadOnlyField(source='company.export_status')
+    company_has_exported_before = serializers.ReadOnlyField(source='company.has_exported_before')
+    company_industries = serializers.ReadOnlyField(source='company.sectors')
+    profile_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.CompanyUser
+        fields = (
+            'company_email',
+            'company_export_status',
+            'company_has_exported_before',
+            'company_industries',
+            'company_number',
+            'company_name',
+            'name',
+            'profile_url',
+            'sso_id',
+            'is_company_owner',
+            'role',
+        )
+        extra_kwargs = {
+            'role': {'read_only': True},
+        }
+
+    def get_profile_url(self, obj):
+        return obj.company.public_profile_url
+
+
+class CompanyUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CompanyUser
+        fields = (
+            'company',
+            'company_email',
+            'date_joined',
+            'sso_id',
+            'is_company_owner',
+            'role',
+            'name',
+        )
+        extra_kwargs = {
+            'sso_id': {'required': True},
+            'company': {'required': False},
+            'role': {'read_only': True},
+        }

@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'authbroker_client',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
@@ -90,7 +90,6 @@ TEMPLATES = [
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader',
             ],
         },
     },
@@ -103,11 +102,9 @@ VCAP_SERVICES = env.json('VCAP_SERVICES', {})
 VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
 
 if 'redis' in VCAP_SERVICES:
-    REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
-    REDIS_CELERY_URL = REDIS_CACHE_URL.replace('rediss://', 'redis://')
+    REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
 else:
-    REDIS_CACHE_URL = env.str('REDIS_CACHE_URL', '')
-    REDIS_CELERY_URL = env.str('REDIS_CELERY_URL', '')
+    REDIS_URL = env.str('REDIS_URL', '')
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -119,8 +116,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        # separate to REDIS_CELERY_URL as needs to start with 'rediss' for SSL
-        'LOCATION': REDIS_CACHE_URL,
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -387,14 +383,6 @@ SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', True)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', True)
 
-# Verification letters sent with stannp.com
-
-STANNP_API_KEY = env.str('STANNP_API_KEY', '')
-STANNP_TEST_MODE = env.bool('STANNP_TEST_MODE', True)
-STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
-    'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
-)
-
 # directory forms api client
 DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
 DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
@@ -518,10 +506,9 @@ UNSUBSCRIBED_SUBJECT = env.str(
 )
 
 # Celery
-# separate to REDIS_CACHE_URL as needs to start with 'redis' and SSL conf
 # is in api/celery.py
-CELERY_BROKER_URL = REDIS_CELERY_URL
-CELERY_RESULT_BACKEND = REDIS_CELERY_URL
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
@@ -633,22 +620,10 @@ SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
 FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
 FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
-FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
-    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True
-)
-FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
-    'FEATURE_VERIFICATION_LETTERS_ENABLED', False
-)
-FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool(
-    'FEATURE_REGISTRATION_LETTERS_ENABLED', False
-)
-# If enabled sends via govenotify else uses stannp
-FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = env.bool(
-    'FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED', False
-)
-FEATURE_MANUAL_PUBLISH_ENABLED = env.bool(
-    'FEATURE_MANUAL_PUBLISH_ENABLED', False
-)
+FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool('FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True)
+
+FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool('FEATURE_VERIFICATION_LETTERS_ENABLED', False)
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool('FEATURE_REGISTRATION_LETTERS_ENABLED', False)
 
 # directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')

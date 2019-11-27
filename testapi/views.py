@@ -13,16 +13,16 @@ from django.conf import settings
 from django.core.signing import Signer
 from django.db.models import Q
 
+from buyer.models import Buyer
+from buyer.serializers import BuyerSerializer
 from company.models import Company
+from core.authentication import Oauth2AuthenticationSSO
 from testapi.serializers import (
     CompanySerializer,
     ISDCompanySerializer,
     PublishedCompaniesSerializer,
 )
-from testapi.utils import (
-    get_matching_companies,
-    get_published_companies_query_params,
-)
+from testapi.utils import get_matching_companies, get_published_companies_query_params
 
 
 class TestAPIView(GenericAPIView):
@@ -31,6 +31,15 @@ class TestAPIView(GenericAPIView):
         if not settings.FEATURE_TEST_API_ENABLED:
             raise Http404
         return super().dispatch(*args, **kwargs)
+
+
+class BuyerTestAPIView(TestAPIView, RetrieveAPIView):
+    serializer_class = BuyerSerializer
+    authentication_classes = [Oauth2AuthenticationSSO]
+    permission_classes = []
+    queryset = Buyer.objects.all()
+    lookup_field = 'email'
+    http_method_names = 'get'
 
 
 class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView):
@@ -51,6 +60,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
         company = self.get_company(ch_id_or_name)
         signer = Signer()
         response_data = {
+            'number': company.number,
             'letter_verification_code': company.verification_code,
             'company_email': company.email_address,
             'is_verification_letter_sent': company.is_verification_letter_sent,
@@ -121,5 +131,5 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
 
 class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
     serializer_class = ISDCompanySerializer
-    authentication_classes = []
+    authentication_classes = [Oauth2AuthenticationSSO]
     permission_classes = []

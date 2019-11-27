@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 import pytest
 from django.conf import settings
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from rest_framework import status
 
 from buyer import models
@@ -39,7 +39,7 @@ def test_create_buyer_deserialization(client):
 def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):
     settings.STORAGE_CLASS_NAME = 'default'
     settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
-    reload_module('supplier.views')
+    reload_module('company.views')
     reload_module('buyer.views')
     reload_urlconf()
     mocked_body = Mock()

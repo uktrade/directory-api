@@ -1,9 +1,8 @@
 from directory_constants import company_types, user_roles
 from rest_framework import serializers
 
-from company.models import Company
+from company.models import Company, CompanyUser
 from enrolment import models
-from supplier.models import Supplier
 
 
 class CompanyEnrolmentSerializer(serializers.ModelSerializer):
@@ -68,7 +67,7 @@ class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
 class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Supplier
+        model = CompanyUser
         fields = [
             'name',
         ]

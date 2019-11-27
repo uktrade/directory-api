@@ -1,7 +1,7 @@
+import base64
 import datetime
 import http
 from io import BytesIO
-import uuid
 from unittest import mock
 
 from directory_constants import company_types, choices, sectors, user_roles
@@ -13,18 +13,16 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from PIL import Image
 
-from django.core.urlresolvers import reverse
+from django.conf import settings
+from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from core.helpers import SSOUser, CompaniesHouseClient
+from core.tests.test_views import reload_urlconf, reload_module
 from company import helpers, models, serializers
 from company.tests import (
-    MockInvalidSerializer,
-    MockValidSerializer,
-    VALID_REQUEST_DATA,
+    factories, MockInvalidSerializer, MockValidSerializer, VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
 )
-from company.tests import factories
-from supplier.tests.factories import SupplierFactory
-from supplier.models import Supplier
 
 
 default_public_profile_data = {
@@ -142,9 +140,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
     authed_supplier.company = company
     authed_supplier.save()
 
-    response = authed_client.put(
-        reverse('company'), VALID_REQUEST_DATA, format='json'
-    )
+    response = authed_client.put(reverse('company'), VALID_REQUEST_DATA, format='json')
 
     expected = {
         'company_type': company_types.COMPANIES_HOUSE,
@@ -276,9 +272,7 @@ def test_company_not_update_modified(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 @mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-def test_company_number_validator_rejects_invalid_data(
-    mock_get_serializer, client
-):
+def test_company_number_validator_rejects_invalid_data(mock_get_serializer, client):
     serializer = MockInvalidSerializer(data={})
     mock_get_serializer.return_value = serializer
     response = client.get(reverse('validate-company-number'), {})
@@ -288,16 +282,10 @@ def test_company_number_validator_rejects_invalid_data(
 
 @pytest.mark.django_db
 @mock.patch('company.views.CompanyNumberValidatorAPIView.get_serializer')
-def test_company_number_validator_accepts_valid_data(
-    mock_get_serializer, client
-):
+def test_company_number_validator_accepts_valid_data(mock_get_serializer, client):
     mock_get_serializer.return_value = MockValidSerializer(data={})
     response = client.get(reverse('validate-company-number'), {})
     assert response.status_code == status.HTTP_200_OK
-
-
-def mock_save(self, name, content, max_length=None):
-    return mock.Mock(url=content.name)
 
 
 def get_test_image(extension='png'):
@@ -441,7 +429,7 @@ def public_profile_smart_cars():
 
 
 @pytest.fixture
-def supplier_case_study(case_study_data, company):
+def company_user_case_study(case_study_data, company):
     return models.CompanyCaseStudy.objects.create(
         title=case_study_data['title'],
         description=case_study_data['description'],
@@ -458,7 +446,7 @@ def supplier_case_study(case_study_data, company):
 
 @pytest.fixture
 def supplier(company):
-    return Supplier.objects.create(
+    return models.CompanyUser.objects.create(
         sso_id=2,
         company_email='someone@example.com',
         company=company,
@@ -856,7 +844,7 @@ def companies_house_oauth_invalid_access_token(requests_mocker):
 
 @pytest.fixture
 def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number='{number}rad'.format(number=authed_supplier.company.number)
     )
     return requests_mocker.get(
@@ -871,7 +859,7 @@ def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
 
 @pytest.fixture
 def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
     return requests_mocker.get(
@@ -886,7 +874,7 @@ def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
 
 @pytest.fixture
 def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
-    scope = helpers.CompaniesHouseClient.endpoints['profile'].format(
+    scope = CompaniesHouseClient.endpoints['profile'].format(
         number=authed_supplier.company.number
     )
     return requests_mocker.get(
@@ -900,10 +888,7 @@ def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_update(
-    company_data, authed_client, authed_supplier, company
-):
+def test_company_update(company_data, authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -920,10 +905,8 @@ def test_company_update(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_create(
-    case_study_data, authed_client, authed_supplier, company,
-    mock_elasticsearch_company_save
+    case_study_data, authed_client, authed_supplier, company, mock_elasticsearch_company_save
 ):
     authed_supplier.company = company
     authed_supplier.save()
@@ -951,10 +934,7 @@ def test_company_case_study_create(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_invalid_image(
-    authed_client, authed_supplier, company
-):
+def test_company_case_study_create_invalid_image(authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -981,10 +961,7 @@ def test_company_case_study_create_invalid_image(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_not_an_image(
-    video, authed_client, authed_supplier, company,
-):
+def test_company_case_study_create_not_an_image(video, authed_client, authed_supplier, company):
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -1011,11 +988,7 @@ def test_company_case_study_create_not_an_image(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_create_company_not_published(
-    video, authed_client, authed_supplier
-):
-
+def test_company_case_study_create_company_not_published(video, authed_client, authed_supplier):
     company = factories.CompanyFactory.create(
         number='01234567',
         has_exported_before=True,
@@ -1052,37 +1025,32 @@ def test_company_case_study_create_company_not_published(
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
 def test_company_case_study_update(
-    supplier_case_study, authed_supplier, authed_client,
-    mock_elasticsearch_company_save
+    company_user_case_study, authed_supplier, authed_client, mock_elasticsearch_company_save
 ):
-    authed_supplier.company = supplier_case_study.company
+    authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
     url = reverse(
-        'company-case-study-detail', kwargs={'pk': supplier_case_study.pk}
+        'company-case-study-detail', kwargs={'pk': company_user_case_study.pk}
     )
     data = {'title': '2015'}
 
-    assert supplier_case_study.title != data['title']
+    assert company_user_case_study.title != data['title']
 
     response = authed_client.patch(url, data, format='multipart')
-    supplier_case_study.refresh_from_db()
+    company_user_case_study.refresh_from_db()
 
     assert response.status_code == http.client.OK
-    assert supplier_case_study.title == data['title']
+    assert company_user_case_study.title == data['title']
 
 
 @pytest.mark.django_db
-@mock.patch('django.core.files.storage.Storage.save', mock_save)
-def test_company_case_study_delete(
-    supplier_case_study, authed_supplier, authed_client
-):
-    authed_supplier.company = supplier_case_study.company
+def test_company_case_study_delete(company_user_case_study, authed_supplier, authed_client):
+    authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
-    pk = supplier_case_study.pk
+    pk = company_user_case_study.pk
     url = reverse(
         'company-case-study-detail', kwargs={'pk': pk}
     )
@@ -1094,68 +1062,64 @@ def test_company_case_study_delete(
 
 
 @pytest.mark.django_db
-def test_company_case_study_get(
-    supplier_case_study, authed_supplier, authed_client
-):
-    authed_supplier.company = supplier_case_study.company
+def test_company_case_study_get(company_user_case_study, authed_supplier, authed_client):
+    authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
     url = reverse(
-        'company-case-study-detail', kwargs={'pk': supplier_case_study.pk}
+        'company-case-study-detail', kwargs={'pk': company_user_case_study.pk}
     )
 
     response = authed_client.get(url)
     data = response.json()
 
     assert response.status_code == http.client.OK
-    assert data['testimonial'] == supplier_case_study.testimonial
-    assert data['testimonial_name'] == supplier_case_study.testimonial_name
+    assert data['testimonial'] == company_user_case_study.testimonial
+    assert data['testimonial_name'] == company_user_case_study.testimonial_name
     assert data['testimonial_job_title'] == (
-        supplier_case_study.testimonial_job_title
+        company_user_case_study.testimonial_job_title
     )
     assert data['testimonial_company'] == (
-        supplier_case_study.testimonial_company
+        company_user_case_study.testimonial_company
     )
-    assert data['website'] == supplier_case_study.website
-    assert data['description'] == supplier_case_study.description
-    assert data['title'] == supplier_case_study.title
-    assert data['sector'] == supplier_case_study.sector
-    assert data['keywords'] == supplier_case_study.keywords
+    assert data['website'] == company_user_case_study.website
+    assert data['description'] == company_user_case_study.description
+    assert data['title'] == company_user_case_study.title
+    assert data['sector'] == company_user_case_study.sector
+    assert data['keywords'] == company_user_case_study.keywords
     assert isinstance(data['company'], dict)
-    assert data['company']['id'] == supplier_case_study.company.pk
+    assert data['company']['id'] == company_user_case_study.company.pk
 
 
 @pytest.mark.django_db
-def test_public_company_case_study_get(
-    supplier_case_study, supplier, api_client, company
-):
+def test_public_company_case_study_get(company_user_case_study, supplier, api_client, company):
     company.is_published_find_a_supplier = True
     company.is_published_investment_support_directory = True
     company.save()
 
     url = reverse(
-        'public-case-study-detail', kwargs={'pk': supplier_case_study.pk}
+        'public-case-study-detail', kwargs={'pk': company_user_case_study.pk}
     )
 
     response = api_client.get(url)
     data = response.json()
 
     assert response.status_code == http.client.OK
-    assert data['testimonial'] == supplier_case_study.testimonial
-    assert data['testimonial_name'] == supplier_case_study.testimonial_name
+    assert data['testimonial'] == company_user_case_study.testimonial
+    assert data['testimonial_name'] == company_user_case_study.testimonial_name
     assert data['testimonial_job_title'] == (
-        supplier_case_study.testimonial_job_title
+        company_user_case_study.testimonial_job_title
     )
     assert data['testimonial_company'] == (
-        supplier_case_study.testimonial_company
+        company_user_case_study.testimonial_company
     )
-    assert data['website'] == supplier_case_study.website
-    assert data['description'] == supplier_case_study.description
-    assert data['title'] == supplier_case_study.title
-    assert data['sector'] == supplier_case_study.sector
-    assert data['keywords'] == supplier_case_study.keywords
+    assert data['website'] == company_user_case_study.website
+    assert data['description'] == company_user_case_study.description
+    assert data['title'] == company_user_case_study.title
+    assert data['sector'] == company_user_case_study.sector
+    assert data['keywords'] == company_user_case_study.keywords
     assert isinstance(data['company'], dict)
-    assert data['company']['id'] == supplier_case_study.company.pk
+    assert data['company']['id'] == company_user_case_study.company.pk
 
 
 @pytest.mark.parametrize(
@@ -1168,10 +1132,7 @@ def test_public_company_case_study_get(
 )
 @pytest.mark.django_db
 def test_company_profile_public_retrieve_public_profile(
-    is_investment_support_directory,
-    is_find_a_supplier,
-    public_profile,
-    api_client,
+    is_investment_support_directory, is_find_a_supplier, public_profile, api_client,
 ):
     public_profile.is_published_investment_support_directory = (
         is_investment_support_directory)
@@ -1190,9 +1151,7 @@ def test_company_profile_public_retrieve_public_profile(
 
 
 @pytest.mark.django_db
-def test_company_profile_public_404_private_profile(
-    private_profile, api_client
-):
+def test_company_profile_public_404_private_profile(private_profile, api_client):
     url = reverse(
         'company-public-profile-detail',
         kwargs={'companies_house_number': private_profile.number}
@@ -1204,8 +1163,6 @@ def test_company_profile_public_404_private_profile(
 
 @pytest.mark.django_db
 def test_verify_company_with_code(authed_client, authed_supplier, settings):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
     with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
@@ -1240,11 +1197,7 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
 
 
 @pytest.mark.django_db
-def test_verify_company_with_code_invalid_code(
-    authed_client, authed_supplier, settings
-):
-    settings.FEATURE_VERIFICATION_LETTERS_ENABLED = True
-
+def test_verify_company_with_code_invalid_code(authed_client, authed_supplier, settings):
     with mock.patch('requests.post'):
         company = models.Company.objects.create(**{
             'number': '11234567',
@@ -1310,9 +1263,7 @@ def test_search(mock_get_search_results, url, api_client):
 @pytest.mark.parametrize('page_number,expected_start', [
     [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
 ])
-def test_search_paginate_first_page(
-    url, page_number, expected_start, api_client, settings
-):
+def test_search_paginate_first_page(url, page_number, expected_start, api_client, settings):
     es = connections.get_connection('default')
     with mock.patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
@@ -1459,15 +1410,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
         ['1', '2', '3']
     ],
 ])
-def test_search_results(
-    url,
-    term,
-    filter_name,
-    filter_value,
-    expected,
-    search_data,
-    api_client
-):
+def test_search_results(url, term, filter_name, filter_value, expected, search_data, api_client):
     data = {
         'term': term,
         'page': '1',
@@ -1606,9 +1549,7 @@ def test_search_term_expertise(url, term, expected, search_data, api_client):
 ])
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-def test_search_filter_and_or(
-    url, filters, expected, api_client, search_data_and_or
-):
+def test_search_filter_and_or(url, filters, expected, api_client, search_data_and_or):
     data = {
         **filters,
         'term': 'wolf',
@@ -2000,9 +1941,7 @@ def test_search_results_highlight(url, search_highlighting_data, api_client):
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-def test_search_results_highlight_long(
-    url, search_highlighting_data, api_client,
-):
+def test_search_results_highlight_long(url, search_highlighting_data, api_client,):
     data = {
         'term': 'wolf',
         'page': 1,
@@ -2022,9 +1961,7 @@ def test_search_results_highlight_long(
 
 
 @pytest.mark.django_db
-def test_verify_companies_house_missing_access_token(
-    authed_client, authed_supplier
-):
+def test_verify_companies_house_missing_access_token(authed_client, authed_supplier):
     url = reverse('company-verify-companies-house')
     response = authed_client.post(url)  # missing access_token
 
@@ -2088,8 +2025,7 @@ def test_verify_companies_house_expired_access_token(
 
 @pytest.mark.django_db
 def test_verify_companies_house_good_access_token(
-    companies_house_oauth_valid_token, authed_supplier, authed_client,
-    mock_elasticsearch_company_save
+    companies_house_oauth_valid_token, authed_supplier, authed_client, mock_elasticsearch_company_save
 ):
     url = reverse('company-verify-companies-house')
     response = authed_client.post(url, {'access_token': '123'})
@@ -2101,560 +2037,56 @@ def test_verify_companies_house_good_access_token(
 
 
 @pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_create_transfer_ownership_invite(authed_client, authed_supplier):
-
-    data = {'new_owner_email': 'foo@bar.com'}
-    url = reverse('old-transfer-ownership-invite')
-
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == status.HTTP_201_CREATED
-    invite = models.OwnershipInvite.objects.get(
-        new_owner_email='foo@bar.com'
-    )
-
-    assert response.json() == {
-        'uuid': str(invite.uuid),
-        'company': authed_supplier.company.pk,
-        'company_name': invite.company.name,
-        'requestor': authed_supplier.pk,
-        'new_owner_email': 'foo@bar.com'
-    }
-    assert invite.company == authed_supplier.company
-    assert invite.requestor == authed_supplier
-    assert isinstance(invite.uuid, uuid.UUID)
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_create_duplicated_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
-
-    invite = models.OwnershipInvite(
-        new_owner_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
-    )
-    invite.save()
-
-    data = {
-        'new_owner_email': 'foo@bar.com',
-        'company': authed_supplier.company.pk,
-    }
-    response = authed_client.post(
-        reverse('old-transfer-ownership-invite'),
-        data=data,
-        format='json'
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        'new_owner_email': [
-            'ownership invite with this new owner email already exists.'
-        ]
-    }
-
-
-@pytest.mark.django_db
 def test_remove_collaborators(authed_client, authed_supplier):
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
-    supplier_one = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
-    supplier_two = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
-    supplier_three = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
-    supplier_four = SupplierFactory(role=user_roles.EDITOR)
+    company_user_one = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_two = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_three = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_four = factories.CompanyUserFactory(role=user_roles.EDITOR)
 
-    suppliers_before = authed_supplier.company.suppliers.all()
-    assert supplier_one in suppliers_before
-    assert supplier_two in suppliers_before
-    assert supplier_three in suppliers_before
-    assert supplier_four not in suppliers_before
-    assert authed_supplier in suppliers_before
+    company_users = authed_supplier.company.company_users.all()
+    assert company_user_one in company_users
+    assert company_user_two in company_users
+    assert company_user_three in company_users
+    assert company_user_four not in company_users
+    assert authed_supplier in company_users
 
     url = reverse('remove-collaborators')
-    data = {'sso_ids': [supplier_one.sso_id, supplier_two.sso_id]}
+    data = {'sso_ids': [company_user_one.sso_id, company_user_two.sso_id]}
     response = authed_client.post(url, data=data)
 
     assert response.status_code == 200
-    suppliers_after = authed_supplier.company.suppliers.all()
-    assert supplier_one not in suppliers_after
-    assert supplier_two not in suppliers_after
-    assert supplier_three in suppliers_after
-    assert supplier_four not in suppliers_after
-    assert authed_supplier in suppliers_after
+
+    company_users = company_users = authed_supplier.company.company_users.all()
+
+    assert company_user_one not in company_users
+    assert company_user_two not in company_users
+    assert company_user_three in company_users
+    assert company_user_four not in company_users
+    assert authed_supplier in company_users
 
 
 @pytest.mark.django_db
-def test_remove_collaborators_cannot_remove_self(
-    authed_client, authed_supplier
-):
-    SupplierFactory(company=authed_supplier.company, role=user_roles.ADMIN)
+def test_remove_collaborators_cannot_remove_self(authed_client, authed_supplier):
+    factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.ADMIN)
     authed_supplier.role = user_roles.ADMIN
     authed_supplier.save()
 
-    assert authed_supplier in authed_supplier.company.suppliers.all()
+    assert authed_supplier in authed_supplier.company.company_users.all()
 
     url = reverse('remove-collaborators')
     data = {'sso_ids': [authed_supplier.sso_id]}
     response = authed_client.post(url, data=data)
 
     assert response.status_code == 200
-    assert authed_supplier in authed_supplier.company.suppliers.all()
+    assert authed_supplier in authed_supplier.company.company_users.all()
 
 
 @pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_retrieve_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
-
-    invite = models.OwnershipInvite(
-        new_owner_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
-    )
-    invite.save()
-
-    response = authed_client.get(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)})
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    expected_response = {
-        'uuid': str(invite.uuid),
-        'company_name': invite.company.name,
-        'company': invite.company.pk,
-        'new_owner_email': invite.new_owner_email,
-        'requestor': invite.requestor.pk
-    }
-    assert response.json() == expected_response
-
-
-@pytest.mark.django_db
-@freeze_time('2016-11-23T11:21:10.977518Z')
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.EDITOR)
-
-    invite = models.OwnershipInvite(
-        new_owner_email=authed_supplier.company_email,
-        company=supplier.company,
-        requestor=supplier,
-    )
-    invite.save()
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-
-    assert response.status_code == 200
-
-    invite.refresh_from_db()
-    expected_date = '2016-11-23T11:21:10.977518+00:00'
-    assert invite.accepted is True
-    assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is False
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        role=user_roles.ADMIN,
-        company_email=invite.new_owner_email
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@freeze_time('2016-11-23T11:21:10.977518Z')
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_transfer_ownership_invite_case_insensitive(
-        authed_client,
-        authed_supplier):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.EDITOR)
-
-    invite = models.OwnershipInvite(
-        new_owner_email=authed_supplier.company_email.upper(),
-        company=supplier.company,
-        requestor=supplier,
-    )
-    invite.save()
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-
-    assert response.status_code == 200
-
-    invite.refresh_from_db()
-    expected_date = '2016-11-23T11:21:10.977518+00:00'
-    assert invite.accepted is True
-    assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is False
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        company_email=invite.new_owner_email,
-        role=user_roles.ADMIN,
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_wrong_transfer_ownership_invite(
-        authed_client,
-        authed_supplier):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.ADMIN)
-
-    invite = models.OwnershipInvite(
-        new_owner_email='foo@bar.com',
-        company=supplier.company,
-        requestor=supplier,
-    )
-    invite.save()
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    expected_response = {
-        'new_owner_email': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        role=user_roles.ADMIN
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_transfer_ownership_invite_to_collaborator(
-    authed_client, authed_supplier
-):
-    authed_supplier.company = None
-    authed_supplier.save()
-
-    company = factories.CompanyFactory()
-    existing_owner = SupplierFactory(
-        company=company,
-        role=user_roles.ADMIN,
-        company_email='owner@example.com',
-    )
-    invite = models.OwnershipInvite.objects.create(
-        new_owner_email=authed_supplier.company_email,
-        company=company,
-        requestor=existing_owner,
-    )
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-
-    invite.refresh_from_db()
-
-    assert response.status_code == status.HTTP_200_OK
-    assert invite.accepted is True
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_transfer_ownership_invite_supplier_has_other_company(
-    authed_client, authed_supplier
-):
-    invite = models.OwnershipInvite(
-        new_owner_email=authed_supplier.company_email,
-        company=factories.CompanyFactory(),
-        requestor=authed_supplier,
-    )
-    invite.save()
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    expected_response = {
-        'new_owner_email': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_transfer_ownership_invite_requestor_not_legit(
-        authed_client,
-        authed_supplier):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory()
-    company = factories.CompanyFactory()
-
-    invite = models.OwnershipInvite(
-        new_owner_email=authed_supplier.company_email,
-        company=company,
-        requestor=supplier,
-    )
-    invite.save()
-    response = authed_client.patch(
-        reverse('old-transfer-ownership-invite-detail',
-                kwargs={'uuid': str(invite.uuid)}),
-        {'accepted': True}
-    )
-    invite.refresh_from_db()
-    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    expected_response = {
-        'requestor': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_company_create_collaboration_invite(
-    authed_client, authed_supplier
-):
-    data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('old-collaboration-invite-create')
-    response = authed_client.post(url, data=data)
-
-    invite = models.CollaboratorInvite.objects.get(
-        collaborator_email='foo@bar.com'
-    )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == {
-        'uuid': str(invite.uuid),
-        'company': authed_supplier.company.pk,
-        'company_name': invite.company.name,
-        'requestor': authed_supplier.pk,
-        'collaborator_email': 'foo@bar.com'
-    }
-
-    assert invite.company == authed_supplier.company
-    assert invite.requestor == authed_supplier
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_company_create_duplicated_collaboration_invite(
-    authed_client, authed_supplier
-):
-    factories.CollaboratorInviteFactory(
-        collaborator_email='foo@bar.com',
-        company=authed_supplier.company,
-        requestor=authed_supplier,
-    )
-
-    data = {'collaborator_email': 'foo@bar.com'}
-    url = reverse('old-collaboration-invite-create')
-    response = authed_client.post(url, data=data)
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {
-        'collaborator_email': [
-            'collaborator invite with this collaborator email already exists.'
-        ]
-    }
-
-
-@pytest.mark.django_db
-@freeze_time('2016-11-23T11:21:10.977518Z')
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_collaborator_invite(
-    authed_client, authed_supplier
-):
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.EDITOR)
-
-    invite = factories.CollaboratorInviteFactory(
-        collaborator_email=authed_supplier.company_email,
-        company=supplier.company,
-        requestor=supplier,
-    )
-
-    url = reverse(
-        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
-    )
-    response = authed_client.patch(url, {'accepted': True})
-    assert response.status_code == 200
-
-    invite.refresh_from_db()
-    expected_date = '2016-11-23T11:21:10.977518+00:00'
-    assert invite.accepted is True
-    assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is False
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        role=user_roles.EDITOR,
-        company_email=invite.collaborator_email
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@freeze_time('2016-11-23T11:21:10.977518Z')
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_collaborator_invite_case_insensitive(
-    authed_client, authed_supplier
-):
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.EDITOR)
-
-    invite = factories.CollaboratorInviteFactory(
-        collaborator_email=authed_supplier.company_email.upper(),
-        company=supplier.company,
-        requestor=supplier,
-    )
-
-    url = reverse(
-        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
-    )
-    response = authed_client.patch(url, {'accepted': True})
-    assert response.status_code == 200
-
-    invite.refresh_from_db()
-    expected_date = '2016-11-23T11:21:10.977518+00:00'
-    assert invite.accepted is True
-    assert invite.accepted_date.isoformat() == expected_date
-    assert supplier.is_company_owner is False
-    assert supplier.role == user_roles.EDITOR
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        role=user_roles.EDITOR,
-        company_email=invite.collaborator_email
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_wrong_collaborator_invite(
-    authed_client, authed_supplier
-):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory(role=user_roles.ADMIN)
-
-    invite = factories.CollaboratorInviteFactory(
-        collaborator_email='foo@bar.com',
-        company=supplier.company,
-        requestor=supplier,
-    )
-
-    url = reverse(
-        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
-    )
-    response = authed_client.patch(url, {'accepted': True})
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    error = serializers.InviteSerializerMixin.MESSAGE_WRONG_INVITE
-    expected_response = {
-        'collaborator_email': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-    assert Supplier.objects.filter(
-        company=supplier.company,
-        role=user_roles.ADMIN
-    ).count() == 1
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_collaborator_invite_supplier_has_other_company(
-    authed_client, authed_supplier
-):
-
-    invite = factories.CollaboratorInviteFactory(
-        collaborator_email=authed_supplier.company_email,
-        company=factories.CompanyFactory(),
-        requestor=authed_supplier,
-    )
-    url = reverse(
-        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
-    )
-    response = authed_client.patch(url, {'accepted': True})
-    error = serializers.InviteSerializerMixin.MESSAGE_ALREADY_HAS_COMPANY
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    expected_response = {
-        'collaborator_email': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-
-
-@pytest.mark.django_db
-@mock.patch('core.tasks.send_email', mock.Mock())
-def test_accept_collaborator_invite_requestor_not_legit(
-        authed_client,
-        authed_supplier):
-
-    authed_supplier.delete()
-
-    supplier = SupplierFactory()
-    company = factories.CompanyFactory()
-
-    invite = factories.CollaboratorInviteFactory(
-        collaborator_email=authed_supplier.company_email,
-        company=company,
-        requestor=supplier
-    )
-    url = reverse(
-        'old-collaboration-invite-detail', kwargs={'uuid': str(invite.uuid)}
-    )
-    response = authed_client.patch(url, {'accepted': True})
-    error = serializers.InviteSerializerMixin.MESSAGE_INVALID_REQUESTOR
-
-    invite.refresh_from_db()
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    expected_response = {
-        'requestor': [error]
-    }
-    assert response.json() == expected_response
-    assert invite.accepted is False
-    assert invite.accepted_date is None
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('url', (
-    reverse('old-collaboration-invite-create'),
-    reverse('remove-collaborators'),
-    reverse('old-transfer-ownership-invite'),
-))
-def test_multi_user_account_management_views_forbidden(
-    url, authed_client, authed_supplier
-):
+def test_multi_user_account_management_views_forbidden(authed_client, authed_supplier):
+    url = reverse('remove-collaborators')
     authed_supplier.role = user_roles.EDITOR
     authed_supplier.save()
 
@@ -2664,49 +2096,85 @@ def test_multi_user_account_management_views_forbidden(
 
 
 @pytest.mark.django_db
-def test_collaborator_request(client):
-    company = factories.CompanyFactory()
+def test_collaboration_request_create(authed_supplier, authed_client):
 
     url = reverse('collaborator-request')
     data = {
-        'company_number': company.number,
-        'collaborator_email': 'test@example.com',
-    }
-    response = client.post(url, data, format='json')
-
+        'role': user_roles.ADMIN,
+     }
+    response = authed_client.post(url, data, format='json')
     assert response.status_code == 201
-    assert response.json() == {'company_email': company.email_address}
+    collaboration_request = models.CollaborationRequest.objects.get(requestor=authed_supplier)
+    assert collaboration_request.name == authed_supplier.name
+    assert collaboration_request.role == user_roles.ADMIN
+    assert collaboration_request.accepted is False
+    assert collaboration_request.accepted_date is None
 
 
 @pytest.mark.django_db
-def test_collaborator_request_incorrect_number(client):
-    url = reverse('collaborator-request')
-    data = {
-        'company_number': 'asdsadas',
-        'collaborator_email': 'test@example.com',
-    }
-    response = client.post(url, data, format='json')
-
-    assert response.status_code == 400
-    assert response.json() == {'__all__': 'Company does not exist'}
+def test_collaboration_request_list(authed_supplier, authed_client):
+    collaboration_request = factories.CollaborationRequestFactory(requestor=authed_supplier)
+    factories.CollaborationRequestFactory()
+    response = authed_client.get(reverse('collaborator-request'))
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+            {
+                'uuid': str(collaboration_request.uuid),
+                'requestor': collaboration_request.requestor.id,
+                'requestor_sso_id': collaboration_request.requestor.sso_id,
+                'name': collaboration_request.name,
+                'role': collaboration_request.role,
+                'accepted': False,
+                'accepted_date': None
+            }
+    ]
 
 
 @pytest.mark.django_db
-def test_collaborator_multiple_times(client):
-    company = factories.CompanyFactory()
+def test_collaboration_request_delete(authed_supplier, authed_client):
+    requestor = factories.CompanyUserFactory(company=authed_supplier.company)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor)
+    pk = collaboration_request.uuid
 
-    url = reverse('collaborator-request')
+    url = reverse('collaborator-request-detail', kwargs={'uuid': pk})
+    response = authed_client.delete(url)
+
+    assert response.status_code == http.client.NO_CONTENT
+    assert models.CollaborationRequest.objects.filter(pk=pk).exists() is False
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_collaboration_request_update(authed_supplier, authed_client):
+    requestor = factories.CompanyUserFactory(role=user_roles.MEMBER, company=authed_supplier.company)
+    collaboration_request = factories.CollaborationRequestFactory(requestor=requestor, role=user_roles.ADMIN)
+
+    url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+    assert response.status_code == status.HTTP_200_OK
     data = {
-        'company_number': company.number,
-        'collaborator_email': 'test@example.com',
+        'uuid': str(collaboration_request.uuid),
+        'requestor': collaboration_request.requestor.id,
+        'requestor_sso_id': collaboration_request.requestor.sso_id,
+        'name': collaboration_request.name,
+        'role': collaboration_request.role,
+        'accepted': True,
+        'accepted_date': '2016-11-23T11:21:10.977518Z',
     }
-    response = client.post(url, data, format='json')
+    assert response.json() == data
 
-    assert response.status_code == 201
+    requestor.refresh_from_db()
+    assert requestor.role == user_roles.ADMIN
 
-    response = client.post(url, data, format='json')
 
-    assert response.status_code == 400
+@pytest.mark.django_db
+def test_collaboration_request_update_different_company(authed_client):
+    collaboration_request = factories.CollaborationRequestFactory()
+
+    url = reverse('collaborator-request-detail', kwargs={'uuid': collaboration_request.uuid})
+    response = authed_client.patch(url, data={'accepted': True})
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
@@ -2757,7 +2225,7 @@ def test_collaboration_invite_create(authed_client, authed_supplier):
         'uuid': mock.ANY,
         'collaborator_email': data['collaborator_email'],
         'company': authed_supplier.company.pk,
-        'requestor': authed_supplier.pk,
+        'company_user': authed_supplier.pk,
         'accepted_date': None,
         'role': data['role'],
         'accepted': False,
@@ -2778,7 +2246,7 @@ def test_collaboration_invite_list(authed_client, authed_supplier):
             'uuid': str(invite.uuid),
             'collaborator_email': invite.collaborator_email,
             'company': invite.company.pk,
-            'requestor': invite.requestor.pk,
+            'company_user': invite.company_user.pk,
             'accepted_date': invite.accepted_date,
             'role': invite.role,
             'accepted': False,
@@ -2798,7 +2266,7 @@ def test_collaboration_invite_retrieve(client, authed_supplier):
         'uuid': str(invite.uuid),
         'collaborator_email': invite.collaborator_email,
         'company': invite.company.pk,
-        'requestor': invite.requestor.pk,
+        'company_user': invite.company_user.pk,
         'accepted_date': invite.accepted_date,
         'role': invite.role,
         'accepted': False,
@@ -2809,25 +2277,24 @@ def test_collaboration_invite_retrieve(client, authed_supplier):
 def test_collaboration_invite_update(authed_client, authed_supplier):
     # at this point the user's supplier has not yet been created
     authed_supplier.delete()
-
     invite = factories.CollaborationInviteFactory(company=authed_supplier.company)
-
     url = reverse('collaboration-invite-detail', kwargs={'uuid': invite.uuid})
     response = authed_client.patch(url, data={'accepted': True})
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         'uuid': str(invite.uuid),
         'collaborator_email': invite.collaborator_email,
         'company': invite.company.pk,
-        'requestor': invite.requestor.pk,
+        'company_user': invite.company_user.pk,
         'accepted_date': mock.ANY,
         'role': invite.role,
         'accepted': True
     }
-    supplier = Supplier.objects.get(company_email=invite.collaborator_email)
-    assert supplier.company == invite.company
-    assert supplier.role == invite.role
-    assert supplier.name == 'supplier1 bloggs'
+    company_user = models.CompanyUser.objects.get(company_email=invite.collaborator_email)
+    assert company_user.company == invite.company
+    assert company_user.role == invite.role
+    assert company_user.name == 'supplier1 bloggs'
 
 
 @pytest.mark.django_db
@@ -2843,24 +2310,336 @@ def test_collaboration_invite_delete(authed_client, authed_supplier):
 @pytest.mark.django_db
 @pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
 def test_change_collaborator_role(authed_client, authed_supplier, role):
-    supplier = SupplierFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
 
-    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+    url = reverse('change-collaborator-role', kwargs={'sso_id': company_user.sso_id})
 
     response = authed_client.patch(url, {'role': role})
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()['role'] == role
-    supplier.refresh_from_db()
-    assert supplier.role == role
+    company_user.refresh_from_db()
+    assert company_user.role == role
 
 
 @pytest.mark.django_db
 def test_change_collaborator_role_wrong_company(authed_client, authed_supplier):
-    supplier = SupplierFactory(role=user_roles.EDITOR)
+    company_user = factories.CompanyUserFactory(role=user_roles.EDITOR)
 
-    url = reverse('change-collaborator-role', kwargs={'sso_id': supplier.sso_id})
+    url = reverse('change-collaborator-role', kwargs={'sso_id': company_user.sso_id})
 
     response = authed_client.patch(url, {'role': user_roles.ADMIN})
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+# DELTE?
+@pytest.fixture
+def company_user():
+    return factories.CompanyUserFactory(
+        company_email='jim@example.com',
+        company__number='01234567',
+        company__name='foo ltd',
+        company__sectors=['AEROSPACE'],
+        name='Jim Example',
+        sso_id=123,
+        company__export_status='YES',
+        company__has_exported_before=True,
+    )
+
+
+@pytest.mark.django_db
+def test_company_user_retrieve(authed_client, authed_supplier):
+    response = authed_client.get(reverse('supplier'))
+
+    expected = serializers.CompanyUserSerializer(authed_supplier).data
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
+
+
+@pytest.mark.django_db
+def test_company_user_update(authed_client, authed_supplier):
+    response = authed_client.patch(
+        reverse('supplier'), {'company_email': 'a@b.co'}, format='json'
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['company_email'] == 'a@b.co'
+
+
+@pytest.mark.django_db
+def test_company_user_retrieve_no_company_user(authed_client, authed_supplier):
+    authed_supplier.delete()
+
+    response = authed_client.get(reverse('supplier'))
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_gecko_num_registered_company_user_view_returns_correct_json():
+    client = APIClient()
+    models.CompanyUser.objects.create(**VALID_SUPPLIER_REQUEST_DATA)
+    # Use basic auth with user=gecko and pass=X
+    encoded_creds = base64.b64encode('gecko:X'.encode('ascii')).decode("ascii")
+    client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
+
+    response = client.get(reverse('gecko-total-registered-suppliers'))
+
+    expected = {
+        "item": [
+            {
+              "value": 1,
+              "text": "Total registered company users"
+            }
+          ]
+    }
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected
+
+
+@pytest.mark.django_db
+def test_gecko_num_registered_company_user_view_requires_auth():
+    client = APIClient()
+
+    response = client.get(reverse('gecko-total-registered-suppliers'))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_gecko_num_registered_company_user_view_rejects_incorrect_creds():
+    client = APIClient()
+    # correct creds are gecko:X
+    encoded_creds = base64.b64encode(
+        'user:pass'.encode('ascii')).decode("ascii")
+    client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
+
+    response = client.get(reverse('gecko-total-registered-suppliers'))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+@mock.patch('core.tasks.send_email')
+def test_unsubscribe_company_user(mock_task, authed_client, authed_supplier):
+    response = authed_client.post(reverse('unsubscribe-supplier'))
+
+    authed_supplier.refresh_from_db()
+    assert response.status_code == 200
+    assert authed_supplier.unsubscribed is True
+    assert mock_task.delay.called
+
+
+@pytest.mark.django_db
+@mock.patch('notifications.notifications.company_user_unsubscribed')
+def test_unsubscribe_company_user_email_confirmation(
+    mock_company_user_unsubscribed, authed_client, authed_supplier
+):
+    authed_client.post(reverse('unsubscribe-supplier'))
+
+    mock_company_user_unsubscribed.assert_called_once_with(company_user=authed_supplier)
+
+
+@pytest.mark.django_db
+@mock.patch('core.authentication.Oauth2AuthenticationSSO.authenticate_credentials')
+def test_external_company_user_details_get_bearer_auth(
+    mock_authenticate_credentials, client, authed_supplier, settings
+):
+    sso_user = SSOUser(id=authed_supplier.sso_id, email='test@example.com')
+    mock_authenticate_credentials.return_value = (sso_user, '123')
+
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+    expected = serializers.ExternalCompanyUserSerializer(authed_supplier).data
+
+    url = reverse('external-supplier-details')
+    response = client.get(url, {}, HTTP_AUTHORIZATION='Bearer 123')
+
+    assert response.status_code == 200
+    assert response.json() == expected
+    assert mock_authenticate_credentials.call_count == 1
+    assert mock_authenticate_credentials.call_args == mock.call('123')
+
+
+@pytest.mark.django_db
+def test_external_company_user_details_get_sso_auth(authed_client, authed_supplier, settings):
+    settings.FAS_COMPANY_PROFILE_URL = 'http://profile/{number}'
+    expected = serializers.ExternalCompanyUserSerializer(authed_supplier).data
+
+    url = reverse('external-supplier-details')
+    response = authed_client.get(url, {})
+
+    assert response.status_code == 200
+    assert response.json() == expected
+
+
+@pytest.mark.django_db
+def test_external_company_user_details_post(authed_client):
+    response = authed_client.post(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
+
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_external_company_user_details_get_no_supplier(authed_client, authed_supplier):
+    authed_supplier.delete()
+
+    response = authed_client.get(
+        reverse('external-supplier-details'),
+        {},
+        HTTP_AUTHORIZATION='Bearer 123'
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_external_company_user_sso_list(authed_client, authed_supplier):
+
+    company_users = factories.CompanyUserFactory.create_batch(3)
+    url = reverse('external-supplier-sso-list')
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    assert response.json() == [
+        company_users[2].sso_id,
+        company_users[1].sso_id,
+        company_users[0].sso_id,
+        authed_supplier.sso_id,
+    ]
+
+
+@pytest.mark.django_db
+def test_company_collaborators_anon_users():
+    url = reverse('supplier-company-collaborators-list')
+    client = APIClient()
+
+    response = client.get(url)
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_company_collaborators_not_profile_owner(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.EDITOR
+    authed_supplier.save()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_company_collaborators_profile_owner(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    company_user_one = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_two = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    factories.CompanyUserFactory()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    parsed = response.json()
+    company_user_sso_ids = {company_user_one.sso_id, company_user_two.sso_id, authed_supplier.sso_id}
+
+    assert {company_user['sso_id'] for company_user in parsed} == company_user_sso_ids
+
+
+@pytest.mark.django_db
+def test_company_collaborators_profile_owner_collaborators(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    url = reverse('supplier-company-collaborators-list')
+
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    assert response.json() == [
+        serializers.CompanyUserSerializer(authed_supplier).data
+    ]
+
+
+@pytest.mark.django_db
+@mock.patch('sigauth.helpers.RequestSignatureChecker.test_signature', mock.Mock(return_value=True))
+@mock.patch('core.views.get_file_from_s3')
+def test_company_user_csv_dump(mocked_get_file_from_s3, authed_client):
+    settings.STORAGE_CLASS_NAME = 'default'
+    settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
+    reload_module('company.views')
+    reload_module('buyer.views')
+    reload_urlconf()
+
+    mocked_body = mock.Mock()
+    mocked_body.read.return_value = b'company_name\r\nacme\r\n'
+    mocked_get_file_from_s3.return_value = {
+        'Body': mocked_body
+    }
+    response = authed_client.get(
+        reverse('supplier-csv-dump'),
+        {'token': settings.CSV_DUMP_AUTH_TOKEN}
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.content == b'company_name\r\nacme\r\n'
+    assert response._headers['content-type'] == ('Content-Type', 'text/csv')
+    assert response._headers['content-disposition'] == (
+        'Content-Disposition',
+        'attachment; filename="{filename}"'.format(
+            filename=settings.SUPPLIERS_CSV_FILE_NAME
+        )
+    )
+
+
+@pytest.mark.django_db
+def test_disconnect_company_user_sole_admin(authed_supplier, authed_client):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 400
+    assert response.json() == [helpers.MESSAGE_ADMIN_NEEDED]
+
+
+@pytest.mark.parametrize('role', (user_roles.ADMIN, user_roles.EDITOR, user_roles.MEMBER))
+@pytest.mark.django_db
+def test_disconnect_company_user_multiple_admin(authed_supplier, authed_client, role):
+    authed_supplier.role = role
+    authed_supplier.save()
+    factories.CompanyUserFactory(role=user_roles.ADMIN, company=authed_supplier.company)
+
+    url = reverse('company-disconnect-supplier')
+
+    response = authed_client.post(url)
+
+    assert response.status_code == 200
+
+    authed_supplier.refresh_from_db()
+
+    assert authed_supplier.company is None
+    assert authed_supplier.role == user_roles.MEMBER
+
+
+@pytest.mark.django_db
+def test_company_user_retrieve_sso_id(client):
+
+    company_user = factories.CompanyUserFactory()
+
+    url = reverse('supplier-retrieve-sso-id', kwargs={'sso_id': company_user.sso_id})
+
+    response = client.get(url)
+
+    assert response.json()['sso_id'] == company_user.sso_id
