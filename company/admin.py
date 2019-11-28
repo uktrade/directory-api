@@ -19,7 +19,7 @@ from company.forms import EnrolCompanies, UploadExpertise
 
 class GDPRComplianceFilter(admin.SimpleListFilter):
     title = 'GDPR compliance'
-    parameter_name = 'gpr'
+    parameter_name = 'gdpr'
 
     def lookups(self, request, model_admin):
         return (
