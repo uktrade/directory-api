@@ -1,9 +1,9 @@
 import datetime
 
 import pytest
-from rest_framework import status
-
 from django.urls import reverse
+from factory import Sequence
+from rest_framework import status
 
 from buyer.tests.factories import BuyerFactory
 from company.models import Company
@@ -566,3 +566,29 @@ def test_create_test_isd_company_unexpected_parameters_are_ignored(
     }
     response = authed_client.post(url, data=data)
     assert response.status_code == status.HTTP_201_CREATED
+
+
+@pytest.mark.django_db
+def test_delete_test_companies(client):
+    CompanyFactory.create_batch(
+        3,
+        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+    )
+    response = client.delete(reverse('delete_test_companies'))
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db
+def test_delete_test_companies_returns_404_when_no_test_companies(client):
+    response = client.delete(reverse('delete_test_companies'))
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_test_companies_returns_404_with_disabled_testapi(client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    CompanyFactory.create(
+        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+    )
+    response = client.delete(reverse('delete_test_companies'))
+    assert response.status_code == status.HTTP_404_NOT_FOUND

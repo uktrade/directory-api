@@ -240,6 +240,11 @@ urlpatterns = [
         name='unpublished_companies'
     ),
     url(
+        r'^testapi/test-companies/$',
+        testapi.views.AutomatedTestsCompaniesTestAPIView.as_view(),
+        name='delete_test_companies'
+    ),
+    url(
         r'^enrolment/preverified-company/(?P<key>.*)/claim/$',
         enrolment.views.PreverifiedCompanyClaim.as_view(),
         name='enrolment-claim-preverified'

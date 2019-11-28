@@ -1,4 +1,8 @@
+from django.conf import settings
+from django.core.signing import Signer
+from django.db.models import Q
 from django.http import Http404
+from django.shortcuts import get_list_or_404
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -9,10 +13,6 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 
-from django.conf import settings
-from django.core.signing import Signer
-from django.db.models import Q
-
 from buyer.models import Buyer
 from buyer.serializers import BuyerSerializer
 from company.models import Company
@@ -22,7 +22,10 @@ from testapi.serializers import (
     ISDCompanySerializer,
     PublishedCompaniesSerializer,
 )
-from testapi.utils import get_matching_companies, get_published_companies_query_params
+from testapi.utils import (
+    get_matching_companies,
+    get_published_companies_query_params,
+)
 
 
 class TestAPIView(GenericAPIView):
@@ -133,3 +136,20 @@ class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
     serializer_class = ISDCompanySerializer
     authentication_classes = [Oauth2AuthenticationSSO]
     permission_classes = []
+
+
+class AutomatedTestsCompaniesTestAPIView(TestAPIView, DestroyAPIView):
+    authentication_classes = [Oauth2AuthenticationSSO]
+    permission_classes = []
+    serializer_class = Company
+    queryset = Company.objects.all()
+    http_method_names = 'delete'
+
+    def delete(self, request, **kwargs):
+        test_companies = get_list_or_404(
+            Company,
+            email_address__regex=r'^test\+(.*)@directory\.uktrade\.io',
+        )
+        for company in test_companies:
+            company.delete()
+        return Response(status=204)

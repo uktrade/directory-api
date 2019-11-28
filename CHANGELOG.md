@@ -7,6 +7,7 @@
 - TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
 - TT-2194 - TestApi: add endpoint to get buyer details by email
 - TT-2187 - Add django admin filters for GDPR, publish place and verification method
+- TT-2198 - TestApi: add endpoint to delete companies created by automated tests
 
 ### Fixed bugs
 - TT-2064 - Submit user details with request to verify
