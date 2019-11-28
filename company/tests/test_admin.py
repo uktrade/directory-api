@@ -930,7 +930,7 @@ def test_GDPR_compliance_filter(rf, superuser):
         company_three = factories.CompanyFactory()
 
     modeladmin = admin.CompanyAdmin(models.Company, site)
-    request = rf.get('/', {'gpr': True})
+    request = rf.get('/', {'gdpr': True})
     request.user = superuser
     changelist = modeladmin.get_changelist_instance(request)
     queryset = changelist.get_queryset(request)
