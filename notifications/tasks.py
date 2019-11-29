@@ -15,6 +15,7 @@ def lock_acquired(lock_name):
     return cache.add(lock_name, 'acquired', 72000)
 
 
+@app.task
 def verification_code_not_given():
     if lock_acquired('verification_code_not_given'):
         notifications.verification_code_not_given()
