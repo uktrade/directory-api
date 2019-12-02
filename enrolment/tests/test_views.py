@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest import mock
 
 from directory_constants import user_roles
 from rest_framework import status
@@ -16,7 +16,9 @@ from enrolment.tests.factories import PreVerifiedEnrolmentFactory
 
 
 @pytest.mark.django_db
-def test_enrolment_viewset_create():
+@mock.patch('company.helpers.send_registration_letter')
+def test_enrolment_viewset_create(mock_send_registration_letter, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
     client = APIClient()
     data = {
         'address_line_1': '123 Fake street',
@@ -53,6 +55,12 @@ def test_enrolment_viewset_create():
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
     assert supplier.role == user_roles.ADMIN
+
+    assert mock_send_registration_letter.call_count == 1
+    assert mock_send_registration_letter.call_args == mock.call(
+        company=company,
+        form_url='send_company_claimed_letter_automatically_sent',
+    )
 
 
 @pytest.mark.django_db
@@ -104,7 +112,7 @@ def test_enrolment_viewset_create_invalid_data():
 
 
 @pytest.mark.django_db
-@patch('enrolment.serializers.CompanyEnrolmentSerializer.create')
+@mock.patch('enrolment.serializers.CompanyEnrolmentSerializer.create')
 def test_enrolment_create_company_exception_rollback(mock_create):
     api_client = APIClient()
     url = reverse('enrolment')
@@ -118,7 +126,7 @@ def test_enrolment_create_company_exception_rollback(mock_create):
 
 
 @pytest.mark.django_db
-@patch('company.serializers.CompanyUserSerializer.create')
+@mock.patch('company.serializers.CompanyUserSerializer.create')
 def test_enrolment_create_supplier_exception_rollback(mock_create):
     api_client = APIClient()
     url = reverse('enrolment')
@@ -152,7 +160,7 @@ def test_enrolment_create_disables_single_preverified_enrolment():
 
 
 @pytest.mark.django_db
-@patch.object(models.PreVerifiedEnrolment.objects.none().__class__, 'update')
+@mock.patch.object(models.PreVerifiedEnrolment.objects.none().__class__, 'update')
 def test_enrolment_create_rollback(mock_update):
     mock_update.side_effect = Exception('!')
 

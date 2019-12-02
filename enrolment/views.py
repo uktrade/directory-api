@@ -11,28 +11,29 @@ from django.shortcuts import get_object_or_404, Http404
 from company.models import Company
 from enrolment import models, serializers
 from company.serializers import CompanyUserSerializer
+from company.signals import send_company_registration_letter
 
 
 class EnrolmentCreateAPIView(APIView):
 
     http_method_names = ("post", )
     company_serializer_class = serializers.CompanyEnrolmentSerializer
-    supplier_serializer_class = CompanyUserSerializer
+    company_user_serializer_class = CompanyUserSerializer
     permission_classes = []
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        company_serializer = self.company_serializer_class(
-            data=request.data
-        )
+        company_serializer = self.company_serializer_class(data=request.data)
         company_serializer.is_valid(raise_exception=True)
         company = company_serializer.save()
-        supplier_serializer = self.supplier_serializer_class(
-            data={'company': company.id, **request.data}
-        )
+        supplier_serializer = self.company_user_serializer_class(data={'company': company.id, **request.data})
         supplier_serializer.is_valid(raise_exception=True)
         supplier_serializer.validated_data['role'] = user_roles.ADMIN
         supplier_serializer.save()
+
+        # the signal checks if the company has a user. The company does not have a user until the user is created after
+        # the company is saved above, so manually trigger the signal once the preconditions are set
+        send_company_registration_letter(sender=None, instance=company)
 
         return Response(status=status.HTTP_201_CREATED)
 
