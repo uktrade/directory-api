@@ -32,7 +32,6 @@ FAB_COLLABORATOR_URL=http://buyer.trade.great:8001/account/collaborate/accept/?i
 FAB_FROM_EMAIL=no-reply@find-a-buyer.export.great.gov.uk
 FAB_NOTIFICATIONS_UNSUBSCRIBE_URL=http://buyer.trade.great:8001/unsubscribe
 FAB_OWNERSHIP_URL=http://buyer.trade.great:8001/account/transfer/accept/?invite_key={uuid}
-FAB_TRUSTED_SOURCE_ENROLMENT_LINK=http://buyer.trade.great:8001/register-code/\{code\}/
 FAS_COMPANY_LIST_URL=http://supplier.trade.great:8005/suppliers
 FAS_COMPANY_PROFILE_URL=http://supplier.trade.great:8005/suppliers/{number}
 FAS_FROM_EMAIL=no-reply@trade.great.gov.uk
