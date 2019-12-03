@@ -6,6 +6,8 @@ import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 import healthcheck.backends
 import directory_healthcheck.backends
 
@@ -41,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
     'django_celery_beat',
-    'raven.contrib.django.raven_compat',
     'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
@@ -206,11 +207,14 @@ REST_FRAMEWORK = {
 
 
 # Sentry
-RAVEN_CONFIG = {
-    'dsn': env.str('SENTRY_DSN', ''),
-}
+if env.bool('SENTRY_DSN', False):
+    sentry_sdk.init(
+        dsn=env.str('SENTRY_DSN'),
+        environment=env.str('SENTRY_ENVIRONMENT'),
+        integrations=[DjangoIntegration()]
+    )
 
-# Logging for development
+
 if DEBUG:
     LOGGING = {
         'version': 1,
@@ -254,53 +258,7 @@ if DEBUG:
             },
         }
     }
-else:
-    # Sentry logging
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'root': {
-            'level': 'WARNING',
-            'handlers': ['sentry'],
-        },
-        'formatters': {
-            'verbose': {
-                'format': '%(levelname)s %(asctime)s %(module)s '
-                          '%(process)d %(thread)d %(message)s'
-            },
-        },
-        'handlers': {
-            'sentry': {
-                'level': 'ERROR',
-                'class': (
-                    'raven.contrib.django.raven_compat.handlers.SentryHandler'
-                ),
-                'tags': {'custom-tag': 'x'},
-            },
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
-            }
-        },
-        'loggers': {
-            'django.db.backends': {
-                'level': 'ERROR',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-            'raven': {
-                'level': 'DEBUG',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-            'sentry.errors': {
-                'level': 'DEBUG',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-        },
-    }
+
 
 # CH
 COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
@@ -519,7 +477,7 @@ if ELASTICSEARCH_PROVIDER == 'govuk-paas':
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
         alias='default',
-        hosts=['localhost:9200'],
+        hosts=[env.str('ELASTICSEARCH_URL', 'localhost:9200')],
         use_ssl=False,
         verify_certs=False,
         connection_class=RequestsHttpConnection
