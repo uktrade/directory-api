@@ -6,6 +6,8 @@
 - TT-2027 - Make testapi to return company number (for testing non-CH companies)
 - TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
 - TT-2194 - TestApi: add endpoint to get buyer details by email
+- TT-2187 - Add django admin filters for GDPR, publish place and verification method
+- TT-2198 - TestApi: add endpoint to delete companies created by automated tests
 
 ### Fixed bugs
 - TT-2064 - Submit user details with request to verify
@@ -13,6 +15,7 @@
 - no ticket - Upgrade django
 - TT-2145 - validate non-companies-house-companies address during bulk create
 - no ticket - fix redis after upgrade: removed rediss -> redis workaround
+- TT-2202 - Fix enrolment
 
 ## [2019.10.22](https://github.com/uktrade/directory-api/releases/tag/2019.10.22)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.08.22...2019.10.22)

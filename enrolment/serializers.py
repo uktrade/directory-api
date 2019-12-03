@@ -45,9 +45,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
                 email_address=validated_data['email_address'],
                 is_active=True
             )
-            validated_data['verified_with_preverified_enrolment'] = (
-                queryset.exists()
-            )
+            validated_data['verified_with_preverified_enrolment'] = queryset.exists()
             queryset.update(is_active=False)
         company = super().create(validated_data)
         return company
