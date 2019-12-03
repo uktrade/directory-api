@@ -8,6 +8,7 @@
 - TT-2194 - TestApi: add endpoint to get buyer details by email
 - TT-2187 - Add django admin filters for GDPR, publish place and verification method
 - TT-2198 - TestApi: add endpoint to delete companies created by automated tests
+- TT-1304 - Upgrade sentry client
 
 ### Fixed bugs
 - TT-2064 - Submit user details with request to verify
