@@ -10,8 +10,10 @@ from rest_framework.test import APIClient
 
 from django.core.management import call_command
 
-from company import documents, helpers
-from supplier.tests.factories import SupplierFactory
+from company import documents
+from company.tests import factories
+
+from core.helpers import CompaniesHouseClient
 
 
 def pytest_runtest_setup(item):
@@ -28,10 +30,7 @@ def pytest_runtest_setup(item):
         status_code=http.client.OK,
     )
 
-    helpers.CompaniesHouseClient.session.mount(
-        'https://api.companieshouse.gov.uk',
-        companies_house_adapter
-    )
+    CompaniesHouseClient.session.mount('https://api.companieshouse.gov.uk', companies_house_adapter)
     # Make factory boy reasonably verbose instead of insanely verbose
     logging.getLogger("factory").setLevel(logging.WARN)
 
@@ -44,17 +43,12 @@ def authed_supplier():
 
     """
 
-    return SupplierFactory.create(sso_id=999)
+    return factories.CompanyUserFactory.create()
 
 
 @pytest.fixture
-def sso_session_request_active_user(
-    authed_supplier, requests_mocker, settings
-):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL,
-        'api/v1/session-user/?session_key=123'
-    )
+def sso_session_request_active_user(authed_supplier, requests_mocker, settings):
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'api/v1/session-user/?session_key=123')
     return requests_mocker.get(
         url,
         json={
@@ -66,31 +60,19 @@ def sso_session_request_active_user(
 
 
 @pytest.fixture
-def sso_oauth2_request_active_user(
-    authed_supplier, requests_mocker, settings
-):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
-    )
-    return requests_mocker.get(
-        url,
-        json={
-            'id': authed_supplier.sso_id,
-            'email': authed_supplier.company_email,
-        }
-    )
+def sso_oauth2_request_active_user(authed_supplier, requests_mocker, settings):
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
+    return requests_mocker.get(url, json={'id': authed_supplier.sso_id, 'email': authed_supplier.company_email})
 
 
 @pytest.fixture
-def authed_client(
-    sso_session_request_active_user, sso_oauth2_request_active_user
-):
+def authed_client(sso_session_request_active_user, sso_oauth2_request_active_user):
     """
     core.authentication.SessionAuthenticationSSO passes the session header
     "123" to sso, but the fixtures sso_session_request_active_user and
     sso_oauth2_request_active_user will ensure that the authed_supplier fixture
     is instead returned - resulting in authed_supplier being added to
-    `request.user.supplier`.
+    `request.user.company_user`.
 
     """
 
@@ -107,10 +89,16 @@ def mock_signature_check():
 
 
 @pytest.fixture(autouse=True)
-def mock_forms_api_gov_notify_email_action():
+def mock_forms_api_gov_notify_email():
     stub = mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
-    stub.start()
-    yield stub
+    yield stub.start()
+    stub.stop()
+
+
+@pytest.fixture(autouse=True)
+def mock_forms_api_gov_notify_letter():
+    stub = mock.patch('directory_forms_api_client.actions.GovNotifyLetterAction')
+    yield stub.start()
     stub.stop()
 
 

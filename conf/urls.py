@@ -13,7 +13,6 @@ import company.views
 import contact.views
 import enrolment.views
 import notifications.views
-import supplier.views
 import testapi.views
 import exporting.views
 
@@ -43,26 +42,9 @@ activity_stream_urls = [
 
 
 urlpatterns = [
-    url(
-        r'^healthcheck/',
-        include(
-            healthcheck_urls,
-            namespace='healthcheck',
-            app_name='healthcheck',
-        )
-    ),
-    url(
-        r'^admin/',
-        include(admin.site.urls)
-    ),
-    url(
-        r'^activity-stream/',
-        include(
-            activity_stream_urls,
-            namespace='activity-stream',
-            app_name='activity-stream',
-        )
-    ),
+    url(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
+    url(r'^admin/', admin.site.urls),
+    url(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     url(
         r'^enrolment/$',
         enrolment.views.EnrolmentCreateAPIView.as_view(),
@@ -75,22 +57,22 @@ urlpatterns = [
     ),
     url(
         r'^external/supplier-sso/$',
-        supplier.views.SupplierSSOListExternalAPIView.as_view(),
+        company.views.CompanyUserSSOListAPIView.as_view(),
         name='external-supplier-sso-list'
     ),
     url(
         r'^external/supplier/$',
-        supplier.views.SupplierRetrieveExternalAPIView.as_view(),
+        company.views.CompanyUserRetrieveAPIView.as_view(),
         name='external-supplier-details'
     ),
     url(
         r'^supplier/gecko/total-registered/$',
-        supplier.views.GeckoTotalRegisteredSuppliersView.as_view(),
+        company.views.GeckoTotalRegisteredCompanyUser.as_view(),
         name='gecko-total-registered-suppliers'
     ),
     url(
         r'^supplier/(?P<sso_id>[0-9]+)/$',
-        supplier.views.SupplierRetrieveAPIView.as_view(),
+        company.views.CompanyUserSSORetrieveAPIView.as_view(),
         name='supplier-retrieve-sso-id'
     ),
     url(
@@ -119,26 +101,6 @@ urlpatterns = [
         name='company-case-study',
     ),
     url(
-        r'^supplier/company/transfer-ownership-invite/(?P<uuid>.*)/$',
-        company.views.TransferOwnershipInviteRetrieveUpdateAPIView.as_view(),
-        name='old-transfer-ownership-invite-detail'
-    ),
-    url(
-        r'^supplier/company/transfer-ownership-invite/$',
-        company.views.TransferOwnershipInviteCreateView.as_view(),
-        name='old-transfer-ownership-invite'
-    ),
-    url(
-        r'^supplier/company/collaboration-invite/$',
-        company.views.CollaboratorInviteCreateView.as_view(),
-        name='old-collaboration-invite-create'
-    ),
-    url(
-        r'^supplier/company/collaboration-invite/(?P<uuid>.*)/',
-        company.views.CollaboratorInviteRetrieveUpdateAPIView.as_view(),
-        name='old-collaboration-invite-detail'
-    ),
-    url(
         r'^supplier/company/collaborator-invite/$',
         company.views.CollaborationInviteViewSet.as_view({'post': 'create', 'get': 'list'}),
         name='collaboration-invite'
@@ -157,7 +119,7 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/disconnect/',
-        supplier.views.CollaboratorDisconnectView.as_view(),
+        company.views.CollaboratorDisconnectView.as_view(),
         name='company-disconnect-supplier'
     ),
     url(
@@ -171,13 +133,21 @@ urlpatterns = [
     ),
     url(
         r'^supplier/company/collaborators/$',
-        supplier.views.CompanyCollboratorsListView.as_view(),
+        company.views.CompanyCollboratorsListView.as_view(),
         name='supplier-company-collaborators-list'
     ),
     url(
         r'^supplier/company/collaborator-request/$',
-        company.views.CollaboratorRequestView.as_view(),
+        company.views.CollaborationRequestView.as_view(
+            ({'post': 'create', 'get': 'list'})),
         name='collaborator-request'
+    ),
+    url(
+        r'^supplier/company/collaborator-request/(?P<uuid>.*)/$',
+        company.views.CollaborationRequestView.as_view(
+            {'patch': 'partial_update', 'delete': 'destroy'}
+        ),
+        name='collaborator-request-detail'
     ),
     url(
         r'^supplier/company/add-collaborator/$',
@@ -191,12 +161,12 @@ urlpatterns = [
     ),
     url(
         r'^supplier/$',
-        supplier.views.SupplierRetrieveUpdateAPIView.as_view(),
+        company.views.CompanyUserRetrieveUpdateAPIView.as_view(),
         name='supplier'
     ),
     url(
         r'^supplier/unsubscribe/$',
-        supplier.views.UnsubscribeSupplierAPIView.as_view(),
+        company.views.CompanyUserUnsubscribeAPIView.as_view(),
         name='unsubscribe-supplier'
     ),
     url(
@@ -245,6 +215,11 @@ urlpatterns = [
         name='offices-by-postcode'
     ),
     url(
+        r'^testapi/buyer/(?P<email>.*)/$',
+        testapi.views.BuyerTestAPIView.as_view(),
+        name='buyer_by_email'
+    ),
+    url(
         r'^testapi/company/(?P<ch_id_or_name>.*)/$',
         testapi.views.CompanyTestAPIView.as_view(),
         name='company_by_ch_id_or_name'
@@ -263,6 +238,11 @@ urlpatterns = [
         r'^testapi/companies/unpublished/$',
         testapi.views.UnpublishedCompaniesTestAPIView.as_view(),
         name='unpublished_companies'
+    ),
+    url(
+        r'^testapi/test-companies/$',
+        testapi.views.AutomatedTestsCompaniesTestAPIView.as_view(),
+        name='delete_test_companies'
     ),
     url(
         r'^enrolment/preverified-company/(?P<key>.*)/claim/$',
@@ -294,7 +274,7 @@ elif settings.STORAGE_CLASS_NAME == 'default':
         ),
         url(
             r'supplier/csv-dump/$',
-            supplier.views.SupplierCSVDownloadAPIView.as_view(),
+            company.views.CompanyUserCSVDownloadAPIView.as_view(),
             name='supplier-csv-dump'
         ),
     ]

@@ -1,9 +1,8 @@
 from directory_constants import company_types, user_roles
 from rest_framework import serializers
 
-from company.models import Company
+from company.models import Company, CompanyUser
 from enrolment import models
-from supplier.models import Supplier
 
 
 class CompanyEnrolmentSerializer(serializers.ModelSerializer):
@@ -46,9 +45,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
                 email_address=validated_data['email_address'],
                 is_active=True
             )
-            validated_data['verified_with_preverified_enrolment'] = (
-                queryset.exists()
-            )
+            validated_data['verified_with_preverified_enrolment'] = queryset.exists()
             queryset.update(is_active=False)
         company = super().create(validated_data)
         return company
@@ -68,7 +65,7 @@ class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
 class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Supplier
+        model = CompanyUser
         fields = [
             'name',
         ]

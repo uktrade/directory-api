@@ -1,24 +1,24 @@
-from unittest.mock import patch
+from unittest import mock
 
-import pytest
+from directory_constants import user_roles
 from rest_framework import status
 from rest_framework.test import APIClient
+import pytest
 
 from django.core import signing
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
-from company.models import Company
-from company.tests.factories import CompanyFactory
+from company.models import Company, CompanyUser
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 from enrolment import models
 from enrolment.tests import VALID_REQUEST_DATA
 from enrolment.tests.factories import PreVerifiedEnrolmentFactory
-from supplier.models import Supplier
-from supplier.tests.factories import SupplierFactory
-from directory_constants import user_roles
 
 
 @pytest.mark.django_db
-def test_enrolment_viewset_create():
+@mock.patch('company.helpers.send_registration_letter')
+def test_enrolment_viewset_create(mock_send_registration_letter, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
     client = APIClient()
     data = {
         'address_line_1': '123 Fake street',
@@ -50,11 +50,17 @@ def test_enrolment_viewset_create():
     assert company.po_box == data['po_box']
     assert company.postal_code == data['postal_code']
 
-    supplier = Supplier.objects.get(sso_id=1)
+    supplier = CompanyUser.objects.get(sso_id=1)
     assert supplier.company == company
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
     assert supplier.role == user_roles.ADMIN
+
+    assert mock_send_registration_letter.call_count == 1
+    assert mock_send_registration_letter.call_args == mock.call(
+        company=company,
+        form_url='send_company_claimed_letter_automatically_sent',
+    )
 
 
 @pytest.mark.django_db
@@ -84,7 +90,7 @@ def test_enrolment_viewset_create_optional_fields_unset():
     assert company.po_box == ''
     assert company.postal_code == ''
 
-    supplier = Supplier.objects.get(sso_id=1)
+    supplier = CompanyUser.objects.get(sso_id=1)
     assert supplier.company == company
     assert supplier.company_email == data['contact_email_address']
     assert supplier.sso_id == data['sso_id']
@@ -106,7 +112,7 @@ def test_enrolment_viewset_create_invalid_data():
 
 
 @pytest.mark.django_db
-@patch('enrolment.serializers.CompanyEnrolmentSerializer.create')
+@mock.patch('enrolment.serializers.CompanyEnrolmentSerializer.create')
 def test_enrolment_create_company_exception_rollback(mock_create):
     api_client = APIClient()
     url = reverse('enrolment')
@@ -116,11 +122,11 @@ def test_enrolment_create_company_exception_rollback(mock_create):
         api_client.post(url, VALID_REQUEST_DATA, format='json')
 
     assert Company.objects.count() == 0
-    assert Supplier.objects.count() == 0
+    assert CompanyUser.objects.count() == 0
 
 
 @pytest.mark.django_db
-@patch('supplier.serializers.SupplierSerializer.create')
+@mock.patch('company.serializers.CompanyUserSerializer.create')
 def test_enrolment_create_supplier_exception_rollback(mock_create):
     api_client = APIClient()
     url = reverse('enrolment')
@@ -130,7 +136,7 @@ def test_enrolment_create_supplier_exception_rollback(mock_create):
         api_client.post(url, VALID_REQUEST_DATA, format='json')
 
     assert Company.objects.count() == 0
-    assert Supplier.objects.count() == 0
+    assert CompanyUser.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -154,7 +160,7 @@ def test_enrolment_create_disables_single_preverified_enrolment():
 
 
 @pytest.mark.django_db
-@patch.object(models.PreVerifiedEnrolment.objects.none().__class__, 'update')
+@mock.patch.object(models.PreVerifiedEnrolment.objects.none().__class__, 'update')
 def test_enrolment_create_rollback(mock_update):
     mock_update.side_effect = Exception('!')
 
@@ -238,8 +244,8 @@ def test_preverified_claim_company_bad_key(authed_client):
 
 @pytest.mark.django_db
 def test_preverified_claim_company_succcess(authed_client):
-    Supplier.objects.all().delete()
-    assert Supplier.objects.count() == 0
+    CompanyUser.objects.all().delete()
+    assert CompanyUser.objects.count() == 0
 
     company = CompanyFactory()
 
@@ -251,9 +257,9 @@ def test_preverified_claim_company_succcess(authed_client):
     response = authed_client.post(url, {'name': 'Foo bar'})
 
     assert response.status_code == 201
-    assert Supplier.objects.count() == 1
+    assert CompanyUser.objects.count() == 1
 
-    supplier = Supplier.objects.first()
+    supplier = CompanyUser.objects.first()
     assert supplier.name == 'Foo bar'
     assert supplier.company == company
     assert supplier.role == user_roles.ADMIN
@@ -261,7 +267,7 @@ def test_preverified_claim_company_succcess(authed_client):
 
 @pytest.mark.django_db
 def test_preverified_claim_company_already_claimed(authed_client):
-    supplier = SupplierFactory()
+    supplier = CompanyUserFactory()
 
     url = reverse(
         'enrolment-claim-preverified',
@@ -275,12 +281,9 @@ def test_preverified_claim_company_already_claimed(authed_client):
 
 @pytest.mark.django_db
 def test_preverified_retrieve_company_already_claimed(authed_client):
-    supplier = SupplierFactory()
+    company_user = CompanyUserFactory()
 
-    url = reverse(
-        'enrolment-preverified',
-        kwargs={'key': signing.Signer().sign(supplier.company.number)}
-    )
+    url = reverse('enrolment-preverified', kwargs={'key': signing.Signer().sign(company_user.company.number)})
 
     response = authed_client.get(url)
 

@@ -6,6 +6,8 @@ import environ
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 import healthcheck.backends
 import directory_healthcheck.backends
 
@@ -41,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
     'django_celery_beat',
-    'raven.contrib.django.raven_compat',
     'usermanagement',
     'field_history',
     'core.apps.CoreConfig',
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
     'authbroker_client',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
@@ -90,7 +91,6 @@ TEMPLATES = [
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader',
             ],
         },
     },
@@ -103,11 +103,9 @@ VCAP_SERVICES = env.json('VCAP_SERVICES', {})
 VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
 
 if 'redis' in VCAP_SERVICES:
-    REDIS_CACHE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
-    REDIS_CELERY_URL = REDIS_CACHE_URL.replace('rediss://', 'redis://')
+    REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
 else:
-    REDIS_CACHE_URL = env.str('REDIS_CACHE_URL', '')
-    REDIS_CELERY_URL = env.str('REDIS_CELERY_URL', '')
+    REDIS_URL = env.str('REDIS_URL', '')
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -119,8 +117,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        # separate to REDIS_CELERY_URL as needs to start with 'rediss' for SSL
-        'LOCATION': REDIS_CACHE_URL,
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -210,11 +207,14 @@ REST_FRAMEWORK = {
 
 
 # Sentry
-RAVEN_CONFIG = {
-    'dsn': env.str('SENTRY_DSN', ''),
-}
+if env.str('SENTRY_DSN', ''):
+    sentry_sdk.init(
+        dsn=env.str('SENTRY_DSN'),
+        environment=env.str('SENTRY_ENVIRONMENT'),
+        integrations=[DjangoIntegration()]
+    )
 
-# Logging for development
+
 if DEBUG:
     LOGGING = {
         'version': 1,
@@ -258,53 +258,7 @@ if DEBUG:
             },
         }
     }
-else:
-    # Sentry logging
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'root': {
-            'level': 'WARNING',
-            'handlers': ['sentry'],
-        },
-        'formatters': {
-            'verbose': {
-                'format': '%(levelname)s %(asctime)s %(module)s '
-                          '%(process)d %(thread)d %(message)s'
-            },
-        },
-        'handlers': {
-            'sentry': {
-                'level': 'ERROR',
-                'class': (
-                    'raven.contrib.django.raven_compat.handlers.SentryHandler'
-                ),
-                'tags': {'custom-tag': 'x'},
-            },
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
-            }
-        },
-        'loggers': {
-            'django.db.backends': {
-                'level': 'ERROR',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-            'raven': {
-                'level': 'DEBUG',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-            'sentry.errors': {
-                'level': 'DEBUG',
-                'handlers': ['console'],
-                'propagate': False,
-            },
-        },
-    }
+
 
 # CH
 COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
@@ -387,14 +341,6 @@ SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', True)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', True)
 
-# Verification letters sent with stannp.com
-
-STANNP_API_KEY = env.str('STANNP_API_KEY', '')
-STANNP_TEST_MODE = env.bool('STANNP_TEST_MODE', True)
-STANNP_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
-    'STANNP_VERIFICATION_LETTER_TEMPLATE_ID'
-)
-
 # directory forms api client
 DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
 DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
@@ -413,7 +359,6 @@ GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
     'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
     '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
 )
-
 GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
     'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID',
     'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
@@ -426,7 +371,6 @@ GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.str(
     'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID',
     '439a8415-52d8-4975-b230-15cd34305bb5'
 )
-
 GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.str(
     'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID',
     'a63f948f-978e-4554-86da-c525bfabbaff'
@@ -461,23 +405,6 @@ NO_CASE_STUDIES_UTM = env.str(
     'utm_source=system mails&utm_campaign=case study creation&utm_medium=email'
 )
 
-HASNT_LOGGED_IN_SUBJECT = env.str(
-    'HASNT_LOGGED_IN_SUBJECT',
-    'Update your Find a buyer profile'
-)
-HASNT_LOGGED_IN_DAYS = env.int('HASNT_LOGGED_IN_DAYS', 30)
-
-HASNT_LOGGED_IN_URL = env.str(
-    'HASNT_LOGGED_IN_URL',
-    'https://sso.trade.great.gov.uk/accounts/login/?next={next}'.format(
-        next='https://find-a-buyer.export.great.gov.uk/'
-    )
-)
-HASNT_LOGGED_IN_UTM = env.str(
-    'HASNT_LOGGED_IN_UTM',
-    'utm_source=system emails&utm_campaign=Dormant User&utm_medium=email'
-)
-
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     'Please verify your company’s Find a buyer profile',
@@ -486,42 +413,25 @@ VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
 )
-VERIFICATION_CODE_NOT_GIVEN_DAYS = env.int(
-    'VERIFICATION_CODE_NOT_GIVEN_DAYS', 8
-)
-VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.int(
-    'VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', 16
-)
-VERIFICATION_CODE_URL = env.str(
-    'VERIFICATION_CODE_URL', 'http://great.gov.uk/verify'
-)
-NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.int(
-    'NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS', 7
-)
+VERIFICATION_CODE_NOT_GIVEN_DAYS = env.int('VERIFICATION_CODE_NOT_GIVEN_DAYS', 8)
+VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.int('VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', 16)
+VERIFICATION_CODE_URL = env.str('VERIFICATION_CODE_URL', 'http://great.gov.uk/verify')
+NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.int('NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS', 7)
 NEW_COMPANIES_IN_SECTOR_SUBJECT = env.str(
     'NEW_COMPANIES_IN_SECTOR_SUBJECT',
     'Find a supplier service - New UK companies in your industry now available'
 )
 NEW_COMPANIES_IN_SECTOR_UTM = env.str(
-    'NEW_COMPANIES_IN_SECTOR_UTM', (
-        'utm_source=system%20emails&utm_campaign='
-        'Companies%20in%20a%20sector&utm_medium=email'
-    )
+    'NEW_COMPANIES_IN_SECTOR_UTM',
+    'utm_source=system%20emails&utm_campaign=Companies%20in%20a%20sector&utm_medium=email'
 )
-ZENDESK_URL = env.str(
-    'ZENDESK_URL',
-    'https://contact-us.export.great.gov.uk/feedback/directory/'
-)
-UNSUBSCRIBED_SUBJECT = env.str(
-    'UNSUBSCRIBED_SUBJECT',
-    'Find a buyer service - unsubscribed from marketing emails'
-)
+ZENDESK_URL = env.str('ZENDESK_URL', 'https://contact-us.export.great.gov.uk/feedback/directory/')
+UNSUBSCRIBED_SUBJECT = env.str('UNSUBSCRIBED_SUBJECT', 'Find a buyer service - unsubscribed from marketing emails')
 
 # Celery
-# separate to REDIS_CACHE_URL as needs to start with 'redis' and SSL conf
 # is in api/celery.py
-CELERY_BROKER_URL = REDIS_CELERY_URL
-CELERY_RESULT_BACKEND = REDIS_CELERY_URL
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
@@ -535,29 +445,18 @@ DIRECTORY_SSO_API_CLIENT_DEFAULT_TIMEOUT = 15
 # SSO API Client
 DIRECTORY_SSO_API_CLIENT_BASE_URL = env.str('SSO_API_CLIENT_BASE_URL', '')
 DIRECTORY_SSO_API_CLIENT_API_KEY = env.str('SSO_SIGNATURE_SECRET', '')
-DIRECTORY_SSO_API_CLIENT_SENDER_ID = env.str(
-    'DIRECTORY_SSO_API_CLIENT_SENDER_ID', 'directory'
-)
+DIRECTORY_SSO_API_CLIENT_SENDER_ID = env.str('DIRECTORY_SSO_API_CLIENT_SENDER_ID', 'directory')
 
 # FAS
 FAS_COMPANY_LIST_URL = env.str('FAS_COMPANY_LIST_URL', '')
 FAS_COMPANY_PROFILE_URL = env.str('FAS_COMPANY_PROFILE_URL', '')
-FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str(
-    'FAS_NOTIFICATIONS_UNSUBSCRIBE_URL', ''
-)
+FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str('FAS_NOTIFICATIONS_UNSUBSCRIBE_URL', '')
 
 # FAB
-FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str(
-    'FAB_NOTIFICATIONS_UNSUBSCRIBE_URL', ''
-)
-FAB_TRUSTED_SOURCE_ENROLMENT_LINK = env.str(
-    'FAB_TRUSTED_SOURCE_ENROLMENT_LINK'
-)
+FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str('FAB_NOTIFICATIONS_UNSUBSCRIBE_URL', '')
 
 # DIRECTORY URLS
-DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str(
-    'DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC', ''
-)
+DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str('DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC', '')
 
 # aws, localhost, or govuk-paas
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
@@ -578,7 +477,7 @@ if ELASTICSEARCH_PROVIDER == 'govuk-paas':
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
         alias='default',
-        hosts=['localhost:9200'],
+        hosts=[env.str('ELASTICSEARCH_URL', 'localhost:9200')],
         use_ssl=False,
         verify_certs=False,
         connection_class=RequestsHttpConnection
@@ -586,35 +485,12 @@ elif ELASTICSEARCH_PROVIDER == 'localhost':
 else:
     raise NotImplementedError()
 
-ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str(
-    'ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias'
-)
+ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str('ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias')
 
 # Activity Stream
 ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
-ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str(
-    'ACTIVITY_STREAM_SECRET_ACCESS_KEY', ''
-)
+ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str('ACTIVITY_STREAM_SECRET_ACCESS_KEY', '')
 ACTIVITY_STREAM_IP_WHITELIST = env.list('ACTIVITY_STREAM_IP_WHITELIST')
-
-# Export opportunity lead generation
-SUBJECT_EXPORT_OPPORTUNITY_CREATED = env.str(
-    'SUBJECT_EXPORT_OPPORTUNITY_CREATED',
-    'A new Export Opportunity lead has been submitted via great.gov.uk'
-)
-ITA_EMAILS_FOOD_IS_GREAT_FRANCE = env.list(
-    'ITA_EMAILS_FOOD_IS_GREAT_FRANCE', default=[]
-)
-ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE = env.list(
-    'ITA_EMAILS_FOOD_IS_GREAT_SINGAPORE', default=[]
-)
-
-ITA_EMAILS_LEGAL_IS_GREAT_FRANCE = env.list(
-    'ITA_EMAILS_LEGAL_IS_GREAT_FRANCE', default=[]
-)
-ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE = env.list(
-    'ITA_EMAILS_LEGAL_IS_GREAT_SINGAPORE', default=[]
-)
 
 # Healthcheck
 DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
@@ -633,22 +509,9 @@ SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
 FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
 FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
-FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool(
-    'FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True
-)
-FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool(
-    'FEATURE_VERIFICATION_LETTERS_ENABLED', False
-)
-FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool(
-    'FEATURE_REGISTRATION_LETTERS_ENABLED', False
-)
-# If enabled sends via govenotify else uses stannp
-FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED = env.bool(
-    'FEATURE_VERIFICATION_LETTERS_VIA_GOVNOTIFY_ENABLED', False
-)
-FEATURE_MANUAL_PUBLISH_ENABLED = env.bool(
-    'FEATURE_MANUAL_PUBLISH_ENABLED', False
-)
+FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool('FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True)
+FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool('FEATURE_VERIFICATION_LETTERS_ENABLED', False)
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool('FEATURE_REGISTRATION_LETTERS_ENABLED', False)
 
 # directory-signature-auth
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
@@ -666,16 +529,7 @@ if STORAGE_CLASS_NAME == 'local-storage':
 
 RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
 ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
-ALLOWED_ADMIN_IP_RANGES = env.list(
-    'IP_RESTRICTOR_ALLOWED_ADMIN_IP_RANGES', default=[]
-)
-RESTRICTED_APP_NAMES = env.list(
-    'IP_RESTRICTOR_RESTRICTED_APP_NAMES', default=['admin']
-)
+ALLOWED_ADMIN_IP_RANGES = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IP_RANGES', default=[])
+RESTRICTED_APP_NAMES = env.list('IP_RESTRICTOR_RESTRICTED_APP_NAMES', default=['admin'])
 
 SOLE_TRADER_NUMBER_SEED = env.int('SOLE_TRADER_NUMBER_SEED')
-
-# directory constants
-DIRECTORY_CONSTANTS_URL_EXPORT_READINESS = env.str(
-    'DIRECTORY_CONSTANTS_URL_EXPORT_READINESS', ''
-)

@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from unittest.mock import patch, Mock
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 import pytest
 from rest_framework import status
