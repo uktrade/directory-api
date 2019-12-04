@@ -207,7 +207,7 @@ REST_FRAMEWORK = {
 
 
 # Sentry
-if env.bool('SENTRY_DSN', False):
+if env.str('SENTRY_DSN', ''):
     sentry_sdk.init(
         dsn=env.str('SENTRY_DSN'),
         environment=env.str('SENTRY_ENVIRONMENT'),
