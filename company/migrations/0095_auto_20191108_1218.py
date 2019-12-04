@@ -12,7 +12,7 @@ def forwards(apps, schema_editor):
     CollaborationInvite = apps.get_model('company', 'CollaborationInvite')
 
     for supplier in Supplier.objects.all():
-        CompanyUser.objects.create(
+        company_user = CompanyUser.objects.create(
             sso_id=supplier.sso_id,
             name=supplier.name,
             company=supplier.company,
@@ -22,9 +22,10 @@ def forwards(apps, schema_editor):
             mobile_number=supplier.mobile_number,
             unsubscribed=supplier.unsubscribed,
             role=supplier.role,
-            created=supplier.created,
-            modified=supplier.modified,
         )
+        company_user.created = supplier.created
+        company_user.modified = supplier.modified
+        company_user.save()
 
     for notifiction in SupplierEmailNotification.objects.all():
     	notifiction.company_user = CompanyUser.objects.get(sso_id=notifiction.supplier.sso_id)
