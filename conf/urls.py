@@ -220,6 +220,11 @@ urlpatterns = [
         name='buyer_by_email'
     ),
     url(
+        r'^testapi/test-buyers/$',
+        testapi.views.BuyerTestAPIView.as_view(),
+        name='delete_test_buyers'
+    ),
+    url(
         r'^testapi/company/(?P<ch_id_or_name>.*)/$',
         testapi.views.CompanyTestAPIView.as_view(),
         name='company_by_ch_id_or_name'
