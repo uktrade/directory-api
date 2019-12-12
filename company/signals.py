@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils import timezone
+import datetime
 
 from directory_constants import company_types
 
@@ -24,13 +25,17 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
 
 
 def send_company_registration_letter(sender, instance, *args, **kwargs):
+    FEATURE_IMPLEMENTATION_DATE = datetime.datetime(2019, 10, 15, tzinfo=timezone.utc)
+
     should_send_letter = all([
         settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
         not instance.is_registration_letter_sent,
         instance.company_type == company_types.COMPANIES_HOUSE,
         bool(instance.address_line_1 and instance.postal_code),
         instance.company_users.exists(),
+        instance.created > FEATURE_IMPLEMENTATION_DATE,
     ])
+
     if should_send_letter:
         helpers.send_registration_letter(
             company=instance,

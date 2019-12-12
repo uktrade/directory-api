@@ -2,6 +2,9 @@
 
 ## Pre release
 
+### Fixed bugs
+TT-2220 sent-verification-letters-in-error
+
 ## [2019.12.04_1](https://github.com/uktrade/directory-api/releases/tag/2019.12.04_1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04...2019.12.04_1)
 

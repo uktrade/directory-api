@@ -333,3 +333,28 @@ def test_set_non_companies_house_number(company_type, company_prefix, settings):
     seed = settings.SOLE_TRADER_NUMBER_SEED + 1
 
     assert company.number == f'{company_prefix}{seed:06}'
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_registration_letter')
+def test_does_not_send_verification_if_created_before_feature(
+        mock_send_letter, non_registration_sent_company, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+
+    with freeze_time('2017-01-14 12:00:01'):
+        factories.CompanyUserFactory(
+            company=non_registration_sent_company
+        )
+    mock_send_letter.assert_not_called()
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_registration_letter')
+def test_send_verification_if_created_after_feature(mock_send_letter, non_registration_sent_company, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+
+    with freeze_time('2019-12-12 12:00:01'):
+        factories.CompanyUserFactory(
+            company=non_registration_sent_company
+        )
+    mock_send_letter.call_count = 1
