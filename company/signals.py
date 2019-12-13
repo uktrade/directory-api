@@ -2,8 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 import datetime
 
-from directory_constants import company_types
-
+from directory_constants import company_types, user_roles
 from company import email, documents, helpers, models
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
@@ -121,12 +120,40 @@ def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, *
     if not instance._state.adding:
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
-            supplier_name = helpers.get_company_user_alias_by_email(
+            company_user_name = helpers.get_company_user_alias_by_email(
                 collaboration_invite=instance,
                 company_users=models.CompanyUser.objects.all()
             )
             helpers.send_new_user_alert_invite_accepted_email(
                 collaboration_invite=instance,
-                collaborator_name=supplier_name,
+                collaborator_name=company_user_name,
                 form_url='send_acknowledgement_admin_email_on_invite_accept'
+            )
+
+
+def send_admins_new_collaboration_request_notification(sender, instance, *args, **kwargs):
+    if instance._state.adding:
+        admins = instance.requestor.company.company_users.filter(role=user_roles.ADMIN)
+        helpers.send_admins_new_collaboration_request_email(
+                company_admins=admins,
+                collaboration_request=instance,
+                form_url='send_admins_new_collaboration_request_email'
+        )
+
+
+def send_user_collaboration_request_email_on_decline(sender, instance, *args, **kwargs):
+    if not instance.accepted:
+        helpers.send_user_collaboration_request_declined_email(
+                collaboration_request=instance,
+                form_url='send_user_collaboration_request_email_on_decline'
+        )
+
+
+def send_user_collaboration_request_email_on_accept(sender, instance, *args, **kwargs):
+    if not instance._state.adding:
+        pre_save_instance = sender.objects.get(pk=instance.pk)
+        if instance.accepted and not pre_save_instance.accepted:
+            helpers.send_user_collaboration_request_accepted_email(
+                    collaboration_request=instance,
+                    form_url='send_user_collaboration_request_email_on_accept'
             )

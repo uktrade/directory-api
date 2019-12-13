@@ -43,3 +43,15 @@ class CompanyConfig(AppConfig):
             receiver=signals.send_acknowledgement_admin_email_on_invite_accept,
             sender='company.CollaborationInvite'
         )
+        pre_save.connect(
+            receiver=signals.send_admins_new_collaboration_request_notification,
+            sender='company.CollaborationRequest'
+        )
+        pre_save.connect(
+            receiver=signals.send_user_collaboration_request_email_on_accept,
+            sender='company.CollaborationRequest'
+        )
+        post_delete.connect(
+            receiver=signals.send_user_collaboration_request_email_on_decline,
+            sender='company.CollaborationRequest'
+        )
