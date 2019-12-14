@@ -313,7 +313,7 @@ def send_admins_new_collaboration_request_email(collaboration_request, company_a
         'company_name': collaboration_request.requestor.company.name,
         'email': collaboration_request.requestor.company_email,
         'name': collaboration_request.name,
-        'role': collaboration_request.role,
+        'current_role': collaboration_request.requestor.role,
         'profile_remove_member_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
 
     }
