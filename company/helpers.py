@@ -276,6 +276,57 @@ def get_company_user_alias_by_email(collaboration_invite, company_users):
         return collaboration_invite.collaborator_email
 
 
+def send_user_collaboration_request_declined_email(collaboration_request, form_url=None):
+    request_details = {
+        'company_name': collaboration_request.requestor.company.name,
+        'email': collaboration_request.requestor.company_email,
+        'role': collaboration_request.role,
+    }
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_request.requestor.company_email,
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save(request_details)
+    response.raise_for_status()
+
+
+def send_user_collaboration_request_accepted_email(collaboration_request, form_url=None):
+    request_details = {
+        'company_name': collaboration_request.requestor.company.name,
+        'email': collaboration_request.requestor.company_email,
+        'role': collaboration_request.role,
+        'business_profile_admin_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+    }
+    action = actions.GovNotifyEmailAction(
+        email_address=collaboration_request.requestor.company_email,
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID,
+        form_url=form_url,
+    )
+    response = action.save(request_details)
+    response.raise_for_status()
+
+
+def send_admins_new_collaboration_request_email(collaboration_request, company_admins, form_url=None):
+
+    request_details = {
+        'company_name': collaboration_request.requestor.company.name,
+        'email': collaboration_request.requestor.company_email,
+        'name': collaboration_request.name,
+        'current_role': collaboration_request.requestor.role,
+        'profile_remove_member_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+
+    }
+    for company_admin in company_admins:
+        action = actions.GovNotifyEmailAction(
+            email_address=company_admin.company_email,
+            template_id=settings.GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID,
+            form_url=form_url,
+        )
+        response = action.save(request_details)
+        response.raise_for_status()
+
+
 def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator_name, form_url=None):
     invite_details = {
         'company_name': collaboration_invite.company.name,
