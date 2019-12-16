@@ -2,6 +2,21 @@
 
 ## Pre release
 
+### Fixed bugs
+TT-2220 sent-verification-letters-in-error
+TT-2165 send user accept/decline new admin request 
+TT-1624 send admin new admin request email
+
+## [2019.12.04_1](https://github.com/uktrade/directory-api/releases/tag/2019.12.04_1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04...2019.12.04_1)
+
+### Hotfix
+- No ticket - wait for migrations before starting celery beat
+
+
+## [2019.12.04](https://github.com/uktrade/directory-api/releases/tag/2019.12.04)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.10.22...2019.12.04)
+
 ### Implemented enhancements
 - TT-2027 - Make testapi to return company number (for testing non-CH companies)
 - TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
