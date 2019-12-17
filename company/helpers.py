@@ -296,7 +296,7 @@ def send_user_collaboration_request_accepted_email(collaboration_request, form_u
         'company_name': collaboration_request.requestor.company.name,
         'email': collaboration_request.requestor.company_email,
         'role': collaboration_request.role,
-        'business_profile_admin_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+        'business_profile_admin_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/',
     }
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_request.requestor.company_email,
