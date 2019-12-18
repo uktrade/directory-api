@@ -5,6 +5,7 @@ from django.urls import reverse
 from factory import Sequence
 from rest_framework import status
 
+from buyer.models import Buyer
 from buyer.tests.factories import BuyerFactory
 from company.models import Company
 from company.tests.factories import CompanyFactory, CompanyUserFactory
@@ -50,7 +51,6 @@ def test_get_buyer_by_email_not_found(authed_client):
 @pytest.mark.parametrize(
     'method',
     [
-        'delete',
         'head',
         'options',
         'patch',
@@ -65,7 +65,6 @@ def test_get_buyer_by_email_does_not_accept_all_http_methods(
 ):
     url = reverse('buyer_by_email', kwargs={'email': 'some@email.com'})
     methods = {
-        'delete': authed_client.delete,
         'head': client.head,
         'options': authed_client.options,
         'patch': authed_client.patch,
@@ -592,3 +591,58 @@ def test_delete_test_companies_returns_404_with_disabled_testapi(client, setting
     )
     response = client.delete(reverse('delete_test_companies'))
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_test_buyers(authed_client):
+    BuyerFactory.create_batch(
+        3,
+        email=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+    )
+    response = authed_client.delete(reverse('delete_test_buyers'))
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert Buyer.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_delete_test_buyers_returns_404_when_no_test_buyers(authed_client):
+    response = authed_client.delete(reverse('delete_test_buyers'))
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_delete_test_buyers_returns_404_with_disabled_testapi(authed_client, settings):
+    settings.FEATURE_TEST_API_ENABLED = False
+    BuyerFactory.create(
+        email=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+    )
+    response = authed_client.delete(reverse('delete_test_buyers'))
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert Buyer.objects.count() == 1
+
+
+@pytest.mark.parametrize(
+    'method',
+    [
+        'head',
+        'options',
+        'patch',
+        'post',
+        'put',
+        'trace',
+    ]
+)
+@pytest.mark.django_db
+def test_delete_test_buyers_does_not_accept_all_http_methods(authed_client, client, method):
+    methods = {
+        'delete': authed_client.delete,
+        'head': client.head,
+        'options': authed_client.options,
+        'patch': authed_client.patch,
+        'post': authed_client.post,
+        'put': authed_client.put,
+        'trace': client.trace,
+    }
+    url = reverse('delete_test_buyers')
+    response = methods[method](url, data=None)
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
