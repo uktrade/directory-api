@@ -3,6 +3,14 @@
 ## Pre release
 
 ### Fixed bugs
+
+### Implemented enhancements
+
+
+## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
+
+### Fixed bugs
 TT-2220 - sent-verification-letters-in-error
 TT-2165 - send user accept/decline new admin request 
 TT-1624 - send admin new admin request email
