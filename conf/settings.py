@@ -263,17 +263,6 @@ if DEBUG:
 # CH
 COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
 
-# Settings for company email confirmation
-COMPANY_EMAIL_CONFIRMATION_SUBJECT = env.str(
-    'COMPANY_EMAIL_CONFIRMATION_SUBJECT',
-)
-COMPANY_EMAIL_CONFIRMATION_FROM = env.str(
-    'COMPANY_EMAIL_CONFIRMATION_FROM'
-)
-COMPANY_EMAIL_CONFIRMATION_URL = env.str(
-    'COMPANY_EMAIL_CONFIRMATION_URL'
-)
-
 # Email
 EMAIL_BACKED_CLASSES = {
     'default': 'django.core.mail.backends.smtp.EmailBackend',
@@ -393,13 +382,6 @@ GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
 
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
-
-# Settings for email to supplier
-CONTACT_SUPPLIER_SUBJECT = env.str(
-    'CONTACT_SUPPLIER_SUBJECT',
-    'Someone is interested in your Find a Buyer profile'
-)
-CONTACT_SUPPLIER_FROM_EMAIL = env.str('CONTACT_SUPPLIER_FROM_EMAIL')
 
 # Automated email settings
 NO_CASE_STUDIES_SUBJECT = env.str(
