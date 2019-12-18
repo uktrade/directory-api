@@ -4,8 +4,6 @@ from notifications import constants
 
 
 class SupplierEmailNotification(models.Model):
-    # deprecated. user company_user
-    supplier = models.ForeignKey('supplier.Supplier', null=True, blank=True, on_delete=models.SET)
     company_user = models.ForeignKey('company.CompanyUser', null=True, blank=True, on_delete=models.SET)
     category = models.CharField(max_length=255, choices=constants.SUPPLIER_NOTIFICATION_CATEGORIES)
     date_sent = models.DateTimeField(auto_now_add=True)

@@ -209,8 +209,6 @@ class CollaborationInvite(TimeStampedModel):
     uuid = models.UUIDField(default=uuid.uuid4)
     collaborator_email = models.EmailField()
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.CASCADE)
-    # deprecated. user company_user
-    requestor = models.ForeignKey('supplier.Supplier', null=True, blank=True, on_delete=models.CASCADE)
     company_user = models.ForeignKey(CompanyUser, on_delete=models.CASCADE)
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)

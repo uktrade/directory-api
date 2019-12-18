@@ -10,7 +10,6 @@ from django.views.generic import RedirectView
 import activitystream.views
 import buyer.views
 import company.views
-import contact.views
 import enrolment.views
 import notifications.views
 import testapi.views
@@ -188,11 +187,6 @@ urlpatterns = [
         r'^buyer/$',
         buyer.views.BuyerCreateAPIView.as_view(),
         name='buyer-create',
-    ),
-    url(
-        r'^contact/supplier/$',
-        contact.views.CreateMessageToSupplierAPIView.as_view(),
-        name='company-public-profile-contact-create'
     ),
     url(
         r'^notifications/anonymous-unsubscribe/$',

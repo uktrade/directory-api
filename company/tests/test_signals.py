@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from company import documents, models
 from company.tests import factories
+from directory_constants import user_roles
 
 
 @pytest.fixture(autouse=False)
@@ -284,6 +285,24 @@ def test_send_acknowledgement_admin_email_on_invite_accept(mock_send_invite_acce
 
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
+def test_send_acknowledgement_admin_email_on_invite_reject(mock_send_invite_accepted_email):
+    collaboration_invite = factories.CollaborationInviteFactory()
+    factories.CompanyUserFactory.create(company_email=collaboration_invite.collaborator_email, name='myname')
+
+    assert mock_send_invite_accepted_email.call_count == 0
+    collaboration_invite.accepted = True
+    collaboration_invite.accepted_date = datetime.date.today()
+    collaboration_invite.save()
+    assert mock_send_invite_accepted_email.call_count == 1
+    assert mock_send_invite_accepted_email.call_args == mock.call(
+        collaboration_invite=collaboration_invite,
+        collaborator_name='myname',
+        form_url='send_acknowledgement_admin_email_on_invite_accept',
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_new_user_alert_invite_accepted_email')
 def test_send_acknowledgement_admin_email_on_invite_accept_modified(mock_send_invite_accepted_email):
     collaboration_invite = factories.CollaborationInviteFactory()
 
@@ -333,3 +352,95 @@ def test_set_non_companies_house_number(company_type, company_prefix, settings):
     seed = settings.SOLE_TRADER_NUMBER_SEED + 1
 
     assert company.number == f'{company_prefix}{seed:06}'
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_registration_letter')
+def test_does_not_send_verification_if_created_before_feature(
+        mock_send_letter, non_registration_sent_company, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+
+    with freeze_time('2017-01-14 12:00:01'):
+        factories.CompanyUserFactory(
+            company=non_registration_sent_company
+        )
+    mock_send_letter.assert_not_called()
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_registration_letter')
+def test_send_verification_if_created_after_feature(mock_send_letter, non_registration_sent_company, settings):
+    settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
+
+    with freeze_time('2019-12-12 12:00:01'):
+        factories.CompanyUserFactory(
+            company=non_registration_sent_company
+        )
+    mock_send_letter.call_count = 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_user_collaboration_request_declined_email')
+def test_user_send_collaboration_request_email_on_decline(mock_send_email):
+    collaboration_request = factories.CollaborationRequestFactory()
+    collaboration_request.delete()
+    mock_send_email.call_args = mock.call(
+        collaboration_request=collaboration_request, form_url='send_user_collaboration_request_email_on_decline'
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_admins_new_collaboration_request_email')
+def test_send_admins_new_collaboration_request_notification(mock_send_email):
+
+    company = factories.CompanyFactory()
+    factories.CompanyUserFactory(company=company, role=user_roles.ADMIN)
+    factories.CompanyUserFactory(company=company, role=user_roles.ADMIN)
+    member_user = factories.CompanyUserFactory(company=company, role=user_roles.MEMBER)
+
+    admins = models.CompanyUser.objects.filter(company_id=company.id, role=user_roles.ADMIN)
+
+    collaboration_request = factories.CollaborationRequestFactory(requestor=member_user)
+
+    mock_send_email.call_args = mock.call(
+        company_admins=admins,
+        collaboration_request=collaboration_request,
+        form_url='send_admins_new_collaboration_request_email'
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_admins_new_collaboration_request_email')
+def test_send_admins_new_collaboration_request_notification_not_sent_modify(mock_send_email):
+    colloboration_request = factories.CollaborationRequestFactory()
+    colloboration_request.name = 'xyz'
+    colloboration_request.save()
+    mock_send_email.call_count = 1
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_user_collaboration_request_declined_email')
+def test_user_send_collaboration_request_email_on_decline_not_sent_when_accepted(mock_send_email):
+    collaboration_request = factories.CollaborationRequestFactory(accepted=True)
+    collaboration_request.delete()
+    mock_send_email.assert_not_called()
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_user_collaboration_request_accepted_email')
+def test_user_send_collaboration_request_email_on_accept(mock_send_email):
+    collaboration_request = factories.CollaborationRequestFactory()
+    collaboration_request.accepted = True
+    collaboration_request.save()
+    mock_send_email.call_args = mock.call(
+        collaboration_request=collaboration_request, form_url='send_user_collaboration_request_email_on_accept'
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_user_collaboration_request_accepted_email')
+def test_user_send_collaboration_request_email_on_accept_not_sent_on_modified(mock_send_email):
+    collaboration_request = factories.CollaborationRequestFactory()
+    collaboration_request.name = 'xyz'
+    collaboration_request.save()
+    mock_send_email.assert_not_called()

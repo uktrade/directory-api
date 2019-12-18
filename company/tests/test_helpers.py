@@ -11,6 +11,7 @@ from django.utils import timezone
 from company.tests import factories
 from company import helpers, models, serializers
 from core.helpers import SSOUser
+from directory_constants import user_roles
 
 
 @pytest.mark.parametrize('raw_address,line_1,line_2,po_box,postal_code', (
@@ -432,3 +433,54 @@ def test_sso_full_name():
     assert user_no_profile.full_name == ''
     assert user_first_name.full_name == 'big'
     assert user_last_name.full_name == ''
+
+
+@pytest.mark.django_db
+@mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
+def test_send_admins_new_collaboration_request_email(mock_gov_notify_email_action, settings):
+    company = factories.CompanyFactory()
+    admin = factories.CompanyUserFactory(company=company, role=user_roles.ADMIN)
+    member_user = factories.CompanyUserFactory(company=company, role=user_roles.MEMBER)
+    factories.CollaborationRequestFactory(requestor=member_user)
+
+    assert mock_gov_notify_email_action.call_count == 1
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=admin.company_email,
+        form_url='send_admins_new_collaboration_request_email',
+        template_id=settings.GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_admins_new_collaboration_request_email')
+@mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
+def test_send_user_collaboration_request_accepted_email(mock_gov_notify_email_action, mock_admin_email, settings):
+    collaboration_request = factories.CollaborationRequestFactory()
+    collaboration_request.accepted = True
+    collaboration_request.save()
+
+    assert mock_admin_email.call_count == 1
+    assert mock_gov_notify_email_action.call_count == 1
+
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=collaboration_request.requestor.company_email,
+        form_url='send_user_collaboration_request_email_on_accept',
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID
+    )
+
+
+@pytest.mark.django_db
+@mock.patch('company.helpers.send_admins_new_collaboration_request_email')
+@mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
+def test_send_user_collaboration_request_declined_email(mock_gov_notify_email_action, mock_admin_email, settings):
+    collaboration_request = factories.CollaborationRequestFactory()
+    collaboration_request.delete()
+
+    assert mock_admin_email.call_count == 1
+    assert mock_gov_notify_email_action.call_count == 1
+
+    assert mock_gov_notify_email_action.call_args == mock.call(
+        email_address=collaboration_request.requestor.company_email,
+        form_url='send_user_collaboration_request_email_on_decline',
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID
+    )
