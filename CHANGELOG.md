@@ -5,7 +5,7 @@
 ### Fixed bugs
 
 ### Implemented enhancements
-TT-2234 - upgrade staff sso foruser id
+TT-2234 - upgrade staff sso for user id
 
 ## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
