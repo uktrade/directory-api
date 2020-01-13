@@ -29,6 +29,8 @@ from testapi.utils import (
 
 
 class TestAPIView(GenericAPIView):
+    authentication_classes = [Oauth2AuthenticationSSO]
+    permission_classes = []
 
     def dispatch(self, *args, **kwargs):
         if not settings.FEATURE_TEST_API_ENABLED:
@@ -36,19 +38,25 @@ class TestAPIView(GenericAPIView):
         return super().dispatch(*args, **kwargs)
 
 
-class BuyerTestAPIView(TestAPIView, RetrieveAPIView):
+class BuyerTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     serializer_class = BuyerSerializer
-    authentication_classes = [Oauth2AuthenticationSSO]
-    permission_classes = []
     queryset = Buyer.objects.all()
     lookup_field = 'email'
-    http_method_names = 'get'
+    http_method_names = ('delete', 'get')
+
+    def delete(self, request, **kwargs):
+        test_buyers = get_list_or_404(
+            Buyer,
+            email__regex=r'^test\+(.*)@directory\.uktrade\.io',
+        )
+        for buyer in test_buyers:
+            buyer.delete()
+        return Response(status=204)
 
 
 class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
-    permission_classes = []
     lookup_field = 'number'
     http_method_names = ('get', 'delete', 'patch')
 
@@ -102,7 +110,6 @@ class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
         Q(is_published_investment_support_directory=True) |
         Q(is_published_find_a_supplier=True)
     )
-    permission_classes = []
     lookup_field = 'is_published'
     http_method_names = 'get'
 
@@ -120,7 +127,6 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
         Q(is_published_investment_support_directory=False) |
         Q(is_published_find_a_supplier=False)
     )
-    permission_classes = []
     lookup_field = 'is_published'
     http_method_names = 'get'
 
@@ -134,13 +140,9 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
 
 class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
     serializer_class = ISDCompanySerializer
-    authentication_classes = [Oauth2AuthenticationSSO]
-    permission_classes = []
 
 
 class AutomatedTestsCompaniesTestAPIView(TestAPIView, DestroyAPIView):
-    authentication_classes = [Oauth2AuthenticationSSO]
-    permission_classes = []
     serializer_class = Company
     queryset = Company.objects.all()
     http_method_names = 'delete'
