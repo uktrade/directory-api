@@ -51,3 +51,4 @@ STANNP_TEST_MODE=true
 STANNP_VERIFICATION_LETTER_TEMPLATE_ID=debug
 STORAGE_CLASS_NAME=local-storage
 STATICFILES_STORAGE=django.contrib.staticfiles.storage.StaticFilesStorage
+GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL=test@example.com

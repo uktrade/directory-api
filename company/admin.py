@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 
 from core.helpers import generate_csv_response
 from company import helpers, models
@@ -104,6 +104,15 @@ class CompaniesCreateFormView(FormView):
                 'created_companies': created_companies,
                 'skipped_companies': form.skipped_companies,
             }
+        )
+
+
+class DuplicateCompaniesView(TemplateView):
+    template_name = 'admin/company/duplicate_companies.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            groups=helpers.get_duplicate_companies()
         )
 
 
@@ -235,6 +244,13 @@ class CompanyAdmin(admin.ModelAdmin):
                     CompaniesUploadExpertiseFormView.as_view()
                 ),
                 name="upload_company_expertise"
+            ),
+            url(
+                r'^duplicates/$',
+                self.admin_site.admin_view(
+                    DuplicateCompaniesView.as_view()
+                ),
+                name="duplicate_companies"
             ),
         ]
         return additional_urls + urls

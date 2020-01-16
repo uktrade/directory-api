@@ -375,6 +375,12 @@ GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID = env.str(
     '240cfe51-a5fc-4826-a716-84ebaa429315'
 )
 
+# Duplicate companies notification
+
+GOVNOTIFY_DUPLICATE_COMPANIES = env.str('GOVNOTIFY_DUPLICATE_COMPANIES', '9d93b6c9-ff75-4797-b841-2f7a6c78a277')
+GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL = env.str('GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL')
+
+
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
 GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
