@@ -3,12 +3,12 @@
 ## Pre release
 
 ### Implemented enhancements
+TT-2253 - Detect duplicate companies
 
 ### Fixed bugs
 
 ## [2020.01.14](https://github.com/uktrade/directory-api/releases/tag/2020.01.14)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.18...2020.01.14)
-
 
 ### Implemented enhancements
 TT-2234 - upgrade staff-sso to allow id rather then email/username
