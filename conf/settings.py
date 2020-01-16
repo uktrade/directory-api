@@ -278,8 +278,6 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
 FAS_FROM_EMAIL = env.str('FAS_FROM_EMAIL', '')
 FAB_FROM_EMAIL = env.str('FAB_FROM_EMAIL', '')
-FAB_OWNERSHIP_URL = env.str('FAB_OWNERSHIP_URL', '')
-FAB_COLLABORATOR_URL = env.str('FAB_COLLABORATOR_URL', '')
 OWNERSHIP_INVITE_SUBJECT = env.str(
     'OWNERSHIP_INVITE_SUBJECT',
     'Confirm ownership of {company_name}’s Find a buyer profile'
@@ -384,20 +382,6 @@ GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
 
 # Automated email settings
-NO_CASE_STUDIES_SUBJECT = env.str(
-    'NO_CASE_STUDIES_SUBJECT',
-    'Get seen by more international buyers by improving your profile'
-)
-NO_CASE_STUDIES_DAYS = env.int('NO_CASE_STUDIES_DAYS', 8)
-NO_CASE_STUDIES_URL = env.str(
-    'NO_CASE_STUDIES_URL',
-    'https://find-a-buyer.export.great.gov.uk/company/case-study/edit/'
-)
-NO_CASE_STUDIES_UTM = env.str(
-    'NO_CASE_STUDIES_UTM',
-    'utm_source=system mails&utm_campaign=case study creation&utm_medium=email'
-)
-
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     'Please verify your company’s Find a buyer profile',
