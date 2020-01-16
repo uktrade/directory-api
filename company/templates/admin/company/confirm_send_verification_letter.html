@@ -43,14 +43,14 @@
               {% endfor %}
           </div>
           <input type="submit" value="Yes, I'm sure">
-          <a href="/admin/company/companyuser/" class="button cancel-link">No, take me back</a>
+          <a href="{% url 'admin:company_companyuser_changelist'%}" class="button cancel-link">No, take me back</a>
       </form>
     {% else %}
        <p>
            {{ messages_success}} <br>
            {{ messages_warning}} <br>
        </p>
-       <a href="/admin/company/companyuser/" class="button cancel-link">back</a>
+       <a href="{% url 'admin:company_companyuser_changelist'%" class="button cancel-link">back</a>
     {% endif %}
     <br class="clear">
     <div id="footer"></div>

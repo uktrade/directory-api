@@ -299,8 +299,8 @@ class ResendVerificationLetter(View):
                 helpers.send_verification_letter(company_user.company)
                 not_verified_users_count += 1
 
-        messages_success = 'Verification letter resent to {} users'.format(not_verified_users_count)
-        messages_warning = '{} users skipped'.format(len(obj_ids) - not_verified_users_count)
+        messages_success = f'Verification letter resent to {not_verified_users_count} users'
+        messages_warning = f'{len(obj_ids) - not_verified_users_count} users skipped'
         response = TemplateResponse(
             request,
             'admin/company/confirm_send_verification_letter.html',

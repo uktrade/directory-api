@@ -874,9 +874,8 @@ class ResendLetterTestCase(TestCase):
     def tearDown(self):
         self.freezer.stop()
 
-    @patch('company.admin.messages')
     @patch('company.helpers.send_verification_letter')
-    def test_resend_letter(self, mocked_send_letter, mocked_messages):
+    def test_resend_letter(self, mocked_send_letter):
         company = models.Company.objects.create(**COMPANY_DATA)
         company_user = models.CompanyUser.objects.create(company=company, **SUPPLIER_DATA)
 
@@ -891,24 +890,23 @@ class ResendLetterTestCase(TestCase):
         models.CompanyUser.objects.create(company=other_company, **other_supplier_data)
 
         data = {
-            'action': 'resend_letter',
+            'action': 'send_verification_letter',
             '_selected_action': models.CompanyUser.objects.all().values_list('pk', flat=True)
         }
         response = self.client.post(
             reverse('admin:company_companyuser_changelist'),
             data,
+        )
+        assert response.template_name == 'admin/company/confirm_send_verification_letter.html'
+        response = self.client.post(
+            reverse('admin:resend_verification_letter'),
+            data={'obj_ids': [company_user.pk for company_user in models.CompanyUser.objects.all()]},
             follow=True
         )
 
+        assert response.context['messages_success'] == 'Verification letter resent to 1 users'
+        assert response.context['messages_warning'] == '1 users skipped'
         assert mocked_send_letter.called_once_with(company_user.company)
-        assert mocked_messages.success.called_once_with(
-            response.request,
-            'Verification letter resent to 1 users'
-        )
-        assert mocked_messages.warning.called_once_with(
-            response.request,
-            '1 users skipped'
-        )
 
 
 @pytest.fixture
