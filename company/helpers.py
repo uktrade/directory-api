@@ -418,7 +418,7 @@ def get_duplicate_companies():
         if candidate not in duplicates and is_similar_company(company=company, candidate=candidate):
             groups[company].append(candidate)
             duplicates.add(candidate)
-    return list(groups.values())
+    return [item for item in groups.values() if len(item) > 1]
 
 
 def is_similar_company(company, candidate):
