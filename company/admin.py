@@ -328,7 +328,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
     )
     list_display = ('name', 'company_email', 'company', 'company_type',)
     readonly_fields = ('company_type', 'created', 'modified',)
-    actions = ['send_verification_letter', 'download_csv',]
+    actions = ['send_verification_letter', 'download_csv', ]
 
     def send_verification_letter(self, request, queryset):
         response = TemplateResponse(
