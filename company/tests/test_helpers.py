@@ -1,6 +1,7 @@
 from unittest import mock
 
 from directory_forms_api_client.client import forms_api_client
+from directory_constants import company_types
 from directory_constants.urls import domestic
 from freezegun import freeze_time
 import pytest
@@ -484,3 +485,76 @@ def test_send_user_collaboration_request_declined_email(mock_gov_notify_email_ac
         form_url='send_user_collaboration_request_email_on_decline',
         template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID
     )
+
+
+@pytest.mark.django_db
+def test_get_duplicate_companies():
+    company_a = factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='Test company',
+        postal_code='DN21 7UJ',
+    )
+    company_a.number = 'ST000001'
+    company_a.save()
+    company_b = factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='Test company',
+        postal_code='DN217UJ',
+    )
+    company_c = factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='Test company',
+        postal_code='dn217uj',
+    )
+    company_d = factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='test company',
+        postal_code='dn217uj',
+    )
+    factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='some other company',
+        postal_code='dn217uj',
+    )
+
+    groups = helpers.get_duplicate_companies()[0]
+
+    assert [item.pk for item in groups] == [company_a.pk, company_b.pk, company_c.pk, company_d.pk]
+
+
+@pytest.mark.django_db
+def test_notify_duplicate_companies_no_duplicates(mock_forms_api_gov_notify_email):
+    helpers.notify_duplicate_companies()
+
+    assert mock_forms_api_gov_notify_email.call_count == 0
+
+
+@pytest.mark.django_db
+def test_notify_duplicate_companies(mock_forms_api_gov_notify_email):
+    company_a = factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='Test company',
+        postal_code='DN217UJ',
+    )
+    company_a.number = 'ST000001'
+    company_a.save()
+    factories.CompanyFactory(
+        company_type=company_types.SOLE_TRADER,
+        name='Test company',
+        postal_code='dn217uj',
+    )
+
+    helpers.notify_duplicate_companies()
+
+    assert mock_forms_api_gov_notify_email.call_count == 1
+    assert mock_forms_api_gov_notify_email.call_args_list == [
+        mock.call(
+            template_id=settings.GOVNOTIFY_DUPLICATE_COMPANIES,
+            email_address=settings.GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL,
+            form_url='detect_duplicate_companies'
+        )
+    ]
+    assert mock_forms_api_gov_notify_email().save.call_count == 1
+    assert mock_forms_api_gov_notify_email().save.call_args_list == [
+        mock.call({'groups': '* Test company\n* Test company', 'count': 2})
+    ]
