@@ -517,9 +517,10 @@ def test_get_duplicate_companies():
         postal_code='dn217uj',
     )
 
-    groups = helpers.get_duplicate_companies()[0]
+    groups = helpers.get_duplicate_companies()
 
-    assert [item.pk for item in groups] == [company_a.pk, company_b.pk, company_c.pk, company_d.pk]
+    assert len(groups) == 1
+    assert [item.pk for item in groups[0]] == [company_a.pk, company_b.pk, company_c.pk, company_d.pk]
 
 
 @pytest.mark.django_db
