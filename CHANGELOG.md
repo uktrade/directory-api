@@ -16,6 +16,7 @@ TT-2253 - Detect duplicate companies
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
+TT2247 - verification confirmation 
 
 ### Fixed bugs
 TT-2220 sent-verification-letters-in-error

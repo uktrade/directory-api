@@ -2,6 +2,7 @@ import csv
 import io
 import json
 import re
+import ast
 from difflib import SequenceMatcher
 
 from directory_components.forms.fields import PaddedCharField
@@ -354,3 +355,10 @@ class UploadExpertise(forms.Form):
             errors=json.dumps(line_errors),
             number=row_number,
         ))
+
+
+class ConfirmVerificationLetterForm(forms.Form):
+    obj_ids = forms.CharField(widget=forms.HiddenInput())
+
+    def clean_obj_ids(self):
+        return ast.literal_eval(self.cleaned_data['obj_ids'])
