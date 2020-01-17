@@ -328,7 +328,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
     )
     list_display = ('name', 'company_email', 'company', 'company_type',)
     readonly_fields = ('company_type', 'created', 'modified',)
-    actions = ['send_verification_letter', 'download_csv', 'resend_letter', ]
+    actions = ['send_verification_letter', 'download_csv',]
 
     def send_verification_letter(self, request, queryset):
         response = TemplateResponse(
@@ -357,7 +357,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
     )
 
     def get_urls(self):
-        urls = super(CompanyUserAdmin, self).get_urls()
+        urls = super().get_urls()
         additional_urls = [
             url(r'^admin/company/resend-verification-letter/$',
                 self.admin_site.admin_view(ResendVerificationLetterFormView.as_view()),
