@@ -10,11 +10,12 @@ from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import FormView, View
+from django.views.generic import FormView
+from django.contrib.messages.views import SuccessMessageMixin
 
 from core.helpers import generate_csv_response
 from company import helpers, models
-from company.forms import EnrolCompanies, UploadExpertise
+from company.forms import EnrolCompanies, UploadExpertise, ConfirmVerificationLetterForm
 
 
 class GDPRComplianceFilter(admin.SimpleListFilter):
@@ -286,27 +287,20 @@ class CollaborationRequestAdmin(admin.ModelAdmin):
     list_filter = ('accepted', 'role')
 
 
-class ResendVerificationLetter(View):
+class ResendVerificationLetterFormView(SuccessMessageMixin, FormView):
 
     template_name = 'admin/company/confirm_send_verification_letter.html'
+    form_class = ConfirmVerificationLetterForm
+    success_url = reverse_lazy('admin:company_companyuser_changelist')
 
-    def post(self, request):
-        obj_ids = request.POST.getlist("obj_ids", [])
-        not_verified_users_count = 0
-        for obj_id in obj_ids:
-            company_user = models.CompanyUser.objects.get(pk=obj_id)
-            if not company_user.company.verified_with_code:
-                helpers.send_verification_letter(company_user.company)
-                not_verified_users_count += 1
-
-        messages_success = f'Verification letter resent to {not_verified_users_count} users'
-        messages_warning = f'{len(obj_ids) - not_verified_users_count} users skipped'
-        response = TemplateResponse(
-            request,
-            'admin/company/confirm_send_verification_letter.html',
-            {'messages_success': messages_success, 'messages_warning': messages_warning, }
+    def form_valid(self, form):
+        queryset = models.CompanyUser.objects.filter(pk__in=form.cleaned_data['obj_ids']).filter(
+            company__verified_with_code=False
         )
-        return response
+        for user in queryset:
+            helpers.send_verification_letter(user.company)
+        self.success_message = f'"Number of verification letter(s) resent: {queryset.count()}'
+        return super().form_valid(form)
 
 
 @admin.register(models.CompanyUser)
@@ -321,9 +315,11 @@ class CompanyUserAdmin(admin.ModelAdmin):
     actions = ['send_verification_letter', 'download_csv', 'resend_letter', ]
 
     def send_verification_letter(self, request, queryset):
-        response = TemplateResponse(request,
-                                    'admin/company/confirm_send_verification_letter.html',
-                                    {'queryset': queryset})
+        response = TemplateResponse(
+            request,
+            'admin/company/confirm_send_verification_letter.html',
+            {'queryset': queryset, 'ids': [q.pk for q in queryset], }
+        )
         return response
 
     def company_type(self, object):
@@ -348,7 +344,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
         urls = super(CompanyUserAdmin, self).get_urls()
         additional_urls = [
             url(r'^admin/company/resend-verification-letter/$',
-                self.admin_site.admin_view(ResendVerificationLetter.as_view()),
+                self.admin_site.admin_view(ResendVerificationLetterFormView.as_view()),
                 name='resend_verification_letter',
                 ),
         ]

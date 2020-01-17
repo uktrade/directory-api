@@ -13,7 +13,6 @@
 {% block content %}
 
 <div id="content" class="colM delete-confirmation">
-    {% if queryset %}
         <p>
             Are you sure you want to send a verification letter to the folllowing companies(s)
         </p>
@@ -38,20 +37,12 @@
       <form method="post" action="{% url 'admin:resend_verification_letter' %}">
           {% csrf_token %}
           <div>
-              {% for obj in queryset %}
-                <input type="hidden" name="obj_ids" value="{{ obj.pk }}" />
-              {% endfor %}
+              {{ form }}
+                <input type="hidden" name="obj_ids" value="{{ ids }}" />
           </div>
           <input type="submit" value="Yes, I'm sure">
           <a href="{% url 'admin:company_companyuser_changelist'%}" class="button cancel-link">No, take me back</a>
       </form>
-    {% else %}
-       <p>
-           {{ messages_success}} <br>
-           {{ messages_warning}} <br>
-       </p>
-       <a href="{% url 'admin:company_companyuser_changelist'%" class="button cancel-link">back</a>
-    {% endif %}
     <br class="clear">
     <div id="footer"></div>
 </div>
