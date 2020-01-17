@@ -8,6 +8,7 @@
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
+TT2247 - verification confirmation 
 
 ## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
