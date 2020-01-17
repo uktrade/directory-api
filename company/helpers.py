@@ -1,8 +1,11 @@
+from collections import defaultdict
+from difflib import SequenceMatcher
 import csv
+import itertools
 import logging
 import re
 
-from directory_constants import choices, user_roles
+from directory_constants import company_types, choices, user_roles
 from directory_constants.urls import domestic
 import directory_components.helpers
 from directory_forms_api_client import actions
@@ -405,3 +408,33 @@ def validate_other_admins_connected_to_company(company, sso_ids):
     # a company must have at least ope admin attached to it
     if company.company_users.filter(role=user_roles.ADMIN).exclude(sso_id__in=sso_ids).count() == 0:
         raise ValidationError(MESSAGE_ADMIN_NEEDED)
+
+
+def get_duplicate_companies():
+    duplicates = set()
+    groups = defaultdict(list)
+    queryset = models.Company.objects.exclude(company_type=company_types.COMPANIES_HOUSE)
+    for company, candidate in itertools.product(queryset, queryset):
+        if candidate not in duplicates and is_similar_company(company=company, candidate=candidate):
+            groups[company].append(candidate)
+            duplicates.add(candidate)
+    return list(groups.values())
+
+
+def is_similar_company(company, candidate):
+    a = (company.name + company.postal_code).lower()
+    b = (candidate.name + candidate.postal_code).lower()
+    return SequenceMatcher(lambda x: x == " ", a, b).ratio() > 0.9
+
+
+def notify_duplicate_companies():
+    groups = get_duplicate_companies()
+    if groups:
+        action = actions.GovNotifyEmailAction(
+            template_id=settings.GOVNOTIFY_DUPLICATE_COMPANIES,
+            email_address=settings.GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL,
+            form_url='detect_duplicate_companies'
+        )
+        flattened = [f'* {company.name}' for group in groups for company in group]
+        response = action.save({'groups': '\n'.join(flattened), 'count': len(flattened)})
+        response.raise_for_status()
