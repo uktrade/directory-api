@@ -4,10 +4,11 @@
 
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
+TT-2223 - Handle preverified company multiple users
 
 ### Fixed bugs
-- TT-2254 - Cleaned up obsolete settings
-- no ticket - Django vulnerability upgrade
+TT-2254 - Cleaned up obsolete settings
+no ticket - Django vulnerability upgrade
 
 ## [2020.01.14](https://github.com/uktrade/directory-api/releases/tag/2020.01.14)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.18...2020.01.14)

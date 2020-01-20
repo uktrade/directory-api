@@ -1,11 +1,8 @@
 from datetime import timedelta
 
-from directory_constants.urls import domestic
-
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
-from django.core.signing import Signer
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
@@ -13,7 +10,7 @@ from django.utils import timezone
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import FormView, TemplateView
 
-from core.helpers import generate_csv_response
+from core.helpers import build_preverified_url, generate_csv_response
 from company import helpers, models
 from company.forms import EnrolCompanies, UploadExpertise, ConfirmVerificationLetterForm
 
@@ -92,11 +89,8 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
-        signer = Signer()
         created_companies = [
-            {**company, 'url': url + '?key=' + signer.sign(company['number'])}
-            for company in form.created_companies
+            {**company, 'url': build_preverified_url(company['number'])} for company in form.created_companies
         ]
         return TemplateResponse(
             self.request,
@@ -338,8 +332,8 @@ class CompanyUserAdmin(admin.ModelAdmin):
         )
         return response
 
-    def company_type(self, object):
-        return object.company.company_type
+    def company_type(self, obj):
+        return obj.company.company_type
 
     def download_csv(self, request, queryset):
         """

@@ -2200,7 +2200,6 @@ def test_add_collaborator_view(authed_client):
         'company': company.number,
         'company_email': 'abc@def.com',
         'mobile_number': '9876543210',
-        'role': user_roles.MEMBER
     }
 
     url = reverse('register-company-collaborator-request')
@@ -2210,7 +2209,7 @@ def test_add_collaborator_view(authed_client):
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == data
+    assert response.json() == {**data, 'role': user_roles.ADMIN}
 
 
 @pytest.mark.django_db

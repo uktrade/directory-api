@@ -102,7 +102,6 @@ class CompanyModelForm(forms.ModelForm):
             'twitter_url',
             'facebook_url',
             'linkedin_url',
-            'verified_with_preverified_enrolment',
             'is_exporting_services',
             'mobile_number',
             'is_uk_isd_company',
@@ -163,7 +162,6 @@ class EnrolCompanies(forms.Form):
                 'number': row[8],
                 'postal_full_name': row[3],
                 'twitter_url': row[10],
-                'verified_with_preverified_enrolment': True,
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
