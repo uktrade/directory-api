@@ -194,8 +194,25 @@ class PublishByCompanyHouseNumberView(FormView):
         return super().form_valid(form)
 
 
+class CompanyUserInline(admin.options.TabularInline):
+    model = models.CompanyUser
+    readonly_fields = (
+        'name',
+        'role',
+        'company_email',
+        'date_joined',
+    )
+    exclude = ('is_active', 'unsubscribed', 'sso_id', 'mobile_number')
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request):
+        return False
+
+
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
+    inlines = (CompanyUserInline,)
     search_fields = (
         'name', 'description', 'keywords',
         'sectors', 'website', 'verification_code', 'number',

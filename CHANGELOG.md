@@ -5,6 +5,7 @@
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
+No ticket - List company users in Company admin
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
