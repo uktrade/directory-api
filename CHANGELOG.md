@@ -1,11 +1,6 @@
 # Changelog
 
-## Hotfix
-- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
-
 ## Pre release
-
-## [Release]
 
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
@@ -15,6 +10,20 @@ No ticket - List company users in Company admin
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
+
+## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)
+
+## Hotfix
+- No ticket - Fix company user deletion
+
+
+## [2020.02.04](https://github.com/uktrade/directory-api/releases/tag/2020.02.04)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.01.14...2020.02.04)
+
+## Hotfix
+- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
+
 
 ## [2020.01.14](https://github.com/uktrade/directory-api/releases/tag/2020.01.14)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.18...2020.01.14)
