@@ -90,20 +90,6 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
         )
 
 
-class NoCaseStudiesNotification(SupplierNotificationBase):
-    html_template = 'no_case_studies_email.html'
-    category = constants.NO_CASE_STUDIES
-    subject = settings.NO_CASE_STUDIES_SUBJECT
-    text_template = 'no_case_studies_email.txt'
-    unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
-
-    def get_context_data(self):
-        return super().get_context_data(
-            case_study_url=settings.NO_CASE_STUDIES_URL,
-            utm_params=settings.NO_CASE_STUDIES_UTM,
-        )
-
-
 class VerificationWaitingNotification(SupplierNotificationBase):
     html_template = 'verification_code_not_given_email.html'
     category = constants.VERIFICATION_CODE_NOT_GIVEN

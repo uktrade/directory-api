@@ -1,0 +1,29 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='company' %}">Company</a>
+&rsaquo; Duplicate companies
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+	<h2>Duplicate Companies</h2>
+	<p>These companies look similar:</p>
+	{% for companies in groups %}
+		<ul>
+			{% for company in companies %}
+				<li><a href="{% url 'admin:company_company_change' object_id=company.pk %}">{{ company.name }} of {{ company.postal_code }} </a></li>
+			{% endfor %}
+			<br>
+		</ul>
+	{% endfor %}
+
+	<div>
+		<a href="{% url 'admin:company_company_changelist' %}">Continue</a>
+	</div>
+</div>
+{% endblock %}

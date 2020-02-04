@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='company' %}">Company</a>
+&rsaquo; <a href="{% url 'admin:company_companyuser_changelist' %}">CompanyUsers</a>
+&rsaquo; Send Letter
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div id="content" class="colM delete-confirmation">
+        <p>
+            Are you sure you want to send a verification letter to the folllowing companies(s)
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th class="border-light-grey padding-top-15 padding-bottom-15" scope="col">Company User</th>
+                    <th class="border-light-grey padding-top-15 padding-bottom-15" scope="col">Company Name</th>
+                    <th class="border-light-grey padding-top-15 padding-bottom-15 numeric" scope="col">Type</th>
+                </tr>
+        </thead>
+        <tbody>
+          {% for obj in queryset %}
+              <tr>
+                <th class="border-white padding-top-15 padding-bottom-10" scope="row">{{ obj.name }}</th>
+                <td class="border-white padding-top-15 padding-bottom-10">{{ obj.company.name }}</td>
+                  <td class="border-white padding-top-15 padding-bottom-10">{{ obj.company.company_type }}</td>
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="post" action="{% url 'admin:resend_verification_letter' %}">
+          {% csrf_token %}
+          <div>
+              {{ form }}
+                <input type="hidden" name="obj_ids" value="{{ ids }}" />
+          </div>
+          <input type="submit" value="Yes, I'm sure">
+          <a href="{% url 'admin:company_companyuser_changelist'%}" class="button cancel-link">No, take me back</a>
+      </form>
+    <br class="clear">
+    <div id="footer"></div>
+</div>
+{% endblock %}
