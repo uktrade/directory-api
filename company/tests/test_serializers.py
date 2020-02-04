@@ -358,7 +358,25 @@ def test_add_collaborator_serializer_company_not_found():
 
 
 @pytest.mark.django_db
-def test_add_collaborator_serializer_default_user_role():
+def test_add_collaborator_serializer_default_user_role_has_admin():
+    user = factories.CompanyUserFactory(role=user_roles.ADMIN)
+    data = {
+        'sso_id': 300,
+        'name': 'Abc',
+        'company': user.company.number,
+        'company_email': 'abc@def.com',
+        'mobile_number': 9876543210,
+    }
+    serializer = serializers.AddCollaboratorSerializer(data=data)
+
+    assert serializer.is_valid() is True
+
+    member = serializer.save()
+    assert member.role == user_roles.MEMBER
+
+
+@pytest.mark.django_db
+def test_add_collaborator_serializer_default_user_role_no_admin():
     company = factories.CompanyFactory(name='Test Company')
     data = {
         'sso_id': 300,
@@ -372,7 +390,7 @@ def test_add_collaborator_serializer_default_user_role():
     assert serializer.is_valid() is True
 
     member = serializer.save()
-    assert member.role == user_roles.MEMBER
+    assert member.role == user_roles.ADMIN
 
 
 @pytest.mark.django_db

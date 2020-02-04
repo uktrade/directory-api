@@ -299,14 +299,18 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
             'company',
             'company_email',
             'mobile_number',
-            'role'
+            'role',
         )
 
         extra_kwargs = {
-            'role': {
-                'default': user_roles.MEMBER
-            }
+            'role': {'required': False}
         }
+
+    def create(self, validated_data):
+        if 'role' not in validated_data:
+            has_admins = validated_data['company'].company_users.filter(role=user_roles.ADMIN).exists()
+            validated_data['role'] = user_roles.MEMBER if has_admins else user_roles.ADMIN
+        return super().create(validated_data)
 
 
 class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):
