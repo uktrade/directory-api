@@ -1,6 +1,11 @@
 # Changelog
 
+## Hotfix
+- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
+
 ## Pre release
+
+## [Release]
 
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
@@ -8,7 +13,6 @@ TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
 
 ### Fixed bugs
-- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
 
