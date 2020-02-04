@@ -3,6 +3,7 @@
 ## Pre release
 
 ### Fixed bugs
+- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
 
 ### Implemented enhancements
 TT-2234 - upgrade staff-sso to allow id rather then email/username
