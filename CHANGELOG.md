@@ -10,6 +10,7 @@ No ticket - List company users in Company admin
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
+TT-2260 - Include email address when creating preverified links
 
 ## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)

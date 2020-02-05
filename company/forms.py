@@ -192,7 +192,9 @@ class EnrolCompanies(forms.Form):
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
+                    'email_address': row[4],
                     'company_number': form.instance.number,
+                    'company_name': form.instance.name,
                 })
                 assert pre_verified_form.is_valid()
                 pre_verified_form.save()
