@@ -1,5 +1,5 @@
 import pytest
-from exportplan import models, serializers
+from exportplan import serializers
 from company.tests import factories
 
 
