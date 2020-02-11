@@ -15,5 +15,4 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         )
 
     def to_internal_value(self, data):
-        data['sso_id'] = 5
         return super().to_internal_value(data)

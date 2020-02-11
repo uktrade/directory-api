@@ -7,12 +7,9 @@ from exportplan.models import CompanyExportPlan
 
 class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.CompanyExportPlanSerializer
+    permission_classes = [IsAuthenticatedSSO]
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'pk'
-
-    def get_permissions(self):
-        permission_classes = [IsAuthenticatedSSO]
-        return [permission() for permission in permission_classes]
 
 
 class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
