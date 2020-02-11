@@ -347,9 +347,13 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert len(pre_verified_queryset) == 2
 
         assert pre_verified_queryset[0].company_number == company_one.number
+        assert pre_verified_queryset[0].company_name == company_one.name
         assert pre_verified_queryset[0].generated_for == constants.UK_ISD
+        assert pre_verified_queryset[0].email_address == 'one@example.com'
         assert pre_verified_queryset[1].company_number == company_two.number
+        assert pre_verified_queryset[1].company_name == company_two.name
         assert pre_verified_queryset[1].generated_for == constants.UK_ISD
+        assert pre_verified_queryset[1].email_address == 'two@example.com'
 
         signer = Signer()
 
