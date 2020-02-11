@@ -40,11 +40,12 @@ class DownloadPreVerifiedTemplate(View):
 class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
     search_fields = (
         'company_number',
+        'company_name',
         'email_address',
         'generated_for',
         'generated_by__username',
     )
-    list_display = ('company_number', 'email_address', 'generated_for',)
+    list_display = ('company_number', 'company_name', 'email_address', 'generated_for',)
     list_filter = ('is_active', 'generated_for')
 
     def link(self, obj):
