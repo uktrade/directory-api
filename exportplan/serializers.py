@@ -13,6 +13,3 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_countries',
             'pk',
         )
-
-    def to_internal_value(self, data):
-        return super().to_internal_value(data)
