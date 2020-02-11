@@ -215,7 +215,7 @@ urlpatterns = [
         name='export-plan-list-create'
     ),
     url(
-        r'^exportplan/company-export-plan/(?P<pk>.*)/$',
+        r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',
         exportplan.views.CompanyExportPlanRetrieveUpdateView.as_view(),
         name='export-plan-detail-update'
     ),

@@ -17,10 +17,6 @@ class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'sso_id'
 
-    def get_permissions(self):
-        permission_classes = [IsAuthenticatedSSO]
-        return [permission() for permission in permission_classes]
-
     def perform_create(self, serializer):
         serializer.validated_data['sso_id'] = self.request.user.id
         serializer.save()
