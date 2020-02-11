@@ -52,7 +52,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, company,):
     export_plan = CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
     authed_supplier.company = company
     authed_supplier.save()
-    url = reverse('export-plan-retrieve-detail-update', kwargs={'pk': export_plan.pk})
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
     data = {
         'company': export_plan.company.id,
@@ -70,7 +70,7 @@ def test_export_plan_update(authed_client, authed_supplier, company,):
     export_plan = CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
     authed_supplier.company = company
     authed_supplier.save()
-    url = reverse('export-plan-retrieve-detail-update', kwargs={'pk': export_plan.pk})
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
     data = {'export_commodity_codes': ['2015.01.20.15']}
     assert export_plan.export_commodity_codes != data['export_commodity_codes']
