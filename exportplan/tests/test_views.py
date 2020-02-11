@@ -25,7 +25,7 @@ def export_plan_data(company):
 def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
 
     response = authed_client.post(
-        reverse('export-plan-list-create'), exportplan_data, format='json'
+        reverse('export-plan-list-create'), export_plan_data, format='json'
     )
     assert response.status_code == http.client.CREATED
 
