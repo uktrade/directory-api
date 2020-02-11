@@ -13,7 +13,7 @@ def company():
 
 
 @pytest.fixture
-def exportplan_data(company):
+def export_plan_data(company):
     return {
         'company': company.pk,
         'export_commodity_codes': ['10101010', ],
