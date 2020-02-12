@@ -12,7 +12,7 @@ class CompanyExportPlanAdmin(admin.ModelAdmin):
     }
     search_fields = (
         'company',
-        'sso_oid',
+        'sso_id',
         'export_countries',
         'export_commodity_codes',
     )
