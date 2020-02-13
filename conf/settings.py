@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'health_check.cache',
     'testapi',
     'authbroker_client',
+    'personalisation.apps.PersonalisationConfig',
 ]
 
 MIDDLEWARE = [

@@ -11,10 +11,11 @@ import activitystream.views
 import buyer.views
 import company.views
 import enrolment.views
-import notifications.views
-import testapi.views
 import exporting.views
 import exportplan.views
+import notifications.views
+import personalisation.views
+import testapi.views
 
 
 admin.autodiscover()
@@ -208,6 +209,11 @@ urlpatterns = [
         r'exporting/offices/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficesByPostCode.as_view(),
         name='offices-by-postcode'
+    ),
+    url(
+        r'^personalisation/user-location/$',
+        personalisation.views.UserLocationCreateAPIView.as_view(),
+        name='personalisation-user-location-create'
     ),
     url(
         r'^exportplan/company-export-plan/$',
