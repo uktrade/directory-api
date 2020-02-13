@@ -47,7 +47,7 @@ class BuyerTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     def delete(self, request, **kwargs):
         test_buyers = get_list_or_404(
             Buyer,
-            email__regex=r'^test\+(.*)@directory\.uktrade\.io',
+            email__regex=r'^test\+(.*)@directory\.uktrade\.digital',
         )
         for buyer in test_buyers:
             buyer.delete()
@@ -150,7 +150,7 @@ class AutomatedTestsCompaniesTestAPIView(TestAPIView, DestroyAPIView):
     def delete(self, request, **kwargs):
         test_companies = get_list_or_404(
             Company,
-            email_address__regex=r'^test\+(.*)@directory\.uktrade\.io',
+            email_address__regex=r'^test\+(.*)@directory\.uktrade\.digital',
         )
         for company in test_companies:
             company.delete()
