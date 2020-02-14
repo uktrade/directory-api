@@ -23,6 +23,7 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
         queryset = self.get_queryset().filter(
             region=serializer.validated_data['region'],
             country=serializer.validated_data['country'],
+            city=serializer.validated_data['city'],
             sso_id=self.request.user.id,
         )
         if not queryset.exists():
