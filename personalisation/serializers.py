@@ -13,5 +13,6 @@ class UserLocationSerializer(serializers.ModelSerializer):
             'longitude',
             'region',
             'country',
+            'city',
             'pk',
         )

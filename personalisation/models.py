@@ -9,3 +9,4 @@ class UserLocation(TimeStampedModel):
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     region = models.TextField()
     country = models.TextField()
+    city = models.TextField()

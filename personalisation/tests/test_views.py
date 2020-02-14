@@ -1,4 +1,4 @@
-from decimal import Context, Decimal
+from decimal import Decimal
 
 import pytest
 
@@ -9,12 +9,12 @@ from personalisation import models
 
 @pytest.fixture
 def user_location_data():
-    context = Context(prec=6)
     return {
-        'latitude': Decimal('37.419200', context=context),
-        'longitude': Decimal('-122.057403', context=context),
+        'latitude': Decimal('37.419200'),
+        'longitude': Decimal('-122.057403'),
         'region': 'CA',
         'country': 'US',
+        'city': 'Mountain View',
     }
 
 
@@ -33,6 +33,7 @@ def test_user_location_create(user_location_data, authed_client, authed_supplier
     assert instance.longitude == user_location_data['longitude']
     assert instance.region == user_location_data['region']
     assert instance.country == user_location_data['country']
+    assert instance.city == user_location_data['city']
 
 
 @pytest.mark.django_db
