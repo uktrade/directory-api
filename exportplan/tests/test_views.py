@@ -18,6 +18,7 @@ def export_plan_data(company):
         'company': company.pk,
         'export_commodity_codes': ['10101010', ],
         'export_countries': ['CN', ],
+        'rules_regulations': {'rules': '0.001'}
     }
 
 
@@ -32,6 +33,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     instance = models.CompanyExportPlan.objects.get(pk=response.data['pk'])
     assert instance.export_commodity_codes == export_plan_data['export_commodity_codes']
     assert instance.export_countries == export_plan_data['export_countries']
+    assert instance.rules_regulations == export_plan_data['rules_regulations']
     assert instance.sso_id == authed_supplier.sso_id
 
 
@@ -59,6 +61,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, company,):
         'sso_id': authed_supplier.sso_id,
         'export_commodity_codes': export_plan.export_commodity_codes,
         'export_countries': export_plan.export_countries,
+        'rules_regulations': export_plan.rules_regulations,
         'pk': export_plan.pk
     }
     assert response.status_code == 200
