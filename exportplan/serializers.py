@@ -11,5 +11,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'sso_id',
             'export_commodity_codes',
             'export_countries',
+            'rules_regulations',
             'pk',
         )
