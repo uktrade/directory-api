@@ -68,7 +68,7 @@ class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 class CompanySerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
-    date_of_creation = serializers.DateField()
+    date_of_creation = serializers.DateField(required=False)
     sectors = serializers.JSONField(required=False)
     logo = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
     supplier_case_studies = CompanyCaseStudySerializer(many=True, required=False, read_only=True)
