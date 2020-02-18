@@ -11,7 +11,6 @@ import activitystream.views
 import buyer.views
 import company.views
 import enrolment.views
-import exporting.views
 import exportplan.views
 import notifications.views
 import personalisation.views
