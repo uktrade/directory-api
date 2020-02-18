@@ -17,7 +17,6 @@ import notifications.views
 import personalisation.views
 import testapi.views
 import exporting.views
-import personalisation.views
 
 admin.autodiscover()
 
@@ -220,6 +219,8 @@ urlpatterns = [
         r'^personalisation/export-opportunities/',
         personalisation.views.ExportOpportunitiesView.as_view(),
         name='personalisation-export-opportunities'
+    ),
+    url(
         r'^personalisation/user-location/$',
         personalisation.views.UserLocationCreateAPIView.as_view(),
         name='personalisation-user-location-create'

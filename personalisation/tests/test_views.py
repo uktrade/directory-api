@@ -53,6 +53,7 @@ def test_user_location_create_already_exists(user_location_data, authed_client):
     # then the location is not saved
     assert models.UserLocation.objects.count() == 1
 
+
 def test_events_api(client, settings):
     """ We mock the call to ActivityStream """
 
