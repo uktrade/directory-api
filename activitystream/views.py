@@ -24,20 +24,19 @@ NO_CREDENTIALS_MESSAGE = 'Authentication credentials were not provided.'
 INCORRECT_CREDENTIALS_MESSAGE = 'Incorrect authentication credentials.'
 MAX_PER_PAGE = 500
 
-
 def lookup_credentials(access_key_id):
     """Raises a HawkFail if the passed ID is not equal to
-    settings.ACTIVITY_STREAM_ACCESS_KEY_ID
+    settings.ACTIVITY_STREAM_INCOMING_ACCESS_KEY
     """
     if not constant_time_compare(access_key_id,
-                                 settings.ACTIVITY_STREAM_ACCESS_KEY_ID):
+                                 settings.ACTIVITY_STREAM_INCOMING_ACCESS_KEY):
         raise HawkFail('No Hawk ID of {access_key_id}'.format(
             access_key_id=access_key_id,
         ))
 
     return {
-        'id': settings.ACTIVITY_STREAM_ACCESS_KEY_ID,
-        'key': settings.ACTIVITY_STREAM_SECRET_ACCESS_KEY,
+        'id': settings.ACTIVITY_STREAM_INCOMING_ACCESS_KEY,
+        'key': settings.ACTIVITY_STREAM_INCOMING_SECRET_ACCESS_KEY,
         'algorithm': 'sha256',
     }
 

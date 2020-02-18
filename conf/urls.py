@@ -14,7 +14,7 @@ import enrolment.views
 import notifications.views
 import testapi.views
 import exporting.views
-
+import personalisation.views
 
 admin.autodiscover()
 
@@ -207,6 +207,16 @@ urlpatterns = [
         r'exporting/offices/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficesByPostCode.as_view(),
         name='offices-by-postcode'
+    ),
+    url(
+        r'^personalisation/events/',
+        personalisation.views.EventsView.as_view(),
+        name='personalisation-events'
+    ),
+    url(
+        r'^personalisation/export-opportunities/',
+        personalisation.views.ExportOpportunitiesView.as_view(),
+        name='personalisation-export-opportunities'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',
