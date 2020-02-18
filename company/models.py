@@ -22,13 +22,13 @@ class Company(TimeStampedModel):
     summary = models.CharField(max_length=250, blank=True, default='', validators=[no_html])
     description = models.TextField(blank=True, default='', validators=[no_html])
     employees = models.CharField(max_length=20, choices=choices.EMPLOYEES, blank=True, default='')
-    export_destinations = JSONField(blank=True, default=[])
+    export_destinations = JSONField(blank=True, default=list)
     export_destinations_other = models.CharField(max_length=1000, blank=True, default='', validators=[no_html])
-    expertise_industries = JSONField(blank=True, default=[])
-    expertise_regions = JSONField(blank=True, default=[])
-    expertise_countries = JSONField(blank=True, default=[])
-    expertise_languages = JSONField(blank=True, default=[])
-    expertise_products_services = JSONField(blank=True, default={})
+    expertise_industries = JSONField(blank=True, default=list)
+    expertise_regions = JSONField(blank=True, default=list)
+    expertise_countries = JSONField(blank=True, default=list)
+    expertise_languages = JSONField(blank=True, default=list)
+    expertise_products_services = JSONField(blank=True, default=dict)
     has_exported_before = models.NullBooleanField()
     is_exporting_goods = models.BooleanField(default=False)
     is_exporting_services = models.BooleanField(default=False)
@@ -46,7 +46,7 @@ class Company(TimeStampedModel):
         null=True,
         blank=True,
     )
-    sectors = JSONField(blank=True, default=[])
+    sectors = JSONField(blank=True, default=list)
     website = models.URLField(max_length=255, blank=True, default='')
     date_of_creation = models.DateField(blank=True, null=True)
     is_published_investment_support_directory = models.BooleanField(

@@ -7,6 +7,10 @@ TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
 MVP - Add personalisation APIs
+MVP-108 - export-plan-saving
+TT-2286 - update test email domain
+MVP-108 - export-plan-saving - add rules and regulations
+MVP-147 - Allow for piecemeal company creation
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

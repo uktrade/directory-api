@@ -33,5 +33,8 @@ worker:
 beat:
 	ENV_FILES='secrets-do-not-commit,dev' celery -A conf beat -l info -S django
 
+test: 
+	flake8 && make pytest
+
 
 .PHONY: clean pytest manage webserver requirements install_requirements css worker beat

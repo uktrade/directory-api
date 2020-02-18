@@ -55,17 +55,18 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'activitystream.apps.ActivityStreamConfig',
     'exporting.apps.ExportingConfig',
+    'exportplan.apps.ExportplanConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check.db',
     'health_check.cache',
     'testapi',
     'authbroker_client',
-    'personalisation'
+    'personalisation.apps.PersonalisationConfig',
 ]
 
 MIDDLEWARE = [
-    # 'core.middleware.SignatureCheckMiddleware',
+    'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',

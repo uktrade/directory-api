@@ -11,7 +11,10 @@ import activitystream.views
 import buyer.views
 import company.views
 import enrolment.views
+import exporting.views
+import exportplan.views
 import notifications.views
+import personalisation.views
 import testapi.views
 import exporting.views
 import personalisation.views
@@ -217,6 +220,19 @@ urlpatterns = [
         r'^personalisation/export-opportunities/',
         personalisation.views.ExportOpportunitiesView.as_view(),
         name='personalisation-export-opportunities'
+        r'^personalisation/user-location/$',
+        personalisation.views.UserLocationCreateAPIView.as_view(),
+        name='personalisation-user-location-create'
+    ),
+    url(
+        r'^exportplan/company-export-plan/$',
+        exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
+        name='export-plan-list-create'
+    ),
+    url(
+        r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',
+        exportplan.views.CompanyExportPlanRetrieveUpdateView.as_view(),
+        name='export-plan-detail-update'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',

@@ -5,10 +5,27 @@ from bs4 import BeautifulSoup
 from urllib3.util import parse_url
 
 from django.utils.text import Truncator
+from rest_framework import serializers
 
 from directory_constants import urls
+from personalisation import models
 
 build_events_url = partial(urljoin, urls.domestic.EVENTS)
+
+
+class UserLocationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UserLocation
+        fields = (
+            'sso_id',
+            'latitude',
+            'longitude',
+            'region',
+            'country',
+            'city',
+            'pk',
+        )
 
 
 def parse_search_results(content):
