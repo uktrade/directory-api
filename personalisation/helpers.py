@@ -1,7 +1,6 @@
 import json
 import requests
 import http
-from math import ceil
 import urllib.parse as urlparse
 
 from django.conf import settings
@@ -22,7 +21,7 @@ def parse_results(response):
     else:
         results = serializers.parse_search_results(content)
 
-    return { 'results': results }
+    return {'results': results}
 
 
 def build_query(lat, lng):
@@ -40,19 +39,19 @@ def build_query(lat, lng):
                 },
                 'filter': [
                     {'terms': {
-                        'type': [ 'dit:aventri:Event' ]
+                        'type': ['dit:aventri:Event']
                     }}
                 ],
                 'sort': [
                     {
                       '_geo_distance': {
-                        'location': { 
+                        'location': {
                           'lat':  26.112,
                           'lon': -73.998
                         },
                         'order':         'asc',
-                        'unit':          'km', 
-                        'distance_type': 'plane' 
+                        'unit':          'km',
+                        'distance_type': 'plane'
                       }
                     }
                 ]
@@ -61,6 +60,7 @@ def build_query(lat, lng):
         'from': 0,
         'size': 3
     })
+
 
 def search_with_activitystream(query):
     """ Searches ActivityStream services with given Elasticsearch query.
@@ -97,14 +97,13 @@ def search_with_activitystream(query):
 
     return requests.Session().send(request)
 
-# ExOps API
 
 def get_opportunities(sso_id):
     response = exopps_client.get_opportunities(sso_id)
     if response.status_code == http.client.FORBIDDEN:
-        return { 'status': response.status_code, 'data': response.json() }
+        return {'status': response.status_code, 'data': response.json()}
     elif response.status_code == http.client.OK:
-        return { 'status': response.status_code, 'data': response.json() }
+        return {'status': response.status_code, 'data': response.json()}
     raise response.raise_for_status()
 
 
@@ -128,5 +127,5 @@ class ExportingIsGreatClient:
         params = {'sso_user_id': sso_id}
         return self.get(self.endpoints['opportunities'], params)
 
-exopps_client = ExportingIsGreatClient()
 
+exopps_client = ExportingIsGreatClient()

@@ -204,8 +204,6 @@ def test_format_query():
     })
 
 
-# ExOps API
-
 @patch('requests.get')
 def test_exporting_is_great_handles_auth(mock_get, settings):
     client = helpers.ExportingIsGreatClient()
@@ -223,5 +221,3 @@ def test_exporting_is_great_handles_auth(mock_get, settings):
     )
     assert helpers.exopps_client.auth.username == username
     assert helpers.exopps_client.auth.password == password
-
-

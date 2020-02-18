@@ -24,6 +24,7 @@ NO_CREDENTIALS_MESSAGE = 'Authentication credentials were not provided.'
 INCORRECT_CREDENTIALS_MESSAGE = 'Incorrect authentication credentials.'
 MAX_PER_PAGE = 500
 
+
 def lookup_credentials(access_key_id):
     """Raises a HawkFail if the passed ID is not equal to
     settings.ACTIVITY_STREAM_INCOMING_ACCESS_KEY
