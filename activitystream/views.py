@@ -37,7 +37,7 @@ def lookup_credentials(access_key_id):
 
     return {
         'id': settings.ACTIVITY_STREAM_INCOMING_ACCESS_KEY,
-        'key': settings.ACTIVITY_STREAM_INCOMING_SECRET_ACCESS_KEY,
+        'key': settings.ACTIVITY_STREAM_INCOMING_SECRET_KEY,
         'algorithm': 'sha256',
     }
 
