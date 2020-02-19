@@ -21,6 +21,7 @@ def parse_results(response):
     else:
         results = serializers.parse_search_results(content)
 
+    # Hash of data & metadata (e.g. number of results) to return from API
     return {'results': results}
 
 

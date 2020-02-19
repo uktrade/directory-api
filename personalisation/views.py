@@ -42,17 +42,10 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
 
 class EventsView(generics.GenericAPIView):
     """ Events API - finds events near given geo-coordinates
-        URL parameters: 'sso_id' User's SSO_ID from cookie
-                        'lat'    Latitude
-                        'lng'    Longitude
     """
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        # sso_id = self.request.GET.get('sso_id', '')
-        # lat = self.request.GET.get('lat', '')
-        # lng = self.request.GET.get('lng', '')
-
         return Response(
             status=status.HTTP_200_OK,
             data={'results': [
@@ -100,31 +93,6 @@ company’s creativity, expertise, technology and innovation offering.</p>
                 },
             ]}
         )
-        # Actual
-        # try:
-        #     query = helpers.build_query(lat, lng)
-        #     response = helpers.search_with_activitystream(query)
-        # except RequestException:
-        #     logger.error(
-        #         "Activity Stream connection for "
-        #         "Search failed. Query: '{}'".format(query))
-        #     return Response(
-        #         status=500,
-        #         data={'error_message': "Activity Stream connection failed"}
-        #     )
-        # else:
-        #     if response.status_code != 200:
-        #         return Response(
-        #             status=response.status_code,
-        #             data={'error_message': response.content }
-        #         )
-        #     else:
-        #         return Response(
-        #             status=status.HTTP_200_OK,
-        #             data=helpers.parse_results(
-        #                 response
-        #             )
-        #         )
 
 
 class ExportOpportunitiesView(generics.GenericAPIView):
