@@ -62,6 +62,17 @@ def test_export_plan_retrieve(authed_client, authed_supplier, company,):
         'export_commodity_codes': export_plan.export_commodity_codes,
         'export_countries': export_plan.export_countries,
         'rules_regulations': export_plan.rules_regulations,
+        'rational': export_plan.rational,
+        'planned_review': export_plan.planned_review,
+        'sectors': export_plan.sectors,
+        'consumer_demand': export_plan.consumer_demand,
+        'target_countries': export_plan.target_countries,
+        'compliance': export_plan.compliance,
+        'export_certificates': export_plan.export_certificates,
+        'route_to_markets': export_plan.route_to_markets,
+        'promotion_channels': export_plan.promotion_channels,
+        'resource_needed': export_plan.resource_needed,
+        'spend_marketing': export_plan.spend_marketing,
         'pk': export_plan.pk
     }
     assert response.status_code == 200

@@ -22,3 +22,23 @@ class CompanyExportPlanAdmin(admin.ModelAdmin):
         'export_countries',
         'export_commodity_codes',
     )
+
+
+@admin.register(models.CompanyObjectives)
+class CompanyCompanyObjectivesAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+    search_fields = (
+        'companyexportplan',
+        'description',
+        'owner',
+        'start_date',
+        'end_date',
+    )
+    list_display = (
+        'companyexportplan',
+        'owner',
+        'start_date',
+        'end_date',
+    )
