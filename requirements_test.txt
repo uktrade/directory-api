@@ -53,6 +53,7 @@ importlib-metadata==0.19  # via kombu, pluggy, pytest
 jmespath==0.9.3           # via boto3, botocore
 jsonschema==3.0.1         # via directory-components
 kombu==4.6.6
+markdown2==2.2.0
 mccabe==0.6.1             # via flake8
 mohawk==0.3.4             # via sigauth
 monotonic==1.5            # via directory-client-core
@@ -85,7 +86,7 @@ requests_mock==1.6.0
 s3transfer==0.2.1         # via boto3
 sentry-sdk==0.13.4
 sigauth==4.1.1
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, jsonschema, mohawk, more-itertools, packaging, pyopenssl, pyrsistent, pytest, requests-mock, w3lib
+six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, jsonschema, mohawk, more-itertools, packaging, pyopenssl, pyrsistent, pytest, python-dateutil, requests-mock, w3lib
 sqlparse==0.3.0           # via django
 termcolor==1.1.0          # via pytest-sugar
 text-unidecode==1.2       # via faker
@@ -96,6 +97,3 @@ waitress==1.4.3
 wcwidth==0.1.7            # via pytest
 whitenoise==4.1.4
 zipp==0.5.2               # via importlib-metadata
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
