@@ -350,7 +350,8 @@ class CompanyUserAdmin(admin.ModelAdmin):
         return response
 
     def company_type(self, obj):
-        return obj.company.company_type
+        if obj.company:
+            return obj.company.company_type
 
     def download_csv(self, request, queryset):
         """

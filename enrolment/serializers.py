@@ -26,6 +26,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'postal_code',
             'sectors',
             'website',
+            'expertise_industries',
         ]
         extra_kwargs = {
             'address_line_1': {'required': False},
@@ -36,6 +37,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'postal_code': {'required': False},
             'sectors': {'required': False},
             'company_type': {'default': company_types.COMPANIES_HOUSE},
+            'expertise_industries': {'required': False},
         }
 
 
