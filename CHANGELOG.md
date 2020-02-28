@@ -12,6 +12,7 @@ TT-2286 - update test email domain
 MVP-108 - export-plan-saving - add rules and regulations
 MVP-147 - Allow for piecemeal company creation
 MVP-205 - extend export plan model
+MVP-250 - EaseofBusiness Index Backend
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

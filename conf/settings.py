@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'testapi',
     'authbroker_client',
     'personalisation.apps.PersonalisationConfig',
+    'dataservices.apps.DataservicesConfig',
 ]
 
 MIDDLEWARE = [
