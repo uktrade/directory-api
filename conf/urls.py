@@ -16,6 +16,7 @@ import notifications.views
 import personalisation.views
 import testapi.views
 import exporting.views
+import dataservices.views
 
 admin.autodiscover()
 
@@ -233,6 +234,11 @@ urlpatterns = [
         r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',
         exportplan.views.CompanyExportPlanRetrieveUpdateView.as_view(),
         name='export-plan-detail-update'
+    ),
+    url(
+        r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
+        name='dataservices-easeofdoingbusiness-index'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',
