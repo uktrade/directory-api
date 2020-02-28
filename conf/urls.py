@@ -241,6 +241,11 @@ urlpatterns = [
         name='dataservices-easeofdoingbusiness-index'
     ),
     url(
+        r'^dataservices/corruptionperceptionsindex/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveCorruptionPerceptionsIndex.as_view(),
+        name='dataservices-corruptionperceptionsindex'
+    ),
+    url(
         r'^testapi/buyer/(?P<email>.*)/$',
         testapi.views.BuyerTestAPIView.as_view(),
         name='buyer_by_email'

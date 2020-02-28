@@ -12,3 +12,10 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
 
     def get_total(self, obj):
         return models.EaseOfDoingBusiness.objects.all().count()
+
+
+class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CorruptionPerceptionsIndex
+        exclude = ['created', 'id', 'modified']

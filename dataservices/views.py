@@ -17,3 +17,17 @@ class RetrieveEaseOfBusinessIndex(RetrieveAPIView):
             return super().get(self, *args, **kwargs)
         except Http404:
             return Response(data={})
+
+
+class RetrieveCorruptionPerceptionsIndex(RetrieveAPIView):
+    serializer_class = serializers.CorruptionPerceptionsIndexSerializer
+    permission_classes = []
+    lookup_url_kwarg = 'country_code'
+    lookup_field = 'country_code__iexact'
+    queryset = models.CorruptionPerceptionsIndex.objects.all()
+
+    def get(self, *args, **kwargs):
+        try:
+            return super().get(self, *args, **kwargs)
+        except Http404:
+            return Response(data={})
