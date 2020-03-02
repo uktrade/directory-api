@@ -241,7 +241,7 @@ urlpatterns = [
         name='dataservices-easeofdoingbusiness-index'
     ),
     url(
-        r'^dataservices/corruptionperceptionsindex/(?P<country_code>.*)/$',
+        r'^dataservices/corruption-perceptions-index/(?P<country_code>.*)/$',
         dataservices.views.RetrieveCorruptionPerceptionsIndex.as_view(),
         name='dataservices-corruptionperceptionsindex'
     ),

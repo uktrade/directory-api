@@ -12,11 +12,10 @@ class RetrieveEaseOfBusinessIndex(RetrieveAPIView):
     lookup_field = 'country_code__iexact'
     queryset = models.EaseOfDoingBusiness.objects.all()
 
-    def get(self, *args, **kwargs):
-        try:
-            return super().get(self, *args, **kwargs)
-        except Http404:
+    def handle_exception(self, exc):
+        if isinstance(exc, Http404):
             return Response(data={})
+        return super().handle_exception(exc)
 
 
 class RetrieveCorruptionPerceptionsIndex(RetrieveAPIView):
@@ -26,8 +25,7 @@ class RetrieveCorruptionPerceptionsIndex(RetrieveAPIView):
     lookup_field = 'country_code__iexact'
     queryset = models.CorruptionPerceptionsIndex.objects.all()
 
-    def get(self, *args, **kwargs):
-        try:
-            return super().get(self, *args, **kwargs)
-        except Http404:
+    def handle_exception(self, exc):
+        if isinstance(exc, Http404):
             return Response(data={})
+        return super().handle_exception(exc)
