@@ -13,6 +13,13 @@ class EaseOfDoingBusinessResource(resources.ModelResource):
         fields = ['country_name', 'country_code', 'year_2019']
 
 
+class CorruptionPerceptionsIndexResource(resources.ModelResource):
+
+    class Meta:
+        model = models.CorruptionPerceptionsIndex
+        fields = ['country_name', 'country_code', 'cpi_score_2019', 'rank']
+
+
 @admin.register(models.EaseOfDoingBusiness)
 class CompanyExportPlanAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -29,4 +36,25 @@ class CompanyExportPlanAdmin(admin.ModelAdmin):
         'country_name',
         'country_code',
         'year_2019',
+    )
+
+
+@admin.register(models.CorruptionPerceptionsIndex)
+class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+
+    search_fields = (
+        'country_name',
+        'country_code',
+        'cpi_score_2019',
+        'rank'
+    )
+
+    list_display = (
+        'country_name',
+        'country_code',
+        'cpi_score_2019',
+        'rank',
     )
