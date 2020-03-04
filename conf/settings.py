@@ -55,12 +55,15 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'activitystream.apps.ActivityStreamConfig',
     'exporting.apps.ExportingConfig',
+    'exportplan.apps.ExportplanConfig',
     'directory_constants',
     'directory_healthcheck',
     'health_check.db',
     'health_check.cache',
     'testapi',
     'authbroker_client',
+    'personalisation.apps.PersonalisationConfig',
+    'dataservices.apps.DataservicesConfig',
 ]
 
 MIDDLEWARE = [
@@ -278,8 +281,6 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
 FAS_FROM_EMAIL = env.str('FAS_FROM_EMAIL', '')
 FAB_FROM_EMAIL = env.str('FAB_FROM_EMAIL', '')
-FAB_OWNERSHIP_URL = env.str('FAB_OWNERSHIP_URL', '')
-FAB_COLLABORATOR_URL = env.str('FAB_COLLABORATOR_URL', '')
 OWNERSHIP_INVITE_SUBJECT = env.str(
     'OWNERSHIP_INVITE_SUBJECT',
     'Confirm ownership of {company_name}’s Find a buyer profile'
@@ -377,6 +378,12 @@ GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID = env.str(
     '240cfe51-a5fc-4826-a716-84ebaa429315'
 )
 
+# Duplicate companies notification
+
+GOVNOTIFY_DUPLICATE_COMPANIES = env.str('GOVNOTIFY_DUPLICATE_COMPANIES', '9d93b6c9-ff75-4797-b841-2f7a6c78a277')
+GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL = env.str('GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL')
+
+
 GECKO_API_KEY = env.str('GECKO_API_KEY', '')
 # At present geckoboard's api assumes the password will always be X
 GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
@@ -384,20 +391,6 @@ GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
 
 # Automated email settings
-NO_CASE_STUDIES_SUBJECT = env.str(
-    'NO_CASE_STUDIES_SUBJECT',
-    'Get seen by more international buyers by improving your profile'
-)
-NO_CASE_STUDIES_DAYS = env.int('NO_CASE_STUDIES_DAYS', 8)
-NO_CASE_STUDIES_URL = env.str(
-    'NO_CASE_STUDIES_URL',
-    'https://find-a-buyer.export.great.gov.uk/company/case-study/edit/'
-)
-NO_CASE_STUDIES_UTM = env.str(
-    'NO_CASE_STUDIES_UTM',
-    'utm_source=system mails&utm_campaign=case study creation&utm_medium=email'
-)
-
 VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.str(
     'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
     'Please verify your company’s Find a buyer profile',
@@ -481,9 +474,17 @@ else:
 ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str('ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias')
 
 # Activity Stream
-ACTIVITY_STREAM_ACCESS_KEY_ID = env.str('ACTIVITY_STREAM_ACCESS_KEY_ID', '')
-ACTIVITY_STREAM_SECRET_ACCESS_KEY = env.str('ACTIVITY_STREAM_SECRET_ACCESS_KEY', '')
-ACTIVITY_STREAM_IP_WHITELIST = env.list('ACTIVITY_STREAM_IP_WHITELIST')
+
+# Incoming
+ACTIVITY_STREAM_INCOMING_ACCESS_KEY = env.str('ACTIVITY_STREAM_INCOMING_ACCESS_KEY', '')
+ACTIVITY_STREAM_INCOMING_SECRET_KEY = env.str('ACTIVITY_STREAM_INCOMING_SECRET_KEY', '')
+ACTIVITY_STREAM_INCOMING_IP_WHITELIST = env.list('ACTIVITY_STREAM_INCOMING_IP_WHITELIST')
+
+# Outoing
+ACTIVITY_STREAM_OUTGOING_ACCESS_KEY = env.str('ACTIVITY_STREAM_OUTGOING_ACCESS_KEY')
+ACTIVITY_STREAM_OUTGOING_SECRET_KEY = env.str('ACTIVITY_STREAM_OUTGOING_SECRET_KEY')
+ACTIVITY_STREAM_OUTGOING_URL = env.str('ACTIVITY_STREAM_OUTGOING_URL')
+ACTIVITY_STREAM_OUTGOING_IP_WHITELIST = env.str('ACTIVITY_STREAM_OUTGOING_IP_WHITELIST')
 
 # Healthcheck
 DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
@@ -527,3 +528,8 @@ RESTRICTED_APP_NAMES = env.list('IP_RESTRICTOR_RESTRICTED_APP_NAMES', default=['
 TRUST_PRIVATE_IP = True
 
 SOLE_TRADER_NUMBER_SEED = env.int('SOLE_TRADER_NUMBER_SEED')
+
+EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME', '')
+EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD', '')
+EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE_URL')
+EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')

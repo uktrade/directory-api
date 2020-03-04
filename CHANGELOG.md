@@ -2,20 +2,57 @@
 
 ## Pre release
 
+### Implemented enhancements
+TT-2253 - Detect duplicate companies
+TT-2223 - Handle preverified company multiple users
+No ticket - List company users in Company admin
+MVP - Add personalisation APIs
+MVP-108 - export-plan-saving
+TT-2286 - update test email domain
+MVP-108 - export-plan-saving - add rules and regulations
+MVP-147 - Allow for piecemeal company creation
+MVP-205 - extend export plan model
+MVP-250 - EaseofBusiness Index Backend
+MVP-252 - CPI data import backend
+
 ### Fixed bugs
+TT-2254 - Cleaned up obsolete settings
+no ticket - Django vulnerability upgrade
+TT-2260 - Include email address when creating preverified links
+
+## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)
+
+## Hotfix
+- No ticket - Fix company user deletion
+
+
+## [2020.02.04](https://github.com/uktrade/directory-api/releases/tag/2020.02.04)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.01.14...2020.02.04)
+
+## Hotfix
+- No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
+
+
+## [2020.01.14](https://github.com/uktrade/directory-api/releases/tag/2020.01.14)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.18...2020.01.14)
 
 ### Implemented enhancements
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
-
-## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
-[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
+TT2247 - verification confirmation 
 
 ### Fixed bugs
 TT-2220 sent-verification-letters-in-error
 TT-2165 send user accept/decline new admin request
 TT-1624 send admin new admin request email
+TT-2216 - TestApi: add endpoint to delete buyers created by automated tests
+
+## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
+
+### Fixed bugs
 No ticket - Remove obsolete code
 No ticket - change admin confirm url
 

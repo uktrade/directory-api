@@ -26,6 +26,7 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'postal_code',
             'sectors',
             'website',
+            'expertise_industries',
         ]
         extra_kwargs = {
             'address_line_1': {'required': False},
@@ -36,19 +37,8 @@ class CompanyEnrolmentSerializer(serializers.ModelSerializer):
             'postal_code': {'required': False},
             'sectors': {'required': False},
             'company_type': {'default': company_types.COMPANIES_HOUSE},
+            'expertise_industries': {'required': False},
         }
-
-    def create(self, validated_data):
-        if validated_data['company_type'] == company_types.COMPANIES_HOUSE:
-            queryset = models.PreVerifiedEnrolment.objects.filter(
-                company_number=validated_data['number'],
-                email_address=validated_data['email_address'],
-                is_active=True
-            )
-            validated_data['verified_with_preverified_enrolment'] = queryset.exists()
-            queryset.update(is_active=False)
-        company = super().create(validated_data)
-        return company
 
 
 class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
@@ -71,13 +61,18 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        return super().create({
+        user = super().create({
             'name': validated_data['name'],
             'company': self.context['company'],
             'sso_id': self.context['request'].user.id,
             'company_email': self.context['request'].user.email,
             'role': user_roles.ADMIN,
         })
+        company = self.context['company']
+        company.verified_with_preverified_enrolment = True
+        company.save()
+        models.PreVerifiedEnrolment.objects.filter(company_number=company.number).update(is_active=False)
+        return user
 
 
 class PreverifiedCompanySerializer(serializers.ModelSerializer):

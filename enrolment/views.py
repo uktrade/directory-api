@@ -26,10 +26,10 @@ class EnrolmentCreateAPIView(APIView):
         company_serializer = self.company_serializer_class(data=request.data)
         company_serializer.is_valid(raise_exception=True)
         company = company_serializer.save()
-        supplier_serializer = self.company_user_serializer_class(data={'company': company.id, **request.data})
-        supplier_serializer.is_valid(raise_exception=True)
-        supplier_serializer.validated_data['role'] = user_roles.ADMIN
-        supplier_serializer.save()
+        user_serializer = self.company_user_serializer_class(data={'company': company.id, **request.data})
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.validated_data['role'] = user_roles.ADMIN
+        user_serializer.save()
 
         # the signal checks if the company has a user. The company does not have a user until the user is created after
         # the company is saved above, so manually trigger the signal once the preconditions are set
@@ -62,7 +62,6 @@ class LookupSignedCompanyNumberMixin:
             return get_object_or_404(
                 Company.objects.all(),
                 number=number,
-                company_users__isnull=True,
             )
 
 

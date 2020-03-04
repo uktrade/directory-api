@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.views.generic import FormView, View
 
+from core.helpers import build_preverified_url
 from enrolment.models import PreVerifiedEnrolment
 from enrolment import forms
 
@@ -13,9 +14,7 @@ from enrolment import forms
 class GeneratePreVerifiedCompaniesFormView(FormView):
     form_class = forms.GeneratePreVerifiedCompanies
     template_name = 'admin/enrolment/company_csv_upload_form.html'
-    success_url = reverse_lazy(
-        'admin:enrolment_preverifiedenrolment_changelist'
-    )
+    success_url = reverse_lazy('admin:enrolment_preverifiedenrolment_changelist')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -41,12 +40,21 @@ class DownloadPreVerifiedTemplate(View):
 class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
     search_fields = (
         'company_number',
+        'company_name',
         'email_address',
         'generated_for',
         'generated_by__username',
     )
-    list_display = ('company_number', 'email_address', 'generated_for')
+    list_display = ('company_number', 'company_name', 'email_address', 'generated_for',)
     list_filter = ('is_active', 'generated_for')
+
+    def link(self, obj):
+        return build_preverified_url(obj.company_number)
+
+    def get_readonly_fields(self, request, obj):
+        if request.user.is_superuser:
+            return ('link',)
+        return []
 
     def get_urls(self):
         urls = super(PreVerifiedEnrolmentAdmin, self).get_urls()

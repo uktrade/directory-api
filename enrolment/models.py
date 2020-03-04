@@ -1,10 +1,13 @@
+from directory_validators.string import no_html
+
 from django.db import models
 
 from core.helpers import TimeStampedModel
 
 
 class PreVerifiedEnrolment(TimeStampedModel):
-    company_number = models.CharField(max_length=8)
+    company_number = models.CharField(max_length=8, validators=[no_html])
+    company_name = models.TextField(validators=[no_html], null=True, blank=True)
     email_address = models.EmailField(blank=True, null=True)
     generated_for = models.CharField(max_length=1000, help_text='The trade organisation the code was created for.')
     generated_by = models.ForeignKey(

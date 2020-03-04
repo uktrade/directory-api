@@ -347,9 +347,13 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert len(pre_verified_queryset) == 2
 
         assert pre_verified_queryset[0].company_number == company_one.number
+        assert pre_verified_queryset[0].company_name == company_one.name
         assert pre_verified_queryset[0].generated_for == constants.UK_ISD
+        assert pre_verified_queryset[0].email_address == 'one@example.com'
         assert pre_verified_queryset[1].company_number == company_two.number
+        assert pre_verified_queryset[1].company_name == company_two.name
         assert pre_verified_queryset[1].generated_for == constants.UK_ISD
+        assert pre_verified_queryset[1].email_address == 'two@example.com'
 
         signer = Signer()
 
@@ -534,6 +538,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__companies_house_company_status', ''),
+            ('company__company_export_plans', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_identity_check_message_sent', ''),
@@ -623,6 +628,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__companies_house_company_status', ''),
+            ('company__company_export_plans', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_identity_check_message_sent', ''),
@@ -712,6 +718,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__companies_house_company_status', ''),
+            ('company__company_export_plans', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_identity_check_message_sent', ''),
@@ -779,6 +786,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__address_line_1', 'test_address_line_1'),
             ('company__address_line_2', 'test_address_line_2'),
             ('company__companies_house_company_status', ''),
+            ('company__company_export_plans', ''),
             ('company__country', 'test_country'),
             ('company__created', '2012-01-14 12:00:00+00:00'),
             ('company__date_identity_check_message_sent', ''),
@@ -874,9 +882,8 @@ class ResendLetterTestCase(TestCase):
     def tearDown(self):
         self.freezer.stop()
 
-    @patch('company.admin.messages')
     @patch('company.helpers.send_verification_letter')
-    def test_resend_letter(self, mocked_send_letter, mocked_messages):
+    def test_resend_letter(self, mocked_send_letter):
         company = models.Company.objects.create(**COMPANY_DATA)
         company_user = models.CompanyUser.objects.create(company=company, **SUPPLIER_DATA)
 
@@ -891,24 +898,22 @@ class ResendLetterTestCase(TestCase):
         models.CompanyUser.objects.create(company=other_company, **other_supplier_data)
 
         data = {
-            'action': 'resend_letter',
+            'action': 'send_verification_letter',
             '_selected_action': models.CompanyUser.objects.all().values_list('pk', flat=True)
         }
         response = self.client.post(
             reverse('admin:company_companyuser_changelist'),
             data,
+        )
+        assert response.template_name == 'admin/company/confirm_send_verification_letter.html'
+
+        response = self.client.post(
+            reverse('admin:resend_verification_letter'),
+            data={'obj_ids': f'{[company_user.pk for company_user in models.CompanyUser.objects.all()]}'},
             follow=True
         )
 
         assert mocked_send_letter.called_once_with(company_user.company)
-        assert mocked_messages.success.called_once_with(
-            response.request,
-            'Verification letter resent to 1 users'
-        )
-        assert mocked_messages.warning.called_once_with(
-            response.request,
-            '1 users skipped'
-        )
 
 
 @pytest.fixture

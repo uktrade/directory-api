@@ -1,20 +1,18 @@
 from datetime import timedelta
 
-from directory_constants.urls import domestic
-
 from django import forms
 from django.conf.urls import url
-from django.contrib import admin, messages
-from django.core.signing import Signer
+from django.contrib import admin
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import FormView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.views.generic import FormView, TemplateView
 
-from core.helpers import generate_csv_response
+from core.helpers import build_preverified_url, generate_csv_response
 from company import helpers, models
-from company.forms import EnrolCompanies, UploadExpertise
+from company.forms import EnrolCompanies, UploadExpertise, ConfirmVerificationLetterForm
 
 
 class GDPRComplianceFilter(admin.SimpleListFilter):
@@ -91,11 +89,8 @@ class CompaniesCreateFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-        url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
-        signer = Signer()
         created_companies = [
-            {**company, 'url': url + '?key=' + signer.sign(company['number'])}
-            for company in form.created_companies
+            {**company, 'url': build_preverified_url(company['number'])} for company in form.created_companies
         ]
         return TemplateResponse(
             self.request,
@@ -104,6 +99,15 @@ class CompaniesCreateFormView(FormView):
                 'created_companies': created_companies,
                 'skipped_companies': form.skipped_companies,
             }
+        )
+
+
+class DuplicateCompaniesView(TemplateView):
+    template_name = 'admin/company/duplicate_companies.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            groups=helpers.get_duplicate_companies()
         )
 
 
@@ -190,8 +194,25 @@ class PublishByCompanyHouseNumberView(FormView):
         return super().form_valid(form)
 
 
+class CompanyUserInline(admin.options.TabularInline):
+    model = models.CompanyUser
+    readonly_fields = (
+        'name',
+        'role',
+        'company_email',
+        'date_joined',
+    )
+    exclude = ('is_active', 'unsubscribed', 'sso_id', 'mobile_number')
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request):
+        return False
+
+
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
+    inlines = (CompanyUserInline,)
     search_fields = (
         'name', 'description', 'keywords',
         'sectors', 'website', 'verification_code', 'number',
@@ -235,6 +256,13 @@ class CompanyAdmin(admin.ModelAdmin):
                     CompaniesUploadExpertiseFormView.as_view()
                 ),
                 name="upload_company_expertise"
+            ),
+            url(
+                r'^duplicates/$',
+                self.admin_site.admin_view(
+                    DuplicateCompaniesView.as_view()
+                ),
+                name="duplicate_companies"
             ),
         ]
         return additional_urls + urls
@@ -286,6 +314,22 @@ class CollaborationRequestAdmin(admin.ModelAdmin):
     list_filter = ('accepted', 'role')
 
 
+class ResendVerificationLetterFormView(SuccessMessageMixin, FormView):
+
+    template_name = 'admin/company/confirm_send_verification_letter.html'
+    form_class = ConfirmVerificationLetterForm
+    success_url = reverse_lazy('admin:company_companyuser_changelist')
+
+    def form_valid(self, form):
+        queryset = models.CompanyUser.objects.filter(pk__in=form.cleaned_data['obj_ids']).filter(
+            company__verified_with_code=False
+        )
+        for user in queryset:
+            helpers.send_verification_letter(user.company)
+        self.success_message = f'"Number of verification letter(s) resent: {queryset.count()}'
+        return super().form_valid(form)
+
+
 @admin.register(models.CompanyUser)
 class CompanyUserAdmin(admin.ModelAdmin):
 
@@ -293,8 +337,21 @@ class CompanyUserAdmin(admin.ModelAdmin):
         'sso_id', 'name', 'mobile_number', 'company_email', 'company__name',
         'company__description', 'company__number', 'company__website',
     )
-    readonly_fields = ('created', 'modified',)
-    actions = ['download_csv', 'resend_letter']
+    list_display = ('name', 'company_email', 'company', 'company_type',)
+    readonly_fields = ('company_type', 'created', 'modified',)
+    actions = ['send_verification_letter', 'download_csv', ]
+
+    def send_verification_letter(self, request, queryset):
+        response = TemplateResponse(
+            request,
+            'admin/company/confirm_send_verification_letter.html',
+            {'queryset': queryset, 'ids': [q.pk for q in queryset], }
+        )
+        return response
+
+    def company_type(self, obj):
+        if obj.company:
+            return obj.company.company_type
 
     def download_csv(self, request, queryset):
         """
@@ -311,27 +368,12 @@ class CompanyUserAdmin(admin.ModelAdmin):
         "Download CSV report for selected suppliers"
     )
 
-    def resend_letter(self, request, queryset):
-        total_selected_users = queryset.count()
-        not_verified_users_queryset = queryset.select_related(
-            'company'
-        ).exclude(
-                company__verified_with_code=True
-        )
-        not_verified_users_count = not_verified_users_queryset.count()
-
-        for supplier in not_verified_users_queryset:
-            helpers.send_verification_letter(supplier.company)
-
-        messages.success(
-            request,
-            'Verification letter resent to {} users'.format(
-                not_verified_users_count
-            )
-        )
-        messages.warning(
-            request,
-            '{} users skipped'.format(
-                total_selected_users - not_verified_users_count
-            )
-        )
+    def get_urls(self):
+        urls = super().get_urls()
+        additional_urls = [
+            url(r'^admin/company/resend-verification-letter/$',
+                self.admin_site.admin_view(ResendVerificationLetterFormView.as_view()),
+                name='resend_verification_letter',
+                ),
+        ]
+        return additional_urls + urls

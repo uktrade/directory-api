@@ -13,8 +13,10 @@ class PreVerifiedEnrolmentModelForm(forms.ModelForm):
         model = models.PreVerifiedEnrolment
         fields = [
             'company_number',
+            'company_name',
             'generated_for',
             'generated_by',
+            'email_address',
         ]
 
 
@@ -22,8 +24,7 @@ class GeneratePreVerifiedCompanies(forms.Form):
     generated_for = forms.CharField(max_length=1000)
     csv_file = forms.FileField(
         help_text=(
-            '<a href="/admin/enrolment/preverifiedenrolment/example-template/"'
-            '>Download example csv file</a>'
+            '<a href="/admin/enrolment/preverifiedenrolment/example-template/">Download example csv file</a>'
         )
     )
 
