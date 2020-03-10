@@ -1,4 +1,5 @@
 import pytest
+import re
 from dataservices.helpers import ComTradeData
 
 
@@ -10,9 +11,53 @@ def comtrade():
     )
 
 
-@pytest.mark.django_db
-def test_get_country_id(comtrade):
-    assert comtrade.get_comtrade_company_id('Australia') == '36'
+@pytest.fixture()
+def comtrade_data():
+    return {"dataset":
+            [
+                {
+                    "period": 2018,
+                    "rtTitle": "Australia",
+                    "ptTitle": "United Kingdom",
+                    "TradeValue": 200,
+                },
+                {
+                    "period": 2017,
+                    "rtTitle": "Australia",
+                    "ptTitle": "United Kingdom",
+                    "TradeValue": 100,
+                },
+                {
+                    "period": 2016,
+                    "rtTitle": "Italy",
+                    "ptTitle": "United Kingdom",
+                    "TradeValue": 50,
+                },
+            ]}
+
+
+@pytest.fixture()
+def empty_comtrade():
+    return ComTradeData(
+        commodity_code='2120.8350',
+        reporting_area='Australia'
+    )
+
+
+@pytest.fixture()
+def comtrade_request_mock(comtrade_data, requests_mocker):
+    return requests_mocker.get(
+        re.compile('https://comtrade.un.org/.*'),
+        json=comtrade_data
+    )
+
+
+@pytest.fixture()
+def comtrade_request_mock_empty(comtrade_data, requests_mocker):
+    return requests_mocker.get(
+        re.compile('https://comtrade.un.org/.*'),
+        json={'dataset': []}
+    )
 
 
 def test_get_url(comtrade):
@@ -21,40 +66,46 @@ def test_get_url(comtrade):
     )
 
 
-@pytest.mark.django_db
-def test_get_country_id_not_found():
-    return True
-    assert comtrade.get_comtrade_company_id('jbjbhj') == '36'
-
-
 def test_get_product_code(comtrade):
     assert comtrade.get_product_code('2204.123.2312.231') == '2204123'
 
 
-def test_get_last_year_import_data(comtrade):
-    last_year_data = comtrade.get_last_year_import_data()
+def test_get_last_year_import_data(comtrade, comtrade_request_mock):
 
+    last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
             'import_value': {
                 'year': 2018,
-                'trade_value': 33097917,
+                'trade_value': 200,
                 'country_name': 'Australia',
-                'year_on_year_change':  0.662,
+                'year_on_year_change':  0.5,
             }
         }
 
 
-def test_get_historical_import_value_partner_country(comtrade):
+def test_get_last_year_import_data_empty(empty_comtrade, comtrade_request_mock_empty):
+    assert empty_comtrade.get_last_year_import_data() is None
+
+
+def test_get_historical_import_value_partner_country(comtrade, comtrade_request_mock):
     reporting_year_data = comtrade.get_historical_import_value_partner_country()
     assert reporting_year_data == {
         'historical_trade_value_partner':
-            {2018: 33097917, 2017: 21906691, 2016: 18348037}
+            {2016: 50, 2017: 100, 2018: 200}
     }
 
 
-def test_get_historical_import_value_world(comtrade):
+def test_get_historical_import_value_partner_country_empty(empty_comtrade, comtrade_request_mock_empty):
+    assert empty_comtrade.get_historical_import_value_partner_country() is None
+
+
+def test_get_historical_import_value_world(comtrade, comtrade_request_mock):
     reporting_year_data = comtrade.get_historical_import_value_world()
     assert reporting_year_data == {
         'historical_trade_value_all':
-            {2016: 798573579, 2017: 845020969, 2018: 947304185}
+            {2016: 350, 2017: 350, 2018: 350}
     }
+
+
+def test_get_historical_import_value_world_empty(empty_comtrade, comtrade_request_mock_empty):
+    assert empty_comtrade.get_historical_import_value_world() == {'historical_trade_value_all': {}}
