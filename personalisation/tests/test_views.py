@@ -188,25 +188,26 @@ and boutique hoteliers. It was founded in London in 2012 to sup…",
         assert response.status_code == 200
         assert response.data == {'results': []}
 
-        """ What if ActivitySteam sends an error? """
+        '''What if ActivitySteam sends an error?'''
         search.return_value = Mock(status_code=500,
-                                   content="[service overloaded]")
+                                   content='[service overloaded]')
 
         response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 500
         # This can be handled on the front end as we wish
-        assert response.data == {'error': "[service overloaded]"}
+        assert response.data == {'error': '[service overloaded]'}
 
-        """ What if ActivitySteam is down? """
+        '''What if ActivitySteam is down?'''
         search.side_effect = requests.exceptions.ConnectionError
 
         response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 500
         # This can be handled on the front end as we wish
-        assert response.data == {'error': "Activity Stream connection failed"}
+        assert response.data == {'error': 'Activity Stream connection failed'}
 
 
-def test_export_opportunities_api(client, settings):
+@pytest.mark.django_db
+def test_export_opportunities_api(authed_client, settings):
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
             'relevant_opportunities': [{
@@ -219,7 +220,7 @@ def test_export_opportunities_api(client, settings):
         }
         get_opportunities.return_value = {'status': 200, 'data': mock_results}
 
-        response = client.get(reverse('personalisation-export-opportunities'), data={'sso_id': '123'})
+        response = authed_client.get(reverse('personalisation-export-opportunities'))
         assert response.status_code == 200
         assert response.data == {'results': [{
             'title': 'French sardines required',
