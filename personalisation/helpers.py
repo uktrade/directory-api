@@ -79,8 +79,8 @@ def search_with_activitystream(query):
     return requests.Session().send(request)
 
 
-def get_opportunities(hashed_sso_id):
-    response = exopps_client.get_opportunities(hashed_sso_id)
+def get_opportunities(hashed_sso_id, search_term):
+    response = exopps_client.get_opportunities(hashed_sso_id, search_term)
     if response.status_code == http.client.FORBIDDEN:
         return {'status': response.status_code, 'data': response.json()}
     elif response.status_code == http.client.OK:
@@ -104,8 +104,8 @@ class ExportingIsGreatClient:
         url = urlparse.urljoin(self.base_url, partial_url)
         return requests.get(url, params=params, auth=self.auth)
 
-    def get_opportunities(self, hashed_sso_id):
-        params = {'hashed_sso_id': hashed_sso_id}
+    def get_opportunities(self, hashed_sso_id, search_term):
+        params = {'hashed_sso_id': hashed_sso_id, 's': search_term}
         return self.get(self.endpoints['opportunities'], params)
 
 

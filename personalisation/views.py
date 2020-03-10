@@ -50,6 +50,7 @@ class EventsView(generics.GenericAPIView):
             location = models.UserLocation.objects.get(sso_id=self.request.user.id)
             return [location.latitude, location.longitude]
         except models.UserLocation.DoesNotExist:
+            # CENTRE OF LONDON
             return [51.507351, -0.127758]
 
     def get(self, *args, **kwargs):
@@ -86,7 +87,10 @@ class ExportOpportunitiesView(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         try:
-            opportunities = helpers.get_opportunities(self.request.user.hashed_uuid)
+            opportunities = helpers.get_opportunities(
+                self.request.user.hashed_uuid,
+                self.request.query_params.get('s', '')
+            )
             if 'relevant_opportunities' in opportunities['data'].keys():
                 return Response(
                     status=opportunities['status'],

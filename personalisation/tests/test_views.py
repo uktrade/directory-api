@@ -220,7 +220,7 @@ def test_export_opportunities_api(authed_client, settings):
         }
         get_opportunities.return_value = {'status': 200, 'data': mock_results}
 
-        response = authed_client.get(reverse('personalisation-export-opportunities'))
+        response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
         assert response.status_code == 200
         assert response.data == {'results': [{
             'title': 'French sardines required',
