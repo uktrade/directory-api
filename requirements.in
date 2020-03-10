@@ -6,6 +6,7 @@ django-field-history==0.7.0
 djangorestframework==3.10.3
 django-storages==1.8.0
 django-filter==2.2.0
+django-import-export==2.0.2
 kombu==4.6.6
 django-celery-beat==1.5.0
 django-redis==4.10.0
