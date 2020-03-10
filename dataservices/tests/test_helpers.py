@@ -66,6 +66,14 @@ def test_get_url(comtrade):
     )
 
 
+def test_get_get_comtrade_company_id(comtrade):
+    assert comtrade.get_comtrade_company_id('Australia') == '36'
+
+
+def test_get_comtrade_company_id_not_found(comtrade):
+    assert comtrade.get_comtrade_company_id('no_country') == ''
+
+
 def test_get_product_code(comtrade):
     assert comtrade.get_product_code('2204.123.2312.231') == '2204123'
 

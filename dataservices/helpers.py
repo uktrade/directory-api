@@ -1,24 +1,22 @@
 import requests
 import json
-import pandas as pd
+import pandas
 import datetime
 
 
-class ComTradeData():
-    url = (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&rg=1'
-    )
+class ComTradeData:
+    url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&rg=1'
 
     def __init__(self, commodity_code, reporting_area, partner_country='United Kingdom'):
-        pd.set_option('mode.chained_assignment', None)
+        pandas.set_option('mode.chained_assignment', None)
         self.product_code = self.get_product_code(commodity_code)
-        self.reporting_area_id = self.__get_comtrade_company_id(reporting_area)
-        self.partner_country_id = self.__get_comtrade_company_id(partner_country)
+        self.reporting_area_id = self.get_comtrade_company_id(reporting_area)
+        self.partner_country_id = self.get_comtrade_company_id(partner_country)
 
-    def __get_comtrade_company_id(self, country_name):
+    def get_comtrade_company_id(self, country_name):
         with open('dataservices/resources/reporterAreas.json', 'r') as f:
             json1_str = f.read()
-            counties_data = pd.DataFrame(json.loads(json1_str)['results'])
+            counties_data = pandas.DataFrame(json.loads(json1_str)['results'])
             if not counties_data[counties_data['text'] == country_name]['id'].empty:
                 return counties_data[counties_data['text'] == country_name]['id'].iloc[0]
             else:
@@ -35,7 +33,7 @@ class ComTradeData():
     def get_last_year_import_data(self):
 
         comdata = requests.get(self.get_url())
-        comdata_df = pd.DataFrame.from_dict(comdata.json()['dataset'])
+        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
         if not comdata_df.empty:
             # Get Last two years data
             last_year = datetime.datetime.today().year-2
@@ -55,7 +53,7 @@ class ComTradeData():
 
     def get_historical_import_value_partner_country(self, no_years=3):
         comdata = requests.get(self.get_url())
-        comdata_df = pd.DataFrame.from_dict(comdata.json()['dataset'])
+        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
         if not comdata_df.empty:
             historical_trade_values = {'historical_trade_value_partner': {}}
             reporting_year_df = comdata_df.sort_values(by=['period'], ascending=False).head(no_years)
@@ -71,7 +69,7 @@ class ComTradeData():
             reporting_year = datetime.datetime.today().year-(y+1)
             url_options = f'&r=All&p={self.partner_country_id}&cc={self.product_code}&ps={reporting_year}'
             world_data = requests.get(self.url + url_options)
-            world_data_df = pd.DataFrame.from_dict(world_data.json()['dataset'])
+            world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
             if not world_data_df.empty:
                 world_data_df['TradeValue'].sum()
                 historical_trade_values['historical_trade_value_all'][reporting_year] = (
