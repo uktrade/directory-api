@@ -133,10 +133,11 @@ path_and_rename_supplier_case_study = PathAndRename(sub_path="supplier_case_stud
 
 
 class SSOUser:
-    def __init__(self, id, email, user_profile=None):
+    def __init__(self, id, email, hashed_uuid=None, user_profile=None):
         self.id = id
         self.email = email
         self.user_profile = user_profile
+        self.hashed_uuid = hashed_uuid
 
     @property
     def pk(self):

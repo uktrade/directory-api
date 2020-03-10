@@ -28,38 +28,19 @@ def parse_results(response):
 def build_query(lat, lng):
     return json.dumps({
         'query': {
-            'bool': {
-                'must': {
-                    'bool': {
-                        'should': [
-                            {
-                                'match_all': {}
-                            }
-                        ]
-                    }
-                },
-                'filter': [
-                    {'terms': {
-                        'type': ['dit:aventri:Event']
-                    }}
-                ],
-                'sort': [
-                    {
-                      '_geo_distance': {
-                        'location': {
-                          'lat':  26.112,
-                          'lon': -73.998
-                        },
-                        'order':         'asc',
-                        'unit':          'km',
-                        'distance_type': 'plane'
-                      }
-                    }
-                ]
-            }
+          'match_all': {}
         },
-        'from': 0,
-        'size': 3
+        'sort': [{
+            '_geo_distance': {
+              'geocoordinates': {
+                'lat': str(lat),
+                'lon': str(lng)
+              },
+              'order': 'asc',
+              'unit': 'km',
+              'distance_type': 'arc'
+            }
+        }]
     })
 
 
@@ -95,12 +76,11 @@ def search_with_activitystream(query):
         'Authorization': auth,
         'Content-Type': 'application/json'
     })
-
     return requests.Session().send(request)
 
 
-def get_opportunities(sso_id):
-    response = exopps_client.get_opportunities(sso_id)
+def get_opportunities(hashed_sso_id):
+    response = exopps_client.get_opportunities(hashed_sso_id)
     if response.status_code == http.client.FORBIDDEN:
         return {'status': response.status_code, 'data': response.json()}
     elif response.status_code == http.client.OK:
@@ -115,7 +95,7 @@ class ExportingIsGreatClient:
     )
     base_url = settings.EXPORTING_OPPORTUNITIES_API_BASE_URL
     endpoints = {
-        'opportunities': '/export-opportunities/api/profile_dashboard'
+        'opportunities': '/export-opportunities/api/opportunities'
     }
     secret = settings.EXPORTING_OPPORTUNITIES_API_SECRET
 
@@ -124,8 +104,8 @@ class ExportingIsGreatClient:
         url = urlparse.urljoin(self.base_url, partial_url)
         return requests.get(url, params=params, auth=self.auth)
 
-    def get_opportunities(self, sso_id):
-        params = {'sso_user_id': sso_id}
+    def get_opportunities(self, hashed_sso_id):
+        params = {'hashed_sso_id': hashed_sso_id}
         return self.get(self.endpoints['opportunities'], params)
 
 
