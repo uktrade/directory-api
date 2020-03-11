@@ -5,7 +5,6 @@ import urllib.parse as urlparse
 
 from django.conf import settings
 from mohawk import Sender
-import sentry_sdk
 
 from personalisation import serializers
 
