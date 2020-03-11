@@ -57,18 +57,20 @@ markuppy==1.14            # via tablib
 mohawk==0.3.4             # via sigauth
 monotonic==1.5            # via directory-client-core
 more-itertools==7.2.0     # via zipp
+numpy==1.18.1             # via pandas
 oauthlib==3.0.2           # via requests-oauthlib
 odfpy==1.4.1              # via tablib
 olefile==0.44             # via directory-validators
 openpyxl==3.0.3           # via tablib
+pandas==1.0.1
 pillow==6.2.1             # via directory-validators
 psycopg2-binary==2.8.4
 pycparser==2.18           # via cffi
 pyopenssl==17.5.0         # via requests
 pyrsistent==0.15.3        # via jsonschema
 python-crontab==2.4.0     # via django-celery-beat
-python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker, python-crontab
-pytz==2017.2              # via celery, directory-validators, django, django-timezone-field
+python-dateutil==2.6.1    # via botocore, elasticsearch-dsl, faker, pandas, python-crontab
+pytz==2017.2              # via celery, directory-validators, django, django-timezone-field, pandas
 pyyaml==5.3               # via tablib
 raven==6.10.0             # via django-staff-sso-client
 redis==3.3.11             # via celery, django-redis
