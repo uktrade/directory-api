@@ -239,7 +239,7 @@ def test_export_opportunities_api(authed_client, settings):
             'expiration_date': 'Sat, 06 Jun 2020',
         }]}
 
-    ### Test failure to connect to ExOps
+    # Test failure to connect to ExOps
 
     with patch('personalisation.helpers.ExportingIsGreatClient.get_opportunities') as get_opportunities:
         get_opportunities.return_value = create_response(
