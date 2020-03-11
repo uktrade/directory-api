@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from dataservices import serializers, models, helpers
 from rest_framework.response import Response
 from django.http import Http404
-from requests.exceptions import HTTPError
+from requests.exceptions import RequestException
 
 
 class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
@@ -46,7 +46,7 @@ class RetrieveLastYearImportDataView(generics.GenericAPIView):
                 status=status.HTTP_200_OK,
                 data={'last_year_data': last_year_data}
             )
-        except HTTPError:
+        except RequestException:
             return Response(
                 status=500,
                 data={'error_message': 'Connection to Comtrade failed'}
@@ -65,13 +65,12 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
 
             historical_data = {'historical_import_data': []}
             historical_data['historical_import_data'].append(comtrade.get_historical_import_value_partner_country())
-            historical_data[
-                'historical_import_data'].append(comtrade.get_historical_import_value_world())
+            historical_data['historical_import_data'].append(comtrade.get_historical_import_value_world())
             return Response(
                 status=status.HTTP_200_OK,
                 data=historical_data
             )
-        except HTTPError:
+        except RequestException:
             return Response(
                 status=500,
                 data={'error_message': 'Connection to Comtrade failed'}
