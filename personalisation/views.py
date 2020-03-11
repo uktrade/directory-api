@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError, RequestException
 
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
+import sentry_sdk
 
 logger = logging.getLogger(__name__)
 
@@ -64,18 +65,25 @@ class EventsView(generics.GenericAPIView):
             logger.error(
                 "Activity Stream connection for "
                 "Search failed. Query: '{}'".format(elasticsearch_query))
+            sentry_sdk.capture_message(
+                f"There was an error in /personalisation/events: \
+Activity Stream connection failed"
+            )
             return Response(
                 status=500,
                 data={"error": "Activity Stream connection failed"}
             )
         else:
             if response.status_code != 200:
+                sentry_sdk.capture_message(
+                    f"There was an error in /personalisation/events: \
+{response.content}"
+                )
                 return Response(
                     status=response.status_code,
                     data={"error": response.content}
                 )
             else:
-
                 return Response(
                     status=response.status_code,
                     data=helpers.parse_results(response)

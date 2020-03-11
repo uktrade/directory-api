@@ -12,17 +12,9 @@ from personalisation import serializers
 
 def parse_results(response):
     content = json.loads(response.content)
-
-    if 'error' in content:
-        results = []
-        sentry_sdk.capture_message(
-            f"There was an error in /search: {content['error']}"
-        )
-    else:
-        results = serializers.parse_search_results(content)
-
     # Hash of data & metadata (e.g. number of results) to return from API
-    return {'results': results}
+    # Currently only provides 'results' but scope to expand
+    return {'results': serializers.parse_search_results(content)}
 
 
 def build_query(lat, lng):
