@@ -55,9 +55,7 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
 
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
 
-        historical_data = {'historical_import_data': []}
-        historical_data['historical_import_data'].append(comtrade.get_historical_import_value_partner_country())
-        historical_data['historical_import_data'].append(comtrade.get_historical_import_value_world())
+        historical_data = comtrade.get_all_historical_import_value()
         return Response(
             status=status.HTTP_200_OK,
             data=historical_data

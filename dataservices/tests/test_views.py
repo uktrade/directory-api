@@ -105,3 +105,31 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
 
     assert response.status_code == 200
     assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
+
+
+@pytest.mark.django_db
+@mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_world')
+@mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_partner_country')
+@mock.patch.object(helpers.ComTradeData, '__init__')
+def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mock_hist_world, api_client):
+    mock_comtrade_constructor.return_value = None
+    hist_partner_data = {'2017': 1000}
+    mock_hist_data = {'2017': 3000}
+
+    mock_hist_partner.return_value = hist_partner_data
+    mock_hist_world.return_value = mock_hist_data
+
+    url = reverse('historical-import-data')
+    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
+    assert mock_comtrade_constructor.call_count == 1
+    assert mock_comtrade_constructor.call_args == mock.call(commodity_code='220.850', reporting_area='Australia')
+    assert mock_hist_partner.call_count == 1
+    assert mock_hist_world.call_count == 1
+
+    assert response.status_code == 200
+    assert response.json() == {
+        'historical_import_data':
+            {'historical_trade_value_partner': {'2017': 1000},
+             'historical_trade_value_all': {'2017': 3000}
+             }
+    }
