@@ -4,7 +4,6 @@ from rest_framework.test import APIClient
 
 from dataservices import models, helpers
 from unittest import mock
-from requests.exceptions import RequestException
 
 
 @pytest.fixture
@@ -106,27 +105,3 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
 
     assert response.status_code == 200
     assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
-
-
-@pytest.mark.django_db
-@mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_partner_country')
-def test_historical_import_data_exception(mock_hist_partner, api_client):
-    mock_hist_partner.side_effect = (
-        RequestException()
-    )
-    url = reverse('historical-import-data')
-    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
-    assert response.status_code == 500
-    assert response.json() == {'error_message': 'Connection to Comtrade failed'}
-
-
-@pytest.mark.django_db
-@mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
-def test_last_year_import_data_exception(mock_get_last_year_import_data, api_client):
-    mock_get_last_year_import_data.side_effect = (
-        RequestException()
-    )
-    url = reverse('last-year-import-data')
-    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
-    assert response.status_code == 500
-    assert response.json() == {'error_message': 'Connection to Comtrade failed'}
