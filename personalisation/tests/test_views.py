@@ -1,6 +1,7 @@
 import json
 import requests
 import pytest
+import http
 
 from unittest.mock import patch, Mock
 from django.urls import reverse
@@ -208,6 +209,14 @@ and boutique hoteliers. It was founded in London in 2012 to sup…",
 
 @pytest.mark.django_db
 def test_export_opportunities_api(authed_client, settings):
+
+    def create_response(json_body={}, status_code=200, content=None):
+        response = requests.Response()
+        response.status_code = status_code
+        response.json = lambda: json_body
+        response._content = content
+        return response
+
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
             'relevant_opportunities': [{
@@ -229,3 +238,15 @@ def test_export_opportunities_api(authed_client, settings):
             'submitted_on': '14 Jan 2020 15:26:45',
             'expiration_date': 'Sat, 06 Jun 2020',
         }]}
+
+    ### Test failure to connect to ExOps
+
+    with patch('personalisation.helpers.ExportingIsGreatClient.get_opportunities') as get_opportunities:
+        get_opportunities.return_value = create_response(
+            status_code=http.client.FORBIDDEN,
+            json_body={'error': 'unauthorized'}
+        )
+
+        response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
+        assert response.status_code == http.client.FORBIDDEN
+        assert response.data == {'error': 'unauthorized'}
