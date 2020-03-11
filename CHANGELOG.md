@@ -15,7 +15,7 @@ MVP-205 - extend export plan model
 MVP-250 - EaseofBusiness Index Backend
 MVP-252 - CPI data import backend
 MVP-276 - comtrade download component
-MVP-310 - comtrade api-views
+MVP-310 - comtrade pull api-views
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
