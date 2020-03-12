@@ -1,6 +1,7 @@
 import json
 import requests
 import pytest
+import http
 
 from unittest.mock import patch, Mock
 from django.urls import reverse
@@ -54,72 +55,116 @@ def test_user_location_create_already_exists(user_location_data, authed_client):
     assert models.UserLocation.objects.count() == 1
 
 
-def test_events_api(client, settings):
-
-    # SKIPPED AS MOCKING EVENTS API CURRENTLY
-    return
-
+@pytest.mark.django_db
+def test_events_api(authed_client, settings):
     """ We mock the call to ActivityStream """
 
     with patch('personalisation.helpers.search_with_activitystream') as search:
         mock_results = json.dumps({
-            'took': 17,
-            'timed_out': False,
-            '_shards': {
-                'total': 4,
-                'successful': 4,
-                'skipped': 0,
-                'failed': 0
+            "took": 32,
+            "timed_out": "false",
+            "_shards": {
+                "total": 3,
+                "successful": 3,
+                "skipped": 0,
+                "failed": 0
             },
-            'hits': {
-                'total': 5,
-                'max_score': 0.2876821,
-                'hits': [{
-                    '_index': 'objects__feed_id_first_feed__date_2019',
-                    '_type': '_doc',
-                    '_id': 'dit:aventri:Event:2',
-                    '_score': 0.2876821,
-                    '_source': {
-                        'type': ['dit:aventri:Event'],
-                        'title': 'France - Data analysis services',
-                        'content':
-                        'The purpose of this contract is to analyze...',
-                        'url': 'www.great.gov.uk/opportunities/1'
+            "hits": {
+                "total": 1,
+                "max_score": "null",
+                "hits": [
+                    {
+                        "_index":
+                        "objects__feed_id_aventri__date_2020-03-06__timestamp_1583508109__batch_id_hu6dz6lo__",
+                        "_type": "_doc",
+                        "_id": "dit:aventri:Event:200198344",
+                        "_score": "null",
+                        "_source": {
+                            "content": "The Independent Hotel Show \
+is the only industry event dedicated entirely to the needs of luxury \
+and boutique hoteliers. It was founded in London in 2012 to support.",
+                            "currency": "Sterling",
+                            "enddate": "2020-03-18",
+                            "foldername": "1920 Events",
+                            "geocoordinates": {
+                                "lat": "49.83",
+                                "lon": "3.44"
+                            },
+                            "id": "dit:aventri:Event:200198344",
+                            "language": "eng",
+                            "location": {
+                                "address1": "Europaplein 22",
+                                "address2": "",
+                                "address3": "",
+                                "city": "Amsterdam",
+                                "country": "Netherlands",
+                                "email": "",
+                                "map": "",
+                                "name": "RAI Amsterdam",
+                                "phone": "",
+                                "postcode": "1078 GZ",
+                                "state": ""
+                            },
+                            "name": "Independent Hotel Show",
+                            "price": "null",
+                            "price_type": "null",
+                            "published": "2020-03-05T12:39:18.438792",
+                            "startdate": "2020-03-17",
+                            "timezone":
+                            "[GMT] Greenwich Mean Time: Dublin, Edinburgh, Lisbon, London",
+                            "type": ["Event", "dit:aventri:Event"],
+                            "url": "https://eu.eventscloud.com/200198344"
+                        },
+                        "sort": [313.0059910186728]
                     }
-                }, {
-                    '_index': 'objects__feed_id_first_feed__date_2019',
-                    '_type': '_doc',
-                    '_id': 'dit:aventri:Event:2',
-                    '_score': 0.18232156,
-                    '_source': {
-                        'type': ['dit:aventri:Event'],
-                        'title': 'Germany - snow clearing',
-                        'content':
-                        'Winter services for the properties1) Former...',
-                        'url': 'www.great.gov.uk/opportunities/2'
-                    }
-                }]
+                ]
             }
         })
+
         search.return_value = Mock(status_code=200, content=mock_results)
 
-        response = client.get(reverse('personalisation-events'), data={'lat': '0', 'lng': '0'})
+        response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 200
         assert response.data == {'results': [
-                {
-                  'type': 'Event',
-                  'title': 'France - Data analysis services',
-                  'content': 'The purpose of this contract is to analyze...',
-                  'url': 'www.great.gov.uk/opportunities/1'
+            {
+                "content": "The Independent Hotel Show \
+is the only industry event dedicated entirely to the needs of luxury \
+and boutique hoteliers. It was founded in London in 2012 to sup…",
+                "currency": "Sterling",
+                "enddate": "2020-03-18",
+                "foldername": "1920 Events",
+                "geocoordinates": {
+                    "lat": "49.83",
+                    "lon": "3.44"
                 },
-                {
-                  'type': 'Event',
-                  'title': 'Germany - snow clearing',
-                  'content': 'Winter services for the properties1) Former...',
-                  'url': 'www.great.gov.uk/opportunities/2'
-                }
-            ]
-        }
+                "id": "dit:aventri:Event:200198344",
+                "language": "eng",
+                "location": {
+                    "address1": "Europaplein 22",
+                    "address2": "",
+                    "address3": "",
+                    "city": "Amsterdam",
+                    "country": "Netherlands",
+                    "email": "",
+                    "map": "",
+                    "name": "RAI Amsterdam",
+                    "phone": "",
+                    "postcode": "1078 GZ",
+                    "state": ""
+                },
+                "name": "Independent Hotel Show",
+                "price": "null",
+                "price_type": "null",
+                "published": "2020-03-05T12:39:18.438792",
+                "startdate": "2020-03-17",
+                "timezone": "[GMT] Greenwich Mean Time: Dublin, Edinburgh, Lisbon, London",
+                "type": [
+                    "Event",
+                    "dit:aventri:Event"
+                ],
+                "url": "https://eu.eventscloud.com/200198344"
+            }
+        ]}
 
         """ What if there are no results? """
         search.return_value = Mock(
@@ -140,29 +185,38 @@ def test_events_api(client, settings):
             })
         )
 
-        response = client.get(reverse('personalisation-events'), data={'sso_id': '123', 'lat': '0', 'lng': '0'})
+        response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 200
         assert response.data == {'results': []}
 
-        """ What if ActivitySteam sends an error? """
+        '''What if ActivitySteam sends an error?'''
         search.return_value = Mock(status_code=500,
-                                   content="[service overloaded]")
+                                   content='[service overloaded]')
 
-        response = client.get(reverse('personalisation-events'), data={'sso_id': '123', 'lat': '0', 'lng': '0'})
+        response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 500
         # This can be handled on the front end as we wish
-        assert response.data == {'error_message': "[service overloaded]"}
+        assert response.data == {'error': '[service overloaded]'}
 
-        """ What if ActivitySteam is down? """
+        '''What if ActivitySteam is down?'''
         search.side_effect = requests.exceptions.ConnectionError
 
-        response = client.get(reverse('personalisation-events'), data={'sso_id': '123', 'lat': '0', 'lng': '0'})
+        response = authed_client.get(reverse('personalisation-events'))
         assert response.status_code == 500
         # This can be handled on the front end as we wish
-        assert response.data == {'error_message': "Activity Stream connection failed"}
+        assert response.data == {'error': 'Activity Stream connection failed'}
 
 
-def test_export_opportunities_api(client, settings):
+@pytest.mark.django_db
+def test_export_opportunities_api(authed_client, settings):
+
+    def create_response(json_body={}, status_code=200, content=None):
+        response = requests.Response()
+        response.status_code = status_code
+        response.json = lambda: json_body
+        response._content = content
+        return response
+
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
             'relevant_opportunities': [{
@@ -175,7 +229,7 @@ def test_export_opportunities_api(client, settings):
         }
         get_opportunities.return_value = {'status': 200, 'data': mock_results}
 
-        response = client.get(reverse('personalisation-export-opportunities'), data={'sso_id': '123'})
+        response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
         assert response.status_code == 200
         assert response.data == {'results': [{
             'title': 'French sardines required',
@@ -184,3 +238,15 @@ def test_export_opportunities_api(client, settings):
             'submitted_on': '14 Jan 2020 15:26:45',
             'expiration_date': 'Sat, 06 Jun 2020',
         }]}
+
+    # Test failure to connect to ExOps
+
+    with patch('personalisation.helpers.ExportingIsGreatClient.get_opportunities') as get_opportunities:
+        get_opportunities.return_value = create_response(
+            status_code=http.client.FORBIDDEN,
+            json_body={'error': 'unauthorized'}
+        )
+
+        response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
+        assert response.status_code == http.client.FORBIDDEN
+        assert response.data == {'error': 'unauthorized'}

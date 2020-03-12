@@ -12,8 +12,10 @@ TT-2286 - update test email domain
 MVP-108 - export-plan-saving - add rules and regulations
 MVP-147 - Allow for piecemeal company creation
 MVP-205 - extend export plan model
+MVP - Add Lat/Lng lookup to Personalisation Events API
 MVP-250 - EaseofBusiness Index Backend
 MVP-252 - CPI data import backend
+MVP - Add search term to Personalisation ExOps API
 MVP-276 - comtrade download component
 MVP-310 - comtrade pull api-views
 
