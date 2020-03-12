@@ -246,6 +246,16 @@ urlpatterns = [
         name='dataservices-corruptionperceptionsindex'
     ),
     url(
+        r'^dataservices/lastyearimportdata/$',
+        dataservices.views.RetrieveLastYearImportDataView.as_view(),
+        name='last-year-import-data'
+    ),
+    url(
+        r'^dataservices/historicalimportdata/$',
+        dataservices.views.RetrieveHistoricalImportDataView.as_view(),
+        name='historical-import-data'
+    ),
+    url(
         r'^testapi/buyer/(?P<email>.*)/$',
         testapi.views.BuyerTestAPIView.as_view(),
         name='buyer_by_email'
