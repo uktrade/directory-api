@@ -16,7 +16,7 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
 
 
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
-    objectives = CompanyObjectivesSerializer(many=True, read_only=True)
+    company_objectives = CompanyObjectivesSerializer(many=True,  required=False, read_only=False)
     class Meta:
         model = models.CompanyExportPlan
         fields = (
@@ -37,12 +37,16 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'resource_needed',
             'spend_marketing',
             'pk',
-            'objectives',
+            'company_objectives',
         )
 
     def create(self, validated_data):
-        objectives = validated_data.pop('objectives')
-        instance = models.CompanyExportPlan.objects.create(**validated_data)
+
+        objectives = validated_data.pop('company_objectives')
+        instance = super().create(validated_data)
         for objective in objectives:
-            instance.objectives.add(objective)
+            objective_serializer = CompanyObjectivesSerializer(
+                data={**objective, 'companyexportplan': instance.pk})
+            objective_serializer.is_valid(raise_exception=True)
+            objective_serializer.save()
         return instance

@@ -38,7 +38,7 @@ class CompanyObjectives(TimeStampedModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, null=True, related_name='objectives', on_delete=models.CASCADE
+        CompanyExportPlan, null=True, related_name='company_objectives', on_delete=models.CASCADE
     )
 
 

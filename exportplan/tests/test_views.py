@@ -19,7 +19,7 @@ def export_plan_data(company):
         'export_commodity_codes': ['10101010', ],
         'export_countries': ['CN', ],
         'rules_regulations': {'rules': '0.001'},
-        'objectives': {'description': 'export 5k cases of wine'},
+        'company_objectives': [{'description': 'export 5k cases of wine'}, ]
     }
 
 
@@ -36,7 +36,8 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert instance.export_countries == export_plan_data['export_countries']
     assert instance.rules_regulations == export_plan_data['rules_regulations']
 
-    assert instance.objectives == []
+    # Relationship manager returned I want serialized list instead
+    assert instance.company_objectives.all() == [{'description': 'export 5k cases of wine'}, ]
     assert instance.sso_id == authed_supplier.sso_id
 
 
