@@ -40,3 +40,15 @@ class CompanyObjectives(TimeStampedModel):
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, null=True, related_name='objectives', on_delete=models.CASCADE
     )
+
+
+class ExportPlanActions(TimeStampedModel):
+    owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)
+    due_date = models.DateField(blank=True, null=True)
+    is_reminders_on = models.BooleanField(default=False)
+    action_type = models.CharField(
+        max_length=15, choices=(('TARGET_MARKETS', 'Target Markets'),), default='TARGET_MARKETS'
+    )
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, null=True, related_name='actions', on_delete=models.CASCADE
+    )

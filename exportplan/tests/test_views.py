@@ -18,22 +18,25 @@ def export_plan_data(company):
         'company': company.pk,
         'export_commodity_codes': ['10101010', ],
         'export_countries': ['CN', ],
-        'rules_regulations': {'rules': '0.001'}
+        'rules_regulations': {'rules': '0.001'},
+        'objectives': {'description': 'export 5k cases of wine'},
     }
 
 
 @pytest.mark.django_db
 def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
-
     response = authed_client.post(
         reverse('export-plan-list-create'), export_plan_data, format='json'
     )
     assert response.status_code == http.client.CREATED
 
     instance = models.CompanyExportPlan.objects.get(pk=response.data['pk'])
+
     assert instance.export_commodity_codes == export_plan_data['export_commodity_codes']
     assert instance.export_countries == export_plan_data['export_countries']
     assert instance.rules_regulations == export_plan_data['rules_regulations']
+
+    assert instance.objectives == []
     assert instance.sso_id == authed_supplier.sso_id
 
 
