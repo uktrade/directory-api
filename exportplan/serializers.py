@@ -14,8 +14,8 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
             'companyexportplan',
         )
         extra_kwargs = {
-            'companyexportplan': {'required': False},
             # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
         }
 
 
@@ -76,15 +76,13 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
 
         for objective in objectives:
-            objective_serializer = CompanyObjectivesSerializer(
-                data={**objective, 'companyexportplan': instance.pk})
+            objective_serializer = CompanyObjectivesSerializer(data={**objective, 'companyexportplan': instance.pk})
             objective_serializer.is_valid(raise_exception=True)
             objective_serializer.save()
 
         for action in actions:
 
-            action_serializer = ExportPlanActionsSerializer(
-                data={**action, 'companyexportplan': instance.pk})
+            action_serializer = ExportPlanActionsSerializer(data={**action, 'companyexportplan': instance.pk})
             action_serializer.is_valid(raise_exception=True)
             action_serializer.save()
         return instance
