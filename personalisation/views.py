@@ -1,10 +1,11 @@
 import logging
 from rest_framework.response import Response
 from rest_framework import status, generics
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RequestException
 
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
+import sentry_sdk
 
 logger = logging.getLogger(__name__)
 
@@ -45,64 +46,59 @@ class EventsView(generics.GenericAPIView):
     """
     permission_classes = []
 
+    def get_location(self):
+        try:
+            location = models.UserLocation.objects.get(sso_id=self.request.user.id)
+            return [location.latitude, location.longitude]
+        except models.UserLocation.DoesNotExist:
+            # CENTRE OF LONDON
+            return [51.507351, -0.127758]
+
     def get(self, *args, **kwargs):
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'results': [
-                {
-                    "name": "Global Aid and Development Directory",
-                    "content": "DIT is producing a directory of companies \
-who supply, or would like to supply, relevant humanitarian aid and development \
-products and services to the United Nations family of organisations and NGOs.  ",
-                    "location": {
-                        "city": "London"
-                    },
-                    "url": "www.example.com"
-                },
-                {
-                    "name": "Squire Patton Boggs",
-                    "content": "This half day training on business culture in \
-the Scandinavian and Nordics market will help you to improve your communication \
-with partners in the region. Knowing your way around the dos and dont’s in \
-business culture will save you from uncomfortable miscommunications.",
-                    "location": {
-                        "city": "Birmingham"
-                    },
-                    "url": "www.example.com"
-                },
-                {
-                    "name": "SxSW London 2020",
-                    "content": '''
-<h2><em>Are you attending SxSW 2020? </em></h2>
 
-<p>Whether you’re looking to return to SxSW or you’re a company interested in \
-attending for the first time, we want you to join the UK Department for International \
-Trade (DIT) at SxSW to get the most from this celebration of the convergence \
-of the interactive, film, and music industries in March 2020 in Austin, USA.</p>
+        lat, lon = self.get_location()
 
-<p>SxSW is a world class destination for discovery and offers endless opportunities \
-to foster business development and professional growth alike. The 10-day festival has \
-an estimated 300,000 visitors. From entrepreneurs and investors to cutting-edge digital \
-disruptors – the perfect audience for you to make contacts and demonstrate your \
-company’s creativity, expertise, technology and innovation offering.</p>
-''',
-                    "location": {
-                        "city": "London"
-                    },
-                    "url": "www.example.com"
-                },
-            ]}
-        )
+        try:
+            elasticsearch_query = helpers.build_query(lat, lon)
+            response = helpers.search_with_activitystream(elasticsearch_query)
+        except RequestException:
+            logger.error(
+                "Activity Stream connection for "
+                "Search failed. Query: '{}'".format(elasticsearch_query))
+            sentry_sdk.capture_message(
+                f"There was an error in /personalisation/events: \
+Activity Stream connection failed"
+            )
+            return Response(
+                status=500,
+                data={"error": "Activity Stream connection failed"}
+            )
+        else:
+            if response.status_code != 200:
+                sentry_sdk.capture_message(
+                    f"There was an error in /personalisation/events: \
+{response.content}"
+                )
+                return Response(
+                    status=response.status_code,
+                    data={"error": response.content}
+                )
+            else:
+                return Response(
+                    status=response.status_code,
+                    data=helpers.parse_results(response)
+                )
 
 
 class ExportOpportunitiesView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        sso_id = self.request.GET.get('sso_id', '')
-
         try:
-            opportunities = helpers.get_opportunities(sso_id)
+            opportunities = helpers.get_opportunities(
+                self.request.user.hashed_uuid,
+                self.request.query_params.get('s', '')
+            )
             if 'relevant_opportunities' in opportunities['data'].keys():
                 return Response(
                     status=opportunities['status'],
