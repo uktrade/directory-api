@@ -5,24 +5,15 @@ import urllib.parse as urlparse
 
 from django.conf import settings
 from mohawk import Sender
-import sentry_sdk
 
 from personalisation import serializers
 
 
 def parse_results(response):
     content = json.loads(response.content)
-
-    if 'error' in content:
-        results = []
-        sentry_sdk.capture_message(
-            f"There was an error in /search: {content['error']}"
-        )
-    else:
-        results = serializers.parse_search_results(content)
-
     # Hash of data & metadata (e.g. number of results) to return from API
-    return {'results': results}
+    # Currently only provides 'results' but scope to expand
+    return {'results': serializers.parse_search_results(content)}
 
 
 def build_query(lat, lng):
@@ -79,8 +70,8 @@ def search_with_activitystream(query):
     return requests.Session().send(request)
 
 
-def get_opportunities(hashed_sso_id):
-    response = exopps_client.get_opportunities(hashed_sso_id)
+def get_opportunities(hashed_sso_id, search_term):
+    response = exopps_client.get_opportunities(hashed_sso_id, search_term)
     if response.status_code == http.client.FORBIDDEN:
         return {'status': response.status_code, 'data': response.json()}
     elif response.status_code == http.client.OK:
@@ -104,8 +95,8 @@ class ExportingIsGreatClient:
         url = urlparse.urljoin(self.base_url, partial_url)
         return requests.get(url, params=params, auth=self.auth)
 
-    def get_opportunities(self, hashed_sso_id):
-        params = {'hashed_sso_id': hashed_sso_id}
+    def get_opportunities(self, hashed_sso_id, search_term):
+        params = {'hashed_sso_id': hashed_sso_id, 's': search_term}
         return self.get(self.endpoints['opportunities'], params)
 
 

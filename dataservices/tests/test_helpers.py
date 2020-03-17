@@ -97,10 +97,7 @@ def test_get_last_year_import_data_empty(empty_comtrade, comtrade_request_mock_e
 
 def test_get_historical_import_value_partner_country(comtrade, comtrade_request_mock):
     reporting_year_data = comtrade.get_historical_import_value_partner_country()
-    assert reporting_year_data == {
-        'historical_trade_value_partner':
-            {2016: 50, 2017: 100, 2018: 200}
-    }
+    assert reporting_year_data == {2016: 50, 2017: 100, 2018: 200}
 
 
 def test_get_historical_import_value_partner_country_empty(empty_comtrade, comtrade_request_mock_empty):
@@ -109,11 +106,18 @@ def test_get_historical_import_value_partner_country_empty(empty_comtrade, comtr
 
 def test_get_historical_import_value_world(comtrade, comtrade_request_mock):
     reporting_year_data = comtrade.get_historical_import_value_world()
-    assert reporting_year_data == {
-        'historical_trade_value_all':
-            {2016: 350, 2017: 350, 2018: 350}
-    }
+    assert reporting_year_data == {2016: 350, 2017: 350, 2018: 350}
 
 
 def test_get_historical_import_value_world_empty(empty_comtrade, comtrade_request_mock_empty):
-    assert empty_comtrade.get_historical_import_value_world() == {'historical_trade_value_all': {}}
+    assert empty_comtrade.get_historical_import_value_world() == {}
+
+
+def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
+    historical_data = comtrade.get_all_historical_import_value()
+    assert historical_data == {
+        'historical_import_data':
+            {'historical_trade_value_partner': {2018: 200, 2017: 100, 2016: 50},
+             'historical_trade_value_all': {2018: 350, 2017: 350, 2016: 350}
+             }
+    }

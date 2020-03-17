@@ -26,3 +26,25 @@ def test_company_exportplan_serializer_save():
     assert export_plan.export_countries == export_countries
     assert export_plan.rules_regulations == rules_regs_data
     assert export_plan.sso_id == 5
+
+
+@pytest.mark.django_db
+def test_export_plan_actions_serializer_fail():
+    data = {
+        'companyexportplan': None,
+        'is_reminders_on': None,
+    }
+    serializer = serializers.ExportPlanActionsSerializer(data=data)
+
+    assert serializer.is_valid() is False
+
+
+@pytest.mark.django_db
+def test_export_plan_objectives_serializer_fail():
+    data = {
+        'companyexportplan': None,
+        'description': None,
+    }
+    serializer = serializers.CompanyObjectivesSerializer(data=data)
+
+    assert serializer.is_valid() is False

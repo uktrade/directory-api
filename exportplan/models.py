@@ -8,6 +8,7 @@ from directory_validators.string import no_html
 
 
 class CompanyExportPlan(TimeStampedModel):
+
     company = models.ForeignKey(
         Company, related_name='company_export_plans', on_delete=models.CASCADE, blank=True, null=True
     )
@@ -38,5 +39,16 @@ class CompanyObjectives(TimeStampedModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, null=True, related_name='objectives', on_delete=models.CASCADE
+        CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
+    )
+
+
+class ExportPlanActions(TimeStampedModel):
+    TARGET_MARKET_CHOICES = ('TARGET_MARKETS', 'Target Markets')
+    owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)
+    due_date = models.DateField(blank=True, null=True)
+    is_reminders_on = models.BooleanField(default=False)
+    action_type = models.CharField(max_length=15, choices=(TARGET_MARKET_CHOICES,), default=TARGET_MARKET_CHOICES[0])
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
     )

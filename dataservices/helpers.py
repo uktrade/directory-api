@@ -55,15 +55,15 @@ class ComTradeData:
         comdata = requests.get(self.get_url())
         comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
         if not comdata_df.empty:
-            historical_trade_values = {'historical_trade_value_partner': {}}
+            historical_trade_values = {}
             reporting_year_df = comdata_df.sort_values(by=['period'], ascending=False).head(no_years)
 
             for index, row in reporting_year_df.iterrows():
-                historical_trade_values['historical_trade_value_partner'][row['period']] = row['TradeValue']
+                historical_trade_values[row['period']] = row['TradeValue']
             return historical_trade_values
 
     def get_historical_import_value_world(self, no_years=3):
-        historical_trade_values = {'historical_trade_value_all': {}}
+        historical_trade_values = {}
 
         for y in range(1, no_years+1):
             reporting_year = datetime.datetime.today().year-(y+1)
@@ -72,7 +72,16 @@ class ComTradeData:
             world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
             if not world_data_df.empty:
                 world_data_df['TradeValue'].sum()
-                historical_trade_values['historical_trade_value_all'][reporting_year] = (
+                historical_trade_values[reporting_year] = (
                     world_data_df['TradeValue'].sum()
                 )
         return historical_trade_values
+
+    def get_all_historical_import_value(self, no_years=3):
+        historical_data = {'historical_import_data': {}}
+        country_data = self.get_historical_import_value_partner_country(no_years)
+        world_data = self.get_historical_import_value_world(no_years)
+
+        historical_data['historical_import_data']['historical_trade_value_partner'] = country_data
+        historical_data['historical_import_data']['historical_trade_value_all'] = world_data
+        return historical_data

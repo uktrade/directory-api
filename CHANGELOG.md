@@ -15,7 +15,10 @@ MVP-205 - extend export plan model
 MVP - Add Lat/Lng lookup to Personalisation Events API
 MVP-250 - EaseofBusiness Index Backend
 MVP-252 - CPI data import backend
+MVP - Add search term to Personalisation ExOps API
 MVP-276 - comtrade download component
+MVP-310 - comtrade pull api-views
+MVP-279 - support export actions
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
