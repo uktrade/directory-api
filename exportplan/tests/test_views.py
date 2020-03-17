@@ -6,6 +6,7 @@ from exportplan.tests.factories import CompanyExportPlanFactory, CompanyObjectiv
 from company.tests.factories import CompanyFactory
 from exportplan.models import CompanyExportPlan
 
+
 @pytest.fixture
 def company():
     return CompanyFactory.create(number='01234567')
