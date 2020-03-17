@@ -4,7 +4,7 @@ import http
 
 from exportplan.tests.factories import CompanyExportPlanFactory, CompanyObjectivesFactory, ExportPlanActionsFactory
 from company.tests.factories import CompanyFactory
-
+from exportplan.models import CompanyExportPlan
 
 @pytest.fixture
 def company():
@@ -40,18 +40,20 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert response.status_code == http.client.CREATED
     created_export_plan = response.json()
 
+    export_plan_db = CompanyExportPlan.objects.last()
+
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
     assert created_export_plan['rules_regulations'] == export_plan_data['rules_regulations']
     assert created_export_plan['export_plan_actions'] == [
         {
-            'companyexportplan': 1, 'owner': None, 'due_date': None,
+            'companyexportplan': export_plan_db.pk, 'owner': None, 'due_date': None,
             'is_reminders_on': True, 'action_type': 'TARGET_MARKETS'
         }
     ]
     assert created_export_plan['company_objectives'] == [
         {
-            'companyexportplan': 1, 'description': 'export 5k cases of wine',
+            'companyexportplan': export_plan_db.pk, 'description': 'export 5k cases of wine',
             'owner': None, 'start_date': None, 'end_date': None
         }
     ]
