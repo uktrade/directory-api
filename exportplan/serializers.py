@@ -65,19 +65,26 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        instance = super().create(validated_data)
+        objectives = {}
+        actions = {}
+
         if validated_data.get('company_objectives'):
             objectives = validated_data.pop('company_objectives')
-            for objective in objectives:
-                objective_serializer = CompanyObjectivesSerializer(
-                    data={**objective, 'companyexportplan': instance.pk})
-                objective_serializer.is_valid(raise_exception=True)
-                objective_serializer.save()
         if validated_data.get('export_plan_actions'):
             actions = validated_data.pop('export_plan_actions')
-            for action in actions:
-                action_serializer = ExportPlanActionsSerializer(
-                    data={**action, 'companyexportplan': instance.pk})
-                action_serializer.is_valid(raise_exception=True)
-                action_serializer.save()
+
+        instance = super().create(validated_data)
+
+        for objective in objectives:
+            objective_serializer = CompanyObjectivesSerializer(
+                data={**objective, 'companyexportplan': instance.pk})
+            objective_serializer.is_valid(raise_exception=True)
+            objective_serializer.save()
+
+        for action in actions:
+
+            action_serializer = ExportPlanActionsSerializer(
+                data={**action, 'companyexportplan': instance.pk})
+            action_serializer.is_valid(raise_exception=True)
+            action_serializer.save()
         return instance
