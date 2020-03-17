@@ -38,7 +38,7 @@ class CompanyObjectives(TimeStampedModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, null=True, related_name='company_objectives', on_delete=models.CASCADE
+        CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
     )
 
 
@@ -50,5 +50,5 @@ class ExportPlanActions(TimeStampedModel):
         max_length=15, choices=(('TARGET_MARKETS', 'Target Markets'),), default='TARGET_MARKETS'
     )
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, null=True, related_name='actions', on_delete=models.CASCADE
+        CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
     )

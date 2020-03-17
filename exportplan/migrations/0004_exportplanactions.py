@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('due_date', models.DateField(blank=True, null=True)),
                 ('is_reminders_on', models.BooleanField(default=False)),
                 ('action_type', models.CharField(choices=[('TARGET_MARKETS', 'Target Markets')], default='TARGET_MARKETS', max_length=15)),
-                ('companyexportplan', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='actions', to='exportplan.CompanyExportPlan')),
+                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='actions', to='exportplan.CompanyExportPlan')),
             ],
             options={
                 'ordering': ('-modified', '-created'),

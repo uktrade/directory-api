@@ -28,13 +28,25 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
         model = models.CompanyExportPlan
 
 
-class CompanyObjectives(factory.django.DjangoModelFactory):
+class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
 
-    description = 'test new descp'
-    owner = factory.Iterator(range(99999999))
+    description = 'export 5k cases of wine'
+    owner = None
     start_date = None
     end_date = None
-    companyexportplan = company = factory.SubFactory(CompanyExportPlanFactory)
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
 
     class Meta:
         model = models.CompanyObjectives
+
+
+class ExportPlanActionsFactory(factory.django.DjangoModelFactory):
+
+    owner = None
+    due_date = None
+    is_reminders_on = False
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+    action_type = 'TARGET_MARKETS'
+
+    class Meta:
+        model = models.ExportPlanActions

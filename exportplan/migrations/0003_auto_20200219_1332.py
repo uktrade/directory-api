@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('owner', models.PositiveIntegerField(default=None, null=True, verbose_name='sso user.sso_id')),
                 ('start_date', models.DateField(blank=True, null=True)),
                 ('end_date', models.DateField(blank=True, null=True)),
-                ('companyexportplan', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='objectives', to='exportplan.CompanyExportPlan')),
+                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='objectives', to='exportplan.CompanyExportPlan')),
             ],
             options={
                 'ordering': ('-modified', '-created'),
