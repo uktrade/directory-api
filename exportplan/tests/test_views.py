@@ -5,6 +5,7 @@ import http
 from exportplan.tests.factories import CompanyExportPlanFactory, CompanyObjectivesFactory, ExportPlanActionsFactory
 from company.tests.factories import CompanyFactory
 from exportplan.models import CompanyExportPlan
+from datetime import datetime
 
 
 @pytest.fixture
@@ -37,7 +38,6 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     response = authed_client.post(
         reverse('export-plan-list-create'), export_plan_data, format='json'
     )
-
     assert response.status_code == http.client.CREATED
     created_export_plan = response.json()
 
@@ -49,13 +49,13 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['export_plan_actions'] == [
         {
             'companyexportplan': export_plan_db.pk, 'owner': None, 'due_date': None,
-            'is_reminders_on': True, 'action_type': 'TARGET_MARKETS'
+            'is_reminders_on': True, 'action_type': 'TARGET_MARKETS', 'pk': 1,
         }
     ]
     assert created_export_plan['company_objectives'] == [
         {
             'companyexportplan': export_plan_db.pk, 'description': 'export 5k cases of wine',
-            'owner': None, 'start_date': None, 'end_date': None
+            'owner': None, 'start_date': None, 'end_date': None, 'pk': 1,
         }
     ]
     assert created_export_plan['sso_id'] == authed_supplier.sso_id
@@ -82,6 +82,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
 
+    export_plan_db = CompanyExportPlan.objects.last()
     data = {
         'company': export_plan.company.id,
         'sso_id': export_plan.sso_id,
@@ -104,7 +105,8 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'companyexportplan': export_plan.id,
                 'owner': None, 'due_date': None,
                 'is_reminders_on': False,
-                'action_type': 'TARGET_MARKETS'
+                'action_type': 'TARGET_MARKETS',
+                'pk': export_plan_db.export_plan_actions.all()[0].pk,
             }
         ],
         'company_objectives': [
@@ -113,7 +115,8 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'description': 'export 5k cases of wine',
                 'owner': None,
                 'start_date': None,
-                'end_date': None
+                'end_date': None,
+                'pk': export_plan_db.company_objectives.all()[0].pk,
             }
         ],
         'pk': export_plan.pk
@@ -137,3 +140,57 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 
     assert response.status_code == http.client.OK
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
+
+
+@pytest.mark.django_db
+def test_export_plan_update_objectives(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    company_objective_db = export_plan.company_objectives.all()[0]
+    company_objective = {
+        'companyexportplan': export_plan.id,
+        'description': 'This is an update',
+        'owner': company_objective_db.owner,
+        'start_date': company_objective_db.start_date,
+        'end_date': company_objective_db.end_date,
+        'pk': company_objective_db.pk,
+    }
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+
+    data = {'company_objectives': [company_objective]}
+    response = authed_client.patch(url, data, format='json')
+    export_plan.refresh_from_db()
+    assert response.status_code == http.client.OK
+
+    assert len(export_plan.company_objectives.all()) == 1
+    company_objectives_updated = export_plan.company_objectives.all()[0]
+    assert company_objectives_updated.description == company_objective['description']
+    assert company_objectives_updated.owner == company_objective['owner']
+    assert company_objectives_updated.companyexportplan.id == company_objective['companyexportplan']
+    assert company_objectives_updated.start_date == company_objective['start_date']
+    assert company_objectives_updated.description == company_objective['description']
+    assert company_objectives_updated.end_date == company_objective['end_date']
+    assert company_objectives_updated.pk == company_objective['pk']
+
+
+@pytest.mark.django_db
+def test_export_plan_new_objective(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    company_objective = {
+        'description': 'This is an new objective',
+    }
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    data = {'company_objectives': [company_objective]}
+    print(data)
+    response = authed_client.patch(url, data, format='json')
+    export_plan.refresh_from_db()
+    assert response.status_code == http.client.OK
+
+    assert len(export_plan.company_objectives.all()) == 2
+    company_objectives_updated = export_plan.company_objectives.all()[0]
+    assert company_objectives_updated.description == company_objective['description']
+    assert company_objectives_updated.companyexportplan.id == export_plan.id
+    assert company_objectives_updated.pk is not None

@@ -19,6 +19,7 @@ MVP - Add search term to Personalisation ExOps API
 MVP-276 - comtrade download component
 MVP-310 - comtrade pull api-views
 MVP-279 - support export actions
+MVP-319 - support for update lists (actions/objectives)
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

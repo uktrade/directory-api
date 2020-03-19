@@ -6,17 +6,26 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CompanyObjectives
+        id = serializers.IntegerField(label='ID', read_only=False)
         fields = (
             'description',
             'owner',
             'start_date',
             'end_date',
             'companyexportplan',
+            'pk',
         )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
             'companyexportplan': {'required': False},
         }
+
+    def to_internal_value(self, data):
+        if data.get('pk'):
+            # Attempting to make id available so we can ceck for new or exisiting
+            # when doing an update
+            data['id'] = data['pk']
+        return super().to_internal_value(data)
 
 
 class ExportPlanActionsSerializer(serializers.ModelSerializer):
@@ -29,10 +38,12 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
             'is_reminders_on',
             'action_type',
             'companyexportplan',
+            'pk',
         )
         extra_kwargs = {
-            'companyexportplan': {'required': False},
             # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+
         }
 
 
@@ -81,8 +92,24 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             objective_serializer.save()
 
         for action in actions:
-
             action_serializer = ExportPlanActionsSerializer(data={**action, 'companyexportplan': instance.pk})
             action_serializer.is_valid(raise_exception=True)
             action_serializer.save()
         return instance
+
+    def update(self, instance, validated_data):
+        if validated_data.get('company_objectives'):
+            objectives = validated_data.pop('company_objectives', )
+            for objective in objectives:
+                self.update_or_create_objective(objective, instance)
+        return super().update(instance, validated_data)
+
+
+    def update_or_create_objective(self, objective, instance):
+        # During update I need to know if it's an exisitng one or new
+        # PK is not in validated data hense can check for presence of ID
+        data = {**objective}
+        models.CompanyObjectives.objects.update_or_create(data)
+
+
+
