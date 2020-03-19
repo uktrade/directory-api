@@ -13,19 +13,11 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
             'start_date',
             'end_date',
             'companyexportplan',
-            'pk',
         )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
             'companyexportplan': {'required': False},
         }
-
-    def to_internal_value(self, data):
-        if data.get('pk'):
-            # Attempting to make id available so we can ceck for new or exisiting
-            # when doing an update
-            data['id'] = data['pk']
-        return super().to_internal_value(data)
 
 
 class ExportPlanActionsSerializer(serializers.ModelSerializer):
@@ -38,7 +30,6 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
             'is_reminders_on',
             'action_type',
             'companyexportplan',
-            'pk',
         )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
@@ -76,6 +67,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+
         objectives = {}
         actions = {}
 
@@ -85,31 +77,32 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             actions = validated_data.pop('export_plan_actions')
 
         instance = super().create(validated_data)
-
-        for objective in objectives:
-            objective_serializer = CompanyObjectivesSerializer(data={**objective, 'companyexportplan': instance.pk})
-            objective_serializer.is_valid(raise_exception=True)
-            objective_serializer.save()
-
-        for action in actions:
-            action_serializer = ExportPlanActionsSerializer(data={**action, 'companyexportplan': instance.pk})
-            action_serializer.is_valid(raise_exception=True)
-            action_serializer.save()
+        self.recreate_objectives(instance, objectives)
+        self.recreate_actions(instance, actions)
         return instance
 
     def update(self, instance, validated_data):
+
+        objectives = {}
+        actions = {}
         if validated_data.get('company_objectives'):
-            objectives = validated_data.pop('company_objectives', )
-            for objective in objectives:
-                self.update_or_create_objective(objective, instance)
-        return super().update(instance, validated_data)
+            objectives = validated_data.pop('company_objectives')
+        if validated_data.get('export_plan_actions'):
+            actions = validated_data.pop('export_plan_actions')
 
+        super().update(instance, validated_data)
+        self.recreate_objectives(instance, objectives)
+        self.recreate_actions(instance, actions)
+        return instance
 
-    def update_or_create_objective(self, objective, instance):
-        # During update I need to know if it's an exisitng one or new
-        # PK is not in validated data hense can check for presence of ID
-        data = {**objective}
-        models.CompanyObjectives.objects.update_or_create(data)
+    def recreate_objectives(self, instance, objectives):
+        instance.company_objectives.all().delete()
+        for objective in objectives:
+            data = {**objective, 'companyexportplan': instance}
+            models.CompanyObjectives.objects.create(**data)
 
-
-
+    def recreate_actions(self, instance, actions):
+        instance.export_plan_actions.all().delete()
+        for action in actions:
+            data = {**action, 'companyexportplan': instance}
+            models.ExportPlanActions.objects.create(**data)
