@@ -1,5 +1,7 @@
-from exportplan import models
+from django.db import transaction
 from rest_framework import serializers
+
+from exportplan import models
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
@@ -68,13 +70,8 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        objectives = {}
-        actions = {}
-
-        if validated_data.get('company_objectives'):
-            objectives = validated_data.pop('company_objectives')
-        if validated_data.get('export_plan_actions'):
-            actions = validated_data.pop('export_plan_actions')
+        objectives = validated_data.pop('company_objectives', {})
+        actions = validated_data.pop('export_plan_actions', {})
 
         instance = super().create(validated_data)
         self.recreate_objectives(instance, objectives)
@@ -95,12 +92,14 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         self.recreate_actions(instance, actions)
         return instance
 
+    @transaction.atomic
     def recreate_objectives(self, instance, objectives):
         instance.company_objectives.all().delete()
         for objective in objectives:
             data = {**objective, 'companyexportplan': instance}
             models.CompanyObjectives.objects.create(**data)
 
+    @transaction.atomic
     def recreate_actions(self, instance, actions):
         instance.export_plan_actions.all().delete()
         for action in actions:
