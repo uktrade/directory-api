@@ -95,13 +95,17 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def recreate_objectives(self, instance, objectives):
         instance.company_objectives.all().delete()
+        data_collection = []
         for objective in objectives:
             data = {**objective, 'companyexportplan': instance}
-            models.CompanyObjectives.objects.create(**data)
+            data_collection.append(models.CompanyObjectives(**data))
+        models.CompanyObjectives.objects.bulk_create(data_collection)
 
     @transaction.atomic
     def recreate_actions(self, instance, actions):
         instance.export_plan_actions.all().delete()
+        data_collection = []
         for action in actions:
             data = {**action, 'companyexportplan': instance}
-            models.ExportPlanActions.objects.create(**data)
+            data_collection.append(models.ExportPlanActions(**data))
+        models.ExportPlanActions.objects.bulk_create(data_collection)
