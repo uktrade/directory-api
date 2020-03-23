@@ -8,6 +8,7 @@ from django.urls import reverse
 from decimal import Decimal
 
 from personalisation import models
+from personalisation.tests import factories
 
 
 @pytest.fixture
@@ -250,3 +251,30 @@ def test_export_opportunities_api(authed_client, settings):
         response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
         assert response.status_code == http.client.FORBIDDEN
         assert response.data == {'error': 'unauthorized'}
+
+
+@pytest.mark.django_db
+def test_recommended_countries_api(client):
+    # Two with same sector
+    country_of_interest = factories.CountryOfInterestFactory()
+    factories.CountryOfInterestFactory(
+        country=country_of_interest.country,
+        sector=country_of_interest.sector
+    )
+    # Different Sector
+    country_of_interest_different = factories.CountryOfInterestFactory(
+        country=country_of_interest.country,
+        sector='alternative-sector')
+    # Should be excluded from search
+    factories.CountryOfInterestFactory(country="the-moon")
+
+    response = client.get(
+        reverse('personalisation-recommended-countries'),
+        data={'country': country_of_interest.country}
+    )
+    assert response.status_code == 200
+    assert response.data == [{
+        'sector': country_of_interest.sector,
+    }, {
+        'sector': country_of_interest_different.sector,
+    }]

@@ -27,6 +27,15 @@ class UserLocationSerializer(serializers.ModelSerializer):
         )
 
 
+class CountryOfInterestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CountryOfInterest
+        fields = (
+            'sector',
+        )
+
+
 def parse_search_results(content):
 
     def strip_html(result):
