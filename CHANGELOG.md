@@ -2,6 +2,9 @@
 
 ## Pre release
 
+## Hotfix
+- No ticket - v3-cipipeline manifest.yml file fix
+
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
