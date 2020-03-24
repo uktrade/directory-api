@@ -122,9 +122,9 @@ class RecommendedCountriesView(generics.ListAPIView):
     permission_classes = []
 
     def get_queryset(self):
-        country = self.request.query_params.get('country', '').lower()
+        sector = self.request.query_params.get('sector', '').lower()
         return models.CountryOfInterest.objects.\
-            filter(country=country).\
-            values('sector').\
-            annotate(num_sectors=Count('sector')).\
-            order_by('-num_sectors')[:10]
+            filter(sector=sector).\
+            values('country').\
+            annotate(num_countries=Count('country')).\
+            order_by('-num_countries')[:10]

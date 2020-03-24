@@ -21,3 +21,18 @@ class UserLocationAdmin(admin.ModelAdmin):
         'region',
         'country',
     )
+
+
+@admin.register(models.CountryOfInterest)
+class CountryOfInterestAdmin(admin.ModelAdmin):
+
+    search_fields = (
+        'country',
+        'sector',
+        'service',
+    )
+    list_display = (
+        'country',
+        'sector',
+        'service',
+    )
