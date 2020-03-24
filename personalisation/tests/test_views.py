@@ -255,26 +255,26 @@ def test_export_opportunities_api(authed_client, settings):
 
 @pytest.mark.django_db
 def test_recommended_countries_api(client):
-    # Two with same sector
+    # Two with same country and sector
     country_of_interest = factories.CountryOfInterestFactory()
     factories.CountryOfInterestFactory(
         country=country_of_interest.country,
         sector=country_of_interest.sector
     )
-    # Different Sector
+    # Different country
     country_of_interest_different = factories.CountryOfInterestFactory(
-        country=country_of_interest.country,
-        sector='alternative-sector')
-    # Should be excluded from search
-    factories.CountryOfInterestFactory(country="the-moon")
+        sector=country_of_interest.sector,
+        country='other-country')
+    # Different sector should be excluded from search
+    factories.CountryOfInterestFactory(sector="grass-growing")
 
     response = client.get(
         reverse('personalisation-recommended-countries'),
-        data={'country': country_of_interest.country}
+        data={'sector': country_of_interest.sector}
     )
     assert response.status_code == 200
     assert response.data == [{
-        'sector': country_of_interest.sector,
+        'country': country_of_interest.country,
     }, {
-        'sector': country_of_interest_different.sector,
+        'country': country_of_interest_different.country,
     }]
