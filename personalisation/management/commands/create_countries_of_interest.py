@@ -1,4 +1,5 @@
 from django.core.management import BaseCommand
+from django.db import transaction
 
 import tablib
 from import_export import resources
