@@ -2,6 +2,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework import status, generics
 from requests.exceptions import HTTPError, RequestException
+from django.db.models import Count
 
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
@@ -114,3 +115,16 @@ class ExportOpportunitiesView(generics.GenericAPIView):
                 status=500,
                 data={'error_message': 'Connection to Export Opportunities failed'}
             )
+
+
+class RecommendedCountriesView(generics.ListAPIView):
+    serializer_class = serializers.CountryOfInterestSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        sector = self.request.query_params.get('sector', '').lower()
+        return models.CountryOfInterest.objects.\
+            filter(sector=sector).\
+            values('country').\
+            annotate(num_countries=Count('country')).\
+            order_by('-num_countries')[:10]

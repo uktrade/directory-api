@@ -23,6 +23,7 @@ MVP-276 - comtrade download component
 MVP-310 - comtrade pull api-views
 MVP-279 - support export actions
 MVP-319 - support for update/create lists (actions/objectives)
+MVP-323 - Recommended Country End Point
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
