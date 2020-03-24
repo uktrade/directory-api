@@ -7,6 +7,7 @@ from personalisation.models import CountryOfInterest
 
 class Command(BaseCommand):
 
+    @transaction.atomic
     def handle(self, *args, **options):
         with open('personalisation/management/commands/countries_of_interest.csv', 'r',
                   encoding='utf-8-sig') as f:

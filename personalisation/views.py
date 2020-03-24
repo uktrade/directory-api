@@ -127,4 +127,4 @@ class RecommendedCountriesView(generics.ListAPIView):
             filter(country=country).\
             values('sector').\
             annotate(num_sectors=Count('sector')).\
-            order_by('-num_sectors')[:5]
+            order_by('-num_sectors')[:10]
