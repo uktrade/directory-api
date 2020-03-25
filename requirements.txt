@@ -4,6 +4,7 @@
 #
 #    pip-compile requirements.in
 #
+airtable-python-wrapper==0.12.0
 amqp==2.5.2               # via kombu
 attrs==19.1.0             # via jsonschema
 beautifulsoup4==4.6.3     # via directory-components
@@ -79,7 +80,7 @@ requests[security]==2.22.0
 s3transfer==0.2.1         # via boto3
 sentry-sdk==0.13.4
 sigauth==4.1.1
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, jsonschema, mohawk, pyopenssl, pyrsistent, python-dateutil, w3lib
+six==1.11.0               # via airtable-python-wrapper, cryptography, django-extensions, elasticsearch-dsl, faker, jsonschema, mohawk, pyopenssl, pyrsistent, python-dateutil, w3lib
 sqlparse==0.3.0           # via django
 tablib[html,ods,xls,xlsx,yaml]==1.1.0  # via django-import-export
 text-unidecode==1.2       # via faker

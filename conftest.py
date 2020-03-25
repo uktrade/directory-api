@@ -3,6 +3,7 @@ import http
 import re
 from unittest import mock
 from urllib.parse import urljoin
+from airtable import Airtable
 
 import pytest
 import requests_mock
@@ -147,3 +148,32 @@ def elasticsearch_marker(request, django_db_blocker):
         stub = mock.patch.object(documents, 'CompanyDocument', CompanyDocument)
         yield stub.start()
         stub.stop()
+
+
+@pytest.fixture(autouse=True)
+def mock_airtable_rules_regs():
+    airtable_data = [
+        {
+            'id': '1',
+            'fields':
+                {
+                    'country': 'India',
+                    'export_duty': 1.5,
+                    'commodity_code': '2208.50.12',
+                    'commodity_name': 'Gin and Geneva 2l'
+                },
+        },
+        {
+            'id': '2',
+            'fields':
+                {
+                    'country': 'China',
+                    'export_duty': 1.5,
+                    'commodity_code': '2208.50.13',
+                    'commodity_name': 'Gin and Geneva'
+                },
+        },
+    ]
+    patch = mock.patch.object(Airtable, 'get_all', return_value=airtable_data)
+    yield patch.start()
+    patch.stop()
