@@ -2,6 +2,7 @@ import requests
 import json
 import pandas
 import datetime
+from airtable import Airtable
 
 
 class ComTradeData:
@@ -85,3 +86,28 @@ class ComTradeData:
         historical_data['historical_import_data']['historical_trade_value_partner'] = country_data
         historical_data['historical_import_data']['historical_trade_value_all'] = world_data
         return historical_data
+
+
+class MADB:
+
+    def get_madb_country_list(self):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        airtable_data = airtable.get_all(view='Grid view')
+        country_list = [c['country'] for c in [f['fields'] for f in airtable_data]]
+        return list(zip(country_list, country_list))
+
+    def get_madb_commodity_list(self):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        commodity_name_set = set()
+        for row in airtable.get_all(view='Grid view'):
+            commodity_code = row['fields']['commodity_code']
+            commodity_name = row['fields']['commodity_name']
+            commodity_name_code = f'{commodity_name} - {commodity_code}'
+            commodity_name_set.add((commodity_code, commodity_name_code))
+        return commodity_name_set
+
+    def get_rules_and_regulations(self, country):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        rules = airtable.search('country', country)
+        if rules:
+            return rules[0]['fields']
