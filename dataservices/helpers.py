@@ -116,17 +116,21 @@ class MADB:
 
 
 def get_ease_of_business_index(country_code):
-    ease_of_doing_business_serializer = serializers.EaseOfDoingBusinessSerializer(
-        models.EaseOfDoingBusiness.objects.get(country_code=country_code)
-    )
-    return ease_of_doing_business_serializer.data
+    try:
+        instance = models.EaseOfDoingBusiness.objects.get(country_code=country_code)
+        serializer = serializers.EaseOfDoingBusinessSerializer(instance)
+        return serializer.data
+    except models.EaseOfDoingBusiness.DoesNotExist:
+        return None
 
 
 def get_corruption_perception_index(country_code):
-    cpi_serializer = serializers.CorruptionPerceptionsIndexSerializer(
-        models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
-    )
-    return cpi_serializer.data
+    try:
+        instance = models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
+        serializer = serializers.CorruptionPerceptionsIndexSerializer(instance)
+        return serializer.data
+    except models.CorruptionPerceptionsIndex.DoesNotExist:
+        return None
 
 
 def get_last_year_import_data(country, commodity_code):

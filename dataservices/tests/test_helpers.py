@@ -174,6 +174,13 @@ def test_get_ease_of_business_index():
 
 
 @pytest.mark.django_db
+def test_get_ease_of_business_index_not_found():
+
+    ease_of_business_data = helpers.get_ease_of_business_index('HDJF')
+    assert ease_of_business_data is None
+
+
+@pytest.mark.django_db
 def test_get_corruption_perceptions_index():
 
     models.CorruptionPerceptionsIndex.objects.create(
@@ -189,7 +196,6 @@ def test_get_corruption_perceptions_index():
 
 
 @pytest.mark.django_db
-def test_get_last_year_import_data_called(mock_last_year_data, last_year_data):
-    last_year_data = helpers.get_last_year_import_data(country='Australia', commodity_code='2208.50')
-    assert mock_last_year_data.call_count == 1
-    assert last_year_data == last_year_data
+def test_get_corruption_perceptions_index_not_found():
+    cpi_data = helpers.get_corruption_perception_index('RXX')
+    assert cpi_data is None

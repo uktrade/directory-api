@@ -13,7 +13,6 @@ from django.core.management import call_command
 
 from company import documents
 from company.tests import factories
-from dataservices import helpers
 from core.helpers import CompaniesHouseClient
 
 
@@ -176,53 +175,5 @@ def mock_airtable_rules_regs():
         },
     ]
     patch = mock.patch.object(Airtable, 'get_all', return_value=airtable_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def reg_data():
-    return {'export_duty': '1.5', 'country_code': 'AUS'}
-
-
-@pytest.fixture(autouse=True)
-def ease_of_business_data():
-    return {'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20}
-
-
-@pytest.fixture(autouse=True)
-def cpi_data():
-    return {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21}
-
-
-@pytest.fixture(autouse=True)
-def last_year_data():
-    return {'import_value': {'year': 2019, 'trade_value': 100, }}
-
-
-@pytest.fixture(autouse=True)
-def mock_last_year_data(last_year_data):
-    patch = mock.patch.object(helpers, 'get_last_year_import_data', return_value=last_year_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def mock_cpi(cpi_data):
-    patch = mock.patch.object(helpers, 'get_corruption_perception_index', return_value=cpi_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def mock_ease_of_business_index(ease_of_business_data):
-    patch = mock.patch.object(helpers, 'get_ease_of_business_index', return_value=ease_of_business_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def madb_rules_regs(reg_data):
-    patch = mock.patch.object(helpers.MADB, 'get_rules_and_regulations', return_value=reg_data)
     yield patch.start()
     patch.stop()
