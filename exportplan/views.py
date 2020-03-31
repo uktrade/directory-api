@@ -23,3 +23,16 @@ class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CompanyExportPlanSerializer
+    queryset = CompanyExportPlan.objects.all()
+    lookup_field = 'sso_id'
+
+    def perform_create(self, serializer):
+        serializer.validated_data['sso_id'] = self.request.user.id
+        serializer.save()
+
+    def get_queryset(self):
+        return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)

@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 
 import re
-from dataservices import helpers
+from dataservices import helpers, models
 
 
 @pytest.fixture(autouse=True)
@@ -156,4 +156,40 @@ def test_get_madb_commodity_list(madb):
 
 def test_get_madb_country_list(madb):
     country_list = madb.get_madb_country_list()
-    assert country_list == [('India', 'India'), ('China', 'China')]
+    assert country_list == [('Australia', 'Australia'), ('China', 'China')]
+
+
+@pytest.mark.django_db
+def test_get_ease_of_business_index():
+
+    models.EaseOfDoingBusiness.objects.create(
+        country_code='AUS',
+        country_name='Australia',
+        year_2019=20,
+    )
+    ease_of_business_data = helpers.get_ease_of_business_index('AUS')
+    assert ease_of_business_data == {
+        'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20
+    }
+
+
+@pytest.mark.django_db
+def test_get_corruption_perceptions_index():
+
+    models.CorruptionPerceptionsIndex.objects.create(
+        country_code='AUS',
+        country_name='Australia',
+        cpi_score_2019=24,
+        rank=21
+    )
+    cpi_data = helpers.get_corruption_perception_index('AUS')
+    assert cpi_data == {
+        'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21
+    }
+
+
+@pytest.mark.django_db
+def test_get_last_year_import_data_called(mock_last_year_data, last_year_data):
+    last_year_data = helpers.get_last_year_import_data(country='Australia', commodity_code='2208.50')
+    assert mock_last_year_data.call_count == 1
+    assert last_year_data == last_year_data
