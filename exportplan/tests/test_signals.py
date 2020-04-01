@@ -37,7 +37,7 @@ def test_signal_target_markets_update(
 
     export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'Australia', }])
     export_plan.save()
-    
+
     assert mock_madb_rules_regs.call_args == mock.call('Australia')
     assert mock_ease_of_business_index.call_args == mock.call('AUS')
     assert mock_cpi.call_args == mock.call('AUS')
