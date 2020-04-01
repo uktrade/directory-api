@@ -4,6 +4,8 @@ import pandas
 import datetime
 from airtable import Airtable
 
+from dataservices import models, serializers
+
 
 class ComTradeData:
     url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&rg=1'
@@ -111,3 +113,27 @@ class MADB:
         rules = airtable.search('country', country)
         if rules:
             return rules[0]['fields']
+
+
+def get_ease_of_business_index(country_code):
+    try:
+        instance = models.EaseOfDoingBusiness.objects.get(country_code=country_code)
+        serializer = serializers.EaseOfDoingBusinessSerializer(instance)
+        return serializer.data
+    except models.EaseOfDoingBusiness.DoesNotExist:
+        return None
+
+
+def get_corruption_perception_index(country_code):
+    try:
+        instance = models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
+        serializer = serializers.CorruptionPerceptionsIndexSerializer(instance)
+        return serializer.data
+    except models.CorruptionPerceptionsIndex.DoesNotExist:
+        return None
+
+
+def get_last_year_import_data(country, commodity_code):
+    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
+    last_year_data = comtrade.get_last_year_import_data()
+    return last_year_data

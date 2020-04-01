@@ -13,7 +13,6 @@ from django.core.management import call_command
 
 from company import documents
 from company.tests import factories
-
 from core.helpers import CompaniesHouseClient
 
 
@@ -157,7 +156,8 @@ def mock_airtable_rules_regs():
             'id': '1',
             'fields':
                 {
-                    'country': 'India',
+                    'country': 'Australia',
+                    'country_code': 'AUS',
                     'export_duty': 1.5,
                     'commodity_code': '2208.50.12',
                     'commodity_name': 'Gin and Geneva 2l'

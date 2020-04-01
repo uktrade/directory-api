@@ -22,7 +22,7 @@ class CompanyExportPlan(TimeStampedModel):
     # Target Markets
     sectors = JSONField(null=True, blank=True, default=list)
     consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    target_countries = JSONField(null=True, blank=True, default=list)
+    target_markets = JSONField(null=True, blank=True, default=list)
     # Adaptation for international markets
     compliance = JSONField(null=True, blank=True, default=list)
     export_certificates = JSONField(null=True, blank=True, default=list)

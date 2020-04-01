@@ -25,6 +25,7 @@ MVP-279 - support export actions
 MVP-319 - support for update/create lists (actions/objectives)
 MVP-323 - Recommended Country End Point
 MVP-363 - move MADB Airtable to backend
+MVP-359 - add multiple target countries preload
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

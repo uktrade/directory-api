@@ -1,4 +1,5 @@
 import pytest
+
 from datetime import date
 from django.urls import reverse
 import http
@@ -93,7 +94,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'planned_review': export_plan.planned_review,
         'sectors': export_plan.sectors,
         'consumer_demand': export_plan.consumer_demand,
-        'target_countries': export_plan.target_countries,
+        'target_markets': export_plan.target_markets,
         'compliance': export_plan.compliance,
         'export_certificates': export_plan.export_certificates,
         'route_to_markets': export_plan.route_to_markets,
@@ -138,6 +139,33 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 
     assert response.status_code == http.client.OK
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
+
+
+@pytest.mark.django_db
+def test_export_plan_target_markets_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+
+    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia', 'export_duty': 1.5}]}
+
+    response = authed_client.patch(url, data, format='json')
+    export_plan.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    country_market_data = {
+        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
+        'corruption_perceptions_index':
+            {
+                'rank': 21, 'country_code': 'AUS', 'country_name': 'Australia', 'cpi_score_2019': 24
+             }
+    }
+
+    assert export_plan.target_markets[0] == country_market_data
+    country_market_data['country'] = 'Australia'
+    assert export_plan.target_markets[1] == country_market_data
 
 
 @pytest.mark.django_db

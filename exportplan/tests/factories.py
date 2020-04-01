@@ -16,7 +16,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     planned_review = 'I like exporting for fun'
     sectors = ['Food and drink', 'hospitality']
     consumer_demand = 'lots of demand for this product'
-    target_countries = ['UK']
+    target_markets = [{'country': 'UK'}]
     compliance = [{'Change needed': 'lower units', 'Plan': 'less alcohol units'}]
     export_certificates = [{'Change needed': 'New Labels', 'Plan': 'Print new labels'}]
     route_to_markets = [{'Description': 'selling to retailers', 'option': 'shipping'}]
