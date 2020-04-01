@@ -106,12 +106,10 @@ def test_get_last_year_import_data(comtrade, comtrade_request_mock):
 
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
-            'import_value': {
-                'year': 2018,
-                'trade_value': 200,
+                'year': '2018',
+                'trade_value': '200',
                 'country_name': 'Australia',
-                'year_on_year_change':  0.5,
-            }
+                'year_on_year_change':  '0.5',
         }
 
 

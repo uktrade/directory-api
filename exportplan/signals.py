@@ -3,7 +3,6 @@ from dataservices import helpers
 
 def add_target_markets_data(sender, instance, *args, **kwargs):
     pre_save_target_markets = []
-
     if not instance._state.adding:
         pre_save_instance = sender.objects.only('target_markets').get(pk=instance.pk)
         pre_save_target_markets = [market['country'] for market in pre_save_instance.target_markets]
@@ -20,5 +19,5 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
             'export_duty': rules_regulations['export_duty'],
             'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
             'corruption_perceptions_index': helpers.get_corruption_perception_index(country_code),
-            'last_year_data': helpers.get_last_year_import_data(country_code, commodity_code),
+            'last_year_data': helpers.get_last_year_import_data(commodity_code=commodity_code, country=country),
         })
