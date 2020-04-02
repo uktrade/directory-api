@@ -45,13 +45,10 @@ class ComTradeData:
             last_year_import = comdata_df[comdata_df.period == previous_year]['TradeValue'].iloc[0]
 
             return {
-                'import_value':
-                {
-                    'year': year_import.iloc[0]['period'],
-                    'trade_value': year_import.iloc[0]['TradeValue'],
+                    'year': str(year_import.iloc[0]['period']),
+                    'trade_value': str(year_import.iloc[0]['TradeValue']),
                     'country_name': year_import.iloc[0]['rtTitle'],
-                    'year_on_year_change': round(last_year_import/year_import.iloc[0]['TradeValue'], 3),
-                }
+                    'year_on_year_change': str(round(last_year_import/year_import.iloc[0]['TradeValue'], 3)),
             }
 
     def get_historical_import_value_partner_country(self, no_years=3):

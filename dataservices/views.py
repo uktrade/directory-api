@@ -37,7 +37,6 @@ class RetrieveLastYearImportDataView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
-
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
         last_year_data = comtrade.get_last_year_import_data()
         return Response(

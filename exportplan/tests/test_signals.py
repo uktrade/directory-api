@@ -13,10 +13,10 @@ def test_export_plan_target_markets_create(
     export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'Australia', }])
     export_plan.save()
 
-    assert mock_madb_rules_regs.call_args == mock.call('101.2002.123')
+    assert mock_madb_rules_regs.call_args == mock.call('Australia')
     assert mock_ease_of_business_index.call_args == mock.call('AUS')
     assert mock_cpi.call_args == mock.call('AUS')
-    assert mock_last_year_data.call_args == mock.call('AUS', '101.2002.123')
+    assert mock_last_year_data.call_args == mock.call(commodity_code='101.2002.123', country='Australia')
 
     assert mock_madb_rules_regs.call_count == 1
     assert mock_ease_of_business_index.call_count == 1
@@ -38,10 +38,10 @@ def test_signal_target_markets_update(
     export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'Australia', }])
     export_plan.save()
 
-    assert mock_madb_rules_regs.call_args == mock.call('101.2002.123')
+    assert mock_madb_rules_regs.call_args == mock.call('Australia')
     assert mock_ease_of_business_index.call_args == mock.call('AUS')
     assert mock_cpi.call_args == mock.call('AUS')
-    assert mock_last_year_data.call_args == mock.call('AUS', '101.2002.123')
+    assert mock_last_year_data.call_args == mock.call(commodity_code='101.2002.123', country='Australia')
 
     assert mock_madb_rules_regs.call_count == 1
     assert mock_ease_of_business_index.call_count == 1
