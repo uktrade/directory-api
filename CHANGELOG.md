@@ -26,7 +26,7 @@ MVP-319 - support for update/create lists (actions/objectives)
 MVP-323 - Recommended Country End Point
 MVP-363 - move MADB Airtable to backend
 MVP-359 - add multiple target countries preload
-MVP-369 - save historical data on add country
+MVP-369 - save historical data on safe signal
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
