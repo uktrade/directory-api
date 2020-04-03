@@ -59,7 +59,7 @@ class ComTradeData:
             reporting_year_df = comdata_df.sort_values(by=['period'], ascending=False).head(no_years)
 
             for index, row in reporting_year_df.iterrows():
-                historical_trade_values[row['period']] = row['TradeValue']
+                historical_trade_values[row['period']] = str(row['TradeValue'])
             return historical_trade_values
 
     def get_historical_import_value_world(self, no_years=3):
@@ -71,8 +71,8 @@ class ComTradeData:
             world_data = requests.get(self.url + url_options)
             world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
             if not world_data_df.empty:
-                world_data_df['TradeValue'].sum()
-                historical_trade_values[reporting_year] = (
+                str(world_data_df['TradeValue'].sum())
+                historical_trade_values[reporting_year] = str(
                     world_data_df['TradeValue'].sum()
                 )
         return historical_trade_values
