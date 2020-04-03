@@ -138,10 +138,8 @@ def test_get_historical_import_value_world_empty(empty_comtrade, comtrade_reques
 def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
     historical_data = comtrade.get_all_historical_import_value()
     assert historical_data == {
-        'historical_import_data':
-            {'historical_trade_value_partner': {2018: 200, 2017: 100, 2016: 50},
-             'historical_trade_value_all': {2018: 350, 2017: 350, 2016: 350}
-             }
+        'historical_trade_value_partner': {2018: 200, 2017: 100, 2016: 50},
+        'historical_trade_value_all': {2018: 350, 2017: 350, 2016: 350}
     }
 
 
@@ -197,3 +195,11 @@ def test_get_corruption_perceptions_index():
 def test_get_corruption_perceptions_index_not_found():
     cpi_data = helpers.get_corruption_perception_index('RXX')
     assert cpi_data is None
+
+
+def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
+    historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
+    assert historical_data == {
+        'historical_trade_value_partner': {2018: 200, 2017: 100, 2016: 50},
+        'historical_trade_value_all': {2018: 350, 2017: 350, 2016: 350}
+    }

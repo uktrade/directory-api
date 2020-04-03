@@ -78,12 +78,12 @@ class ComTradeData:
         return historical_trade_values
 
     def get_all_historical_import_value(self, no_years=3):
-        historical_data = {'historical_import_data': {}}
+        historical_data = {}
         country_data = self.get_historical_import_value_partner_country(no_years)
         world_data = self.get_historical_import_value_world(no_years)
 
-        historical_data['historical_import_data']['historical_trade_value_partner'] = country_data
-        historical_data['historical_import_data']['historical_trade_value_all'] = world_data
+        historical_data['historical_trade_value_partner'] = country_data
+        historical_data['historical_trade_value_all'] = world_data
         return historical_data
 
 
@@ -134,3 +134,9 @@ def get_last_year_import_data(country, commodity_code):
     comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
     last_year_data = comtrade.get_last_year_import_data()
     return last_year_data
+
+
+def get_historical_import_data(country, commodity_code):
+    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
+    historical_data = comtrade.get_all_historical_import_value()
+    return historical_data

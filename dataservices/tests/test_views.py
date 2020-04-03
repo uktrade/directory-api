@@ -118,7 +118,6 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
 
     mock_hist_partner.return_value = hist_partner_data
     mock_hist_world.return_value = mock_hist_data
-
     url = reverse('historical-import-data')
     response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
     assert mock_comtrade_constructor.call_count == 1
@@ -127,9 +126,8 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
     assert mock_hist_world.call_count == 1
 
     assert response.status_code == 200
+
     assert response.json() == {
-        'historical_import_data':
-            {'historical_trade_value_partner': {'2017': 1000},
-             'historical_trade_value_all': {'2017': 3000}
-             }
+        'historical_trade_value_partner': {'2017': 1000},
+        'historical_trade_value_all': {'2017': 3000}
     }
