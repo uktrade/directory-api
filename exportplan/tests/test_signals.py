@@ -53,8 +53,10 @@ def test_signal_target_markets_update(
     assert export_plan.target_markets[0]['easeofdoingbusiness'] == ease_of_business_data
     assert export_plan.target_markets[0]['country'] == 'Australia'
     assert export_plan.target_markets[0]['export_duty'] == '1.5'
+    assert export_plan.target_markets[0]['timezone'] == 'Australia/Lord_Howe'
+    assert export_plan.target_markets[0]['utz_offset'] == '+1030'
 
-    mock_madb_rules_regs.return_value = {'export_duty': '2.5', 'country_code': 'UK'}
+    mock_madb_rules_regs.return_value = {'export_duty': '2.5', 'country_code': 'GBR'}
 
     export_plan.target_markets = export_plan.target_markets + [{'country': 'UK'}]
     export_plan.save()

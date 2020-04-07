@@ -1,4 +1,8 @@
+import pytz
+from datetime import datetime
+
 from dataservices import helpers
+from exportplan import helpers as export_helpers
 
 
 def add_target_markets_data(sender, instance, *args, **kwargs):
@@ -14,6 +18,7 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
         commodity_code = instance.export_commodity_codes[0]
         rules_regulations = helpers.MADB().get_rules_and_regulations(country)
         country_code = rules_regulations['country_code']
+        timezone = export_helpers.get_timezone(country_code)
 
         target_market.update({
             'export_duty': rules_regulations['export_duty'],
@@ -23,4 +28,6 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
             'historical_import_data': helpers.get_historical_import_data(
                 commodity_code=commodity_code, country=country
             ),
+            'timezone': timezone,
+            'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z')
         })

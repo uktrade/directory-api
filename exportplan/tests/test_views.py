@@ -163,6 +163,8 @@ def test_export_plan_target_markets_update(authed_client, authed_supplier, expor
              },
         'historical_import_data': {'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
                                    'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200}},
+        'timezone': 'Australia/Lord_Howe',
+        'utz_offset': '+1030',
     }
 
     assert export_plan.target_markets[0] == country_market_data

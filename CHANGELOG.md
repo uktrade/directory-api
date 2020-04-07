@@ -27,6 +27,7 @@ MVP-323 - Recommended Country End Point
 MVP-363 - move MADB Airtable to backend
 MVP-359 - add multiple target countries preload
 MVP-369 - save historical data on safe signal
+MVP-386 - add country TZ
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
