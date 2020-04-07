@@ -19,7 +19,6 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
         rules_regulations = helpers.MADB().get_rules_and_regulations(country)
         country_code = rules_regulations['country_code']
         timezone = export_helpers.get_timezone(country_code)
-
         target_market.update({
             'export_duty': rules_regulations['export_duty'],
             'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
