@@ -54,9 +54,10 @@ def test_signal_target_markets_update(
     assert export_plan.target_markets[0]['country'] == 'Australia'
     assert export_plan.target_markets[0]['export_duty'] == '1.5'
     assert export_plan.target_markets[0]['timezone'] == 'Australia/Lord_Howe'
+    assert export_plan.target_markets[0]['commodity_name'] == 'Gin'
     assert export_plan.target_markets[0]['utz_offset'] == '+1030'
 
-    mock_madb_rules_regs.return_value = {'export_duty': '2.5', 'country_code': 'GBR'}
+    mock_madb_rules_regs.return_value = {'export_duty': '2.5', 'country_code': 'GBR', 'commodity_name': 'Gin'}
 
     export_plan.target_markets = export_plan.target_markets + [{'country': 'UK'}]
     export_plan.save()

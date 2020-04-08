@@ -5,7 +5,7 @@ from dataservices import helpers
 
 @pytest.fixture(autouse=True)
 def rule_regulations_data():
-    return {'export_duty': '1.5', 'country_code': 'AUS'}
+    return {'export_duty': '1.5', 'country_code': 'AUS', 'commodity_name': 'Gin'}
 
 
 @pytest.fixture(autouse=True)

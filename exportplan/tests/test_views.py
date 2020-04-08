@@ -165,6 +165,7 @@ def test_export_plan_target_markets_update(authed_client, authed_supplier, expor
                                    'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200}},
         'timezone': 'Australia/Lord_Howe',
         'utz_offset': '+1030',
+        'commodity_name': 'Gin',
     }
 
     assert export_plan.target_markets[0] == country_market_data
