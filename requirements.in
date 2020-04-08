@@ -33,3 +33,4 @@ django-admin-ip-restrictor==2.1.0
 markdown2==2.2.0
 pandas==1.0.1
 airtable-python-wrapper==0.12.*
+iso3166==1.0.1

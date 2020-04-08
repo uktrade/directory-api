@@ -49,6 +49,7 @@ factory-boy==2.12.0
 faker==1.0.7              # via factory-boy
 idna==2.6                 # via requests
 importlib-metadata==0.23  # via kombu
+iso3166==1.0.1
 jdcal==1.4.1              # via openpyxl
 jmespath==0.9.3           # via boto3, botocore
 jsonschema==3.0.1         # via directory-components
