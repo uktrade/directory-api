@@ -3,6 +3,7 @@ import pytest
 from datetime import date
 from django.urls import reverse
 import http
+from conf import settings
 
 from exportplan.tests.factories import CompanyExportPlanFactory, CompanyObjectivesFactory, ExportPlanActionsFactory
 from company.tests.factories import CompanyFactory
@@ -142,7 +143,47 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 
 
 @pytest.mark.django_db
-def test_export_plan_target_markets_update(authed_client, authed_supplier, export_plan):
+def test_export_plan_target_markets_update_historical_disabled(authed_client, authed_supplier):
+    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
+    CompanyExportPlan.objects.all().delete()
+    export_plan = CompanyExportPlanFactory.create()
+    CompanyObjectivesFactory.create(companyexportplan=export_plan)
+    ExportPlanActionsFactory.create(companyexportplan=export_plan)
+
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+
+    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia', 'export_duty': 1.5}]}
+
+    response = authed_client.patch(url, data, format='json')
+    export_plan.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    country_market_data = {
+        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
+        'corruption_perceptions_index':
+            {
+                'rank': 21, 'country_code': 'AUS', 'country_name': 'Australia', 'cpi_score_2019': 24
+             },
+        'timezone': 'Australia/Lord_Howe',
+        'utz_offset': '+1030',
+        'commodity_name': 'Gin',
+    }
+    assert export_plan.target_markets[0] == country_market_data
+    country_market_data['country'] = 'Australia'
+    assert export_plan.target_markets[1] == country_market_data
+
+
+@pytest.mark.django_db
+def test_export_plan_target_markets_update_historical_enabled(authed_client, authed_supplier):
+    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = True
+    export_plan = CompanyExportPlanFactory.create()
+    CompanyObjectivesFactory.create(companyexportplan=export_plan)
+    ExportPlanActionsFactory.create(companyexportplan=export_plan)
+
     authed_supplier.sso_id = export_plan.sso_id
     authed_supplier.company = export_plan.company
     authed_supplier.save()
@@ -171,6 +212,7 @@ def test_export_plan_target_markets_update(authed_client, authed_supplier, expor
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
     assert export_plan.target_markets[1] == country_market_data
+    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
 
 
 @pytest.mark.django_db

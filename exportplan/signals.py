@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+from conf import settings
 
 from dataservices import helpers
 from exportplan import helpers as export_helpers
@@ -26,9 +27,13 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
             'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
             'corruption_perceptions_index': helpers.get_corruption_perception_index(country_code),
             'last_year_data': helpers.get_last_year_import_data(commodity_code=commodity_code, country=country),
-            'historical_import_data': helpers.get_historical_import_data(
-                commodity_code=commodity_code, country=country
-            ),
             'timezone': timezone,
             'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z')
         })
+
+        if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
+            target_market.update({
+                  'historical_import_data': helpers.get_historical_import_data(
+                    commodity_code=commodity_code, country=country
+                ),
+            })

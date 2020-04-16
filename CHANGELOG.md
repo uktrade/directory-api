@@ -29,6 +29,7 @@ MVP-359 - add multiple target countries preload
 MVP-369 - save historical data on safe signal
 MVP-386 - add country TZ
 MVP-387 - add commodity name to target markets
+MVP-398 - feature flag historical data
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
