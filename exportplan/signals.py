@@ -32,8 +32,6 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
         })
 
         if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
-            target_market.update({
-                'historical_import_data': helpers.get_historical_import_data(
-                    commodity_code=commodity_code, country=country
-                ),
-            })
+            target_market['historical_import_data'] = helpers.get_historical_import_data(
+                commodity_code=commodity_code, country=country
+            )
