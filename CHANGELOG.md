@@ -6,9 +6,9 @@
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
+TT-2286 - update test email domain
 MVP - Add personalisation APIs
 MVP-108 - export-plan-saving
-TT-2286 - update test email domain
 MVP-108 - export-plan-saving - add rules and regulations
 MVP-147 - Allow for piecemeal company creation
 MVP-205 - extend export plan model
@@ -24,6 +24,7 @@ MVP-279 - support export actions
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
 TT-2260 - Include email address when creating preverified links
+
 
 ## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)
