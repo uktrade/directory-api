@@ -226,6 +226,11 @@ urlpatterns = [
         name='personalisation-user-location-create'
     ),
     url(
+        r'^personalisation/recommended-countries/$',
+        personalisation.views.RecommendedCountriesView.as_view(),
+        name='personalisation-recommended-countries'
+    ),
+    url(
         r'^exportplan/company-export-plan/$',
         exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
         name='export-plan-list-create'

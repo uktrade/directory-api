@@ -2,6 +2,9 @@ import requests
 import json
 import pandas
 import datetime
+from airtable import Airtable
+
+from dataservices import models, serializers
 
 
 class ComTradeData:
@@ -42,13 +45,10 @@ class ComTradeData:
             last_year_import = comdata_df[comdata_df.period == previous_year]['TradeValue'].iloc[0]
 
             return {
-                'import_value':
-                {
-                    'year': year_import.iloc[0]['period'],
-                    'trade_value': year_import.iloc[0]['TradeValue'],
+                    'year': str(year_import.iloc[0]['period']),
+                    'trade_value': str(year_import.iloc[0]['TradeValue']),
                     'country_name': year_import.iloc[0]['rtTitle'],
-                    'year_on_year_change': round(last_year_import/year_import.iloc[0]['TradeValue'], 3),
-                }
+                    'year_on_year_change': str(round(last_year_import/year_import.iloc[0]['TradeValue'], 3)),
             }
 
     def get_historical_import_value_partner_country(self, no_years=3):
@@ -59,7 +59,7 @@ class ComTradeData:
             reporting_year_df = comdata_df.sort_values(by=['period'], ascending=False).head(no_years)
 
             for index, row in reporting_year_df.iterrows():
-                historical_trade_values[row['period']] = row['TradeValue']
+                historical_trade_values[row['period']] = str(row['TradeValue'])
             return historical_trade_values
 
     def get_historical_import_value_world(self, no_years=3):
@@ -71,17 +71,72 @@ class ComTradeData:
             world_data = requests.get(self.url + url_options)
             world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
             if not world_data_df.empty:
-                world_data_df['TradeValue'].sum()
-                historical_trade_values[reporting_year] = (
+                str(world_data_df['TradeValue'].sum())
+                historical_trade_values[reporting_year] = str(
                     world_data_df['TradeValue'].sum()
                 )
         return historical_trade_values
 
     def get_all_historical_import_value(self, no_years=3):
-        historical_data = {'historical_import_data': {}}
+        historical_data = {}
         country_data = self.get_historical_import_value_partner_country(no_years)
         world_data = self.get_historical_import_value_world(no_years)
 
-        historical_data['historical_import_data']['historical_trade_value_partner'] = country_data
-        historical_data['historical_import_data']['historical_trade_value_all'] = world_data
+        historical_data['historical_trade_value_partner'] = country_data
+        historical_data['historical_trade_value_all'] = world_data
         return historical_data
+
+
+class MADB:
+
+    def get_madb_country_list(self):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        airtable_data = airtable.get_all(view='Grid view')
+        country_list = [c['country'] for c in [f['fields'] for f in airtable_data]]
+        return list(zip(country_list, country_list))
+
+    def get_madb_commodity_list(self):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        commodity_name_set = set()
+        for row in airtable.get_all(view='Grid view'):
+            commodity_code = row['fields']['commodity_code']
+            commodity_name = row['fields']['commodity_name']
+            commodity_name_code = f'{commodity_name} - {commodity_code}'
+            commodity_name_set.add((commodity_code, commodity_name_code))
+        return commodity_name_set
+
+    def get_rules_and_regulations(self, country):
+        airtable = Airtable('appcxR2dZGyugfvyd', 'CountryDBforGIN')
+        rules = airtable.search('country', country)
+        if rules:
+            return rules[0]['fields']
+
+
+def get_ease_of_business_index(country_code):
+    try:
+        instance = models.EaseOfDoingBusiness.objects.get(country_code=country_code)
+        serializer = serializers.EaseOfDoingBusinessSerializer(instance)
+        return serializer.data
+    except models.EaseOfDoingBusiness.DoesNotExist:
+        return None
+
+
+def get_corruption_perception_index(country_code):
+    try:
+        instance = models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
+        serializer = serializers.CorruptionPerceptionsIndexSerializer(instance)
+        return serializer.data
+    except models.CorruptionPerceptionsIndex.DoesNotExist:
+        return None
+
+
+def get_last_year_import_data(country, commodity_code):
+    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
+    last_year_data = comtrade.get_last_year_import_data()
+    return last_year_data
+
+
+def get_historical_import_data(country, commodity_code):
+    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
+    historical_data = comtrade.get_all_historical_import_value()
+    return historical_data

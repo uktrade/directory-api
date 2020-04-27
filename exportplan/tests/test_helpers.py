@@ -1,0 +1,17 @@
+from exportplan import helpers
+
+
+def test_country_code_iso3_to_iso2():
+    assert helpers.country_code_iso3_to_iso2('CHN') == 'CN'
+
+
+def test_country_code_iso3_to_iso2_not_found():
+    assert helpers.country_code_iso3_to_iso2('XNY') is None
+
+
+def test_get_timezone():
+    assert helpers.get_timezone('CHN') == 'Asia/Shanghai'
+
+
+def test_get_local_time_not_found():
+    assert helpers.get_timezone('XS') is None

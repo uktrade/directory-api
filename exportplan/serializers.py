@@ -1,11 +1,14 @@
-from exportplan import models
+from django.db import transaction
 from rest_framework import serializers
+
+from exportplan import models
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.CompanyObjectives
+        id = serializers.IntegerField(label='ID', read_only=False)
         fields = (
             'description',
             'owner',
@@ -31,8 +34,9 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
             'companyexportplan',
         )
         extra_kwargs = {
-            'companyexportplan': {'required': False},
             # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+
         }
 
 
@@ -52,7 +56,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'planned_review',
             'sectors',
             'consumer_demand',
-            'target_countries',
+            'target_markets',
             'compliance',
             'export_certificates',
             'route_to_markets',
@@ -65,24 +69,43 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+
+        objectives = validated_data.pop('company_objectives', {})
+        actions = validated_data.pop('export_plan_actions', {})
+
+        instance = super().create(validated_data)
+        self.recreate_objectives(instance, objectives)
+        self.recreate_actions(instance, actions)
+        return instance
+
+    def update(self, instance, validated_data):
+
         objectives = {}
         actions = {}
-
         if validated_data.get('company_objectives'):
             objectives = validated_data.pop('company_objectives')
         if validated_data.get('export_plan_actions'):
             actions = validated_data.pop('export_plan_actions')
 
-        instance = super().create(validated_data)
-
-        for objective in objectives:
-            objective_serializer = CompanyObjectivesSerializer(data={**objective, 'companyexportplan': instance.pk})
-            objective_serializer.is_valid(raise_exception=True)
-            objective_serializer.save()
-
-        for action in actions:
-
-            action_serializer = ExportPlanActionsSerializer(data={**action, 'companyexportplan': instance.pk})
-            action_serializer.is_valid(raise_exception=True)
-            action_serializer.save()
+        super().update(instance, validated_data)
+        self.recreate_objectives(instance, objectives)
+        self.recreate_actions(instance, actions)
         return instance
+
+    @transaction.atomic
+    def recreate_objectives(self, instance, objectives):
+        instance.company_objectives.all().delete()
+        data_collection = []
+        for objective in objectives:
+            data = {**objective, 'companyexportplan': instance}
+            data_collection.append(models.CompanyObjectives(**data))
+        models.CompanyObjectives.objects.bulk_create(data_collection)
+
+    @transaction.atomic
+    def recreate_actions(self, instance, actions):
+        instance.export_plan_actions.all().delete()
+        data_collection = []
+        for action in actions:
+            data = {**action, 'companyexportplan': instance}
+            data_collection.append(models.ExportPlanActions(**data))
+        models.ExportPlanActions.objects.bulk_create(data_collection)

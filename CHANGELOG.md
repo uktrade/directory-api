@@ -2,6 +2,9 @@
 
 ## Pre release
 
+## Hotfix
+- No ticket - v3-cipipeline manifest.yml file fix
+
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
@@ -19,6 +22,14 @@ MVP - Add search term to Personalisation ExOps API
 MVP-276 - comtrade download component
 MVP-310 - comtrade pull api-views
 MVP-279 - support export actions
+MVP-319 - support for update/create lists (actions/objectives)
+MVP-323 - Recommended Country End Point
+MVP-363 - move MADB Airtable to backend
+MVP-359 - add multiple target countries preload
+MVP-369 - save historical data on safe signal
+MVP-386 - add country TZ
+MVP-387 - add commodity name to target markets
+MVP-398 - feature flag historical data
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

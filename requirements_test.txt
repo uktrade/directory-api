@@ -4,6 +4,7 @@
 #
 #    pip-compile requirements_test.in
 #
+airtable-python-wrapper==0.12.0
 amqp==2.5.2               # via kombu
 atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via jsonschema, packaging, pytest
@@ -54,6 +55,7 @@ flake8==3.7.8
 freezegun==0.3.12
 idna==2.6                 # via requests
 importlib-metadata==0.19  # via kombu, pluggy, pytest
+iso3166==1.0.1
 jdcal==1.4.1              # via openpyxl
 jmespath==0.9.3           # via boto3, botocore
 jsonschema==3.0.1         # via directory-components
@@ -97,7 +99,7 @@ requests_mock==1.6.0
 s3transfer==0.2.1         # via boto3
 sentry-sdk==0.13.4
 sigauth==4.1.1
-six==1.11.0               # via cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, jsonschema, mohawk, more-itertools, packaging, pyopenssl, pyrsistent, pytest, python-dateutil, requests-mock, w3lib
+six==1.11.0               # via airtable-python-wrapper, cryptography, django-extensions, elasticsearch-dsl, faker, freezegun, jsonschema, mohawk, more-itertools, packaging, pyopenssl, pyrsistent, pytest, python-dateutil, requests-mock, w3lib
 sqlparse==0.3.0           # via django
 tablib[html,ods,xls,xlsx,yaml]==1.1.0  # via django-import-export
 termcolor==1.1.0          # via pytest-sugar

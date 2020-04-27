@@ -10,3 +10,9 @@ class UserLocation(TimeStampedModel):
     region = models.TextField()
     country = models.TextField()
     city = models.TextField()
+
+
+class CountryOfInterest(TimeStampedModel):
+    country = models.TextField()
+    sector = models.TextField()
+    service = models.TextField()
