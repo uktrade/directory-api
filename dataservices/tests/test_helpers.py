@@ -103,7 +103,6 @@ def test_get_product_code(comtrade):
 
 
 def test_get_last_year_import_data(comtrade, comtrade_request_mock):
-
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
                 'year': '2018',
@@ -203,3 +202,96 @@ def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
         'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
     }
+
+
+def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
+    historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
+    assert historical_data == {
+        'year': '2018', 'trade_value': '200', 'country_name': 'Australia', 'year_on_year_change': '0.5'
+    }
+
+
+@mock.patch.object(helpers.cached, 'get_cache_value')
+@mock.patch.object(helpers.cached, 'set_cache_value')
+@mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
+@mock.patch.object(helpers.ComTradeData, '__init__')
+def test_get_last_year_import_data_helper_cached(
+        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+):
+    mock_get_cache_value.return_value = None
+    mock_comtrade_init.return_value = None
+
+    comtrade_historical_data = {
+        'historical_trade_value_partner': {2018: '200', 2017: '100',
+                                           2016: '50'},
+        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
+    }
+
+    mock_comtrade_historical.return_value = comtrade_historical_data
+
+    historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
+
+    assert mock_get_cache_value.call_count == 1
+    assert mock_get_cache_value.call_args == mock.call('get_historical_import_dataAUS847.33.22')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
+
+    assert mock_set_cache_value.call_count == 1
+    assert mock_set_cache_value.call_args == mock.call(
+        'get_historical_import_dataAUS847.33.22', {'data': comtrade_historical_data}
+    )
+
+    mock_get_cache_value.return_value = {'data': comtrade_historical_data}
+    historical_data_cached = helpers.get_historical_import_data('AUS', '847.33.22')
+
+    mock_get_cache_value.return_value = {'data': historical_data_cached}
+
+    assert mock_get_cache_value.call_count == 2
+    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_set_cache_value.call_count == 1
+
+    assert historical_data == comtrade_historical_data
+    assert historical_data == historical_data_cached
+
+
+@mock.patch.object(helpers.cached, 'get_cache_value')
+@mock.patch.object(helpers.cached, 'set_cache_value')
+@mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
+@mock.patch.object(helpers.ComTradeData, '__init__')
+def test_get_last_year_import_data_helper_not_cached(
+        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+):
+    mock_get_cache_value.return_value = None
+    mock_comtrade_init.return_value = None
+
+    mock_comtrade_historical.return_value = {'Historical': '1'}
+
+    helpers.get_historical_import_data('AUS', '847.33.22')
+
+    assert mock_get_cache_value.call_count == 1
+    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
+
+    assert mock_set_cache_value.call_count == 1
+    assert mock_set_cache_value.call_args == mock.call(
+        'get_historical_import_data:AUS_847.33.22', {'data': {'Historical': '1'}}
+    )
+
+    mock_comtrade_historical.return_value = {'Historical': '2'}
+    helpers.get_historical_import_data('UK', '847.1')
+
+    assert mock_get_cache_value.call_count == 2
+    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:UK_847.1')
+
+    assert mock_comtrade_historical.call_count == 2
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.1', reporting_area='UK')
+
+    assert mock_set_cache_value.call_count == 2
+    assert mock_set_cache_value.call_args == mock.call(
+        'get_historical_import_data:UK_847.1', {'data': {'Historical': '2'}}
+    )

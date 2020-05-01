@@ -1,10 +1,12 @@
 import requests
 import json
 import pandas
-import datetime
 from airtable import Airtable
 
+from django.core.cache import cache
 from dataservices import models, serializers
+
+from datetime import datetime
 
 
 class ComTradeData:
@@ -39,7 +41,7 @@ class ComTradeData:
         comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
         if not comdata_df.empty:
             # Get Last two years data
-            last_year = datetime.datetime.today().year-2
+            last_year = datetime.today().year-2
             previous_year = last_year-1
             year_import = comdata_df[comdata_df.period == last_year]
             last_year_import = comdata_df[comdata_df.period == previous_year]['TradeValue'].iloc[0]
@@ -66,7 +68,7 @@ class ComTradeData:
         historical_trade_values = {}
 
         for y in range(1, no_years+1):
-            reporting_year = datetime.datetime.today().year-(y+1)
+            reporting_year = datetime.today().year-(y+1)
             url_options = f'&r=All&p={self.partner_country_id}&cc={self.product_code}&ps={reporting_year}'
             world_data = requests.get(self.url + url_options)
             world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
@@ -112,6 +114,31 @@ class MADB:
             return rules[0]['fields']
 
 
+class cached(object):
+
+    def __init__(self, *args, **kwargs):
+        # default cache age set to 24 hrs
+        self.default_max_age = kwargs.get("default_cache_max_age", 86400)
+
+    def get_cache_value(self, key):
+        return cache.get(key, default=None)
+
+    def set_cache_value(self, key, value):
+        cache.set(key, value, self.default_max_age)
+
+    def __call__(self, func):
+        def inner(*args, **kwargs):
+            cache_key = func.__name__ + ':' + '_'.join(list(args))
+            cached_value = self.get_cache_value(cache_key)
+            if not cached_value:
+                res = func(*args, **kwargs)
+                cached_value = {'data': res, }
+                self.set_cache_value(cache_key, cached_value)
+            return cached_value['data']
+        return inner
+
+
+@cached()
 def get_ease_of_business_index(country_code):
     try:
         instance = models.EaseOfDoingBusiness.objects.get(country_code=country_code)
@@ -121,6 +148,7 @@ def get_ease_of_business_index(country_code):
         return None
 
 
+@cached()
 def get_corruption_perception_index(country_code):
     try:
         instance = models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
@@ -130,12 +158,14 @@ def get_corruption_perception_index(country_code):
         return None
 
 
+@cached()
 def get_last_year_import_data(country, commodity_code):
     comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
     last_year_data = comtrade.get_last_year_import_data()
     return last_year_data
 
 
+@cached()
 def get_historical_import_data(country, commodity_code):
     comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
     historical_data = comtrade.get_all_historical_import_value()
