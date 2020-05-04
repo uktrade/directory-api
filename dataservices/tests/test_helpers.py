@@ -206,13 +206,14 @@ def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
 
 def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
+
     assert historical_data == {
         'year': '2018', 'trade_value': '200', 'country_name': 'Australia', 'year_on_year_change': '0.5'
     }
 
 
-@mock.patch.object(helpers.cached, 'get_cache_value')
-@mock.patch.object(helpers.cached, 'set_cache_value')
+@mock.patch.object(helpers.TTLCache, 'get_cache_value')
+@mock.patch.object(helpers.TTLCache, 'set_cache_value')
 @mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
 @mock.patch.object(helpers.ComTradeData, '__init__')
 def test_get_last_year_import_data_helper_cached(
@@ -240,13 +241,13 @@ def test_get_last_year_import_data_helper_cached(
     assert mock_set_cache_value.call_count == 1
 
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:AUS_847.33.22', {'data': comtrade_historical_data}
+        'get_historical_import_data:AUS_847.33.22', comtrade_historical_data
     )
 
-    mock_get_cache_value.return_value = {'data': comtrade_historical_data}
+    mock_get_cache_value.return_value = comtrade_historical_data
     historical_data_cached = helpers.get_historical_import_data('AUS', '847.33.22')
 
-    mock_get_cache_value.return_value = {'data': historical_data_cached}
+    mock_get_cache_value.return_value = historical_data_cached
 
     assert mock_get_cache_value.call_count == 2
     assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
@@ -258,8 +259,8 @@ def test_get_last_year_import_data_helper_cached(
     assert historical_data == historical_data_cached
 
 
-@mock.patch.object(helpers.cached, 'get_cache_value')
-@mock.patch.object(helpers.cached, 'set_cache_value')
+@mock.patch.object(helpers.TTLCache, 'get_cache_value')
+@mock.patch.object(helpers.TTLCache, 'set_cache_value')
 @mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
 @mock.patch.object(helpers.ComTradeData, '__init__')
 def test_get_last_year_import_data_helper_not_cached(
@@ -280,7 +281,7 @@ def test_get_last_year_import_data_helper_not_cached(
 
     assert mock_set_cache_value.call_count == 1
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:AUS_847.33.22', {'data': {'Historical': '1'}}
+        'get_historical_import_data:AUS_847.33.22', {'Historical': '1'}
     )
 
     mock_comtrade_historical.return_value = {'Historical': '2'}
@@ -294,5 +295,5 @@ def test_get_last_year_import_data_helper_not_cached(
 
     assert mock_set_cache_value.call_count == 2
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:UK_847.1', {'data': {'Historical': '2'}}
+        'get_historical_import_data:UK_847.1',  {'Historical': '2'}
     )
