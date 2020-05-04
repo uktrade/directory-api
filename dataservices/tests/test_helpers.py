@@ -232,14 +232,15 @@ def test_get_last_year_import_data_helper_cached(
     historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
 
     assert mock_get_cache_value.call_count == 1
-    assert mock_get_cache_value.call_args == mock.call('get_historical_import_dataAUS847.33.22')
+    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
 
     assert mock_comtrade_historical.call_count == 1
     assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
 
     assert mock_set_cache_value.call_count == 1
+
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_dataAUS847.33.22', {'data': comtrade_historical_data}
+        'get_historical_import_data:AUS_847.33.22', {'data': comtrade_historical_data}
     )
 
     mock_get_cache_value.return_value = {'data': comtrade_historical_data}
