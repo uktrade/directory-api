@@ -241,7 +241,7 @@ def test_get_last_year_import_data_helper_cached(
 
     assert mock_set_cache_value.call_count == 1
     assert mock_set_cache_value.call_args == mock.call(
-        json.dumps(['get_historical_import_data', {}, ["AUS","847.33.22"]], sort_keys=True, separators=(',',':')),
+        json.dumps(['get_historical_import_data', {}, ["AUS", "847.33.22"]], sort_keys=True, separators=(',', ':')),
         historical_data
     )
 
