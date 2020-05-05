@@ -128,10 +128,11 @@ class TTLCache():
 
     def __call__(self, func):
         def inner(*args, **kwargs):
+            cleaned_kwargs = json.dumps(sorted(kwargs.items()))
             cache_key = func.__name__ + ':' + '_'.join(list(args))
             cached_value = self.get_cache_value(cache_key)
             if not cached_value:
-                cached_value = func(*args, **kwargs)
+                cached_value = func(*args, cleaned_kwargs)
                 self.set_cache_value(cache_key, cached_value)
             return cached_value
         return inner

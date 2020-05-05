@@ -297,3 +297,4 @@ def test_get_last_year_import_data_helper_not_cached(
     assert mock_set_cache_value.call_args == mock.call(
         'get_historical_import_data:UK_847.1',  {'Historical': '2'}
     )
+
