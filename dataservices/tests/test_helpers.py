@@ -1,3 +1,4 @@
+import json
 import pytest
 from unittest import mock
 
@@ -233,15 +234,15 @@ def test_get_last_year_import_data_helper_cached(
     historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
 
     assert mock_get_cache_value.call_count == 1
-    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
 
     assert mock_comtrade_historical.call_count == 1
     assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
 
     assert mock_set_cache_value.call_count == 1
-
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:AUS_847.33.22', comtrade_historical_data
+        json.dumps(['get_historical_import_data', {}, ["AUS","847.33.22"]], sort_keys=True, separators=(',',':')),
+        historical_data
     )
 
     mock_get_cache_value.return_value = comtrade_historical_data
@@ -250,7 +251,7 @@ def test_get_last_year_import_data_helper_cached(
     mock_get_cache_value.return_value = historical_data_cached
 
     assert mock_get_cache_value.call_count == 2
-    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
 
     assert mock_comtrade_historical.call_count == 1
     assert mock_set_cache_value.call_count == 1
@@ -274,27 +275,26 @@ def test_get_last_year_import_data_helper_not_cached(
     helpers.get_historical_import_data('AUS', '847.33.22')
 
     assert mock_get_cache_value.call_count == 1
-    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:AUS_847.33.22')
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
 
     assert mock_comtrade_historical.call_count == 1
     assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
 
     assert mock_set_cache_value.call_count == 1
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:AUS_847.33.22', {'Historical': '1'}
+        '["get_historical_import_data",{},["AUS","847.33.22"]]', {'Historical': '1'}
     )
 
     mock_comtrade_historical.return_value = {'Historical': '2'}
     helpers.get_historical_import_data('UK', '847.1')
 
     assert mock_get_cache_value.call_count == 2
-    assert mock_get_cache_value.call_args == mock.call('get_historical_import_data:UK_847.1')
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["UK","847.1"]]')
 
     assert mock_comtrade_historical.call_count == 2
     assert mock_comtrade_init.call_args == mock.call(commodity_code='847.1', reporting_area='UK')
 
     assert mock_set_cache_value.call_count == 2
     assert mock_set_cache_value.call_args == mock.call(
-        'get_historical_import_data:UK_847.1',  {'Historical': '2'}
+        '["get_historical_import_data",{},["UK","847.1"]]', {'Historical': '2'}
     )
-

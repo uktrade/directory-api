@@ -114,11 +114,10 @@ class MADB:
             return rules[0]['fields']
 
 
-class TTLCache():
+class TTLCache:
 
-    def __init__(self, *args, **kwargs):
-        # default cache age set to 24 hrs
-        self.default_max_age = kwargs.get("default_cache_max_age", 86400)
+    def __init__(self, default_cache_max_age=60*60*24):
+        self.default_max_age = default_cache_max_age
 
     def get_cache_value(self, key):
         return cache.get(key, default=None)
@@ -128,11 +127,10 @@ class TTLCache():
 
     def __call__(self, func):
         def inner(*args, **kwargs):
-            cleaned_kwargs = json.dumps(sorted(kwargs.items()))
-            cache_key = func.__name__ + ':' + '_'.join(list(args))
+            cache_key = json.dumps([func.__name__, kwargs, args], sort_keys=True, separators=(',',':'))
             cached_value = self.get_cache_value(cache_key)
             if not cached_value:
-                cached_value = func(*args, cleaned_kwargs)
+                cached_value = func(*args, **kwargs)
                 self.set_cache_value(cache_key, cached_value)
             return cached_value
         return inner
