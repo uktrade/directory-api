@@ -30,6 +30,7 @@ MVP-369 - save historical data on safe signal
 MVP-386 - add country TZ
 MVP-387 - add commodity name to target markets
 MVP-398 - feature flag historical data
+MVP-416 - Personalise events by user sector and country of interest
 MVP-395 - cache comtrade data using backend cache
 
 ### Fixed bugs
