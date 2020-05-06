@@ -17,7 +17,6 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
         if country in pre_save_target_markets:
             continue
         rules_regulations = helpers.MADB().get_rules_and_regulations(country)
-
         if rules_regulations:
             commodity_code = instance.export_commodity_codes[0]
             country_code = rules_regulations['country_code']

@@ -1,9 +1,8 @@
-import json
 import requests
 import pytest
 import http
 
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from django.urls import reverse
 from decimal import Decimal
 
