@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='companyexportplan',
             name='brand_product_details',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=list, null=True),
+            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
         ),
     ]
