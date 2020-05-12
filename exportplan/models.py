@@ -16,6 +16,7 @@ class CompanyExportPlan(TimeStampedModel):
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
     rules_regulations = JSONField(null=True, blank=True, default=list)
+    brand_product_details = JSONField(null=True, blank=True, default=list)
     # business objectives
     rational = models.TextField(null=True, blank=True, default='', validators=[no_html])
     planned_review = models.TextField(null=True, blank=True, default='', validators=[no_html])
