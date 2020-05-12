@@ -32,6 +32,7 @@ MVP-387 - add commodity name to target markets
 MVP-398 - feature flag historical data
 MVP-416 - Personalise events by user sector and country of interest
 MVP-395 - cache comtrade data using backend cache
+MVP-479 - Brand Product Details
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
