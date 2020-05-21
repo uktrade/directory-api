@@ -1,0 +1,38 @@
+from rest_framework import generics
+from core.permissions import IsAuthenticatedSSO
+
+from exportplan import serializers, models
+from exportplan.models import CompanyExportPlan
+
+
+class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.CompanyExportPlanSerializer
+    permission_classes = [IsAuthenticatedSSO]
+    queryset = CompanyExportPlan.objects.all()
+    lookup_field = 'pk'
+
+
+class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CompanyExportPlanSerializer
+    queryset = CompanyExportPlan.objects.all()
+    lookup_field = 'sso_id'
+
+    def perform_create(self, serializer):
+        serializer.validated_data['sso_id'] = self.request.user.id
+        serializer.save()
+
+    def get_queryset(self):
+        return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CompanyExportPlanSerializer
+    queryset = CompanyExportPlan.objects.all()
+    lookup_field = 'sso_id'
+
+    def perform_create(self, serializer):
+        serializer.validated_data['sso_id'] = self.request.user.id
+        serializer.save()
+
+    def get_queryset(self):
+        return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)

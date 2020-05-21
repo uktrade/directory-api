@@ -7,10 +7,12 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import boto3
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+from directory_constants.urls import domestic
 import requests
 
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django.conf import settings
+from django.core.signing import Signer
 from django.db import models
 from django.http import HttpResponse
 from django.utils.crypto import get_random_string
@@ -131,10 +133,11 @@ path_and_rename_supplier_case_study = PathAndRename(sub_path="supplier_case_stud
 
 
 class SSOUser:
-    def __init__(self, id, email, user_profile=None):
+    def __init__(self, id, email, hashed_uuid=None, user_profile=None):
         self.id = id
         self.email = email
         self.user_profile = user_profile
+        self.hashed_uuid = hashed_uuid
 
     @property
     def pk(self):
@@ -221,3 +224,9 @@ def get_companies_house_profile(number):
 
 def generate_verification_code():
     return get_random_string(length=12, allowed_chars='0123456789')
+
+
+def build_preverified_url(company_number):
+    url = domestic.SINGLE_SIGN_ON_PROFILE / 'enrol/pre-verified/'
+    key = Signer().sign(company_number)
+    return f'{url}?key={key}'

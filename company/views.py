@@ -37,6 +37,21 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
             return self.request.user.company
         raise Http404()
 
+    def partial_update(self, request, *args, **kwargs):
+        # create the objects if they do not yet exist, allowing for piecemeal company creation
+        company, _ = models.Company.objects.get_or_create(company_users__sso_id=self.request.user.id)
+        models.CompanyUser.objects.update_or_create(
+            sso_id=self.request.user.id,
+            defaults={'company': company, 'company_email': self.request.user.email}
+        )
+
+        # invalidate the cached_property
+        try:
+            del self.request.user.company_user
+        except AttributeError:
+            pass
+        return super().partial_update(request, *args, **kwargs)
+
 
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer

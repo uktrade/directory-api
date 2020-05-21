@@ -2,6 +2,7 @@ import csv
 import io
 import json
 import re
+import ast
 from difflib import SequenceMatcher
 
 from directory_components.forms.fields import PaddedCharField
@@ -101,7 +102,6 @@ class CompanyModelForm(forms.ModelForm):
             'twitter_url',
             'facebook_url',
             'linkedin_url',
-            'verified_with_preverified_enrolment',
             'is_exporting_services',
             'mobile_number',
             'is_uk_isd_company',
@@ -162,7 +162,6 @@ class EnrolCompanies(forms.Form):
                 'number': row[8],
                 'postal_full_name': row[3],
                 'twitter_url': row[10],
-                'verified_with_preverified_enrolment': True,
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
@@ -193,7 +192,9 @@ class EnrolCompanies(forms.Form):
                 pre_verified_form = PreVerifiedEnrolmentModelForm(data={
                     'generated_for': self.cleaned_data['generated_for'],
                     'generated_by': self.user.pk,
+                    'email_address': row[4],
                     'company_number': form.instance.number,
+                    'company_name': form.instance.name,
                 })
                 assert pre_verified_form.is_valid()
                 pre_verified_form.save()
@@ -354,3 +355,10 @@ class UploadExpertise(forms.Form):
             errors=json.dumps(line_errors),
             number=row_number,
         ))
+
+
+class ConfirmVerificationLetterForm(forms.Form):
+    obj_ids = forms.CharField(widget=forms.HiddenInput())
+
+    def clean_obj_ids(self):
+        return ast.literal_eval(self.cleaned_data['obj_ids'])

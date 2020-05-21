@@ -191,7 +191,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
-def test_company_update_with_mock_patch(authed_client, authed_supplier):
+def test_company_partial_update(authed_client, authed_supplier):
     company = factories.CompanyFactory(
         number='01234567',
     )
@@ -247,6 +247,34 @@ def test_company_update_with_mock_patch(authed_client, authed_supplier):
     expected.update(VALID_REQUEST_DATA)
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected
+
+
+@freeze_time('2016-11-23T11:21:10.977518Z')
+@pytest.mark.django_db
+def test_company_partial_update_no_company(authed_client, authed_supplier):
+    # make the user logged in but no supplier attached to them
+    authed_supplier.delete()
+
+    data = {
+        'name': 'Example company',
+        'sectors': ['SOFTWARE_AND_COMPUTER_SERVICES'],
+        'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+        'expertise_countries': [
+            choices.COUNTRY_CHOICES[23][0],
+            choices.COUNTRY_CHOICES[24][0]
+        ],
+    }
+
+    response = authed_client.patch(reverse('company'), data, format='json')
+
+    assert response.status_code == status.HTTP_200_OK
+
+    company = models.Company.objects.get(company_users__sso_id=authed_supplier.sso_id)
+    assert company.name == data['name']
+    assert company.sectors == data['sectors']
+    assert company.expertise_industries == data['expertise_industries']
+    assert company.expertise_countries == data['expertise_countries']
+    assert models.CompanyUser.objects.get(sso_id=authed_supplier.sso_id, company=company)
 
 
 @freeze_time('2016-11-23T11:21:10.977518Z')
@@ -2200,7 +2228,6 @@ def test_add_collaborator_view(authed_client):
         'company': company.number,
         'company_email': 'abc@def.com',
         'mobile_number': '9876543210',
-        'role': user_roles.MEMBER
     }
 
     url = reverse('register-company-collaborator-request')
@@ -2210,7 +2237,7 @@ def test_add_collaborator_view(authed_client):
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == data
+    assert response.json() == {**data, 'role': user_roles.ADMIN}
 
 
 @pytest.mark.django_db

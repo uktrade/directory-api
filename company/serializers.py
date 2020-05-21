@@ -68,7 +68,7 @@ class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 class CompanySerializer(serializers.ModelSerializer):
 
     id = serializers.CharField(read_only=True)
-    date_of_creation = serializers.DateField()
+    date_of_creation = serializers.DateField(required=False)
     sectors = serializers.JSONField(required=False)
     logo = AllowedFormatImageField(max_length=None, allow_empty_file=False, use_url=True, required=False)
     supplier_case_studies = CompanyCaseStudySerializer(many=True, required=False, read_only=True)
@@ -299,14 +299,18 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
             'company',
             'company_email',
             'mobile_number',
-            'role'
+            'role',
         )
 
         extra_kwargs = {
-            'role': {
-                'default': user_roles.MEMBER
-            }
+            'role': {'required': False}
         }
+
+    def create(self, validated_data):
+        if 'role' not in validated_data:
+            has_admins = validated_data['company'].company_users.filter(role=user_roles.ADMIN).exists()
+            validated_data['role'] = user_roles.MEMBER if has_admins else user_roles.ADMIN
+        return super().create(validated_data)
 
 
 class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):

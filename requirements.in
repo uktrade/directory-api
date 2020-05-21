@@ -6,6 +6,7 @@ django-field-history==0.7.0
 djangorestframework==3.10.3
 django-storages==1.8.0
 django-filter==2.2.0
+django-import-export==2.0.2
 kombu==4.6.6
 django-celery-beat==1.5.0
 django-redis==4.10.0
@@ -29,3 +30,7 @@ directory-components==35.6.1
 urllib3>=1.24.2<2.0.0
 factory-boy==2.12.0
 django-admin-ip-restrictor==2.1.0
+markdown2==2.2.0
+pandas==1.0.1
+airtable-python-wrapper==0.12.*
+iso3166==1.0.1

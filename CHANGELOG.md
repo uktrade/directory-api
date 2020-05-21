@@ -2,14 +2,40 @@
 
 ## Pre release
 
+## Hotfix
+- No ticket - v3-cipipeline manifest.yml file fix
+
 ### Implemented enhancements
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
+TT-2286 - update test email domain
+MVP - Add personalisation APIs
+MVP-108 - export-plan-saving
+MVP-108 - export-plan-saving - add rules and regulations
+MVP-147 - Allow for piecemeal company creation
+MVP-205 - extend export plan model
+MVP - Add Lat/Lng lookup to Personalisation Events API
+MVP-250 - EaseofBusiness Index Backend
+MVP-252 - CPI data import backend
+MVP - Add search term to Personalisation ExOps API
+MVP-276 - comtrade download component
+MVP-310 - comtrade pull api-views
+MVP-279 - support export actions
+MVP-319 - support for update/create lists (actions/objectives)
+MVP-323 - Recommended Country End Point
+MVP-363 - move MADB Airtable to backend
+MVP-359 - add multiple target countries preload
+MVP-369 - save historical data on safe signal
+MVP-386 - add country TZ
+MVP-387 - add commodity name to target markets
+MVP-398 - feature flag historical data
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
+TT-2260 - Include email address when creating preverified links
+
 
 ## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)

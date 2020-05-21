@@ -571,7 +571,7 @@ def test_create_test_isd_company_unexpected_parameters_are_ignored(
 def test_delete_test_companies(client):
     CompanyFactory.create_batch(
         3,
-        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
     )
     response = client.delete(reverse('delete_test_companies'))
     assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -587,7 +587,7 @@ def test_delete_test_companies_returns_404_when_no_test_companies(client):
 def test_delete_test_companies_returns_404_with_disabled_testapi(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     CompanyFactory.create(
-        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
     )
     response = client.delete(reverse('delete_test_companies'))
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -597,7 +597,7 @@ def test_delete_test_companies_returns_404_with_disabled_testapi(client, setting
 def test_delete_test_buyers(authed_client):
     BuyerFactory.create_batch(
         3,
-        email=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+        email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
     )
     response = authed_client.delete(reverse('delete_test_buyers'))
     assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -614,7 +614,7 @@ def test_delete_test_buyers_returns_404_when_no_test_buyers(authed_client):
 def test_delete_test_buyers_returns_404_with_disabled_testapi(authed_client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     BuyerFactory.create(
-        email=Sequence(lambda n: f'test+{n}@directory.uktrade.io')
+        email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
     )
     response = authed_client.delete(reverse('delete_test_buyers'))
     assert response.status_code == status.HTTP_404_NOT_FOUND

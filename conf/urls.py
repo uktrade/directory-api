@@ -11,10 +11,12 @@ import activitystream.views
 import buyer.views
 import company.views
 import enrolment.views
+import exportplan.views
 import notifications.views
+import personalisation.views
 import testapi.views
 import exporting.views
-
+import dataservices.views
 
 admin.autodiscover()
 
@@ -207,6 +209,56 @@ urlpatterns = [
         r'exporting/offices/(?P<postcode>.*)/$',
         exporting.views.RetrieveOfficesByPostCode.as_view(),
         name='offices-by-postcode'
+    ),
+    url(
+        r'^personalisation/events/',
+        personalisation.views.EventsView.as_view(),
+        name='personalisation-events'
+    ),
+    url(
+        r'^personalisation/export-opportunities/',
+        personalisation.views.ExportOpportunitiesView.as_view(),
+        name='personalisation-export-opportunities'
+    ),
+    url(
+        r'^personalisation/user-location/$',
+        personalisation.views.UserLocationCreateAPIView.as_view(),
+        name='personalisation-user-location-create'
+    ),
+    url(
+        r'^personalisation/recommended-countries/$',
+        personalisation.views.RecommendedCountriesView.as_view(),
+        name='personalisation-recommended-countries'
+    ),
+    url(
+        r'^exportplan/company-export-plan/$',
+        exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
+        name='export-plan-list-create'
+    ),
+    url(
+        r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',
+        exportplan.views.CompanyExportPlanRetrieveUpdateView.as_view(),
+        name='export-plan-detail-update'
+    ),
+    url(
+        r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
+        name='dataservices-easeofdoingbusiness-index'
+    ),
+    url(
+        r'^dataservices/corruption-perceptions-index/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveCorruptionPerceptionsIndex.as_view(),
+        name='dataservices-corruptionperceptionsindex'
+    ),
+    url(
+        r'^dataservices/lastyearimportdata/$',
+        dataservices.views.RetrieveLastYearImportDataView.as_view(),
+        name='last-year-import-data'
+    ),
+    url(
+        r'^dataservices/historicalimportdata/$',
+        dataservices.views.RetrieveHistoricalImportDataView.as_view(),
+        name='historical-import-data'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',
