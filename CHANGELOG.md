@@ -1,11 +1,14 @@
 # Changelog
 
 ## Pre release
+### Implemented enhancements
+### Bugs fixed
 
-## Hotfix
-- No ticket - v3-cipipeline manifest.yml file fix
+## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
 
 ### Implemented enhancements
+No ticket - v3-cipipeline manifest.yml file fix
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
