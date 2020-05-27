@@ -66,6 +66,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'pk',
             'company_objectives',
             'export_plan_actions',
+            'brand_product_details',
         )
 
     def create(self, validated_data):

@@ -23,6 +23,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     promotion_channels = [{'Description': 'in-store', 'option': 'posters'}]
     resource_needed = '5 people'
     spend_marketing = 3000.50
+    brand_product_details = {'Location': 'London', 'story': 'new brand'}
 
     class Meta:
         model = models.CompanyExportPlan
