@@ -58,3 +58,22 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
         'cpi_score_2019',
         'rank',
     )
+
+
+@admin.register(models.DataServicesCacheLoad)
+class DataServicesCacheLoad(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+
+    search_fields = (
+        'class_name',
+        'function_parameters',
+        'function_name',
+    )
+
+    list_display = (
+        'class_name',
+        'function_parameters',
+        'function_name',
+    )

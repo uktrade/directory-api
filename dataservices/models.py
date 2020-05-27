@@ -1,6 +1,7 @@
 from django.db import models
 
 from core.helpers import TimeStampedModel
+from django.contrib.postgres.fields import JSONField
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
@@ -22,3 +23,13 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
     def __str__(self):
         return self.country_name
+
+
+class DataServicesCacheLoad(TimeStampedModel):
+
+    class_name = models.CharField(max_length=50)
+    function_parameters = JSONField(default=dict)
+    function_name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.class_name

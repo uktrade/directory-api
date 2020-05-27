@@ -38,6 +38,7 @@ class CompanyObjectives(TimeStampedModel):
     owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
     )
