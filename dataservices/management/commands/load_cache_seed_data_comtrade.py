@@ -9,7 +9,7 @@ class Command(BaseCommand):
         commodity_code = '2208.50.00.57'
         class_name = 'dataservices.helpers'
         countries = helpers.MADB().get_madb_country_list()
-        function_names = ['get_last_year_import_data', 'get_last_year_import_data']
+        function_names = ['get_last_year_import_data', 'get_historical_import_data']
         models.DataServicesCacheLoad.objects.filter(class_name=class_name).delete()
 
         for country in countries:
