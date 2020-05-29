@@ -6,7 +6,6 @@ class Command(BaseCommand):
     help = 'Preload seed data for dataservice comtrade cache'
 
     def handle(self, *args, **options):
-        countries = helpers.MADB().get_madb_country_list()
         commodity_code = '2208.50.00.57'
         class_name = 'dataservices.helpers'
         countries = helpers.MADB().get_madb_country_list()
