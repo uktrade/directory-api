@@ -37,6 +37,7 @@ MVP-416 - Personalise events by user sector and country of interest
 MVP-395 - cache comtrade data using backend cache
 MVP-479 - Brand Product Details
 MVP-474 - pre-populate dataservices cache task
+MVP-581 - new objective fields
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

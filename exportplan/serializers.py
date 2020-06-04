@@ -11,6 +11,7 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
         id = serializers.IntegerField(label='ID', read_only=False)
         fields = (
             'description',
+            'planned_reviews',
             'owner',
             'start_date',
             'end_date',
