@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='companyobjectives',
             name='planned_reviews',
-            field=models.TextField(blank=True, default='', null=True, validators=[directory_validators.string.no_html]),
+            field=models.TextField(blank=True, default='', validators=[directory_validators.string.no_html]),
         ),
         migrations.AlterField(
             model_name='companyobjectives',

@@ -36,7 +36,7 @@ class CompanyExportPlan(TimeStampedModel):
 
 class CompanyObjectives(TimeStampedModel):
     description = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    planned_reviews = models.TextField(null=True, blank=True, default='', validators=[no_html])
+    planned_reviews = models.TextField(blank=True, default='', validators=[no_html])
     owner = models.TextField(null=True, blank=True, max_length=100)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

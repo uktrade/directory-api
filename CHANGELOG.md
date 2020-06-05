@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+MVP-581 - new objective fields
 ### Bugs fixed
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
@@ -37,7 +38,6 @@ MVP-416 - Personalise events by user sector and country of interest
 MVP-395 - cache comtrade data using backend cache
 MVP-479 - Brand Product Details
 MVP-474 - pre-populate dataservices cache task
-MVP-581 - new objective fields
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
