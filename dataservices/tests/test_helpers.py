@@ -4,7 +4,6 @@ from unittest import mock
 
 import re
 from dataservices import helpers, models
-from rest_framework.exceptions import NotFound
 
 
 @pytest.fixture(autouse=True)
@@ -96,9 +95,8 @@ def test_get_get_comtrade_company_id(comtrade):
     assert comtrade.get_comtrade_company_id('Australia') == '36'
 
 
-def test_get_comtrade_company_id_not_found_raises_exceptiom(comtrade):
-    with pytest.raises(NotFound):
-        comtrade.get_comtrade_company_id('no_country')
+def test_get_comtrade_company_id_not_found(comtrade):
+    assert comtrade.get_comtrade_company_id('no_country') == ''
 
 
 def test_get_product_code(comtrade):
@@ -199,9 +197,7 @@ def test_get_corruption_perceptions_index_not_found():
     assert cpi_data is None
 
 
-@mock.patch.object(helpers.ComTradeData, 'get_comtrade_company_id')
-def test_get_all_historical_import_data_helper(mock_get_comtrade_company_id, comtrade, comtrade_request_mock):
-
+def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
     assert historical_data == {
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
@@ -209,7 +205,6 @@ def test_get_all_historical_import_data_helper(mock_get_comtrade_company_id, com
     }
 
 
-@mock.patch.object(helpers.ComTradeData, 'get_comtrade_company_id')
 def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
 

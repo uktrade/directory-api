@@ -5,7 +5,6 @@ from airtable import Airtable
 
 from django.core.cache import cache
 from dataservices import models, serializers
-from rest_framework.exceptions import NotFound
 from datetime import datetime
 
 
@@ -25,7 +24,7 @@ class ComTradeData:
             if not counties_data[counties_data['text'] == country_name]['id'].empty:
                 return counties_data[counties_data['text'] == country_name]['id'].iloc[0]
             else:
-                raise NotFound(f'Reporting country not found : {country_name}')
+                return ''
 
     def get_url(self):
         url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All'
