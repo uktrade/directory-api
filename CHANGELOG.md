@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+MVP-581 - new objective fields
 ### Bugs fixed
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)

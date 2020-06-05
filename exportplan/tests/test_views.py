@@ -58,7 +58,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['company_objectives'] == [
         {
             'companyexportplan': export_plan_db.pk, 'description': 'export 5k cases of wine',
-            'owner': None, 'start_date': None, 'end_date': None,
+            'owner': None, 'start_date': None, 'end_date': None,  'planned_reviews': '',
         }
     ]
     assert created_export_plan['sso_id'] == authed_supplier.sso_id
@@ -115,6 +115,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
             {
                 'companyexportplan': export_plan.id,
                 'description': 'export 5k cases of wine',
+                'planned_reviews': 'None planned',
                 'owner': None,
                 'start_date': None,
                 'end_date': None,

@@ -32,6 +32,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
 class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
 
     description = 'export 5k cases of wine'
+    planned_reviews = 'None planned'
     owner = None
     start_date = None
     end_date = None
