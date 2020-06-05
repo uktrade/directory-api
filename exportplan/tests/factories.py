@@ -13,7 +13,6 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     rules_regulations = {'rules': '0.001'}
     sso_id = factory.Iterator(range(99999999))
     rational = 'Gin has exceptional growth'
-    planned_review = 'I like exporting for fun'
     sectors = ['Food and drink', 'hospitality']
     consumer_demand = 'lots of demand for this product'
     target_markets = [{'country': 'UK'}]

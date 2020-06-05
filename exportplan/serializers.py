@@ -54,7 +54,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_countries',
             'rules_regulations',
             'rational',
-            'planned_review',
             'sectors',
             'consumer_demand',
             'target_markets',

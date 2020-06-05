@@ -93,7 +93,6 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'rules_regulations': export_plan.rules_regulations,
         'brand_product_details': export_plan.brand_product_details,
         'rational': export_plan.rational,
-        'planned_review': export_plan.planned_review,
         'sectors': export_plan.sectors,
         'consumer_demand': export_plan.consumer_demand,
         'target_markets': export_plan.target_markets,
