@@ -16,6 +16,7 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
             'start_date',
             'end_date',
             'companyexportplan',
+            'pk'
         )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated

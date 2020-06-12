@@ -241,6 +241,16 @@ urlpatterns = [
         name='export-plan-detail-update'
     ),
     url(
+        r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
+        exportplan.views.CompanyObjectivesRetrieveUpdateView.as_view(),
+        name='export-plan-objectives-detail-update'
+    ),
+    url(
+        r'^exportplan/company-objectives/$',
+        exportplan.views.CompanyObjectivesListCreateAPIView.as_view(),
+        name='export-plan-objectives-list-create'
+    ),
+    url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
         dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
         name='dataservices-easeofdoingbusiness-index'
