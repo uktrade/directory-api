@@ -5,6 +5,7 @@
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
 No Ticket - remove redudant field on model
+GP2-125 - Add business objectives rest CRUD api
 
 ### Bugs fixed
 
