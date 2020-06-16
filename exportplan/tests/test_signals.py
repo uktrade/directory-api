@@ -59,12 +59,12 @@ def test_signal_target_markets_update(
 
     mock_madb_rules_regs.return_value = {'export_duty': '2.5', 'country_code': 'GBR', 'commodity_name': 'Gin'}
 
-    export_plan.target_markets = export_plan.target_markets + [{'country': 'UK'}]
+    export_plan.target_markets = export_plan.target_markets + [{'country': 'Mexico'}]
     export_plan.save()
 
     assert mock_madb_rules_regs.call_count == 2
     assert mock_ease_of_business_index.call_count == 2
     assert mock_cpi.call_count == 2
     assert mock_last_year_data.call_count == 2
-    assert export_plan.target_markets[1]['country'] == 'UK'
+    assert export_plan.target_markets[1]['country'] == 'Mexico'
     assert export_plan.target_markets[1]['export_duty'] == '2.5'

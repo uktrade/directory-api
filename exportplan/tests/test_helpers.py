@@ -15,3 +15,7 @@ def test_get_timezone():
 
 def test_get_local_time_not_found():
     assert helpers.get_timezone('XS') is None
+
+
+def test_get_iso3_by_country_name():
+    assert helpers.get_iso3_by_country_name('Australia') == 'AUS'
