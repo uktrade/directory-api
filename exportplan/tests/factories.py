@@ -15,7 +15,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     rational = 'Gin has exceptional growth'
     sectors = ['Food and drink', 'hospitality']
     consumer_demand = 'lots of demand for this product'
-    target_markets = [{'country': 'UK'}]
+    target_markets = [{'country': 'Mexico'}]
     compliance = [{'Change needed': 'lower units', 'Plan': 'less alcohol units'}]
     export_certificates = [{'Change needed': 'New Labels', 'Plan': 'Print new labels'}]
     route_to_markets = [{'Description': 'selling to retailers', 'option': 'shipping'}]
