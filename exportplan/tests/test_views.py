@@ -58,7 +58,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['company_objectives'] == [
         {
             'companyexportplan': export_plan_db.pk, 'description': 'export 5k cases of wine',
-            'owner': None, 'start_date': None, 'end_date': None,  'planned_reviews': '',
+            'owner': None, 'start_date': None, 'end_date': None,  'planned_reviews': '', 'pk': 1,
         }
     ]
     assert created_export_plan['sso_id'] == authed_supplier.sso_id
@@ -118,6 +118,8 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'owner': None,
                 'start_date': None,
                 'end_date': None,
+                'pk': export_plan.company_objectives.all()[0].pk,
+
             }
         ],
         'pk': export_plan.pk
@@ -163,18 +165,22 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
 
     assert response.status_code == http.client.OK
     country_market_data = {
-        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'country': 'Mexico', 'export_duty': '1.5',
+        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
             {
                 'rank': 21, 'country_code': 'AUS', 'country_name': 'Australia', 'cpi_score_2019': 24
              },
-        'timezone': 'Australia/Lord_Howe',
-        'utz_offset': '+1030',
+        'timezone': 'America/Mexico_City',
+        'utz_offset': '-0500',
         'commodity_name': 'Gin',
     }
+
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
+    country_market_data['utz_offset'] = '+1030'
+    country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
 
 
@@ -197,7 +203,8 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
 
     assert response.status_code == http.client.OK
     country_market_data = {
-        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'country': 'Mexico', 'export_duty': '1.5',
+        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
             {
@@ -205,13 +212,15 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
              },
         'historical_import_data': {'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
                                    'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200}},
-        'timezone': 'Australia/Lord_Howe',
-        'utz_offset': '+1030',
+        'timezone': 'America/Mexico_City',
+        'utz_offset': '-0500',
         'commodity_name': 'Gin',
     }
 
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
+    country_market_data['utz_offset'] = '+1030'
+    country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
 
@@ -269,3 +278,66 @@ def test_export_plan_new_actions(authed_client, authed_supplier, export_plan):
     assert export_plan_actions[0].due_date == date(2020, 1, 2)
     assert export_plan_actions[1].is_reminders_on is True
     assert export_plan_actions[1].due_date == date(2020, 1, 1)
+
+
+@pytest.mark.django_db
+def test_export_plan_objectives_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    my_objective = export_plan.company_objectives.all()[0]
+    url = reverse('export-plan-objectives-detail-update', kwargs={'pk': my_objective.pk})
+
+    data = {'description': 'updated now'}
+
+    response = authed_client.patch(url, data, format='json')
+    my_objective.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert my_objective.description == 'updated now'
+
+
+@pytest.mark.django_db
+def test_export_plan_objectives_retrieve(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    my_objective = export_plan.company_objectives.all()[0]
+    url = reverse('export-plan-objectives-detail-update', kwargs={'pk': my_objective.pk})
+
+    response = authed_client.get(url)
+    data = response.json()
+    assert response.status_code == http.client.OK
+    assert my_objective.description == data['description']
+    assert my_objective.pk == data['pk']
+    assert my_objective.start_date == data['start_date']
+    assert my_objective.start_date == data['end_date']
+
+
+@pytest.mark.django_db
+def test_export_plan_objectives_create(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-objectives-list-create')
+
+    data = {
+            'companyexportplan': export_plan.id,
+            'description': 'newly created',
+            'planned_reviews': 'None planned',
+        }
+
+    response = authed_client.post(url, data)
+
+    data = response.json()
+
+    assert response.status_code == http.client.CREATED
+    export_plan.refresh_from_db()
+    assert export_plan.company_objectives.all().count() == 2
+    my_objective = export_plan.company_objectives.all()[0]
+
+    assert my_objective.description == data['description']
+    assert my_objective.pk == data['pk']
+    assert my_objective.planned_reviews == data['planned_reviews']

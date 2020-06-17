@@ -5,7 +5,8 @@
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
 No Ticket - remove redudant field on model
-
+GP2-125 - Add business objectives rest CRUD api
+GP2-154 - update country list
 ### Bugs fixed
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
