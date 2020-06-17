@@ -19,3 +19,15 @@ def test_get_local_time_not_found():
 
 def test_get_iso3_by_country_name():
     assert helpers.get_iso3_by_country_name('Australia') == 'AUS'
+
+
+def test_get_iso3_by_country_name_upper():
+    assert helpers.get_iso3_by_country_name('AUSTRALIA') == 'AUS'
+
+
+def test_get_iso3_by_country_name_lower():
+    assert helpers.get_iso3_by_country_name('australia') == 'AUS'
+
+
+def test_get_iso3_by_country_name_none():
+    assert helpers.get_iso3_by_country_name(None) is None
