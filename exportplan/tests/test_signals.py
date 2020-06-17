@@ -48,6 +48,23 @@ def test_export_plan_target_markets_create_no_airtable_data(
 
 
 @pytest.mark.django_db
+def test_export_plan_target_markets_create_no_bad_country(
+        mock_madb_rules_regs, mock_ease_of_business_index, mock_cpi, mock_last_year_data,
+        cpi_data, last_year_data, ease_of_business_data,
+):
+    mock_madb_rules_regs.return_value = None
+    export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'XYZ', }])
+    export_plan.save()
+
+    assert export_plan.target_markets[0].get('corruption_perceptions_index') is None
+    assert export_plan.target_markets[0]['last_year_data'] == last_year_data
+    assert export_plan.target_markets[0].get('easeofdoingbusiness') is None
+    assert export_plan.target_markets[0]['country'] == 'XYZ'
+    assert export_plan.target_markets[0]['export_duty'] == ''
+    assert export_plan.target_markets[0]['commodity_name'] == ''
+
+
+@pytest.mark.django_db
 def test_signal_target_markets_update(
         mock_madb_rules_regs, mock_ease_of_business_index, mock_cpi, mock_last_year_data, cpi_data,
         last_year_data, ease_of_business_data,):
