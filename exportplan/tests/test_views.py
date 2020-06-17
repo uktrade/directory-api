@@ -165,18 +165,22 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
 
     assert response.status_code == http.client.OK
     country_market_data = {
-        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'country': 'Mexico', 'export_duty': '1.5',
+        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
             {
                 'rank': 21, 'country_code': 'AUS', 'country_name': 'Australia', 'cpi_score_2019': 24
              },
-        'timezone': 'Australia/Lord_Howe',
-        'utz_offset': '+1030',
+        'timezone': 'America/Mexico_City',
+        'utz_offset': '-0500',
         'commodity_name': 'Gin',
     }
+
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
+    country_market_data['utz_offset'] = '+1030'
+    country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
 
 
@@ -199,7 +203,8 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
 
     assert response.status_code == http.client.OK
     country_market_data = {
-        'country': 'UK', 'export_duty': '1.5', 'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
+        'country': 'Mexico', 'export_duty': '1.5',
+        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
             {
@@ -207,13 +212,15 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
              },
         'historical_import_data': {'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
                                    'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200}},
-        'timezone': 'Australia/Lord_Howe',
-        'utz_offset': '+1030',
+        'timezone': 'America/Mexico_City',
+        'utz_offset': '-0500',
         'commodity_name': 'Gin',
     }
 
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
+    country_market_data['utz_offset'] = '+1030'
+    country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
 
