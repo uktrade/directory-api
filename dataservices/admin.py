@@ -58,3 +58,20 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
         'cpi_score_2019',
         'rank',
     )
+
+
+@admin.register(models.CIA_Factbook)
+class CIAFactbookAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+
+    search_fields = (
+        'country_key',
+        'country_name',
+    )
+
+    list_display = (
+        'country_key',
+        'country_name',
+    )
