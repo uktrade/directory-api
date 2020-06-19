@@ -62,7 +62,7 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.CIA_Factbook)
+@admin.register(models.CIAFactbook)
 class CIAFactbookAdmin(admin.ModelAdmin):
     formfield_overrides = {
         TextField: {'widget': forms.TextInput}

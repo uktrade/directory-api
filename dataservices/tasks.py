@@ -1,6 +1,6 @@
 from conf.celery import app
 from dataservices import helpers
-from dataservices.models import CIA_Factbook
+from dataservices.models import CIAFactbook
 from django.db import transaction
 import requests
 
@@ -27,11 +27,11 @@ def load_cia_factbook_data_from_url(url):
     # Eventually idea is to run the goland scripts to create the JSON on the fly and update the DB
     response = requests.get(url)
     data = response.json()
-    CIA_Factbook.objects.all().delete()
+    CIAFactbook.objects.all().delete()
     for country in data['countries']:
         country_name = data['countries'][country]['data']['name']
         country_data = data['countries'][country]['data']
-        CIA_Factbook(
+        CIAFactbook(
             country_key=country,
             country_name=country_name,
             factbook_data=country_data

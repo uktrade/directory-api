@@ -25,7 +25,7 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
         return self.country_name
 
 
-class CIA_Factbook(TimeStampedModel):
+class CIAFactbook(TimeStampedModel):
 
     country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)

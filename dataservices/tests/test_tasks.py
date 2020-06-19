@@ -1,7 +1,7 @@
 from unittest import mock
 import pytest
 from dataservices import helpers, tasks
-from dataservices.models import CIA_Factbook
+from dataservices.models import CIAFactbook
 import re
 
 
@@ -61,7 +61,7 @@ def test_pre_populate_comtrade_data_item(mock_get_last_year_import_data, mock_ge
 def test_load_cia_factbook_data_from_url(cia_factbook_request_mock, cia_factbook_data):
     url = 'https://raw.githubusercontent.com/iancoleman/cia_world_factbook_api/master/data/factbook.json'
     tasks.load_cia_factbook_data_from_url(url)
-    assert CIA_Factbook.objects.count() == 2
-    world = CIA_Factbook.objects.get(country_key='world')
+    assert CIAFactbook.objects.count() == 2
+    world = CIAFactbook.objects.get(country_key='world')
     assert world.country_name == cia_factbook_data['countries']['world']['data']['name']
     assert world.factbook_data == cia_factbook_data['countries']['world']['data']
