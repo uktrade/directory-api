@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 from core.helpers import TimeStampedModel
 
@@ -22,3 +23,16 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
     def __str__(self):
         return self.country_name
+
+
+class CIAFactbook(TimeStampedModel):
+
+    country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    factbook_data = JSONField(null=True, blank=True, default=dict)
+
+    def __str__(self):
+        return self.country_name
+
+    class Meta:
+        verbose_name = 'CIA Factbook'
