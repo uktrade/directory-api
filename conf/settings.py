@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'authbroker_client',
     'personalisation.apps.PersonalisationConfig',
     'dataservices.apps.DataservicesConfig',
+    'django_json_widget',
 ]
 
 MIDDLEWARE = [

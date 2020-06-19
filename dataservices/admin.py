@@ -4,6 +4,8 @@ from dataservices import models
 from django import forms
 from django.contrib import admin
 from django.db.models import TextField
+from django.contrib.postgres import fields
+from django_json_widget.widgets import JSONEditorWidget
 
 
 class EaseOfDoingBusinessResource(resources.ModelResource):
@@ -64,6 +66,9 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
 class CIAFactbookAdmin(admin.ModelAdmin):
     formfield_overrides = {
         TextField: {'widget': forms.TextInput}
+    }
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
     }
 
     search_fields = (
