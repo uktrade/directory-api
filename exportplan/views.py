@@ -36,3 +36,15 @@ class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class CompanyObjectivesRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.CompanyObjectivesSerializer
+    permission_classes = [IsAuthenticatedSSO]
+    queryset = models.CompanyObjectives.objects.all()
+    lookup_field = 'pk'
+
+
+class CompanyObjectivesListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CompanyObjectivesSerializer
+    permission_classes = [IsAuthenticatedSSO]

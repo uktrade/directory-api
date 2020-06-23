@@ -1,13 +1,24 @@
 # Changelog
 
 ## Pre release
+### Implemented enhancements
+MVP-581 - new objective fields
+MVP-432 - error on none-found companies
+No Ticket - remove redudant field on model
+GP2-125 - Add business objectives rest CRUD api
+GP2-154 - update country list
+GP2-168 - CIA Fackbook load data
 
-## Hotfix
-- No ticket - v3-cipipeline manifest.yml file fix
+### Bugs fixed
+- No ticket - Upgrade django and markdown to fix security vulnerability
+
+## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
 
 ### Implemented enhancements
 MVP-491 - Country API Demo
 MVP - More Flexible ExOps Api
+No ticket - v3-cipipeline manifest.yml file fix
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
@@ -32,7 +43,10 @@ MVP-369 - save historical data on safe signal
 MVP-386 - add country TZ
 MVP-387 - add commodity name to target markets
 MVP-398 - feature flag historical data
+MVP-416 - Personalise events by user sector and country of interest
 MVP-395 - cache comtrade data using backend cache
+MVP-479 - Brand Product Details
+MVP-474 - pre-populate dataservices cache task
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings

@@ -5,7 +5,6 @@ from airtable import Airtable
 
 from django.core.cache import cache
 from dataservices import models, serializers
-
 from datetime import datetime
 
 
@@ -41,10 +40,8 @@ class ComTradeData:
         comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
         if not comdata_df.empty:
             # Get Last two years data
-            historical_year_start = datetime.today().year-2
-            historical_year_end = historical_year_start-1
-            year_import = comdata_df[comdata_df.period == historical_year_start]
-            last_year_import = comdata_df[comdata_df.period == historical_year_end]['TradeValue'].iloc[0]
+            year_import = comdata_df[comdata_df.period == comdata_df.period.max()]
+            last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
 
             return {
                     'year': str(year_import.iloc[0]['period']),

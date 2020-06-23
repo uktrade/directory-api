@@ -16,9 +16,9 @@ class CompanyExportPlan(TimeStampedModel):
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
     rules_regulations = JSONField(null=True, blank=True, default=list)
+    brand_product_details = JSONField(null=True, blank=True, default=dict)
     # business objectives
     rational = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    planned_review = models.TextField(null=True, blank=True, default='', validators=[no_html])
     # Target Markets
     sectors = JSONField(null=True, blank=True, default=list)
     consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
@@ -35,9 +35,11 @@ class CompanyExportPlan(TimeStampedModel):
 
 class CompanyObjectives(TimeStampedModel):
     description = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)
+    planned_reviews = models.TextField(blank=True, default='', validators=[no_html])
+    owner = models.TextField(null=True, blank=True, max_length=100)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
     )

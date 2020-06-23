@@ -11,10 +11,12 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
         id = serializers.IntegerField(label='ID', read_only=False)
         fields = (
             'description',
+            'planned_reviews',
             'owner',
             'start_date',
             'end_date',
             'companyexportplan',
+            'pk'
         )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
@@ -53,7 +55,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_countries',
             'rules_regulations',
             'rational',
-            'planned_review',
             'sectors',
             'consumer_demand',
             'target_markets',
@@ -66,6 +67,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'pk',
             'company_objectives',
             'export_plan_actions',
+            'brand_product_details',
         )
 
     def create(self, validated_data):

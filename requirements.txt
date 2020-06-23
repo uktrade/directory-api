@@ -24,7 +24,7 @@ directory-constants==20.9.0
 directory-forms-api-client==5.1.0
 directory-healthcheck==2.0.0
 directory-sso-api-client==6.2.0
-directory-validators==6.0.0
+directory-validators==6.0.1
 dj-database-url==0.5.0
 django-admin-ip-restrictor==2.1.0
 django-celery-beat==1.5.0
@@ -39,7 +39,8 @@ django-redis==4.10.0
 django-staff-sso-client==1.0.0
 django-storages==1.8.0
 django-timezone-field==3.1  # via django-celery-beat
-django==2.2.10
+django_json_widget==1.0.1
+django==2.2.13
 djangorestframework==3.10.3
 docutils==0.14            # via botocore
 elasticsearch-dsl==6.4.0
@@ -47,6 +48,7 @@ elasticsearch==6.3.1      # via elasticsearch-dsl
 et-xmlfile==1.0.1         # via openpyxl
 factory-boy==2.12.0
 faker==1.0.7              # via factory-boy
+future==0.18.2            # via django-json-widget
 idna==2.6                 # via requests
 importlib-metadata==0.23  # via kombu
 iso3166==1.0.1
@@ -54,7 +56,7 @@ jdcal==1.4.1              # via openpyxl
 jmespath==0.9.3           # via boto3, botocore
 jsonschema==3.0.1         # via directory-components
 kombu==4.6.6
-markdown2==2.2.0
+markdown2==2.3.9
 markuppy==1.14            # via tablib
 mohawk==0.3.4             # via sigauth
 monotonic==1.5            # via directory-client-core
@@ -65,7 +67,7 @@ odfpy==1.4.1              # via tablib
 olefile==0.44             # via directory-validators
 openpyxl==3.0.3           # via tablib
 pandas==1.0.1
-pillow==6.2.1             # via directory-validators
+pillow==6.2.2             # via directory-validators
 psycopg2-binary==2.8.4
 pycparser==2.18           # via cffi
 pyopenssl==17.5.0         # via requests

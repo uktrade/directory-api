@@ -1,12 +1,12 @@
 import logging
 from rest_framework.response import Response
 from rest_framework import status, generics
-from requests.exceptions import HTTPError, RequestException
+from requests.exceptions import HTTPError
 from django.db.models import Count
 
+from company.helpers import CompanyParser
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
-import sentry_sdk
 
 logger = logging.getLogger(__name__)
 
@@ -55,40 +55,24 @@ class EventsView(generics.GenericAPIView):
             # CENTRE OF LONDON
             return [51.507351, -0.127758]
 
+    def get_search_terms(self):
+        company = self.request.user.company
+        parser = CompanyParser({
+            'expertise_industries': company.expertise_industries,
+            'expertise_countries': company.expertise_countries,
+        })
+        return [item for item in parser.expertise_labels_for_search if item]
+
     def get(self, *args, **kwargs):
-
         lat, lon = self.get_location()
-
-        try:
-            elasticsearch_query = helpers.build_query(lat, lon)
-            response = helpers.search_with_activitystream(elasticsearch_query)
-        except RequestException:
-            logger.error(
-                "Activity Stream connection for "
-                "Search failed. Query: '{}'".format(elasticsearch_query))
-            sentry_sdk.capture_message(
-                f"There was an error in /personalisation/events: \
-Activity Stream connection failed"
-            )
-            return Response(
-                status=500,
-                data={"error": "Activity Stream connection failed"}
-            )
-        else:
-            if response.status_code != 200:
-                sentry_sdk.capture_message(
-                    f"There was an error in /personalisation/events: \
-{response.content}"
-                )
-                return Response(
-                    status=response.status_code,
-                    data={"error": response.content}
-                )
-            else:
-                return Response(
-                    status=response.status_code,
-                    data=helpers.parse_results(response)
-                )
+        query = helpers.build_query(
+            lat=lat,
+            lon=lon,
+            terms=self.get_search_terms()
+        )
+        response = helpers.search_with_activitystream(query)
+        response.raise_for_status()
+        return Response(status=response.status_code, data=helpers.parse_results(response))
 
 
 class ExportOpportunitiesView(generics.GenericAPIView):

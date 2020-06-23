@@ -10,28 +10,47 @@ from personalisation import serializers
 
 
 def parse_results(response):
-    content = json.loads(response.content)
+    content = response.json()
     # Hash of data & metadata (e.g. number of results) to return from API
     # Currently only provides 'results' but scope to expand
     return {'results': serializers.parse_search_results(content)}
 
 
-def build_query(lat, lng):
+def build_query(lat, lon, terms):
+    should = [
+        {
+            'multi_match': {
+                'query': term,
+                'fields': ['content', 'name'],
+                'fuzziness': 'AUTO',
+            }
+
+        } for term in terms
+    ]
+    # events closer to the user's location will be ranked higher
     return json.dumps({
         'query': {
-          'match_all': {}
-        },
-        'sort': [{
-            '_geo_distance': {
-              'geocoordinates': {
-                'lat': str(lat),
-                'lon': str(lng)
-              },
-              'order': 'asc',
-              'unit': 'km',
-              'distance_type': 'arc'
+            'function_score': {
+                'query': {
+                    'bool': {
+                        'should': should,
+                        'minimum_should_match': 1,
+                        'filter': {
+                            'term': {
+                                'type': 'Event',
+                            }
+                            # TODO: filter by enddate
+                        }
+                    },
+                },
+                'exp':  {
+                    'geocoordinates': {
+                        'origin': f'{lat},{lon}',
+                        'scale': '5km',
+                    }
+                }
             }
-        }]
+        }
     })
 
 
