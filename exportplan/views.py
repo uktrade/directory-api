@@ -38,7 +38,7 @@ class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
 
 
-class CompanyObjectivesRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+class CompanyObjectivesRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CompanyObjectivesSerializer
     permission_classes = [IsAuthenticatedSSO]
     queryset = models.CompanyObjectives.objects.all()

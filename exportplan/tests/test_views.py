@@ -311,3 +311,17 @@ def test_export_plan_objectives_create(authed_client, authed_supplier, export_pl
     assert my_objective.description == data['description']
     assert my_objective.pk == data['pk']
     assert my_objective.planned_reviews == data['planned_reviews']
+
+
+@pytest.mark.django_db
+def test_export_plan_objectives_delete(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    my_objective = export_plan.company_objectives.all()[0]
+    url = reverse('export-plan-objectives-detail-update', kwargs={'pk': my_objective.pk})
+
+    response = authed_client.delete(url)
+    assert response.status_code == http.client.NO_CONTENT
+    assert not export_plan.company_objectives.all()
