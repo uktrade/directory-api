@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+GP2-113 - Remove company objectives update from export plan update
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
 No Ticket - remove redudant field on model
@@ -72,7 +73,7 @@ TT-2260 - Include email address when creating preverified links
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
-TT2247 - verification confirmation 
+TT2247 - verification confirmation
 
 ### Fixed bugs
 TT-2220 sent-verification-letters-in-error
@@ -128,8 +129,8 @@ No ticket - change admin confirm url
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
 - No ticket - Remove mobile number unique constraint
-- TT-1714 - Implement Collaborator Notifications 
-- TT-1841 - Send admin emails for exiting company in signals 
+- TT-1714 - Implement Collaborator Notifications
+- TT-1841 - Send admin emails for exiting company in signals
 - TT-1761 - Remove notification hasn't logged-in
 - TT-1923 - allow to programmatically change verification flags via testapi
 - TT-1910 - admin send new invite accepted email
@@ -140,7 +141,7 @@ No ticket - change admin confirm url
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
     ENSURE TO SET DATASCIENCE AWS SETTINGS IN VAULT
- 
+
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 - TT-1768 - Fix elasticsearch migrate
@@ -155,8 +156,8 @@ No ticket - change admin confirm url
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
 - TT-851 - Companies house status check admin upgrade
-- TT-1613 Reduce stannp to flag errors from <50 to <10 
-- TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON) 
+- TT-1613 Reduce stannp to flag errors from <50 to <10
+- TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON)
 - TT-1700 - Show error when user doesn't have staff status
 - TT-1735 - Forms & Directory-API SSO display message for 1st time users
 
