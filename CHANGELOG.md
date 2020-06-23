@@ -6,6 +6,8 @@
 - No ticket - v3-cipipeline manifest.yml file fix
 
 ### Implemented enhancements
+MVP-491 - Country API Demo
+MVP - More Flexible ExOps Api
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin

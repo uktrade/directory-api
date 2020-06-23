@@ -98,7 +98,7 @@ class ExportOpportunitiesView(generics.GenericAPIView):
         try:
             opportunities = helpers.get_opportunities(
                 self.request.user.hashed_uuid,
-                self.request.query_params.get('s', '')
+                self.request.query_params
             )
             if 'relevant_opportunities' in opportunities['data'].keys():
                 return Response(
