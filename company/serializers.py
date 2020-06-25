@@ -116,6 +116,7 @@ class CompanySerializer(serializers.ModelSerializer):
             'postal_code',
             'postal_full_name',
             'sectors',
+            'hs_codes',
             'slug',
             'summary',
             'supplier_case_studies',

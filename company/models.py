@@ -47,6 +47,7 @@ class Company(TimeStampedModel):
         blank=True,
     )
     sectors = JSONField(blank=True, default=list)
+    hs_codes = JSONField(blank=True, default=list)
     website = models.URLField(max_length=255, blank=True, default='')
     date_of_creation = models.DateField(blank=True, null=True)
     is_published_investment_support_directory = models.BooleanField(
@@ -230,3 +231,11 @@ class CollaborationRequest(TimeStampedModel):
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
     name = models.CharField(max_length=100, blank=True,)
+
+
+class HsCodeSector(models.Model):
+    hs_code = models.CharField(max_length=10)
+    sector = models.CharField(max_length=100, choices=choices.INDUSTRIES)
+
+    class Meta:
+        unique_together = ('hs_code', 'sector')

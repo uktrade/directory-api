@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+GP-96 - HS Codes saved on Country
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
 No Ticket - remove redudant field on model
