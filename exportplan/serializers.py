@@ -82,15 +82,11 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        objectives = {}
         actions = {}
-        if validated_data.get('company_objectives'):
-            objectives = validated_data.pop('company_objectives')
         if validated_data.get('export_plan_actions'):
             actions = validated_data.pop('export_plan_actions')
 
         super().update(instance, validated_data)
-        self.recreate_objectives(instance, objectives)
         self.recreate_actions(instance, actions)
         return instance
 

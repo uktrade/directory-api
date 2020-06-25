@@ -242,7 +242,7 @@ urlpatterns = [
     ),
     url(
         r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
-        exportplan.views.CompanyObjectivesRetrieveUpdateView.as_view(),
+        exportplan.views.CompanyObjectivesRetrieveUpdateDestroyView.as_view(),
         name='export-plan-objectives-detail-update'
     ),
     url(
