@@ -20,6 +20,14 @@
     $ source .venv/bin/activate
     $ make install_requirements
 
+### Getting started
+
+    $ createdb directory_api_debug
+    $ make manage migrate
+    $ make manage loaddata fixtures/development.json
+    $ make webserver
+
+
 ### Requirements
 [Python 3.6](https://www.python.org/downloads/release/python-368/)
 [Postgres 9.5](https://www.postgresql.org/)

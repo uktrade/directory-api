@@ -13,7 +13,7 @@ def escape_ansi(line):
     call_command output contains ANSI colour mark up, resulting in the shell
     showing the output in colour. That will interfere with code execution, so
     remote the ANSI colour mark up.
-    
+
     """
 
     return re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('', line)
