@@ -126,7 +126,7 @@ def test_get_corruptionperceptionsindex_not_found(api_client):
 
 
 @pytest.mark.django_db
-def test_get_worldeconomicoutlook(api_client):
+def test_get_world_economic_outlook(api_client):
     url = reverse(
         'dataservices-world-economic-outlook', kwargs={'country_code': 'CN'}
     )
