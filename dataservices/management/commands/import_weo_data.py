@@ -1,6 +1,7 @@
-from django.core.management import BaseCommand
 import tablib
 from import_export import resources
+from django.core.management import BaseCommand
+
 from dataservices.models import WorldEconomicOutlook
 
 

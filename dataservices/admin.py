@@ -72,7 +72,7 @@ class WorldEconomicOutlookAdmin(admin.ModelAdmin):
         'country_name',
         'country_code',
         'subject',
-        'scale'
+        'scale',
     )
 
     list_display = (
