@@ -263,7 +263,7 @@ urlpatterns = [
     url(
         r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
         dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
-        name='dataservices-worldeconomicoutlook'
+        name='dataservices-world-economic-outlook'
     ),
     url(
         r'^dataservices/lastyearimportdata/$',
