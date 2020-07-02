@@ -62,6 +62,30 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.WorldEconomicOutlook)
+class WorldEconomicOutlookAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+
+    search_fields = (
+        'country_name',
+        'country_code',
+        'subject',
+        'scale',
+    )
+
+    list_display = (
+        'country_name',
+        'country_code',
+        'subject',
+        'scale',
+        'units',
+        'year_2020',
+        'year_2021',
+    )
+
+
 @admin.register(models.CIAFactbook)
 class CIAFactbookAdmin(admin.ModelAdmin):
     formfield_overrides = {
