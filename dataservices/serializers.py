@@ -19,3 +19,10 @@ class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CorruptionPerceptionsIndex
         exclude = ['created', 'id', 'modified']
+
+
+class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.WorldEconomicOutlook
+        exclude = ['created', 'id', 'modified']
