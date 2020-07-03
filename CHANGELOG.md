@@ -9,6 +9,7 @@ No Ticket - remove redudant field on model
 GP2-125 - Add business objectives rest CRUD api
 GP2-154 - update country list
 GP2-168 - CIA Fackbook load data
+GP2-169 - WEO load data world economic  (view/management)
 
 ### Bugs fixed
 - No ticket - Migration fix for new build
