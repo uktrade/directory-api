@@ -396,5 +396,3 @@ class HsCodeSectorResource(ModelResource):
         model = models.HsCodeSector
         skip_unchanged = True
         fields = ['id', 'hs_code', 'product', 'sector']
-
-
