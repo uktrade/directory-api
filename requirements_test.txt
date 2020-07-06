@@ -42,8 +42,8 @@ django-redis==4.10.0
 django-staff-sso-client==1.0.0
 django-storages==1.8.0
 django-timezone-field==3.1  # via django-celery-beat
-django_json_widget==1.0.1
 django==2.2.13
+django_json_widget==1.0.1
 djangorestframework==3.10.3
 docutils==0.14            # via botocore
 elasticsearch-dsl==6.4.0
