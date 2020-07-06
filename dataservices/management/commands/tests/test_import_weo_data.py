@@ -10,7 +10,7 @@ from dataservices.models import WorldEconomicOutlook
 def test_create_search_data():
     WorldEconomicOutlook.objects.create(country_name='abc', country_code='a')
     management.call_command('import_weo_data')
-    assert WorldEconomicOutlook.objects.count() == 1554
+    assert WorldEconomicOutlook.objects.count() == 1552
 
 
 @pytest.mark.django_db
