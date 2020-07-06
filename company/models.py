@@ -235,7 +235,12 @@ class CollaborationRequest(TimeStampedModel):
 
 class HsCodeSector(models.Model):
     hs_code = models.CharField(max_length=10)
-    sector = models.CharField(max_length=100, choices=choices.INDUSTRIES)
+    product = models.TextField()
+    sector = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         unique_together = ('hs_code', 'sector')
+
+    def __str__(self):
+        return self.hs_code
+
