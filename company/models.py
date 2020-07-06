@@ -243,4 +243,3 @@ class HsCodeSector(models.Model):
 
     def __str__(self):
         return self.hs_code
-
