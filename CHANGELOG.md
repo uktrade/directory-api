@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+GP-96 - HS Codes saved on Country
 GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
