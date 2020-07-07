@@ -521,7 +521,8 @@ class DownloadCSVTestCase(TestCase):
     def test_download_csv(self):
         company = models.Company.objects.create(
             **COMPANY_DATA,
-            sectors=['TEST', 'FOO']
+            sectors=['TEST', 'FOO'],
+            hs_codes=['1', '2']
         )
         company_user = models.CompanyUser.objects.create(company=company, **SUPPLIER_DATA)
 
@@ -560,6 +561,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__facebook_url', ''),
             ('company__has_case_study', 'False'),
             ('company__has_exported_before', 'True'),
+            ('company__hs_codes', '"[\'1\', \'2\']"'),
             ('company__id', str(company_user.company.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
@@ -610,7 +612,8 @@ class DownloadCSVTestCase(TestCase):
     def test_download_csv_company_sectors_is_empty(self):
         company = models.Company.objects.create(
             **COMPANY_DATA,
-            sectors=[]
+            sectors=[],
+            hs_codes=[]
         )
         company_user = models.CompanyUser.objects.create(company=company, **SUPPLIER_DATA)
 
@@ -650,6 +653,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__facebook_url', ''),
             ('company__has_case_study', 'False'),
             ('company__has_exported_before', 'True'),
+            ('company__hs_codes', '[]'),
             ('company__id', str(company_user.company.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
@@ -740,6 +744,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__facebook_url', ''),
             ('company__has_case_study', 'True'),
             ('company__has_exported_before', 'True'),
+            ('company__hs_codes', '[]'),
             ('company__id', str(company1.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
@@ -808,6 +813,7 @@ class DownloadCSVTestCase(TestCase):
             ('company__facebook_url', ''),
             ('company__has_case_study', 'False'),
             ('company__has_exported_before', 'True'),
+            ('company__hs_codes', '[]'),
             ('company__id', str(company2.pk)),
             ('company__is_exporting_goods', 'False'),
             ('company__is_exporting_services', 'False'),
