@@ -13,6 +13,7 @@ GP2-169 - WEO load data world economic  (view/management)
 no-ticket - fix codecov status stuck
 
 ### Bugs fixed
+- No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
 
