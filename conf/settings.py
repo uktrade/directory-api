@@ -240,6 +240,11 @@ if DEBUG:
                 'level': 'ERROR',
                 'propagate': True,
             },
+            'faker': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
             'mohawk': {
                 'handlers': ['console'],
                 'level': 'WARNING',
