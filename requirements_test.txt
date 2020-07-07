@@ -16,7 +16,7 @@ celery[redis]==4.3.0
 certifi==2018.1.18        # via requests, sentry-sdk
 cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
-codecov==2.0.15
+codecov==2.1.7
 coverage==4.5.2           # via codecov, pytest-cov
 cryptography==2.8
 defusedxml==0.6.0         # via odfpy
