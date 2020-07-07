@@ -24,6 +24,10 @@ def reset_supplier_primary_key_sequence(apps, schema_editor):
     # the primary key sequence went out of sync because migraiton
     # 0002_auto_20180103_1159.py explicitly sets the id.
 
+    Supplier = apps.get_model("supplier", "Supplier")
+    if not Supplier.objects.exists():
+        return
+
     sql = escape_ansi(call_command('sqlsequencereset', 'supplier'))
     cursor = connection.cursor()
     cursor.execute(sql)

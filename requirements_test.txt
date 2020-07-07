@@ -16,7 +16,7 @@ celery[redis]==4.3.0
 certifi==2018.1.18        # via requests, sentry-sdk
 cffi==1.11.5              # via cryptography
 chardet==3.0.4            # via requests
-codecov==2.0.15
+codecov==2.1.7
 coverage==4.5.2           # via codecov, pytest-cov
 cryptography==2.8
 defusedxml==0.6.0         # via odfpy
@@ -42,8 +42,8 @@ django-redis==4.10.0
 django-staff-sso-client==1.0.0
 django-storages==1.8.0
 django-timezone-field==3.1  # via django-celery-beat
-django_json_widget==1.0.1
 django==2.2.13
+django_json_widget==1.0.1
 djangorestframework==3.10.3
 docutils==0.14            # via botocore
 elasticsearch-dsl==6.4.0
