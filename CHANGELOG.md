@@ -14,6 +14,7 @@ no-ticket - fix codecov status stuck
 
 ### Bugs fixed
 - No ticket - Upgrade django and markdown to fix security vulnerability
+- No Ticket - Faker spamming log message - only passing error message
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
