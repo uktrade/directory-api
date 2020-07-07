@@ -11,9 +11,12 @@ GP2-125 - Add business objectives rest CRUD api
 GP2-154 - update country list
 GP2-168 - CIA Fackbook load data
 GP2-169 - WEO load data world economic  (view/management)
+no-ticket - fix codecov status stuck
 
 ### Bugs fixed
+- No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
+- No Ticket - Faker spamming log message - only passing error message
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
