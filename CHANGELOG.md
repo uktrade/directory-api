@@ -17,6 +17,7 @@ no-ticket - fix codecov status stuck
 - No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
+- No Ticket - Migration leaf node 
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
