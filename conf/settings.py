@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'authbroker_client',
     'personalisation.apps.PersonalisationConfig',
     'dataservices.apps.DataservicesConfig',
+    'django_json_widget',
 ]
 
 MIDDLEWARE = [
@@ -235,6 +236,11 @@ if DEBUG:
         },
         'loggers': {
             'django.request': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'faker': {
                 'handlers': ['console'],
                 'level': 'ERROR',
                 'propagate': True,

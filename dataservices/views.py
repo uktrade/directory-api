@@ -31,6 +31,20 @@ class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
         return super().handle_exception(exc)
 
 
+class RetrieveWorldEconomicOutlook(generics.ListAPIView):
+    serializer_class = serializers.WorldEconomicOutlookSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        country_code = self.kwargs['country_code']
+        return models.WorldEconomicOutlook.objects.filter(country_code=country_code)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, Http404):
+            return Response(data={})
+        return super().handle_exception(exc)
+
+
 class RetrieveLastYearImportDataView(generics.GenericAPIView):
     permission_classes = []
 

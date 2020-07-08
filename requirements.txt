@@ -40,6 +40,7 @@ django-staff-sso-client==1.0.0  # via -r requirements.in
 django-storages==1.8.0    # via -r requirements.in
 django-timezone-field==3.1  # via django-celery-beat
 django==2.2.14            # via -r requirements.in, directory-client-core, directory-components, directory-constants, directory-healthcheck, directory-validators, django-admin-ip-restrictor, django-filter, django-import-export, django-redis, django-staff-sso-client, django-storages, django-timezone-field, sigauth
+django_json_widget==1.0.1  # via -r requirements.in
 djangorestframework==3.10.3  # via -r requirements.in, sigauth
 docutils==0.14            # via botocore
 elasticsearch-dsl==6.4.0  # via -r requirements.in
@@ -47,6 +48,7 @@ elasticsearch==6.3.1      # via elasticsearch-dsl
 et-xmlfile==1.0.1         # via openpyxl
 factory-boy==2.12.0       # via -r requirements.in
 faker==1.0.7              # via factory-boy
+future==0.18.2            # via django-json-widget
 idna==2.6                 # via requests
 importlib-metadata==0.23  # via kombu
 iso3166==1.0.1            # via -r requirements.in
@@ -54,7 +56,7 @@ jdcal==1.4.1              # via openpyxl
 jmespath==0.9.3           # via boto3, botocore
 jsonschema==3.0.1         # via directory-components
 kombu==4.6.6              # via -r requirements.in, celery
-markdown2==2.2.0          # via -r requirements.in
+markdown2==2.3.9          # via -r requirements.in
 markuppy==1.14            # via tablib
 mohawk==0.3.4             # via sigauth
 monotonic==1.5            # via directory-client-core

@@ -41,6 +41,40 @@ def corruptionperceptionsindex_data():
     )
 
 
+@pytest.fixture(autouse=True)
+def worldeconomicoutlook_data():
+    models.WorldEconomicOutlook.objects.create(
+        country_code='CN',
+        country_name='China',
+        subject='Gross domestic product',
+        scale='constant prices',
+        units='Percent change',
+        year_2020=323.21,
+        year_2021=1231.1,
+
+    )
+    models.WorldEconomicOutlook.objects.create(
+        country_code='CN',
+        country_name='China',
+        subject='Gross domestic product per capita, constant prices ',
+        scale='international dollars',
+        units='dollars',
+        year_2020=21234141,
+        year_2021=32432423,
+
+    )
+    models.WorldEconomicOutlook.objects.create(
+        country_code='IND',
+        country_name='India',
+        subject='Gross domestic product',
+        scale='constant prices',
+        units='Percent change',
+        year_2020=99,
+        year_2021=89,
+
+    )
+
+
 @pytest.mark.django_db
 def test_get_easeofdoingbusiness(api_client):
     url = reverse(
@@ -89,6 +123,42 @@ def test_get_corruptionperceptionsindex_not_found(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json() == {}
+
+
+@pytest.mark.django_db
+def test_get_world_economic_outlook(api_client):
+    url = reverse(
+        'dataservices-world-economic-outlook', kwargs={'country_code': 'CN'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    assert response.json() == [
+        {
+            'country_code': 'CN', 'country_name': 'China',
+            'subject': 'Gross domestic product per capita, constant prices ',
+            'scale': 'international dollars', 'units': 'dollars',
+            'year_2020': '21234141.000', 'year_2021': '32432423.000'},
+        {
+            'country_code': 'CN', 'country_name': 'China',
+            'subject': 'Gross domestic product', 'scale': 'constant prices',
+            'units': 'Percent change', 'year_2020': '323.210',
+            'year_2021': '1231.100'
+         }
+    ]
+
+
+@pytest.mark.django_db
+def test_get_worldeconomicoutlook_not_found(api_client):
+
+    url = reverse(
+        'dataservices-world-economic-outlook', kwargs={'country_code': 'xxx'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 @pytest.mark.django_db

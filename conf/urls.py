@@ -242,7 +242,7 @@ urlpatterns = [
     ),
     url(
         r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
-        exportplan.views.CompanyObjectivesRetrieveUpdateView.as_view(),
+        exportplan.views.CompanyObjectivesRetrieveUpdateDestroyView.as_view(),
         name='export-plan-objectives-detail-update'
     ),
     url(
@@ -259,6 +259,11 @@ urlpatterns = [
         r'^dataservices/corruption-perceptions-index/(?P<country_code>.*)/$',
         dataservices.views.RetrieveCorruptionPerceptionsIndex.as_view(),
         name='dataservices-corruptionperceptionsindex'
+    ),
+    url(
+        r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
+        name='dataservices-world-economic-outlook'
     ),
     url(
         r'^dataservices/lastyearimportdata/$',
