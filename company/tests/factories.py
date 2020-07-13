@@ -32,6 +32,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # TODO: Currently we can't use ImageField because of botocore issues
     # logo = factory.django.ImageField()
     sectors = factory.fuzzy.FuzzyChoice([i[0] for i in choices.INDUSTRIES])
+    hs_codes = ['1', '2']
     expertise_industries = factory.fuzzy.FuzzyChoice([i[0] for i in choices.INDUSTRIES])
     expertise_regions = factory.fuzzy.FuzzyChoice([i[0] for i in choices.EXPERTISE_REGION_CHOICES])
     expertise_languages = factory.fuzzy.FuzzyChoice([i[0] for i in choices.EXPERTISE_LANGUAGES])

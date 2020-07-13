@@ -39,6 +39,7 @@ default_public_profile_data = {
 default_ordering_values = {
     'keywords': '',
     'sectors': [],
+    'hs_codes': [],
     'expertise_industries': [],
     'expertise_regions': [],
     'expertise_languages': [],
@@ -90,6 +91,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'facebook_url': company.facebook_url,
         'has_exported_before': company.has_exported_before,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -156,6 +158,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -216,6 +219,7 @@ def test_company_partial_update(authed_client, authed_supplier):
         'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -258,6 +262,7 @@ def test_company_partial_update_no_company(authed_client, authed_supplier):
     data = {
         'name': 'Example company',
         'sectors': ['SOFTWARE_AND_COMPUTER_SERVICES'],
+        'hs_codes': ['3'],
         'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
         'expertise_countries': [
             choices.COUNTRY_CHOICES[23][0],
@@ -272,6 +277,7 @@ def test_company_partial_update_no_company(authed_client, authed_supplier):
     company = models.Company.objects.get(company_users__sso_id=authed_supplier.sso_id)
     assert company.name == data['name']
     assert company.sectors == data['sectors']
+    assert company.hs_codes == data['hs_codes']
     assert company.expertise_industries == data['expertise_industries']
     assert company.expertise_countries == data['expertise_countries']
     assert models.CompanyUser.objects.get(sso_id=authed_supplier.sso_id, company=company)

@@ -39,8 +39,4 @@ class Migration(migrations.Migration):
         ('supplier', '0002_auto_20180103_1159'),
     ]
 
-    operations = [
-        migrations.RunPython(
-            reset_supplier_primary_key_sequence, migrations.RunPython.noop
-        )
-    ]
+    operations = []
