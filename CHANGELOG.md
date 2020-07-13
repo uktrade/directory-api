@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+GP-96 - HS Codes saved on Country
 GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
 MVP-581 - new objective fields
 MVP-432 - error on none-found companies
@@ -17,6 +18,7 @@ GP2-187 - pull views cia-factbook
 - No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
+- No Ticket - Migration leaf node 
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
