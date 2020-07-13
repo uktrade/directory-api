@@ -46,6 +46,22 @@ def mock_historical_import_data(historical_import_data):
 
 
 @pytest.fixture(autouse=True)
+def world_economic_outlook_data():
+    return [
+        {
+            'country_name': 'Australia',
+            'country_code': 'AUS',
+            'year_2019': 20
+        }
+    ]
+
+
+@pytest.fixture(autouse=True)
+def cia_factbook_data():
+    return {'population': '60m', 'capital': 'London', 'currency': 'GBP'}
+
+
+@pytest.fixture(autouse=True)
 def mock_cpi(cpi_data):
     patch = mock.patch.object(helpers, 'get_corruption_perception_index', return_value=cpi_data)
     yield patch.start()
@@ -62,5 +78,19 @@ def mock_ease_of_business_index(ease_of_business_data):
 @pytest.fixture(autouse=True)
 def mock_madb_rules_regs(rule_regulations_data):
     patch = mock.patch.object(helpers.MADB, 'get_rules_and_regulations', return_value=rule_regulations_data)
+    yield patch.start()
+    patch.stop()
+
+
+@pytest.fixture(autouse=True)
+def mock_world_economic_outlook(world_economic_outlook_data):
+    patch = mock.patch.object(helpers, 'get_world_economic_outlook_data', return_value=world_economic_outlook_data)
+    yield patch.start()
+    patch.stop()
+
+
+@pytest.fixture(autouse=True)
+def mock_cia_factbook(cia_factbook_data):
+    patch = mock.patch.object(helpers, 'get_cia_factbook_data', return_value=cia_factbook_data)
     yield patch.start()
     patch.stop()

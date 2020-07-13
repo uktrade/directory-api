@@ -96,11 +96,11 @@ class CIAFactbookAdmin(admin.ModelAdmin):
     }
 
     search_fields = (
-        'country_code',
+        'country_key',
         'country_name',
     )
 
     list_display = (
-        'country_code',
+        'country_key',
         'country_name',
     )

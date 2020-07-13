@@ -167,14 +167,22 @@ def get_historical_import_data(country, commodity_code):
     return historical_data
 
 
-def get_cia_factbook_data(country_code, data_keys=None):
+def get_world_economic_outlook_data(country_code):
+    data = []
+    for record in models.WorldEconomicOutlook.objects.filter(country_code=country_code):
+        data.append(serializers.WorldEconomicOutlookSerializer(record).data)
+    serializer = serializers.WorldEconomicOutlookSerializer(data,  many=True)
+    return json.loads(json.dumps(serializer.data))
+
+
+def get_cia_factbook_data(country_name, data_keys=None):
     cia_factbook_data = {}
     try:
-        cia_data = models.CIAFactbook.objects.get(country_code=country_code).factbook_data
+        cia_data = models.CIAFactbook.objects.get(country_name=country_name).factbook_data
         if data_keys:
-            cia_keys_data = dict((key,value) for key, value in cia_data.items() if key in data_keys)
+            cia_keys_data = dict((key, value) for key, value in cia_data.items() if key in data_keys)
             cia_data = cia_keys_data
         return cia_data
     except models.CIAFactbook.DoesNotExist:
-       return {}
+        return {}
     return cia_factbook_data

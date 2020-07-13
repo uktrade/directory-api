@@ -31,7 +31,8 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
                 'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
                 'corruption_perceptions_index': helpers.get_corruption_perception_index(country_code),
                 'timezone': timezone,
-                'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z')
+                'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z'),
+                'world_economic_outlook_data': helpers.get_world_economic_outlook_data(country_code),
             })
 
         rules_regulations = helpers.MADB().get_rules_and_regulations(country)
@@ -42,6 +43,9 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
             # No regulations found but lets set some blanks for unknown data
             target_market['export_duty'] = ''
             target_market['commodity_name'] = ''
+        target_market['cia_factbook_data'] = helpers.get_cia_factbook_data(country_name=country, data_keys=[
+            'languages', 'government', 'transportation', 'people'
+        ])
 
         if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
             target_market[
