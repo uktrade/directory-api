@@ -174,9 +174,10 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
              },
         'timezone': 'America/Mexico_City',
         'utz_offset': '-0500',
+        'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
+        'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
         'commodity_name': 'Gin',
     }
-
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
     country_market_data['utz_offset'] = '+1030'
@@ -202,6 +203,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
     export_plan.refresh_from_db()
 
     assert response.status_code == http.client.OK
+
     country_market_data = {
         'country': 'Mexico', 'export_duty': '1.5',
         'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
@@ -214,6 +216,8 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
                                    'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200}},
         'timezone': 'America/Mexico_City',
         'utz_offset': '-0500',
+        'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
+        'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
         'commodity_name': 'Gin',
     }
 
