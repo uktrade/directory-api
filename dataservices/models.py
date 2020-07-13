@@ -40,7 +40,7 @@ class WorldEconomicOutlook(TimeStampedModel):
 
 class CIAFactbook(TimeStampedModel):
 
-    country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
     factbook_data = JSONField(null=True, blank=True, default=dict)
 

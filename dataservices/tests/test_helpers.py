@@ -4,6 +4,7 @@ from unittest import mock
 
 import re
 from dataservices import helpers, models
+from dataservices.tests import factories
 
 
 @pytest.fixture(autouse=True)
@@ -298,3 +299,31 @@ def test_get_last_year_import_data_helper_not_cached(
     assert mock_set_cache_value.call_args == mock.call(
         '["get_historical_import_data",{},["UK","847.1"]]', {'Historical': '2'}
     )
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_country_all_data():
+    factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data('UK')
+    assert cia_factbook_data == {'population': '60m', 'capital': 'London', 'currency': 'GBP'}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_country_not_found():
+    cia_factbook_data = helpers.get_cia_factbook_data('xyz')
+    assert cia_factbook_data == {}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_keys():
+    factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data(country_code='UK', data_keys=['capital', 'currency'])
+
+    assert cia_factbook_data == {'capital': 'London', 'currency': 'GBP'}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_keys_some_bad_Keys():
+    factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data(country_code='UK', data_keys=['capital', 'xyz'])
+    assert cia_factbook_data == {'capital': 'London'}

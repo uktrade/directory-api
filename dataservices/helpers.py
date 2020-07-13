@@ -165,3 +165,16 @@ def get_historical_import_data(country, commodity_code):
     comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
     historical_data = comtrade.get_all_historical_import_value()
     return historical_data
+
+
+def get_cia_factbook_data(country_code, data_keys=None):
+    cia_factbook_data = {}
+    try:
+        cia_data = models.CIAFactbook.objects.get(country_code=country_code).factbook_data
+        if data_keys:
+            cia_keys_data = dict((key,value) for key, value in cia_data.items() if key in data_keys)
+            cia_data = cia_keys_data
+        return cia_data
+    except models.CIAFactbook.DoesNotExist:
+       return {}
+    return cia_factbook_data
