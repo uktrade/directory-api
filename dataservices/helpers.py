@@ -178,7 +178,6 @@ def get_world_economic_outlook_data(country_code):
 
 @TTLCache()
 def get_cia_factbook_data(country_name, data_keys=None):
-    cia_factbook_data = {}
     try:
         cia_data = models.CIAFactbook.objects.get(country_name=country_name).factbook_data
         if data_keys:
@@ -187,4 +186,3 @@ def get_cia_factbook_data(country_name, data_keys=None):
         return cia_data
     except models.CIAFactbook.DoesNotExist:
         return {}
-    return cia_factbook_data
