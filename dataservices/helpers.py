@@ -167,6 +167,7 @@ def get_historical_import_data(country, commodity_code):
     return historical_data
 
 
+@TTLCache()
 def get_world_economic_outlook_data(country_code):
     data = []
     for record in models.WorldEconomicOutlook.objects.filter(country_code=country_code):
@@ -175,6 +176,7 @@ def get_world_economic_outlook_data(country_code):
     return json.loads(json.dumps(serializer.data))
 
 
+@TTLCache()
 def get_cia_factbook_data(country_name, data_keys=None):
     cia_factbook_data = {}
     try:
