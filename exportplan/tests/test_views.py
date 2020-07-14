@@ -128,6 +128,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         ],
         'pk': export_plan.pk
     }
+
     assert response.status_code == 200
     assert response.json() == data
 
