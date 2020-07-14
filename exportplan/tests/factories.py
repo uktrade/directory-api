@@ -23,6 +23,10 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     resource_needed = '5 people'
     spend_marketing = 3000.50
     brand_product_details = {'Location': 'London', 'story': 'new brand'}
+    research_consumer_demand = factory.fuzzy.FuzzyText(length=50)
+    research_competition = factory.fuzzy.FuzzyText(length=50)
+    research_product_trends = factory.fuzzy.FuzzyText(length=50)
+    research_unique_selling = factory.fuzzy.FuzzyText(length=50)
 
     class Meta:
         model = models.CompanyExportPlan
