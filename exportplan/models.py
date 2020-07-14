@@ -20,10 +20,7 @@ class CompanyExportPlan(TimeStampedModel):
     # business objectives
     rational = models.TextField(null=True, blank=True, default='', validators=[no_html])
     # Target Markets Research
-    research_consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    research_competition = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    research_product_trends = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    research_unique_selling = models.TextField(null=True, blank=True, default='', validators=[no_html])
+    target_markets_research = JSONField(null=True, blank=True, default=dict)
     # Target Markets
     sectors = JSONField(null=True, blank=True, default=list)
     consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
