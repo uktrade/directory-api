@@ -102,6 +102,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'promotion_channels': export_plan.promotion_channels,
         'resource_needed': export_plan.resource_needed,
         'spend_marketing': export_plan.spend_marketing,
+        'business_performance': export_plan.business_performance,
         'export_plan_actions': [
             {
                 'companyexportplan': export_plan.id,
@@ -124,6 +125,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         ],
         'pk': export_plan.pk
     }
+
     assert response.status_code == 200
     assert response.json() == data
 

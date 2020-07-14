@@ -13,6 +13,7 @@ GP2-168 - CIA Fackbook load data
 GP2-169 - WEO load data world economic  (view/management)
 no-ticket - fix codecov status stuck
 GP2-187 - pull views cia-factbook
+GP2-37 - add business-performance field
 
 ### Bugs fixed
 - No ticket - Migration fix for new build

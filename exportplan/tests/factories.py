@@ -23,6 +23,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     resource_needed = '5 people'
     spend_marketing = 3000.50
     brand_product_details = {'Location': 'London', 'story': 'new brand'}
+    business_performance = 'we have good performance figures'
 
     class Meta:
         model = models.CompanyExportPlan
