@@ -19,6 +19,8 @@ class CompanyExportPlan(TimeStampedModel):
     brand_product_details = JSONField(null=True, blank=True, default=dict)
     # business objectives
     rational = models.TextField(null=True, blank=True, default='', validators=[no_html])
+    # Target Markets Research
+    target_markets_research = JSONField(null=True, blank=True, default=dict)
     # Target Markets
     sectors = JSONField(null=True, blank=True, default=list)
     consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
