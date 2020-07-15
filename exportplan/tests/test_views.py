@@ -102,10 +102,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'promotion_channels': export_plan.promotion_channels,
         'resource_needed': export_plan.resource_needed,
         'spend_marketing': export_plan.spend_marketing,
-        'research_consumer_demand': export_plan.research_consumer_demand,
-        'research_competition': export_plan.research_competition,
-        'research_product_trends': export_plan.research_product_trends,
-        'research_unique_selling': export_plan.research_unique_selling,
+        'target_markets_research': export_plan.target_markets_research,
         'export_plan_actions': [
             {
                 'companyexportplan': export_plan.id,
