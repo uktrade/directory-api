@@ -64,7 +64,7 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         commodity_code = self.request.GET.get('commodity_code', '')
-        country = self.kwargs['country_code']
+        country = self.request.GET.get('country', '')
 
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
 
