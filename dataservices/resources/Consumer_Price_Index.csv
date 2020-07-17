@@ -1,0 +1,265 @@
+﻿country_name,country_code,value,year
+Aruba,ABW,109.5343554,2019
+Afghanistan,AFG,149.8959752,2019
+Angola,AGO,261.7272017,2019
+Albania,ALB,119.0492584,2019
+Andorra,AND,,
+Arab World,ARB,,
+United Arab Emirates,ARE,114.5246605,2019
+Argentina,ARG,232.7510917,2019
+Armenia,ARM,129.1760073,2019
+American Samoa,ASM,,
+Antigua and Barbuda,ATG,113.8076204,2018
+Australia,AUS,119.7970864,2019
+Austria,AUT,118.0579798,2019
+Azerbaijan,AZE,156.8914084,2019
+Burundi,BDI,182.11234,2019
+Belgium,BEL,117.1104572,2019
+Benin,BEN,110.7090955,2019
+Burkina Faso,BFA,108.3590229,2019
+Bangladesh,BGD,179.6798217,2019
+Bulgaria,BGR,114.4183932,2019
+Bahrain,BHR,117.5910781,2018
+"Bahamas, The",BHS,116.2189112,2019
+Bosnia and Herzegovina,BIH,104.8961374,2019
+Belarus,BLR,,
+Belize,BLZ,,
+Bermuda,BMU,,
+Bolivia,BOL,148.3175185,2019
+Brazil,BRA,167.3978603,2019
+Barbados,BRB,134.0911741,2019
+Brunei Darussalam,BRN,99.02681657,2019
+Bhutan,BTN,167.1824587,2019
+Botswana,BWA,149.7536988,2019
+Central African Republic,CAF,,
+Canada,CAN,116.7572982,2019
+Central Europe and the Baltics,CEB,,
+Switzerland,CHE,99.54691302,2019
+Channel Islands,CHI,,
+Chile,CHL,131.913567,2019
+China,CHN,125.0831557,2019
+Cote d'Ivoire,CIV,111.6069779,2019
+Cameroon,CMR,118.6485883,2019
+"Congo, Dem. Rep.",COD,,
+"Congo, Rep.",COG,124.7404961,2019
+Colombia,COL,140.9503739,2019
+Comoros,COM,,
+Cabo Verde,CPV,110.5016063,2019
+Costa Rica,CRI,128.8458694,2019
+Caribbean small states,CSS,,
+Cuba,CUB,,
+Curacao,CUW,115.5332021,2019
+Cayman Islands,CYM,,
+Cyprus,CYP,102.5109919,2019
+Czech Republic,CZE,116.475542,2019
+Germany,DEU,112.8548873,2019
+Djibouti,DJI,120.2509224,2019
+Dominica,DMA,103.8696284,2018
+Denmark,DNK,110.3472904,2019
+Dominican Republic,DOM,135.4986914,2019
+Algeria,DZA,151.3616678,2019
+East Asia & Pacific (excluding high income),EAP,,
+Early-demographic dividend,EAR,,
+East Asia & Pacific,EAS,,
+Europe & Central Asia (excluding high income),ECA,,
+Europe & Central Asia,ECS,,
+Ecuador,ECU,124.1426747,2019
+"Egypt, Arab Rep.",EGY,264.3750554,2018
+Euro area,EMU,,
+Eritrea,ERI,,
+Spain,ESP,110.961519,2019
+Estonia,EST,122.1423128,2019
+Ethiopia,ETH,143.8550862,2019
+European Union,EUU,,
+Fragile and conflict affected situations,FCS,,
+Finland,FIN,112.3317121,2019
+Fiji,FJI,132.2972456,2019
+France,FRA,110.0485668,2019
+Faroe Islands,FRO,,
+"Micronesia, Fed. Sts.",FSM,,
+Gabon,GAB,122.6279263,2019
+United Kingdom,GBR,119.6227113,2019
+Georgia,GEO,133.6124667,2019
+Ghana,GHA,268.360848,2019
+Gibraltar,GIB,,
+Guinea,GIN,262.9496921,2019
+"Gambia, The",GMB,172.7304356,2019
+Guinea-Bissau,GNB,,
+Equatorial Guinea,GNQ,124.3467228,2019
+Greece,GRC,101.9493921,2019
+Grenada,GRD,107.4262616,2018
+Greenland,GRL,,
+Guatemala,GTM,142.9213949,2019
+Guam,GUM,,
+Guyana,GUY,116.1914755,2019
+High income,HIC,,
+"Hong Kong SAR, China",HKG,134.5930529,2019
+Honduras,HND,150.3443578,2019
+Heavily indebted poor countries (HIPC),HPC,,
+Croatia,HRV,109.8156764,2019
+Haiti,HTI,179.2910955,2018
+Hungary,HUN,121.6420474,2019
+IBRD only,IBD,,
+IDA & IBRD total,IBT,,
+IDA total,IDA,,
+IDA blend,IDB,,
+Indonesia,IDN,151.1766751,2019
+IDA only,IDX,,
+Isle of Man,IMN,,
+India,IND,180.4358124,2019
+Not classified,INX,,
+Ireland,IRL,106.5843263,2019
+"Iran, Islamic Rep.",IRN,550.9294253,2019
+Iraq,IRQ,119.8571739,2018
+Iceland,ISL,129.0033312,2019
+Israel,ISR,108.150134,2019
+Italy,ITA,110.6235956,2019
+Jamaica,JAM,162.501817,2019
+Jordan,JOR,125.6040026,2019
+Japan,JPN,105.4821721,2019
+Kazakhstan,KAZ,182.75,2019
+Kenya,KEN,180.5148122,2018
+Kyrgyz Republic,KGZ,155.6761524,2019
+Cambodia,KHM,127.6334661,2018
+Kiribati,KIR,,
+St. Kitts and Nevis,KNA,104.5654385,2018
+"Korea, Rep.",KOR,115.1585874,2019
+Kuwait,KWT,126.6015121,2019
+Latin America & Caribbean (excluding high income),LAC,,
+Lao PDR,LAO,135.8662523,2019
+Lebanon,LBN,130.0246118,2019
+Liberia,LBR,223.129788,2018
+Libya,LBY,,
+St. Lucia,LCA,110.1320704,2018
+Latin America & Caribbean,LCN,,
+Least developed countries: UN classification,LDC,,
+Low income,LIC,,
+Liechtenstein,LIE,,2018
+Sri Lanka,LKA,155.528883,2019
+Lower middle income,LMC,,
+Low & middle income,LMY,,
+Lesotho,LSO,155.8581951,2019
+Late-demographic dividend,LTE,,
+Lithuania,LTU,118.3820983,2019
+Luxembourg,LUX,115.0878151,2019
+Latvia,LVA,116.8569846,2019
+"Macao SAR, China",MAC,140.1891696,2018
+St. Martin (French part),MAF,,
+Morocco,MAR,111.0675582,2019
+Monaco,MCO,,
+Moldova,MDA,166.1962796,2019
+Madagascar,MDG,184.3297364,2019
+Maldives,MDV,99.70402686,2019
+Middle East & North Africa,MEA,,
+Mexico,MEX,141.542523,2019
+Marshall Islands,MHL,,
+Middle income,MIC,,
+North Macedonia,MKD,113.3958333,2019
+Mali,MLI,108.7260798,2019
+Malta,MLT,113.4524741,2019
+Myanmar,MMR,168.1827007,2019
+Middle East & North Africa (excluding high income),MNA,,
+Montenegro,MNE,116.3201173,2018
+Mongolia,MNG,195.7629029,2019
+Northern Mariana Islands,MNP,,
+Mozambique,MOZ,182.3147834,2019
+Mauritania,MRT,135.0188968,2019
+Mauritius,MUS,129.9140349,2019
+Malawi,MWI,418.3443255,2019
+Malaysia,MYS,121.4630895,2019
+North America,NAC,,
+Namibia,NAM,157.968368,2019
+New Caledonia,NCL,,
+Niger,NER,109.3236868,2019
+Nigeria,NGA,267.5115151,2019
+Nicaragua,NIC,162.7396072,2019
+Netherlands,NLD,115.9079949,2019
+Norway,NOR,120.2696589,2019
+Nepal,NPL,188.7299772,2019
+Nauru,NRU,,
+New Zealand,NZL,114.2409118,2019
+OECD members,OED,,
+Oman,OMN,113.5292858,2019
+Other small states,OSS,,
+Pakistan,PAK,182.3203864,2019
+Panama,PAN,122.0687134,2019
+Peru,PER,129.7845443,2019
+Philippines,PHL,129.6132572,2019
+Palau,PLW,,
+Papua New Guinea,PNG,155.9923731,2019
+Poland,POL,114.1117794,2019
+Pre-demographic dividend,PRE,,
+Puerto Rico,PRI,,
+"Korea, Dem. People’s Rep.",PRK,,
+Portugal,PRT,110.6243586,2019
+Paraguay,PRY,143.821041,2019
+West Bank and Gaza,PSE,112.516118,2019
+Pacific island small states,PSS,,
+Post-demographic dividend,PST,,
+French Polynesia,PYF,,
+Qatar,QAT,115.3808498,2019
+Romania,ROU,123.7803833,2019
+Russian Federation,RUS,180.7502637,2019
+Rwanda,RWA,151.0893686,2019
+South Asia,SAS,,
+Saudi Arabia,SAU,118.3998255,2019
+Sudan,SDN,1344.192762,2019
+Senegal,SEN,109.2512702,2019
+Singapore,SGP,114.4057859,2019
+Solomon Islands,SLB,133.0620332,2019
+Sierra Leone,SLE,234.1587095,2019
+El Salvador,SLV,111.2283523,2019
+San Marino,SMR,,
+Somalia,SOM,,
+Serbia,SRB,143.9975736,2019
+Sub-Saharan Africa (excluding high income),SSA,,
+South Sudan,SSD,,
+Sub-Saharan Africa,SSF,,
+Small states,SST,,
+Sao Tome and Principe,STP,185.0895517,2018
+Suriname,SUR,294.6647727,2019
+Slovak Republic,SVK,115.3389877,2019
+Slovenia,SVN,111.0510749,2019
+Sweden,SWE,110.5092198,2019
+Eswatini,SWZ,162.5968983,2018
+Sint Maarten (Dutch part),SXM,,
+Seychelles,SYC,129.9581975,2019
+Syrian Arab Republic,SYR,,
+Turks and Caicos Islands,TCA,,
+Chad,TCD,117.6982047,2019
+East Asia & Pacific (IDA & IBRD countries),TEA,,
+Europe & Central Asia (IDA & IBRD countries),TEC,,
+Togo,TGO,113.2969293,2019
+Thailand,THA,113.26565,2019
+Tajikistan,TJK,,
+Turkmenistan,TKM,,
+Latin America & the Caribbean (IDA & IBRD countries),TLA,,
+Timor-Leste,TLS,145.3760087,2018
+Middle East & North Africa (IDA & IBRD countries),TMN,,
+Tonga,TON,,
+South Asia (IDA & IBRD),TSA,,
+Sub-Saharan Africa (IDA & IBRD countries),TSS,,
+Trinidad and Tobago,TTO,141.7532757,2018
+Tunisia,TUN,155.3253735,2019
+Turkey,TUR,234.4371263,2019
+Tuvalu,TUV,,
+Tanzania,TZA,187.4301589,2019
+Uganda,UGA,173.8712682,2019
+Ukraine,UKR,281.6585956,2019
+Upper middle income,UMC,,
+Uruguay,URY,202.9219834,2019
+United States,USA,117.2441955,2019
+Uzbekistan,UZB,,
+St. Vincent and the Grenadines,VCT,109.6656736,2018
+"Venezuela, RB",VEN,,
+British Virgin Islands,VGB,,
+Virgin Islands (U.S.),VIR,,
+Vietnam,VNM,163.5169479,2019
+Vanuatu,VUT,117.1296693,2019
+World,WLD,,
+Samoa,WSM,117.5555221,2019
+Kosovo,XKX,118.0656464,2019
+"Yemen, Rep.",YEM,,
+South Africa,ZAF,158.9279375,2019
+Zambia,ZMB,212.308759,2019
+Zimbabwe,ZWE,,
