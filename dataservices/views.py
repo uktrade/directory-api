@@ -64,7 +64,7 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
         commodity_code = self.request.GET.get('commodity_code', '')
-        country = self.request.GET.get('country', '')
+        country = self.kwargs['country_code']
 
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
 
@@ -72,4 +72,32 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
         return Response(
             status=status.HTTP_200_OK,
             data=historical_data
+        )
+
+
+class RetrieveCountryDataView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        country = self.kwargs['country']
+        country_data = {'consumer_price_index': {}, 'internet_usage': {}}
+        try:
+            instance = models.ConsumerPriceIndex.objects.get(
+                country_name=country)
+            serializer = serializers.ConsumerPriceIndexSerializer(instance)
+
+            country_data['consumer_price_index'] = serializer.data
+        except models.ConsumerPriceIndex.DoesNotExist:
+            pass
+        try:
+            instance = models.InternetUsage.objects.get(
+                country_name=country)
+            serializer = serializers.InternetUsageSerializer(instance)
+            country_data['internet_usage'] = serializer.data
+        except models.InternetUsage.DoesNotExist:
+            pass
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=country_data
         )
