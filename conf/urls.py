@@ -271,6 +271,11 @@ urlpatterns = [
         name='last-year-import-data'
     ),
     url(
+        r'^dataservices/cia-factbook-data/$',
+        dataservices.views.RetrieveCiaFactbooklDataView.as_view(),
+        name='cia-factbook-data'
+    ),
+    url(
         r'^dataservices/historicalimportdata/$',
         dataservices.views.RetrieveHistoricalImportDataView.as_view(),
         name='historical-import-data'
