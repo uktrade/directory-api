@@ -49,3 +49,24 @@ class CIAFactbook(TimeStampedModel):
 
     class Meta:
         verbose_name = 'CIA Factbook'
+
+
+class InternetUsage(TimeStampedModel):
+
+    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+    year = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.country_name
+
+
+class ConsumerPriceIndex(TimeStampedModel):
+    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+    year = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.country_name
