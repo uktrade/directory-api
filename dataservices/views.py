@@ -73,3 +73,31 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
             status=status.HTTP_200_OK,
             data=historical_data
         )
+
+
+class RetrieveCountryDataView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        country = self.kwargs['country']
+        country_data = {'consumer_price_index': {}, 'internet_usage': {}}
+        try:
+            instance = models.ConsumerPriceIndex.objects.get(
+                country_name=country)
+            serializer = serializers.ConsumerPriceIndexSerializer(instance)
+
+            country_data['consumer_price_index'] = serializer.data
+        except models.ConsumerPriceIndex.DoesNotExist:
+            pass
+        try:
+            instance = models.InternetUsage.objects.get(
+                country_name=country)
+            serializer = serializers.InternetUsageSerializer(instance)
+            country_data['internet_usage'] = serializer.data
+        except models.InternetUsage.DoesNotExist:
+            pass
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=country_data
+        )

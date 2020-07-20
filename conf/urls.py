@@ -266,6 +266,11 @@ urlpatterns = [
         name='dataservices-world-economic-outlook'
     ),
     url(
+        r'^dataservices/country-data/(?P<country>.*)/$',
+        dataservices.views.RetrieveCountryDataView.as_view(),
+        name='dataservices-country-data'
+    ),
+    url(
         r'^dataservices/lastyearimportdata/$',
         dataservices.views.RetrieveLastYearImportDataView.as_view(),
         name='last-year-import-data'

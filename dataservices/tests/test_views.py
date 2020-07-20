@@ -75,6 +75,22 @@ def worldeconomicoutlook_data():
     )
 
 
+@pytest.fixture(autouse=True)
+def country_data():
+    models.ConsumerPriceIndex.objects.create(
+        country_code='CNN',
+        country_name='Canada',
+        year=2019,
+        value=20.56
+    )
+    models.InternetUsage.objects.create(
+        country_code='CNN',
+        country_name='Canada',
+        year=2019,
+        value=20.23
+    )
+
+
 @pytest.mark.django_db
 def test_get_easeofdoingbusiness(api_client):
     url = reverse(
@@ -200,4 +216,67 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
     assert response.json() == {
         'historical_trade_value_partner': {'2017': 1000},
         'historical_trade_value_all': {'2017': 3000}
+    }
+
+
+@pytest.mark.django_db
+def test_get_country_data(api_client):
+    url = reverse(
+        'dataservices-country-data', kwargs={'country': 'Canada'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    assert response.json() == {
+        'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
+        'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
+    }
+
+
+@pytest.mark.django_db
+def test_get_country_data_not_found(api_client):
+    url = reverse(
+        'dataservices-country-data', kwargs={'country': 'xyz'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    assert response.json() == {'consumer_price_index': {}, 'internet_usage': {}}
+
+
+@pytest.mark.django_db
+def test_get_country_data_cpi_not_found(api_client):
+    models.ConsumerPriceIndex.objects.get(country_name='Canada').delete()
+    url = reverse(
+        'dataservices-country-data', kwargs={'country': 'Canada'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    assert response.json() == {
+        'consumer_price_index': {},
+        'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN',
+                           'value': '20.230', 'year': 2019}
+    }
+
+
+@pytest.mark.django_db
+def test_get_country_data_internet_not_found(api_client):
+
+    models.InternetUsage.objects.get(country_name='Canada').delete()
+    url = reverse(
+        'dataservices-country-data', kwargs={'country': 'Canada'}
+    )
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+
+    assert response.json() == {
+        'consumer_price_index': {'country_name': 'Canada',
+                                 'country_code': 'CNN', 'value': '20.560',
+                                 'year': 2019},
+        'internet_usage': {},
     }
