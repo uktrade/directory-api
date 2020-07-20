@@ -26,3 +26,17 @@ class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.WorldEconomicOutlook
         exclude = ['created', 'id', 'modified']
+
+
+class InternetUsageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.InternetUsage
+        exclude = ['created', 'id', 'modified']
+
+
+class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.InternetUsage
+        exclude = ['created', 'id', 'modified']
