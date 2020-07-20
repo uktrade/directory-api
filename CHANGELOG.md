@@ -13,11 +13,9 @@ GP2-168 - CIA Fackbook load data
 GP2-169 - WEO load data world economic  (view/management)
 no-ticket - fix codecov status stuck
 GP2-187 - pull views cia-factbook
-GP2-245 - generic view for CIA factbook
 GP2-183 - load internet access data from world bank
 GP2-244 - load internet consumer price index data from world bank
-
-
+GP2-245 - generic view for CIA factbook
 
 ### Bugs fixed
 - No ticket - Migration fix for new build
