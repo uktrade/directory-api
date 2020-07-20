@@ -351,9 +351,9 @@ def test_get_world_economic_outlook_data_not_found():
 
 @pytest.mark.django_db
 def test_get_cia_factbook_by_country_all_data():
-    factories.CIAFactBookFactory()
+    cia_factbook_data_test_data = factories.CIAFactBookFactory()
     cia_factbook_data = helpers.get_cia_factbook_data('United Kingdom')
-    assert cia_factbook_data == {'population': '60m', 'capital': 'London', 'currency': 'GBP'}
+    assert cia_factbook_data == cia_factbook_data_test_data.factbook_data
 
 
 @pytest.mark.django_db
