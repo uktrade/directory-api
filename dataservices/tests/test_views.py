@@ -76,6 +76,7 @@ def worldeconomicoutlook_data():
     )
 
 
+@pytest.fixture(autouse=True)
 def country_data():
     models.ConsumerPriceIndex.objects.create(
         country_code='CNN',
@@ -237,6 +238,7 @@ def test_get_cia_factbook_data(api_client):
     }
 
 
+@pytest.mark.django_db
 def test_get_country_data(api_client):
     url = reverse(
         'dataservices-country-data', kwargs={'country': 'Canada'}
@@ -252,6 +254,7 @@ def test_get_country_data(api_client):
     }
 
 
+@pytest.mark.django_db
 def test_get_country_data_not_found(api_client):
     url = reverse(
         'dataservices-country-data', kwargs={'country': 'xyz'}
