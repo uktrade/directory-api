@@ -101,3 +101,31 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             status=status.HTTP_200_OK,
             data=country_data
         )
+
+
+class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        country = self.request.GET.get('country', '')
+        data_key = self.request.GET.get('data_key')
+        try:
+            cia_factbook_data = models.CIAFactbook.objects.get(country_name=country).factbook_data
+
+            if data_key:
+                keys = data_key.replace(' ', '').split(',')
+                for k in keys:
+                    if cia_factbook_data.get(k) and keys[-1] != k:
+                        cia_factbook_data = cia_factbook_data[k]
+                    elif cia_factbook_data.get(k):
+                        # We are at the last keys lets return whole dict
+                        break
+                    else:
+                        cia_factbook_data = {}
+        except models.CIAFactbook.DoesNotExist:
+            cia_factbook_data = {}
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=cia_factbook_data
+        )
