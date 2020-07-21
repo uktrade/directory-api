@@ -1,9 +1,10 @@
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
+from unittest import mock
 
 from dataservices import models, helpers
-from unittest import mock
+from dataservices.tests import factories
 
 
 @pytest.fixture
@@ -89,6 +90,11 @@ def country_data():
         year=2019,
         value=20.23
     )
+
+
+@pytest.fixture(autouse=True)
+def cia_factbook_data():
+    return factories.CIAFactBookFactory()
 
 
 @pytest.mark.django_db
@@ -220,6 +226,19 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
 
 
 @pytest.mark.django_db
+def test_get_cia_factbook_data(api_client):
+
+    url = reverse('cia-factbook-data')
+    response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, languages'})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        'languages':
+            {'date': '2012', 'language': [{'name': 'English'}], 'note': 'test data'}
+    }
+
+
+@pytest.mark.django_db
 def test_get_country_data(api_client):
     url = reverse(
         'dataservices-country-data', kwargs={'country': 'Canada'}
@@ -231,6 +250,7 @@ def test_get_country_data(api_client):
     assert response.json() == {
         'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
         'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
+
     }
 
 
@@ -280,3 +300,43 @@ def test_get_country_data_internet_not_found(api_client):
                                  'year': 2019},
         'internet_usage': {},
     }
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_data_bad_country(api_client):
+
+    url = reverse('cia-factbook-data')
+    response = api_client.get(url, data={'country': 'xyz', 'data_key': 'people, languages'})
+
+    assert response.status_code == 200
+    assert response.json() == {}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_data_bad_first_key(api_client):
+
+    url = reverse('cia-factbook-data')
+    response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, xyz'})
+
+    assert response.status_code == 200
+    assert response.json() == {}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_data_bad_second_key(api_client):
+
+    url = reverse('cia-factbook-data')
+    response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'xyz, xyz'})
+
+    assert response.status_code == 200
+    assert response.json() == {}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_data_no_key(api_client):
+
+    url = reverse('cia-factbook-data')
+    response = api_client.get(url, data={'country': 'United Kingdom'})
+
+    assert response.status_code == 200
+    assert response.json() == models.CIAFactbook.objects.get(country_name='United Kingdom').factbook_data
