@@ -375,3 +375,106 @@ def test_get_cia_factbook_by_keys_some_bad_Keys():
     factories.CIAFactBookFactory()
     cia_factbook_data = helpers.get_cia_factbook_data(country_name='United Kingdom', data_keys=['capital', 'xyz'])
     assert cia_factbook_data == {'capital': 'London'}
+
+
+@pytest.mark.parametrize(
+    'sex, expected', [['male', 4636], ['female', 4555], ]
+)
+@pytest.mark.django_db
+def test_get_population_target_age_sex_data(sex, expected):
+    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
+        country='United Kingdom',
+        target_ages=['25-29', '30-34'],
+        sex=sex,
+    )
+    assert target_age_data == {f'{sex}_target_age_population': expected}
+
+
+@pytest.mark.django_db
+def test_get_population_target_age_sex_data_bad_country():
+    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
+        country='xyz',
+        target_ages=['25-29', '30-34'],
+        sex='male',
+    )
+    assert target_age_data == {}
+
+
+@pytest.mark.parametrize(
+    'classification, expected', [['urban', 56495], ['rural', 10839], ]
+)
+@pytest.mark.django_db
+def test_get_population_urban_rural_data(classification, expected):
+    population_data = helpers.PopulationData().get_population_urban_rural_data(
+        country='United Kingdom',
+        classification=classification,
+    )
+    assert population_data == {f'{classification}_population_total': expected}
+
+
+@pytest.mark.django_db
+def test_get_population_urban_rural_data_bad_country():
+    population_data = helpers.PopulationData().get_population_urban_rural_data(
+        country='jehfjh',
+        classification='urban',
+    )
+    assert population_data == {}
+
+
+@pytest.mark.django_db
+def test_get_population_total_data():
+    total_population = helpers.PopulationData().get_population_total_data(
+        country='United Kingdom',
+    )
+    assert total_population == {'total_population': 67888}
+
+
+@pytest.mark.django_db
+def test_get_population_total_data_bad_country():
+    total_population = helpers.PopulationData().get_population_total_data(
+        country='efwe',
+    )
+    assert total_population == {}
+
+
+@pytest.mark.parametrize(
+    'target_age_groups, expected',
+    [
+        [['0-14'], ['0-4', '5-9', '10-14']],
+        [['15-19', '25-34'], ['15-19', '25-29', '30-34']]
+    ]
+)
+@pytest.mark.django_db
+def test_get_mapped_age_groups(target_age_groups, expected):
+    mapped_ages = helpers.PopulationData().get_mapped_age_groups(target_age_groups)
+    assert mapped_ages == expected
+
+
+@pytest.mark.django_db
+def test_get_population_data():
+    population_data = helpers.PopulationData().get_population_data(
+        country='United Kingdom',
+        target_ages=['25-34', '35-44']
+    )
+
+    assert population_data == {
+        'country': 'United Kingdom',
+        'target_ages': ['25-34', '35-44'],
+        'year': 2020,
+        'male_target_age_population': 9064,
+        'female_target_age_population': 9023,
+        'urban_population_total': 56495,
+        'rural_population_total': 10839,
+        'total_population': 67888,
+        'urban_percentage': 0.832179,
+        'rural_percentage': 0.15966
+    }
+
+
+@pytest.mark.django_db
+def test_get_population_data_bad_country():
+    population_data = helpers.PopulationData().get_population_data(
+        country='ewfwe',
+        target_ages=['25-34', '35-44']
+    )
+    assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2020}
