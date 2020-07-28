@@ -129,3 +129,16 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
             status=status.HTTP_200_OK,
             data=cia_factbook_data
         )
+
+
+class RetrievePopulationDataView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        target_ages = self.request.GET.getlist('target_ages', [])
+        country = self.request.GET.get('country', '')
+        population_data = helpers.PopulationData().get_population_data(country=country, target_ages=target_ages)
+        return Response(
+            status=status.HTTP_200_OK,
+            data={'population_data': population_data},
+        )
