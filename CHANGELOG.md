@@ -16,7 +16,8 @@ GP2-187 - pull views cia-factbook
 GP2-183 - load internet access data from world bank
 GP2-244 - load internet consumer price index data from world bank
 GP2-245 - generic view for CIA factbook
-GP2-188 - population data un
+GP2-188 - population data from UN
+
 
 ### Bugs fixed
 - No ticket - Migration fix for new build
