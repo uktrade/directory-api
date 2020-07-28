@@ -340,3 +340,37 @@ def test_get_cia_factbook_data_no_key(api_client):
 
     assert response.status_code == 200
     assert response.json() == models.CIAFactbook.objects.get(country_name='United Kingdom').factbook_data
+
+
+@pytest.mark.django_db
+def test_population_data(api_client):
+    url = reverse('population-data')
+    response = api_client.get(url, data={'country': 'United Kingdom', 'target_ages': ['25-34', '35-44']})
+    assert response.status_code == 200
+    assert response.json() == {
+        'population_data':
+            {
+                'country': 'United Kingdom',
+                'target_ages': ['25-34', '35-44'],
+                'year': 2020,
+                'male_target_age_population': 9064,
+                'female_target_age_population': 9023,
+                'urban_population_total': 56495,
+                'rural_population_total': 10839,
+                'total_population': 67888,
+                'urban_percentage': 0.832179,
+                'rural_percentage': 0.15966,
+            }
+    }
+
+
+@pytest.mark.django_db
+def test_population_data_country_not_found(api_client):
+    url = reverse('population-data')
+    response = api_client.get(url, data={'country': 'e3fnkej', 'target_ages': ['25-34', '35-44']})
+
+    assert response.status_code == 200
+
+    assert response.json() == {
+        'population_data': {'country': 'e3fnkej', 'target_ages': ['25-34', '35-44'], 'year': 2020}
+    }
