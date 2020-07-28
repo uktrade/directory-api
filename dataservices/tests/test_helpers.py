@@ -461,6 +461,7 @@ def test_get_population_data():
         'country': 'United Kingdom',
         'target_ages': ['25-34', '35-44'],
         'year': 2020,
+        'total_target_age_population': 18087,
         'male_target_age_population': 9064,
         'female_target_age_population': 9023,
         'urban_population_total': 56495,

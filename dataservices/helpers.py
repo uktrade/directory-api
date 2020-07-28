@@ -134,6 +134,11 @@ class PopulationData:
                 population_data['rural_population_total']/population_data['total_population'], 6
             )
 
+        if population_data.get('male_target_age_population') and population_data.get('female_target_age_population'):
+            population_data['total_target_age_population'] = (
+                    population_data['male_target_age_population'] + population_data['female_target_age_population']
+                 )
+
         return population_data
 
     def get_mapped_age_groups(self, target_ages):
