@@ -232,7 +232,6 @@ def test_get_cia_factbook_data(api_client):
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, languages'})
 
     assert response.status_code == 200
-    print(response.json())
     assert response.json() == {
         'cia_factbook_data': {'languages': {'date': '2012', 'language': [{'name': 'English'}], 'note': 'test data'}}
     }
