@@ -96,10 +96,9 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             country_data['internet_usage'] = serializer.data
         except models.InternetUsage.DoesNotExist:
             pass
-
         return Response(
             status=status.HTTP_200_OK,
-            data=country_data
+            data={'country_data': country_data}
         )
 
 
@@ -119,7 +118,7 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
                         cia_factbook_data = cia_factbook_data[k]
                     elif cia_factbook_data.get(k):
                         # We are at the last keys lets return whole dict
-                        break
+                        cia_factbook_data = {k: cia_factbook_data.get(k)}
                     else:
                         cia_factbook_data = {}
         except models.CIAFactbook.DoesNotExist:
@@ -127,7 +126,7 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
 
         return Response(
             status=status.HTTP_200_OK,
-            data=cia_factbook_data
+            data={'cia_factbook_data': cia_factbook_data}
         )
 
 
