@@ -1,3 +1,6 @@
+from itertools import chain
+from datetime import datetime
+
 import requests
 import json
 import pandas
@@ -5,7 +8,6 @@ from airtable import Airtable
 
 from django.core.cache import cache
 from dataservices import models, serializers
-from datetime import datetime
 
 
 class ComTradeData:
@@ -84,6 +86,128 @@ class ComTradeData:
         historical_data['historical_trade_value_partner'] = country_data
         historical_data['historical_trade_value_all'] = world_data
         return historical_data
+
+
+class PopulationData:
+    un_male_pop_data = None
+    un_female_pop_data = None
+    un_rural_pop = None
+    un_urban_pop = None
+    year = 0
+
+    def __init__(self):
+        pandas.set_option('mode.chained_assignment', None)
+        self.un_male_pop_data = pandas.read_csv('dataservices/resources/world_population_medium_male.csv')
+        self.un_female_pop_data = pandas.read_csv('dataservices/resources/world_population_medium_female.csv')
+        self.un_rural_pop = pandas.read_csv('dataservices/resources/rural_population_annual.csv')
+        self.un_urban_pop = pandas.read_csv('dataservices/resources/urban_population_annual.csv')
+        self.year = datetime.today().year
+
+    def get_population_data(self, country, target_ages):
+        population_data = {
+            'country': country,
+            'target_ages': target_ages,
+            'year': self.year,
+        }
+
+        mapped_target_age_groups = self.get_mapped_age_groups(target_ages)
+
+        population_data.update(self.get_population_target_age_sex_data(
+            country=country, target_ages=mapped_target_age_groups, sex='male')
+        )
+        population_data.update(
+            self.get_population_target_age_sex_data(country=country, target_ages=mapped_target_age_groups, sex='female')
+        )
+        population_data.update(self.get_population_urban_rural_data(country=country, classification='urban'))
+        population_data.update(self.get_population_urban_rural_data(country=country, classification='rural'))
+        population_data.update(self.get_population_total_data(country=country))
+        if all([
+                population_data.get('urban_population_total'),
+                population_data.get('rural_population_total'),
+                population_data.get('total_population'),
+            ]
+        ):
+            population_data['urban_percentage'] = round(
+                population_data['urban_population_total']/population_data['total_population'], 6
+            )
+            population_data['rural_percentage'] = round(
+                population_data['rural_population_total']/population_data['total_population'], 6
+            )
+
+        if population_data.get('male_target_age_population') and population_data.get('female_target_age_population'):
+            population_data['total_target_age_population'] = (
+                    population_data['male_target_age_population'] + population_data['female_target_age_population']
+                 )
+
+        return population_data
+
+    def get_mapped_age_groups(self, target_ages):
+        # Function to convert inout target age groups to UN specfific age groups
+        age_map_dict = {
+            '0-14': ['0-4', '5-9', '10-14'],
+            '15-19': ['15-19'],
+            '20-24': ['20-24'],
+            '25-34': ['25-29', '30-34'],
+            '35-44': ['35-39', '40-44'],
+            '45-54': ['45-49', '50-54'],
+            '55-64': ['55-59', '60-64'],
+            '65+': ['65-69', '70-74', '75-79', '80-84', '85-89', '90-94', '95-99', '100+'],
+        }
+        mapped_ages = ([age_map_dict[v] for v in target_ages if v in age_map_dict.keys()])
+        return list(chain.from_iterable(mapped_ages))
+
+    def get_population_target_age_sex_data(self, country, target_ages, sex):
+        target_sex = sex.lower()
+        target_age_sex_data = {}
+
+        un_population_data = self.un_male_pop_data if target_sex == 'male' else self.un_female_pop_data
+        un_data_transponsed = un_population_data.melt(
+            ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
+        )
+        country_data = un_data_transponsed[
+            (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
+        ]
+        if not country_data.empty:
+            total_population_target_age = country_data[country_data.age_group.isin(target_ages)].age_value.sum()
+            target_age_sex_data[f'{target_sex}_target_age_population'] = total_population_target_age
+        return target_age_sex_data
+
+    def get_population_total_data(self, country):
+        total_population = {}
+
+        un_data_transponsed = self.un_female_pop_data.melt(
+            ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
+        )
+        female_country_data = un_data_transponsed[
+            (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
+        ]
+        un_data_transponsed = self.un_male_pop_data.melt(
+            ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
+        )
+        male_country_data = un_data_transponsed[
+            (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
+        ]
+
+        if not male_country_data.empty and not female_country_data.empty:
+            # Only send data if we found country year and data for both males/females
+            total_population['total_population'] = (
+                female_country_data.age_value.sum() + male_country_data.age_value.sum()
+            )
+        return total_population
+
+    def get_population_urban_rural_data(self, country, classification):
+        urban_rural_data = {}
+        target_classification = classification.lower()
+        un_population_data = self.un_urban_pop if target_classification == 'urban' else self.un_rural_pop
+        un_data_transponsed = un_population_data.melt(
+            ['country_name', 'country_code', ], var_name='year', value_name='year_value'
+        )
+        classified_data = un_data_transponsed[
+            (un_data_transponsed.country_name == country) & (un_data_transponsed.year == str(self.year))
+        ]
+        if not classified_data.empty:
+            urban_rural_data[f'{target_classification}_population_total'] = classified_data.year_value.sum()
+        return urban_rural_data
 
 
 class MADB:

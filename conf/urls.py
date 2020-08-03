@@ -266,14 +266,29 @@ urlpatterns = [
         name='dataservices-world-economic-outlook'
     ),
     url(
+        r'^dataservices/country-data/(?P<country>.*)/$',
+        dataservices.views.RetrieveCountryDataView.as_view(),
+        name='dataservices-country-data'
+    ),
+    url(
         r'^dataservices/lastyearimportdata/$',
         dataservices.views.RetrieveLastYearImportDataView.as_view(),
         name='last-year-import-data'
     ),
     url(
+        r'^dataservices/cia-factbook-data/$',
+        dataservices.views.RetrieveCiaFactbooklDataView.as_view(),
+        name='cia-factbook-data'
+    ),
+    url(
         r'^dataservices/historicalimportdata/$',
         dataservices.views.RetrieveHistoricalImportDataView.as_view(),
         name='historical-import-data'
+    ),
+    url(
+        r'^dataservices/population-data/$',
+        dataservices.views.RetrievePopulationDataView.as_view(),
+        name='population-data'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',
