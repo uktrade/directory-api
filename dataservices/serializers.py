@@ -38,5 +38,5 @@ class InternetUsageSerializer(serializers.ModelSerializer):
 class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = models.InternetUsage
+        model = models.ConsumerPriceIndex
         exclude = ['created', 'id', 'modified']
