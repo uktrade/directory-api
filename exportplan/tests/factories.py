@@ -18,7 +18,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     target_markets = [{'country': 'Mexico'}]
     compliance = [{'Change needed': 'lower units', 'Plan': 'less alcohol units'}]
     export_certificates = [{'Change needed': 'New Labels', 'Plan': 'Print new labels'}]
-    route_to_markets = [{'Description': 'selling to retailers', 'option': 'shipping'}]
+    marketing_approach = [{'Description': 'selling to retailers', 'option': 'shipping'}]
     promotion_channels = [{'Description': 'in-store', 'option': 'posters'}]
     resource_needed = '5 people'
     spend_marketing = 3000.50

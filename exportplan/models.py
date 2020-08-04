@@ -29,7 +29,7 @@ class CompanyExportPlan(TimeStampedModel):
     compliance = JSONField(null=True, blank=True, default=list)
     export_certificates = JSONField(null=True, blank=True, default=list)
     # Marketing Approach
-    route_to_markets = JSONField(null=True, blank=True, default=list)
+    marketing_approach = JSONField(null=True, blank=True, default=list)
     promotion_channels = JSONField(null=True, blank=True, default=list)
     resource_needed = models.TextField(null=True, blank=True, default='', validators=[no_html])
     spend_marketing = models.FloatField(null=True, default=None, unique=False)
