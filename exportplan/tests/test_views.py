@@ -5,7 +5,7 @@ from django.urls import reverse
 import http
 from conf import settings
 
-from exportplan.tests.factories import CompanyExportPlanFactory, CompanyObjectivesFactory, ExportPlanActionsFactory
+from exportplan.tests import factories
 from company.tests.factories import CompanyFactory
 from exportplan.models import CompanyExportPlan
 
@@ -29,9 +29,10 @@ def export_plan_data(company):
 
 @pytest.fixture
 def export_plan():
-    export_plan = CompanyExportPlanFactory.create()
-    CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    ExportPlanActionsFactory.create(companyexportplan=export_plan)
+    export_plan = factories.CompanyExportPlanFactory.create()
+    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
+    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
+    factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -66,9 +67,9 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_export_plan_list(authed_client, authed_supplier):
-    CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id+1)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id+1)
 
     response = authed_client.get(reverse('export-plan-list-create'))
 
@@ -123,6 +124,16 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
 
             }
         ],
+        'route_to_markets': [
+            {
+                'companyexportplan': export_plan.id,
+                'route': 'This is main route',
+                'promote': 'Online marketing',
+                'market_promotional_channel': 'Direct sales',
+                'pk': export_plan.route_to_markets.all()[0].pk,
+
+            }
+        ],
         'pk': export_plan.pk
     }
 
@@ -151,9 +162,9 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 def test_export_plan_target_markets_update_historical_disabled(authed_client, authed_supplier):
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
     CompanyExportPlan.objects.all().delete()
-    export_plan = CompanyExportPlanFactory.create()
-    CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    ExportPlanActionsFactory.create(companyexportplan=export_plan)
+    export_plan = factories.CompanyExportPlanFactory.create()
+    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
+    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
 
     authed_supplier.sso_id = export_plan.sso_id
     authed_supplier.company = export_plan.company
@@ -190,9 +201,9 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
 @pytest.mark.django_db
 def test_export_plan_target_markets_update_historical_enabled(authed_client, authed_supplier):
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = True
-    export_plan = CompanyExportPlanFactory.create()
-    CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    ExportPlanActionsFactory.create(companyexportplan=export_plan)
+    export_plan = factories.CompanyExportPlanFactory.create()
+    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
+    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
 
     authed_supplier.sso_id = export_plan.sso_id
     authed_supplier.company = export_plan.company
@@ -331,3 +342,81 @@ def test_export_plan_objectives_delete(authed_client, authed_supplier, export_pl
     response = authed_client.delete(url)
     assert response.status_code == http.client.NO_CONTENT
     assert not export_plan.company_objectives.all()
+
+
+@pytest.mark.django_db
+def test_route_to_market_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    route_to_market = export_plan.route_to_markets.all()[0]
+    url = reverse('export-plan-route-to-markets-detail-update', kwargs={'pk': route_to_market.pk})
+
+    data = {'promote': 'updated now'}
+
+    response = authed_client.patch(url, data, format='json')
+    route_to_market.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert route_to_market.promote == 'updated now'
+
+
+@pytest.mark.django_db
+def test_route_to_market_retrieve(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    route_to_market = export_plan.route_to_markets.all()[0]
+    url = reverse('export-plan-route-to-markets-detail-update', kwargs={'pk': route_to_market.pk})
+
+    response = authed_client.get(url)
+    data = response.json()
+    assert response.status_code == http.client.OK
+    assert route_to_market.pk == data['pk']
+    assert route_to_market.route == data['route']
+    assert route_to_market.promote == data['promote']
+    assert route_to_market.market_promotional_channel == data['market_promotional_channel']
+
+
+@pytest.mark.django_db
+def test_route_to_market_create(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-route-to-markets-list-create')
+
+    data = {
+            'companyexportplan': export_plan.id,
+            'route': 'newly created',
+            'promote': 'online',
+            'market_promotional_channel': 'facebook',
+    }
+
+    response = authed_client.post(url, data)
+
+    data = response.json()
+
+    assert response.status_code == http.client.CREATED
+    export_plan.refresh_from_db()
+    assert export_plan.route_to_markets.all().count() == 2
+    route_to_market = export_plan.route_to_markets.all()[0]
+    assert route_to_market.pk == data['pk']
+    assert route_to_market.route == data['route']
+    assert route_to_market.promote == data['promote']
+    assert route_to_market.market_promotional_channel == data['market_promotional_channel']
+
+
+@pytest.mark.django_db
+def test_route_to_market_delete(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    route_to_market = export_plan.route_to_markets.all()[0]
+    url = reverse('export-plan-route-to-markets-detail-update', kwargs={'pk': route_to_market.pk})
+
+    response = authed_client.delete(url)
+    assert response.status_code == http.client.NO_CONTENT
+    assert not export_plan.route_to_markets.all()

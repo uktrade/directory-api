@@ -42,6 +42,17 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
         model = models.CompanyObjectives
 
 
+class RouteToMarketsFactory(factory.django.DjangoModelFactory):
+
+    route = 'This is main route'
+    promote = 'Online marketing'
+    market_promotional_channel = 'Direct sales'
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.RouteToMarkets
+
+
 class ExportPlanActionsFactory(factory.django.DjangoModelFactory):
 
     owner = None
