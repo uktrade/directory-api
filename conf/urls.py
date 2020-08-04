@@ -251,12 +251,12 @@ urlpatterns = [
         name='export-plan-objectives-list-create'
     ),
     url(
-        r'^exportplan/company-route-to-markets/(?P<pk>[0-9]+)/$',
+        r'^exportplan/route-to-markets/(?P<pk>[0-9]+)/$',
         exportplan.views.RouteToMarketsUpdateDestroyView.as_view(),
         name='export-plan-route-to-markets-detail-update'
     ),
     url(
-        r'^exportplan/company-route-to-markets/$',
+        r'^exportplan/route-to-markets/$',
         exportplan.views.RouteToMarketsListCreateAPIView.as_view(),
         name='export-plan-route-to-markets-list-create'
     ),
