@@ -98,7 +98,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'target_markets': export_plan.target_markets,
         'compliance': export_plan.compliance,
         'export_certificates': export_plan.export_certificates,
-        'route_to_markets': export_plan.route_to_markets,
+        'marketing_approach': export_plan.marketing_approach,
         'promotion_channels': export_plan.promotion_channels,
         'resource_needed': export_plan.resource_needed,
         'spend_marketing': export_plan.spend_marketing,

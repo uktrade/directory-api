@@ -60,7 +60,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'target_markets',
             'compliance',
             'export_certificates',
-            'route_to_markets',
+            'marketing_approach',
             'promotion_channels',
             'resource_needed',
             'spend_marketing',
