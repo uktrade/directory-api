@@ -127,9 +127,9 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'route_to_markets': [
             {
                 'companyexportplan': export_plan.id,
-                'route': 'This is main route',
-                'promote': 'Online marketing',
-                'market_promotional_channel': 'Direct sales',
+                'route': export_plan.route_to_markets.all()[0].route,
+                'promote': export_plan.route_to_markets.all()[0].promote,
+                'market_promotional_channel': export_plan.route_to_markets.all()[0].market_promotional_channel,
                 'pk': export_plan.route_to_markets.all()[0].pk,
 
             }

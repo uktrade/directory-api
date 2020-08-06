@@ -44,9 +44,9 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
 
 class RouteToMarketsFactory(factory.django.DjangoModelFactory):
 
-    route = 'This is main route'
-    promote = 'Online marketing'
-    market_promotional_channel = 'Direct sales'
+    route = factory.fuzzy.FuzzyText(length=25)
+    promote = factory.fuzzy.FuzzyText(length=25)
+    market_promotional_channel = factory.fuzzy.FuzzyText(length=25)
     companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
 
     class Meta:
