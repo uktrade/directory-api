@@ -87,7 +87,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'company_objectives',
             'route_to_markets',
             'export_plan_actions',
-            'brand_product_details',
+            'about_your_business',
             'target_markets_research',
         )
 
