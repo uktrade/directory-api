@@ -47,6 +47,16 @@ class CompanyObjectives(TimeStampedModel):
     )
 
 
+class RouteToMarkets(TimeStampedModel):
+    route = models.TextField(null=True, default='', validators=[no_html])
+    promote = models.TextField(blank=True, default='', validators=[no_html])
+    market_promotional_channel = models.TextField(blank=True, default='', validators=[no_html])
+
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='route_to_markets', on_delete=models.CASCADE
+    )
+
+
 class ExportPlanActions(TimeStampedModel):
     TARGET_MARKET_CHOICES = ('TARGET_MARKETS', 'Target Markets')
     owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)

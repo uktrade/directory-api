@@ -42,6 +42,17 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
         model = models.CompanyObjectives
 
 
+class RouteToMarketsFactory(factory.django.DjangoModelFactory):
+
+    route = factory.fuzzy.FuzzyText(length=25)
+    promote = factory.fuzzy.FuzzyText(length=25)
+    market_promotional_channel = factory.fuzzy.FuzzyText(length=25)
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.RouteToMarkets
+
+
 class ExportPlanActionsFactory(factory.django.DjangoModelFactory):
 
     owner = None

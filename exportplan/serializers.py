@@ -24,6 +24,24 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
         }
 
 
+class RouteToMarketsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.RouteToMarkets
+        id = serializers.IntegerField(label='ID', read_only=False)
+        fields = (
+            'route',
+            'promote',
+            'market_promotional_channel',
+            'companyexportplan',
+            'pk'
+        )
+        extra_kwargs = {
+            # passed in by RouteToMarketsSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class ExportPlanActionsSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -45,6 +63,7 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True,  required=False, read_only=False)
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
+    route_to_markets = RouteToMarketsSerializer(many=True,  required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -66,6 +85,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'spend_marketing',
             'pk',
             'company_objectives',
+            'route_to_markets',
             'export_plan_actions',
             'brand_product_details',
             'target_markets_research',
