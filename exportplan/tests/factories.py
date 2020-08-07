@@ -4,6 +4,8 @@ import factory.fuzzy
 from exportplan import models
 from company.tests import factories
 
+from directory_constants import choices
+
 
 class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
 
@@ -44,8 +46,8 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
 
 class RouteToMarketsFactory(factory.django.DjangoModelFactory):
 
-    route = factory.fuzzy.FuzzyText(length=25)
-    promote = factory.fuzzy.FuzzyText(length=25)
+    route = factory.fuzzy.FuzzyChoice([i[0] for i in choices.MARKET_ROUTE_CHOICES])
+    promote = factory.fuzzy.FuzzyChoice([i[0] for i in choices.PRODUCT_PROMOTIONAL_CHOICES])
     market_promotional_channel = factory.fuzzy.FuzzyText(length=25)
     companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
 
