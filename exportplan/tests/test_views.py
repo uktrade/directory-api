@@ -8,6 +8,7 @@ from conf import settings
 from exportplan.tests import factories
 from company.tests.factories import CompanyFactory
 from exportplan.models import CompanyExportPlan
+from directory_constants import choices
 
 
 @pytest.fixture
@@ -353,13 +354,13 @@ def test_route_to_market_update(authed_client, authed_supplier, export_plan):
     route_to_market = export_plan.route_to_markets.all()[0]
     url = reverse('export-plan-route-to-markets-detail-update', kwargs={'pk': route_to_market.pk})
 
-    data = {'promote': 'updated now'}
+    data = {'route': choices.MARKET_ROUTE_CHOICES[0][0]}
 
     response = authed_client.patch(url, data, format='json')
     route_to_market.refresh_from_db()
 
     assert response.status_code == http.client.OK
-    assert route_to_market.promote == 'updated now'
+    assert route_to_market.route == choices.MARKET_ROUTE_CHOICES[0][0]
 
 
 @pytest.mark.django_db
@@ -389,8 +390,8 @@ def test_route_to_market_create(authed_client, authed_supplier, export_plan):
 
     data = {
             'companyexportplan': export_plan.id,
-            'route': 'newly created',
-            'promote': 'online',
+            'route': choices.MARKET_ROUTE_CHOICES[0][0],
+            'promote': choices.PRODUCT_PROMOTIONAL_CHOICES[0][0],
             'market_promotional_channel': 'facebook',
     }
 
