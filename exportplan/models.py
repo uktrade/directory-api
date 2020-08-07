@@ -5,6 +5,7 @@ from company.models import Company
 from django.contrib.postgres.fields import JSONField
 
 from directory_validators.string import no_html
+from directory_constants import choices
 
 
 class CompanyExportPlan(TimeStampedModel):
@@ -48,8 +49,8 @@ class CompanyObjectives(TimeStampedModel):
 
 
 class RouteToMarkets(TimeStampedModel):
-    route = models.TextField(null=True, default='', validators=[no_html])
-    promote = models.TextField(blank=True, default='', validators=[no_html])
+    route = models.CharField(max_length=30, default='', choices=choices.MARKET_ROUTE_CHOICES)
+    promote = models.CharField(max_length=30, default='', choices=choices.PRODUCT_PROMOTIONAL_CHOICES)
     market_promotional_channel = models.TextField(blank=True, default='', validators=[no_html])
 
     companyexportplan = models.ForeignKey(
