@@ -25,6 +25,7 @@ GP2-315 - route-to-market model/view new api
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
 - No Ticket - Migration leaf node 
+- GP2-360 - un-data match
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
