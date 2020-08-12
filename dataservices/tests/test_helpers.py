@@ -468,7 +468,7 @@ def test_get_population_data():
         'rural_population_total': 10839,
         'total_population': 67888,
         'urban_percentage': 0.832179,
-        'rural_percentage': 0.15966
+        'rural_percentage': 0.167821,
     }
 
 
