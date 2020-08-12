@@ -130,9 +130,7 @@ class PopulationData:
             population_data['urban_percentage'] = round(
                 population_data['urban_population_total']/population_data['total_population'], 6
             )
-            population_data['rural_percentage'] = round(
-                population_data['rural_population_total']/population_data['total_population'], 6
-            )
+            population_data['rural_percentage'] = 1 - population_data['urban_percentage']
 
         if population_data.get('male_target_age_population') and population_data.get('female_target_age_population'):
             population_data['total_target_age_population'] = (
