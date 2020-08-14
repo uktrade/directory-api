@@ -29,6 +29,8 @@ class CompanyExportPlan(TimeStampedModel):
     # Adaptation for international markets
     compliance = JSONField(null=True, blank=True, default=list)
     export_certificates = JSONField(null=True, blank=True, default=list)
+    # adaptation for your target target
+    adaptation_target_market = JSONField(null=True, blank=True, default=list)
     # Marketing Approach
     marketing_approach = JSONField(null=True, blank=True, default=list)
     promotion_channels = JSONField(null=True, blank=True, default=list)

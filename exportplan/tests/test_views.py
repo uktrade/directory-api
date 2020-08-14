@@ -105,6 +105,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'resource_needed': export_plan.resource_needed,
         'spend_marketing': export_plan.spend_marketing,
         'target_markets_research': export_plan.target_markets_research,
+        'adaptation_target_market': export_plan.adaptation_target_market,
         'export_plan_actions': [
             {
                 'companyexportplan': export_plan.id,
