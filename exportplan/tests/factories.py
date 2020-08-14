@@ -25,6 +25,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     spend_marketing = 3000.50
     about_your_business = {'Location': 'London', 'story': 'new brand'}
     target_markets_research = {'demand': 'high', 'value': 'high'}
+    adaptation_target_market = {'labelling': 'manual', 'size': '2l'}
 
     class Meta:
         model = models.CompanyExportPlan
