@@ -89,6 +89,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_plan_actions',
             'about_your_business',
             'target_markets_research',
+            'adaptation_target_market',
         )
 
     def create(self, validated_data):
