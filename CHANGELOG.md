@@ -19,6 +19,7 @@ GP2-245 - generic view for CIA factbook
 GP2-188 - population data from UN
 GP2-316 - rename json field from target markets to market approach
 GP2-315 - route-to-market model/view new api 
+GP2-393 - model changes adaption target markets fields 
 
 ### Bugs fixed
 - No ticket - Migration fix for new build
