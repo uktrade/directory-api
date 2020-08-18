@@ -42,6 +42,23 @@ class RouteToMarketsSerializer(serializers.ModelSerializer):
         }
 
 
+class TargetMarketDocumentsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TargetMarketDocuments
+        id = serializers.IntegerField(label='ID', read_only=False)
+        fields = (
+            'document_name',
+            'note',
+            'companyexportplan',
+            'pk'
+        )
+        extra_kwargs = {
+            # passed in by RouteToMarketsSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class ExportPlanActionsSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -64,6 +81,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True,  required=False, read_only=False)
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True,  required=False, read_only=False)
+    target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -90,6 +108,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'about_your_business',
             'target_markets_research',
             'adaptation_target_market',
+            'target_market_documents',
         )
 
     def create(self, validated_data):

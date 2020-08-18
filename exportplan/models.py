@@ -69,3 +69,12 @@ class ExportPlanActions(TimeStampedModel):
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
     )
+
+
+class TargetMarketDocuments(TimeStampedModel):
+    document_name = models.TextField(blank=True, default='', validators=[no_html])
+    note = models.TextField(blank=True, default='', validators=[no_html])
+
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='target_market_documents', on_delete=models.CASCADE
+    )

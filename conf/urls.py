@@ -261,6 +261,16 @@ urlpatterns = [
         name='export-plan-route-to-markets-list-create'
     ),
     url(
+        r'^exportplan/target-market-documents/(?P<pk>[0-9]+)/$',
+        exportplan.views.TargetMarketDocumentsUpdateDestroyView.as_view(),
+        name='export-plan-target-market-documents-detail-update'
+    ),
+    url(
+        r'^exportplan/target-market-documents/$',
+        exportplan.views.TargetMarketDocumentsCreateAPIView.as_view(),
+        name='export-plan-target-market-documents-list-create'
+    ),
+    url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
         dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
         name='dataservices-easeofdoingbusiness-index'

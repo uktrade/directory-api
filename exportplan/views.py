@@ -60,3 +60,15 @@ class RouteToMarketsUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class RouteToMarketsListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = serializers.RouteToMarketsSerializer
     permission_classes = [IsAuthenticatedSSO]
+
+
+class TargetMarketDocumentsUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = serializers.TargetMarketDocumentsSerializer
+    permission_classes = [IsAuthenticatedSSO]
+    queryset = models.TargetMarketDocuments.objects.all()
+    lookup_field = 'pk'
+
+
+class TargetMarketDocumentsCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.TargetMarketDocumentsSerializer
+    permission_classes = [IsAuthenticatedSSO]

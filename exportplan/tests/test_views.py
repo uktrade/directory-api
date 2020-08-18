@@ -25,6 +25,7 @@ def export_plan_data(company):
         'rules_regulations': {'rules': '0.001'},
         'company_objectives': [{'description': 'export 5k cases of wine'}, ],
         'export_plan_actions': [{'is_reminders_on': True, 'action_type': 'TARGET_MARKETS', }]
+
     }
 
 
@@ -34,6 +35,7 @@ def export_plan():
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
     factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
+    factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -136,9 +138,17 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
 
             }
         ],
+        'target_market_documents': [
+            {
+                'companyexportplan': export_plan.id,
+                'document_name': export_plan.target_market_documents.all()[0].document_name,
+                'note': export_plan.target_market_documents.all()[0].note,
+                'pk': export_plan.target_market_documents.all()[0].pk,
+
+            }
+        ],
         'pk': export_plan.pk
     }
-
     assert response.status_code == 200
     assert response.json() == data
 
@@ -422,3 +432,76 @@ def test_route_to_market_delete(authed_client, authed_supplier, export_plan):
     response = authed_client.delete(url)
     assert response.status_code == http.client.NO_CONTENT
     assert not export_plan.route_to_markets.all()
+
+
+@pytest.mark.django_db
+def test_target_market_doc_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    target_market_docs = export_plan.target_market_documents.all()[0]
+    url = reverse('export-plan-target-market-documents-detail-update', kwargs={'pk': target_market_docs.pk})
+
+    data = {'document_name': 'update me'}
+    response = authed_client.patch(url, data, format='json')
+    target_market_docs.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert target_market_docs.document_name == data['document_name']
+
+
+@pytest.mark.django_db
+def test_target_market_doc_retrieve(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    target_market_docs = export_plan.target_market_documents.all()[0]
+    url = reverse('export-plan-target-market-documents-detail-update', kwargs={'pk': target_market_docs.pk})
+    response = authed_client.get(url)
+    data = response.json()
+    assert response.status_code == http.client.OK
+    assert target_market_docs.pk == data['pk']
+    assert target_market_docs.document_name == data['document_name']
+    assert target_market_docs.note == data['note']
+
+
+@pytest.mark.django_db
+def test_target_market_doc_create(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-target-market-documents-list-create')
+
+    data = {
+            'companyexportplan': export_plan.id,
+            'document_name': 'name update',
+            'note': 'new notes',
+    }
+
+    response = authed_client.post(url, data)
+
+    data = response.json()
+
+    assert response.status_code == http.client.CREATED
+    export_plan.refresh_from_db()
+    assert export_plan.target_market_documents.all().count() == 2
+    adaptation_docs = export_plan.target_market_documents.all()[0]
+    assert adaptation_docs.pk == data['pk']
+    assert adaptation_docs.document_name == data['document_name']
+    assert adaptation_docs.note == data['note']
+
+
+@pytest.mark.django_db
+def test_adaptation_target_market_doc_delete(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    target_market_docs = export_plan.target_market_documents.all()[0]
+    url = reverse('export-plan-target-market-documents-detail-update', kwargs={'pk': target_market_docs.pk})
+
+    response = authed_client.delete(url)
+    assert response.status_code == http.client.NO_CONTENT
+    assert not export_plan.target_market_documents.all()
