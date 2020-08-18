@@ -20,6 +20,7 @@ GP2-188 - population data from UN
 GP2-316 - rename json field from target markets to market approach
 GP2-315 - route-to-market model/view new api 
 GP2-393 - model changes adaption target markets fields 
+GP2-395 - add target market documents
 
 ### Bugs fixed
 - No ticket - Migration fix for new build
