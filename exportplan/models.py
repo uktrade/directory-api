@@ -51,8 +51,10 @@ class CompanyObjectives(TimeStampedModel):
 
 
 class RouteToMarkets(TimeStampedModel):
-    route = models.CharField(max_length=30, default='', choices=choices.MARKET_ROUTE_CHOICES)
-    promote = models.CharField(max_length=30, default='', choices=choices.PRODUCT_PROMOTIONAL_CHOICES)
+    route = models.CharField(max_length=30,  blank=True, null=True, default='', choices=choices.MARKET_ROUTE_CHOICES)
+    promote = models.CharField(
+        max_length=30, blank=True, null=True,  default='', choices=choices.PRODUCT_PROMOTIONAL_CHOICES
+    )
     market_promotional_channel = models.TextField(blank=True, default='', validators=[no_html])
 
     companyexportplan = models.ForeignKey(
