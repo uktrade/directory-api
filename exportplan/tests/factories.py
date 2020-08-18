@@ -65,3 +65,12 @@ class ExportPlanActionsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.ExportPlanActions
+
+
+class TargetMarketDocumentsFactory(factory.django.DjangoModelFactory):
+    document_name = factory.fuzzy.FuzzyText(length=50)
+    note = factory.fuzzy.FuzzyText(length=50)
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.TargetMarketDocuments
