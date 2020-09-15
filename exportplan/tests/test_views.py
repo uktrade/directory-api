@@ -183,14 +183,14 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
     authed_supplier.save()
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
-    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia', 'export_duty': 1.5}]}
+    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia', }]}
 
     response = authed_client.patch(url, data, format='json')
     export_plan.refresh_from_db()
 
     assert response.status_code == http.client.OK
     country_market_data = {
-        'country': 'Mexico', 'export_duty': '1.5',
+        'country': 'Mexico',
         'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
@@ -201,7 +201,6 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
         'utz_offset': '-0500',
         'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
         'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
-        'commodity_name': 'Gin',
     }
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
@@ -222,7 +221,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
     authed_supplier.save()
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
-    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia', 'export_duty': 1.5}]}
+    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia'}]}
 
     response = authed_client.patch(url, data, format='json')
     export_plan.refresh_from_db()
@@ -230,7 +229,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
     assert response.status_code == http.client.OK
 
     country_market_data = {
-        'country': 'Mexico', 'export_duty': '1.5',
+        'country': 'Mexico',
         'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
         'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
         'corruption_perceptions_index':
@@ -243,7 +242,6 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
         'utz_offset': '-0500',
         'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
         'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
-        'commodity_name': 'Gin',
     }
 
     assert export_plan.target_markets[0] == country_market_data

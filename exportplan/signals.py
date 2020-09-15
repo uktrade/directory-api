@@ -35,14 +35,6 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
                 'world_economic_outlook_data': helpers.get_world_economic_outlook_data(country_code),
             })
 
-        rules_regulations = helpers.MADB().get_rules_and_regulations(country)
-        if rules_regulations:
-            target_market['export_duty'] = rules_regulations['export_duty']
-            target_market['commodity_name'] = rules_regulations['commodity_name']
-        else:
-            # No regulations found but lets set some blanks for unknown data
-            target_market['export_duty'] = ''
-            target_market['commodity_name'] = ''
         target_market['cia_factbook_data'] = helpers.get_cia_factbook_data(country_name=country, data_keys=[
             'languages', 'government', 'transportation', 'people'
         ])
