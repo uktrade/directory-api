@@ -15,28 +15,6 @@ def comtrade():
     )
 
 
-@pytest.fixture(autouse=True)
-def mock_airtable_search():
-    airtable_data = [
-        {
-            'id': '1',
-            'fields':
-                {
-                    'Country': 'India',
-                    'Export Duty': 1.5,
-                },
-        },
-    ]
-    patch = mock.patch.object(helpers.Airtable, 'search', return_value=airtable_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def madb():
-    return helpers.MADB()
-
-
 @pytest.fixture()
 def comtrade_data():
     return {"dataset":
@@ -142,18 +120,6 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
         'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
     }
-
-
-def test_get_madb_commodity_list(madb):
-    commodity_list = madb.get_madb_commodity_list()
-    assert commodity_list == {
-        ('2208.50.12', 'Gin and Geneva 2l - 2208.50.12'), ('2208.50.13', 'Gin and Geneva - 2208.50.13')
-    }
-
-
-def test_get_madb_country_list(madb):
-    country_list = madb.get_madb_country_list()
-    assert country_list == [('Australia', 'Australia'), ('China', 'China')]
 
 
 @pytest.mark.django_db
