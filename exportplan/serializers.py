@@ -77,6 +77,16 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
         }
 
 
+class ExportPlanCountrySerializer(serializers.Serializer):
+    country_name = serializers.CharField(required=True)
+    country_iso2_code = serializers.CharField(required=False, allow_null=True)
+
+
+class ExportPlanCommodityCodeSerializer(serializers.Serializer):
+    commodity_name = serializers.CharField(required=True)
+    commodity_code = serializers.CharField(required=True)
+
+
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True,  required=False, read_only=False)
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
@@ -88,9 +98,9 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         fields = (
             'company',
             'sso_id',
-            'export_commodity_codes',
-            'export_countries',
             'rules_regulations',
+            'export_countries',
+            'export_commodity_codes',
             'rational',
             'sectors',
             'consumer_demand',
@@ -110,6 +120,18 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'adaptation_target_market',
             'target_market_documents',
         )
+
+    def validate_export_countries(self, value):
+        for v in value:
+            serializer = ExportPlanCountrySerializer(data=v)
+            serializer.is_valid(raise_exception=True)
+        return value
+
+    def validate_export_commodity_codes(self, value):
+        for v in value:
+            serializer = ExportPlanCommodityCodeSerializer(data=v)
+            serializer.is_valid(raise_exception=True)
+        return value
 
     def create(self, validated_data):
 
