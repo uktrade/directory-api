@@ -20,8 +20,8 @@ def company():
 def export_plan_data(company):
     return {
         'company': company.pk,
-        'export_commodity_codes': ['10101010', ],
-        'export_countries': ['CN', ],
+        'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
+        'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
         'rules_regulations': {'rules': '0.001'},
         'company_objectives': [{'description': 'export 5k cases of wine'}, ],
         'export_plan_actions': [{'is_reminders_on': True, 'action_type': 'TARGET_MARKETS', }]
@@ -160,7 +160,7 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
     authed_supplier.save()
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
-    data = {'export_commodity_codes': ['2015.01.20.15']}
+    data = {'export_commodity_codes': [{'commodity_name': 'vodka', 'commodity_code': '104.2402.123'}]}
     assert export_plan.export_commodity_codes != data['export_commodity_codes']
 
     response = authed_client.patch(url, data, format='json')
