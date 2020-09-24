@@ -9,8 +9,8 @@ from directory_constants import choices
 class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
 
     company = factory.SubFactory(factories.CompanyFactory)
-    export_countries = ['CN']
-    export_commodity_codes = ['101.2002.123']
+    export_countries = [{'country_name': 'China', 'country_iso2_code': 'CN'}]
+    export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
     rules_regulations = {'rules': '0.001'}
     sso_id = factory.Iterator(range(99999999))
     rational = 'Gin has exceptional growth'

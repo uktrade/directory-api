@@ -19,7 +19,7 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
 
         country_code = export_helpers.get_iso3_by_country_name(country)
 
-        commodity_code = instance.export_commodity_codes[0]
+        commodity_code = instance.export_commodity_codes[0]['commodity_code']
 
         target_market['last_year_data'] = helpers.get_last_year_import_data(
             commodity_code=commodity_code, country=country
