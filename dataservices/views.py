@@ -76,10 +76,28 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
 
 
 class RetrieveCountryDataView(generics.GenericAPIView):
+    country_map = {
+        'Brunei': 'Brunei Darussalam',
+        'Congo': 'Congo, Rep.',
+        'Congo (Democratic Republic)': 'Congo, Dem. Rep.',
+        'Dominican': 'Dominican Republic',
+        'Egypt': 'Egypt, Arab Rep.',
+        'Micronesia': 'Micronesia, Fed. Sts.',
+        'Myanmar (Burma)': 'Myanmar',
+        'St Kitts and Nevis': 'St. Kitts and Nevis',
+        'St Lucia': 'St. Lucia',
+        'St Vincent': 'St. Vincent and the Grenadines',
+        'Russia': 'Russian Federation',
+        'Syria': 'Syrian Arab Republic',
+        'The Bahamas': 'Bahamas, The',
+        'The Gambia': 'Gambia, The',
+        'Yemen': 'Yemen, Rep.',
+        'Venezuela': 'Venezuela, RB',
+    }
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        country = self.kwargs['country']
+        country = self.map_country_data(self.kwargs['country'])
         country_data = {'consumer_price_index': {}, 'internet_usage': {}}
         try:
             instance = models.ConsumerPriceIndex.objects.get(
@@ -99,6 +117,11 @@ class RetrieveCountryDataView(generics.GenericAPIView):
         return Response(
             status=status.HTTP_200_OK,
             data={'country_data': country_data}
+        )
+
+    def map_country_data(self, country):
+        return (
+            self.country_map.get(country) if self.country_map.get(country) is not None else country
         )
 
 
