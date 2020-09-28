@@ -22,7 +22,7 @@ GP2-315 - route-to-market model/view new api
 GP2-393 - model changes adaption target markets fields 
 GP2-395 - add target market documents
 GP2-545 - remove airtable dependency
-GP2-543 - report source data against country name
+GP2-543 - report source data against country name and improve country mapping
 
 
 ### Bugs fixed
