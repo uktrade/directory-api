@@ -93,7 +93,7 @@ class PopulationData:
     un_rural_pop = None
     un_urban_pop = None
     year = 0
-    country_map = {
+    un_to_dit_country_map = {
         'United States of America': 'United States',
         'Bolivia (Plurinational State of)': 'Bolivia',
         'Brunei Darussalam': 'Brunei',
@@ -128,7 +128,7 @@ class PopulationData:
     def map_country_data(self, country_data):
         # This function is used to map the DS to match our naming convention for countries
         country_data.country_name = country_data.country_name.apply(
-            lambda x: self.country_map.get(x) if self.country_map.get(x) is not None else x
+            lambda x: x if self.un_to_dit_country_map.get(x) is None else self.un_to_dit_country_map.get(x)
         )
         return country_data
 
