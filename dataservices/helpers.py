@@ -93,6 +93,23 @@ class PopulationData:
     un_rural_pop = None
     un_urban_pop = None
     year = 0
+    un_to_dit_country_map = {
+        'United States of America': 'United States',
+        'Bolivia (Plurinational State of)': 'Bolivia',
+        'Brunei Darussalam': 'Brunei',
+        'Democratic Republic of the Congo': 'Congo (Democratic Republic)',
+        'Iran (Islamic Republic of)': 'Iran',
+        'Republic of Moldova': 'Moldova',
+        'Myanmar': 'Myanmar (Burma)',
+        'Russian Federation': 'Russia',
+        'Saint Lucia': 'St Lucia',
+        'Saint Vincent and the Grenadines': 'St Vincent',
+        'Syrian Arab Republic': 'Syria',
+        'United Republic of Tanzania': 'Tanzania',
+        'Bahamas': 'The Bahamas',
+        'Gambia': 'The Gambia',
+        'Venezuela (Bolivarian Republic of)': 'Venezuela',
+    }
 
     def __init__(self):
         pandas.set_option('mode.chained_assignment', None)
@@ -101,6 +118,19 @@ class PopulationData:
         self.un_rural_pop = pandas.read_csv('dataservices/resources/rural_population_annual.csv')
         self.un_urban_pop = pandas.read_csv('dataservices/resources/urban_population_annual.csv')
         self.year = datetime.today().year
+
+        # Lets make the counties columns consistent with out own source
+        self.un_male_pop_data = self.map_country_data(self.un_male_pop_data)
+        self.un_female_pop_data = self.map_country_data(self.un_female_pop_data)
+        self.un_rural_pop = self.map_country_data(self.un_rural_pop)
+        self.un_urban_pop = self.map_country_data(self.un_urban_pop)
+
+    def map_country_data(self, country_data):
+        # This function is used to map the DS to match our naming convention for countries
+        country_data.country_name = country_data.country_name.apply(
+            lambda x: x if self.un_to_dit_country_map.get(x) is None else self.un_to_dit_country_map.get(x)
+        )
+        return country_data
 
     def get_population_data(self, country, target_ages):
         population_data = {

@@ -445,3 +445,16 @@ def test_get_population_data_bad_country():
         target_ages=['25-34', '35-44']
     )
     assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2020}
+
+
+@pytest.mark.django_db
+def test_get_population_total_data_mapped():
+    total_population_bad_map = helpers.PopulationData().get_population_total_data(
+        country='United States of America',
+    )
+    assert total_population_bad_map == {}
+
+    total_population_mapped = helpers.PopulationData().get_population_total_data(
+        country='United States',
+    )
+    assert total_population_mapped == {'total_population': 331005}
