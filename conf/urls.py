@@ -241,6 +241,36 @@ urlpatterns = [
         name='export-plan-detail-update'
     ),
     url(
+        r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
+        exportplan.views.CompanyObjectivesRetrieveUpdateDestroyView.as_view(),
+        name='export-plan-objectives-detail-update'
+    ),
+    url(
+        r'^exportplan/company-objectives/$',
+        exportplan.views.CompanyObjectivesListCreateAPIView.as_view(),
+        name='export-plan-objectives-list-create'
+    ),
+    url(
+        r'^exportplan/route-to-markets/(?P<pk>[0-9]+)/$',
+        exportplan.views.RouteToMarketsUpdateDestroyView.as_view(),
+        name='export-plan-route-to-markets-detail-update'
+    ),
+    url(
+        r'^exportplan/route-to-markets/$',
+        exportplan.views.RouteToMarketsListCreateAPIView.as_view(),
+        name='export-plan-route-to-markets-list-create'
+    ),
+    url(
+        r'^exportplan/target-market-documents/(?P<pk>[0-9]+)/$',
+        exportplan.views.TargetMarketDocumentsUpdateDestroyView.as_view(),
+        name='export-plan-target-market-documents-detail-update'
+    ),
+    url(
+        r'^exportplan/target-market-documents/$',
+        exportplan.views.TargetMarketDocumentsCreateAPIView.as_view(),
+        name='export-plan-target-market-documents-list-create'
+    ),
+    url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
         dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
         name='dataservices-easeofdoingbusiness-index'
@@ -251,14 +281,34 @@ urlpatterns = [
         name='dataservices-corruptionperceptionsindex'
     ),
     url(
+        r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
+        name='dataservices-world-economic-outlook'
+    ),
+    url(
+        r'^dataservices/country-data/(?P<country>.*)/$',
+        dataservices.views.RetrieveCountryDataView.as_view(),
+        name='dataservices-country-data'
+    ),
+    url(
         r'^dataservices/lastyearimportdata/$',
         dataservices.views.RetrieveLastYearImportDataView.as_view(),
         name='last-year-import-data'
     ),
     url(
+        r'^dataservices/cia-factbook-data/$',
+        dataservices.views.RetrieveCiaFactbooklDataView.as_view(),
+        name='cia-factbook-data'
+    ),
+    url(
         r'^dataservices/historicalimportdata/$',
         dataservices.views.RetrieveHistoricalImportDataView.as_view(),
         name='historical-import-data'
+    ),
+    url(
+        r'^dataservices/population-data/$',
+        dataservices.views.RetrievePopulationDataView.as_view(),
+        name='population-data'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',

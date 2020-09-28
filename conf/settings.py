@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'authbroker_client',
     'personalisation.apps.PersonalisationConfig',
     'dataservices.apps.DataservicesConfig',
+    'django_json_widget',
 ]
 
 MIDDLEWARE = [
@@ -235,6 +236,11 @@ if DEBUG:
         },
         'loggers': {
             'django.request': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'faker': {
                 'handlers': ['console'],
                 'level': 'ERROR',
                 'propagate': True,
@@ -534,5 +540,3 @@ EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME = env.str('EXPORTING_OPPORTUNITI
 EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD', '')
 EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE_URL')
 EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')
-# airtable
-AIRTABLE_API_KEY = env.str('AIRTABLE_API_KEY', '')

@@ -1,8 +1,10 @@
+import json
 import pytest
 from unittest import mock
 
 import re
 from dataservices import helpers, models
+from dataservices.tests import factories
 
 
 @pytest.fixture(autouse=True)
@@ -11,28 +13,6 @@ def comtrade():
         commodity_code='220.850',
         reporting_area='Australia'
     )
-
-
-@pytest.fixture(autouse=True)
-def mock_airtable_search():
-    airtable_data = [
-        {
-            'id': '1',
-            'fields':
-                {
-                    'Country': 'India',
-                    'Export Duty': 1.5,
-                },
-        },
-    ]
-    patch = mock.patch.object(helpers.Airtable, 'search', return_value=airtable_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def madb():
-    return helpers.MADB()
 
 
 @pytest.fixture()
@@ -103,7 +83,6 @@ def test_get_product_code(comtrade):
 
 
 def test_get_last_year_import_data(comtrade, comtrade_request_mock):
-
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
                 'year': '2018',
@@ -141,18 +120,6 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
         'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
     }
-
-
-def test_get_madb_commodity_list(madb):
-    commodity_list = madb.get_madb_commodity_list()
-    assert commodity_list == {
-        ('2208.50.12', 'Gin and Geneva 2l - 2208.50.12'), ('2208.50.13', 'Gin and Geneva - 2208.50.13')
-    }
-
-
-def test_get_madb_country_list(madb):
-    country_list = madb.get_madb_country_list()
-    assert country_list == [('Australia', 'Australia'), ('China', 'China')]
 
 
 @pytest.mark.django_db
@@ -203,3 +170,278 @@ def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
         'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
     }
+
+
+def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
+    historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
+
+    assert historical_data == {
+        'year': '2018', 'trade_value': '200', 'country_name': 'Australia', 'year_on_year_change': '0.5'
+    }
+
+
+@mock.patch.object(helpers.TTLCache, 'get_cache_value')
+@mock.patch.object(helpers.TTLCache, 'set_cache_value')
+@mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
+@mock.patch.object(helpers.ComTradeData, '__init__')
+def test_get_last_year_import_data_helper_cached(
+        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+):
+    mock_get_cache_value.return_value = None
+    mock_comtrade_init.return_value = None
+
+    comtrade_historical_data = {
+        'historical_trade_value_partner': {2018: '200', 2017: '100',
+                                           2016: '50'},
+        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
+    }
+
+    mock_comtrade_historical.return_value = comtrade_historical_data
+
+    historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
+
+    assert mock_get_cache_value.call_count == 1
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
+
+    assert mock_set_cache_value.call_count == 1
+    assert mock_set_cache_value.call_args == mock.call(
+        json.dumps(['get_historical_import_data', {}, ["AUS", "847.33.22"]], sort_keys=True, separators=(',', ':')),
+        historical_data
+    )
+
+    mock_get_cache_value.return_value = comtrade_historical_data
+    historical_data_cached = helpers.get_historical_import_data('AUS', '847.33.22')
+
+    mock_get_cache_value.return_value = historical_data_cached
+
+    assert mock_get_cache_value.call_count == 2
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_set_cache_value.call_count == 1
+
+    assert historical_data == comtrade_historical_data
+    assert historical_data == historical_data_cached
+
+
+@mock.patch.object(helpers.TTLCache, 'get_cache_value')
+@mock.patch.object(helpers.TTLCache, 'set_cache_value')
+@mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
+@mock.patch.object(helpers.ComTradeData, '__init__')
+def test_get_last_year_import_data_helper_not_cached(
+        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+):
+    mock_get_cache_value.return_value = None
+    mock_comtrade_init.return_value = None
+
+    mock_comtrade_historical.return_value = {'Historical': '1'}
+
+    helpers.get_historical_import_data('AUS', '847.33.22')
+
+    assert mock_get_cache_value.call_count == 1
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["AUS","847.33.22"]]')
+
+    assert mock_comtrade_historical.call_count == 1
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.33.22', reporting_area='AUS')
+
+    assert mock_set_cache_value.call_count == 1
+    assert mock_set_cache_value.call_args == mock.call(
+        '["get_historical_import_data",{},["AUS","847.33.22"]]', {'Historical': '1'}
+    )
+
+    mock_comtrade_historical.return_value = {'Historical': '2'}
+    helpers.get_historical_import_data('UK', '847.1')
+
+    assert mock_get_cache_value.call_count == 2
+    assert mock_get_cache_value.call_args == mock.call('["get_historical_import_data",{},["UK","847.1"]]')
+
+    assert mock_comtrade_historical.call_count == 2
+    assert mock_comtrade_init.call_args == mock.call(commodity_code='847.1', reporting_area='UK')
+
+    assert mock_set_cache_value.call_count == 2
+    assert mock_set_cache_value.call_args == mock.call(
+        '["get_historical_import_data",{},["UK","847.1"]]', {'Historical': '2'}
+    )
+
+
+@pytest.mark.django_db
+def test_get_world_economic_outlook_data():
+
+    models.WorldEconomicOutlook.objects.create(
+        country_code='CN',
+        country_name='China',
+        subject='Gross domestic product',
+        scale='constant prices',
+        units='Percent change',
+        year_2020=323.21,
+        year_2021=1231.1,
+
+    )
+    models.WorldEconomicOutlook.objects.create(
+        country_code='CN',
+        country_name='China',
+        subject='Gross domestic product per capita, constant prices ',
+        scale='international dollars',
+        units='dollars',
+        year_2020=21234141,
+        year_2021=32432423,
+
+    )
+
+    weo_data = helpers.get_world_economic_outlook_data('CN')
+    assert weo_data == [
+        {
+            "country_code": "CN", "country_name": "China",
+            "subject": "Gross domestic product per capita, constant prices ",
+            "scale": "international dollars", "units": "dollars",
+            "year_2020": "21234141.000", "year_2021": "32432423.000"},
+        {
+            "country_code": "CN", "country_name": "China",
+            "subject": "Gross domestic product",
+            "scale": "constant prices", "units":
+            "Percent change", "year_2020": "323.210",
+            "year_2021": "1231.100"
+        }
+
+    ]
+
+
+@pytest.mark.django_db
+def test_get_world_economic_outlook_data_not_found():
+    cpi_data = helpers.get_world_economic_outlook_data('RXX')
+    assert cpi_data == []
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_country_all_data():
+    cia_factbook_data_test_data = factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data('United Kingdom')
+    assert cia_factbook_data == cia_factbook_data_test_data.factbook_data
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_country_not_found():
+    cia_factbook_data = helpers.get_cia_factbook_data('xyz')
+    assert cia_factbook_data == {}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_keys():
+    factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data(country_name='United Kingdom', data_keys=['capital', 'currency'])
+
+    assert cia_factbook_data == {'capital': 'London', 'currency': 'GBP'}
+
+
+@pytest.mark.django_db
+def test_get_cia_factbook_by_keys_some_bad_Keys():
+    factories.CIAFactBookFactory()
+    cia_factbook_data = helpers.get_cia_factbook_data(country_name='United Kingdom', data_keys=['capital', 'xyz'])
+    assert cia_factbook_data == {'capital': 'London'}
+
+
+@pytest.mark.parametrize(
+    'sex, expected', [['male', 4636], ['female', 4555], ]
+)
+@pytest.mark.django_db
+def test_get_population_target_age_sex_data(sex, expected):
+    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
+        country='United Kingdom',
+        target_ages=['25-29', '30-34'],
+        sex=sex,
+    )
+    assert target_age_data == {f'{sex}_target_age_population': expected}
+
+
+@pytest.mark.django_db
+def test_get_population_target_age_sex_data_bad_country():
+    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
+        country='xyz',
+        target_ages=['25-29', '30-34'],
+        sex='male',
+    )
+    assert target_age_data == {}
+
+
+@pytest.mark.parametrize(
+    'classification, expected', [['urban', 56495], ['rural', 10839], ]
+)
+@pytest.mark.django_db
+def test_get_population_urban_rural_data(classification, expected):
+    population_data = helpers.PopulationData().get_population_urban_rural_data(
+        country='United Kingdom',
+        classification=classification,
+    )
+    assert population_data == {f'{classification}_population_total': expected}
+
+
+@pytest.mark.django_db
+def test_get_population_urban_rural_data_bad_country():
+    population_data = helpers.PopulationData().get_population_urban_rural_data(
+        country='jehfjh',
+        classification='urban',
+    )
+    assert population_data == {}
+
+
+@pytest.mark.django_db
+def test_get_population_total_data():
+    total_population = helpers.PopulationData().get_population_total_data(
+        country='United Kingdom',
+    )
+    assert total_population == {'total_population': 67888}
+
+
+@pytest.mark.django_db
+def test_get_population_total_data_bad_country():
+    total_population = helpers.PopulationData().get_population_total_data(
+        country='efwe',
+    )
+    assert total_population == {}
+
+
+@pytest.mark.parametrize(
+    'target_age_groups, expected',
+    [
+        [['0-14'], ['0-4', '5-9', '10-14']],
+        [['15-19', '25-34'], ['15-19', '25-29', '30-34']]
+    ]
+)
+@pytest.mark.django_db
+def test_get_mapped_age_groups(target_age_groups, expected):
+    mapped_ages = helpers.PopulationData().get_mapped_age_groups(target_age_groups)
+    assert mapped_ages == expected
+
+
+@pytest.mark.django_db
+def test_get_population_data():
+    population_data = helpers.PopulationData().get_population_data(
+        country='United Kingdom',
+        target_ages=['25-34', '35-44']
+    )
+
+    assert population_data == {
+        'country': 'United Kingdom',
+        'target_ages': ['25-34', '35-44'],
+        'year': 2020,
+        'total_target_age_population': 18087,
+        'male_target_age_population': 9064,
+        'female_target_age_population': 9023,
+        'urban_population_total': 56495,
+        'rural_population_total': 10839,
+        'total_population': 67888,
+        'urban_percentage': 0.832179,
+        'rural_percentage': 0.167821,
+    }
+
+
+@pytest.mark.django_db
+def test_get_population_data_bad_country():
+    population_data = helpers.PopulationData().get_population_data(
+        country='ewfwe',
+        target_ages=['25-34', '35-44']
+    )
+    assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2020}

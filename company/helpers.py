@@ -41,6 +41,8 @@ def get_sector_label(sectors_value):
 
 class CompanyParser(directory_components.helpers.CompanyParser):
 
+    INDUSTRIES = dict([*choices.SECTORS, *choices.INDUSTRIES])
+
     @property
     def expertise_labels_for_search(self):
         return (
