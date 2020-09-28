@@ -1,11 +1,41 @@
 # Changelog
 
 ## Pre release
+### Implemented enhancements
+GP-96 - HS Codes saved on Country
+GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
+MVP-581 - new objective fields
+MVP-432 - error on none-found companies
+No Ticket - remove redudant field on model
+GP2-125 - Add business objectives rest CRUD api
+GP2-154 - update country list
+GP2-168 - CIA Fackbook load data
+GP2-169 - WEO load data world economic  (view/management)
+no-ticket - fix codecov status stuck
+GP2-187 - pull views cia-factbook
+GP2-183 - load internet access data from world bank
+GP2-244 - load internet consumer price index data from world bank
+GP2-245 - generic view for CIA factbook
+GP2-188 - population data from UN
+GP2-316 - rename json field from target markets to market approach
+GP2-315 - route-to-market model/view new api 
+GP2-393 - model changes adaption target markets fields 
+GP2-395 - add target market documents
+GP2-545 - remove airtable dependency
 
-## Hotfix
-- No ticket - v3-cipipeline manifest.yml file fix
+### Bugs fixed
+- No ticket - Migration fix for new build
+- No ticket - Upgrade django and markdown to fix security vulnerability
+- No Ticket - Faker spamming log message - only passing error message
+- No Ticket - Migration leaf node 
+- GP2-360 - un-data match
+- No Ticket - fix route to markets choices make optional
+
+## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
 
 ### Implemented enhancements
+No ticket - v3-cipipeline manifest.yml file fix
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
 No ticket - List company users in Company admin
@@ -30,6 +60,10 @@ MVP-369 - save historical data on safe signal
 MVP-386 - add country TZ
 MVP-387 - add commodity name to target markets
 MVP-398 - feature flag historical data
+MVP-416 - Personalise events by user sector and country of interest
+MVP-395 - cache comtrade data using backend cache
+MVP-479 - Brand Product Details
+MVP-474 - pre-populate dataservices cache task
 
 ### Fixed bugs
 TT-2254 - Cleaned up obsolete settings
@@ -58,7 +92,7 @@ TT-2260 - Include email address when creating preverified links
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
-TT2247 - verification confirmation 
+TT2247 - verification confirmation
 
 ### Fixed bugs
 TT-2220 sent-verification-letters-in-error
@@ -114,8 +148,8 @@ No ticket - change admin confirm url
 - TT-1748 - Allow anonymous user retrieving collaboration invite
 - No ticket - Refactor makefile and speed up tests
 - No ticket - Remove mobile number unique constraint
-- TT-1714 - Implement Collaborator Notifications 
-- TT-1841 - Send admin emails for exiting company in signals 
+- TT-1714 - Implement Collaborator Notifications
+- TT-1841 - Send admin emails for exiting company in signals
 - TT-1761 - Remove notification hasn't logged-in
 - TT-1923 - allow to programmatically change verification flags via testapi
 - TT-1910 - admin send new invite accepted email
@@ -126,7 +160,7 @@ No ticket - change admin confirm url
 ## Breaking changes
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
     ENSURE TO SET DATASCIENCE AWS SETTINGS IN VAULT
- 
+
 ### Fixed bugs
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 - TT-1768 - Fix elasticsearch migrate
@@ -141,8 +175,8 @@ No ticket - change admin confirm url
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
 - TT-851 - Companies house status check admin upgrade
-- TT-1613 Reduce stannp to flag errors from <50 to <10 
-- TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON) 
+- TT-1613 Reduce stannp to flag errors from <50 to <10
+- TT-1697 - SSO integration (setup ENVS STAFF_SSO_AUTHBROKER_URL/AUTHBROKER_CLIENT_ID/AUTHBROKER_CLIENT_SECRET, ENFORCE_STAFF_SSO_ON)
 - TT-1700 - Show error when user doesn't have staff status
 - TT-1735 - Forms & Directory-API SSO display message for 1st time users
 
