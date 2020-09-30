@@ -96,7 +96,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'export_countries': export_plan.export_countries,
         'rules_regulations': export_plan.rules_regulations,
         'about_your_business': export_plan.about_your_business,
-        'rational': export_plan.rational,
+        'rationale': export_plan.rationale,
         'sectors': export_plan.sectors,
         'consumer_demand': export_plan.consumer_demand,
         'target_markets': export_plan.target_markets,
