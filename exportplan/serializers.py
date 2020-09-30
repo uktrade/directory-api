@@ -101,7 +101,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'rules_regulations',
             'export_countries',
             'export_commodity_codes',
-            'rational',
+            'rationale',
             'sectors',
             'consumer_demand',
             'target_markets',
