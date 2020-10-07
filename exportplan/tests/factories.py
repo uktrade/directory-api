@@ -13,7 +13,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
     rules_regulations = {'rules': '0.001'}
     sso_id = factory.Iterator(range(99999999))
-    objectives = {'rationale' : 'Gin has exceptional growth'}
+    objectives = {'rationale': 'Gin has exceptional growth'}
     sectors = ['Food and drink', 'hospitality']
     consumer_demand = 'lots of demand for this product'
     target_markets = [{'country': 'Mexico'}]
