@@ -79,7 +79,7 @@ def test_signal_target_markets_update(
     assert export_plan.target_markets[0]['easeofdoingbusiness'] == ease_of_business_data
     assert export_plan.target_markets[0]['country'] == 'Australia'
     assert export_plan.target_markets[0]['timezone'] == 'Australia/Lord_Howe'
-    assert export_plan.target_markets[0]['utz_offset'] == '+1030'
+    assert export_plan.target_markets[0]['utz_offset'] == '+1100'
     assert export_plan.target_markets[0]['world_economic_outlook_data'] == world_economic_outlook_data
     assert export_plan.target_markets[0]['cia_factbook_data'] == cia_factbook_data
 

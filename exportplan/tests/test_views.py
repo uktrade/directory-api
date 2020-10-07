@@ -96,7 +96,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'export_countries': export_plan.export_countries,
         'rules_regulations': export_plan.rules_regulations,
         'about_your_business': export_plan.about_your_business,
-        'rationale': export_plan.rationale,
+        'objectives': export_plan.objectives,
         'sectors': export_plan.sectors,
         'consumer_demand': export_plan.consumer_demand,
         'target_markets': export_plan.target_markets,
@@ -204,7 +204,7 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
     }
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = '+1030'
+    country_market_data['utz_offset'] = '+1100'
     country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
 
@@ -246,7 +246,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
 
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = '+1030'
+    country_market_data['utz_offset'] = '+1100'
     country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
