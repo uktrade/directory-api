@@ -23,7 +23,7 @@ GP2-393 - model changes adaption target markets fields
 GP2-395 - add target market documents
 GP2-545 - remove airtable dependency
 GP2-543 - country name mapping to improve lookup
-GP2-706 - fix rationale field 
+GP2-706 - rename rational to objectives
 
 
 ### Bugs fixed
