@@ -19,7 +19,7 @@ class CompanyExportPlan(TimeStampedModel):
     rules_regulations = JSONField(null=True, blank=True, default=list)
     about_your_business = JSONField(null=True, blank=True, default=dict)
     # business objectives
-    rational = models.TextField(null=True, blank=True, default='', validators=[no_html])
+    objectives = JSONField(null=True, blank=True, default=list)
     # Target Markets Research
     target_markets_research = JSONField(null=True, blank=True, default=dict)
     # Target Markets
