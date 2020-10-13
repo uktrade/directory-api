@@ -33,6 +33,7 @@ GP2-706 - rename rational to objectives
 - No Ticket - Migration leaf node 
 - GP2-360 - un-data match
 - No Ticket - fix route to markets choices make optional
+- no commodity code make optional
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
