@@ -19,11 +19,18 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
 
         country_code = export_helpers.get_iso3_by_country_name(country)
 
-        commodity_code = instance.export_commodity_codes[0]['commodity_code']
-
-        target_market['last_year_data'] = helpers.get_last_year_import_data(
-            commodity_code=commodity_code, country=country
-        )
+        if len(instance.export_commodity_codes) > 0:
+            commodity_code = instance.export_commodity_codes[0]['commodity_code']
+            target_market['last_year_data'] = helpers.get_last_year_import_data(
+                commodity_code=commodity_code, country=country
+            )
+            if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
+                target_market[
+                    'historical_import_data'] = helpers.get_historical_import_data(
+                    commodity_code=commodity_code, country=country
+                )
+        else:
+            target_market['last_year_data'] = {}
 
         if country_code:
             timezone = export_helpers.get_timezone(country_code)
@@ -38,9 +45,3 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
         target_market['cia_factbook_data'] = helpers.get_cia_factbook_data(country_name=country, data_keys=[
             'languages', 'government', 'transportation', 'people'
         ])
-
-        if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
-            target_market[
-                'historical_import_data'] = helpers.get_historical_import_data(
-                commodity_code=commodity_code, country=country
-            )
