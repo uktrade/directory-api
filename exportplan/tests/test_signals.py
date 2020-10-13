@@ -90,3 +90,17 @@ def test_signal_target_markets_update(
     assert mock_cpi.call_count == 2
     assert mock_last_year_data.call_count == 2
     assert export_plan.target_markets[1]['country'] == 'Mexico'
+
+
+@pytest.mark.django_db
+def test_export_plan_target_markets_create_commodity_code(
+        mock_ease_of_business_index, mock_cpi, mock_last_year_data,
+        cpi_data, last_year_data, ease_of_business_data, world_economic_outlook_data, cia_factbook_data
+):
+    export_plan = CompanyExportPlanFactory.create(export_commodity_codes=[])
+    export_plan.save()
+
+    assert export_plan.target_markets[0].get('corruption_perceptions_index') == cpi_data
+    assert export_plan.target_markets[0]['last_year_data'] == {}
+    assert export_plan.target_markets[0].get('easeofdoingbusiness') == ease_of_business_data
+    assert export_plan.target_markets[0]['cia_factbook_data'] == cia_factbook_data
