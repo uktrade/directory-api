@@ -25,6 +25,7 @@ GP2-545 - remove airtable dependency
 GP2-543 - country name mapping to improve lookup
 GP2-706 - rename rational to objectives
 GP2-699 - swamp route to market constants
+Noticket - update-admin
 
 
 ### Bugs fixed
