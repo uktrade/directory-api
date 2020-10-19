@@ -1,4 +1,6 @@
 from import_export import resources
+from import_export.fields import Field
+from import_export.admin import ImportExportModelAdmin
 from dataservices import models
 
 from django import forms
@@ -27,6 +29,13 @@ class InternetUsageResource(resources.ModelResource):
     class Meta:
         model = models.InternetUsage
         fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
+
+
+class CountryResource(resources.ModelResource):
+
+    class Meta:
+        model = models.Country
+        fields = ['name', 'iso1', 'iso2', 'iso3', 'region']
 
 
 @admin.register(models.EaseOfDoingBusiness)
@@ -153,3 +162,18 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
         'year',
         'value',
     )
+
+@admin.register(models.Country)
+class CountryAdmin(admin.ModelAdmin):
+    resource_class = CountryResource    
+    
+    list_display = (
+        'name',
+        'iso1',
+        'iso2',
+        'iso3',
+        'region',
+        'created',
+    )
+
+    list_filter = ('region', )

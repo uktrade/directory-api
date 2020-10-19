@@ -112,3 +112,15 @@ class RecommendedCountriesView(generics.ListAPIView):
             values('country').\
             annotate(num_countries=Count('country')).\
             order_by('-num_countries')[:10]
+
+
+class SuggestedCountriesView(generics.ListAPIView):
+    serializer_class = serializers.SuggestedCountrySerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        hs_code = self.request.query_params.get('hs_code', '').lower()
+        queryset = models.SuggestedCountry.objects.filter(hs_code=hs_code).\
+            order_by('-order').\
+            values('hs_code', 'country__name', 'country__iso2')
+        return queryset
