@@ -21,11 +21,13 @@ class CountryOfInterest(TimeStampedModel):
 
 class SuggestedCountry(TimeStampedModel):
     hs_code = models.PositiveIntegerField(_('HS Code'))
-    country = models.ForeignKey('dataservices.Country',
+    country = models.ForeignKey(
+        'dataservices.Country',
         verbose_name=_('Suggested Countries'),
         on_delete=models.SET_NULL,
         null=True
-        )
+    )
+
     order = models.PositiveIntegerField(_('Order'), null=True, blank=True)
 
     def __str__(self):

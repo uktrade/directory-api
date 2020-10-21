@@ -1,3 +1,4 @@
+import json
 import requests
 import pytest
 import http
@@ -235,5 +236,5 @@ def test_suggested_countries_api(client):
         data={'hs_code': 1}
     )
     assert response.status_code == 200
-    # Todo: covert to list and check len
-    assert len(list(response.content)) == 5
+    json_dict = json.loads(response.content)
+    assert len(json_dict) == 5

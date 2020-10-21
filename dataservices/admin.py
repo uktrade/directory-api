@@ -1,6 +1,4 @@
 from import_export import resources
-from import_export.fields import Field
-from import_export.admin import ImportExportModelAdmin
 from dataservices import models
 
 from django import forms
@@ -163,10 +161,11 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
         'value',
     )
 
+
 @admin.register(models.Country)
 class CountryAdmin(admin.ModelAdmin):
-    resource_class = CountryResource    
-    
+    resource_class = CountryResource
+
     list_display = (
         'name',
         'iso1',

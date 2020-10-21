@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 
 from core.helpers import TimeStampedModel
-from django.utils.translation import ugettext_lazy as _
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
@@ -82,7 +81,7 @@ class Country(TimeStampedModel):
     iso2 = models.CharField(unique=True, max_length=10)
     iso3 = models.CharField(unique=True, max_length=10)
     region = models.CharField(blank=False, null=False, max_length=50)
-    
+
     def __str__(self):
         return self.name
 

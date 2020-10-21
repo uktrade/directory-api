@@ -122,5 +122,5 @@ class SuggestedCountriesView(generics.ListAPIView):
         hs_code = self.request.query_params.get('hs_code', '').lower()
         queryset = models.SuggestedCountry.objects.filter(hs_code=hs_code).\
             order_by('-order').\
-            values('hs_code', 'country__name', 'country__iso2')
+            values('hs_code', 'country__name', 'country__iso2', 'country__region')
         return queryset
