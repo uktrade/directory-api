@@ -29,6 +29,13 @@ class InternetUsageResource(resources.ModelResource):
         fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
 
 
+class CountryResource(resources.ModelResource):
+
+    class Meta:
+        model = models.Country
+        fields = ['name', 'iso1', 'iso2', 'iso3', 'region']
+
+
 @admin.register(models.EaseOfDoingBusiness)
 class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -153,3 +160,19 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
         'year',
         'value',
     )
+
+
+@admin.register(models.Country)
+class CountryAdmin(admin.ModelAdmin):
+    resource_class = CountryResource
+
+    list_display = (
+        'name',
+        'iso1',
+        'iso2',
+        'iso3',
+        'region',
+        'created',
+    )
+
+    list_filter = ('region', )
