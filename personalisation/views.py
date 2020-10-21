@@ -124,3 +124,11 @@ class SuggestedCountriesView(generics.ListAPIView):
             order_by('-order').\
             values('hs_code', 'country__name', 'country__iso2', 'country__region')
         return queryset
+
+    def get(self, *args, **kwargs):
+        if not self.request.query_params.get('hs_code'):
+            return Response(
+                status=500,
+                data={'error_message': 'hs_code missing in request params'}
+            )
+        return super().get(*args, **kwargs)

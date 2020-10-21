@@ -237,4 +237,19 @@ def test_suggested_countries_api(client):
     )
     assert response.status_code == 200
     json_dict = json.loads(response.content)
+    # we have 5 suggested countries for hs_code in imported csv
     assert len(json_dict) == 5
+
+
+@pytest.mark.django_db
+def test_suggested_countries_api_without_hs_code(client):
+    # Two with same country and sector
+    management.call_command('import_countries')
+    management.call_command('import_suggested_countries')
+
+    response = client.get(
+        reverse('personalisation-suggested-countries'),
+    )
+    assert response.status_code == 500
+    json_dict = json.loads(response.content)
+    assert json_dict['error_message'] == "hs_code missing in request params"
