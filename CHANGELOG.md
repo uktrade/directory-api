@@ -2,28 +2,31 @@
 
 ## Pre release
 ### Implemented enhancements
-GP-96 - HS Codes saved on Country
-GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
-MVP-581 - new objective fields
-MVP-432 - error on none-found companies
-No Ticket - remove redudant field on model
-GP2-125 - Add business objectives rest CRUD api
-GP2-154 - update country list
-GP2-168 - CIA Fackbook load data
-GP2-169 - WEO load data world economic  (view/management)
-no-ticket - fix codecov status stuck
-GP2-187 - pull views cia-factbook
-GP2-183 - load internet access data from world bank
-GP2-244 - load internet consumer price index data from world bank
-GP2-245 - generic view for CIA factbook
-GP2-188 - population data from UN
-GP2-316 - rename json field from target markets to market approach
-GP2-315 - route-to-market model/view new api 
-GP2-393 - model changes adaption target markets fields 
-GP2-395 - add target market documents
-GP2-545 - remove airtable dependency
-GP2-543 - country name mapping to improve lookup
-GP2-706 - rename rational to objectives
+- GP2-510 - Added Suggested Countries model and relevant data
+- GP-96 - HS Codes saved on Country
+- GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
+- MVP-581 - new objective fields
+- MVP-432 - error on none-found companies
+- No Ticket - remove redudant field on model
+- GP2-125 - Add business objectives rest CRUD api
+- GP2-154 - update country list
+- GP2-168 - CIA Fackbook load data
+- GP2-169 - WEO load data world economic  (view/management)
+- no-ticket - fix codecov status stuck
+- GP2-187 - pull views cia-factbook
+- GP2-183 - load internet access data from world bank
+- GP2-244 - load internet consumer price index data from world bank
+- GP2-245 - generic view for CIA factbook
+- GP2-188 - population data from UN
+- GP2-316 - rename json field from target markets to market approach
+- GP2-315 - route-to-market model/view new api 
+- GP2-393 - model changes adaption target markets fields 
+- GP2-395 - add target market documents
+- GP2-545 - remove airtable dependency
+- GP2-543 - country name mapping to improve lookup
+- GP2-706 - rename rational to objectives
+- GP2-699 - swamp route to market constants
+- Noticket - update-admin
 
 
 ### Bugs fixed

@@ -70,3 +70,21 @@ class ConsumerPriceIndex(TimeStampedModel):
 
     def __str__(self):
         return self.country_name
+
+
+class Country(TimeStampedModel):
+    """
+    Model to hold all countries
+    """
+    name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    iso1 = models.CharField(unique=True, max_length=10)
+    iso2 = models.CharField(unique=True, max_length=10)
+    iso3 = models.CharField(unique=True, max_length=10)
+    region = models.CharField(blank=False, null=False, max_length=50)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Country'
+        verbose_name_plural = 'Countries'

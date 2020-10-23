@@ -29,3 +29,12 @@ def test_import_data_sets(model_name, management_cmd, object_count):
 def test_import_data_sets_error(management_cmd):
     management.call_command(management_cmd)
     assert models.CorruptionPerceptionsIndex.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('model_name, management_cmd, object_count', (
+    (models.Country, 'import_countries', 194),
+))
+def test_import_countries_data_sets(model_name, management_cmd, object_count):
+    management.call_command(management_cmd)
+    assert model_name.objects.count() == object_count
