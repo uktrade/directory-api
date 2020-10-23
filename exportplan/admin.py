@@ -42,3 +42,21 @@ class CompanyCompanyObjectivesAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
     )
+
+
+@admin.register(models.RouteToMarkets)
+class RouteToMarketsAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        TextField: {'widget': forms.TextInput}
+    }
+    search_fields = (
+        'route',
+        'promote',
+        'market_promotional_channel',
+    )
+    list_display = (
+        'companyexportplan',
+        'route',
+        'promote',
+        'market_promotional_channel',
+    )
