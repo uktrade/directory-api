@@ -30,6 +30,7 @@
 
 
 ### Bugs fixed
+- GP2-872 - Reverse order of suggested markets
 - No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
