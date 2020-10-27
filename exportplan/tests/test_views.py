@@ -202,9 +202,11 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
         'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
         'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
     }
+    # We can't compare actual time offsets as these vary over time
+    country_market_data['utz_offset'] = export_plan.target_markets[0]['utz_offset']
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = '+1100'
+    country_market_data['utz_offset'] = export_plan.target_markets[1]['utz_offset']
     country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
 
@@ -243,10 +245,11 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
         'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
         'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
     }
-
+    # We can't compare actual time offsets as these vary over time
+    country_market_data['utz_offset'] = export_plan.target_markets[0]['utz_offset']
     assert export_plan.target_markets[0] == country_market_data
     country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = '+1100'
+    country_market_data['utz_offset'] = export_plan.target_markets[1]['utz_offset']
     country_market_data['timezone'] = 'Australia/Lord_Howe'
     assert export_plan.target_markets[1] == country_market_data
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
