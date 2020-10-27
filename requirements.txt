@@ -15,7 +15,7 @@ celery[redis]==4.3.0      # via -r requirements.in
 certifi==2020.6.20        # via requests, sentry-sdk
 cffi==1.14.3              # via cryptography
 chardet==3.0.4            # via requests
-cryptography==2.8         # via -r requirements.in, pyopenssl, requests
+cryptography==3.2         # via -r requirements.in, pyopenssl, requests
 defusedxml==0.6.0         # via odfpy
 diff-match-patch==20200713  # via django-import-export
 directory-client-core==6.3.0  # via directory-forms-api-client, directory-sso-api-client

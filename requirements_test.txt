@@ -18,7 +18,7 @@ cffi==1.14.3              # via cryptography
 chardet==3.0.4            # via requests
 codecov==2.1.7            # via -r requirements_test.in
 coverage==5.3             # via codecov, pytest-cov
-cryptography==2.8         # via -r requirements.in, pyopenssl, requests
+cryptography==3.2         # via -r requirements.in, pyopenssl, requests
 defusedxml==0.6.0         # via odfpy
 diff-match-patch==20200713  # via django-import-export
 directory-client-core==6.3.0  # via directory-forms-api-client, directory-sso-api-client
