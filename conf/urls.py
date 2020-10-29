@@ -39,6 +39,11 @@ activity_stream_urls = [
         activitystream.views.ActivityStreamViewSet.as_view({'get': 'list'}),
         name='activity-stream'
     ),
+    url(
+        r'^company/$',
+        activitystream.views.ActivityStreamCompanyViewSet.as_view({'get': 'list'}),
+        name='activity-stream-companies'
+    ),
 ]
 
 
