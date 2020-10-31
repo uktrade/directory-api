@@ -87,6 +87,11 @@ urlpatterns = [
         name='company'
     ),
     url(
+        r'^supplier/company/(?P<sso_id>[0-9]+)/(?P<request_key>.*)/$',
+        company.views.CompanyDestroyAPIView.as_view(),
+        name='company-delete-by-sso-id'
+    ),
+    url(
         r'^supplier/company/verify/$',
         company.views.VerifyCompanyWithCodeAPIView.as_view(),
         name='company-verify'
