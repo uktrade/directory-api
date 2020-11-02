@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Implemented enhancements
+- GBAU-61 - Added company endpoint for consumption by activity stream
 - GP2-510 - Added Suggested Countries model and relevant data
 - GP-96 - HS Codes saved on Country
 - GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
