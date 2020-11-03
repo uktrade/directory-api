@@ -9,13 +9,14 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.db.models import Case, Count, When, Value, BooleanField
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
 from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
 from notifications import notifications
+from django.views.decorators.csrf import csrf_exempt
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -27,6 +28,53 @@ class CompanyNumberValidatorAPIView(generics.GenericAPIView):
         validator = self.get_serializer(data=request.GET)
         validator.is_valid(raise_exception=True)
         return Response()
+
+
+class CompanyDestroyAPIView(generics.DestroyAPIView):
+    authentication_classes = [
+        authentication.Oauth2AuthenticationSSO,
+    ]
+    permission_classes = [
+        permissions.ValidateDeleteRequest
+    ]
+
+    @csrf_exempt
+    def delete(self, request, *args, **kwargs):
+        """
+        delete endpoint will take sso_id (user_id) as kwargs to delete company
+           > IF user is only user for associated company
+             then we delete user and company
+           > IF multiple users associated for a company and requested user is admin
+             then we re-assign admin role to other users
+             and delete user only, no company get deleted in this case.
+        """
+        sso_id = kwargs['sso_id']
+        try:
+            request_user = models.CompanyUser.objects.get(sso_id=sso_id)
+        except models.CompanyUser.DoesNotExist:
+            return HttpResponse(status=204)
+
+        companies = models.Company.objects.filter(company_users__sso_id=sso_id)
+        if not companies:
+            request_user.delete()
+            # nothing else to do
+            return HttpResponse(status=204)
+
+        for company in companies:
+            # check if company has other users
+            company_users = models.CompanyUser.objects.filter(company=company)
+            number_of_company_users = company_users.count()
+            # remove user
+            if number_of_company_users == 1:
+                request_user.delete()
+                company.delete()
+            elif number_of_company_users > 1:
+                if request_user.role == user_roles.ADMIN:
+                    other_users = company_users.filter(~Q(sso_id=sso_id))
+                    other_users.update(role=user_roles.ADMIN)
+                request_user.delete()
+
+        return HttpResponse(status=204)
 
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
