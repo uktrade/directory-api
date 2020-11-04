@@ -164,3 +164,37 @@ class RetrievePopulationDataView(generics.GenericAPIView):
             status=status.HTTP_200_OK,
             data={'population_data': population_data},
         )
+
+
+class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+
+        countries = self.request.GET.getlist('country', '')
+
+        if not countries:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        data_set = []
+
+        for country in countries:
+            country_population = helpers.PopulationData()
+            country_data = {'country': country}
+            population_data = country_population.get_population_total_data(country=country)
+            urban_population = country_population.get_population_urban_rural_data(
+                country=country, classification='urban')
+            rural_population = country_population.get_population_urban_rural_data(
+                country=country, classification='rural')
+            internet_usage = helpers.get_internet_usage(country=country, year=2020)
+            data_set.append({
+                **country_data,
+                **internet_usage,
+                **rural_population,
+                **urban_population,
+                **population_data,
+            })
+        return Response(
+            status=status.HTTP_200_OK,
+            data=data_set
+        )

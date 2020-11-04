@@ -312,3 +312,13 @@ def get_cia_factbook_data(country_name, data_keys=None):
         return cia_data
     except models.CIAFactbook.DoesNotExist:
         return {}
+
+
+def get_internet_usage(country, year=None):
+    if not year:
+        year = datetime.now().year
+    try:
+        internet_usage_data = models.InternetUsage.objects.get(country_name=country, year=year)
+    except models.InternetUsage.DoesNotExist:
+        return {}
+    return {'internet_usage': float(internet_usage_data.value)}

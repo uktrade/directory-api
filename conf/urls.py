@@ -326,6 +326,11 @@ urlpatterns = [
         name='population-data'
     ),
     url(
+        r'^dataservices/population-data-by-country/$',
+        dataservices.views.RetrievePopulationDataViewByCountry.as_view(),
+        name='dataservices-population-data-by-country'
+    ),
+    url(
         r'^testapi/buyer/(?P<email>.*)/$',
         testapi.views.BuyerTestAPIView.as_view(),
         name='buyer_by_email'
