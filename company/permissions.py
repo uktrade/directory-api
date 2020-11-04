@@ -14,4 +14,4 @@ class ValidateDeleteRequest(permissions.BasePermission):
     """Allow token access to data science team."""
 
     def has_permission(self, request, view):
-        return request.parser_context['kwargs']['request_key'] == settings.SSO_SIGNATURE_SECRET
+        return request.parser_context['kwargs']['request_key'] == settings.DIRECTORY_SSO_API_SECRET

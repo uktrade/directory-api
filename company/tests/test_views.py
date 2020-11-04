@@ -2684,7 +2684,7 @@ def test_company_delete_endpoint_signal_user(authed_client, authed_supplier):
         reverse('company-delete-by-sso-id',
                 kwargs={
                     'sso_id': authed_supplier.sso_id,
-                    'request_key': settings.SSO_SIGNATURE_SECRET
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
                 })
     )
     assert response.status_code == 204
@@ -2705,7 +2705,7 @@ def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
         reverse('company-delete-by-sso-id',
                 kwargs={
                     'sso_id': authed_supplier.sso_id,
-                    'request_key': settings.SSO_SIGNATURE_SECRET
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
                 })
     )
     assert response.status_code == 204
@@ -2729,7 +2729,7 @@ def test_company_delete_endpoint_for_random_user(authed_client):
         reverse('company-delete-by-sso-id',
                 kwargs={
                     'sso_id': 999,
-                    'request_key': settings.SSO_SIGNATURE_SECRET
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
                 })
     )
     assert response.status_code == 204
@@ -2758,7 +2758,7 @@ def test_company_delete_endpoint_for_user_not_associated_with_company(authed_cli
         reverse('company-delete-by-sso-id',
                 kwargs={
                     'sso_id': non_company_user.sso_id,
-                    'request_key': settings.SSO_SIGNATURE_SECRET
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
                 })
         )
 
