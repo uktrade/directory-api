@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 import mohawk
 import pytest
@@ -15,14 +16,22 @@ def api_client():
     return APIClient()
 
 
-def _url():
+@pytest.fixture
+def activities_url():
     return 'http://testserver' + reverse('activity-stream:activity-stream')
 
 
+@pytest.fixture
+def companies_url():
+    return 'http://testserver' + reverse('activity-stream:activity-stream-companies')
+
+
+@pytest.fixture
 def _url_incorrect_domain():
     return 'http://incorrect' + reverse('activity-stream:activity-stream')
 
 
+@pytest.fixture
 def _url_incorrect_path():
     return (
         'http://testserver' +
@@ -43,8 +52,7 @@ def _empty_collection():
     }
 
 
-def _auth_sender(key_id='some-id', secret_key='some-secret', url=_url,
-                 method='GET', content='', content_type=''):
+def _auth_sender(url, key_id='some-id', secret_key='some-secret', method='GET', content='', content_type=''):
     credentials = {
         'id': key_id,
         'key': secret_key,
@@ -52,7 +60,7 @@ def _auth_sender(key_id='some-id', secret_key='some-secret', url=_url,
     }
     return mohawk.Sender(
         credentials,
-        url(),
+        url,
         method,
         content=content,
         content_type=content_type,
@@ -74,13 +82,13 @@ def get_company_id(activity):
 
 
 @pytest.mark.django_db
-def test_empty_object_returned_with_authentication(api_client):
+def test_empty_object_returned_with_authentication(api_client, activities_url):
     """If the Authorization and X-Forwarded-For headers are correct, then
     the correct, and authentic, data is returned
     """
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -118,16 +126,16 @@ def test_empty_object_returned_with_authentication(api_client):
 
 
 @pytest.mark.django_db
-def test_if_never_verified_not_in_stream(api_client):
+def test_if_never_verified_not_in_stream(api_client, activities_url):
     """If the company never verified, then it's not in the activity stream
     """
 
     with freeze_time('2012-01-14 12:00:02'):
         CompanyFactory()
 
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -146,7 +154,7 @@ def test_if_never_verified_not_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
+def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client, activities_url):
     """If the company verified_with_code, then it's in the activity stream
     """
 
@@ -164,9 +172,9 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
         company_c = CompanyFactory(
             number=10000001, name='c', verified_with_code=True)
 
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -191,7 +199,7 @@ def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client):
 
 
 @pytest.mark.django_db
-def test_if_verified_with_code_then_deleted_not_in_stream(api_client):
+def test_if_verified_with_code_then_deleted_not_in_stream(api_client, activities_url):
     """If the company verified_with_code, then deleted, then not in the stream
 
     This may need to be changed, but this confirms/documents behaviour, and
@@ -203,9 +211,9 @@ def test_if_verified_with_code_then_deleted_not_in_stream(api_client):
 
     to_delete.delete()
 
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -217,16 +225,16 @@ def test_if_verified_with_code_then_deleted_not_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_if_verified_with_companies_house_oauth2_in_stream(api_client):
+def test_if_verified_with_companies_house_oauth2_in_stream(api_client, activities_url):
     """If the company verified_with_companies_house_oauth2, then it's n the
     activity stream
     """
 
     CompanyFactory(number=10000000, verified_with_companies_house_oauth2=True)
 
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -238,16 +246,16 @@ def test_if_verified_with_companies_house_oauth2_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_if_verified_with_preverified_enrolment_in_stream(api_client):
+def test_if_verified_with_preverified_enrolment_in_stream(api_client, activities_url):
     """If the company verified_with_preverified_enrolment, then it's in the
     activity stream
     """
 
     CompanyFactory(number=10000000, verified_with_preverified_enrolment=True)
 
-    sender = _auth_sender()
+    sender = _auth_sender(activities_url)
     response = api_client.get(
-        _url(),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=sender.request_header,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -259,7 +267,7 @@ def test_if_verified_with_preverified_enrolment_in_stream(api_client):
 
 
 @pytest.mark.django_db
-def test_pagination(api_client, django_assert_num_queries):
+def test_pagination(api_client, django_assert_num_queries, activities_url):
     """The requests are paginated, ending on a page without a next key
     """
 
@@ -274,13 +282,13 @@ def test_pagination(api_client, django_assert_num_queries):
                            verified_with_preverified_enrolment=True)
 
     items = []
-    next_url = _url()
+    next_url = activities_url
     num_pages = 0
 
     with django_assert_num_queries(9):
         while next_url:
             num_pages += 1
-            sender = _auth_sender(url=lambda: next_url)
+            sender = _auth_sender(next_url)
             response = api_client.get(
                 next_url,
                 content_type='',
@@ -300,15 +308,15 @@ def test_pagination(api_client, django_assert_num_queries):
 
 
 @pytest.mark.django_db
-def test_if_61_seconds_in_past_401_returned(api_client):
+def test_if_61_seconds_in_past_401_returned(api_client, activities_url):
     """If the Authorization header is generated 61 seconds in the past, then a
     401 is returned
     """
     past = datetime.datetime.now() - datetime.timedelta(seconds=61)
     with freeze_time(past):
-        auth = _auth_sender().request_header
+        auth = _auth_sender(activities_url).request_header
     response = api_client.get(
-        reverse('activity-stream:activity-stream'),
+        activities_url,
         content_type='',
         HTTP_AUTHORIZATION=auth,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
@@ -317,3 +325,115 @@ def test_if_61_seconds_in_past_401_returned(api_client):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     error = {'detail': 'Incorrect authentication credentials.'}
     assert response.json() == error
+
+
+def _expected_company_response(company):
+    return {
+        'id': f'dit:directory:Company:{company.id}',
+        'published': company.date_published.strftime('%Y-%m-%d'),
+        'generator': {'type': 'Application', 'name': 'dit:directory'},
+        'object': [{
+            'dit:directory:Company:address_line_1': company.address_line_1,
+            'dit:directory:Company:address_line_2': company.address_line_2,
+            'dit:directory:Company:company_type': company.company_type,
+            'dit:directory:Company:country': company.country,
+            'dit:directory:Company:created': company.created.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'dit:directory:Company:date_of_creation': company.date_of_creation,
+            'dit:directory:Company:description': company.description,
+            'dit:directory:Company:email_address': company.email_address,
+            'dit:directory:Company:email_full_name': company.email_full_name,
+            'dit:directory:Company:employees': company.employees,
+            'dit:directory:Company:facebook_url': company.facebook_url,
+            'dit:directory:Company:has_exported_before': company.has_exported_before,
+            'dit:directory:Company:id': company.id,
+            'dit:directory:Company:is_exporting_goods': company.is_exporting_goods,
+            'dit:directory:Company:is_exporting_services': company.is_exporting_services,
+            'dit:directory:Company:is_published': company.is_published,
+            'dit:directory:Company:is_publishable': company.is_publishable,
+            'dit:directory:Company:is_published_investment_support_directory': (
+                company.is_published_investment_support_directory
+            ),
+            'dit:directory:Company:is_published_find_a_supplier': company.is_published_find_a_supplier,
+            'dit:directory:Company:is_registration_letter_sent': company.is_registration_letter_sent,
+            'dit:directory:Company:is_verification_letter_sent': company.is_verification_letter_sent,
+            'dit:directory:Company:is_identity_check_message_sent': company.is_identity_check_message_sent,
+            'dit:directory:Company:keywords': company.keywords,
+            'dit:directory:Company:linkedin_url': company.linkedin_url,
+            'dit:directory:Company:locality': company.locality,
+            'dit:directory:Company:mobile_number': company.mobile_number,
+            'dit:directory:Company:modified': company.modified.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'dit:directory:Company:name': company.name,
+            'dit:directory:Company:number': company.number,
+            'dit:directory:Company:po_box': company.po_box,
+            'dit:directory:Company:postal_code': company.postal_code,
+            'dit:directory:Company:postal_full_name': company.postal_full_name,
+            'dit:directory:Company:sectors': company.sectors,
+            'dit:directory:Company:hs_codes': company.hs_codes,
+            'dit:directory:Company:slug': company.slug,
+            'dit:directory:Company:summary': company.summary,
+            'dit:directory:Company:twitter_url': company.twitter_url,
+            'dit:directory:Company:website': company.website,
+            'dit:directory:Company:verified_with_code': company.verified_with_code,
+            'dit:directory:Company:verified_with_preverified_enrolment': company.verified_with_preverified_enrolment,
+            'dit:directory:Company:verified_with_companies_house_oauth2': company.verified_with_companies_house_oauth2,
+            'dit:directory:Company:verified_with_identity_check': company.verified_with_identity_check,
+            'dit:directory:Company:is_verified': company.is_verified,
+            'dit:directory:Company:export_destinations': [],
+            'dit:directory:Company:export_destinations_other': company.export_destinations_other,
+            'dit:directory:Company:is_uk_isd_company': company.is_uk_isd_company,
+            'dit:directory:Company:expertise_industries': company.expertise_industries,
+            'dit:directory:Company:expertise_regions': company.expertise_regions,
+            'dit:directory:Company:expertise_countries': company.expertise_countries,
+            'dit:directory:Company:expertise_languages': company.expertise_languages,
+            'dit:directory:Company:expertise_products_services': {
+                'other': ['Regulatory', 'Finance', 'IT'],
+                'Finance': ['Insurance']
+            }
+        }]
+    }
+
+
+@pytest.mark.django_db
+@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
+def test_company_viewset(api_client, companies_url):
+    with freeze_time('2020-09-01 12:00:02'):
+        company_1 = CompanyFactory(number='10000001', date_published=datetime.datetime(2020, 9, 1))
+    with freeze_time('2012-09-01 12:00:01'):
+        company_2 = CompanyFactory(number='10000002', date_published=datetime.datetime(2020, 9, 2))
+
+    # Page 1
+    auth = _auth_sender(companies_url).request_header
+    response = api_client.get(
+        companies_url,
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == [_expected_company_response(company_2)]
+
+    # Page 2
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == [_expected_company_response(company_1)]
+
+    # Page 3 (empty)
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == []
+    assert 'next' not in response_json

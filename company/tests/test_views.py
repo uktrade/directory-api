@@ -2676,3 +2676,92 @@ def test_company_user_retrieve_sso_id(client):
     response = client.get(url)
 
     assert response.json()['sso_id'] == company_user.sso_id
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_signal_user(authed_client, authed_supplier):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': authed_supplier.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    company_user_one = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_two = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    factories.CompanyUserFactory()
+
+    assert authed_supplier.company.company_users.all().count() == 3
+
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': authed_supplier.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+    company_user_one.refresh_from_db()
+    company_user_two.refresh_from_db()
+    authed_supplier.company.refresh_from_db()
+
+    assert company_user_one.role == user_roles.ADMIN
+    assert company_user_two.role == user_roles.ADMIN
+
+    assert authed_supplier.company.company_users.all().count() == 2
+
+    # check company is not deleted
+    assert authed_supplier is not None
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_random_user(authed_client):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': 999,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_random_request_key(authed_client):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': 999,
+                    'request_key': 'Random'
+                })
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_user_not_associated_with_company(authed_client, authed_supplier):
+    non_company_user = factories.CompanyUserFactory(company=None)
+    user_before_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
+
+    assert user_before_delete_count == 1
+
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': non_company_user.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+        )
+
+    assert response.status_code == 204
+    user_after_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
+    assert user_after_delete_count == 0
