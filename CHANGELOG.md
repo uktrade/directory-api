@@ -29,6 +29,7 @@
 - GP2-706 - rename rational to objectives
 - GP2-699 - swamp route to market constants
 - Noticket - update-admin
+- Noticket - upgrade-es-7
 
 
 ### Bugs fixed
