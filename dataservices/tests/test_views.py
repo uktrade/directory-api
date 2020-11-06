@@ -79,6 +79,12 @@ def worldeconomicoutlook_data():
 @pytest.fixture(autouse=True)
 def country_data():
     models.ConsumerPriceIndex.objects.create(
+        country_code='UK',
+        country_name='United Kingdom',
+        year=2019,
+        value=150.56
+    )
+    models.ConsumerPriceIndex.objects.create(
         country_code='CNN',
         country_name='Canada',
         year=2019,
@@ -395,7 +401,11 @@ def test_population_data_by_country(api_client, internet_usage_data):
     assert response.json() == [
         {
             'country': 'United Kingdom',
-            'internet_usage': 90.97,
+            'internet_usage': {
+                'value': 90.97,
+                'year': 2020
+            },
+            'cpi': {'value': 150.56, 'year': 2019},
             'rural_population_total': 10839,
             'urban_population_total': 56495,
             'total_population': 67888
@@ -414,14 +424,21 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
     assert response.json() == [
         {
             'country': 'United Kingdom',
-            'internet_usage': 90.97,
+            'internet_usage': {
+                'value': 90.97,
+                'year': 2020
+            },
             'rural_population_total': 10839,
             'urban_population_total': 56495,
-            'total_population': 67888
+            'total_population': 67888,
+            'cpi': {'value': 150.56, 'year': 2019}
         },
         {
             'country': 'Germany',
-            'internet_usage': 91.97,
+            'internet_usage': {
+                'value': 91.97,
+                'year': 2020
+            },
             'urban_population_total': 63930,
             'rural_population_total': 18610,
             'total_population': 83785
