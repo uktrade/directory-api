@@ -314,11 +314,29 @@ def get_cia_factbook_data(country_name, data_keys=None):
         return {}
 
 
-def get_internet_usage(country, year=None):
-    if not year:
-        year = datetime.now().year
+def get_internet_usage(country):
     try:
-        internet_usage_data = models.InternetUsage.objects.get(country_name=country, year=year)
+        internet_usage_obj = models.InternetUsage.objects.filter(
+            country_name=country).latest()
     except models.InternetUsage.DoesNotExist:
         return {}
-    return {'internet_usage': float(internet_usage_data.value)}
+    return {
+        'internet_usage': {
+            'value': float(internet_usage_obj.value),
+            'year': internet_usage_obj.year
+            }
+    }
+
+
+def get_cpi_data(country):
+    try:
+        cpi_obj = models.ConsumerPriceIndex.objects.filter(
+            country_name=country).latest()
+    except models.ConsumerPriceIndex.DoesNotExist:
+        return {}
+    return {
+        'cpi': {
+            'value': float(cpi_obj.value),
+            'year': cpi_obj.year
+        }
+    }

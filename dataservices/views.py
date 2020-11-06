@@ -186,13 +186,15 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
                 country=country, classification='urban')
             rural_population = country_population.get_population_urban_rural_data(
                 country=country, classification='rural')
-            internet_usage = helpers.get_internet_usage(country=country, year=2020)
+            internet_usage = helpers.get_internet_usage(country=country)
+            cpi = helpers.get_cpi_data(country=country)
             data_set.append({
                 **country_data,
                 **internet_usage,
                 **rural_population,
                 **urban_population,
                 **population_data,
+                **cpi,
             })
         return Response(
             status=status.HTTP_200_OK,
