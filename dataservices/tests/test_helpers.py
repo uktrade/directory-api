@@ -463,4 +463,4 @@ def test_get_population_total_data_mapped():
 @pytest.mark.django_db
 def test_get_internet_usage(internet_usage_data):
     data = helpers.get_internet_usage(country='United Kingdom')
-    assert data == {'internet_usage': 90.97}
+    assert data == {'internet_usage': {'value': 90.97, 'year': 2020}}
