@@ -1,5 +1,5 @@
 from elasticsearch.helpers import bulk
-from elasticsearch_dsl.index import connections
+from elasticsearch_dsl.connections import connections
 
 from django.utils.crypto import get_random_string
 from django.core import management
