@@ -2,6 +2,8 @@
 
 ## Pre release
 ### Implemented enhancements
+- GB2-918 - Added Internet Usage and CPI data for PopulationByCountry endpoint
+- GBAU-61 - Added company endpoint for consumption by activity stream
 - GP2-510 - Added Suggested Countries model and relevant data
 - GP-96 - HS Codes saved on Country
 - GP2-113 - Remove company objectives update from export plan update, add delete to objective update endpoint
@@ -27,6 +29,7 @@
 - GP2-706 - rename rational to objectives
 - GP2-699 - swamp route to market constants
 - Noticket - update-admin
+- Noticket - upgrade-es-7
 
 
 ### Bugs fixed

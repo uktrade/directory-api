@@ -3,6 +3,7 @@ from rest_framework import status, generics
 from dataservices import serializers, models, helpers
 from rest_framework.response import Response
 from django.http import Http404
+from .helpers import millify, get_urban_rural_data
 
 
 class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
@@ -163,4 +164,51 @@ class RetrievePopulationDataView(generics.GenericAPIView):
         return Response(
             status=status.HTTP_200_OK,
             data={'population_data': population_data},
+        )
+
+
+class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+
+        countries = self.request.GET.getlist('country', '')
+
+        if not countries:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        data_set = []
+
+        for country in countries:
+            country_population = helpers.PopulationData()
+            country_data = {'country': country}
+            total_population = country_population.get_population_total_data(country=country)
+            population_data = {
+                    'total_population': millify(total_population.get('total_population', 0) * 1000)
+            }
+
+            # urban population
+            urban_population_data = country_population.get_population_urban_rural_data(
+                country=country, classification='urban')
+            urban_population = get_urban_rural_data(urban_population_data,  total_population, 'urban')
+
+            # rural population
+            rural_population_data = country_population.get_population_urban_rural_data(
+                country=country, classification='rural')
+            rural_population = get_urban_rural_data(rural_population_data,  total_population, 'rural')
+
+            internet_usage = helpers.get_internet_usage(country=country)
+            cpi = helpers.get_cpi_data(country=country)
+
+            data_set.append({
+                **country_data,
+                **internet_usage,
+                **rural_population,
+                **urban_population,
+                **population_data,
+                **cpi,
+            })
+        return Response(
+            status=status.HTTP_200_OK,
+            data=data_set
         )
