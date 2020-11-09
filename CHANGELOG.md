@@ -2,6 +2,8 @@
 
 ## Pre release
 ### Implemented enhancements
+
+- No ticket - change PopulationByCountry endpoint request parameter to plural
 - GB2-918 - Added Internet Usage and CPI data for PopulationByCountry endpoint
 - GBAU-61 - Added company endpoint for consumption by activity stream
 - GP2-510 - Added Suggested Countries model and relevant data

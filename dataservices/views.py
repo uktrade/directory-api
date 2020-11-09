@@ -172,7 +172,7 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
 
-        countries = self.request.GET.getlist('country', '')
+        countries = self.request.GET.getlist('countries', '')
 
         if not countries:
             return Response(status=status.HTTP_400_BAD_REQUEST)
