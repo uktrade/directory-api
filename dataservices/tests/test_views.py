@@ -394,7 +394,7 @@ def test_population_data_by_country_with_country_arg_missing(api_client):
 def test_population_data_by_country(api_client, internet_usage_data):
     url = reverse('dataservices-population-data-by-country')
 
-    response = api_client.get(url, data={'country': 'United Kingdom'})
+    response = api_client.get(url, data={'countries': 'United Kingdom'})
 
     assert response.status_code == 200
 
@@ -419,7 +419,7 @@ def test_population_data_by_country(api_client, internet_usage_data):
 def test_population_data_by_country_multiple_countries(api_client, internet_usage_data):
     url = reverse('dataservices-population-data-by-country')
 
-    response = api_client.get(url, data={'country': ['United Kingdom', 'Germany']})
+    response = api_client.get(url, data={'countries': ['United Kingdom', 'Germany']})
 
     assert response.status_code == 200
 
