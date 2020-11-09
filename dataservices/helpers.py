@@ -1,9 +1,10 @@
 from itertools import chain
 from datetime import datetime
 
-import requests
 import json
+import math
 import pandas
+import requests
 
 from django.core.cache import cache
 from dataservices import models, serializers
@@ -164,7 +165,7 @@ class PopulationData:
         if population_data.get('male_target_age_population') and population_data.get('female_target_age_population'):
             population_data['total_target_age_population'] = (
                     population_data['male_target_age_population'] + population_data['female_target_age_population']
-                 )
+            )
 
         return population_data
 
@@ -193,7 +194,7 @@ class PopulationData:
         )
         country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-        ]
+            ]
         if not country_data.empty:
             total_population_target_age = country_data[country_data.age_group.isin(target_ages)].age_value.sum()
             target_age_sex_data[f'{target_sex}_target_age_population'] = total_population_target_age
@@ -207,18 +208,18 @@ class PopulationData:
         )
         female_country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-        ]
+            ]
         un_data_transponsed = self.un_male_pop_data.melt(
             ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
         )
         male_country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-        ]
+            ]
 
         if not male_country_data.empty and not female_country_data.empty:
             # Only send data if we found country year and data for both males/females
             total_population['total_population'] = (
-                female_country_data.age_value.sum() + male_country_data.age_value.sum()
+                    female_country_data.age_value.sum() + male_country_data.age_value.sum()
             )
         return total_population
 
@@ -231,7 +232,7 @@ class PopulationData:
         )
         classified_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == str(self.year))
-        ]
+            ]
         if not classified_data.empty:
             urban_rural_data[f'{target_classification}_population_total'] = classified_data.year_value.sum()
         return urban_rural_data
@@ -239,7 +240,7 @@ class PopulationData:
 
 class TTLCache:
 
-    def __init__(self, default_cache_max_age=60*60*24):
+    def __init__(self, default_cache_max_age=60 * 60 * 24):
         self.default_max_age = default_cache_max_age
 
     def get_cache_value(self, key):
@@ -256,6 +257,7 @@ class TTLCache:
                 cached_value = func(*args, **kwargs)
                 self.set_cache_value(cache_key, cached_value)
             return cached_value
+
         return inner
 
 
@@ -298,7 +300,7 @@ def get_world_economic_outlook_data(country_code):
     data = []
     for record in models.WorldEconomicOutlook.objects.filter(country_code=country_code):
         data.append(serializers.WorldEconomicOutlookSerializer(record).data)
-    serializer = serializers.WorldEconomicOutlookSerializer(data,  many=True)
+    serializer = serializers.WorldEconomicOutlookSerializer(data, many=True)
     return json.loads(json.dumps(serializer.data))
 
 
@@ -312,3 +314,61 @@ def get_cia_factbook_data(country_name, data_keys=None):
         return cia_data
     except models.CIAFactbook.DoesNotExist:
         return {}
+
+
+def get_internet_usage(country):
+    try:
+        internet_usage_obj = models.InternetUsage.objects.filter(
+            country_name=country).latest()
+    except models.InternetUsage.DoesNotExist:
+        return {}
+    return {
+        'internet_usage': {
+            'value': '{:.2f}'.format(internet_usage_obj.value)
+            if hasattr(internet_usage_obj, 'value') else None,
+            'year': internet_usage_obj.year if hasattr(internet_usage_obj, 'year') else None,
+        }
+    }
+
+
+def get_cpi_data(country):
+    try:
+        cpi_obj = models.ConsumerPriceIndex.objects.filter(
+            country_name=country).latest()
+    except models.ConsumerPriceIndex.DoesNotExist:
+        return {}
+    return {
+        'cpi': {
+            'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None,
+            'year': cpi_obj.year
+        }
+    }
+
+
+def millify(n):
+
+    n = float(n)
+    mill_names = ['', ' thousand', ' million', ' billion', ' trillion']
+    mill_idx = max(0, min(len(mill_names) - 1,
+                          int(math.floor(0 if n == 0 else math.log10(abs(n)) / 3))))
+
+    return '{:.2f}{}'.format(n / 10 ** (3 * mill_idx), mill_names[mill_idx])
+
+
+def get_percentage_format(number, total):
+    if not number or not total:
+        return
+    percentage = int(number) / int(total) * 100
+    mill_name = millify(number * 1000)
+    return '{:.2f}% ({})'.format(percentage, mill_name)
+
+
+def get_urban_rural_data(data_object, total_population, classification):
+    return {
+        f'{classification}_population_total': data_object.get(f'{classification}_population_total', 0),
+        f'{classification}_population_percentage_formatted':
+            get_percentage_format(
+                data_object.get(f'{classification}_population_total', 0),
+                total_population.get('total_population', 0)
+            )
+    }

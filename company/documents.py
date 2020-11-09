@@ -11,7 +11,6 @@ american_english_analyzer = analysis.analyzer(
     'normalize_american_english',
     tokenizer='standard',
     filter=[
-        'standard',
         'lowercase',
         'stop',
         search_filters.companies_stopwords_filter,

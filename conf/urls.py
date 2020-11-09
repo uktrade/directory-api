@@ -39,6 +39,11 @@ activity_stream_urls = [
         activitystream.views.ActivityStreamViewSet.as_view({'get': 'list'}),
         name='activity-stream'
     ),
+    url(
+        r'^company/$',
+        activitystream.views.ActivityStreamCompanyViewSet.as_view({'get': 'list'}),
+        name='activity-stream-companies'
+    ),
 ]
 
 
@@ -80,6 +85,11 @@ urlpatterns = [
         r'^supplier/company/$',
         company.views.CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
+    ),
+    url(
+        r'^supplier/company/(?P<sso_id>[0-9]+)/(?P<request_key>.*)/$',
+        company.views.CompanyDestroyAPIView.as_view(),
+        name='company-delete-by-sso-id'
     ),
     url(
         r'^supplier/company/verify/$',
@@ -314,6 +324,11 @@ urlpatterns = [
         r'^dataservices/population-data/$',
         dataservices.views.RetrievePopulationDataView.as_view(),
         name='population-data'
+    ),
+    url(
+        r'^dataservices/population-data-by-country/$',
+        dataservices.views.RetrievePopulationDataViewByCountry.as_view(),
+        name='dataservices-population-data-by-country'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',

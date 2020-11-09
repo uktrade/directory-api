@@ -79,6 +79,12 @@ def worldeconomicoutlook_data():
 @pytest.fixture(autouse=True)
 def country_data():
     models.ConsumerPriceIndex.objects.create(
+        country_code='UK',
+        country_name='United Kingdom',
+        year=2019,
+        value=150.56
+    )
+    models.ConsumerPriceIndex.objects.create(
         country_code='CNN',
         country_name='Canada',
         year=2019,
@@ -112,7 +118,6 @@ def test_get_easeofdoingbusiness(api_client):
 
 @pytest.mark.django_db
 def test_get_easeofdoingbusiness_not_found(api_client):
-
     url = reverse(
         'dataservices-easeofdoingbusiness-index', kwargs={'country_code': 'xxx'}
     )
@@ -137,7 +142,6 @@ def test_get_corruptionperceptionsindex(api_client):
 
 @pytest.mark.django_db
 def test_get_corruptionperceptionsindex_not_found(api_client):
-
     url = reverse(
         'dataservices-corruptionperceptionsindex', kwargs={'country_code': 'xxx'}
     )
@@ -167,13 +171,12 @@ def test_get_world_economic_outlook(api_client):
             'subject': 'Gross domestic product', 'scale': 'constant prices',
             'units': 'Percent change', 'year_2020': '323.210',
             'year_2021': '1231.100'
-         }
+        }
     ]
 
 
 @pytest.mark.django_db
 def test_get_worldeconomicoutlook_not_found(api_client):
-
     url = reverse(
         'dataservices-world-economic-outlook', kwargs={'country_code': 'xxx'}
     )
@@ -186,7 +189,6 @@ def test_get_worldeconomicoutlook_not_found(api_client):
 @pytest.mark.django_db
 @mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
 def test_last_year_import_data(mock_get_last_year_import_data, api_client):
-
     data = {'import_value': {'year': 2019, 'trade_value': 100, }}
     mock_get_last_year_import_data.return_value = data
 
@@ -227,7 +229,6 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
 
 @pytest.mark.django_db
 def test_get_cia_factbook_data(api_client):
-
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, languages'})
 
@@ -253,10 +254,10 @@ def test_get_country_data(api_client):
                     'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019
                 },
                 'internet_usage': {
-                        'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019
+                    'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019
                 }
             }
-        }
+    }
 
 
 @pytest.mark.django_db
@@ -282,16 +283,15 @@ def test_get_country_data_cpi_not_found(api_client):
     assert response.status_code == 200
 
     assert response.json() == {
-            'country_data': {
-                'consumer_price_index': {},
-                'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
-            },
+        'country_data': {
+            'consumer_price_index': {},
+            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
+        },
     }
 
 
 @pytest.mark.django_db
 def test_get_country_data_internet_not_found(api_client):
-
     models.InternetUsage.objects.get(country_name='Canada').delete()
     url = reverse(
         'dataservices-country-data', kwargs={'country': 'Canada'}
@@ -310,7 +310,6 @@ def test_get_country_data_internet_not_found(api_client):
 
 @pytest.mark.django_db
 def test_get_cia_factbook_data_bad_country(api_client):
-
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'xyz', 'data_key': 'people, languages'})
 
@@ -320,7 +319,6 @@ def test_get_cia_factbook_data_bad_country(api_client):
 
 @pytest.mark.django_db
 def test_get_cia_factbook_data_bad_first_key(api_client):
-
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, xyz'})
 
@@ -330,7 +328,6 @@ def test_get_cia_factbook_data_bad_first_key(api_client):
 
 @pytest.mark.django_db
 def test_get_cia_factbook_data_bad_second_key(api_client):
-
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'xyz, xyz'})
 
@@ -340,7 +337,6 @@ def test_get_cia_factbook_data_bad_second_key(api_client):
 
 @pytest.mark.django_db
 def test_get_cia_factbook_data_no_key(api_client):
-
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom'})
 
@@ -383,3 +379,74 @@ def test_population_data_country_not_found(api_client):
     assert response.json() == {
         'population_data': {'country': 'e3fnkej', 'target_ages': ['25-34', '35-44'], 'year': 2020}
     }
+
+
+@pytest.mark.django_db
+def test_population_data_by_country_with_country_arg_missing(api_client):
+    url = reverse('dataservices-population-data-by-country')
+
+    response = api_client.get(url)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_population_data_by_country(api_client, internet_usage_data):
+    url = reverse('dataservices-population-data-by-country')
+
+    response = api_client.get(url, data={'country': 'United Kingdom'})
+
+    assert response.status_code == 200
+
+    assert response.json() == [
+        {
+            'country': 'United Kingdom',
+            'internet_usage': {
+                'value': '90.97',
+                'year': 2020
+            },
+            'cpi': {'value': '150.56', 'year': 2019},
+            'rural_population_total': 10839,
+            'urban_population_total': 56495,
+            'urban_population_percentage_formatted': '83.22% (56.49 million)',
+            'total_population': '67.89 million',
+            'rural_population_percentage_formatted': '15.97% (10.84 million)',
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_population_data_by_country_multiple_countries(api_client, internet_usage_data):
+    url = reverse('dataservices-population-data-by-country')
+
+    response = api_client.get(url, data={'country': ['United Kingdom', 'Germany']})
+
+    assert response.status_code == 200
+
+    assert response.json() == [
+        {
+            'country': 'United Kingdom',
+            'internet_usage': {
+                'value': '90.97',
+                'year': 2020
+            },
+            'rural_population_total': 10839,
+            'urban_population_total': 56495,
+            'urban_population_percentage_formatted': '83.22% (56.49 million)',
+            'total_population': '67.89 million',
+            'rural_population_percentage_formatted': '15.97% (10.84 million)',
+            'cpi': {'value': '150.56', 'year': 2019}
+        },
+        {
+            'country': 'Germany',
+            'internet_usage': {
+                'value': '91.97',
+                'year': 2020
+            },
+            'urban_population_total': 63930,
+            'rural_population_total': 18610,
+            'total_population': '83.78 million',
+            'urban_population_percentage_formatted': '76.30% (63.93 million)',
+            'rural_population_percentage_formatted': '22.21% (18.61 million)',
+        }
+    ]

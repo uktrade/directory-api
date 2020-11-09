@@ -16,7 +16,7 @@ sentry-sdk==0.13.4
 boto3==1.10.23
 celery[redis]==4.3.0
 requests[security]==2.22.0
-elasticsearch-dsl==6.4.0
+elasticsearch-dsl==7.3.0
 waitress==1.4.3
 sigauth==4.1.1
 django-staff-sso-client==1.0.0
@@ -25,7 +25,7 @@ directory-constants==20.17.0
 directory-sso-api-client==6.5.3
 directory-healthcheck==2.0.0
 directory-forms-api-client==5.1.0
-cryptography==2.8.0
+cryptography==3.2.0
 directory-components==35.6.1
 urllib3>=1.24.2<2.0.0
 factory-boy==2.12.0

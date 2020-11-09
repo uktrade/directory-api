@@ -458,3 +458,25 @@ def test_get_population_total_data_mapped():
         country='United States',
     )
     assert total_population_mapped == {'total_population': 331005}
+
+
+@pytest.mark.django_db
+def test_get_internet_usage(internet_usage_data):
+    data = helpers.get_internet_usage(country='United Kingdom')
+    assert data == {'internet_usage': {'value': '90.97', 'year': 2020}}
+
+
+@pytest.mark.django_db
+def test_get_internet_usage_with_no_country():
+    data = helpers.get_internet_usage(country='Random Country')
+    assert data == {}
+
+
+@pytest.mark.parametrize("input_1,input_2,expected", [
+    (1, 30, '3.33% (1.00 thousand)'),
+    (1, 0, None),
+    (1, None, None),
+])
+def test_get_percentage_format(input_1, input_2, expected):
+    data = helpers.get_percentage_format(input_1, input_2)
+    assert data == expected

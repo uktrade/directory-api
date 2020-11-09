@@ -13,9 +13,9 @@ from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.viewsets import ViewSet
 
+from activitystream.serializers import ActivityStreamCompanySerializer
 from company.models import Company
 
 logger = logging.getLogger(__name__)
@@ -124,9 +124,7 @@ class ActivityStreamHawkResponseMiddleware:
         return response
 
 
-class ActivityStreamViewSet(ViewSet):
-    """List-only view set for the activity stream"""
-
+class BaseActivityStreamViewSet(ViewSet):
     authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
 
@@ -140,15 +138,26 @@ class ActivityStreamViewSet(ViewSet):
 
     @staticmethod
     def _build_after(request, after_ts, after_id):
-        return (
-            request.build_absolute_uri(
-                reverse('activity-stream:activity-stream')
-            ) +
-            '?after={}_{}'.format(
-                str(after_ts.timestamp()),
-                str(after_id)
-            )
-        )
+        return f'{request.build_absolute_uri(request.path)}?after={after_ts.timestamp()}_{after_id}'
+
+    @staticmethod
+    def _generate_response(items, next_page_url):
+        """Put together a response in the format required by activity stream"""
+        next_page = {'next': next_page_url} if next_page_url else {}
+        return Response({
+            '@context': [
+                'https://www.w3.org/ns/activitystreams', {
+                    'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+                },
+            ],
+            'type': 'Collection',
+            'orderedItems': items,
+            **next_page,
+        })
+
+
+class ActivityStreamViewSet(BaseActivityStreamViewSet):
+    """List-only view set for the activity stream"""
 
     @staticmethod
     def _company_in_db(companies_by_id, item):
@@ -202,49 +211,56 @@ class ActivityStreamViewSet(ViewSet):
             (company['id'], company) for company in companies
         )
 
-        items = {
-            '@context': [
-                'https://www.w3.org/ns/activitystreams', {
-                    'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+        items = [{
+            'id': (
+                'dit:directory:CompanyVerification:' + str(item.id) +
+                ':Create'
+            ),
+            'type': 'Create',
+            'published': item.date_created.isoformat('T'),
+            'generator': {
+                'type': 'Application',
+                'name': 'dit:directory',
+            },
+            'object': {
+                'type': ['Document', 'dit:directory:CompanyVerification'],
+                'id': 'dit:directory:CompanyVerification:' + str(item.id),
+                'attributedTo': {
+                    'type': ['Organization', 'dit:Company'],
+                    'id': 'dit:directory:Company:' + item.object_id,
+                    'dit:companiesHouseNumber':
+                        companies_by_id[int(item.object_id)]['number'],
+                    'name': companies_by_id[int(item.object_id)]['name'],
                 },
-            ],
-            'type': 'Collection',
-            'orderedItems': [{
-                'id': (
-                    'dit:directory:CompanyVerification:' + str(item.id) +
-                    ':Create'
-                ),
-                'type': 'Create',
-                'published': item.date_created.isoformat('T'),
-                'generator': {
-                    'type': 'Application',
-                    'name': 'dit:directory',
-                },
-                'object': {
-                    'type': ['Document', 'dit:directory:CompanyVerification'],
-                    'id': 'dit:directory:CompanyVerification:' + str(item.id),
-                    'attributedTo': {
-                        'type': ['Organization', 'dit:Company'],
-                        'id': 'dit:directory:Company:' + item.object_id,
-                        'dit:companiesHouseNumber':
-                            companies_by_id[int(item.object_id)]['number'],
-                        'name': companies_by_id[int(item.object_id)]['name'],
-                    },
-                },
-            }
-                for item in history
-                if (
-                    self._company_in_db(companies_by_id, item) and
-                    self._was_company_verified(item)
-                )
-            ],
-        }
-        next_page = {
-            'next': self._build_after(request, history[-1].date_created,
-                                      history[-1].id)
-        } if history else {}
+            },
+        } for item in history
+            if (
+                self._company_in_db(companies_by_id, item) and
+                self._was_company_verified(item)
+            )
+        ]
 
-        return Response({
-            **items,
-            **next_page,
-        })
+        return self._generate_response(
+            items=items,
+            next_page_url=(
+                self._build_after(request, history[-1].date_created, history[-1].id)
+                if history else None
+            ),
+        )
+
+
+class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
+    """View set to list companies for the activity stream"""
+
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    def list(self, request):
+        """A single page of companies to be consumed by activity stream."""
+        after_ts, after_id = self._parse_after(request)
+        companies = list(Company.objects.all().filter(
+            Q(modified=after_ts, id__gt=after_id) |
+            Q(modified__gt=after_ts)
+        ).order_by('modified', 'id')[:MAX_PER_PAGE])
+        return self._generate_response(
+            ActivityStreamCompanySerializer(companies, many=True).data,
+            self._build_after(request, companies[-1].modified, companies[-1].id) if companies else None
+        )
