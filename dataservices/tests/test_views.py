@@ -402,13 +402,15 @@ def test_population_data_by_country(api_client, internet_usage_data):
         {
             'country': 'United Kingdom',
             'internet_usage': {
-                'value': 90.97,
+                'value': '90.97',
                 'year': 2020
             },
-            'cpi': {'value': 150.56, 'year': 2019},
+            'cpi': {'value': '150.56', 'year': 2019},
             'rural_population_total': 10839,
             'urban_population_total': 56495,
-            'total_population': 67888
+            'urban_population_percentage_formatted': '83.22% (56.49 million)',
+            'total_population': '67.89 million',
+            'rural_population_percentage_formatted': '15.97% (10.84 million)',
         }
     ]
 
@@ -425,22 +427,26 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
         {
             'country': 'United Kingdom',
             'internet_usage': {
-                'value': 90.97,
+                'value': '90.97',
                 'year': 2020
             },
             'rural_population_total': 10839,
             'urban_population_total': 56495,
-            'total_population': 67888,
-            'cpi': {'value': 150.56, 'year': 2019}
+            'urban_population_percentage_formatted': '83.22% (56.49 million)',
+            'total_population': '67.89 million',
+            'rural_population_percentage_formatted': '15.97% (10.84 million)',
+            'cpi': {'value': '150.56', 'year': 2019}
         },
         {
             'country': 'Germany',
             'internet_usage': {
-                'value': 91.97,
+                'value': '91.97',
                 'year': 2020
             },
             'urban_population_total': 63930,
             'rural_population_total': 18610,
-            'total_population': 83785
+            'total_population': '83.78 million',
+            'urban_population_percentage_formatted': '76.30% (63.93 million)',
+            'rural_population_percentage_formatted': '22.21% (18.61 million)',
         }
     ]
