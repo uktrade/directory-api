@@ -1,6 +1,13 @@
 # Changelog
 
 ## Pre release
+
+### Bugs fixed
+### Implemented enhancements
+
+## [1.0.0](https://github.com/uktrade/directory-api/releases/tag/1.0.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.05.21...1.0.0)
+
 ### Implemented enhancements
 
 - No ticket - change PopulationByCountry endpoint request parameter to plural
