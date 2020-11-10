@@ -39,6 +39,11 @@ activity_stream_urls = [
         activitystream.views.ActivityStreamViewSet.as_view({'get': 'list'}),
         name='activity-stream'
     ),
+    url(
+        r'^company/$',
+        activitystream.views.ActivityStreamCompanyViewSet.as_view({'get': 'list'}),
+        name='activity-stream-companies'
+    ),
 ]
 
 
@@ -80,6 +85,11 @@ urlpatterns = [
         r'^supplier/company/$',
         company.views.CompanyRetrieveUpdateAPIView.as_view(),
         name='company'
+    ),
+    url(
+        r'^supplier/company/(?P<sso_id>[0-9]+)/(?P<request_key>.*)/$',
+        company.views.CompanyDestroyAPIView.as_view(),
+        name='company-delete-by-sso-id'
     ),
     url(
         r'^supplier/company/verify/$',
@@ -231,6 +241,11 @@ urlpatterns = [
         name='personalisation-recommended-countries'
     ),
     url(
+        r'^personalisation/suggested-countries/$',
+        personalisation.views.SuggestedCountriesView.as_view(),
+        name='personalisation-suggested-countries'
+    ),
+    url(
         r'^exportplan/company-export-plan/$',
         exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
         name='export-plan-list-create'
@@ -239,6 +254,36 @@ urlpatterns = [
         r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',
         exportplan.views.CompanyExportPlanRetrieveUpdateView.as_view(),
         name='export-plan-detail-update'
+    ),
+    url(
+        r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
+        exportplan.views.CompanyObjectivesRetrieveUpdateDestroyView.as_view(),
+        name='export-plan-objectives-detail-update'
+    ),
+    url(
+        r'^exportplan/company-objectives/$',
+        exportplan.views.CompanyObjectivesListCreateAPIView.as_view(),
+        name='export-plan-objectives-list-create'
+    ),
+    url(
+        r'^exportplan/route-to-markets/(?P<pk>[0-9]+)/$',
+        exportplan.views.RouteToMarketsUpdateDestroyView.as_view(),
+        name='export-plan-route-to-markets-detail-update'
+    ),
+    url(
+        r'^exportplan/route-to-markets/$',
+        exportplan.views.RouteToMarketsListCreateAPIView.as_view(),
+        name='export-plan-route-to-markets-list-create'
+    ),
+    url(
+        r'^exportplan/target-market-documents/(?P<pk>[0-9]+)/$',
+        exportplan.views.TargetMarketDocumentsUpdateDestroyView.as_view(),
+        name='export-plan-target-market-documents-detail-update'
+    ),
+    url(
+        r'^exportplan/target-market-documents/$',
+        exportplan.views.TargetMarketDocumentsCreateAPIView.as_view(),
+        name='export-plan-target-market-documents-list-create'
     ),
     url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
@@ -251,14 +296,39 @@ urlpatterns = [
         name='dataservices-corruptionperceptionsindex'
     ),
     url(
+        r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
+        dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
+        name='dataservices-world-economic-outlook'
+    ),
+    url(
+        r'^dataservices/country-data/(?P<country>.*)/$',
+        dataservices.views.RetrieveCountryDataView.as_view(),
+        name='dataservices-country-data'
+    ),
+    url(
         r'^dataservices/lastyearimportdata/$',
         dataservices.views.RetrieveLastYearImportDataView.as_view(),
         name='last-year-import-data'
     ),
     url(
+        r'^dataservices/cia-factbook-data/$',
+        dataservices.views.RetrieveCiaFactbooklDataView.as_view(),
+        name='cia-factbook-data'
+    ),
+    url(
         r'^dataservices/historicalimportdata/$',
         dataservices.views.RetrieveHistoricalImportDataView.as_view(),
         name='historical-import-data'
+    ),
+    url(
+        r'^dataservices/population-data/$',
+        dataservices.views.RetrievePopulationDataView.as_view(),
+        name='population-data'
+    ),
+    url(
+        r'^dataservices/population-data-by-country/$',
+        dataservices.views.RetrievePopulationDataViewByCountry.as_view(),
+        name='dataservices-population-data-by-country'
     ),
     url(
         r'^testapi/buyer/(?P<email>.*)/$',

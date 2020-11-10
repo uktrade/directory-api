@@ -3,12 +3,14 @@ import requests
 import pytest
 import http
 
-from unittest.mock import patch, Mock
+from unittest.mock import patch
+from django.core import management
 from django.urls import reverse
 from decimal import Decimal
 
 from personalisation import models
 from personalisation.tests import factories
+from core.tests.helpers import create_response
 
 
 @pytest.fixture
@@ -57,166 +59,109 @@ def test_user_location_create_already_exists(user_location_data, authed_client):
 
 
 @pytest.mark.django_db
-def test_events_api(authed_client, settings):
+@patch('personalisation.helpers.search_with_activitystream')
+def test_events_api(mock_search_with_activitystream, authed_client, settings):
     """ We mock the call to ActivityStream """
+    document = {
+        "content": "The Independent Hotel Show is the only industry event ... in 2012 to support.",
+        "currency": "Sterling",
+        "enddate": "2020-03-18",
+        "foldername": "1920 Events",
+        "geocoordinates": {
+            "lat": "49.83",
+            "lon": "3.44"
+        },
+        "id": "dit:aventri:Event:200198344",
+        "language": "eng",
+        "location": {
+            "address1": "Europaplein 22",
+            "address2": "",
+            "address3": "",
+            "city": "Amsterdam",
+            "country": "Netherlands",
+            "email": "",
+            "map": "",
+            "name": "RAI Amsterdam",
+            "phone": "",
+            "postcode": "1078 GZ",
+            "state": ""
+        },
+        "name": "Independent Hotel Show",
+        "price": "null",
+        "price_type": "null",
+        "published": "2020-03-05T12:39:18.438792",
+        "startdate": "2020-03-17",
+        "timezone":
+        "[GMT] Greenwich Mean Time: Dublin, Edinburgh, Lisbon, London",
+        "type": ["Event", "dit:aventri:Event"],
+        "url": "https://eu.eventscloud.com/200198344"
+    }
 
-    with patch('personalisation.helpers.search_with_activitystream') as search:
-        mock_results = json.dumps({
-            "took": 32,
-            "timed_out": "false",
-            "_shards": {
-                "total": 3,
-                "successful": 3,
-                "skipped": 0,
-                "failed": 0
-            },
-            "hits": {
-                "total": 1,
-                "max_score": "null",
-                "hits": [
-                    {
-                        "_index":
-                        "objects__feed_id_aventri__date_2020-03-06__timestamp_1583508109__batch_id_hu6dz6lo__",
-                        "_type": "_doc",
-                        "_id": "dit:aventri:Event:200198344",
-                        "_score": "null",
-                        "_source": {
-                            "content": "The Independent Hotel Show \
-is the only industry event dedicated entirely to the needs of luxury \
-and boutique hoteliers. It was founded in London in 2012 to support.",
-                            "currency": "Sterling",
-                            "enddate": "2020-03-18",
-                            "foldername": "1920 Events",
-                            "geocoordinates": {
-                                "lat": "49.83",
-                                "lon": "3.44"
-                            },
-                            "id": "dit:aventri:Event:200198344",
-                            "language": "eng",
-                            "location": {
-                                "address1": "Europaplein 22",
-                                "address2": "",
-                                "address3": "",
-                                "city": "Amsterdam",
-                                "country": "Netherlands",
-                                "email": "",
-                                "map": "",
-                                "name": "RAI Amsterdam",
-                                "phone": "",
-                                "postcode": "1078 GZ",
-                                "state": ""
-                            },
-                            "name": "Independent Hotel Show",
-                            "price": "null",
-                            "price_type": "null",
-                            "published": "2020-03-05T12:39:18.438792",
-                            "startdate": "2020-03-17",
-                            "timezone":
-                            "[GMT] Greenwich Mean Time: Dublin, Edinburgh, Lisbon, London",
-                            "type": ["Event", "dit:aventri:Event"],
-                            "url": "https://eu.eventscloud.com/200198344"
-                        },
-                        "sort": [313.0059910186728]
-                    }
-                ]
-            }
-        })
-
-        search.return_value = Mock(status_code=200, content=mock_results)
-
-        response = authed_client.get(reverse('personalisation-events'))
-        assert response.status_code == 200
-        assert response.data == {'results': [
-            {
-                "content": "The Independent Hotel Show \
-is the only industry event dedicated entirely to the needs of luxury \
-and boutique hoteliers. It was founded in London in 2012 to sup…",
-                "currency": "Sterling",
-                "enddate": "2020-03-18",
-                "foldername": "1920 Events",
-                "geocoordinates": {
-                    "lat": "49.83",
-                    "lon": "3.44"
-                },
-                "id": "dit:aventri:Event:200198344",
-                "language": "eng",
-                "location": {
-                    "address1": "Europaplein 22",
-                    "address2": "",
-                    "address3": "",
-                    "city": "Amsterdam",
-                    "country": "Netherlands",
-                    "email": "",
-                    "map": "",
-                    "name": "RAI Amsterdam",
-                    "phone": "",
-                    "postcode": "1078 GZ",
-                    "state": ""
-                },
-                "name": "Independent Hotel Show",
-                "price": "null",
-                "price_type": "null",
-                "published": "2020-03-05T12:39:18.438792",
-                "startdate": "2020-03-17",
-                "timezone": "[GMT] Greenwich Mean Time: Dublin, Edinburgh, Lisbon, London",
-                "type": [
-                    "Event",
-                    "dit:aventri:Event"
-                ],
-                "url": "https://eu.eventscloud.com/200198344"
-            }
-        ]}
-
-        """ What if there are no results? """
-        search.return_value = Mock(
-            status_code=200,
-            content=json.dumps({
-                'took': 17,
-                'timed_out': False,
-                '_shards': {
-                    'total': 4,
-                    'successful': 4,
-                    'skipped': 0,
-                    'failed': 0
-                },
-                'hits': {
-                    'total': 0,
-                    'hits': []
+    mock_search_with_activitystream.return_value = create_response({
+        "took": 32,
+        "timed_out": "false",
+        "_shards": {
+            "total": 3,
+            "successful": 3,
+            "skipped": 0,
+            "failed": 0
+        },
+        "hits": {
+            "total": 1,
+            "max_score": "null",
+            "hits": [
+                {
+                    "_index":
+                    "objects__feed_id_aventri__date_2020-03-06__timestamp_1583508109__batch_id_hu6dz6lo__",
+                    "_type": "_doc",
+                    "_id": "dit:aventri:Event:200198344",
+                    "_score": "null",
+                    "_source": document,
+                    "sort": [313.0059910186728]
                 }
-            })
-        )
+            ]
+        }
+    })
 
-        response = authed_client.get(reverse('personalisation-events'))
-        assert response.status_code == 200
-        assert response.data == {'results': []}
+    response = authed_client.get(reverse('personalisation-events'))
+    assert response.status_code == 200
+    assert response.data == {'results': [document]}
 
-        '''What if ActivitySteam sends an error?'''
-        search.return_value = Mock(status_code=500,
-                                   content='[service overloaded]')
+    """ What if there are no results? """
+    mock_search_with_activitystream.return_value = create_response({
+        'took': 17,
+        'timed_out': False,
+        '_shards': {
+            'total': 4,
+            'successful': 4,
+            'skipped': 0,
+            'failed': 0
+        },
+        'hits': {
+            'total': 0,
+            'hits': []
+        }
+    })
 
-        response = authed_client.get(reverse('personalisation-events'))
-        assert response.status_code == 500
-        # This can be handled on the front end as we wish
-        assert response.data == {'error': '[service overloaded]'}
+    response = authed_client.get(reverse('personalisation-events'))
+    assert response.status_code == 200
+    assert response.data == {'results': []}
 
-        '''What if ActivitySteam is down?'''
-        search.side_effect = requests.exceptions.ConnectionError
+    '''What if ActivitySteam sends an error?'''
+    mock_search_with_activitystream.return_value = create_response('[service overloaded]', status_code=500)
 
-        response = authed_client.get(reverse('personalisation-events'))
-        assert response.status_code == 500
-        # This can be handled on the front end as we wish
-        assert response.data == {'error': 'Activity Stream connection failed'}
+    with pytest.raises(requests.exceptions.HTTPError):
+        authed_client.get(reverse('personalisation-events'))
+
+    '''What if ActivitySteam is down?'''
+    mock_search_with_activitystream.side_effect = requests.exceptions.ConnectionError
+
+    with pytest.raises(requests.exceptions.ConnectionError):
+        authed_client.get(reverse('personalisation-events'))
 
 
 @pytest.mark.django_db
 def test_export_opportunities_api(authed_client, settings):
-
-    def create_response(json_body={}, status_code=200, content=None):
-        response = requests.Response()
-        response.status_code = status_code
-        response.json = lambda: json_body
-        response._content = content
-        return response
 
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
@@ -244,8 +189,8 @@ def test_export_opportunities_api(authed_client, settings):
 
     with patch('personalisation.helpers.ExportingIsGreatClient.get_opportunities') as get_opportunities:
         get_opportunities.return_value = create_response(
+            json_body={'error': 'unauthorized'},
             status_code=http.client.FORBIDDEN,
-            json_body={'error': 'unauthorized'}
         )
 
         response = authed_client.get(reverse('personalisation-export-opportunities'), data={'s': 'food-and-drink'})
@@ -266,7 +211,7 @@ def test_recommended_countries_api(client):
         sector=country_of_interest.sector,
         country='other-country')
     # Different sector should be excluded from search
-    factories.CountryOfInterestFactory(sector="grass-growing")
+    factories.CountryOfInterestFactory(sector='grass-growing')
 
     response = client.get(
         reverse('personalisation-recommended-countries'),
@@ -278,3 +223,33 @@ def test_recommended_countries_api(client):
     }, {
         'country': country_of_interest_different.country,
     }]
+
+
+@pytest.mark.django_db
+def test_suggested_countries_api(client):
+    # Two with same country and sector
+    management.call_command('import_countries')
+    management.call_command('import_suggested_countries')
+
+    response = client.get(
+        reverse('personalisation-suggested-countries'),
+        data={'hs_code': 1}
+    )
+    assert response.status_code == 200
+    json_dict = json.loads(response.content)
+    # we have 5 suggested countries for hs_code in imported csv
+    assert len(json_dict) == 5
+
+
+@pytest.mark.django_db
+def test_suggested_countries_api_without_hs_code(client):
+    # Two with same country and sector
+    management.call_command('import_countries')
+    management.call_command('import_suggested_countries')
+
+    response = client.get(
+        reverse('personalisation-suggested-countries'),
+    )
+    assert response.status_code == 500
+    json_dict = json.loads(response.content)
+    assert json_dict['error_message'] == "hs_code missing in request params"

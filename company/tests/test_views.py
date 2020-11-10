@@ -39,6 +39,7 @@ default_public_profile_data = {
 default_ordering_values = {
     'keywords': '',
     'sectors': [],
+    'hs_codes': [],
     'expertise_industries': [],
     'expertise_regions': [],
     'expertise_languages': [],
@@ -90,6 +91,7 @@ def test_company_retrieve_view(authed_client, authed_supplier):
         'facebook_url': company.facebook_url,
         'has_exported_before': company.has_exported_before,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -156,6 +158,7 @@ def test_company_update_with_put(authed_client, authed_supplier):
         'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -216,6 +219,7 @@ def test_company_partial_update(authed_client, authed_supplier):
         'export_destinations_other': 'LY',
         'facebook_url': company.facebook_url,
         'has_valid_address': True,
+        'hs_codes': company.hs_codes,
         'id': str(company.id),
         'is_exporting_goods': False,
         'is_exporting_services': False,
@@ -258,6 +262,7 @@ def test_company_partial_update_no_company(authed_client, authed_supplier):
     data = {
         'name': 'Example company',
         'sectors': ['SOFTWARE_AND_COMPUTER_SERVICES'],
+        'hs_codes': ['3'],
         'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
         'expertise_countries': [
             choices.COUNTRY_CHOICES[23][0],
@@ -272,6 +277,7 @@ def test_company_partial_update_no_company(authed_client, authed_supplier):
     company = models.Company.objects.get(company_users__sso_id=authed_supplier.sso_id)
     assert company.name == data['name']
     assert company.sectors == data['sectors']
+    assert company.hs_codes == data['hs_codes']
     assert company.expertise_industries == data['expertise_industries']
     assert company.expertise_countries == data['expertise_countries']
     assert models.CompanyUser.objects.get(sso_id=authed_supplier.sso_id, company=company)
@@ -1909,7 +1915,7 @@ def test_search_american_english_full_words(url, api_client, settings):
 
     actual = [hit['_id'] for hit in response.json()['hits']['hits']]
 
-    assert actual == ['2', '1', '3']
+    assert actual == ['1', '2', '3']
 
 
 @pytest.mark.rebuild_elasticsearch
@@ -2670,3 +2676,92 @@ def test_company_user_retrieve_sso_id(client):
     response = client.get(url)
 
     assert response.json()['sso_id'] == company_user.sso_id
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_signal_user(authed_client, authed_supplier):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': authed_supplier.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
+    authed_supplier.role = user_roles.ADMIN
+    authed_supplier.save()
+
+    company_user_one = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    company_user_two = factories.CompanyUserFactory(company=authed_supplier.company, role=user_roles.EDITOR)
+    factories.CompanyUserFactory()
+
+    assert authed_supplier.company.company_users.all().count() == 3
+
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': authed_supplier.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+    company_user_one.refresh_from_db()
+    company_user_two.refresh_from_db()
+    authed_supplier.company.refresh_from_db()
+
+    assert company_user_one.role == user_roles.ADMIN
+    assert company_user_two.role == user_roles.ADMIN
+
+    assert authed_supplier.company.company_users.all().count() == 2
+
+    # check company is not deleted
+    assert authed_supplier is not None
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_random_user(authed_client):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': 999,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+    )
+    assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_random_request_key(authed_client):
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': 999,
+                    'request_key': 'Random'
+                })
+    )
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_user_not_associated_with_company(authed_client, authed_supplier):
+    non_company_user = factories.CompanyUserFactory(company=None)
+    user_before_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
+
+    assert user_before_delete_count == 1
+
+    response = authed_client.delete(
+        reverse('company-delete-by-sso-id',
+                kwargs={
+                    'sso_id': non_company_user.sso_id,
+                    'request_key': settings.DIRECTORY_SSO_API_SECRET
+                })
+        )
+
+    assert response.status_code == 204
+    user_after_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
+    assert user_after_delete_count == 0

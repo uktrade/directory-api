@@ -9,6 +9,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import FormView, TemplateView
+from import_export.resources import ModelResource
+from import_export.fields import Field
 
 from core.helpers import build_preverified_url, generate_csv_response
 from company import helpers, models
@@ -377,3 +379,20 @@ class CompanyUserAdmin(admin.ModelAdmin):
                 ),
         ]
         return additional_urls + urls
+
+
+@admin.register(models.HsCodeSector)
+class HsCodeSectorAdmin(admin.ModelAdmin):
+    list_display = ('hs_code', 'sector', 'product')
+    list_display_links = ('hs_code', 'sector')
+
+
+class HsCodeSectorResource(ModelResource):
+    hs_code = Field(attribute='hs_code', column_name='Code')
+    product = Field(attribute='product', column_name='Product label')
+    sector = Field(attribute='sector', column_name='Sector name')
+
+    class Meta:
+        model = models.HsCodeSector
+        skip_unchanged = True
+        fields = ['id', 'hs_code', 'product', 'sector']

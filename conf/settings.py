@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'authbroker_client',
     'personalisation.apps.PersonalisationConfig',
     'dataservices.apps.DataservicesConfig',
+    'django_json_widget',
 ]
 
 MIDDLEWARE = [
@@ -235,6 +236,11 @@ if DEBUG:
         },
         'loggers': {
             'django.request': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'faker': {
                 'handlers': ['console'],
                 'level': 'ERROR',
                 'propagate': True,
@@ -432,6 +438,7 @@ DIRECTORY_SSO_API_CLIENT_DEFAULT_TIMEOUT = 15
 DIRECTORY_SSO_API_CLIENT_BASE_URL = env.str('SSO_API_CLIENT_BASE_URL', '')
 DIRECTORY_SSO_API_CLIENT_API_KEY = env.str('SSO_SIGNATURE_SECRET', '')
 DIRECTORY_SSO_API_CLIENT_SENDER_ID = env.str('DIRECTORY_SSO_API_CLIENT_SENDER_ID', 'directory')
+DIRECTORY_SSO_API_SECRET = env.str('SSO_API_SECRET', '')
 
 # FAS
 FAS_COMPANY_LIST_URL = env.str('FAS_COMPANY_LIST_URL', '')
@@ -512,6 +519,7 @@ FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.bool('FEATURE_COMTRADE_HISTORICAL
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
     'activity-stream',
+    'activity-stream-companies',
     'gecko-total-registered-suppliers',
     'health-check-database',
     'health-check-cache',
@@ -534,5 +542,3 @@ EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME = env.str('EXPORTING_OPPORTUNITI
 EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD', '')
 EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE_URL')
 EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')
-# airtable
-AIRTABLE_API_KEY = env.str('AIRTABLE_API_KEY', '')
