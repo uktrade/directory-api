@@ -72,13 +72,14 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
         """
         prefix = 'dit:directory:Company'
         return {
-            'id': f'{prefix}:{instance.id}',
+            'id': f'{prefix}:{instance.id}:Update',
             'published': instance.date_published.isoformat(),
             'generator': {
                 'type': 'Application',
                 'name': 'dit:directory',
             },
-            'object': [
-                {f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()}
-            ]
+            'object': {
+                'id': f'{prefix}:{instance.id}',
+                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()}
+            }
         }
