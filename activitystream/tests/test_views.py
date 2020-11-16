@@ -329,10 +329,11 @@ def test_if_61_seconds_in_past_401_returned(api_client, activities_url):
 
 def _expected_company_response(company):
     return {
-        'id': f'dit:directory:Company:{company.id}',
+        'id': f'dit:directory:Company:{company.id}:Update',
         'published': company.date_published.strftime('%Y-%m-%d'),
         'generator': {'type': 'Application', 'name': 'dit:directory'},
-        'object': [{
+        'object': {
+            'id': f'dit:directory:Company:{company.id}',
             'dit:directory:Company:address_line_1': company.address_line_1,
             'dit:directory:Company:address_line_2': company.address_line_2,
             'dit:directory:Company:company_type': company.company_type,
@@ -389,7 +390,7 @@ def _expected_company_response(company):
                 'other': ['Regulatory', 'Finance', 'IT'],
                 'Finance': ['Insurance']
             }
-        }]
+        }
     }
 
 
