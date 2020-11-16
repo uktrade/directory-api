@@ -98,7 +98,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         fields = (
             'company',
             'sso_id',
-            'rules_regulations',
+            'ui_options',
             'export_countries',
             'export_commodity_codes',
             'objectives',

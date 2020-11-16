@@ -22,7 +22,7 @@ def export_plan_data(company):
         'company': company.pk,
         'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
         'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
-        'rules_regulations': {'rules': '0.001'},
+        'ui_options': {'target_ages': ['25-34', '35-44']},
         'company_objectives': [{'description': 'export 5k cases of wine'}, ],
         'export_plan_actions': [{'is_reminders_on': True, 'action_type': 'TARGET_MARKETS', }]
 
@@ -51,7 +51,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
 
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
-    assert created_export_plan['rules_regulations'] == export_plan_data['rules_regulations']
+    assert created_export_plan['ui_options'] == export_plan_data['ui_options']
     assert created_export_plan['export_plan_actions'] == [
         {
             'companyexportplan': export_plan_db.pk, 'owner': None, 'due_date': None,
@@ -94,7 +94,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'sso_id': export_plan.sso_id,
         'export_commodity_codes': export_plan.export_commodity_codes,
         'export_countries': export_plan.export_countries,
-        'rules_regulations': export_plan.rules_regulations,
+        'ui_options': export_plan.ui_options,
         'about_your_business': export_plan.about_your_business,
         'objectives': export_plan.objectives,
         'sectors': export_plan.sectors,

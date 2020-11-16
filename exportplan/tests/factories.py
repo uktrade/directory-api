@@ -11,7 +11,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     company = factory.SubFactory(factories.CompanyFactory)
     export_countries = [{'country_name': 'China', 'country_iso2_code': 'CN'}]
     export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
-    rules_regulations = {'rules': '0.001'}
+    ui_options = {'target_ages': ['25-34', '35-44']}
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
     sectors = ['Food and drink', 'hospitality']

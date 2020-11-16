@@ -10,13 +10,16 @@ from directory_constants import choices
 
 class CompanyExportPlan(TimeStampedModel):
 
+    # General fields
+
     company = models.ForeignKey(
         Company, related_name='company_export_plans', on_delete=models.CASCADE, blank=True, null=True
     )
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', default=None, unique=False)
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
-    rules_regulations = JSONField(null=True, blank=True, default=list)
+    ui_options = JSONField(null=True, blank=True, default=list)
+
     about_your_business = JSONField(null=True, blank=True, default=dict)
     # business objectives
     objectives = JSONField(null=True, blank=True, default=list)
