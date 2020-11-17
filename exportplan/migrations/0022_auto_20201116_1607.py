@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='companyexportplan',
             name='ui_options',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=list, null=True),
+            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
         ),
     ]
