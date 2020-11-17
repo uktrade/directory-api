@@ -18,7 +18,7 @@ class CompanyExportPlan(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', default=None, unique=False)
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
-    ui_options = JSONField(null=True, blank=True, default=list)
+    ui_options = JSONField(null=True, blank=True, default=dict)
 
     about_your_business = JSONField(null=True, blank=True, default=dict)
     # business objectives
