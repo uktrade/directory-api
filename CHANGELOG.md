@@ -42,6 +42,7 @@
 - GP2-699 - swamp route to market constants
 - Noticket - update-admin
 - Noticket - upgrade-es-7
+- Noticket - allow partial updates json fields
 
 
 
