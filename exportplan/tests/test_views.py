@@ -506,3 +506,61 @@ def test_adaptation_target_market_doc_delete(authed_client, authed_supplier, exp
     response = authed_client.delete(url)
     assert response.status_code == http.client.NO_CONTENT
     assert not export_plan.target_market_documents.all()
+
+
+@pytest.mark.django_db
+def test_export_plan_update_json_new_to_partial(authed_client, authed_supplier):
+    export_plan = factories.CompanyExportPlanFactory.create(about_your_business={})
+
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    assert response.json()['about_your_business'] == {}
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    data = {'about_your_business': {'Location': 'London', 'story': 'new brand'}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['about_your_business'] == data['about_your_business']
+    # Update just single field
+    data = {'about_your_business': {'Location': 'New York'}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['about_your_business'] == {'Location': 'New York', 'story': 'new brand'}
+
+    # Add new field
+    data = {'about_your_business': {'New': 'New Item'}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['about_your_business'] == {'Location': 'New York', 'story': 'new brand', 'New': 'New Item'}
+
+
+@pytest.mark.django_db
+def test_export_plan_update_non_json_new_to_partial(authed_client, authed_supplier):
+    export_plan = factories.CompanyExportPlanFactory.create(resource_needed='')
+
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    response = authed_client.get(url)
+
+    assert response.status_code == 200
+    assert response.json()['resource_needed'] == ''
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    data = {'resource_needed': 'New resource'}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['resource_needed'] == 'New resource'
+    # Update
+    data = {'resource_needed': 'Old resource'}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['resource_needed'] == 'Old resource'
