@@ -3,6 +3,7 @@
 ## Pre release
 
 ### Implemented enhancements
+- GP2-1025 - New endpoint for getting economy data from ComTrade
 - GP2-849 - target audience progress
 
 ### Bugs fixed
