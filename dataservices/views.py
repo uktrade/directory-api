@@ -66,7 +66,8 @@ class RetrieveLastYearImportDataView(generics.GenericAPIView):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-        last_year_data = comtrade.get_last_year_import_data()
+        # from world
+        last_year_data = comtrade.get_last_year_import_data(from_uk=False)
         return Response(
             status=status.HTTP_200_OK,
             data={'last_year_data': last_year_data}
@@ -80,7 +81,7 @@ class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-        last_year_data = comtrade.get_last_year_import_data_from_uk()
+        last_year_data = comtrade.get_last_year_import_data(from_uk=True)
         return Response(
             status=status.HTTP_200_OK,
             data={'last_year_data': last_year_data}

@@ -13,6 +13,7 @@ COUNTRIES_MAP = {
     'United States': 'USA',
 }
 
+
 class ComTradeData:
     url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS'
 
@@ -39,9 +40,14 @@ class ComTradeData:
         commodity_list = commodity_code.split('.')[0:2]
         return ''.join(commodity_list)
 
-    def get_last_year_import_data(self):
+    def get_last_year_import_data(self, from_uk=False):
 
-        comdata = requests.get(self.get_url())
+        url = self.get_url()
+        if from_uk:
+            url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=2'
+            url = self.url + url_options
+
+        comdata = requests.get(url)
         if 'dataset' in comdata.json() and comdata.json()['dataset']:
             comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
 
@@ -53,7 +59,8 @@ class ComTradeData:
                 if len(comdata_df.index) > 1:
 
                     try:
-                        last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
+                        last_year_import = comdata_df[
+                            comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
                         year_on_year_change = str(round(last_year_import / year_import.iloc[0]['TradeValue'], 3))
                     except IndexError:
                         pass
@@ -63,31 +70,6 @@ class ComTradeData:
                     'trade_value': str(year_import.iloc[0]['TradeValue']),
                     'country_name': year_import.iloc[0]['rtTitle'],
                     'year_on_year_change': year_on_year_change,
-                }
-
-    def get_last_year_import_data_from_uk(self):
-
-        url = self.url + f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=2'
-        comdata = requests.get(url)
-        
-        if 'dataset' in comdata.json() and comdata.json()['dataset']:
-            comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
-            if not comdata_df.empty:
-                # Get Last two years data
-                year_import = comdata_df[comdata_df.period == comdata_df.period.max()]
-                # check if data available for more than one year
-                year_on_year_change = None
-                if len(comdata_df.index) > 1:
-                    try:
-                        last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
-                        year_on_year_change = str(round(last_year_import/year_import.iloc[0]['TradeValue'], 3))
-                    except IndexError:
-                        pass
-                return {
-                        'year': str(year_import.iloc[0]['period']),
-                        'trade_value': str(year_import.iloc[0]['TradeValue']),
-                        'country_name': year_import.iloc[0]['rtTitle'],
-                        'year_on_year_change': year_on_year_change,
                 }
 
     def get_historical_import_value_partner_country(self, no_years=3):
