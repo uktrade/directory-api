@@ -202,6 +202,21 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
 
 
 @pytest.mark.django_db
+@mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
+def test_last_year_import_data_from_uk(mock_get_last_year_import_data, api_client):
+    data = {'import_value': {'year': 2019, 'trade_value': 100, }}
+    mock_get_last_year_import_data.return_value = data
+
+    url = reverse('last-year-import-data-from-uk')
+    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
+
+    assert mock_get_last_year_import_data.call_count == 1
+
+    assert response.status_code == 200
+    assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
+
+
+@pytest.mark.django_db
 @mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_world')
 @mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_partner_country')
 @mock.patch.object(helpers.ComTradeData, '__init__')
@@ -248,15 +263,12 @@ def test_get_country_data(api_client):
     assert response.status_code == 200
 
     assert response.json() == {
-        'country_data':
-            {
-                'consumer_price_index': {
-                    'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019
-                },
-                'internet_usage': {
-                    'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019
-                }
-            }
+        'country_data': {
+            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
+            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'corruption_perceptions_index': None,
+            'ease_of_doing_bussiness': None
+        }
     }
 
 
@@ -269,7 +281,15 @@ def test_get_country_data_not_found(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
 
-    assert response.json() == {'country_data': {'consumer_price_index': {}, 'internet_usage': {}}}
+    assert response.json() == {
+        'country_data':
+            {
+                'consumer_price_index': None,
+                'internet_usage': None,
+                'corruption_perceptions_index': None,
+                'ease_of_doing_bussiness': None
+             }
+    }
 
 
 @pytest.mark.django_db
@@ -284,8 +304,10 @@ def test_get_country_data_cpi_not_found(api_client):
 
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {},
-            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
+            'consumer_price_index': None,
+            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'corruption_perceptions_index': None,
+            'ease_of_doing_bussiness': None
         },
     }
 
@@ -304,7 +326,9 @@ def test_get_country_data_internet_not_found(api_client):
         'consumer_price_index': {'country_name': 'Canada',
                                  'country_code': 'CNN', 'value': '20.560',
                                  'year': 2019},
-        'internet_usage': {},
+        'internet_usage': None,
+        'corruption_perceptions_index': None,
+        'ease_of_doing_bussiness': None
     }}
 
 
