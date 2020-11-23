@@ -66,7 +66,7 @@ def comtrade_request_mock_empty(comtrade_data, requests_mocker):
 
 def test_get_url(comtrade):
     assert comtrade.get_url() == (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&rg=1&r=36&p=826&cc=220850&ps=All'
+        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=826&cc=220850&ps=All&rg=1'
     )
 
 

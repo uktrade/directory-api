@@ -18,6 +18,7 @@ from dataservices.serializers import (
     EaseOfDoingBusinessSerializer
 )
 
+
 class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
     serializer_class = serializers.EaseOfDoingBusinessSerializer
     permission_classes = []
