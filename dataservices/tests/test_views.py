@@ -202,6 +202,21 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
 
 
 @pytest.mark.django_db
+@mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
+def test_last_year_import_data_from_uk(mock_get_last_year_import_data, api_client):
+    data = {'import_value': {'year': 2019, 'trade_value': 100, }}
+    mock_get_last_year_import_data.return_value = data
+
+    url = reverse('last-year-import-data-from-uk')
+    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
+
+    assert mock_get_last_year_import_data.call_count == 1
+
+    assert response.status_code == 200
+    assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
+
+
+@pytest.mark.django_db
 @mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_world')
 @mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_partner_country')
 @mock.patch.object(helpers.ComTradeData, '__init__')
