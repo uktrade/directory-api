@@ -311,6 +311,11 @@ urlpatterns = [
         name='last-year-import-data'
     ),
     url(
+        r'^dataservices/lastyearimportdatafromuk/$',
+        dataservices.views.RetrieveLastYearImportDataFromUKView.as_view(),
+        name='last-year-import-data-from-uk'
+    ),
+    url(
         r'^dataservices/cia-factbook-data/$',
         dataservices.views.RetrieveCiaFactbooklDataView.as_view(),
         name='cia-factbook-data'

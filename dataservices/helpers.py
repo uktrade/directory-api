@@ -11,7 +11,7 @@ from dataservices import models, serializers
 
 
 class ComTradeData:
-    url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&rg=1'
+    url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS'
 
     def __init__(self, commodity_code, reporting_area, partner_country='United Kingdom'):
         pandas.set_option('mode.chained_assignment', None)
@@ -29,7 +29,7 @@ class ComTradeData:
                 return ''
 
     def get_url(self):
-        url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All'
+        url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=1'
         return self.url + url_options
 
     def get_product_code(self, commodity_code):
@@ -39,17 +39,48 @@ class ComTradeData:
     def get_last_year_import_data(self):
 
         comdata = requests.get(self.get_url())
-        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
+        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
         if not comdata_df.empty:
             # Get Last two years data
             year_import = comdata_df[comdata_df.period == comdata_df.period.max()]
-            last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
+            year_on_year_change = None
+            # check if data available for more than one year
+            if len(comdata_df.index) > 1:
 
+                try:
+                    last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
+                    year_on_year_change = str(round(last_year_import / year_import.iloc[0]['TradeValue'], 3))
+                except IndexError:
+                    pass
+
+            return {
+                'year': str(year_import.iloc[0]['period']),
+                'trade_value': str(year_import.iloc[0]['TradeValue']),
+                'country_name': year_import.iloc[0]['rtTitle'],
+                'year_on_year_change': year_on_year_change,
+            }
+
+    def get_last_year_import_data_from_uk(self):
+
+        url = self.url + f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=2'
+        comdata = requests.get(url)
+        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
+        if not comdata_df.empty:
+            # Get Last two years data
+            year_import = comdata_df[comdata_df.period == comdata_df.period.max()]
+            # check if data available for more than one year
+            year_on_year_change = None
+            if len(comdata_df.index) > 1:
+                try:
+                    last_year_import = comdata_df[comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
+                    year_on_year_change = str(round(last_year_import/year_import.iloc[0]['TradeValue'], 3))
+                except IndexError:
+                    pass
             return {
                     'year': str(year_import.iloc[0]['period']),
                     'trade_value': str(year_import.iloc[0]['TradeValue']),
                     'country_name': year_import.iloc[0]['rtTitle'],
-                    'year_on_year_change': str(round(last_year_import/year_import.iloc[0]['TradeValue'], 3)),
+                    'year_on_year_change': year_on_year_change,
             }
 
     def get_historical_import_value_partner_country(self, no_years=3):
@@ -324,8 +355,7 @@ def get_internet_usage(country):
         return {}
     return {
         'internet_usage': {
-            'value': '{:.2f}'.format(internet_usage_obj.value)
-            if hasattr(internet_usage_obj, 'value') else None,
+            'value': '{:.2f}'.format(internet_usage_obj.value) if hasattr(internet_usage_obj, 'value') else None,
             'year': internet_usage_obj.year if hasattr(internet_usage_obj, 'year') else None,
         }
     }
@@ -372,3 +402,13 @@ def get_urban_rural_data(data_object, total_population, classification):
                 total_population.get('total_population', 0)
             )
     }
+
+
+def get_serialized_instance_from_model(
+        model_class, serializer_class, filter_args):
+    try:
+        instance = model_class.objects.get(**filter_args)
+        serializer = serializer_class(instance)
+        return serializer.data
+    except model_class.DoesNotExist:
+        return None
