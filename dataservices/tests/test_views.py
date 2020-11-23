@@ -248,15 +248,12 @@ def test_get_country_data(api_client):
     assert response.status_code == 200
 
     assert response.json() == {
-        'country_data':
-            {
-                'consumer_price_index': {
-                    'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019
-                },
-                'internet_usage': {
-                    'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019
-                }
-            }
+        'country_data': {
+            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
+            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'corruption_perceptions_index': None,
+            'ease_of_doing_bussiness': None
+        }
     }
 
 
@@ -269,7 +266,15 @@ def test_get_country_data_not_found(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
 
-    assert response.json() == {'country_data': {'consumer_price_index': {}, 'internet_usage': {}}}
+    assert response.json() == {
+        'country_data':
+            {
+                'consumer_price_index': None,
+                'internet_usage': None,
+                'corruption_perceptions_index': None,
+                'ease_of_doing_bussiness': None
+             }
+    }
 
 
 @pytest.mark.django_db
@@ -284,8 +289,10 @@ def test_get_country_data_cpi_not_found(api_client):
 
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {},
-            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019}
+            'consumer_price_index': None,
+            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'corruption_perceptions_index': None,
+            'ease_of_doing_bussiness': None
         },
     }
 
@@ -304,7 +311,9 @@ def test_get_country_data_internet_not_found(api_client):
         'consumer_price_index': {'country_name': 'Canada',
                                  'country_code': 'CNN', 'value': '20.560',
                                  'year': 2019},
-        'internet_usage': {},
+        'internet_usage': None,
+        'corruption_perceptions_index': None,
+        'ease_of_doing_bussiness': None
     }}
 
 
