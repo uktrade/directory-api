@@ -10,10 +10,10 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
     pre_save_target_markets = []
     if not instance._state.adding:
         pre_save_instance = sender.objects.only('target_markets').get(pk=instance.pk)
-        pre_save_target_markets = [market['country'] for market in pre_save_instance.target_markets]
+        pre_save_target_markets = [market['country_name'] for market in pre_save_instance.target_markets]
 
     for target_market in instance.target_markets:
-        country = target_market['country']
+        country = target_market['country_name']
         if country in pre_save_target_markets:
             continue
 
