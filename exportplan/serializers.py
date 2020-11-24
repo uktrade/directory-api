@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from exportplan import models
+from django.contrib.postgres.fields import JSONField
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
@@ -98,7 +99,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         fields = (
             'company',
             'sso_id',
-            'rules_regulations',
+            'ui_options',
             'export_countries',
             'export_commodity_codes',
             'objectives',
@@ -137,7 +138,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
 
         objectives = validated_data.pop('company_objectives', {})
         actions = validated_data.pop('export_plan_actions', {})
-
         instance = super().create(validated_data)
         self.recreate_objectives(instance, objectives)
         self.recreate_actions(instance, actions)
@@ -146,9 +146,25 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         actions = {}
+
         if validated_data.get('export_plan_actions'):
             actions = validated_data.pop('export_plan_actions')
 
+        # This will allow partial updating to json fields during a patch update. Json fields generally represent
+        # a export plan page. we only want to update the field being sent else by nature we would wipe all the
+        # other fields
+        for field_name in validated_data.keys():
+            field_value = getattr(instance, field_name)
+            # Check if the field we are updating is JSON Type and ensure contents are JSON
+            if (
+                    isinstance(models.CompanyExportPlan._meta.get_field(field_name), JSONField) and
+                    isinstance(field_value, dict)
+            ):
+                # For every field for in incoming dictionary update the field from DB
+                for k, v in validated_data[field_name].items():
+                    field_value[k] = v
+                # Send merged data back to validated_data for the method to update the instance
+                validated_data[field_name] = field_value
         super().update(instance, validated_data)
         self.recreate_actions(instance, actions)
         return instance
