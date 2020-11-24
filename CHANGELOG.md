@@ -1,7 +1,20 @@
 # Changelog
 
 ## Pre release
+
 ### Implemented enhancements
+- GP2-1025 - New endpoint for getting economy data from ComTrade
+- GP2-849 - target audience progress
+
+### Bugs fixed
+
+
+## [1.0.0](https://github.com/uktrade/directory-api/releases/tag/1.0.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2020.05.21...1.0.0)
+
+### Implemented enhancements
+
+- No ticket - change PopulationByCountry endpoint request parameter to plural
 - GB2-918 - Added Internet Usage and CPI data for PopulationByCountry endpoint
 - GBAU-61 - Added company endpoint for consumption by activity stream
 - GP2-510 - Added Suggested Countries model and relevant data
@@ -30,6 +43,8 @@
 - GP2-699 - swamp route to market constants
 - Noticket - update-admin
 - Noticket - upgrade-es-7
+- Noticket - allow partial updates json fields
+
 
 
 ### Bugs fixed

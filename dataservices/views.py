@@ -3,7 +3,20 @@ from rest_framework import status, generics
 from dataservices import serializers, models, helpers
 from rest_framework.response import Response
 from django.http import Http404
-from .helpers import millify, get_urban_rural_data
+
+from dataservices.models import (
+    ConsumerPriceIndex,
+    CorruptionPerceptionsIndex,
+    InternetUsage,
+    EaseOfDoingBusiness
+)
+from dataservices.helpers import millify, get_urban_rural_data, get_serialized_instance_from_model
+from dataservices.serializers import (
+    ConsumerPriceIndexSerializer,
+    CorruptionPerceptionsIndexSerializer,
+    InternetUsageSerializer,
+    EaseOfDoingBusinessSerializer
+)
 
 
 class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
@@ -53,7 +66,22 @@ class RetrieveLastYearImportDataView(generics.GenericAPIView):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-        last_year_data = comtrade.get_last_year_import_data()
+        # from world
+        last_year_data = comtrade.get_last_year_import_data(from_uk=False)
+        return Response(
+            status=status.HTTP_200_OK,
+            data={'last_year_data': last_year_data}
+        )
+
+
+class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        commodity_code = self.request.GET.get('commodity_code', '')
+        country = self.request.GET.get('country', '')
+        comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
+        last_year_data = comtrade.get_last_year_import_data(from_uk=True)
         return Response(
             status=status.HTTP_200_OK,
             data={'last_year_data': last_year_data}
@@ -98,23 +126,33 @@ class RetrieveCountryDataView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        country = self.map_dit_to_weo_country_data(self.kwargs['country'])
-        country_data = {'consumer_price_index': {}, 'internet_usage': {}}
-        try:
-            instance = models.ConsumerPriceIndex.objects.get(
-                country_name=country)
-            serializer = serializers.ConsumerPriceIndexSerializer(instance)
 
-            country_data['consumer_price_index'] = serializer.data
-        except models.ConsumerPriceIndex.DoesNotExist:
-            pass
-        try:
-            instance = models.InternetUsage.objects.get(
-                country_name=country)
-            serializer = serializers.InternetUsageSerializer(instance)
-            country_data['internet_usage'] = serializer.data
-        except models.InternetUsage.DoesNotExist:
-            pass
+        country = self.map_dit_to_weo_country_data(self.kwargs['country'])
+        filter_args = {'country_name': country}
+
+        country_data = {
+            'consumer_price_index': get_serialized_instance_from_model(
+                ConsumerPriceIndex,
+                ConsumerPriceIndexSerializer,
+                filter_args
+            ),
+            'internet_usage': get_serialized_instance_from_model(
+                InternetUsage,
+                InternetUsageSerializer,
+                filter_args
+            ),
+            'corruption_perceptions_index': get_serialized_instance_from_model(
+                CorruptionPerceptionsIndex,
+                CorruptionPerceptionsIndexSerializer,
+                filter_args
+            ),
+            'ease_of_doing_bussiness': get_serialized_instance_from_model(
+                EaseOfDoingBusiness,
+                EaseOfDoingBusinessSerializer,
+                filter_args
+            ),
+
+        }
         return Response(
             status=status.HTTP_200_OK,
             data={'country_data': country_data}
@@ -172,7 +210,7 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
 
-        countries = self.request.GET.getlist('country', '')
+        countries = self.request.GET.getlist('countries', '')
 
         if not countries:
             return Response(status=status.HTTP_400_BAD_REQUEST)
