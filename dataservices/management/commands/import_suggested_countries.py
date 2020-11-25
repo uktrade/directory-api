@@ -15,7 +15,7 @@ class Command(BaseCommand):
             data = tablib.import_set(f.read(), format='csv', headers=True)
             suggested_product_countries = []
 
-            # add only contries and selected columns
+            # add only countries and selected columns
             for suggested_tuple in data:
                 iso_list = []
                 hs_code = None
