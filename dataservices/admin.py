@@ -176,3 +176,25 @@ class CountryAdmin(admin.ModelAdmin):
     )
 
     list_filter = ('region', )
+
+
+class GDPPerCapitaResource(resources.ModelResource):
+
+    class Meta:
+        model = models.GDPPerCapita
+        fields = ['country_name', 'country_code', 'year_2019']
+
+
+@admin.register(models.GDPPerCapita)
+class GDPPerCapitaAdmin(admin.ModelAdmin):
+    list_display = (
+        'country_name',
+        'country_code',
+        'year_2019',
+    )
+
+    resource_class = GDPPerCapitaResource
+
+    class Meta:
+        model = models.CorruptionPerceptionsIndex
+        fields = ['country_name', 'country_code', 'year_2019']
