@@ -334,6 +334,7 @@ def _expected_company_response(company):
         'generator': {'type': 'Application', 'name': 'dit:directory'},
         'object': {
             'id': f'dit:directory:Company:{company.id}',
+            'type': 'dit:directory:Company',
             'dit:directory:Company:address_line_1': company.address_line_1,
             'dit:directory:Company:address_line_2': company.address_line_2,
             'dit:directory:Company:company_type': company.company_type,
