@@ -80,6 +80,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
             },
             'object': {
                 'id': f'{prefix}:{instance.id}',
+                'type': 'dit:directory:Company',
                 **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()}
             }
         }
