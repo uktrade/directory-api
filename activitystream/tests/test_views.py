@@ -402,6 +402,9 @@ def test_company_viewset(api_client, companies_url):
     with freeze_time('2012-09-01 12:00:01'):
         company_2 = CompanyFactory(number='10000002', date_published=datetime.datetime(2020, 9, 2))
 
+    # Create a company without a date_published date. This shouldn't be included in the response
+    CompanyFactory(number='10000003')
+
     # Page 1
     auth = _auth_sender(companies_url).request_header
     response = api_client.get(
