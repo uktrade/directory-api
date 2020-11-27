@@ -256,9 +256,10 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
     def list(self, request):
         """A single page of companies to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
-        companies = list(Company.objects.all().filter(
+        companies = list(Company.objects.filter(
             Q(modified=after_ts, id__gt=after_id) |
-            Q(modified__gt=after_ts)
+            Q(modified__gt=after_ts),
+            date_published__isnull=False
         ).order_by('modified', 'id')[:MAX_PER_PAGE])
         return self._generate_response(
             ActivityStreamCompanySerializer(companies, many=True).data,
