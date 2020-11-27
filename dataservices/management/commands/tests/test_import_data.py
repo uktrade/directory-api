@@ -34,6 +34,7 @@ def test_import_data_sets_error(management_cmd):
 @pytest.mark.django_db
 @pytest.mark.parametrize('model_name, management_cmd, object_count', (
     (models.Country, 'import_countries', 194),
+    (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
 ))
 def test_import_countries_data_sets(model_name, management_cmd, object_count):
     management.call_command(management_cmd)

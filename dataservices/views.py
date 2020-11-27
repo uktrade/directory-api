@@ -8,14 +8,16 @@ from dataservices.models import (
     ConsumerPriceIndex,
     CorruptionPerceptionsIndex,
     InternetUsage,
-    EaseOfDoingBusiness
+    EaseOfDoingBusiness,
+    GDPPerCapita
 )
 from dataservices.helpers import millify, get_urban_rural_data, get_serialized_instance_from_model
 from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
     CorruptionPerceptionsIndexSerializer,
     InternetUsageSerializer,
-    EaseOfDoingBusinessSerializer
+    EaseOfDoingBusinessSerializer,
+    GDPPerCapitalSerializer
 )
 
 
@@ -149,6 +151,11 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
                 EaseOfDoingBusiness,
                 EaseOfDoingBusinessSerializer,
+                filter_args
+            ),
+            'gdp_per_capita': get_serialized_instance_from_model(
+                GDPPerCapita,
+                GDPPerCapitalSerializer,
                 filter_args
             ),
 
