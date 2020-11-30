@@ -174,10 +174,12 @@ class CompanyCaseStudy(TimeStampedModel):
 
 class CompanyUser(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
+    # Deprecated, Name field should be used from SSO.UserProfile.FirstName + LastName
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
     company = models.ForeignKey(
         Company, related_name='company_users', null=True, blank=True, on_delete=models.SET_NULL
     )
+    # Deprecated, Email field should be used from SSO.User.Email
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
         verbose_name='active',
@@ -185,7 +187,7 @@ class CompanyUser(TimeStampedModel):
         help_text='Unselect this instead of deleting accounts.',
     )
     date_joined = models.DateTimeField(verbose_name='date joined', default=timezone.now,)
-    # deprecated in favour of company.models.Company.contact_details
+    # Deprecated in favour of company.models.Company.contact_details
     mobile_number = models.CharField(max_length=20, null=True, blank=True)
     unsubscribed = models.BooleanField(
         verbose_name='unsubscribed',
