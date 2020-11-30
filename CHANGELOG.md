@@ -3,6 +3,7 @@
 ## Pre release
 
 ### Implemented enhancements
+- GP2-1069 - Added deprecation warning for user profile fields
 - GP2-1147 - Added  management command to import GDP Per Capita Data
 - GP2-1025 - New endpoint for getting economy data from ComTrade
 - GP2-849 - target audience progress
