@@ -1,10 +1,9 @@
-import json
 import requests
 import pytest
 import http
 
 from unittest.mock import patch
-from django.core import management
+
 from django.urls import reverse
 from decimal import Decimal
 
@@ -223,33 +222,3 @@ def test_recommended_countries_api(client):
     }, {
         'country': country_of_interest_different.country,
     }]
-
-
-@pytest.mark.django_db
-def test_suggested_countries_api(client):
-    # Two with same country and sector
-    management.call_command('import_countries')
-    management.call_command('import_suggested_countries')
-
-    response = client.get(
-        reverse('personalisation-suggested-countries'),
-        data={'hs_code': 1}
-    )
-    assert response.status_code == 200
-    json_dict = json.loads(response.content)
-    # we have 5 suggested countries for hs_code in imported csv
-    assert len(json_dict) == 5
-
-
-@pytest.mark.django_db
-def test_suggested_countries_api_without_hs_code(client):
-    # Two with same country and sector
-    management.call_command('import_countries')
-    management.call_command('import_suggested_countries')
-
-    response = client.get(
-        reverse('personalisation-suggested-countries'),
-    )
-    assert response.status_code == 500
-    json_dict = json.loads(response.content)
-    assert json_dict['error_message'] == "hs_code missing in request params"
