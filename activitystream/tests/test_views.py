@@ -329,10 +329,12 @@ def test_if_61_seconds_in_past_401_returned(api_client, activities_url):
 
 def _expected_company_response(company):
     return {
-        'id': f'dit:directory:Company:{company.id}',
+        'id': f'dit:directory:Company:{company.id}:Update',
         'published': company.date_published.strftime('%Y-%m-%d'),
         'generator': {'type': 'Application', 'name': 'dit:directory'},
-        'object': [{
+        'object': {
+            'id': f'dit:directory:Company:{company.id}',
+            'type': 'dit:directory:Company',
             'dit:directory:Company:address_line_1': company.address_line_1,
             'dit:directory:Company:address_line_2': company.address_line_2,
             'dit:directory:Company:company_type': company.company_type,
@@ -389,7 +391,7 @@ def _expected_company_response(company):
                 'other': ['Regulatory', 'Finance', 'IT'],
                 'Finance': ['Insurance']
             }
-        }]
+        }
     }
 
 
@@ -400,6 +402,9 @@ def test_company_viewset(api_client, companies_url):
         company_1 = CompanyFactory(number='10000001', date_published=datetime.datetime(2020, 9, 1))
     with freeze_time('2012-09-01 12:00:01'):
         company_2 = CompanyFactory(number='10000002', date_published=datetime.datetime(2020, 9, 2))
+
+    # Create a company without a date_published date. This shouldn't be included in the response
+    CompanyFactory(number='10000003')
 
     # Page 1
     auth = _auth_sender(companies_url).request_header

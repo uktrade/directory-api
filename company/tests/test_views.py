@@ -1915,7 +1915,7 @@ def test_search_american_english_full_words(url, api_client, settings):
 
     actual = [hit['_id'] for hit in response.json()['hits']['hits']]
 
-    assert actual == ['1', '2', '3']
+    assert set(actual) == {'1', '2', '3'}
 
 
 @pytest.mark.rebuild_elasticsearch
