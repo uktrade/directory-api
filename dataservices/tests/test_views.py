@@ -1,7 +1,10 @@
+import json
 import pytest
-from django.urls import reverse
-from rest_framework.test import APIClient
 from unittest import mock
+
+from django.urls import reverse
+from django.core import management
+from rest_framework.test import APIClient
 
 from dataservices import models, helpers
 from dataservices.tests import factories
@@ -478,3 +481,33 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'rural_population_percentage_formatted': '22.21% (18.61 million)',
         }
     ]
+
+
+@pytest.mark.django_db
+def test_suggested_countries_api(client):
+    # Two with same country and sector
+    management.call_command('import_countries')
+    management.call_command('import_suggested_countries')
+
+    response = client.get(
+        reverse('dataservices-suggested-countries'),
+        data={'hs_code': 1}
+    )
+    assert response.status_code == 200
+    json_dict = json.loads(response.content)
+    # we have 5 suggested countries for hs_code in imported csv
+    assert len(json_dict) == 5
+
+
+@pytest.mark.django_db
+def test_suggested_countries_api_without_hs_code(client):
+    # Two with same country and sector
+    management.call_command('import_countries')
+    management.call_command('import_suggested_countries')
+
+    response = client.get(
+        reverse('dataservices-suggested-countries'),
+    )
+    assert response.status_code == 500
+    json_dict = json.loads(response.content)
+    assert json_dict['error_message'] == "hs_code missing in request params"

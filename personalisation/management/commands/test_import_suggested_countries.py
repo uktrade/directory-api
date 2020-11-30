@@ -2,7 +2,7 @@ import pytest
 
 from django.core import management
 
-from personalisation import models
+from dataservices import models
 
 
 @pytest.mark.django_db
