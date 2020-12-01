@@ -241,9 +241,9 @@ urlpatterns = [
         name='personalisation-recommended-countries'
     ),
     url(
-        r'^personalisation/suggested-countries/$',
-        personalisation.views.SuggestedCountriesView.as_view(),
-        name='personalisation-suggested-countries'
+        r'^dataservices/suggested-countries/$',
+        dataservices.views.SuggestedCountriesView.as_view(),
+        name='dataservices-suggested-countries'
     ),
     url(
         r'^exportplan/company-export-plan/$',

@@ -198,3 +198,12 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
     class Meta:
         model = models.CorruptionPerceptionsIndex
         fields = ['country_name', 'country_code', 'year_2019']
+
+
+@admin.register(models.SuggestedCountry)
+class SuggestedCountryAdmin(admin.ModelAdmin):
+    list_display = (
+        'hs_code',
+        'country',
+        'order'
+    )

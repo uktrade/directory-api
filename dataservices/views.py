@@ -257,3 +257,23 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
             status=status.HTTP_200_OK,
             data=data_set
         )
+
+
+class SuggestedCountriesView(generics.ListAPIView):
+    serializer_class = serializers.SuggestedCountrySerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        hs_code = self.request.query_params.get('hs_code', '').lower()
+        queryset = models.SuggestedCountry.objects.filter(hs_code=hs_code).\
+            order_by('order').\
+            values('hs_code', 'country__name', 'country__iso2', 'country__region')
+        return queryset
+
+    def get(self, *args, **kwargs):
+        if not self.request.query_params.get('hs_code'):
+            return Response(
+                status=500,
+                data={'error_message': 'hs_code missing in request params'}
+            )
+        return super().get(*args, **kwargs)
