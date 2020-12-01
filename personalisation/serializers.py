@@ -36,16 +36,6 @@ class CountryOfInterestSerializer(serializers.ModelSerializer):
         )
 
 
-class SuggestedCountrySerializer(serializers.ModelSerializer):
-    country_name = serializers.CharField(source='country__name')
-    country_iso2 = serializers.CharField(source='country__iso2')
-    region = serializers.CharField(source='country__region')
-
-    class Meta:
-        model = models.SuggestedCountry
-        fields = ('hs_code', 'country_name', 'country_iso2', 'region')
-
-
 def parse_search_results(content):
 
     def strip_html(result):

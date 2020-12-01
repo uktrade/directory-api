@@ -3,6 +3,7 @@
 ## Pre release
 
 ### Implemented enhancements
+- GP2-1063 - Moved SuggestedCountries under dataservices app
 
 ### Bugs fixed
 

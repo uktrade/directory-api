@@ -2,8 +2,7 @@ import tablib
 
 from django.core.management import BaseCommand
 
-from personalisation.models import SuggestedCountry
-from dataservices.models import Country
+from dataservices.models import Country, SuggestedCountry
 
 
 class Command(BaseCommand):
