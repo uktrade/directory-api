@@ -8,7 +8,6 @@ from core.management.commands import helpers
 
 
 class Command(helpers.ExclusiveDistributedHandleMixin, MigrateCommand):
-
     def handle(self, *args, **options):
         if not settings.FEATURE_SKIP_MIGRATE:
             super().handle(*args, **options)

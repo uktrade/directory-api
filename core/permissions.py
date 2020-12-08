@@ -1,7 +1,6 @@
-from rest_framework import permissions
-
 from django.conf import settings
 from django.utils.crypto import constant_time_compare
+from rest_framework import permissions
 
 from core import helpers
 

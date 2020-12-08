@@ -2,7 +2,6 @@ from rest_framework.serializers import ValidationError
 
 from company.models import Company
 
-
 COMPANY_NOT_UNIQUE_MESSAGE = 'Already registered.'
 
 

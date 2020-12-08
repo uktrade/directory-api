@@ -1,22 +1,20 @@
 import abc
 
 from directory_constants import user_roles
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-from rest_framework import generics, viewsets, views, status
-from rest_framework.permissions import IsAuthenticated
-
 from django.conf import settings
-from django.db.models import Case, Count, When, Value, BooleanField
-from django.db.models import Q
+from django.db.models import BooleanField, Case, Count, Q, Value, When
 from django.http import Http404, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics, status, views, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
 from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
 from notifications import notifications
-from django.views.decorators.csrf import csrf_exempt
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -34,9 +32,7 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
     authentication_classes = [
         authentication.Oauth2AuthenticationSSO,
     ]
-    permission_classes = [
-        permissions.ValidateDeleteRequest
-    ]
+    permission_classes = [permissions.ValidateDeleteRequest]
 
     @csrf_exempt
     def delete(self, request, *args, **kwargs):
@@ -89,8 +85,7 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         # create the objects if they do not yet exist, allowing for piecemeal company creation
         company, _ = models.Company.objects.get_or_create(company_users__sso_id=self.request.user.id)
         models.CompanyUser.objects.update_or_create(
-            sso_id=self.request.user.id,
-            defaults={'company': company, 'company_email': self.request.user.email}
+            sso_id=self.request.user.id, defaults={'company': company, 'company_email': self.request.user.email}
         )
 
         # invalidate the cached_property
@@ -104,17 +99,14 @@ class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CompanySerializer
     queryset = (
-        models.Company.objects
-        .filter(
-            Q(is_published_find_a_supplier=True) |
-            Q(is_published_investment_support_directory=True)
+        models.Company.objects.filter(
+            Q(is_published_find_a_supplier=True) | Q(is_published_investment_support_directory=True)
         )
         .annotate(supplier_case_studies_count=Count('supplier_case_studies'))
         .annotate(
             has_case_studies=Case(
-               When(supplier_case_studies_count=0, then=Value(False)),
-               default=Value(True),
-               output_field=BooleanField())
+                When(supplier_case_studies_count=0, then=Value(False)), default=Value(True), output_field=BooleanField()
+            )
         )
         .order_by('-has_case_studies', '-modified')
     )
@@ -145,8 +137,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.CompanyCaseStudy.objects.filter(
-        Q(company__is_published_find_a_supplier=True) |
-        Q(company__is_published_investment_support_directory=True)
+        Q(company__is_published_find_a_supplier=True) | Q(company__is_published_investment_support_directory=True)
     )
     lookup_field = 'pk'
     permission_classes = []
@@ -160,27 +151,21 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
 
     """
 
-    http_method_names = ("post", )
+    http_method_names = ("post",)
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
-    renderer_classes = (JSONRenderer, )
+    renderer_classes = (JSONRenderer,)
 
     def post(self, request, *args, **kwargs):
 
         company = self.request.user.company
-        serializer = self.serializer_class(
-            data=request.data,
-            context={'expected_code': company.verification_code}
-        )
+        serializer = self.serializer_class(data=request.data, context={'expected_code': company.verification_code})
         serializer.is_valid(raise_exception=True)
 
         company.verified_with_code = True
         company.save()
 
         return Response(
-            data={
-                "status_code": status.HTTP_200_OK,
-                "detail": "Company verified with code"
-            },
+            data={"status_code": status.HTTP_200_OK, "detail": "Company verified with code"},
             status=status.HTTP_200_OK,
         )
 
@@ -196,10 +181,7 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         company = self.request.user.company
-        serializer = self.serializer_class(
-            data=request.data,
-            context={'company_number': company.number}
-        )
+        serializer = self.serializer_class(data=request.data, context={'company_number': company.number})
         serializer.is_valid(raise_exception=True)
         company.verified_with_companies_house_oauth2 = True
         company.save()
@@ -208,7 +190,6 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
 
 
 class RequestVerificationWithIdentificationView(views.APIView):
-
     def post(self, request, *args, **kwargs):
         helpers.send_request_identity_verification_message(self.request.user.company_user)
         return Response()
@@ -227,15 +208,11 @@ class AbstractSearchAPIView(abc.ABC, views.APIView):
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.GET)
         serializer.is_valid(raise_exception=True)
-        params = {
-            key: value for key, value in serializer.validated_data.items()
-            if key in serializer.OPTIONAL_FILTERS
-        }
+        params = {key: value for key, value in serializer.validated_data.items() if key in serializer.OPTIONAL_FILTERS}
         query = helpers.build_search_company_query(params)
         size = serializer.validated_data['size']
         search_object = (
-            documents.CompanyDocument
-            .search()
+            documents.CompanyDocument.search()
             .filter('term', **self.elasticsearch_filter)
             .query(query)
             .sort(
@@ -374,10 +351,10 @@ class CompanyUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 
 class GeckoTotalRegisteredCompanyUser(views.APIView):
-    permission_classes = (IsAuthenticated, )
-    authentication_classes = (authentication.GeckoBasicAuthentication, )
-    renderer_classes = (JSONRenderer, )
-    http_method_names = ("get", )
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (authentication.GeckoBasicAuthentication,)
+    renderer_classes = (JSONRenderer,)
+    http_method_names = ("get",)
 
     def get(self, request, format=None):
         return Response(gecko.total_registered_company_users())
@@ -385,7 +362,7 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
 
 class CompanyUserUnsubscribeAPIView(views.APIView):
 
-    http_method_names = ("post", )
+    http_method_names = ("post",)
 
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
@@ -394,10 +371,7 @@ class CompanyUserUnsubscribeAPIView(views.APIView):
         company_user.save()
         notifications.company_user_unsubscribed(company_user=company_user)
         return Response(
-            data={
-                "status_code": status.HTTP_200_OK,
-                "detail": "CompanyUser unsubscribed"
-            },
+            data={"status_code": status.HTTP_200_OK, "detail": "CompanyUser unsubscribed"},
             status=status.HTTP_200_OK,
         )
 
@@ -418,9 +392,7 @@ class CollaboratorDisconnectView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()
-        helpers.validate_other_admins_connected_to_company(
-            company=supplier.company, sso_ids=[supplier.sso_id]
-        )
+        helpers.validate_other_admins_connected_to_company(company=supplier.company, sso_ids=[supplier.sso_id])
         supplier.company = None
         supplier.role = user_roles.MEMBER
         supplier.save()

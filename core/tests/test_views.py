@@ -2,8 +2,7 @@ import sys
 from importlib import import_module, reload
 
 from django.conf import settings
-from django.urls import clear_url_caches
-from django.urls import reverse
+from django.urls import clear_url_caches, reverse
 
 
 def reload_urlconf():
