@@ -1,8 +1,8 @@
-from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.db import models
+from django.utils.translation import gettext as _
 
 from core.helpers import TimeStampedModel
-from django.utils.translation import gettext as _
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
@@ -77,6 +77,7 @@ class Country(TimeStampedModel):
     """
     Model to hold all countries
     """
+
     name = models.CharField(unique=True, blank=False, null=False, max_length=255)
     iso1 = models.CharField(unique=True, max_length=10)
     iso2 = models.CharField(unique=True, max_length=10)
@@ -103,10 +104,7 @@ class GDPPerCapita(TimeStampedModel):
 class SuggestedCountry(TimeStampedModel):
     hs_code = models.PositiveIntegerField(_('HS Code'))
     country = models.ForeignKey(
-        'dataservices.Country',
-        verbose_name=_('Suggested Countries'),
-        on_delete=models.SET_NULL,
-        null=True
+        'dataservices.Country', verbose_name=_('Suggested Countries'), on_delete=models.SET_NULL, null=True
     )
 
     order = models.PositiveIntegerField(_('Order'), null=True, blank=True)

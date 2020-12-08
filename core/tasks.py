@@ -4,7 +4,7 @@ from django.core.management import call_command
 from conf.celery import app
 
 
-@app.task(autoretry_for=(TimeoutError, ))
+@app.task(autoretry_for=(TimeoutError,))
 def send_email(subject, text_body, html_body, recipient_email, from_email):
     message = EmailMultiAlternatives(
         subject=subject,

@@ -1,19 +1,16 @@
 import sigauth.middleware
-
 from django.conf import settings
-from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponse
+from django.utils.deprecation import MiddlewareMixin
 
 
-class SignatureCheckMiddleware(
-    sigauth.middleware.SignatureCheckMiddlewareBase
-):
+class SignatureCheckMiddleware(sigauth.middleware.SignatureCheckMiddlewareBase):
     secret = settings.SIGNATURE_SECRET
 
     def should_check(self, request):
-        if request.resolver_match.namespace in [
-            'admin', 'healthcheck', 'authbroker_client'
-        ] or request.path_info.startswith('/admin/login'):
+        if (
+            request.resolver_match.namespace in ['admin', 'healthcheck', 'authbroker_client']
+        ) or request.path_info.startswith('/admin/login'):
             return False
         return super().should_check(request)
 

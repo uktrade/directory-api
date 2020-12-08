@@ -1,10 +1,10 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
 from ssl import CERT_NONE
 
-from django.conf import settings
-
 from celery import Celery
+from django.conf import settings
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.settings')
@@ -18,12 +18,7 @@ app = Celery('api')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 if settings.FEATURE_REDIS_USE_SSL:
-    ssl_conf = {
-        'ssl_cert_reqs': CERT_NONE,
-        'ssl_ca_certs': None,
-        'ssl_certfile': None,
-        'ssl_keyfile': None
-    }
+    ssl_conf = {'ssl_cert_reqs': CERT_NONE, 'ssl_ca_certs': None, 'ssl_certfile': None, 'ssl_keyfile': None}
     app.conf.broker_use_ssl = ssl_conf
     app.conf.redis_backend_use_ssl = ssl_conf
 

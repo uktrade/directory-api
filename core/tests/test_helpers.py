@@ -1,10 +1,10 @@
 import http
 import io
-import pytest
 from unittest import mock
 
-from django.conf import settings
+import pytest
 import requests_mock
+from django.conf import settings
 from requests.exceptions import HTTPError
 
 from core import helpers
@@ -40,14 +40,10 @@ def test_upload_file_object_to_s3(mocked_boto3, data_science_settings):
 
 @mock.patch('core.helpers.boto3')
 def test_get_file_from_s3(mocked_boto3, data_science_settings):
-    helpers.get_file_from_s3(
-        bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        key='key'
-    )
+    helpers.get_file_from_s3(bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE, key='key')
     assert mocked_boto3.client().get_object.called
     assert mocked_boto3.client().get_object.call_args == mock.call(
-        Bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE,
-        Key='key'
+        Bucket=data_science_settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE, Key='key'
     )
 
 
@@ -75,11 +71,7 @@ def test_companies_house_client_logs_unauth(caplog):
 def test_companies_house_client_retrieve_profile():
     profile = {'company_status': 'active'}
     with requests_mock.mock() as mock:
-        mock.get(
-            'https://api.companieshouse.gov.uk/company/01234567',
-            status_code=http.client.OK,
-            json=profile
-        )
+        mock.get('https://api.companieshouse.gov.uk/company/01234567', status_code=http.client.OK, json=profile)
         response = helpers.CompaniesHouseClient.retrieve_profile('01234567')
     assert response.json() == profile
 
