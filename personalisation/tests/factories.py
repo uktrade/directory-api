@@ -1,6 +1,6 @@
-import factory
 import random
 
+import factory
 from directory_constants import choices
 
 from personalisation.models import CountryOfInterest

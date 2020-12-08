@@ -57,12 +57,10 @@ def test_get_buyer_by_email_not_found(authed_client):
         'post',
         'put',
         'trace',
-    ]
+    ],
 )
 @pytest.mark.django_db
-def test_get_buyer_by_email_does_not_accept_all_http_methods(
-        authed_client, client, method
-):
+def test_get_buyer_by_email_does_not_accept_all_http_methods(authed_client, client, method):
     url = reverse('buyer_by_email', kwargs={'email': 'some@email.com'})
     methods = {
         'head': client.head,
@@ -143,11 +141,9 @@ def test_get_company_by_name_with_disabled_test_api(client, settings):
 
 
 @pytest.mark.django_db
-def test_get_existing_company_by_ch_id_with_disabled_test_api(
-        authed_client, authed_supplier, settings):
+def test_get_existing_company_by_ch_id_with_disabled_test_api(authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -162,11 +158,10 @@ def test_get_company_by_non_existing_ch_id(client):
 @pytest.mark.django_db
 def test_patch_existing_company_by_name_to_verify_identity(authed_client, authed_supplier):
     url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number},
+        'company_by_ch_id_or_name',
+        kwargs={'ch_id_or_name': authed_supplier.company.number},
     )
-    data = {
-        'verified_with_identity_check': True
-    }
+    data = {'verified_with_identity_check': True}
     response = authed_client.patch(url, data=data)
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -178,7 +173,8 @@ def test_patch_existing_company_by_name_to_verify_identity(authed_client, authed
 @pytest.mark.django_db
 def test_patch_existing_company_with_no_data(authed_client, authed_supplier):
     url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number},
+        'company_by_ch_id_or_name',
+        kwargs={'ch_id_or_name': authed_supplier.company.number},
     )
     data = {}
     response = authed_client.patch(url, data=data)
@@ -188,13 +184,10 @@ def test_patch_existing_company_with_no_data(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_patch_existing_company_by_name_to_verify_with_code(authed_client, authed_supplier):
     url = reverse(
-        'company_by_ch_id_or_name', kwargs={
-            'ch_id_or_name': authed_supplier.company.number
-        },
+        'company_by_ch_id_or_name',
+        kwargs={'ch_id_or_name': authed_supplier.company.number},
     )
-    data = {
-        'verified_with_code': True
-    }
+    data = {'verified_with_code': True}
     response = authed_client.patch(url, data=data)
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -206,8 +199,7 @@ def test_patch_existing_company_by_name_to_verify_with_code(authed_client, authe
 @pytest.mark.django_db
 def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
     number = authed_supplier.company.number
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Company.objects.filter(number=number).exists() is False
@@ -216,8 +208,7 @@ def test_delete_existing_company_by_ch_id(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_delete_existing_company_by_name(authed_client, authed_supplier):
     name = authed_supplier.company.name
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': name})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': name})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Company.objects.filter(name=name).exists() is False
@@ -225,28 +216,23 @@ def test_delete_existing_company_by_name(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_delete_non_existing_company_by_ch_id_or_name(authed_client):
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'invalid'})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': 'invalid'})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_ch_id_with_disabled_testapi(
-        authed_client, authed_supplier, settings):
+def test_delete_existing_company_by_ch_id_with_disabled_testapi(authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.number})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
-def test_delete_existing_company_by_name_with_disabled_testapi(
-        authed_client, authed_supplier, settings):
+def test_delete_existing_company_by_name_with_disabled_testapi(authed_client, authed_supplier, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    url = reverse(
-        'company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
+    url = reverse('company_by_ch_id_or_name', kwargs={'ch_id_or_name': authed_supplier.company.name})
     response = authed_client.delete(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
@@ -279,23 +265,21 @@ def test_get_unpublished_companies_without_optional_parameters(authed_client):
         (-1, -1, status.HTTP_200_OK),
         (None, 0, status.HTTP_200_OK),
         (1, None, status.HTTP_200_OK),
-    ])
+    ],
+)
 @pytest.mark.django_db
 def test_get_published_companies_use_optional_parameters(
-        authed_client, limit, minimal_number_of_sectors, expected_status_code):
+    authed_client, limit, minimal_number_of_sectors, expected_status_code
+):
     url = reverse('published_companies')
-    params = {
-        'limit': limit,
-        'minimal_number_of_sectors': minimal_number_of_sectors
-    }
+    params = {'limit': limit, 'minimal_number_of_sectors': minimal_number_of_sectors}
     response = authed_client.get(url, params=params)
     assert response.status_code == expected_status_code
     assert response.json() == []
 
 
 @pytest.mark.django_db
-def test_get_published_companies_with_disabled_test_api(
-        authed_client, settings):
+def test_get_published_companies_with_disabled_test_api(authed_client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('published_companies')
     response = authed_client.get(url)
@@ -303,8 +287,7 @@ def test_get_published_companies_with_disabled_test_api(
 
 
 @pytest.mark.django_db
-def test_get_published_companies_with_disabled_test_api_and_unsigned_client(
-        client, settings):
+def test_get_published_companies_with_disabled_test_api_and_unsigned_client(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('published_companies')
     response = client.get(url)
@@ -322,15 +305,14 @@ def test_get_published_companies_with_disabled_test_api_and_unsigned_client(
         (-1, -1, status.HTTP_200_OK),
         (None, 0, status.HTTP_200_OK),
         (1, None, status.HTTP_200_OK),
-    ])
+    ],
+)
 @pytest.mark.django_db
 def test_get_unpublished_companies_use_optional_parameters(
-        authed_client, limit, minimal_number_of_sectors, expected_status_code):
+    authed_client, limit, minimal_number_of_sectors, expected_status_code
+):
     url = reverse('unpublished_companies')
-    params = {
-        'limit': limit,
-        'minimal_number_of_sectors': minimal_number_of_sectors
-    }
+    params = {'limit': limit, 'minimal_number_of_sectors': minimal_number_of_sectors}
     response = authed_client.get(url, params=params)
     assert response.status_code == expected_status_code
     # authed_client fixture creates 1 unpublished company
@@ -338,8 +320,7 @@ def test_get_unpublished_companies_use_optional_parameters(
 
 
 @pytest.mark.django_db
-def test_get_unpublished_companies_with_disabled_test_api(
-        authed_client, settings):
+def test_get_unpublished_companies_with_disabled_test_api(authed_client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('unpublished_companies')
     response = authed_client.get(url)
@@ -347,8 +328,7 @@ def test_get_unpublished_companies_with_disabled_test_api(
 
 
 @pytest.mark.django_db
-def test_get_unpublished_companies_with_disabled_test_api_and_unsigned_client(
-        client, settings):
+def test_get_unpublished_companies_with_disabled_test_api_and_unsigned_client(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('unpublished_companies')
     response = client.get(url)
@@ -356,8 +336,7 @@ def test_get_unpublished_companies_with_disabled_test_api_and_unsigned_client(
 
 
 @pytest.mark.django_db
-def test_get_published_companies_check_response_contents(
-        authed_client, authed_supplier):
+def test_get_published_companies_check_response_contents(authed_client, authed_supplier):
     name = 'Test Company'
     number = '12345678'
     email = 'test@user.com'
@@ -376,15 +355,21 @@ def test_get_published_companies_check_response_contents(
     expected_number_of_results = 1
     expected_number_of_keys = 15
     company = CompanyFactory(
-        name=name, number=number, email_address=email, sectors=sectors,
-        employees=employees, website=website, keywords=keywords,
-        facebook_url=facebook_url, linkedin_url=linkedin_url,
-        twitter_url=twitter_url, summary=summary, description=description,
+        name=name,
+        number=number,
+        email_address=email,
+        sectors=sectors,
+        employees=employees,
+        website=website,
+        keywords=keywords,
+        facebook_url=facebook_url,
+        linkedin_url=linkedin_url,
+        twitter_url=twitter_url,
+        summary=summary,
+        description=description,
         is_uk_isd_company=is_uk_isd_company,
         is_published_find_a_supplier=is_published_find_a_supplier,
-        is_published_investment_support_directory=(
-            is_published_investment_support_directory
-        ),
+        is_published_investment_support_directory=is_published_investment_support_directory,
     )
     authed_supplier.company = company
     authed_supplier.save()
@@ -420,21 +405,16 @@ def test_get_published_companies_check_response_contents(
         (None, 2, 2),
         (1, 0, 1),
         (0, 8, 0),
-    ])
+    ],
+)
 @pytest.mark.django_db
 def test_get_published_companies_use_optional_filters(
-        authed_client, limit, minimal_number_of_sectors,
-        expected_number_of_results):
+    authed_client, limit, minimal_number_of_sectors, expected_number_of_results
+):
     sectors_1 = ['AEROSPACE', 'AUTOMOTIVE', 'DEFENCE']
     sectors_2 = ['AEROSPACE', 'AUTOMOTIVE']
-    company_1 = CompanyFactory(
-        is_published_investment_support_directory=True,
-        sectors=sectors_1
-    )
-    company_2 = CompanyFactory(
-        is_published_investment_support_directory=True,
-        sectors=sectors_2
-    )
+    company_1 = CompanyFactory(is_published_investment_support_directory=True, sectors=sectors_1)
+    company_2 = CompanyFactory(is_published_investment_support_directory=True, sectors=sectors_2)
     supplier_1 = CompanyUserFactory.create(sso_id=777)
     supplier_2 = CompanyUserFactory.create(sso_id=888)
     supplier_1.company = company_1
@@ -446,8 +426,7 @@ def test_get_published_companies_use_optional_filters(
     if limit is not None:
         params.update({'limit': limit})
     if minimal_number_of_sectors is not None:
-        params.update(
-            {'minimal_number_of_sectors': minimal_number_of_sectors})
+        params.update({'minimal_number_of_sectors': minimal_number_of_sectors})
     response = authed_client.get(url, data=params)
     assert len(response.json()) == expected_number_of_results
 
@@ -526,8 +505,7 @@ def test_create_test_isd_company(authed_client):
 
 
 @pytest.mark.django_db
-def test_create_test_isd_company_with_disabled_test_api(
-        authed_client, settings):
+def test_create_test_isd_company_with_disabled_test_api(authed_client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('create_test_isd_company')
     response = authed_client.get(url)
@@ -535,8 +513,7 @@ def test_create_test_isd_company_with_disabled_test_api(
 
 
 @pytest.mark.django_db
-def test_create_test_isd_company_with_disabled_test_api_and_unsigned_client(
-        client, settings):
+def test_create_test_isd_company_with_disabled_test_api_and_unsigned_client(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
     url = reverse('create_test_isd_company')
     response = client.get(url)
@@ -556,9 +533,7 @@ def test_create_test_isd_company_with_optional_parameter(authed_client):
 
 
 @pytest.mark.django_db
-def test_create_test_isd_company_unexpected_parameters_are_ignored(
-        authed_client
-):
+def test_create_test_isd_company_unexpected_parameters_are_ignored(authed_client):
     url = reverse('create_test_isd_company')
     data = {
         'an_unexpected_parameter': 'unexpected value',
@@ -569,10 +544,7 @@ def test_create_test_isd_company_unexpected_parameters_are_ignored(
 
 @pytest.mark.django_db
 def test_delete_test_companies(client):
-    CompanyFactory.create_batch(
-        3,
-        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
-    )
+    CompanyFactory.create_batch(3, email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital'))
     response = client.delete(reverse('delete_test_companies'))
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -586,19 +558,14 @@ def test_delete_test_companies_returns_404_when_no_test_companies(client):
 @pytest.mark.django_db
 def test_delete_test_companies_returns_404_with_disabled_testapi(client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    CompanyFactory.create(
-        email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
-    )
+    CompanyFactory.create(email_address=Sequence(lambda n: f'test+{n}@directory.uktrade.digital'))
     response = client.delete(reverse('delete_test_companies'))
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db
 def test_delete_test_buyers(authed_client):
-    BuyerFactory.create_batch(
-        3,
-        email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
-    )
+    BuyerFactory.create_batch(3, email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital'))
     response = authed_client.delete(reverse('delete_test_buyers'))
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Buyer.objects.count() == 0
@@ -613,9 +580,7 @@ def test_delete_test_buyers_returns_404_when_no_test_buyers(authed_client):
 @pytest.mark.django_db
 def test_delete_test_buyers_returns_404_with_disabled_testapi(authed_client, settings):
     settings.FEATURE_TEST_API_ENABLED = False
-    BuyerFactory.create(
-        email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital')
-    )
+    BuyerFactory.create(email=Sequence(lambda n: f'test+{n}@directory.uktrade.digital'))
     response = authed_client.delete(reverse('delete_test_buyers'))
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Buyer.objects.count() == 1
@@ -630,7 +595,7 @@ def test_delete_test_buyers_returns_404_with_disabled_testapi(authed_client, set
         'post',
         'put',
         'trace',
-    ]
+    ],
 )
 @pytest.mark.django_db
 def test_delete_test_buyers_does_not_accept_all_http_methods(authed_client, client, method):
