@@ -11,10 +11,14 @@ def verification_code_not_given():
 def verification_code_not_given_first_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS
     category = constants.VERIFICATION_CODE_NOT_GIVEN
-    company_users = helpers.get_unverified_suppliers(days_ago).filter(
-        company__is_uk_isd_company=False,
-    ).exclude(
-        supplieremailnotification__category=category,
+    company_users = (
+        helpers.get_unverified_suppliers(days_ago)
+        .filter(
+            company__is_uk_isd_company=False,
+        )
+        .exclude(
+            supplieremailnotification__category=category,
+        )
     )
     for company_user in company_users:
         notification = email.VerificationWaitingNotification(company_user)
@@ -24,10 +28,14 @@ def verification_code_not_given_first_reminder():
 def verification_code_not_given_seconds_reminder():
     days_ago = settings.VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL
     category = constants.VERIFICATION_CODE_2ND_EMAIL
-    company_users = helpers.get_unverified_suppliers(days_ago).filter(
-        company__is_uk_isd_company=False,
-    ).exclude(
-        supplieremailnotification__category=category,
+    company_users = (
+        helpers.get_unverified_suppliers(days_ago)
+        .filter(
+            company__is_uk_isd_company=False,
+        )
+        .exclude(
+            supplieremailnotification__category=category,
+        )
     )
     for company_user in company_users:
         notification = email.VerificationStillWaitingNotification(company_user)
@@ -42,9 +50,7 @@ def new_companies_in_sector():
         for industry in subscriber['industries']:
             companies.update(companies_grouped_by_industry[industry])
         if companies:
-            notification = email.NewCompaniesInSectorNotification(
-                subscriber=subscriber, companies=companies
-            )
+            notification = email.NewCompaniesInSectorNotification(subscriber=subscriber, companies=companies)
             notification.send()
 
 

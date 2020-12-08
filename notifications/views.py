@@ -1,7 +1,6 @@
+from django.db.utils import IntegrityError
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
-from django.db.utils import IntegrityError
 
 from notifications import models, notifications, serializers
 
@@ -21,6 +20,4 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        notifications.anonymous_unsubscribed(
-            recipient_email=instance.email
-        )
+        notifications.anonymous_unsubscribed(recipient_email=instance.email)

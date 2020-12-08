@@ -2,7 +2,6 @@ import http
 from unittest.mock import patch
 
 import pytest
-
 from django.core.signing import Signer
 from django.urls import reverse
 
@@ -41,13 +40,9 @@ def test_create_anonymous_unsubscribe_multiple_times(mock_task, client):
 
 @pytest.mark.django_db
 @patch('notifications.notifications.anonymous_unsubscribed')
-def test_create_anonymous_unsubscribe_email_confirmation(
-    mock_anonymous_unsubscribed, client
-):
+def test_create_anonymous_unsubscribe_email_confirmation(mock_anonymous_unsubscribed, client):
     url = reverse('anonymous-unsubscribe')
     email = 'test@example.com'
     client.post(url, {'email': Signer().sign(email)})
 
-    mock_anonymous_unsubscribed.assert_called_once_with(
-        recipient_email=email
-    )
+    mock_anonymous_unsubscribed.assert_called_once_with(recipient_email=email)

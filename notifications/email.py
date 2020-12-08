@@ -25,7 +25,7 @@ class NotificationBase(abc.ABC):
             'full_name': self.recipient.name,
             'zendesk_url': self.zendesk_url,
             'unsubscribe_url': self.unsubscribe_url,
-            **kwargs
+            **kwargs,
         }
 
     def get_bodies(self):
@@ -50,10 +50,7 @@ class SupplierNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        models.SupplierEmailNotification.objects.create(
-            company_user=self.company_user,
-            category=self.category
-        )
+        models.SupplierEmailNotification.objects.create(company_user=self.company_user, category=self.category)
         core.tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
@@ -71,22 +68,17 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
     @property
     def recipient(self):
-        return Recipient(
-            name=self.subscriber['name'],
-            email=self.subscriber['email']
-        )
+        return Recipient(name=self.subscriber['name'], email=self.subscriber['email'])
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        models.AnonymousEmailNotification.objects.create(
-            email=self.recipient.email, category=self.category
-        )
+        models.AnonymousEmailNotification.objects.create(email=self.recipient.email, category=self.category)
         core.tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
             html_body=html_body,
             recipient_email=self.recipient.email,
-            from_email=self.from_email
+            from_email=self.from_email,
         )
 
 
@@ -109,7 +101,9 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
 
     def get_context_data(self):
-        return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL,)
+        return super().get_context_data(
+            verification_url=settings.VERIFICATION_CODE_URL,
+        )
 
 
 class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):

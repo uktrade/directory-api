@@ -8,6 +8,4 @@ class AnonymousUnsubscribeSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = models.AnonymousUnsubscribe
-        fields = (
-            'email',
-        )
+        fields = ('email',)
