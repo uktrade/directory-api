@@ -8,9 +8,7 @@ from buyer.tests.factories import BuyerFactory
 
 
 @pytest.mark.django_db
-@mock.patch(
-    'buyer.management.commands.generate_buyers_csv_dump.upload_file_object_to_s3'  # NOQA
-)
+@mock.patch('buyer.management.commands.generate_buyers_csv_dump.upload_file_object_to_s3')
 def test_upload_buyers_csv_to_s3(mocked_upload_file_object_to_s3):
     BuyerFactory.create_batch(5)
     settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_ds_bucket'

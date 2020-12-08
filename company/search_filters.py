@@ -1,9 +1,7 @@
 from elasticsearch_dsl import analysis
 
 companies_stopwords_filter = analysis.token_filter(
-    'companies_stopwords',
-    type='stop',
-    stopwords=['limited', 'ltd', 'plc', 'llp', 'lp', 'rc', 'partnership', 'ngo']
+    'companies_stopwords', type='stop', stopwords=['limited', 'ltd', 'plc', 'llp', 'lp', 'rc', 'partnership', 'ngo']
 )
 
 american_english_normalizer_filter = analysis.char_filter(
@@ -50,8 +48,8 @@ american_english_normalizer_filter = analysis.char_filter(
         "og=>ogue",
         "zation=>sation",
         "yze=>yse",
-        "yzing=>ysing"
-    ]
+        "yzing=>ysing",
+    ],
 )
 
 american_english_synonyms_filter = analysis.token_filter(
@@ -98,10 +96,7 @@ american_english_synonyms_filter = analysis.token_filter(
         "calibre, caliber",
         "candour, candor",
         "candy floss, cotton candy, candyfloss",
-        (
-            "car park, parking area, parking ground, parking lot, "
-            "parking-lot, parking place, parking"
-        ),
+        "car park, parking area, parking ground, parking lot, parking-lot, parking place, parking",
         "carburettor, carburetor",
         "castor, caster",
         "cataloguing, cataloging",
@@ -112,10 +107,7 @@ american_english_synonyms_filter = analysis.token_filter(
         "chequer, checker",
         "chequerboard, checkerboard",
         "chequered, checkered",
-        (
-            "christmas tree ball, christmas tree ball ornament, "
-            "christmas ball ornament, christmas bauble"
-        ),
+        "christmas tree ball, christmas tree ball ornament, christmas ball ornament, christmas bauble",
         "christmas, x-mas, xmas",
         "cinema, movies",
         "clangour, clangor",
@@ -133,10 +125,7 @@ american_english_synonyms_filter = analysis.token_filter(
         "defence, defense",
         "defenceless, defenseless",
         "demeanour, demeanor",
-        (
-            "departure platform, station platform, train platform, "
-            "train station"
-        ),
+        "departure platform, station platform, train platform, train station",
         "dishrag, dish cloth",
         "dishtowel, dishcloth, dish towel",
         "doughnut, donut",
@@ -211,10 +200,7 @@ american_english_synonyms_filter = analysis.token_filter(
         "licence, licenced, licencing, license",
         "liquorice, licorice",
         "lorry, truck",
-        (
-            "loupe, magnifier, magnifying, magnifying glass, magnifying lens, "
-            "zoom"
-        ),
+        "loupe, magnifier, magnifying, magnifying glass, magnifying lens, zoom",
         "louvred, louvered",
         "louvres, louver",
         "lustre, luster",
@@ -254,10 +240,7 @@ american_english_synonyms_filter = analysis.token_filter(
         "railway, railroad",
         "rancour, rancor",
         "rappel, abseil",
-        (
-            "row house, serial house, terrace house, terraced house, "
-            "terraced housing, town house"
-        ),
+        "row house, serial house, terrace house, terraced house, terraced housing, town house",
         "rigour, rigor",
         "rumour, rumor",
         "sabre, saber",
@@ -319,8 +302,8 @@ american_english_synonyms_filter = analysis.token_filter(
         "worshipper, worshipping, worshiping",
         "yoghourt, yoghurt, yogurt",
         "zip, zip code, postal code, postcode",
-        "zucchini, courgette"
-    )
+        "zucchini, courgette",
+    ),
 )
 
 

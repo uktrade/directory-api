@@ -10,6 +10,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
     """
+
     class Meta:
         model = Company
         fields = (
@@ -81,6 +82,6 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
             'object': {
                 'id': f'{prefix}:{instance.id}',
                 'type': 'dit:directory:Company',
-                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()}
-            }
+                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
+            },
         }

@@ -1,5 +1,4 @@
 import pytest
-
 from django.core import management
 
 from company.models import Company

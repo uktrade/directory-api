@@ -1,10 +1,10 @@
 from unittest import mock
 
 import pytest
+from directory_constants import user_roles
 from django.conf import settings
 from django.core.management import call_command
 
-from directory_constants import user_roles
 from company.tests import factories
 
 

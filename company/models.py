@@ -2,23 +2,23 @@ import uuid
 
 from directory_constants import choices, company_types, user_roles
 from directory_validators.string import no_html
-
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-
-from core.helpers import TimeStampedModel
 from field_history.tracker import FieldHistoryTracker
 
-from core.helpers import generate_verification_code, path_and_rename_logos, path_and_rename_supplier_case_study
+from core.helpers import (
+    TimeStampedModel,
+    generate_verification_code,
+    path_and_rename_logos,
+    path_and_rename_supplier_case_study,
+)
 
 
 class Company(TimeStampedModel):
-    company_type = models.CharField(
-        max_length=15, choices=choices.COMPANY_TYPES, default=company_types.COMPANIES_HOUSE
-    )
+    company_type = models.CharField(max_length=15, choices=choices.COMPANY_TYPES, default=company_types.COMPANIES_HOUSE)
     summary = models.CharField(max_length=250, blank=True, default='', validators=[no_html])
     description = models.TextField(blank=True, default='', validators=[no_html])
     employees = models.CharField(max_length=20, choices=choices.EMPLOYEES, blank=True, default='')
@@ -55,14 +55,14 @@ class Company(TimeStampedModel):
         help_text=(
             'Companies that have a published profile on investment support completeness - they must have description '
             'or summary, be verified, and have an email address.'
-        )
+        ),
     )
     is_published_find_a_supplier = models.BooleanField(
         default=False,
         help_text=(
             'Companies that have a published profile on FAS completeness - they must have description or summary, be '
             'verified, and have an email address.'
-        )
+        ),
     )
     date_published = models.DateField(null=True, blank=True)
     verification_code = models.CharField(max_length=255, blank=True, default=generate_verification_code)
@@ -95,11 +95,13 @@ class Company(TimeStampedModel):
     is_showcase_company = models.BooleanField(default=False)
     is_uk_isd_company = models.BooleanField(default=False)
 
-    field_history = FieldHistoryTracker([
-        'verified_with_preverified_enrolment',
-        'verified_with_code',
-        'verified_with_companies_house_oauth2',
-    ])
+    field_history = FieldHistoryTracker(
+        [
+            'verified_with_preverified_enrolment',
+            'verified_with_code',
+            'verified_with_companies_house_oauth2',
+        ]
+    )
     companies_house_company_status = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
 
     class Meta:
@@ -125,12 +127,14 @@ class Company(TimeStampedModel):
 
     @property
     def is_verified(self):
-        return any([
-            self.verified_with_preverified_enrolment,
-            self.verified_with_code,
-            self.verified_with_identity_check,
-            self.verified_with_companies_house_oauth2,
-        ])
+        return any(
+            [
+                self.verified_with_preverified_enrolment,
+                self.verified_with_code,
+                self.verified_with_identity_check,
+                self.verified_with_companies_house_oauth2,
+            ]
+        )
 
     def has_valid_address(self):
         return all(getattr(self, field) for field in ['postal_full_name', 'address_line_1', 'postal_code'])
@@ -155,7 +159,12 @@ class CompanyCaseStudy(TimeStampedModel):
     image_three_caption = models.CharField(max_length=200, blank=True, default='', validators=[no_html])
     video_one = models.FileField(upload_to=path_and_rename_supplier_case_study, blank=True, default='')
     testimonial = models.CharField(max_length=1000, blank=True, default='', validators=[no_html])
-    testimonial_name = models.CharField(max_length=255, blank=True, default='', validators=[no_html],)
+    testimonial_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        validators=[no_html],
+    )
     testimonial_job_title = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
     testimonial_company = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
     company = models.ForeignKey(Company, related_name='supplier_case_studies', on_delete=models.CASCADE)
@@ -176,9 +185,7 @@ class CompanyUser(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     # Deprecated, Name field should be used from SSO.UserProfile.FirstName + LastName
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
-    company = models.ForeignKey(
-        Company, related_name='company_users', null=True, blank=True, on_delete=models.SET_NULL
-    )
+    company = models.ForeignKey(Company, related_name='company_users', null=True, blank=True, on_delete=models.SET_NULL)
     # Deprecated, Email field should be used from SSO.User.Email
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
@@ -186,7 +193,10 @@ class CompanyUser(TimeStampedModel):
         default=True,
         help_text='Unselect this instead of deleting accounts.',
     )
-    date_joined = models.DateTimeField(verbose_name='date joined', default=timezone.now,)
+    date_joined = models.DateTimeField(
+        verbose_name='date joined',
+        default=timezone.now,
+    )
     # Deprecated in favour of company.models.Company.contact_details
     mobile_number = models.CharField(max_length=20, null=True, blank=True)
     unsubscribed = models.BooleanField(
@@ -232,7 +242,10 @@ class CollaborationRequest(TimeStampedModel):
     accepted = models.BooleanField(default=False)
     accepted_date = models.DateTimeField(null=True, blank=True)
     role = models.CharField(max_length=15, choices=choices.USER_ROLES)
-    name = models.CharField(max_length=100, blank=True,)
+    name = models.CharField(
+        max_length=100,
+        blank=True,
+    )
 
 
 class HsCodeSector(models.Model):

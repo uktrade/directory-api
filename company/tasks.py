@@ -1,7 +1,7 @@
 from django.core.management import call_command
 
-from conf.celery import app
 from company import helpers
+from conf.celery import app
 from notifications.tasks import lock_acquired
 
 

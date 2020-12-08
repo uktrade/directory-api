@@ -33,19 +33,16 @@ def _url_incorrect_domain():
 
 @pytest.fixture
 def _url_incorrect_path():
-    return (
-        'http://testserver' +
-        reverse('activity-stream:activity-stream') +
-        'incorrect/'
-    )
+    return 'http://testserver' + reverse('activity-stream:activity-stream') + 'incorrect/'
 
 
 def _empty_collection():
     return {
         '@context': [
-            'https://www.w3.org/ns/activitystreams', {
+            'https://www.w3.org/ns/activitystreams',
+            {
                 'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
-            }
+            },
         ],
         'type': 'Collection',
         'orderedItems': [],
@@ -127,8 +124,7 @@ def test_empty_object_returned_with_authentication(api_client, activities_url):
 
 @pytest.mark.django_db
 def test_if_never_verified_not_in_stream(api_client, activities_url):
-    """If the company never verified, then it's not in the activity stream
-    """
+    """If the company never verified, then it's not in the activity stream"""
 
     with freeze_time('2012-01-14 12:00:02'):
         CompanyFactory()
@@ -143,9 +139,10 @@ def test_if_never_verified_not_in_stream(api_client, activities_url):
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         '@context': [
-            'https://www.w3.org/ns/activitystreams', {
+            'https://www.w3.org/ns/activitystreams',
+            {
                 'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
-            }
+            },
         ],
         'type': 'Collection',
         'orderedItems': [],
@@ -155,22 +152,18 @@ def test_if_never_verified_not_in_stream(api_client, activities_url):
 
 @pytest.mark.django_db
 def test_if_verified_with_code_in_stream_in_date_then_seq_order(api_client, activities_url):
-    """If the company verified_with_code, then it's in the activity stream
-    """
+    """If the company verified_with_code, then it's in the activity stream"""
 
     CompanyFactory(number=10000000)
 
     with freeze_time('2012-01-14 12:00:02'):
-        company_a = CompanyFactory(
-            number=10000003, name='a', verified_with_code=True)
+        company_a = CompanyFactory(number=10000003, name='a', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:02'):
-        company_b = CompanyFactory(
-            number=10000002, name='b', verified_with_code=True)
+        company_b = CompanyFactory(number=10000002, name='b', verified_with_code=True)
 
     with freeze_time('2012-01-14 12:00:01'):
-        company_c = CompanyFactory(
-            number=10000001, name='c', verified_with_code=True)
+        company_c = CompanyFactory(number=10000001, name='c', verified_with_code=True)
 
     sender = _auth_sender(activities_url)
     response = api_client.get(
@@ -268,18 +261,15 @@ def test_if_verified_with_preverified_enrolment_in_stream(api_client, activities
 
 @pytest.mark.django_db
 def test_pagination(api_client, django_assert_num_queries, activities_url):
-    """The requests are paginated, ending on a page without a next key
-    """
+    """The requests are paginated, ending on a page without a next key"""
 
     with freeze_time('2012-01-14 12:00:02'):
         for i in range(0, 250):
-            CompanyFactory(number=10000000 + i,
-                           verified_with_preverified_enrolment=True)
+            CompanyFactory(number=10000000 + i, verified_with_preverified_enrolment=True)
 
     with freeze_time('2012-01-14 12:00:01'):
         for i in range(250, 501):
-            CompanyFactory(number=10000000 + i,
-                           verified_with_preverified_enrolment=True)
+            CompanyFactory(number=10000000 + i, verified_with_preverified_enrolment=True)
 
     items = []
     next_url = activities_url
@@ -297,9 +287,7 @@ def test_pagination(api_client, django_assert_num_queries, activities_url):
             )
             response_json = response.json()
             items += response_json['orderedItems']
-            next_url = \
-                response_json['next'] if 'next' in response_json else \
-                None
+            next_url = response_json['next'] if 'next' in response_json else None
 
     assert num_pages == 5
     assert len(items) == 501
@@ -389,9 +377,9 @@ def _expected_company_response(company):
             'dit:directory:Company:expertise_languages': company.expertise_languages,
             'dit:directory:Company:expertise_products_services': {
                 'other': ['Regulatory', 'Finance', 'IT'],
-                'Finance': ['Insurance']
-            }
-        }
+                'Finance': ['Insurance'],
+            },
+        },
     }
 
 
