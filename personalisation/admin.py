@@ -7,9 +7,7 @@ from personalisation import models
 
 @admin.register(models.UserLocation)
 class UserLocationAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'sso_id',
