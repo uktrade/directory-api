@@ -1,9 +1,8 @@
 import pytest
-
 from django.core import management
 
-from company.tests import factories
 from company.documents import CompanyDocument
+from company.tests import factories
 
 
 @pytest.mark.django_db

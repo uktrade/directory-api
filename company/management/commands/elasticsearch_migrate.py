@@ -1,14 +1,11 @@
+from django.conf import settings
+from django.core import management
+from django.db.models import Q
+from django.utils.crypto import get_random_string
 from elasticsearch.helpers import bulk
 from elasticsearch_dsl.connections import connections
 
-from django.utils.crypto import get_random_string
-from django.core import management
-from django.conf import settings
-from django.db.models import Q
-
-from company import documents
-from company import models
-
+from company import documents, models
 
 ALIAS = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
 PREFIX = 'companies-'
@@ -48,13 +45,8 @@ class Command(management.BaseCommand):
         index_template.save()
 
     def populate_new_indices(self):
-        companies = (
-            models.Company.objects
-            .prefetch_related('supplier_case_studies')
-            .filter(
-                Q(is_published_find_a_supplier=True) |
-                Q(is_published_investment_support_directory=True)
-            )
+        companies = models.Company.objects.prefetch_related('supplier_case_studies').filter(
+            Q(is_published_find_a_supplier=True) | Q(is_published_investment_support_directory=True)
         )
         data = []
         for company in companies:

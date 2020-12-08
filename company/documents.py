@@ -1,11 +1,9 @@
 from urllib.parse import urljoin
 
-from elasticsearch_dsl import analysis, Document, field, InnerDoc, MetaField
-
 from django.conf import settings
+from elasticsearch_dsl import Document, InnerDoc, MetaField, analysis, field
 
 from company import helpers, search_filters, serializers
-
 
 american_english_analyzer = analysis.analyzer(
     'normalize_american_english',
@@ -19,7 +17,7 @@ american_english_analyzer = analysis.analyzer(
     ],
     char_filter=[
         search_filters.american_english_normalizer_filter,
-    ]
+    ],
 )
 
 
@@ -50,9 +48,7 @@ class CompanyDocument(Document):
     case_study_count = field.Integer()
     company_type = field.Keyword(index=False, store=True)
     date_of_creation = field.Date(index=False)
-    description = field.Text(
-        copy_to='wildcard', analyzer=american_english_analyzer
-    )
+    description = field.Text(copy_to='wildcard', analyzer=american_english_analyzer)
     has_description = field.Boolean()
     employees = field.Keyword(index=False, store=True)
     facebook_url = field.Keyword(index=False, store=True)
@@ -64,35 +60,21 @@ class CompanyDocument(Document):
     modified = field.Date(index=False)
     ordering_name = field.Keyword()
     name = field.Text(copy_to=['wildcard', 'ordering_name'])
-    number = field.Keyword(copy_to='keyword_wildcard',)
+    number = field.Keyword(
+        copy_to='keyword_wildcard',
+    )
     sectors = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
-    sectors_label = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
-    expertise_industries = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
-    expertise_regions = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
-    expertise_languages = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
-    expertise_countries = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
+    sectors_label = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    expertise_industries = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    expertise_regions = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    expertise_languages = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    expertise_countries = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
     # Represents Dict as it's the primitive datatype for this field
     expertise_products_services = field.Object(dynamic=True)
-    expertise_products_services_labels = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
-    expertise_labels = field.Keyword(
-        multi=True, copy_to='keyword_wildcard', store=True
-    )
+    expertise_products_services_labels = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
+    expertise_labels = field.Keyword(multi=True, copy_to='keyword_wildcard', store=True)
     slug = field.Keyword(copy_to='keyword_wildcard', store=True)
-    summary = field.Text(
-        copy_to='wildcard', analyzer=american_english_analyzer
-    )
+    summary = field.Text(copy_to='wildcard', analyzer=american_english_analyzer)
     twitter_url = field.Keyword(index=False, store=True)
     website = field.Keyword(copy_to='keyword_wildcard', store=True)
     supplier_case_studies = field.Nested(
@@ -109,9 +91,7 @@ class CompanyDocument(Document):
             'testimonial': field.Text(copy_to='casestudy_wildcard'),
             'website': field.Keyword(copy_to='casestudy_wildcard', store=True),
             'slug': field.Keyword(copy_to='keyword_wildcard', store=True),
-            'testimonial_name': field.Keyword(
-                copy_to='casestudy_wildcard', store=True
-            ),
+            'testimonial_name': field.Keyword(copy_to='casestudy_wildcard', store=True),
             'testimonial_company': field.Text(copy_to='casestudy_wildcard'),
             'testimonial_job_title': field.Text(copy_to='casestudy_wildcard'),
         }
@@ -199,8 +179,6 @@ def company_model_to_document(company, index=settings.ELASTICSEARCH_COMPANY_INDE
     )
 
     for case_study in company.supplier_case_studies.all():
-        document.supplier_case_studies.append({
-            key: getattr(case_study, key, '') for key in case_study_fields
-        })
+        document.supplier_case_studies.append({key: getattr(case_study, key, '') for key in case_study_fields})
 
     return document

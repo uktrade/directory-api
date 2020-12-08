@@ -1,24 +1,22 @@
-from collections import defaultdict
-from difflib import SequenceMatcher
 import csv
 import itertools
 import logging
 import re
+from collections import defaultdict
+from difflib import SequenceMatcher
 
-from directory_constants import company_types, choices, user_roles
-from directory_constants.urls import domestic
 import directory_components.helpers
+from directory_constants import choices, company_types, user_roles
+from directory_constants.urls import domestic
 from directory_forms_api_client import actions
+from django.conf import settings
+from django.db.models import BooleanField, Case, Count, Value, When
+from django.utils import timezone
 from elasticsearch_dsl import Q
-from elasticsearch_dsl.query import ConstantScore, SF
+from elasticsearch_dsl.query import SF, ConstantScore
 from rest_framework.serializers import ValidationError
 
-from django.conf import settings
-from django.db.models import BooleanField, Case, Count, When, Value
-from django.utils import timezone
-
 from company import models
-
 
 MESSAGE_ADMIN_NEEDED = 'A business profile must have at least one admin'
 MESSAGE_NETWORK_ERROR = 'A network error occurred'
@@ -46,10 +44,10 @@ class CompanyParser(directory_components.helpers.CompanyParser):
     @property
     def expertise_labels_for_search(self):
         return (
-            self.expertise_industries_label.replace(", ", ",").split(',') +
-            self.expertise_regions_label.replace(", ", ",").split(',') +
-            self.expertise_countries_label.replace(", ", ",").split(',') +
-            self.expertise_languages_label.replace(", ", ",").split(',')
+            self.expertise_industries_label.replace(", ", ",").split(',')
+            + self.expertise_regions_label.replace(", ", ",").split(',')
+            + self.expertise_countries_label.replace(", ", ",").split(',')
+            + self.expertise_languages_label.replace(", ", ",").split(',')
         )
 
 
@@ -100,9 +98,7 @@ def build_search_company_query(params):
     # each sibling filter should have equal score with each other
     must = []
     for key, values in params.items():
-        should = [
-            ConstantScore(filter=Q('term', **{key: value})) for value in values
-        ]
+        should = [ConstantScore(filter=Q('term', **{key: value})) for value in values]
         must.append(Q('bool', should=should, minimum_should_match=1))
     should = []
     if term:
@@ -114,41 +110,33 @@ def build_search_company_query(params):
                     ConstantScore(filter=Q('match_phrase', wildcard=term)),
                     ConstantScore(filter=Q('match', wildcard=term)),
                     ConstantScore(filter=Q('match_phrase', casestudy_wildcard=term)),
-                    ConstantScore(filter=Q('match', casestudy_wildcard=term))
+                    ConstantScore(filter=Q('match', casestudy_wildcard=term)),
                 ],
-                minimum_should_match=1
+                minimum_should_match=1,
             )
         )
 
         return Q(
             'function_score',
-            query=Q(
-                'bool',
-                must=must,
-                should=should,
-                minimum_should_match=1 if should else 0
-            ),
+            query=Q('bool', must=must, should=should, minimum_should_match=1 if should else 0),
             functions=[SF({'weight': 5, 'filter': Q('match_phrase', name=term) | Q('match', name=term)})],
-            boost_mode='sum'
+            boost_mode='sum',
         )
     else:
-        return Q(
-            'bool',
-            must=must,
-            should=should,
-            minimum_should_match=1 if should else 0
-        )
+        return Q('bool', must=must, should=should, minimum_should_match=1 if should else 0)
 
 
 def send_verification_letter(company, form_url=None):
     template_id = settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID
     action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
-    response = action.save({
-        'full_name': company.postal_full_name,
-        'address_line_1': company.postal_full_name,
-        'verification_code': company.verification_code,
-        **extract_recipient_address_gov_notify(company),
-    })
+    response = action.save(
+        {
+            'full_name': company.postal_full_name,
+            'address_line_1': company.postal_full_name,
+            'verification_code': company.verification_code,
+            **extract_recipient_address_gov_notify(company),
+        }
+    )
     response.raise_for_status()
 
     company.is_verification_letter_sent = True
@@ -159,11 +147,13 @@ def send_verification_letter(company, form_url=None):
 def send_registration_letter(company, form_url=None):
     template_id = settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID
     action = actions.GovNotifyLetterAction(template_id=template_id, form_url=form_url)
-    response = action.save({
-        'full_name': company.company_users.first().name,
-        'address_line_1': company.name,
-        **extract_recipient_address_gov_notify(company),
-    })
+    response = action.save(
+        {
+            'full_name': company.company_users.first().name,
+            'address_line_1': company.name,
+            **extract_recipient_address_gov_notify(company),
+        }
+    )
     response.raise_for_status()
 
     company.is_registration_letter_sent = True
@@ -199,19 +189,21 @@ def send_request_identity_verification_message(company_user):
         company_user.company.country,
         company_user.company.postal_code,
     ]
-    response = action.save({
-        'name': name,
-        'email': company_user.company_email,
-        'company name': company_user.company.name,
-        'company address': [line for line in address_lines if line],
-        'company sub-type': company_user.company.company_type,
-    })
+    response = action.save(
+        {
+            'name': name,
+            'email': company_user.company_email,
+            'company name': company_user.company.name,
+            'company address': [line for line in address_lines if line],
+            'company sub-type': company_user.company.company_type,
+        }
+    )
     response.raise_for_status()
     # Send the user an email instructions on how to request verification
     notify_non_companies_house_verification_request(
         email=company_user.company_email,
         company_name=company_user.company.name,
-        form_url='send_request_identity_verification_message'
+        form_url='send_request_identity_verification_message',
     )
     company = company_user.company
 
@@ -226,9 +218,11 @@ def notify_non_companies_house_verification_request(email, company_name, form_ur
         template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
         form_url=form_url,
     )
-    response = action.save({
-        'company_name': company_name,
-    })
+    response = action.save(
+        {
+            'company_name': company_name,
+        }
+    )
     response.raise_for_status()
 
 
@@ -238,7 +232,6 @@ def send_new_user_invite_email(collaboration_invite, form_url=None):
         email_address=collaboration_invite.collaborator_email,
         template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
         form_url=form_url,
-
     )
     response = action.save(invite_details)
     response.raise_for_status()
@@ -251,7 +244,6 @@ def send_new_user_invite_email_existing_company(collaboration_invite, existing_c
         email_address=collaboration_invite.collaborator_email,
         template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
         form_url=form_url,
-
     )
     response = action.save(invite_details)
     response.raise_for_status()
@@ -265,7 +257,7 @@ def extract_invite_details(collaboration_invite):
         'login_url': invite_link,
         'name': collaboration_invite.company_user.name or collaboration_invite.company_user.company_email,
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role.capitalize()
+        'role': collaboration_invite.role.capitalize(),
     }
 
 
@@ -320,7 +312,6 @@ def send_admins_new_collaboration_request_email(collaboration_request, company_a
         'name': collaboration_request.name,
         'current_role': collaboration_request.requestor.role,
         'profile_remove_member_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
-
     }
     for company_admin in company_admins:
         action = actions.GovNotifyEmailAction(
@@ -335,9 +326,9 @@ def send_admins_new_collaboration_request_email(collaboration_request, company_a
 def send_new_user_alert_invite_accepted_email(collaboration_invite, collaborator_name, form_url=None):
     invite_details = {
         'company_name': collaboration_invite.company.name,
-        'name':  collaborator_name,
-        'profile_remove_member_url':  domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
-        'email':  collaboration_invite.collaborator_email
+        'name': collaborator_name,
+        'profile_remove_member_url': domestic.SINGLE_SIGN_ON_PROFILE / 'business-profile/admin/',
+        'email': collaboration_invite.collaborator_email,
     }
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_invite.company_user.company_email,
@@ -369,26 +360,30 @@ def generate_company_users_csv(file_object, queryset):
         'collaboratorinvite',
         'collaborationinvite',
         'company__collaborationinvite',
-        'collaborationrequest'
+        'collaborationrequest',
     )
-    fieldnames = [field.name for field in models.CompanyUser._meta.get_fields()
-                  if field.name not in csv_excluded_fields]
-    fieldnames += ['company__' + field.name
-                   for field in models.Company._meta.get_fields()
-                   if 'company__' + field.name
-                   not in csv_excluded_fields]
-    fieldnames.extend([
-        'company__has_case_study',
-        'company__number_of_case_studies'
-    ])
-    company_users = queryset.select_related('company').all().annotate(
-        company__has_case_study=Case(
-            When(company__supplier_case_studies__isnull=False, then=Value(True)),
-            default=Value(False),
-            output_field=BooleanField()
-        ),
-        company__number_of_case_studies=Count('company__supplier_case_studies'),
-    ).values(*fieldnames)
+    fieldnames = [
+        field.name for field in models.CompanyUser._meta.get_fields() if field.name not in csv_excluded_fields
+    ]
+    fieldnames += [
+        'company__' + field.name
+        for field in models.Company._meta.get_fields()
+        if 'company__' + field.name not in csv_excluded_fields
+    ]
+    fieldnames.extend(['company__has_case_study', 'company__number_of_case_studies'])
+    company_users = (
+        queryset.select_related('company')
+        .all()
+        .annotate(
+            company__has_case_study=Case(
+                When(company__supplier_case_studies__isnull=False, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+            company__number_of_case_studies=Count('company__supplier_case_studies'),
+        )
+        .values(*fieldnames)
+    )
     fieldnames.append('company__number_of_sectors')
     fieldnames = sorted(fieldnames)
     writer = csv.DictWriter(file_object, fieldnames=fieldnames)
@@ -435,7 +430,7 @@ def notify_duplicate_companies():
         action = actions.GovNotifyEmailAction(
             template_id=settings.GOVNOTIFY_DUPLICATE_COMPANIES,
             email_address=settings.GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL,
-            form_url='detect_duplicate_companies'
+            form_url='detect_duplicate_companies',
         )
         flattened = [f'* {company.name}' for group in groups for company in group]
         response = action.save({'groups': '\n'.join(flattened), 'count': len(flattened)})

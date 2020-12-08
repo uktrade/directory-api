@@ -1,9 +1,8 @@
-from directory_constants import choices, user_roles
 import factory
 import factory.fuzzy
-from faker import Faker
-
+from directory_constants import choices, user_roles
 from django.utils.text import slugify
+from faker import Faker
 
 from company import models
 
