@@ -3,11 +3,18 @@
 ## Pre release
 
 ### Implemented enhancements
+- GP2-1063 - Moved SuggestedCountries under dataservices app
+
+### Bugs fixed
+
+## [1.1.0](https://github.com/uktrade/directory-api/releases/tag/1.1.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.0.0...1.1.0)
+
+### Implemented enhancements
+- GP2-1069 - Added deprecation warning for user profile fields
 - GP2-1147 - Added  management command to import GDP Per Capita Data
 - GP2-1025 - New endpoint for getting economy data from ComTrade
 - GP2-849 - target audience progress
-
-### Bugs fixed
 
 
 ## [1.0.0](https://github.com/uktrade/directory-api/releases/tag/1.0.0)

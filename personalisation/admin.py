@@ -36,12 +36,3 @@ class CountryOfInterestAdmin(admin.ModelAdmin):
         'sector',
         'service',
     )
-
-
-@admin.register(models.SuggestedCountry)
-class SuggestedCountryAdmin(admin.ModelAdmin):
-    list_display = (
-        'hs_code',
-        'country',
-        'order'
-    )

@@ -23,3 +23,22 @@ class CIAFactBookFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.CIAFactbook
+
+
+class CountryFactory(factory.django.DjangoModelFactory):
+    name = factory.fuzzy.FuzzyText(length=50)
+    iso1 = factory.fuzzy.FuzzyText(length=1)
+    iso2 = factory.fuzzy.FuzzyText(length=2)
+    iso3 = factory.fuzzy.FuzzyText(length=3)
+    region = factory.fuzzy.FuzzyText(length=10)
+
+    class Meta:
+        model = models.Country
+
+
+class SuggestedCountriesFactory(factory.django.DjangoModelFactory):
+    hs_code = factory.fuzzy.FuzzyInteger(low=1)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.SuggestedCountry
