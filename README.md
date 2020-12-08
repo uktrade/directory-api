@@ -48,6 +48,8 @@ Secrets such as API keys and environment specific configurations are placed in `
 | make init_secrets             | Create your secret env var file |
 | make worker                   | Run the celery worker |
 | make beat                     | Run the celery beat scheduler |
+| make checks                   | Run isort, black and flake8 in check-only mode |
+| make autoformat               | Run isort, black and flake8 in update-files mode |
 
 
 ## SSO
@@ -99,8 +101,3 @@ https://github.com/uktrade?q=great
 
 [calver-image]: https://img.shields.io/badge/Versioning%20strategy-CalVer-5FBB1C.svg
 [calver]: https://calver.org
-
-
-
-
-
