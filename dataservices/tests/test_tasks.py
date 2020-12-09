@@ -1,33 +1,29 @@
+import re
+
 import pytest
+
 from dataservices import tasks
 from dataservices.models import CIAFactbook
-import re
 
 
 @pytest.fixture()
 def cia_factbook_data(requests_mocker):
     return {
         "countries": {
-            "world": {
-                "data": {
-                    "name": "the world",
-                    "description": "world"
-                }},
+            "world": {"data": {"name": "the world", "description": "world"}},
             "united_kingdom": {
                 "data": {
                     "name": "United Kingdom",
                     "description": "world",
-                    }},
+                }
+            },
         },
     }
 
 
 @pytest.fixture()
 def cia_factbook_request_mock(requests_mocker, cia_factbook_data):
-    return requests_mocker.get(
-        re.compile('https://raw.githubusercontent.com/.*'),
-        json=cia_factbook_data
-    )
+    return requests_mocker.get(re.compile('https://raw.githubusercontent.com/.*'), json=cia_factbook_data)
 
 
 @pytest.mark.django_db

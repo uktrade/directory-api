@@ -1,6 +1,6 @@
 import pytest
 
-from dataservices.tests.factories import SuggestedCountriesFactory, CIAFactBookFactory
+from dataservices.tests.factories import CIAFactBookFactory, SuggestedCountriesFactory
 
 
 @pytest.mark.django_db
