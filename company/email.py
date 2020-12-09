@@ -17,11 +17,8 @@ class MultiUserOwnershipBaseNotification:
     def get_context_data(self, **kwargs):
         return {
             'invite_link': self.instance.invite_link,
-            'requestor': (
-                self.instance.requestor.name or
-                self.instance.requestor.company_email
-            ),
-            'company_name': self.instance.company.name
+            'requestor': (self.instance.requestor.name or self.instance.requestor.company_email),
+            'company_name': self.instance.company.name,
         }
 
     def get_bodies(self):

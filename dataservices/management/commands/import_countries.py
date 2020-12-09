@@ -1,7 +1,6 @@
 import tablib
-from import_export import resources
-
 from django.core.management import BaseCommand
+from import_export import resources
 
 from dataservices.models import Country
 
@@ -10,10 +9,17 @@ class Command(BaseCommand):
     help = 'Import Countries data'
 
     def handle(self, *args, **options):
-        with open('dataservices/resources/countries-territories-and-regions-1.0.csv', 'r',
-                  encoding='utf-8-sig') as f:
+        with open('dataservices/resources/countries-territories-and-regions-1.0.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
-            dataset = tablib.Dataset(headers=['name', 'iso1', 'iso2', 'iso3', 'region', ])
+            dataset = tablib.Dataset(
+                headers=[
+                    'name',
+                    'iso1',
+                    'iso2',
+                    'iso3',
+                    'region',
+                ]
+            )
 
             # add only contries and selected columns
             for item in data:

@@ -1,9 +1,8 @@
 import factory
 import factory.fuzzy
 
-from notifications import models, constants
 from company.tests.factories import CompanyUserFactory
-
+from notifications import constants, models
 
 SUPPLIER_CATEGORY_CHOICES = [i[0] for i in constants.SUPPLIER_NOTIFICATION_CATEGORIES]
 BUYER_CATEGORY_CHOICES = [i[0] for i in constants.BUYER_NOTIFICATION_CATEGORIES]

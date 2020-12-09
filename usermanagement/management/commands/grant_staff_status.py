@@ -1,6 +1,5 @@
-from django.core.management import BaseCommand
-
 from django.contrib.auth.models import User
+from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
@@ -17,10 +16,6 @@ class Command(BaseCommand):
             user = User.objects.get(username=username)
             user.is_staff = True
             user.save()
-            self.stdout.write(
-                self.style.SUCCESS('Successfully granted staff status user "%s"' % user.username)
-            )
+            self.stdout.write(self.style.SUCCESS('Successfully granted staff status user "%s"' % user.username))
         except User.DoesNotExist:
-            self.stdout.write(
-                self.style.WARNING('No user found with username "%s"' % username)
-            )
+            self.stdout.write(self.style.WARNING('No user found with username "%s"' % username))

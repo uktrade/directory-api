@@ -1,8 +1,9 @@
 import logging
-from rest_framework.response import Response
-from rest_framework import status, generics
-from requests.exceptions import HTTPError
+
 from django.db.models import Count
+from requests.exceptions import HTTPError
+from rest_framework import generics, status
+from rest_framework.response import Response
 
 from company.helpers import CompanyParser
 from core.permissions import IsAuthenticatedSSO
@@ -43,8 +44,8 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
 
 
 class EventsView(generics.GenericAPIView):
-    """ Events API - finds events near given geo-coordinates
-    """
+    """Events API - finds events near given geo-coordinates"""
+
     permission_classes = []
 
     def get_location(self):
@@ -57,19 +58,17 @@ class EventsView(generics.GenericAPIView):
 
     def get_search_terms(self):
         company = self.request.user.company
-        parser = CompanyParser({
-            'expertise_industries': company.expertise_industries,
-            'expertise_countries': company.expertise_countries,
-        })
+        parser = CompanyParser(
+            {
+                'expertise_industries': company.expertise_industries,
+                'expertise_countries': company.expertise_countries,
+            }
+        )
         return [item for item in parser.expertise_labels_for_search if item]
 
     def get(self, *args, **kwargs):
         lat, lon = self.get_location()
-        query = helpers.build_query(
-            lat=lat,
-            lon=lon,
-            terms=self.get_search_terms()
-        )
+        query = helpers.build_query(lat=lat, lon=lon, terms=self.get_search_terms())
         response = helpers.search_with_activitystream(query)
         response.raise_for_status()
         return Response(status=response.status_code, data=helpers.parse_results(response))
@@ -81,24 +80,16 @@ class ExportOpportunitiesView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         try:
             opportunities = helpers.get_opportunities(
-                self.request.user.hashed_uuid,
-                self.request.query_params.get('s', '')
+                self.request.user.hashed_uuid, self.request.query_params.get('s', '')
             )
             if 'relevant_opportunities' in opportunities['data'].keys():
                 return Response(
-                    status=opportunities['status'],
-                    data={'results': opportunities['data']['relevant_opportunities']}
+                    status=opportunities['status'], data={'results': opportunities['data']['relevant_opportunities']}
                 )
             else:
-                return Response(
-                    status=opportunities['status'],
-                    data=opportunities['data']
-                )
+                return Response(status=opportunities['status'], data=opportunities['data'])
         except HTTPError:
-            return Response(
-                status=500,
-                data={'error_message': 'Connection to Export Opportunities failed'}
-            )
+            return Response(status=500, data={'error_message': 'Connection to Export Opportunities failed'})
 
 
 class RecommendedCountriesView(generics.ListAPIView):
@@ -107,8 +98,9 @@ class RecommendedCountriesView(generics.ListAPIView):
 
     def get_queryset(self):
         sector = self.request.query_params.get('sector', '').lower()
-        return models.CountryOfInterest.objects.\
-            filter(sector=sector).\
-            values('country').\
-            annotate(num_countries=Count('country')).\
-            order_by('-num_countries')[:10]
+        return (
+            models.CountryOfInterest.objects.filter(sector=sector)
+            .values('country')
+            .annotate(num_countries=Count('country'))
+            .order_by('-num_countries')[:10]
+        )

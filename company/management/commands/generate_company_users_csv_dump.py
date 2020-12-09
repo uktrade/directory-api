@@ -3,8 +3,8 @@ import io
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from core.helpers import upload_file_object_to_s3
 from company import helpers, models
+from core.helpers import upload_file_object_to_s3
 
 
 class Command(BaseCommand):
@@ -24,5 +24,8 @@ class Command(BaseCommand):
     def generate_csv_file():
         file_object = io.StringIO()
         queryset = models.CompanyUser.objects.exclude(company__isnull=True)
-        helpers.generate_company_users_csv(file_object=file_object, queryset=queryset,)
+        helpers.generate_company_users_csv(
+            file_object=file_object,
+            queryset=queryset,
+        )
         return file_object

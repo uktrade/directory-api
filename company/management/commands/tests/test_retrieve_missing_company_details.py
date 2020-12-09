@@ -1,9 +1,8 @@
 import datetime
 from unittest.mock import patch
 
-from directory_constants import company_types
 import pytest
-
+from directory_constants import company_types
 from django.core.management import call_command
 
 from company.tests.factories import CompanyFactory
@@ -31,8 +30,8 @@ def test_retrieve_missing_company_address(mock_get_companies_house_profile):
             'address_line_2': 'Fake land',
             'locality': 'Fakeville',
             'postal_code': 'FAKELAND',
-            'po_box': 'PO BOX'
-        }
+            'po_box': 'PO BOX',
+        },
     }
     call_command('retrieve_missing_company_details')
     company.refresh_from_db()
@@ -46,9 +45,7 @@ def test_retrieve_missing_company_address(mock_get_companies_house_profile):
 
 @pytest.mark.django_db
 @patch('company.management.commands.retrieve_missing_company_details.get_companies_house_profile')
-def test_retrieve_missing_company_address_po_box(
-    mock_get_companies_house_profile
-):
+def test_retrieve_missing_company_address_po_box(mock_get_companies_house_profile):
     company = CompanyFactory(date_of_creation=None, number=123)
     mock_get_companies_house_profile.return_value = {
         'date_of_creation': '2016-12-16',
@@ -57,7 +54,7 @@ def test_retrieve_missing_company_address_po_box(
             'address_line_2': 'Fake land',
             'locality': 'Fakeville',
             'postal_code': 'FAKELAND',
-        }
+        },
     }
     call_command('retrieve_missing_company_details')
     company.refresh_from_db()

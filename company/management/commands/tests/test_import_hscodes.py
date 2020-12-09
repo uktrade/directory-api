@@ -1,8 +1,9 @@
-import pytest
 from unittest import mock
 
+import pytest
 from django.core import management
 from import_export import results
+
 from company.models import HsCodeSector
 
 

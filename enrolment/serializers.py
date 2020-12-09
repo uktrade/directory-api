@@ -53,7 +53,6 @@ class PreVerifiedEnrolmentSerializer(serializers.ModelSerializer):
 
 
 class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CompanyUser
         fields = [
@@ -61,13 +60,15 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        user = super().create({
-            'name': validated_data['name'],
-            'company': self.context['company'],
-            'sso_id': self.context['request'].user.id,
-            'company_email': self.context['request'].user.email,
-            'role': user_roles.ADMIN,
-        })
+        user = super().create(
+            {
+                'name': validated_data['name'],
+                'company': self.context['company'],
+                'sso_id': self.context['request'].user.id,
+                'company_email': self.context['request'].user.email,
+                'role': user_roles.ADMIN,
+            }
+        )
         company = self.context['company']
         company.verified_with_preverified_enrolment = True
         company.save()
@@ -76,7 +77,6 @@ class ClaimPreverifiedCompanySerializer(serializers.ModelSerializer):
 
 
 class PreverifiedCompanySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Company
         fields = [

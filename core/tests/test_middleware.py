@@ -1,8 +1,8 @@
 import pytest
-
-from django.urls import reverse
-from core.tests.test_views import reload_urlconf
 from django.contrib.auth.models import User
+from django.urls import reverse
+
+from core.tests.test_views import reload_urlconf
 
 SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',

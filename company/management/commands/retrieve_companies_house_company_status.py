@@ -1,7 +1,6 @@
 from collections import Counter
 
 from directory_constants import company_types
-
 from django.core.management.base import BaseCommand
 
 from company import models

@@ -2,7 +2,6 @@ import json
 
 from rest_framework import serializers
 
-
 VALID_REQUEST_DATA = {
     'number': '11234567',
     'name': 'Test Company',

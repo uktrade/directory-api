@@ -1,19 +1,17 @@
 import csv
-import pytest
 import io
 
+import pytest
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import Client
+from django.urls import reverse
 
 from enrolment.models import PreVerifiedEnrolment
 
 
 @pytest.fixture()
 def superuser():
-    return User.objects.create_superuser(
-        username='admin', email='admin@example.com', password='test'
-    )
+    return User.objects.create_superuser(username='admin', email='admin@example.com', password='test')
 
 
 @pytest.fixture()
@@ -50,8 +48,7 @@ def csv_invalid_rows():
 def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
     csv_file = build_csv_file(lineterminator='\r\n')
     response = superuser_client.post(
-        reverse('admin:pre-verify-companies'),
-        {'generated_for': 'COOL LTD', 'csv_file': csv_file}
+        reverse('admin:pre-verify-companies'), {'generated_for': 'COOL LTD', 'csv_file': csv_file}
     )
 
     assert response.status_code == 302
@@ -72,14 +69,10 @@ def test_upload_enrolment_form_saves_verified(superuser_client, superuser):
 
 @pytest.mark.django_db
 def test_upload_enrolment_form_shows_erros(superuser_client, csv_invalid_rows):
-    expected_error_one = (
-         b'[Row 4] {&quot;company_number&quot;: '
-         b'[&quot;This field is required.&quot;]}'
-    )
+    expected_error_one = b'[Row 4] {&quot;company_number&quot;: [&quot;This field is required.&quot;]}'
 
     response = superuser_client.post(
-        reverse('admin:pre-verify-companies'),
-        {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
+        reverse('admin:pre-verify-companies'), {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
     )
 
     assert response.status_code == 200
@@ -92,8 +85,7 @@ def test_upload_enrolment_form_rolls_back(superuser_client, csv_invalid_rows):
     # to return the csv to the trade organisation with the validation errors,
     # and only when all rows are valid so we want to save them all
     response = superuser_client.post(
-        reverse('admin:pre-verify-companies'),
-        {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
+        reverse('admin:pre-verify-companies'), {'generated_for': 'COOL LTD', 'csv_file': csv_invalid_rows}
     )
 
     assert response.status_code == 200
@@ -105,12 +97,7 @@ def test_download_preverified_template(superuser_client):
     response = superuser_client.get(reverse('admin:example-template'))
 
     assert response.content == (
-        b'Company number,Email\r\n'
-        b'90000001,comany@exmaple.com,'
-        b'This is an example company. Delete this row.\r\n'
+        b'Company number,Email\r\n90000001,comany@exmaple.com,This is an example company. Delete this row.\r\n'
     )
-    assert (
-        response['Content-Disposition'] ==
-        'attachment; filename="template.csv"'
-    )
+    assert response['Content-Disposition'] == 'attachment; filename="template.csv"'
     assert response['content-type'] == 'text/csv'

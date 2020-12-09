@@ -1,11 +1,10 @@
 from collections import OrderedDict
 from unittest import TestCase
 
+import pytest
+from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
-from django.contrib.auth.models import User
-
-import pytest
 
 from buyer.models import Buyer
 from buyer.tests.factories import BuyerFactory
@@ -13,39 +12,29 @@ from buyer.tests.factories import BuyerFactory
 
 @pytest.mark.django_db
 class DownloadCSVTestCase(TestCase):
-
     def setUp(self):
-        superuser = User.objects.create_superuser(
-            username='admin', email='admin@example.com', password='test'
-        )
+        superuser = User.objects.create_superuser(username='admin', email='admin@example.com', password='test')
         self.client = Client()
         self.client.force_login(superuser)
 
     def test_download_csv(self):
         buyer = BuyerFactory()
 
-        data = {
-            'action': 'download_csv',
-            '_selected_action': Buyer.objects.all().values_list(
-                'pk', flat=True
-            )
-        }
-        response = self.client.post(
-            reverse('admin:buyer_buyer_changelist'),
-            data,
-            follow=True
-        )
+        data = {'action': 'download_csv', '_selected_action': Buyer.objects.all().values_list('pk', flat=True)}
+        response = self.client.post(reverse('admin:buyer_buyer_changelist'), data, follow=True)
 
-        expected_data = OrderedDict([
-            ('company_name', str(buyer.company_name)),
-            ('country', str(buyer.country)),
-            ('created', str(buyer.created)),
-            ('email', buyer.email),
-            ('id', str(buyer.id)),
-            ('modified', str(buyer.modified)),
-            ('name', buyer.name),
-            ('sector', buyer.sector),
-        ])
+        expected_data = OrderedDict(
+            [
+                ('company_name', str(buyer.company_name)),
+                ('country', str(buyer.country)),
+                ('created', str(buyer.created)),
+                ('email', buyer.email),
+                ('id', str(buyer.id)),
+                ('modified', str(buyer.modified)),
+                ('name', buyer.name),
+                ('sector', buyer.sector),
+            ]
+        )
         actual = str(response.content, 'utf-8').split('\r\n')
 
         assert actual[0] == ','.join(expected_data.keys())
@@ -53,48 +42,45 @@ class DownloadCSVTestCase(TestCase):
 
     def test_download_csv_multiple_buyers(self):
         buyers = BuyerFactory.create_batch(3)
-        buyer_one_expected_data = OrderedDict([
-            ('company_name', str(buyers[0].company_name)),
-            ('country', str(buyers[0].country)),
-            ('created', str(buyers[0].created)),
-            ('email', buyers[0].email),
-            ('id', str(buyers[0].id)),
-            ('modified', str(buyers[0].modified)),
-            ('name', buyers[0].name),
-            ('sector', buyers[0].sector),
-        ])
-        buyer_two_expected_data = OrderedDict([
-            ('company_name', str(buyers[1].company_name)),
-            ('country', str(buyers[1].country)),
-            ('created', str(buyers[1].created)),
-            ('email', buyers[1].email),
-            ('id', str(buyers[1].id)),
-            ('modified', str(buyers[1].modified)),
-            ('name', buyers[1].name),
-            ('sector', buyers[1].sector),
-        ])
-        buyer_three_expected_data = OrderedDict([
-            ('company_name', str(buyers[2].company_name)),
-            ('country', str(buyers[2].country)),
-            ('created', str(buyers[2].created)),
-            ('email', buyers[2].email),
-            ('id', str(buyers[2].id)),
-            ('modified', str(buyers[2].modified)),
-            ('name', buyers[2].name),
-            ('sector', buyers[2].sector),
-        ])
-
-        data = {
-            'action': 'download_csv',
-            '_selected_action': Buyer.objects.all().values_list(
-                'pk', flat=True
-            )
-        }
-        response = self.client.post(
-            reverse('admin:buyer_buyer_changelist'),
-            data,
-            follow=True
+        buyer_one_expected_data = OrderedDict(
+            [
+                ('company_name', str(buyers[0].company_name)),
+                ('country', str(buyers[0].country)),
+                ('created', str(buyers[0].created)),
+                ('email', buyers[0].email),
+                ('id', str(buyers[0].id)),
+                ('modified', str(buyers[0].modified)),
+                ('name', buyers[0].name),
+                ('sector', buyers[0].sector),
+            ]
         )
+        buyer_two_expected_data = OrderedDict(
+            [
+                ('company_name', str(buyers[1].company_name)),
+                ('country', str(buyers[1].country)),
+                ('created', str(buyers[1].created)),
+                ('email', buyers[1].email),
+                ('id', str(buyers[1].id)),
+                ('modified', str(buyers[1].modified)),
+                ('name', buyers[1].name),
+                ('sector', buyers[1].sector),
+            ]
+        )
+        buyer_three_expected_data = OrderedDict(
+            [
+                ('company_name', str(buyers[2].company_name)),
+                ('country', str(buyers[2].country)),
+                ('created', str(buyers[2].created)),
+                ('email', buyers[2].email),
+                ('id', str(buyers[2].id)),
+                ('modified', str(buyers[2].modified)),
+                ('name', buyers[2].name),
+                ('sector', buyers[2].sector),
+            ]
+        )
+
+        data = {'action': 'download_csv', '_selected_action': Buyer.objects.all().values_list('pk', flat=True)}
+        response = self.client.post(reverse('admin:buyer_buyer_changelist'), data, follow=True)
 
         actual = str(response.content, 'utf-8').split('\r\n')
         assert actual[0] == ','.join(buyer_one_expected_data.keys())

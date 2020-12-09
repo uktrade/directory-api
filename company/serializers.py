@@ -1,18 +1,15 @@
-from django.utils.timezone import now
-from rest_framework import serializers
-
 import directory_validators.string
 from directory_constants import choices, user_roles
-
 from django.conf import settings
 from django.http import QueryDict
+from django.utils.timezone import now
+from rest_framework import serializers
 
 from company import models, validators
 from core.helpers import CompaniesHouseClient
 
 
 class AllowedFormatImageField(serializers.ImageField):
-
     def to_internal_value(self, data):
         file = super().to_internal_value(data)
         if file.image.format.upper() not in settings.ALLOWED_IMAGE_FORMATS:
@@ -60,7 +57,6 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
 
 
 class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
-
     class Meta(CompanyCaseStudySerializer.Meta):
         depth = 2
 
@@ -75,7 +71,7 @@ class CompanySerializer(serializers.ModelSerializer):
     has_valid_address = serializers.SerializerMethodField()
     keywords = serializers.CharField(
         validators=[directory_validators.string.word_limit(10), directory_validators.string.no_special_characters],
-        required=False
+        required=False,
     )
 
     class Meta:
@@ -284,7 +280,7 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
             defaults={
                 'company': collaborator_invite.company,
                 'role': collaborator_invite.role,
-            }
+            },
         )
 
 
@@ -303,9 +299,7 @@ class AddCollaboratorSerializer(serializers.ModelSerializer):
             'role',
         )
 
-        extra_kwargs = {
-            'role': {'required': False}
-        }
+        extra_kwargs = {'role': {'required': False}}
 
     def create(self, validated_data):
         if 'role' not in validated_data:
@@ -353,7 +347,6 @@ class ExternalCompanyUserSerializer(serializers.ModelSerializer):
 
 
 class CompanyUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.CompanyUser
         fields = (

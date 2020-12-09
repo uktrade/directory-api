@@ -16,7 +16,7 @@ def test_exporting_is_great_handles_auth(mock_get, settings):
     mock_get.assert_called_once_with(
         'http://b.co/export-opportunities/api/opportunities',
         params={'hashed_sso_id': 2, 'shared_secret': 123, 's': ''},
-        auth=helpers.exopps_client.auth
+        auth=helpers.exopps_client.auth,
     )
     assert helpers.exopps_client.auth.username == username
     assert helpers.exopps_client.auth.password == password
