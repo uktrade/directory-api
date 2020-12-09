@@ -3,18 +3,18 @@ from datetime import timedelta
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import FormView, TemplateView
-from import_export.resources import ModelResource
 from import_export.fields import Field
+from import_export.resources import ModelResource
 
-from core.helpers import build_preverified_url, generate_csv_response
 from company import helpers, models
-from company.forms import EnrolCompanies, UploadExpertise, ConfirmVerificationLetterForm
+from company.forms import ConfirmVerificationLetterForm, EnrolCompanies, UploadExpertise
+from core.helpers import build_preverified_url, generate_csv_response
 
 
 class GDPRComplianceFilter(admin.SimpleListFilter):
@@ -22,9 +22,7 @@ class GDPRComplianceFilter(admin.SimpleListFilter):
     parameter_name = 'gdpr'
 
     def lookups(self, request, model_admin):
-        return (
-            (True, 'is not compliant'),
-        )
+        return ((True, 'is not compliant'),)
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -100,7 +98,7 @@ class CompaniesCreateFormView(FormView):
             {
                 'created_companies': created_companies,
                 'skipped_companies': form.skipped_companies,
-            }
+            },
         )
 
 
@@ -108,17 +106,13 @@ class DuplicateCompaniesView(TemplateView):
     template_name = 'admin/company/duplicate_companies.html'
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            groups=helpers.get_duplicate_companies()
-        )
+        return super().get_context_data(groups=helpers.get_duplicate_companies())
 
 
 class CompaniesUploadExpertiseFormView(FormView):
     form_class = UploadExpertise
     template_name = 'admin/company/company_expertise_csv_upload_form.html'
-    success_url = reverse_lazy(
-        'admin/company/company_expertise_csv_upload_success.html'
-    )
+    success_url = reverse_lazy('admin/company/company_expertise_csv_upload_success.html')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -138,19 +132,14 @@ class CompaniesUploadExpertiseFormView(FormView):
             {
                 'updated_companies': form.updated_companies,
                 'errors': form.update_errors,
-            }
+            },
         )
 
 
 class PublishByCompanyHouseNumberForm(forms.Form):
-    COMPANY_DOESNT_EXIST_MSG = (
-        'Some companies in this data set are not in the db: {numbers}'
-    )
+    COMPANY_DOESNT_EXIST_MSG = 'Some companies in this data set are not in the db: {numbers}'
 
-    company_numbers = forms.CharField(
-        widget=forms.Textarea,
-        help_text='Comma-separated company house numbers'
-    )
+    company_numbers = forms.CharField(widget=forms.Textarea, help_text='Comma-separated company house numbers')
 
     options = (
         ("investment_support_directory", "Investment Support Directory"),
@@ -216,10 +205,20 @@ class CompanyUserInline(admin.options.TabularInline):
 class CompanyAdmin(admin.ModelAdmin):
     inlines = (CompanyUserInline,)
     search_fields = (
-        'name', 'description', 'keywords',
-        'sectors', 'website', 'verification_code', 'number',
-        'postal_full_name', 'address_line_1', 'address_line_2',
-        'locality', 'country', 'postal_code', 'po_box',
+        'name',
+        'description',
+        'keywords',
+        'sectors',
+        'website',
+        'verification_code',
+        'number',
+        'postal_full_name',
+        'address_line_1',
+        'address_line_2',
+        'locality',
+        'country',
+        'postal_code',
+        'po_box',
     )
     list_display = (
         'name',
@@ -240,31 +239,23 @@ class CompanyAdmin(admin.ModelAdmin):
         additional_urls = [
             url(
                 r'^publish/$',
-                self.admin_site.admin_view(
-                    PublishByCompanyHouseNumberView.as_view()
-                ),
-                name="company_company_publish"
+                self.admin_site.admin_view(PublishByCompanyHouseNumberView.as_view()),
+                name="company_company_publish",
             ),
             url(
                 r'^create-many/$',
-                self.admin_site.admin_view(
-                    CompaniesCreateFormView.as_view()
-                ),
-                name="company_company_enrol"
+                self.admin_site.admin_view(CompaniesCreateFormView.as_view()),
+                name="company_company_enrol",
             ),
             url(
                 r'^expertise-upload/$',
-                self.admin_site.admin_view(
-                    CompaniesUploadExpertiseFormView.as_view()
-                ),
-                name="upload_company_expertise"
+                self.admin_site.admin_view(CompaniesUploadExpertiseFormView.as_view()),
+                name="upload_company_expertise",
             ),
             url(
                 r'^duplicates/$',
-                self.admin_site.admin_view(
-                    DuplicateCompaniesView.as_view()
-                ),
-                name="duplicate_companies"
+                self.admin_site.admin_view(DuplicateCompaniesView.as_view()),
+                name="duplicate_companies",
             ),
         ]
         return additional_urls + urls
@@ -274,9 +265,16 @@ class CompanyAdmin(admin.ModelAdmin):
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
 
     search_fields = (
-        'company__name', 'company__number', 'description', 'short_summary',
-        'title', 'website', 'keywords', 'testimonial',
-        'testimonial_company', 'testimonial_name',
+        'company__name',
+        'company__number',
+        'description',
+        'short_summary',
+        'title',
+        'website',
+        'keywords',
+        'testimonial',
+        'testimonial_company',
+        'testimonial_name',
     )
     readonly_fields = ('created', 'modified')
     actions = ['download_csv']
@@ -290,14 +288,10 @@ class CompanyCaseStudyAdmin(admin.ModelAdmin):
         """
 
         return generate_csv_response(
-            queryset=queryset,
-            filename=self.csv_filename,
-            excluded_fields=self.csv_excluded_fields
+            queryset=queryset, filename=self.csv_filename, excluded_fields=self.csv_excluded_fields
         )
 
-    download_csv.short_description = (
-        "Download CSV report for selected case studies"
-    )
+    download_csv.short_description = "Download CSV report for selected case studies"
 
 
 @admin.register(models.CollaborationInvite)
@@ -309,9 +303,16 @@ class CollaborationInviteAdmin(admin.ModelAdmin):
 
 @admin.register(models.CollaborationRequest)
 class CollaborationRequestAdmin(admin.ModelAdmin):
-    search_fields = ('uuid', 'role', 'requestor', )
+    search_fields = (
+        'uuid',
+        'role',
+        'requestor',
+    )
 
-    readonly_fields = ('accepted', 'accepted_date',)
+    readonly_fields = (
+        'accepted',
+        'accepted_date',
+    )
     list_display = ('uuid', 'requestor', 'role')
     list_filter = ('accepted', 'role')
 
@@ -336,18 +337,39 @@ class ResendVerificationLetterFormView(SuccessMessageMixin, FormView):
 class CompanyUserAdmin(admin.ModelAdmin):
 
     search_fields = (
-        'sso_id', 'name', 'mobile_number', 'company_email', 'company__name',
-        'company__description', 'company__number', 'company__website',
+        'sso_id',
+        'name',
+        'mobile_number',
+        'company_email',
+        'company__name',
+        'company__description',
+        'company__number',
+        'company__website',
     )
-    list_display = ('name', 'company_email', 'company', 'company_type',)
-    readonly_fields = ('company_type', 'created', 'modified',)
-    actions = ['send_verification_letter', 'download_csv', ]
+    list_display = (
+        'name',
+        'company_email',
+        'company',
+        'company_type',
+    )
+    readonly_fields = (
+        'company_type',
+        'created',
+        'modified',
+    )
+    actions = [
+        'send_verification_letter',
+        'download_csv',
+    ]
 
     def send_verification_letter(self, request, queryset):
         response = TemplateResponse(
             request,
             'admin/company/confirm_send_verification_letter.html',
-            {'queryset': queryset, 'ids': [q.pk for q in queryset], }
+            {
+                'queryset': queryset,
+                'ids': [q.pk for q in queryset],
+            },
         )
         return response
 
@@ -360,23 +382,22 @@ class CompanyUserAdmin(admin.ModelAdmin):
         Generates CSV report of all suppliers, with company details included.
         """
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = (
-            'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(timezone.now().strftime("%Y%m%d%H%M%S"))
+        response['Content-Disposition'] = 'attachment; filename="find-a-buyer_suppliers_{}.csv"'.format(
+            timezone.now().strftime("%Y%m%d%H%M%S")
         )
         helpers.generate_company_users_csv(file_object=response, queryset=queryset)
         return response
 
-    download_csv.short_description = (
-        "Download CSV report for selected suppliers"
-    )
+    download_csv.short_description = "Download CSV report for selected suppliers"
 
     def get_urls(self):
         urls = super().get_urls()
         additional_urls = [
-            url(r'^admin/company/resend-verification-letter/$',
+            url(
+                r'^admin/company/resend-verification-letter/$',
                 self.admin_site.admin_view(ResendVerificationLetterFormView.as_view()),
                 name='resend_verification_letter',
-                ),
+            ),
         ]
         return additional_urls + urls
 

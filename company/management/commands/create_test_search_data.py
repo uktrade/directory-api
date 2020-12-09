@@ -26,9 +26,7 @@ class Command(BaseCommand):
 
             for j in range(5):
                 factories.CompanyCaseStudyFactory(
-                    company=gold_company,
-                    title='Thick case study {}'.format(j),
-                    description='Gold is delicious.'
+                    company=gold_company, title='Thick case study {}'.format(j), description='Gold is delicious.'
                 )
 
             lead_company = factories.CompanyFactory(
@@ -43,5 +41,5 @@ class Command(BaseCommand):
                 factories.CompanyCaseStudyFactory(
                     company=lead_company,
                     title='Thick case study {}'.format(j),
-                    description='We determined lead sinks in water.'
+                    description='We determined lead sinks in water.',
                 )

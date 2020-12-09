@@ -7,12 +7,7 @@ class Command(BaseCommand):
     help = 'Send various notifications to users'
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--type',
-            action='store',
-            dest='type',
-            help='Specifies the type of notifications to send'
-        )
+        parser.add_argument('--type', action='store', dest='type', help='Specifies the type of notifications to send')
 
     def run_daily(self):
         notifications.verification_code_not_given()
@@ -25,8 +20,7 @@ class Command(BaseCommand):
         if type_option is None:
             raise CommandError('--type option is required')
         elif type_option not in ['daily', 'weekly']:
-            raise CommandError(
-                "%s is not a valid notification type" % type_option)
+            raise CommandError("%s is not a valid notification type" % type_option)
 
         if type_option == 'daily':
             self.run_daily()

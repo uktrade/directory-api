@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from core.management.commands import helpers
 from core import tasks
+from core.management.commands import helpers
 
 
 class Command(helpers.ExclusiveDistributedHandleMixin, BaseCommand):

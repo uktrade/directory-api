@@ -1,113 +1,101 @@
 from unittest import mock
 
-from directory_forms_api_client.client import forms_api_client
-from directory_constants import company_types
-from directory_constants.urls import domestic
-from freezegun import freeze_time
 import pytest
-
+from directory_constants import company_types, user_roles
+from directory_constants.urls import domestic
+from directory_forms_api_client.client import forms_api_client
 from django.conf import settings
 from django.utils import timezone
+from freezegun import freeze_time
 
-from company.tests import factories
 from company import helpers, models, serializers
+from company.tests import factories
 from core.helpers import SSOUser
-from directory_constants import user_roles
 
 
-@pytest.mark.parametrize('raw_address,line_1,line_2,po_box,postal_code', (
+@pytest.mark.parametrize(
+    'raw_address,line_1,line_2,po_box,postal_code',
     (
         (
-            'Studio: Unit 354 Stratford Workshops\n'
-            'Burford Road, London E15\n'
-            'Admin & Registered at: 22 Glamis Street, Bognor Regis BO21 1DQ'
+            (
+                'Studio: Unit 354 Stratford Workshops\n'
+                'Burford Road, London E15\n'
+                'Admin & Registered at: 22 Glamis Street, Bognor Regis BO21 1DQ'
+            ),
+            'Studio: Unit 354 Stratford Workshops',
+            'Burford Road',
+            None,
+            'BO21 1DQ',
         ),
-        'Studio: Unit 354 Stratford Workshops',
-        'Burford Road',
-        None,
-        'BO21 1DQ',
-    ),
-    (
         (
-            'Winkburn Business Centre\n'
-            'Example barn Farm\n'
-            'Winkburn \n'
-            'Notts \n'
-            'BG22 8PQ'
+            ('Winkburn Business Centre\nExample barn Farm\nWinkburn \n Notts \nBG22 8PQ'),
+            'Winkburn Business Centre',
+            'Example barn Farm',
+            None,
+            'BG22 8PQ',
         ),
-        'Winkburn Business Centre',
-        'Example barn Farm',
-        None,
-        'BG22 8PQ',
-    ),
-    (
-        '18 Craven St, London, WC2N5NG',
-        '18 Craven St',
-        'London',
-        None,
-        'WC2N5NG',
-    ),
-    (
-        '104-121 Lancaster Road\nNew Barnet\nHertfordshire\nBN4 8AL',
-        '104-121 Lancaster Road',
-        'New Barnet',
-        None,
-        'BN4 8AL',
-    ),
-    (
         (
-            'Example corp ltd,\n'
-            'c/o example Ltd, The example Group, \n'
-            '50 Liverpool Street, London, England, BC2M 7PY'
+            '18 Craven St, London, WC2N5NG',
+            '18 Craven St',
+            'London',
+            None,
+            'WC2N5NG',
         ),
-        'Example corp ltd',
-        'c/o example Ltd',
-        None,
-        'BC2M 7PY',
-    ),
-    (
-        '1 St Mary Axe\nLondon BC3A 8AA',
-        '1 St Mary Axe',
-        'London',
-        None,
-        'BC3A 8AA',
-    ),
-    (
-        'Example House, 7th Floor,\n4-5 Notting Hill Gate,\nLondon B11 3LQ',
-        'Example House',
-        '7th Floor',
-        None,
-        'B11 3LQ',
-    ),
-    (
         (
-            '3000 Example Green\n'
-            'Example Precincts\n'
-            'Gloucester \n'
-            'Gloucestershire BL1 2LP\n'
+            '104-121 Lancaster Road\nNew Barnet\nHertfordshire\nBN4 8AL',
+            '104-121 Lancaster Road',
+            'New Barnet',
+            None,
+            'BN4 8AL',
         ),
-        '3000 Example Green',
-        'Example Precincts',
-        None,
-        'BL1 2LP',
-
+        (
+            (
+                'Example corp ltd,\n'
+                'c/o example Ltd, The example Group, \n'
+                '50 Liverpool Street, London, England, BC2M 7PY'
+            ),
+            'Example corp ltd',
+            'c/o example Ltd',
+            None,
+            'BC2M 7PY',
+        ),
+        (
+            '1 St Mary Axe\nLondon BC3A 8AA',
+            '1 St Mary Axe',
+            'London',
+            None,
+            'BC3A 8AA',
+        ),
+        (
+            'Example House, 7th Floor,\n4-5 Notting Hill Gate,\nLondon B11 3LQ',
+            'Example House',
+            '7th Floor',
+            None,
+            'B11 3LQ',
+        ),
+        (
+            ('3000 Example Green\nExample Precincts\nGloucester \nGloucestershire BL1 2LP\n'),
+            '3000 Example Green',
+            'Example Precincts',
+            None,
+            'BL1 2LP',
+        ),
+        (
+            '55 Example Road, Baconsfield, Buckinghamshire, BP9 1QL',
+            '55 Example Road',
+            'Baconsfield',
+            None,
+            'BP9 1QL',
+        ),
+        (
+            'Office 20277\nPO Box 15113\nBirmingham B2 4P',
+            'Office 20277',
+            'PO Box 15113',
+            'PO Box 15113',
+            'B2 4P',
+        ),
     ),
-    (
-        '55 Example Road, Baconsfield, Buckinghamshire, BP9 1QL',
-        '55 Example Road',
-        'Baconsfield',
-        None,
-        'BP9 1QL',
-    ),
-    (
-        'Office 20277\nPO Box 15113\nBirmingham B2 4P',
-        'Office 20277',
-        'PO Box 15113',
-        'PO Box 15113',
-        'B2 4P',
-    )
-
-))
+)
 def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
     address = helpers.AddressParser(raw_address)
     assert address.line_1 == line_1
@@ -137,7 +125,7 @@ def test_extract_expertise_parser():
         'Russia',
         'Abkhazian',
         'Afar',
-        'Italian'
+        'Italian',
     ]
 
     company_parser = helpers.CompanyParser(company_data_dict)
@@ -157,18 +145,20 @@ def test_send_verification_letter_govnotify(mock_forms_api_gov_notify_letter):
         template_id=settings.GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID,
         form_url='test_letter',
     )
-    assert mock_forms_api_gov_notify_letter().save.call_args == mock.call({
-        'address_line_1': company.postal_full_name,
-        'address_line_2': company.address_line_1,
-        'address_line_3': company.address_line_2,
-        'address_line_4': company.locality,
-        'address_line_5': company.country,
-        'address_line_6': company.po_box,
-        'postcode': company.postal_code,
-        'full_name': company.postal_full_name,
-        'company_name': company.name,
-        'verification_code': company.verification_code,
-    })
+    assert mock_forms_api_gov_notify_letter().save.call_args == mock.call(
+        {
+            'address_line_1': company.postal_full_name,
+            'address_line_2': company.address_line_1,
+            'address_line_3': company.address_line_2,
+            'address_line_4': company.locality,
+            'address_line_5': company.country,
+            'address_line_6': company.po_box,
+            'postcode': company.postal_code,
+            'full_name': company.postal_full_name,
+            'company_name': company.name,
+            'verification_code': company.verification_code,
+        }
+    )
 
     company.refresh_from_db()
     assert company.is_verification_letter_sent
@@ -184,19 +174,21 @@ def test_send_registration_letter_govnotify(mock_forms_api_gov_notify_letter):
     assert mock_forms_api_gov_notify_letter.call_count == 1
     assert mock_forms_api_gov_notify_letter.call_args == mock.call(
         template_id=settings.GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID,
-        form_url='send_company_claimed_letter_automatically_sent'
+        form_url='send_company_claimed_letter_automatically_sent',
     )
-    assert mock_forms_api_gov_notify_letter().save.call_args == mock.call({
-        'address_line_1': company.name,
-        'address_line_2': company.address_line_1,
-        'address_line_3': company.address_line_2,
-        'address_line_4': company.locality,
-        'address_line_5': company.country,
-        'address_line_6': company.po_box,
-        'postcode': company.postal_code,
-        'full_name': 'Jim Example',
-        'company_name': company.name,
-    })
+    assert mock_forms_api_gov_notify_letter().save.call_args == mock.call(
+        {
+            'address_line_1': company.name,
+            'address_line_2': company.address_line_1,
+            'address_line_3': company.address_line_2,
+            'address_line_4': company.locality,
+            'address_line_5': company.country,
+            'address_line_6': company.po_box,
+            'postcode': company.postal_code,
+            'full_name': 'Jim Example',
+            'company_name': company.name,
+        }
+    )
 
     company.refresh_from_db()
     assert company.is_registration_letter_sent
@@ -236,7 +228,7 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
     assert mock_gov_email.call_args == mock.call(
         email_address=supplier.company_email,
         form_url='send_request_identity_verification_message',
-        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID
+        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
     )
 
     assert mock_submit.call_count == 1
@@ -262,8 +254,8 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
             'subject': helpers.REQUEST_IDENTITY_VERIFICATION_SUBJECT,
             'full_name': supplier.name,
             'email_address': supplier.company_email,
-            'service_name': settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME
-        }
+            'service_name': settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME,
+        },
     }
 
     assert mock_submit.call_args == mock.call(expected)
@@ -283,7 +275,7 @@ def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_invite.collaborator_email,
         form_url='send_new_invite_collaborator_notification',
-        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
     )
 
 
@@ -295,14 +287,14 @@ def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, 
     collaboration_invite = factories.CollaborationInviteFactory(
         collaborator_email=existing_member.company_email,
         company_user__company_email='test@test.com',
-        company=existing_member.company
+        company=existing_member.company,
     )
 
     assert mock_gov_notify_email_action.call_count == 1
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_invite.collaborator_email,
         form_url='send_new_invite_collaborator_notification_existing',
-        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID
+        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
     )
 
 
@@ -317,7 +309,7 @@ def test_extract_invite_details_name():
         'login_url': invite_link,
         'name': 'example',
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role.capitalize()
+        'role': collaboration_invite.role.capitalize(),
     }
     assert extracted_invite == expected
 
@@ -336,7 +328,7 @@ def test_extract_invite_details_email():
         'login_url': invite_link,
         'name': 'test@test.com',
         'company_name': collaboration_invite.company.name,
-        'role': collaboration_invite.role.capitalize()
+        'role': collaboration_invite.role.capitalize(),
     }
     assert extracted_invite == expected
 
@@ -377,8 +369,7 @@ def test_get_company_user_alias_by_email():
 
     supplier = factories.CompanyUserFactory.create(company_email=collaboration_invite.collaborator_email)
     supplier_name = helpers.get_company_user_alias_by_email(
-        collaboration_invite=collaboration_invite,
-        company_users=models.CompanyUser.objects.all()
+        collaboration_invite=collaboration_invite, company_users=models.CompanyUser.objects.all()
     )
     assert supplier_name == supplier.name
 
@@ -390,8 +381,7 @@ def test_get_company_user_alias_by_email_no_supplier():
     )
 
     supplier_name = helpers.get_company_user_alias_by_email(
-        collaboration_invite=collaboration_invite,
-        company_users=models.CompanyUser.objects.all()
+        collaboration_invite=collaboration_invite, company_users=models.CompanyUser.objects.all()
     )
 
     assert supplier_name == collaboration_invite.collaborator_email
@@ -409,7 +399,7 @@ def test_send_admin_new_user_alert_invite_accepted_email(mock_gov_notify_email_a
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_invite.company_user.company_email,
         form_url='send_acknowledgement_admin_email_on_invite_accept',
-        template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID
+        template_id=settings.GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID,
     )
 
 
@@ -448,7 +438,7 @@ def test_send_admins_new_collaboration_request_email(mock_gov_notify_email_actio
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=admin.company_email,
         form_url='send_admins_new_collaboration_request_email',
-        template_id=settings.GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID
+        template_id=settings.GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID,
     )
 
 
@@ -466,7 +456,7 @@ def test_send_user_collaboration_request_accepted_email(mock_gov_notify_email_ac
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_request.requestor.company_email,
         form_url='send_user_collaboration_request_email_on_accept',
-        template_id=settings.GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID,
     )
 
 
@@ -483,7 +473,7 @@ def test_send_user_collaboration_request_declined_email(mock_gov_notify_email_ac
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_request.requestor.company_email,
         form_url='send_user_collaboration_request_email_on_decline',
-        template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID
+        template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID,
     )
 
 
@@ -552,7 +542,7 @@ def test_notify_duplicate_companies(mock_forms_api_gov_notify_email):
         mock.call(
             template_id=settings.GOVNOTIFY_DUPLICATE_COMPANIES,
             email_address=settings.GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL,
-            form_url='detect_duplicate_companies'
+            form_url='detect_duplicate_companies',
         )
     ]
     assert mock_forms_api_gov_notify_email().save.call_count == 1

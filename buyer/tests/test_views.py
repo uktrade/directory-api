@@ -1,19 +1,17 @@
 import http
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
-
 from django.urls import reverse
 from rest_framework import status
 
 from buyer import models
-from core.tests.test_views import reload_urlconf, reload_module
+from core.tests.test_views import reload_module, reload_urlconf
 
 
 @pytest.mark.django_db
-@patch('sigauth.helpers.RequestSignatureChecker.test_signature',
-       Mock(return_value=True))
+@patch('sigauth.helpers.RequestSignatureChecker.test_signature', Mock(return_value=True))
 def test_create_buyer_deserialization(client):
     data = {
         'email': 'jim@example.com',
@@ -33,8 +31,7 @@ def test_create_buyer_deserialization(client):
 
 
 @pytest.mark.django_db
-@patch('sigauth.helpers.RequestSignatureChecker.test_signature',
-       Mock(return_value=True))
+@patch('sigauth.helpers.RequestSignatureChecker.test_signature', Mock(return_value=True))
 @patch('core.views.get_file_from_s3')
 def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):
     settings.STORAGE_CLASS_NAME = 'default'
@@ -44,19 +41,12 @@ def test_buyer_csv_dump(mocked_get_file_from_s3, authed_client):
     reload_urlconf()
     mocked_body = Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
-    mocked_get_file_from_s3.return_value = {
-        'Body': mocked_body
-    }
-    response = authed_client.get(
-        reverse('buyer-csv-dump'),
-        {'token': settings.CSV_DUMP_AUTH_TOKEN}
-    )
+    mocked_get_file_from_s3.return_value = {'Body': mocked_body}
+    response = authed_client.get(reverse('buyer-csv-dump'), {'token': settings.CSV_DUMP_AUTH_TOKEN})
     assert response.status_code == status.HTTP_200_OK
     assert response.content == b'company_name\r\nacme\r\n'
     assert response._headers['content-type'] == ('Content-Type', 'text/csv')
     assert response._headers['content-disposition'] == (
         'Content-Disposition',
-        'attachment; filename="{filename}"'.format(
-            filename=settings.BUYERS_CSV_FILE_NAME
-        )
+        'attachment; filename="{filename}"'.format(filename=settings.BUYERS_CSV_FILE_NAME),
     )

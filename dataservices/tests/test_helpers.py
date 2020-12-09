@@ -1,117 +1,101 @@
 import json
-import pytest
+import re
 from unittest import mock
 
-import re
+import pytest
+
 from dataservices import helpers, models
 from dataservices.tests import factories
 
 
 @pytest.fixture(autouse=True)
 def comtrade():
-    return helpers.ComTradeData(
-        commodity_code='220.850',
-        reporting_area='Australia'
-    )
+    return helpers.ComTradeData(commodity_code='220.850', reporting_area='Australia')
 
 
 @pytest.fixture()
 def comtrade_data():
-    return {"dataset":
-            [
-                {
-                    "period": 2018,
-                    "rtTitle": "Australia",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 200,
-                },
-                {
-                    "period": 2017,
-                    "rtTitle": "Australia",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 100,
-                },
-                {
-                    "period": 2016,
-                    "rtTitle": "Italy",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 50,
-                },
-            ]}
+    return {
+        "dataset": [
+            {
+                "period": 2018,
+                "rtTitle": "Australia",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 200,
+            },
+            {
+                "period": 2017,
+                "rtTitle": "Australia",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 100,
+            },
+            {
+                "period": 2016,
+                "rtTitle": "Italy",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 50,
+            },
+        ]
+    }
 
 
 @pytest.fixture()
 def comtrade_data_with_a_year_data():
-    return {"dataset":
-            [
-                {
-                    "period": 2018,
-                    "rtTitle": "Australia",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 200,
-                },
-
-            ]}
+    return {
+        "dataset": [
+            {
+                "period": 2018,
+                "rtTitle": "Australia",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 200,
+            },
+        ]
+    }
 
 
 @pytest.fixture()
 def comtrade_data_with_various_year_data():
-    return {"dataset":
-            [
-                {
-                    "period": 2018,
-                    "rtTitle": "Australia",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 200,
-                },
-                {
-                    "period": 2013,
-                    "rtTitle": "Australia",
-                    "ptTitle": "United Kingdom",
-                    "TradeValue": 200,
-                },
-
-            ]}
+    return {
+        "dataset": [
+            {
+                "period": 2018,
+                "rtTitle": "Australia",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 200,
+            },
+            {
+                "period": 2013,
+                "rtTitle": "Australia",
+                "ptTitle": "United Kingdom",
+                "TradeValue": 200,
+            },
+        ]
+    }
 
 
 @pytest.fixture()
 def comtrade_data_with_various_data_request_mock(comtrade_data_with_various_year_data, requests_mocker):
-    return requests_mocker.get(
-        re.compile('https://comtrade.un.org/.*'),
-        json=comtrade_data_with_various_year_data
-    )
+    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data_with_various_year_data)
 
 
 @pytest.fixture()
 def comtrade_data_with_a_year_data_request_mock(comtrade_data_with_a_year_data, requests_mocker):
-    return requests_mocker.get(
-        re.compile('https://comtrade.un.org/.*'),
-        json=comtrade_data_with_a_year_data
-    )
+    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data_with_a_year_data)
 
 
 @pytest.fixture()
 def empty_comtrade():
-    return helpers.ComTradeData(
-        commodity_code='2120.8350',
-        reporting_area='Australia'
-    )
+    return helpers.ComTradeData(commodity_code='2120.8350', reporting_area='Australia')
 
 
 @pytest.fixture()
 def comtrade_request_mock(comtrade_data, requests_mocker):
-    return requests_mocker.get(
-        re.compile('https://comtrade.un.org/.*'),
-        json=comtrade_data
-    )
+    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data)
 
 
 @pytest.fixture()
 def comtrade_request_mock_empty(comtrade_data, requests_mocker):
-    return requests_mocker.get(
-        re.compile('https://comtrade.un.org/.*'),
-        json={'dataset': []}
-    )
+    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json={'dataset': []})
 
 
 def test_get_url(comtrade):
@@ -135,25 +119,24 @@ def test_get_product_code(comtrade):
 def test_get_last_year_import_data(comtrade, comtrade_request_mock):
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
-                'year': '2018',
-                'trade_value': '200',
-                'country_name': 'Australia',
-                'year_on_year_change':  '0.5',
-        }
+        'year': '2018',
+        'trade_value': '200',
+        'country_name': 'Australia',
+        'year_on_year_change': '0.5',
+    }
 
 
 def test_get_last_year_import__with_various_year_data(comtrade, comtrade_data_with_various_data_request_mock):
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
-                'year': '2018',
-                'trade_value': '200',
-                'country_name': 'Australia',
-                'year_on_year_change':  None,
-        }
+        'year': '2018',
+        'trade_value': '200',
+        'country_name': 'Australia',
+        'year_on_year_change': None,
+    }
 
 
-def test_get_last_year_import_data_with_a_year_data(
-        comtrade, comtrade_data_with_a_year_data_request_mock):
+def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with_a_year_data_request_mock):
     last_year_data = comtrade.get_last_year_import_data()
     assert last_year_data == {
         'year': '2018',
@@ -166,11 +149,11 @@ def test_get_last_year_import_data_with_a_year_data(
 def test_get_last_year_import_data_from_uk(comtrade, comtrade_request_mock):
     last_year_data = comtrade.get_last_year_import_data(from_uk=True)
     assert last_year_data == {
-                'year': '2018',
-                'trade_value': '200',
-                'country_name': 'Australia',
-                'year_on_year_change':  '0.5',
-        }
+        'year': '2018',
+        'trade_value': '200',
+        'country_name': 'Australia',
+        'year_on_year_change': '0.5',
+    }
 
 
 def test_get_last_year_import_data_empty(empty_comtrade, comtrade_request_mock_empty):
@@ -199,7 +182,7 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
     historical_data = comtrade.get_all_historical_import_value()
     assert historical_data == {
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
-        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
+        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'},
     }
 
 
@@ -212,9 +195,7 @@ def test_get_ease_of_business_index():
         year_2019=20,
     )
     ease_of_business_data = helpers.get_ease_of_business_index('AUS')
-    assert ease_of_business_data == {
-        'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20
-    }
+    assert ease_of_business_data == {'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20}
 
 
 @pytest.mark.django_db
@@ -228,15 +209,10 @@ def test_get_ease_of_business_index_not_found():
 def test_get_corruption_perceptions_index():
 
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS',
-        country_name='Australia',
-        cpi_score_2019=24,
-        rank=21
+        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
-    assert cpi_data == {
-        'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21
-    }
+    assert cpi_data == {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21}
 
 
 @pytest.mark.django_db
@@ -249,7 +225,7 @@ def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
     assert historical_data == {
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
-        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
+        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'},
     }
 
 
@@ -257,7 +233,10 @@ def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
 
     assert historical_data == {
-        'year': '2018', 'trade_value': '200', 'country_name': 'Australia', 'year_on_year_change': '0.5'
+        'year': '2018',
+        'trade_value': '200',
+        'country_name': 'Australia',
+        'year_on_year_change': '0.5',
     }
 
 
@@ -266,15 +245,14 @@ def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
 @mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
 @mock.patch.object(helpers.ComTradeData, '__init__')
 def test_get_last_year_import_data_helper_cached(
-        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+    mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
 ):
     mock_get_cache_value.return_value = None
     mock_comtrade_init.return_value = None
 
     comtrade_historical_data = {
-        'historical_trade_value_partner': {2018: '200', 2017: '100',
-                                           2016: '50'},
-        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'}
+        'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
+        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'},
     }
 
     mock_comtrade_historical.return_value = comtrade_historical_data
@@ -290,7 +268,7 @@ def test_get_last_year_import_data_helper_cached(
     assert mock_set_cache_value.call_count == 1
     assert mock_set_cache_value.call_args == mock.call(
         json.dumps(['get_historical_import_data', {}, ["AUS", "847.33.22"]], sort_keys=True, separators=(',', ':')),
-        historical_data
+        historical_data,
     )
 
     mock_get_cache_value.return_value = comtrade_historical_data
@@ -313,7 +291,7 @@ def test_get_last_year_import_data_helper_cached(
 @mock.patch.object(helpers.ComTradeData, 'get_all_historical_import_value')
 @mock.patch.object(helpers.ComTradeData, '__init__')
 def test_get_last_year_import_data_helper_not_cached(
-        mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
+    mock_comtrade_init, mock_comtrade_historical, mock_set_cache_value, mock_get_cache_value
 ):
     mock_get_cache_value.return_value = None
     mock_comtrade_init.return_value = None
@@ -359,7 +337,6 @@ def test_get_world_economic_outlook_data():
         units='Percent change',
         year_2020=323.21,
         year_2021=1231.1,
-
     )
     models.WorldEconomicOutlook.objects.create(
         country_code='CN',
@@ -369,24 +346,28 @@ def test_get_world_economic_outlook_data():
         units='dollars',
         year_2020=21234141,
         year_2021=32432423,
-
     )
 
     weo_data = helpers.get_world_economic_outlook_data('CN')
     assert weo_data == [
         {
-            "country_code": "CN", "country_name": "China",
+            "country_code": "CN",
+            "country_name": "China",
             "subject": "Gross domestic product per capita, constant prices ",
-            "scale": "international dollars", "units": "dollars",
-            "year_2020": "21234141.000", "year_2021": "32432423.000"},
+            "scale": "international dollars",
+            "units": "dollars",
+            "year_2020": "21234141.000",
+            "year_2021": "32432423.000",
+        },
         {
-            "country_code": "CN", "country_name": "China",
+            "country_code": "CN",
+            "country_name": "China",
             "subject": "Gross domestic product",
-            "scale": "constant prices", "units":
-            "Percent change", "year_2020": "323.210",
-            "year_2021": "1231.100"
-        }
-
+            "scale": "constant prices",
+            "units": "Percent change",
+            "year_2020": "323.210",
+            "year_2021": "1231.100",
+        },
     ]
 
 
@@ -425,7 +406,11 @@ def test_get_cia_factbook_by_keys_some_bad_Keys():
 
 
 @pytest.mark.parametrize(
-    'sex, expected', [['male', 4636], ['female', 4555], ]
+    'sex, expected',
+    [
+        ['male', 4636],
+        ['female', 4555],
+    ],
 )
 @pytest.mark.django_db
 def test_get_population_target_age_sex_data(sex, expected):
@@ -448,7 +433,11 @@ def test_get_population_target_age_sex_data_bad_country():
 
 
 @pytest.mark.parametrize(
-    'classification, expected', [['urban', 56495], ['rural', 10839], ]
+    'classification, expected',
+    [
+        ['urban', 56495],
+        ['rural', 10839],
+    ],
 )
 @pytest.mark.django_db
 def test_get_population_urban_rural_data(classification, expected):
@@ -486,10 +475,7 @@ def test_get_population_total_data_bad_country():
 
 @pytest.mark.parametrize(
     'target_age_groups, expected',
-    [
-        [['0-14'], ['0-4', '5-9', '10-14']],
-        [['15-19', '25-34'], ['15-19', '25-29', '30-34']]
-    ]
+    [[['0-14'], ['0-4', '5-9', '10-14']], [['15-19', '25-34'], ['15-19', '25-29', '30-34']]],
 )
 @pytest.mark.django_db
 def test_get_mapped_age_groups(target_age_groups, expected):
@@ -500,8 +486,7 @@ def test_get_mapped_age_groups(target_age_groups, expected):
 @pytest.mark.django_db
 def test_get_population_data():
     population_data = helpers.PopulationData().get_population_data(
-        country='United Kingdom',
-        target_ages=['25-34', '35-44']
+        country='United Kingdom', target_ages=['25-34', '35-44']
     )
 
     assert population_data == {
@@ -521,10 +506,7 @@ def test_get_population_data():
 
 @pytest.mark.django_db
 def test_get_population_data_bad_country():
-    population_data = helpers.PopulationData().get_population_data(
-        country='ewfwe',
-        target_ages=['25-34', '35-44']
-    )
+    population_data = helpers.PopulationData().get_population_data(country='ewfwe', target_ages=['25-34', '35-44'])
     assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2020}
 
 
@@ -553,11 +535,14 @@ def test_get_internet_usage_with_no_country():
     assert data == {}
 
 
-@pytest.mark.parametrize("input_1,input_2,expected", [
-    (1, 30, '3.33% (1.00 thousand)'),
-    (1, 0, None),
-    (1, None, None),
-])
+@pytest.mark.parametrize(
+    "input_1,input_2,expected",
+    [
+        (1, 30, '3.33% (1.00 thousand)'),
+        (1, 0, None),
+        (1, None, None),
+    ],
+)
 def test_get_percentage_format(input_1, input_2, expected):
     data = helpers.get_percentage_format(input_1, input_2)
     assert data == expected

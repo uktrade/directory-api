@@ -1,8 +1,5 @@
 import pytest
-
-from django_extensions.db.fields import (
-    ModificationDateTimeField, CreationDateTimeField
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 
 from buyer import models
 from buyer.tests.factories import BuyerFactory

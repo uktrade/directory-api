@@ -1,24 +1,19 @@
 import datetime
 from unittest import mock
 
-from directory_constants import company_types
 import elasticsearch
-from freezegun import freeze_time
 import pytest
-
+from directory_constants import company_types, user_roles
 from django.utils import timezone
+from freezegun import freeze_time
 
 from company import documents, models
 from company.tests import factories
-from directory_constants import user_roles
 
 
 @pytest.fixture(autouse=False)
 def non_registration_sent_company():
-    return factories.CompanyFactory(
-        id=100000000,
-        company_type=company_types.COMPANIES_HOUSE
-    )
+    return factories.CompanyFactory(id=100000000, company_type=company_types.COMPANIES_HOUSE)
 
 
 @pytest.mark.django_db
@@ -50,18 +45,12 @@ def test_letter_sent(mock_send_letter, settings):
     company = factories.CompanyFactory(verification_code='test')
 
     assert mock_send_letter.call_count == 1
-    assert mock_send_letter.call_args == mock.call(
-        company=company,
-        form_url='send_first_verification_letter'
-    )
+    assert mock_send_letter.call_args == mock.call(company=company, form_url='send_first_verification_letter')
 
 
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_verification_letter')
-@mock.patch(
-    'company.models.Company.has_valid_address',
-    mock.Mock(return_value=False)
-)
+@mock.patch('company.models.Company.has_valid_address', mock.Mock(return_value=False))
 def test_unknown_address_not_send_letters(mock_send_letter):
     factories.CompanyFactory()
 
@@ -69,13 +58,15 @@ def test_unknown_address_not_send_letters(mock_send_letter):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('is_publishable,is_published,expected', [
-    [True, True, True],
-    [True, False, False],
-    [False, False, False],
-    [False, True, True],
-
-])
+@pytest.mark.parametrize(
+    'is_publishable,is_published,expected',
+    [
+        [True, True, True],
+        [True, False, False],
+        [False, False, False],
+        [False, True, True],
+    ],
+)
 def test_publish(is_publishable, is_published, expected, settings):
     company = factories.CompanyFactory.build(is_published_find_a_supplier=is_published)
 
@@ -88,7 +79,9 @@ def test_publish(is_publishable, is_published, expected, settings):
 
 @pytest.mark.django_db
 def test_store_date_published_unpublished_company():
-    company = factories.CompanyFactory(is_published_find_a_supplier=False,)
+    company = factories.CompanyFactory(
+        is_published_find_a_supplier=False,
+    )
 
     assert company.date_published is None
 
@@ -96,10 +89,7 @@ def test_store_date_published_unpublished_company():
 @pytest.mark.django_db
 @freeze_time()
 def test_store_date_published_published_company_isd_without_date():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True,
-        date_published=None
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True, date_published=None)
 
     assert company.date_published == timezone.now()
 
@@ -107,10 +97,7 @@ def test_store_date_published_published_company_isd_without_date():
 @pytest.mark.django_db
 @freeze_time()
 def test_store_date_published_published_company_fab_without_date():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True,
-        date_published=None
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True, date_published=None)
 
     assert company.date_published == timezone.now()
 
@@ -119,10 +106,7 @@ def test_store_date_published_published_company_fab_without_date():
 def test_store_date_published_published_isd_company_with_date():
     expected_date = timezone.now()
 
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True,
-        date_published=expected_date
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True, date_published=expected_date)
 
     assert company.date_published == expected_date
 
@@ -131,16 +115,13 @@ def test_store_date_published_published_isd_company_with_date():
 def test_store_date_published_published_fab_company_with_date():
     expected_date = timezone.now()
 
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True,
-        date_published=expected_date
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True, date_published=expected_date)
 
     assert company.date_published == expected_date
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('is_published_find_a_supplier,' 'call_count', [(False, 0), (True, 1)])
+@pytest.mark.parametrize('is_published_find_a_supplier,call_count', [(False, 0), (True, 1)])
 def test_save_company_changes_to_elasticsearch(
     is_published_find_a_supplier, call_count, mock_elasticsearch_company_save
 ):
@@ -152,9 +133,7 @@ def test_save_company_changes_to_elasticsearch(
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_company_from_elasticsearch():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True)
     company_pk = company.pk
 
     documents.CompanyDocument.get(id=company_pk)  # not raises if exists
@@ -168,9 +147,7 @@ def test_delete_company_from_elasticsearch():
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_isd_company_from_elasticsearch():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=False
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=False)
     company_pk = company.pk
 
     company.delete()
@@ -182,9 +159,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_isd_company_from_elasticsearch():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True)
     company_pk = company.pk
 
     documents.CompanyDocument.get(id=company_pk)  # not raises if exists
@@ -199,9 +174,7 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublished_fab_company_from_elasticsearch():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=False
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=False)
     company_pk = company.pk
 
     company.delete()
@@ -213,9 +186,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_delete_unpublish_fab_company_from_elasticsearch():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True)
     company_pk = company.pk
 
     documents.CompanyDocument.get(id=company_pk)  # not raises if exists
@@ -335,14 +306,13 @@ def test_set_companies_house_number():
 
 
 @pytest.mark.parametrize(
-    'company_type, '
-    'company_prefix, ',
+    'company_type,company_prefix',
     [
         [company_types.SOLE_TRADER, 'ST'],
         [company_types.PARTNERSHIP, 'LP'],
         [company_types.CHARITY, 'CE'],
         ['OTHER', 'OT'],
-    ]
+    ],
 )
 @pytest.mark.django_db
 def test_set_non_companies_house_number(company_type, company_prefix, settings):
@@ -357,13 +327,12 @@ def test_set_non_companies_house_number(company_type, company_prefix, settings):
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_registration_letter')
 def test_does_not_send_verification_if_created_before_feature(
-        mock_send_letter, non_registration_sent_company, settings):
+    mock_send_letter, non_registration_sent_company, settings
+):
     settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
 
     with freeze_time('2017-01-14 12:00:01'):
-        factories.CompanyUserFactory(
-            company=non_registration_sent_company
-        )
+        factories.CompanyUserFactory(company=non_registration_sent_company)
     mock_send_letter.assert_not_called()
 
 
@@ -373,9 +342,7 @@ def test_send_verification_if_created_after_feature(mock_send_letter, non_regist
     settings.FEATURE_REGISTRATION_LETTERS_ENABLED = True
 
     with freeze_time('2019-12-12 12:00:01'):
-        factories.CompanyUserFactory(
-            company=non_registration_sent_company
-        )
+        factories.CompanyUserFactory(company=non_registration_sent_company)
     mock_send_letter.call_count = 1
 
 
@@ -405,7 +372,7 @@ def test_send_admins_new_collaboration_request_notification(mock_send_email):
     mock_send_email.call_args = mock.call(
         company_admins=admins,
         collaboration_request=collaboration_request,
-        form_url='send_admins_new_collaboration_request_email'
+        form_url='send_admins_new_collaboration_request_email',
     )
 
 

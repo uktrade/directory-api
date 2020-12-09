@@ -1,17 +1,15 @@
+import tablib
 from django.core.management import BaseCommand
 from django.db import transaction
-
-import tablib
 from import_export import resources
+
 from personalisation.models import CountryOfInterest
 
 
 class Command(BaseCommand):
-
     @transaction.atomic
     def handle(self, *args, **options):
-        with open('personalisation/management/commands/countries_of_interest.csv', 'r',
-                  encoding='utf-8-sig') as f:
+        with open('personalisation/management/commands/countries_of_interest.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
 
             country_of_interest_resource = resources.modelresource_factory(model=CountryOfInterest)()

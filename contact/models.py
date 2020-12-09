@@ -1,9 +1,8 @@
+from directory_constants import choices
 from django.db import models
 
-from directory_constants import choices
-
-from core.helpers import TimeStampedModel
 from company.models import Company
+from core.helpers import TimeStampedModel
 
 
 # Deprecated in favour of sending via gov notify

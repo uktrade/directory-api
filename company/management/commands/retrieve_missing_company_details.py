@@ -2,7 +2,6 @@ from collections import Counter
 from datetime import datetime
 
 from directory_constants import company_types
-
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 

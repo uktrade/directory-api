@@ -12,9 +12,9 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
         'company_user__company_email',
         'company_user__name',
         'company_user__company__name',
-        'company_user__company__number'
+        'company_user__company__number',
     )
-    readonly_fields = ('date_sent', )
+    readonly_fields = ('date_sent',)
     list_display = ('company_user', 'company_name', 'category', 'date_sent')
     list_filter = ('category',)
     date_hierarchy = 'date_sent'
@@ -31,14 +31,10 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
         """
 
         return generate_csv_response(
-            queryset=queryset,
-            filename=self.csv_filename,
-            excluded_fields=self.csv_excluded_fields
+            queryset=queryset, filename=self.csv_filename, excluded_fields=self.csv_excluded_fields
         )
 
-    download_csv.short_description = (
-        "Download CSV report for selected notifications"
-    )
+    download_csv.short_description = "Download CSV report for selected notifications"
 
     def company_name(self, obj):
         return obj.company_user.company.name if obj.company_user.company else None
@@ -47,7 +43,7 @@ class SupplierEmailNotificationAdmin(admin.ModelAdmin):
 @admin.register(models.AnonymousEmailNotification)
 class AnonymousEmailNotificationAdmin(admin.ModelAdmin):
     search_fields = ('email',)
-    readonly_fields = ('date_sent', )
+    readonly_fields = ('date_sent',)
     list_display = ('email', 'category', 'date_sent')
     list_filter = ('category',)
     date_hierarchy = 'date_sent'
@@ -64,11 +60,7 @@ class AnonymousEmailNotificationAdmin(admin.ModelAdmin):
         """
 
         return generate_csv_response(
-            queryset=queryset,
-            filename=self.csv_filename,
-            excluded_fields=self.csv_excluded_fields
+            queryset=queryset, filename=self.csv_filename, excluded_fields=self.csv_excluded_fields
         )
 
-    download_csv.short_description = (
-        "Download CSV report for selected notifications"
-    )
+    download_csv.short_description = "Download CSV report for selected notifications"

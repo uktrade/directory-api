@@ -1,24 +1,15 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import transaction
 from rest_framework import serializers
 
 from exportplan import models
-from django.contrib.postgres.fields import JSONField
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.CompanyObjectives
         id = serializers.IntegerField(label='ID', read_only=False)
-        fields = (
-            'description',
-            'planned_reviews',
-            'owner',
-            'start_date',
-            'end_date',
-            'companyexportplan',
-            'pk'
-        )
+        fields = ('description', 'planned_reviews', 'owner', 'start_date', 'end_date', 'companyexportplan', 'pk')
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
             'companyexportplan': {'required': False},
@@ -26,17 +17,10 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
 
 
 class RouteToMarketsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.RouteToMarkets
         id = serializers.IntegerField(label='ID', read_only=False)
-        fields = (
-            'route',
-            'promote',
-            'market_promotional_channel',
-            'companyexportplan',
-            'pk'
-        )
+        fields = ('route', 'promote', 'market_promotional_channel', 'companyexportplan', 'pk')
         extra_kwargs = {
             # passed in by RouteToMarketsSerializer created/updated
             'companyexportplan': {'required': False},
@@ -44,16 +28,10 @@ class RouteToMarketsSerializer(serializers.ModelSerializer):
 
 
 class TargetMarketDocumentsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.TargetMarketDocuments
         id = serializers.IntegerField(label='ID', read_only=False)
-        fields = (
-            'document_name',
-            'note',
-            'companyexportplan',
-            'pk'
-        )
+        fields = ('document_name', 'note', 'companyexportplan', 'pk')
         extra_kwargs = {
             # passed in by RouteToMarketsSerializer created/updated
             'companyexportplan': {'required': False},
@@ -61,7 +39,6 @@ class TargetMarketDocumentsSerializer(serializers.ModelSerializer):
 
 
 class ExportPlanActionsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.ExportPlanActions
         fields = (
@@ -74,7 +51,6 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
             'companyexportplan': {'required': False},
-
         }
 
 
@@ -89,9 +65,9 @@ class ExportPlanCommodityCodeSerializer(serializers.Serializer):
 
 
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
-    company_objectives = CompanyObjectivesSerializer(many=True,  required=False, read_only=False)
+    company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
-    route_to_markets = RouteToMarketsSerializer(many=True,  required=False, read_only=False)
+    route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
     target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
 
     class Meta:
@@ -156,9 +132,8 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         for field_name in validated_data.keys():
             field_value = getattr(instance, field_name)
             # Check if the field we are updating is JSON Type and ensure contents are JSON
-            if (
-                    isinstance(models.CompanyExportPlan._meta.get_field(field_name), JSONField) and
-                    isinstance(field_value, dict)
+            if isinstance(models.CompanyExportPlan._meta.get_field(field_name), JSONField) and isinstance(
+                field_value, dict
             ):
                 # For every field for in incoming dictionary update the field from DB
                 for k, v in validated_data[field_name].items():

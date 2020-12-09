@@ -1,8 +1,8 @@
-import json
-import requests
 import http
+import json
 import urllib.parse as urlparse
 
+import requests
 from django.conf import settings
 from mohawk import Sender
 
@@ -24,51 +24,50 @@ def build_query(lat, lon, terms):
                 'fields': ['content', 'name'],
                 'fuzziness': 'AUTO',
             }
-
-        } for term in terms
+        }
+        for term in terms
     ]
     # events closer to the user's location will be ranked higher
-    return json.dumps({
-        'query': {
-            'function_score': {
-                'query': {
-                    'bool': {
-                        'should': should,
-                        'minimum_should_match': 1,
-                        'filter': {
-                            'term': {
-                                'type': 'Event',
-                            }
-                            # TODO: filter by enddate
+    return json.dumps(
+        {
+            'query': {
+                'function_score': {
+                    'query': {
+                        'bool': {
+                            'should': should,
+                            'minimum_should_match': 1,
+                            'filter': {
+                                'term': {
+                                    'type': 'Event',
+                                }
+                                # TODO: filter by enddate
+                            },
+                        },
+                    },
+                    'exp': {
+                        'geocoordinates': {
+                            'origin': f'{lat},{lon}',
+                            'scale': '5km',
                         }
                     },
-                },
-                'exp':  {
-                    'geocoordinates': {
-                        'origin': f'{lat},{lon}',
-                        'scale': '5km',
-                    }
                 }
             }
         }
-    })
+    )
 
 
 def search_with_activitystream(query):
-    """ Searches ActivityStream services with given Elasticsearch query.
-        Note that this must be at root level in SearchView class to
-        enable it to be mocked in tests.
+    """Searches ActivityStream services with given Elasticsearch query.
+    Note that this must be at root level in SearchView class to
+    enable it to be mocked in tests.
     """
-    request = requests.Request(
-        method="GET",
-        url=settings.ACTIVITY_STREAM_OUTGOING_URL,
-        data=query).prepare()
+    request = requests.Request(method="GET", url=settings.ACTIVITY_STREAM_OUTGOING_URL, data=query).prepare()
 
     auth = Sender(
         {
             'id': settings.ACTIVITY_STREAM_OUTGOING_ACCESS_KEY,
             'key': settings.ACTIVITY_STREAM_OUTGOING_SECRET_KEY,
-            'algorithm': 'sha256'
+            'algorithm': 'sha256',
         },
         settings.ACTIVITY_STREAM_OUTGOING_URL,
         "GET",
@@ -80,12 +79,14 @@ def search_with_activitystream(query):
     # in production, and thus the value of ACTIVITY_STREAM_API_IP_WHITELIST
     # in production is irrelivant. It is included here to allow the app to
     # run locally or outside of Gov PaaS.
-    request.headers.update({
-        'X-Forwarded-Proto': 'https',
-        'X-Forwarded-For': settings.ACTIVITY_STREAM_OUTGOING_IP_WHITELIST,
-        'Authorization': auth,
-        'Content-Type': 'application/json'
-    })
+    request.headers.update(
+        {
+            'X-Forwarded-Proto': 'https',
+            'X-Forwarded-For': settings.ACTIVITY_STREAM_OUTGOING_IP_WHITELIST,
+            'Authorization': auth,
+            'Content-Type': 'application/json',
+        }
+    )
     return requests.Session().send(request)
 
 
@@ -104,9 +105,7 @@ class ExportingIsGreatClient:
         settings.EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD,
     )
     base_url = settings.EXPORTING_OPPORTUNITIES_API_BASE_URL
-    endpoints = {
-        'opportunities': '/export-opportunities/api/opportunities'
-    }
+    endpoints = {'opportunities': '/export-opportunities/api/opportunities'}
     secret = settings.EXPORTING_OPPORTUNITIES_API_SECRET
 
     def get(self, partial_url, params):

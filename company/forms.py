@@ -1,18 +1,17 @@
+import ast
 import csv
 import io
 import json
 import re
-import ast
 from difflib import SequenceMatcher
 
 from directory_components.forms.fields import PaddedCharField
-
+from directory_constants import company_types, expertise
 from django import forms
 from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
-from directory_constants import company_types, expertise
 
 
 class MobileNumberField(forms.CharField):
@@ -25,7 +24,6 @@ class MobileNumberField(forms.CharField):
 
 
 class CompanyNumberField(PaddedCharField):
-
     def __init__(self, fillchar='0', *args, **kwargs):
         super().__init__(fillchar=fillchar, *args, **kwargs)
 
@@ -126,9 +124,7 @@ def company_type_parser(company_number):
 
 class EnrolCompanies(forms.Form):
     generated_for = forms.ChoiceField(
-        choices=(
-            (constants.UK_ISD, 'UK ISD'),
-        ),
+        choices=((constants.UK_ISD, 'UK ISD'),),
     )
     csv_file = forms.FileField()
 
@@ -140,9 +136,7 @@ class EnrolCompanies(forms.Form):
     def clean_csv_file(self):
         self.created_companies = []
         self.skipped_companies = []
-        csv_file = io.TextIOWrapper(
-            self.cleaned_data['csv_file'].file, encoding='utf-8'
-        )
+        csv_file = io.TextIOWrapper(self.cleaned_data['csv_file'].file, encoding='utf-8')
         dialect = csv.Sniffer().sniff(csv_file.read(1024))
         csv_file.seek(0)
         reader = csv.reader(csv_file, dialect=dialect)
@@ -167,52 +161,60 @@ class EnrolCompanies(forms.Form):
             }
             if company_type != company_types.COMPANIES_HOUSE:
                 address = helpers.AddressParser(row[2])
-                data.update({
-                    'address_line_1': address.line_1,
-                    'address_line_2': address.line_2,
-                    'country': 'UK',
-                    'po_box': address.po_box,
-                    'postal_code': address.postal_code,
-                })
+                data.update(
+                    {
+                        'address_line_1': address.line_1,
+                        'address_line_2': address.line_2,
+                        'country': 'UK',
+                        'po_box': address.po_box,
+                        'postal_code': address.postal_code,
+                    }
+                )
                 if not address.line_1 or not address.postal_code:
                     self.add_bulk_errors(
                         errors=errors,
-                        row_number=i+2,
+                        row_number=i + 2,
                         line_errors='Invalid address. Must have line 1, line 2, and postal code. comma delimited.',
                     )
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
                 form.save()
-                self.created_companies.append({
-                    'name': form.instance.name,
-                    'number': form.instance.number,
-                    'email_address': row[4],
-                })
-                pre_verified_form = PreVerifiedEnrolmentModelForm(data={
-                    'generated_for': self.cleaned_data['generated_for'],
-                    'generated_by': self.user.pk,
-                    'email_address': row[4],
-                    'company_number': form.instance.number,
-                    'company_name': form.instance.name,
-                })
+                self.created_companies.append(
+                    {
+                        'name': form.instance.name,
+                        'number': form.instance.number,
+                        'email_address': row[4],
+                    }
+                )
+                pre_verified_form = PreVerifiedEnrolmentModelForm(
+                    data={
+                        'generated_for': self.cleaned_data['generated_for'],
+                        'generated_by': self.user.pk,
+                        'email_address': row[4],
+                        'company_number': form.instance.number,
+                        'company_name': form.instance.name,
+                    }
+                )
                 assert pre_verified_form.is_valid()
                 pre_verified_form.save()
             else:
                 if 'number' in form.errors:
-                    company = models.Company.objects.get(
-                        number=form.instance.number
-                    )
+                    company = models.Company.objects.get(number=form.instance.number)
                     company.is_uk_isd_company = is_uk_isd_company
                     company.save()
 
-                    self.skipped_companies.append({
-                        'name': row[1],
-                        'email_address': row[4],
-                    })
+                    self.skipped_companies.append(
+                        {
+                            'name': row[1],
+                            'email_address': row[4],
+                        }
+                    )
                 else:
                     self.add_bulk_errors(
-                        errors=errors, row_number=i+2, line_errors=form.errors,
+                        errors=errors,
+                        row_number=i + 2,
+                        line_errors=form.errors,
                     )
         if errors:
             raise forms.ValidationError(errors)
@@ -220,17 +222,17 @@ class EnrolCompanies(forms.Form):
 
     @staticmethod
     def add_bulk_errors(errors, row_number, line_errors):
-        errors.append('[Row {number}] {errors}'.format(
-            errors=json.dumps(line_errors),
-            number=row_number,
-        ))
+        errors.append(
+            '[Row {number}] {errors}'.format(
+                errors=json.dumps(line_errors),
+                number=row_number,
+            )
+        )
 
 
 class UploadExpertise(forms.Form):
 
-    MSG_PRODUCT_SERVICE_NOT_FOUND = (
-        'Unable to find following products & services'
-    )
+    MSG_PRODUCT_SERVICE_NOT_FOUND = 'Unable to find following products & services'
     MSG_COMPANY_NOT_FOUND = 'Company not found'
     MSG_COMPANY_TOO_MANY = 'More then one company returned'
 
@@ -249,9 +251,7 @@ class UploadExpertise(forms.Form):
         self.update_errors = []
         self.updated_companies = []
 
-        csv_file = io.TextIOWrapper(
-            self.cleaned_data['csv_file'].file, encoding='utf-8'
-        )
+        csv_file = io.TextIOWrapper(self.cleaned_data['csv_file'].file, encoding='utf-8')
         dialect = csv.Sniffer().sniff(csv_file.read(1024))
         csv_file.seek(0)
         reader = csv.reader(csv_file, dialect=dialect)
@@ -267,38 +267,28 @@ class UploadExpertise(forms.Form):
             if company_type == company_types.SOLE_TRADER:
                 companies = models.Company.objects.filter(name=data['name'])
             else:
-                companies = models.Company.objects.filter(
-                    number=data['number']
-                )
+                companies = models.Company.objects.filter(number=data['number'])
 
             if companies.count() == 0:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i+2,
+                    row_number=i + 2,
                     line_errors='{} - Name:{} Number:{})'.format(
-                        self.MSG_COMPANY_NOT_FOUND,
-                        data['name'],
-                        data['number']
-                    )
+                        self.MSG_COMPANY_NOT_FOUND, data['name'], data['number']
+                    ),
                 )
             elif companies.count() > 1:
                 self.add_bulk_errors(
                     errors=self.update_errors,
-                    row_number=i+2,
+                    row_number=i + 2,
                     line_errors='{} - Name:{} Number:{})'.format(
-                        self.MSG_COMPANY_TOO_MANY,
-                        data['name'],
-                        data['number']
-                    )
+                        self.MSG_COMPANY_TOO_MANY, data['name'], data['number']
+                    ),
                 )
             else:
                 company = companies[0]
-                company.expertise_products_services = (
-                    self.parse_products_services(
-                        errors=self.update_errors,
-                        row_number=i+2,
-                        expertise_row=row[15].strip()
-                    )
+                company.expertise_products_services = self.parse_products_services(
+                    errors=self.update_errors, row_number=i + 2, expertise_row=row[15].strip()
                 )
                 company.save()
                 self.updated_companies.append(company)
@@ -311,7 +301,7 @@ class UploadExpertise(forms.Form):
             'Human Resources': expertise.HUMAN_RESOURCES,
             'Legal': expertise.LEGAL,
             'Publicity': expertise.PUBLICITY,
-            'Business Support': expertise.BUSINESS_SUPPORT
+            'Business Support': expertise.BUSINESS_SUPPORT,
         }
         expertise_list_not_found = []
         parsed_expertise = {}
@@ -330,9 +320,7 @@ class UploadExpertise(forms.Form):
                 expertise_list_not_found.append(e)
 
         if expertise_list_not_found:
-            error_message = self.MSG_PRODUCT_SERVICE_NOT_FOUND + ' {}'.format(
-                expertise_list_not_found
-            )
+            error_message = self.MSG_PRODUCT_SERVICE_NOT_FOUND + ' {}'.format(expertise_list_not_found)
 
             self.add_bulk_errors(
                 errors=errors,
@@ -351,10 +339,12 @@ class UploadExpertise(forms.Form):
 
     @staticmethod
     def add_bulk_errors(errors, row_number, line_errors):
-        errors.append('[Row {number}] {errors}'.format(
-            errors=json.dumps(line_errors),
-            number=row_number,
-        ))
+        errors.append(
+            '[Row {number}] {errors}'.format(
+                errors=json.dumps(line_errors),
+                number=row_number,
+            )
+        )
 
 
 class ConfirmVerificationLetterForm(forms.Form):

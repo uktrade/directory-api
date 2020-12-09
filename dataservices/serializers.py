@@ -15,35 +15,30 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
 
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.CorruptionPerceptionsIndex
         exclude = ['created', 'id', 'modified']
 
 
 class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.WorldEconomicOutlook
         exclude = ['created', 'id', 'modified']
 
 
 class InternetUsageSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.InternetUsage
         exclude = ['created', 'id', 'modified']
 
 
 class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.ConsumerPriceIndex
         exclude = ['created', 'id', 'modified']
 
 
 class GDPPerCapitalSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.GDPPerCapita
         exclude = ['created', 'id', 'modified']

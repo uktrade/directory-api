@@ -1,16 +1,14 @@
 from datetime import datetime
 from unittest.mock import Mock
 
-import pytest
-
-from freezegun import freeze_time
-
 import directory_validators.string
-from directory_constants import company_types, choices, user_roles
+import pytest
+from directory_constants import choices, company_types, user_roles
+from freezegun import freeze_time
 from pytz import UTC
 
 from company import models, serializers, validators
-from company.tests import factories, VALID_REQUEST_DATA
+from company.tests import VALID_REQUEST_DATA, factories
 
 
 @pytest.fixture
@@ -102,7 +100,7 @@ def test_company_serializer_is_published_field_with_isd():
         'date_of_creation': '2010-10-10',
         'firstname': 'test_firstname',
         'is_published_investment_support_directory': True,
-     }
+    }
     serializer = serializers.CompanySerializer(data=data)
 
     assert serializer.is_valid(), serializer.errors
@@ -119,7 +117,7 @@ def test_company_serializer_is_published_field_with_fab():
         'date_of_creation': '2010-10-10',
         'firstname': 'test_firstname',
         'is_published_find_a_supplier': True,
-     }
+    }
     serializer = serializers.CompanySerializer(data=data)
 
     assert serializer.is_valid(), serializer.errors
@@ -230,9 +228,7 @@ def test_company_serializer_save():
 
 
 @pytest.mark.django_db
-def test_company_serializer_nested_case_study(
-    company, company_case_study_one, company_case_study_two
-):
+def test_company_serializer_nested_case_study(company, company_case_study_one, company_case_study_two):
     case_studies = [
         serializers.CompanyCaseStudySerializer(company_case_study_one).data,
         serializers.CompanyCaseStudySerializer(company_case_study_two).data,
@@ -271,42 +267,37 @@ def test_company_case_study_explicit_value(case_study_data):
 
 @pytest.mark.django_db
 def test_company_case_study_with_company(company_case_study_one):
-    serializer = serializers.CompanyCaseStudyWithCompanySerializer(
-        company_case_study_one
-    )
+    serializer = serializers.CompanyCaseStudyWithCompanySerializer(company_case_study_one)
     assert isinstance(serializer.data['company'], dict)
 
 
 def test_company_search_serializer():
-    serializer = serializers.SearchSerializer(
-        data={'page': 1, 'size': 10, 'term': 'thing'}
-    )
+    serializer = serializers.SearchSerializer(data={'page': 1, 'size': 10, 'term': 'thing'})
 
     assert serializer.is_valid() is True
 
 
 def test_company_search_serializer_empty_term_sector():
-    serializer = serializers.SearchSerializer(
-        data={'page': 1, 'size': 10}
-    )
+    serializer = serializers.SearchSerializer(data={'page': 1, 'size': 10})
 
     message = serializers.SearchSerializer.MESSAGE_MISSING_QUERY
     assert serializer.is_valid() is False
     assert serializer.errors == {'non_field_errors': [message]}
 
 
-@pytest.mark.parametrize('field, field_value', [
-    ['expertise_industries', [choices.INDUSTRIES[1][0]]],
-    ['expertise_regions', [choices.EXPERTISE_REGION_CHOICES[1][0]]],
-    ['expertise_countries', [choices.COUNTRY_CHOICES[1][0]]],
-    ['expertise_languages', [choices.EXPERTISE_LANGUAGES[1][0]]],
-    ['expertise_products_services_labels', ['IT']],
-])
+@pytest.mark.parametrize(
+    'field, field_value',
+    [
+        ['expertise_industries', [choices.INDUSTRIES[1][0]]],
+        ['expertise_regions', [choices.EXPERTISE_REGION_CHOICES[1][0]]],
+        ['expertise_countries', [choices.COUNTRY_CHOICES[1][0]]],
+        ['expertise_languages', [choices.EXPERTISE_LANGUAGES[1][0]]],
+        ['expertise_products_services_labels', ['IT']],
+    ],
+)
 def test_company_search_serializer_optional_field(field, field_value):
 
-    serializer = serializers.SearchSerializer(
-        data={'page': 1, 'size': 10, field: field_value}
-    )
+    serializer = serializers.SearchSerializer(data={'page': 1, 'size': 10, field: field_value})
 
     assert serializer.is_valid() is True
 
@@ -320,7 +311,7 @@ def test_add_collaborator_serializer_save():
         'company': company.number,
         'company_email': 'abc@def.com',
         'mobile_number': 9876543210,
-        'role': user_roles.MEMBER
+        'role': user_roles.MEMBER,
     }
     serializer = serializers.AddCollaboratorSerializer(data=data)
 
@@ -334,12 +325,7 @@ def test_add_collaborator_serializer_save():
 @pytest.mark.django_db
 def test_add_collaborator_serializer_fail():
     company = factories.CompanyFactory(name='Test Company')
-    data = {
-        'name': 'Abc',
-        'company': company.number,
-        'company_email': 'abc@def.com',
-        'role': user_roles.MEMBER
-    }
+    data = {'name': 'Abc', 'company': company.number, 'company_email': 'abc@def.com', 'role': user_roles.MEMBER}
     serializer = serializers.AddCollaboratorSerializer(data=data)
 
     assert serializer.is_valid() is False
@@ -347,12 +333,7 @@ def test_add_collaborator_serializer_fail():
 
 @pytest.mark.django_db
 def test_add_collaborator_serializer_company_not_found():
-    data = {
-        'name': 'Abc',
-        'company': -1,
-        'company_email': 'abc@def.com',
-        'role': user_roles.MEMBER
-    }
+    data = {'name': 'Abc', 'company': -1, 'company_email': 'abc@def.com', 'role': user_roles.MEMBER}
     serializer = serializers.AddCollaboratorSerializer(data=data)
     assert serializer.is_valid() is False
 
@@ -411,11 +392,13 @@ def test_supplier_serializer_defaults_to_empty_string():
 
 @pytest.mark.django_db
 def test_supplier_serializer_save():
-    serializer = serializers.CompanyUserSerializer(data={
-        "sso_id": 1,
-        "company_email": "gargoyle@example.com",
-        "date_joined": "2017-03-21T13:12:00Z",
-    })
+    serializer = serializers.CompanyUserSerializer(
+        data={
+            "sso_id": 1,
+            "company_email": "gargoyle@example.com",
+            "date_joined": "2017-03-21T13:12:00Z",
+        }
+    )
     serializer.is_valid(raise_exception=True)
 
     supplier = serializer.save()
@@ -430,12 +413,14 @@ def test_supplier_serializer_save():
 @pytest.mark.django_db
 def test_supplier_with_company_serializer_save():
     company = factories.CompanyFactory.create(number='01234567')
-    serializer = serializers.CompanyUserSerializer(data={
-        'sso_id': 1,
-        'company_email': 'gargoyle@example.com',
-        'date_joined': '2017-03-21T13:12:00Z',
-        'company': company.pk
-    })
+    serializer = serializers.CompanyUserSerializer(
+        data={
+            'sso_id': 1,
+            'company_email': 'gargoyle@example.com',
+            'date_joined': '2017-03-21T13:12:00Z',
+            'company': company.pk,
+        }
+    )
     serializer.is_valid(raise_exception=True)
 
     supplier = serializer.save()

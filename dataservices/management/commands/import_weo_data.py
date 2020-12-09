@@ -1,6 +1,6 @@
 import tablib
-from import_export import resources
 from django.core.management import BaseCommand
+from import_export import resources
 
 from dataservices.models import WorldEconomicOutlook
 
@@ -9,8 +9,7 @@ class Command(BaseCommand):
     help = 'Import world economic data from www.imf.org'
 
     def handle(self, *args, **options):
-        with open('dataservices/resources/weo.csv', 'r',
-                  encoding='utf-8-sig') as f:
+        with open('dataservices/resources/weo.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
 
             weo_resource = resources.modelresource_factory(model=WorldEconomicOutlook)()
