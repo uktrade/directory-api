@@ -7,7 +7,5 @@ class ExportplanConfig(AppConfig):
 
     def ready(self):
         from exportplan import signals
-        pre_save.connect(
-            receiver=signals.add_target_markets_data,
-            sender='exportplan.CompanyExportPlan'
-        )
+
+        pre_save.connect(receiver=signals.add_target_markets_data, sender='exportplan.CompanyExportPlan')

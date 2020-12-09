@@ -7,9 +7,7 @@ from exportplan import models
 
 @admin.register(models.CompanyExportPlan)
 class CompanyExportPlanAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
     search_fields = (
         'company',
         'sso_id',
@@ -26,9 +24,7 @@ class CompanyExportPlanAdmin(admin.ModelAdmin):
 
 @admin.register(models.CompanyObjectives)
 class CompanyCompanyObjectivesAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
     search_fields = (
         'companyexportplan',
         'description',
@@ -46,9 +42,7 @@ class CompanyCompanyObjectivesAdmin(admin.ModelAdmin):
 
 @admin.register(models.RouteToMarkets)
 class RouteToMarketsAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
     search_fields = (
         'route',
         'promote',

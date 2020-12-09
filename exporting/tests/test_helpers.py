@@ -40,9 +40,9 @@ def postcode_response():
                 "parish": "***",
                 "parliamentary_constituency": "***",
                 "ccg": "***",
-                "nuts": "***"
-            }
-        }
+                "nuts": "***",
+            },
+        },
     }
 
 
@@ -50,10 +50,7 @@ def test_postcode_to_region_id_region_missing(postcode_response):
     postcode_response = deepcopy(postcode_response)
     postcode_response['result']['region'] = ''
     with requests_mock.mock() as mock:
-        mock.get(
-            'https://api.postcodes.io/postcodes/ABC%20123/',
-            json=postcode_response
-        )
+        mock.get('https://api.postcodes.io/postcodes/ABC%20123/', json=postcode_response)
         result = helpers.postcode_to_region_id('ABC 123')
 
     assert result == 'east_east_foolands'
@@ -61,10 +58,7 @@ def test_postcode_to_region_id_region_missing(postcode_response):
 
 def test_postcode_to_region_id_region_present(postcode_response):
     with requests_mock.mock() as mock:
-        mock.get(
-            'https://api.postcodes.io/postcodes/ABC%20123/',
-            json=postcode_response
-        )
+        mock.get('https://api.postcodes.io/postcodes/ABC%20123/', json=postcode_response)
         result = helpers.postcode_to_region_id('ABC 123')
 
     assert result == 'east_east_foolands_region'
