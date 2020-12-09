@@ -1,9 +1,9 @@
 import factory
 import factory.fuzzy
-
-from exportplan import models
-from company.tests import factories
 from directory_constants import choices
+
+from company.tests import factories
+from exportplan import models
 
 
 class CompanyExportPlanFactory(factory.django.DjangoModelFactory):

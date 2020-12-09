@@ -1,9 +1,8 @@
 import requests.exceptions
-
+from django.db.models import BooleanField, Case, Value, When
 from rest_framework.generics import ListAPIView
 
 from exporting import helpers, models, serializers
-from django.db.models import Case, When, BooleanField, Value
 
 
 class RetrieveOfficesByPostCode(ListAPIView):

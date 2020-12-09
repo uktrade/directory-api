@@ -1,7 +1,8 @@
-import pytz
 from datetime import datetime
-from conf import settings
 
+import pytz
+
+from conf import settings
 from dataservices import helpers
 from exportplan import helpers as export_helpers
 
@@ -25,8 +26,7 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
                 commodity_code=commodity_code, country=country
             )
             if settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED:
-                target_market[
-                    'historical_import_data'] = helpers.get_historical_import_data(
+                target_market['historical_import_data'] = helpers.get_historical_import_data(
                     commodity_code=commodity_code, country=country
                 )
         else:
@@ -34,14 +34,16 @@ def add_target_markets_data(sender, instance, *args, **kwargs):
 
         if country_code:
             timezone = export_helpers.get_timezone(country_code)
-            target_market.update({
-                'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
-                'corruption_perceptions_index': helpers.get_corruption_perception_index(country_code),
-                'timezone': timezone,
-                'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z'),
-                'world_economic_outlook_data': helpers.get_world_economic_outlook_data(country_code),
-            })
+            target_market.update(
+                {
+                    'easeofdoingbusiness': helpers.get_ease_of_business_index(country_code),
+                    'corruption_perceptions_index': helpers.get_corruption_perception_index(country_code),
+                    'timezone': timezone,
+                    'utz_offset': datetime.now(pytz.timezone(timezone)).strftime('%z'),
+                    'world_economic_outlook_data': helpers.get_world_economic_outlook_data(country_code),
+                }
+            )
 
-        target_market['cia_factbook_data'] = helpers.get_cia_factbook_data(country_name=country, data_keys=[
-            'languages', 'government', 'transportation', 'people'
-        ])
+        target_market['cia_factbook_data'] = helpers.get_cia_factbook_data(
+            country_name=country, data_keys=['languages', 'government', 'transportation', 'people']
+        )
