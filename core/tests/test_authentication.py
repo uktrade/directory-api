@@ -1,46 +1,33 @@
 from unittest.mock import call, patch
 from urllib.parse import urljoin
 
-from directory_sso_api_client.client import sso_api_client
 import pytest
-from rest_framework.response import Response
+from directory_sso_api_client.client import sso_api_client
+from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.contrib.auth.models import User
-
-from core.authentication import (
-    GeckoBasicAuthentication, Oauth2AuthenticationSSO, SessionAuthenticationSSO
-)
+from core.authentication import GeckoBasicAuthentication, Oauth2AuthenticationSSO, SessionAuthenticationSSO
 from core.permissions import IsAuthenticatedSSO
 
 
 @pytest.fixture
 def sso_session_request_invalid_session_id(requests_mocker, settings):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL,
-        'api/v1/session-user/?session_key=123'
-    )
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'api/v1/session-user/?session_key=123')
     return requests_mocker.get(url, status_code=404)
 
 
 @pytest.fixture
 def sso_oauth2_request_invalid_session_id(requests_mocker, settings):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
-    )
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
     return requests_mocker.get(url, status_code=404)
 
 
 @pytest.fixture
 def sso_oauth2_request_active_user(authed_supplier, requests_mocker, settings):
-    url = urljoin(
-        settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/'
-    )
-    return requests_mocker.get(
-        url,
-        json={'id': authed_supplier.sso_id, 'email': 'thing@example.com'}
-    )
+    url = urljoin(settings.DIRECTORY_SSO_API_CLIENT_BASE_URL, 'oauth2/user-profile/v1/')
+    return requests_mocker.get(url, json={'id': authed_supplier.sso_id, 'email': 'thing@example.com'})
 
 
 class BaseTestView(APIView):
@@ -60,8 +47,7 @@ class Oauth2AuthenticationSSOView(BaseTestView):
 
 
 @pytest.mark.django_db
-@patch.object(sso_api_client.user, 'get_session_user',
-              wraps=sso_api_client.user.get_session_user)
+@patch.object(sso_api_client.user, 'get_session_user', wraps=sso_api_client.user.get_session_user)
 def test_sso_session_authentication_ok_session_id(
     mock_get_session_user, sso_session_request_active_user, rf, authed_supplier
 ):
@@ -79,9 +65,7 @@ def test_sso_session_authentication_bad_session_format(rf):
     response = SessionAuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 401
-    assert response.data['detail'] == (
-        SessionAuthenticationSSO.message_bad_format
-    )
+    assert response.data['detail'] == SessionAuthenticationSSO.message_bad_format
 
 
 @pytest.mark.django_db
@@ -93,21 +77,16 @@ def test_sso_session_authentication_missing(rf):
 
 
 @pytest.mark.django_db
-def test_sso_session_authentication_bad_session_value(
-    sso_session_request_invalid_session_id, rf
-):
+def test_sso_session_authentication_bad_session_value(sso_session_request_invalid_session_id, rf):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='SSO_SESSION_ID 123')
     response = SessionAuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 401
-    assert response.data['detail'] == (
-        SessionAuthenticationSSO.message_invalid_session
-    )
+    assert response.data['detail'] == SessionAuthenticationSSO.message_invalid_session
 
 
 @pytest.mark.django_db
-@patch.object(sso_api_client.user, 'get_oauth2_user_profile',
-              wraps=sso_api_client.user.get_oauth2_user_profile)
+@patch.object(sso_api_client.user, 'get_oauth2_user_profile', wraps=sso_api_client.user.get_oauth2_user_profile)
 def test_sso_oauth2_authentication_ok_oauth_token(
     mock_get_oauth2_user_profile, sso_oauth2_request_active_user, rf, authed_supplier
 ):
@@ -125,9 +104,7 @@ def test_sso_oauth2_authentication_bad_bearer_format(rf):
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 401
-    assert response.data['detail'] == (
-        Oauth2AuthenticationSSO.message_bad_format
-    )
+    assert response.data['detail'] == Oauth2AuthenticationSSO.message_bad_format
 
 
 @pytest.mark.django_db
@@ -139,16 +116,12 @@ def test_sso_oauth2_authentication_missing(rf):
 
 
 @pytest.mark.django_db
-def test_sso_oauth2_authentication_bad_bearer_value(
-    sso_oauth2_request_invalid_session_id, rf
-):
+def test_sso_oauth2_authentication_bad_bearer_value(sso_oauth2_request_invalid_session_id, rf):
     request = rf.get('/', {}, HTTP_AUTHORIZATION='Bearer 123')
     response = Oauth2AuthenticationSSOView.as_view()(request)
 
     assert response.status_code == 401
-    assert response.data['detail'] == (
-        Oauth2AuthenticationSSO.message_invalid_session
-    )
+    assert response.data['detail'] == Oauth2AuthenticationSSO.message_invalid_session
 
 
 def test_gecko_basic_auth_uses_settings_for_auth(settings):

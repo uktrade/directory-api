@@ -1,12 +1,12 @@
-from itertools import chain
-from datetime import datetime
-
 import json
 import math
+from datetime import datetime
+from itertools import chain
+
 import pandas
 import requests
-
 from django.core.cache import cache
+
 from dataservices import models, serializers
 
 COUNTRIES_MAP = {
@@ -59,8 +59,9 @@ class ComTradeData:
                 if len(comdata_df.index) > 1:
 
                     try:
-                        last_year_import = comdata_df[
-                            comdata_df.period == comdata_df.period.max()-1]['TradeValue'].iloc[0]
+                        last_year_import = comdata_df[comdata_df.period == comdata_df.period.max() - 1][
+                            'TradeValue'
+                        ].iloc[0]
                         year_on_year_change = str(round(last_year_import / year_import.iloc[0]['TradeValue'], 3))
                     except IndexError:
                         pass
@@ -86,16 +87,14 @@ class ComTradeData:
     def get_historical_import_value_world(self, no_years=3):
         historical_trade_values = {}
 
-        for y in range(1, no_years+1):
-            reporting_year = datetime.today().year-(y+1)
+        for y in range(1, no_years + 1):
+            reporting_year = datetime.today().year - (y + 1)
             url_options = f'&r=All&p={self.partner_country_id}&cc={self.product_code}&ps={reporting_year}'
             world_data = requests.get(self.url + url_options)
             world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
             if not world_data_df.empty:
                 str(world_data_df['TradeValue'].sum())
-                historical_trade_values[reporting_year] = str(
-                    world_data_df['TradeValue'].sum()
-                )
+                historical_trade_values[reporting_year] = str(world_data_df['TradeValue'].sum())
         return historical_trade_values
 
     def get_all_historical_import_value(self, no_years=3):
@@ -162,8 +161,8 @@ class PopulationData:
 
         mapped_target_age_groups = self.get_mapped_age_groups(target_ages)
 
-        population_data.update(self.get_population_target_age_sex_data(
-            country=country, target_ages=mapped_target_age_groups, sex='male')
+        population_data.update(
+            self.get_population_target_age_sex_data(country=country, target_ages=mapped_target_age_groups, sex='male')
         )
         population_data.update(
             self.get_population_target_age_sex_data(country=country, target_ages=mapped_target_age_groups, sex='female')
@@ -171,20 +170,21 @@ class PopulationData:
         population_data.update(self.get_population_urban_rural_data(country=country, classification='urban'))
         population_data.update(self.get_population_urban_rural_data(country=country, classification='rural'))
         population_data.update(self.get_population_total_data(country=country))
-        if all([
+        if all(
+            [
                 population_data.get('urban_population_total'),
                 population_data.get('rural_population_total'),
                 population_data.get('total_population'),
             ]
         ):
             population_data['urban_percentage'] = round(
-                population_data['urban_population_total']/population_data['total_population'], 6
+                population_data['urban_population_total'] / population_data['total_population'], 6
             )
             population_data['rural_percentage'] = 1 - population_data['urban_percentage']
 
         if population_data.get('male_target_age_population') and population_data.get('female_target_age_population'):
             population_data['total_target_age_population'] = (
-                    population_data['male_target_age_population'] + population_data['female_target_age_population']
+                population_data['male_target_age_population'] + population_data['female_target_age_population']
             )
 
         return population_data
@@ -201,7 +201,7 @@ class PopulationData:
             '55-64': ['55-59', '60-64'],
             '65+': ['65-69', '70-74', '75-79', '80-84', '85-89', '90-94', '95-99', '100+'],
         }
-        mapped_ages = ([age_map_dict[v] for v in target_ages if v in age_map_dict.keys()])
+        mapped_ages = [age_map_dict[v] for v in target_ages if v in age_map_dict.keys()]
         return list(chain.from_iterable(mapped_ages))
 
     def get_population_target_age_sex_data(self, country, target_ages, sex):
@@ -214,7 +214,7 @@ class PopulationData:
         )
         country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-            ]
+        ]
         if not country_data.empty:
             total_population_target_age = country_data[country_data.age_group.isin(target_ages)].age_value.sum()
             target_age_sex_data[f'{target_sex}_target_age_population'] = total_population_target_age
@@ -228,18 +228,18 @@ class PopulationData:
         )
         female_country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-            ]
+        ]
         un_data_transponsed = self.un_male_pop_data.melt(
             ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
         )
         male_country_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
-            ]
+        ]
 
         if not male_country_data.empty and not female_country_data.empty:
             # Only send data if we found country year and data for both males/females
             total_population['total_population'] = (
-                    female_country_data.age_value.sum() + male_country_data.age_value.sum()
+                female_country_data.age_value.sum() + male_country_data.age_value.sum()
             )
         return total_population
 
@@ -248,18 +248,22 @@ class PopulationData:
         target_classification = classification.lower()
         un_population_data = self.un_urban_pop if target_classification == 'urban' else self.un_rural_pop
         un_data_transponsed = un_population_data.melt(
-            ['country_name', 'country_code', ], var_name='year', value_name='year_value'
+            [
+                'country_name',
+                'country_code',
+            ],
+            var_name='year',
+            value_name='year_value',
         )
         classified_data = un_data_transponsed[
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == str(self.year))
-            ]
+        ]
         if not classified_data.empty:
             urban_rural_data[f'{target_classification}_population_total'] = classified_data.year_value.sum()
         return urban_rural_data
 
 
 class TTLCache:
-
     def __init__(self, default_cache_max_age=60 * 60 * 24):
         self.default_max_age = default_cache_max_age
 
@@ -338,8 +342,7 @@ def get_cia_factbook_data(country_name, data_keys=None):
 
 def get_internet_usage(country):
     try:
-        internet_usage_obj = models.InternetUsage.objects.filter(
-            country_name=country).latest()
+        internet_usage_obj = models.InternetUsage.objects.filter(country_name=country).latest()
     except models.InternetUsage.DoesNotExist:
         return {}
     return {
@@ -352,15 +355,11 @@ def get_internet_usage(country):
 
 def get_cpi_data(country):
     try:
-        cpi_obj = models.ConsumerPriceIndex.objects.filter(
-            country_name=country).latest()
+        cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest()
     except models.ConsumerPriceIndex.DoesNotExist:
         return {}
     return {
-        'cpi': {
-            'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None,
-            'year': cpi_obj.year
-        }
+        'cpi': {'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None, 'year': cpi_obj.year}
     }
 
 
@@ -368,8 +367,7 @@ def millify(n):
 
     n = float(n)
     mill_names = ['', ' thousand', ' million', ' billion', ' trillion']
-    mill_idx = max(0, min(len(mill_names) - 1,
-                          int(math.floor(0 if n == 0 else math.log10(abs(n)) / 3))))
+    mill_idx = max(0, min(len(mill_names) - 1, int(math.floor(0 if n == 0 else math.log10(abs(n)) / 3))))
 
     return '{:.2f}{}'.format(n / 10 ** (3 * mill_idx), mill_names[mill_idx])
 
@@ -385,16 +383,13 @@ def get_percentage_format(number, total):
 def get_urban_rural_data(data_object, total_population, classification):
     return {
         f'{classification}_population_total': data_object.get(f'{classification}_population_total', 0),
-        f'{classification}_population_percentage_formatted':
-            get_percentage_format(
-                data_object.get(f'{classification}_population_total', 0),
-                total_population.get('total_population', 0)
-            )
+        f'{classification}_population_percentage_formatted': get_percentage_format(
+            data_object.get(f'{classification}_population_total', 0), total_population.get('total_population', 0)
+        ),
     }
 
 
-def get_serialized_instance_from_model(
-        model_class, serializer_class, filter_args):
+def get_serialized_instance_from_model(model_class, serializer_class, filter_args):
     try:
         instance = model_class.objects.get(**filter_args)
         serializer = serializer_class(instance)

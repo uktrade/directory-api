@@ -1,5 +1,4 @@
 from directory_validators.string import no_html
-
 from django.db import models
 
 from core.helpers import TimeStampedModel
