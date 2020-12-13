@@ -1003,7 +1003,7 @@
         },
         {
             "id": "704",
-            "text": "Viet Nam"
+            "text": "Vietnam"
         },
         {
             "id": "876",
@@ -1020,6 +1020,31 @@
         {
             "id": "716",
             "text": "Zimbabwe"
+        },
+        {
+            "id": "748",
+            "text": "Swaziland"
+
+        },
+        {
+            "id": "704",
+            "text": "Former Republic of Vietnam"
+        },
+        {
+            "id": "408",
+            "text": "Democratic People's Republic of Korea"
+        },
+        {
+            "id": "711",
+            "text": "Southern African Customs Union"
+        },
+        {
+            "id": "807",
+            "text": "The Former Yugoslav Republic of Macedonia"
+        },
+        {
+            "id": "834",
+            "text": "United Republic of Tanzania"
         }
     ]
 }
