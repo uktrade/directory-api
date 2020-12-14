@@ -10,6 +10,26 @@ from django.core.cache import cache
 from dataservices import models, serializers
 
 COUNTRIES_MAP = {
+    'Bolivia': 'Plurinational State of Bolivia',
+    'Cape Verde': 'Cabo Verde',
+    'East Timor': 'Timor-Leste',
+    'Eswatini': 'Swaziland',
+    'Ivory Coast': 'Côte d\'Ivoire',
+    'Laos': 'Lao People\'s Dem. Rep.',
+    'Micronesia': 'Federated State of Micronesia',
+    'Myanmar (Burma)': 'Myanmar',
+    'North Korea': 'Democratic People\'s Republic of Korea',
+    'North Macedonia': 'The Former Yugoslav Republic of Macedonia',
+    'Russia': 'Russian Federation',
+    'St Kitts and Nevis': 'Saint Kitts and Nevis',
+    'St Lucia': 'Saint Lucia',
+    'St Vincent': 'Saint Vincent and the Grenadines',
+    'South Africa': 'Southern African Customs Union',
+    'Tanzania': 'United Republic of Tanzania',
+    'The Bahamas': 'Bahamas',
+    'The Gambia': 'Gambia',
+    'Vatican City': 'Holy See (Vatican City State)',
+    'Vietnam': 'Former Republic of Vietnam',
     'United States': 'USA',
 }
 
@@ -48,7 +68,7 @@ class ComTradeData:
             url = self.url + url_options
 
         comdata = requests.get(url)
-        if 'dataset' in comdata.json() and comdata.json()['dataset']:
+        if comdata and 'dataset' in comdata.json() and comdata.json()['dataset']:
             comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
 
             if not comdata_df.empty:
@@ -313,6 +333,13 @@ def get_last_year_import_data(country, commodity_code):
 
 
 @TTLCache()
+def get_last_year_import_data_from_uk(country, commodity_code):
+    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
+    last_year_data = comtrade.get_last_year_import_data(from_uk=True)
+    return last_year_data
+
+
+@TTLCache()
 def get_historical_import_data(country, commodity_code):
     comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
     historical_data = comtrade.get_all_historical_import_value()
@@ -364,11 +391,9 @@ def get_cpi_data(country):
 
 
 def millify(n):
-
     n = float(n)
     mill_names = ['', ' thousand', ' million', ' billion', ' trillion']
     mill_idx = max(0, min(len(mill_names) - 1, int(math.floor(0 if n == 0 else math.log10(abs(n)) / 3))))
-
     return '{:.2f}{}'.format(n / 10 ** (3 * mill_idx), mill_names[mill_idx])
 
 
