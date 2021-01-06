@@ -1,19 +1,13 @@
 import random
 
-from rest_framework.serializers import (
-    Serializer,
-    CharField,
-    ListField,
-    ModelSerializer,
-)
-from directory_constants import choices, sectors, expertise
+from directory_constants import choices, expertise, sectors
+from rest_framework.serializers import CharField, ListField, ModelSerializer, Serializer
 
-from company.tests import factories
 from company.models import Company
+from company.tests import factories
 
 
 class CompanySerializer(ModelSerializer):
-
     class Meta:
         model = Company
         fields = (
@@ -29,17 +23,12 @@ class CompanySerializer(ModelSerializer):
 
 
 class ISDCompanySerializer(ModelSerializer):
-
     class Meta:
         model = Company
         fields = '__all__'
         extra_kwargs = {
-            'slug': {
-                'required': False
-            },
-            'name': {
-                'required': False
-            },
+            'slug': {'required': False},
+            'name': {'required': False},
             'is_uk_isd_company': {
                 'required': False,
                 'default': True,
@@ -51,35 +40,22 @@ class ISDCompanySerializer(ModelSerializer):
         return [
             choice[0]
             for choice in random.sample(
-                list_of_choice_tuples,
-                random.randint(
-                    0, max_items if max_items else len(list_of_choice_tuples)
-                )
+                list_of_choice_tuples, random.randint(0, max_items if max_items else len(list_of_choice_tuples))
             )
         ]
 
     @staticmethod
     def slice_list(list_of_strings, max_items=None):
-        return random.sample(
-            list_of_strings,
-            random.randint(0, max_items if max_items else len(list_of_strings))
-        )
+        return random.sample(list_of_strings, random.randint(0, max_items if max_items else len(list_of_strings)))
 
     def create(self, validated_data):
         number = f'AT{random.randint(0, 999999):06}'
-        countries = self.slice_choices(
-            choices.COUNTRY_CHOICES, max_items=15)
-        languages = self.slice_choices(
-            choices.EXPERTISE_LANGUAGES, max_items=15)
-        regions = self.slice_choices(
-            choices.EXPERTISE_REGION_CHOICES, max_items=5)
+        countries = self.slice_choices(choices.COUNTRY_CHOICES, max_items=15)
+        languages = self.slice_choices(choices.EXPERTISE_LANGUAGES, max_items=15)
+        regions = self.slice_choices(choices.EXPERTISE_REGION_CHOICES, max_items=5)
         industries = random.sample(
-            [
-                item
-                for item in dir(sectors)
-                if not item.startswith('__') and item != sectors.CONFLATED
-            ],
-            random.randint(0, 10)
+            [item for item in dir(sectors) if not item.startswith('__') and item != sectors.CONFLATED],
+            random.randint(0, 10),
         )
         wolf_company = factories.CompanyFactory(
             number=number,
@@ -97,13 +73,11 @@ class ISDCompanySerializer(ModelSerializer):
             expertise_products_services={
                 'other': ['Regulatory', 'Finance', 'IT'],
                 'Finance': self.slice_list(expertise.FINANCIAL),
-                'Management Consulting':
-                    self.slice_list(expertise.MANAGEMENT_CONSULTING),
+                'Management Consulting': self.slice_list(expertise.MANAGEMENT_CONSULTING),
                 'Human Resources': self.slice_list(expertise.HUMAN_RESOURCES),
                 'Legal': self.slice_list(expertise.LEGAL),
                 'Publicity': self.slice_list(expertise.PUBLICITY),
-                'Business Support':
-                    self.slice_list(expertise.BUSINESS_SUPPORT),
+                'Business Support': self.slice_list(expertise.BUSINESS_SUPPORT),
             },
             website=f'https://automated.tests.{number}.com',
             email_address='',

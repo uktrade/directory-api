@@ -1,5 +1,6 @@
-from django.core.management import BaseCommand
 from directory_constants import choices
+from django.core.management import BaseCommand
+
 from dataservices import helpers
 
 

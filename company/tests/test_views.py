@@ -4,26 +4,28 @@ import http
 from io import BytesIO
 from unittest import mock
 
-from directory_constants import company_types, choices, sectors, user_roles
+import pytest
+from directory_constants import choices, company_types, sectors, user_roles
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
-import pytest
 from freezegun import freeze_time
-from rest_framework.test import APIClient
-from rest_framework import status
 from PIL import Image
+from rest_framework import status
+from rest_framework.test import APIClient
 
-from django.conf import settings
-from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-from core.helpers import SSOUser, CompaniesHouseClient
-from core.tests.test_views import reload_urlconf, reload_module
 from company import helpers, models, serializers
 from company.tests import (
-    factories, MockInvalidSerializer, MockValidSerializer, VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA
+    VALID_REQUEST_DATA,
+    VALID_SUPPLIER_REQUEST_DATA,
+    MockInvalidSerializer,
+    MockValidSerializer,
+    factories,
 )
-
+from core.helpers import CompaniesHouseClient, SSOUser
+from core.tests.test_views import reload_module, reload_urlconf
 
 default_public_profile_data = {
     'name': 'private company',
@@ -63,9 +65,7 @@ def test_company_retrieve_no_company(authed_client, authed_supplier):
 @freeze_time('2016-11-23T11:21:10.977518Z')
 @pytest.mark.django_db
 def test_company_retrieve_view(authed_client, authed_supplier):
-    company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10)
-    )
+    company = factories.CompanyFactory(name='Test Company', date_of_creation=datetime.date(2000, 10, 10))
     authed_supplier.company = company
     authed_supplier.save()
 
@@ -201,9 +201,7 @@ def test_company_partial_update(authed_client, authed_supplier):
     authed_supplier.company = company
     authed_supplier.save()
 
-    response = authed_client.patch(
-        reverse('company'), VALID_REQUEST_DATA, format='json'
-    )
+    response = authed_client.patch(reverse('company'), VALID_REQUEST_DATA, format='json')
 
     expected = {
         'company_type': company_types.COMPANIES_HOUSE,
@@ -264,10 +262,7 @@ def test_company_partial_update_no_company(authed_client, authed_supplier):
         'sectors': ['SOFTWARE_AND_COMPUTER_SERVICES'],
         'hs_codes': ['3'],
         'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
-        'expertise_countries': [
-            choices.COUNTRY_CHOICES[23][0],
-            choices.COUNTRY_CHOICES[24][0]
-        ],
+        'expertise_countries': [choices.COUNTRY_CHOICES[23][0], choices.COUNTRY_CHOICES[24][0]],
     }
 
     response = authed_client.patch(reverse('company'), data, format='json')
@@ -293,10 +288,7 @@ def test_company_not_update_modified(authed_client, authed_supplier):
     authed_supplier.company = company
     authed_supplier.save()
 
-    data = {
-        **VALID_REQUEST_DATA,
-        'modified': '2013-03-09T23:28:53.977518Z'
-    }
+    data = {**VALID_REQUEST_DATA, 'modified': '2013-03-09T23:28:53.977518Z'}
     for method in [authed_client.put, authed_client.patch]:
         response = method(reverse('company'), data, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -389,9 +381,7 @@ def api_client():
 @pytest.fixture
 def company():
     return models.Company.objects.create(
-        verified_with_code=True,
-        email_address='test@example.com',
-        **VALID_REQUEST_DATA
+        verified_with_code=True, email_address='test@example.com', **VALID_REQUEST_DATA
     )
 
 
@@ -415,18 +405,14 @@ def public_profile():
 
 @pytest.fixture
 def public_profile_with_case_study():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True)
     factories.CompanyCaseStudyFactory(company=company)
     return company
 
 
 @pytest.fixture
 def public_profile_with_case_studies():
-    company = factories.CompanyFactory(
-        is_published_find_a_supplier=True
-    )
+    company = factories.CompanyFactory(is_published_find_a_supplier=True)
     factories.CompanyCaseStudyFactory(company=company)
     factories.CompanyCaseStudyFactory(company=company)
     return company
@@ -497,18 +483,9 @@ def search_data(settings):
         is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
         expertise_industries=[sectors.AEROSPACE, sectors.AIRPORTS],
-        expertise_regions=[
-            choices.EXPERTISE_REGION_CHOICES[4][0],
-            choices.EXPERTISE_REGION_CHOICES[5][0]
-        ],
-        expertise_languages=[
-            choices.EXPERTISE_LANGUAGES[0][0],
-            choices.EXPERTISE_LANGUAGES[2][0]
-        ],
-        expertise_countries=[
-            choices.COUNTRY_CHOICES[23][0],
-            choices.COUNTRY_CHOICES[24][0]
-        ],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[4][0], choices.EXPERTISE_REGION_CHOICES[5][0]],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[0][0], choices.EXPERTISE_LANGUAGES[2][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[23][0], choices.COUNTRY_CHOICES[24][0]],
         expertise_products_services={'other': ['Regulatory', 'Finance', 'IT']},
         id=1,
     )
@@ -534,14 +511,9 @@ def search_data(settings):
         is_published_find_a_supplier=True,
         keywords='Pirates, Ocean, Ship',
         expertise_industries=[sectors.AIRPORTS, sectors.FOOD_AND_DRINK],
-        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0],
-                           choices.EXPERTISE_REGION_CHOICES[8][0]
-                           ],
-        expertise_languages=[choices.EXPERTISE_LANGUAGES[2][0],
-                             choices.EXPERTISE_LANGUAGES[6][0]],
-        expertise_countries=[choices.COUNTRY_CHOICES[24][0],
-                             choices.COUNTRY_CHOICES[27][0]
-                             ],
+        expertise_regions=[choices.EXPERTISE_REGION_CHOICES[5][0], choices.EXPERTISE_REGION_CHOICES[8][0]],
+        expertise_languages=[choices.EXPERTISE_LANGUAGES[2][0], choices.EXPERTISE_LANGUAGES[6][0]],
+        expertise_countries=[choices.COUNTRY_CHOICES[24][0], choices.COUNTRY_CHOICES[27][0]],
         expertise_products_services={'other': ['Regulatory', 'IT']},
         id=3,
     )
@@ -568,9 +540,9 @@ def search_companies_highlighting_data(settings):
             'Providing the stealth and prowess of wolves. This is a very long '
             'thing about wolf stuff. Lets see what happens in the test when '
             'ES encounters a long  description. Perhaps it will concatenate. '
-        ) + ('It is known. ' * 30) + (
-            'The wolf cries at night.'
-        ),
+        )
+        + ('It is known. ' * 30)
+        + ('The wolf cries at night.'),
         summary='Hunts in packs',
         is_published_find_a_supplier=True,
         keywords='Packs, Hunting, Stark, Teeth',
@@ -597,9 +569,9 @@ def search_highlighting_data(settings):
             'Providing the stealth and prowess of wolves. This is a very long '
             'thing about wolf stuff. Lets see what happens in the test when '
             'ES encounters a long  description. Perhaps it will concatenate. '
-        ) + ('It is known. ' * 30) + (
-            'The wolf cries at night.'
-        ),
+        )
+        + ('It is known. ' * 30)
+        + ('The wolf cries at night.'),
         summary='Hunts in packs',
         is_published_find_a_supplier=True,
         is_published_investment_support_directory=True,
@@ -626,9 +598,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_EAST'],
         expertise_countries=['AF'],
         expertise_languages=['ab'],
-        expertise_products_services={
-            'financial': ['Accounting and tax']
-        },
+        expertise_products_services={'financial': ['Accounting and tax']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=1,
@@ -639,9 +609,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=['aa'],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=2,
@@ -655,7 +623,7 @@ def search_data_and_or(settings):
         expertise_products_services={},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
-        id=3
+        id=3,
     )
     factories.CompanyFactory(
         name='Ultra Wolf',
@@ -663,9 +631,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=['aa'],
         expertise_countries=[],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=4,
@@ -676,9 +642,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=[],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=5,
@@ -689,9 +653,7 @@ def search_data_and_or(settings):
         expertise_regions=[],
         expertise_languages=['aa'],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=6,
@@ -702,9 +664,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=['aa'],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=7,
@@ -715,9 +675,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=['aa'],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=True,
         is_published_find_a_supplier=True,
         id=8,
@@ -728,9 +686,7 @@ def search_data_and_or(settings):
         expertise_regions=['NORTH_WEST'],
         expertise_languages=['aa'],
         expertise_countries=['AL'],
-        expertise_products_services={
-            'management-consulting': ['Business development']
-        },
+        expertise_products_services={'management-consulting': ['Business development']},
         is_published_investment_support_directory=False,  # not published
         is_published_find_a_supplier=False,  # not published
         id=9,
@@ -791,22 +747,10 @@ def search_companies_ordering_data(settings):
     factories.CompanyCaseStudyFactory(company=wolf_two_company)
     factories.CompanyCaseStudyFactory(company=wolf_two_company)
     factories.CompanyCaseStudyFactory(company=wolf_two_company)
-    factories.CompanyCaseStudyFactory(
-        company=wolf_three,
-        title='cannons better than grapeshot',
-        description='guns'
-    )
+    factories.CompanyCaseStudyFactory(company=wolf_three, title='cannons better than grapeshot', description='guns')
     factories.CompanyCaseStudyFactory(company=wolf_three)
-    factories.CompanyCaseStudyFactory(
-        company=grapeshot_company,
-        title='cannons',
-        description='guns'
-    )
-    factories.CompanyCaseStudyFactory(
-        company=grapeshot_company,
-        title='cannons',
-        description='naval guns'
-    )
+    factories.CompanyCaseStudyFactory(company=grapeshot_company, title='cannons', description='guns')
+    factories.CompanyCaseStudyFactory(company=grapeshot_company, title='cannons', description='naval guns')
     Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
@@ -870,10 +814,7 @@ def search_companies_stopwords(settings):
 
 @pytest.fixture
 def companies_house_oauth_invalid_access_token(requests_mocker):
-    return requests_mocker.get(
-        'https://account.companieshouse.gov.uk/oauth2/verify',
-        status_code=400
-    )
+    return requests_mocker.get('https://account.companieshouse.gov.uk/oauth2/verify', status_code=400)
 
 
 @pytest.fixture
@@ -887,37 +828,33 @@ def companies_house_oauth_wrong_company(requests_mocker, authed_supplier):
         json={
             'scope': scope,
             'expires_in': 6000,
-        }
+        },
     )
 
 
 @pytest.fixture
 def companies_house_oauth_expired_token(requests_mocker, authed_supplier):
-    scope = CompaniesHouseClient.endpoints['profile'].format(
-        number=authed_supplier.company.number
-    )
+    scope = CompaniesHouseClient.endpoints['profile'].format(number=authed_supplier.company.number)
     return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=200,
         json={
             'scope': scope,
             'expires_in': -1,
-        }
+        },
     )
 
 
 @pytest.fixture
 def companies_house_oauth_valid_token(requests_mocker, authed_supplier):
-    scope = CompaniesHouseClient.endpoints['profile'].format(
-        number=authed_supplier.company.number
-    )
+    scope = CompaniesHouseClient.endpoints['profile'].format(number=authed_supplier.company.number)
     return requests_mocker.get(
         'https://account.companieshouse.gov.uk/oauth2/verify',
         status_code=200,
         json={
             'scope': scope,
             'expires_in': 6000,
-        }
+        },
     )
 
 
@@ -945,20 +882,14 @@ def test_company_case_study_create(
     authed_supplier.company = company
     authed_supplier.save()
 
-    response = authed_client.post(
-        reverse('company-case-study'), case_study_data, format='multipart'
-    )
+    response = authed_client.post(reverse('company-case-study'), case_study_data, format='multipart')
     assert response.status_code == http.client.CREATED
 
     instance = models.CompanyCaseStudy.objects.get(pk=response.data['pk'])
     assert instance.testimonial == case_study_data['testimonial']
     assert instance.testimonial_name == case_study_data['testimonial_name']
-    assert instance.testimonial_job_title == (
-        case_study_data['testimonial_job_title']
-    )
-    assert instance.testimonial_company == (
-        case_study_data['testimonial_company']
-    )
+    assert instance.testimonial_job_title == (case_study_data['testimonial_job_title'])
+    assert instance.testimonial_company == (case_study_data['testimonial_company'])
     assert instance.website == case_study_data['website']
     assert instance.company == company
     assert instance.description == case_study_data['description']
@@ -987,9 +918,7 @@ def test_company_case_study_create_invalid_image(authed_client, authed_supplier,
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = authed_client.post(
-        reverse('company-case-study'), case_study_data, format='multipart'
-    )
+    response = authed_client.post(reverse('company-case-study'), case_study_data, format='multipart')
 
     assert response.status_code == http.client.BAD_REQUEST
 
@@ -1014,9 +943,7 @@ def test_company_case_study_create_not_an_image(video, authed_client, authed_sup
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = authed_client.post(
-        reverse('company-case-study'), case_study_data, format='multipart'
-    )
+    response = authed_client.post(reverse('company-case-study'), case_study_data, format='multipart')
 
     assert response.status_code == http.client.BAD_REQUEST
 
@@ -1045,14 +972,10 @@ def test_company_case_study_create_company_not_published(video, authed_client, a
         'testimonial_job_title': 'Evil overlord',
         'testimonial_company': 'Death Eaters',
     }
-    response = authed_client.post(
-        reverse('company-case-study'), case_study_data, format='multipart'
-    )
+    response = authed_client.post(reverse('company-case-study'), case_study_data, format='multipart')
     assert response.status_code == http.client.CREATED
 
-    url = reverse(
-        'public-case-study-detail', kwargs={'pk': response.data['pk']}
-    )
+    url = reverse('public-case-study-detail', kwargs={'pk': response.data['pk']})
     response = authed_client.get(url)
 
     assert response.status_code == http.client.NOT_FOUND
@@ -1065,9 +988,7 @@ def test_company_case_study_update(
     authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
-    url = reverse(
-        'company-case-study-detail', kwargs={'pk': company_user_case_study.pk}
-    )
+    url = reverse('company-case-study-detail', kwargs={'pk': company_user_case_study.pk})
     data = {'title': '2015'}
 
     assert company_user_case_study.title != data['title']
@@ -1085,9 +1006,7 @@ def test_company_case_study_delete(company_user_case_study, authed_supplier, aut
     authed_supplier.save()
 
     pk = company_user_case_study.pk
-    url = reverse(
-        'company-case-study-detail', kwargs={'pk': pk}
-    )
+    url = reverse('company-case-study-detail', kwargs={'pk': pk})
 
     response = authed_client.delete(url)
 
@@ -1100,9 +1019,7 @@ def test_company_case_study_get(company_user_case_study, authed_supplier, authed
     authed_supplier.company = company_user_case_study.company
     authed_supplier.save()
 
-    url = reverse(
-        'company-case-study-detail', kwargs={'pk': company_user_case_study.pk}
-    )
+    url = reverse('company-case-study-detail', kwargs={'pk': company_user_case_study.pk})
 
     response = authed_client.get(url)
     data = response.json()
@@ -1110,12 +1027,8 @@ def test_company_case_study_get(company_user_case_study, authed_supplier, authed
     assert response.status_code == http.client.OK
     assert data['testimonial'] == company_user_case_study.testimonial
     assert data['testimonial_name'] == company_user_case_study.testimonial_name
-    assert data['testimonial_job_title'] == (
-        company_user_case_study.testimonial_job_title
-    )
-    assert data['testimonial_company'] == (
-        company_user_case_study.testimonial_company
-    )
+    assert data['testimonial_job_title'] == company_user_case_study.testimonial_job_title
+    assert data['testimonial_company'] == company_user_case_study.testimonial_company
     assert data['website'] == company_user_case_study.website
     assert data['description'] == company_user_case_study.description
     assert data['title'] == company_user_case_study.title
@@ -1131,9 +1044,7 @@ def test_public_company_case_study_get(company_user_case_study, supplier, api_cl
     company.is_published_investment_support_directory = True
     company.save()
 
-    url = reverse(
-        'public-case-study-detail', kwargs={'pk': company_user_case_study.pk}
-    )
+    url = reverse('public-case-study-detail', kwargs={'pk': company_user_case_study.pk})
 
     response = api_client.get(url)
     data = response.json()
@@ -1141,12 +1052,8 @@ def test_public_company_case_study_get(company_user_case_study, supplier, api_cl
     assert response.status_code == http.client.OK
     assert data['testimonial'] == company_user_case_study.testimonial
     assert data['testimonial_name'] == company_user_case_study.testimonial_name
-    assert data['testimonial_job_title'] == (
-        company_user_case_study.testimonial_job_title
-    )
-    assert data['testimonial_company'] == (
-        company_user_case_study.testimonial_company
-    )
+    assert data['testimonial_job_title'] == (company_user_case_study.testimonial_job_title)
+    assert data['testimonial_company'] == (company_user_case_study.testimonial_company)
     assert data['website'] == company_user_case_study.website
     assert data['description'] == company_user_case_study.description
     assert data['title'] == company_user_case_study.title
@@ -1162,22 +1069,20 @@ def test_public_company_case_study_get(company_user_case_study, supplier, api_cl
         [True, False],
         [False, True],
         [True, True],
-    ]
+    ],
 )
 @pytest.mark.django_db
 def test_company_profile_public_retrieve_public_profile(
-    is_investment_support_directory, is_find_a_supplier, public_profile, api_client,
+    is_investment_support_directory,
+    is_find_a_supplier,
+    public_profile,
+    api_client,
 ):
-    public_profile.is_published_investment_support_directory = (
-        is_investment_support_directory)
-    public_profile.is_published_find_a_supplier = (
-        is_find_a_supplier)
+    public_profile.is_published_investment_support_directory = is_investment_support_directory
+    public_profile.is_published_find_a_supplier = is_find_a_supplier
 
     public_profile.save()
-    url = reverse(
-        'company-public-profile-detail',
-        kwargs={'companies_house_number': public_profile.number}
-    )
+    url = reverse('company-public-profile-detail', kwargs={'companies_house_number': public_profile.number})
     response = api_client.get(url)
 
     assert response.status_code == http.client.OK
@@ -1186,10 +1091,7 @@ def test_company_profile_public_retrieve_public_profile(
 
 @pytest.mark.django_db
 def test_company_profile_public_404_private_profile(private_profile, api_client):
-    url = reverse(
-        'company-public-profile-detail',
-        kwargs={'companies_house_number': private_profile.number}
-    )
+    url = reverse('company-public-profile-detail', kwargs={'companies_house_number': private_profile.number})
     response = api_client.get(url)
 
     assert response.status_code == http.client.NOT_FOUND
@@ -1198,20 +1100,22 @@ def test_company_profile_public_404_private_profile(private_profile, api_client)
 @pytest.mark.django_db
 def test_verify_company_with_code(authed_client, authed_supplier, settings):
     with mock.patch('requests.post'):
-        company = models.Company.objects.create(**{
-            'number': '11234567',
-            'name': 'Test Company',
-            'website': 'http://example.com',
-            'description': 'Company description',
-            'has_exported_before': True,
-            'date_of_creation': '2010-10-10',
-            'postal_full_name': 'test_full_name',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        })
+        company = models.Company.objects.create(
+            **{
+                'number': '11234567',
+                'name': 'Test Company',
+                'website': 'http://example.com',
+                'description': 'Company description',
+                'has_exported_before': True,
+                'date_of_creation': '2010-10-10',
+                'postal_full_name': 'test_full_name',
+                'address_line_1': 'test_address_line_1',
+                'address_line_2': 'test_address_line_2',
+                'locality': 'test_locality',
+                'postal_code': 'test_postal_code',
+                'country': 'test_country',
+            }
+        )
 
     authed_supplier.company = company
     authed_supplier.save()
@@ -1220,9 +1124,7 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
     assert company.verification_code
 
     url = reverse('company-verify')
-    response = authed_client.post(
-        url, {'code': company.verification_code}, format='json'
-    )
+    response = authed_client.post(url, {'code': company.verification_code}, format='json')
 
     assert response.status_code == http.client.OK
 
@@ -1233,29 +1135,29 @@ def test_verify_company_with_code(authed_client, authed_supplier, settings):
 @pytest.mark.django_db
 def test_verify_company_with_code_invalid_code(authed_client, authed_supplier, settings):
     with mock.patch('requests.post'):
-        company = models.Company.objects.create(**{
-            'number': '11234567',
-            'name': 'Test Company',
-            'website': 'http://example.com',
-            'description': 'Company description',
-            'has_exported_before': True,
-            'date_of_creation': '2010-10-10',
-            'postal_full_name': 'test_full_name',
-            'address_line_1': 'test_address_line_1',
-            'address_line_2': 'test_address_line_2',
-            'locality': 'test_locality',
-            'postal_code': 'test_postal_code',
-            'country': 'test_country',
-        })
+        company = models.Company.objects.create(
+            **{
+                'number': '11234567',
+                'name': 'Test Company',
+                'website': 'http://example.com',
+                'description': 'Company description',
+                'has_exported_before': True,
+                'date_of_creation': '2010-10-10',
+                'postal_full_name': 'test_full_name',
+                'address_line_1': 'test_address_line_1',
+                'address_line_2': 'test_address_line_2',
+                'locality': 'test_locality',
+                'postal_code': 'test_postal_code',
+                'country': 'test_country',
+            }
+        )
 
     authed_supplier.company = company
     authed_supplier.save()
 
     company.refresh_from_db()
     assert company.verification_code
-    response = authed_client.post(
-         reverse('company-verify'), {'code': 'invalid'}, format='json'
-    )
+    response = authed_client.post(reverse('company-verify'), {'code': 'invalid'}, format='json')
 
     assert response.status_code == http.client.BAD_REQUEST
 
@@ -1294,9 +1196,19 @@ def test_search(mock_get_search_results, url, api_client):
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-@pytest.mark.parametrize('page_number,expected_start', [
-    [1, 0], [2, 5], [3, 10], [4, 15], [5, 20], [6, 25], [7, 30], [8, 35],
-])
+@pytest.mark.parametrize(
+    'page_number,expected_start',
+    [
+        [1, 0],
+        [2, 5],
+        [3, 10],
+        [4, 15],
+        [5, 20],
+        [6, 25],
+        [7, 30],
+        [8, 35],
+    ],
+)
 def test_search_paginate_first_page(url, page_number, expected_start, api_client, settings):
     es = connections.get_connection('default')
     with mock.patch.object(es, 'search', return_value={}) as mock_search:
@@ -1353,9 +1265,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
     with mock.patch.object(es, 'search', return_value={}):
         data = {
             'term': 'bees',
-            'expertise_industries': [
-                sectors.ADVANCED_MANUFACTURING,
-                sectors.AIRPORTS],
+            'expertise_industries': [sectors.ADVANCED_MANUFACTURING, sectors.AIRPORTS],
             'expertise_products_services_labels': ['IT', 'REGULATION'],
             'size': 5,
             'page': 1,
@@ -1368,88 +1278,65 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 @pytest.mark.parametrize('url', search_urls)
-@pytest.mark.parametrize('term,filter_name,filter_value ,expected', [
-    # term
-    ['Wolf', '', '', ['1']],
-    ['Tongue', '', '', ['2']],
-    ['common', '', '', ['1', '2', '3']],
-    ['common', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
-    # expertise_industries
-    ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
+@pytest.mark.parametrize(
+    'term,filter_name,filter_value ,expected',
     [
-        '',
-        'expertise_industries',
-        [sectors.AEROSPACE, sectors.AIRPORTS],
-        ['1', '2', '3'],
-    ],
-    # expertise_industries via q
-    [sectors.AEROSPACE, '', '', ['1', '2']],
-    # expertise_products_services_labels via q
-    ['Regulatory', '', '', ['1', '2', '3']],
-    [
-        '',
-        'expertise_industries',
-        [sectors.AEROSPACE, sectors.AIRPORTS],
-        ['1', '2', '3']
-    ],
-    # expertise_regions
-    [
-        '',
-        'expertise_regions',
-        [choices.EXPERTISE_REGION_CHOICES[4][0]],
-        ['1', '2']
-    ],
-    [
-        '',
-        'expertise_regions',
+        # term
+        ['Wolf', '', '', ['1']],
+        ['Tongue', '', '', ['2']],
+        ['common', '', '', ['1', '2', '3']],
+        ['common', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
+        # expertise_industries
+        ['', 'expertise_industries', [sectors.AEROSPACE], ['1', '2']],
         [
-            choices.EXPERTISE_REGION_CHOICES[4][0],
-            choices.EXPERTISE_REGION_CHOICES[5][0],
+            '',
+            'expertise_industries',
+            [sectors.AEROSPACE, sectors.AIRPORTS],
+            ['1', '2', '3'],
         ],
-        ['1', '2', '3']
-    ],
-    # expertise_languages
-    [
-        '',
-        'expertise_languages',
-        [choices.EXPERTISE_LANGUAGES[0][0]],
-        ['1', '2'],
-    ],
-    [
-        '',
-        'expertise_languages',
+        # expertise_industries via q
+        [sectors.AEROSPACE, '', '', ['1', '2']],
+        # expertise_products_services_labels via q
+        ['Regulatory', '', '', ['1', '2', '3']],
+        ['', 'expertise_industries', [sectors.AEROSPACE, sectors.AIRPORTS], ['1', '2', '3']],
+        # expertise_regions
+        ['', 'expertise_regions', [choices.EXPERTISE_REGION_CHOICES[4][0]], ['1', '2']],
         [
-            choices.EXPERTISE_LANGUAGES[0][0],
-            choices.EXPERTISE_LANGUAGES[2][0]
+            '',
+            'expertise_regions',
+            [
+                choices.EXPERTISE_REGION_CHOICES[4][0],
+                choices.EXPERTISE_REGION_CHOICES[5][0],
+            ],
+            ['1', '2', '3'],
         ],
-        ['1', '2', '3']
-    ],
-    # expertise_countries
-    ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
-    [
-        '',
-        'expertise_countries',
+        # expertise_languages
         [
-            choices.COUNTRY_CHOICES[23][0],
-            choices.COUNTRY_CHOICES[24][0]
+            '',
+            'expertise_languages',
+            [choices.EXPERTISE_LANGUAGES[0][0]],
+            ['1', '2'],
         ],
-        ['1', '2', '3']
+        [
+            '',
+            'expertise_languages',
+            [choices.EXPERTISE_LANGUAGES[0][0], choices.EXPERTISE_LANGUAGES[2][0]],
+            ['1', '2', '3'],
+        ],
+        # expertise_countries
+        ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0]], ['1', '2']],
+        ['', 'expertise_countries', [choices.COUNTRY_CHOICES[23][0], choices.COUNTRY_CHOICES[24][0]], ['1', '2', '3']],
+        # expertise_products_services
+        ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
+        ['', 'expertise_products_services_labels', ['Finance', 'IT'], ['1', '2', '3']],
     ],
-    # expertise_products_services
-    ['', 'expertise_products_services_labels', ['Finance'], ['1', '2']],
-    [
-        '',
-        'expertise_products_services_labels',
-        ['Finance', 'IT'],
-        ['1', '2', '3']
-    ],
-])
+)
 def test_search_results(url, term, filter_name, filter_value, expected, search_data, api_client):
     data = {
         'term': term,
         'page': '1',
         'size': '5',
-        filter_name:  filter_value,
+        filter_name: filter_value,
     }
 
     response = api_client.get(url, data=data)
@@ -1486,12 +1373,15 @@ def test_search_results_stopwords(url, stop_term, search_companies_stopwords, ap
 @pytest.mark.parametrize('url', search_urls)
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
-@pytest.mark.parametrize('term, expected', [
-    [sectors.AEROSPACE, ['1', '2']],
-    [choices.COUNTRY_CHOICES[23][0], ['1', '2']],
-    [choices.EXPERTISE_REGION_CHOICES[4][0], ['1', '2']],
-    [choices.EXPERTISE_LANGUAGES[0][0], ['1', '2']],
-])
+@pytest.mark.parametrize(
+    'term, expected',
+    [
+        [sectors.AEROSPACE, ['1', '2']],
+        [choices.COUNTRY_CHOICES[23][0], ['1', '2']],
+        [choices.EXPERTISE_REGION_CHOICES[4][0], ['1', '2']],
+        [choices.EXPERTISE_LANGUAGES[0][0], ['1', '2']],
+    ],
+)
 def test_search_term_expertise(url, term, expected, search_data, api_client):
 
     data = {
@@ -1512,75 +1402,71 @@ def test_search_term_expertise(url, term, expected, search_data, api_client):
 
 
 @pytest.mark.parametrize('url', search_urls)
-@pytest.mark.parametrize('filters,expected', [
-    (
-        {
-            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
-            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
-            'expertise_countries': [
-                'AF',  # Afghanistan
-                'AL',  # Albania
-            ],
-            'expertise_languages': [
-                'ab',  # Abkhazian
-                'aa',  # Afar
-            ],
-            'expertise_products_services_labels': [
-                'Accounting and tax',    # from financial filter
-                'Business development',  # from management consulting filter
-            ],
-
-        },
-        ['1', '2']
-    ),
-    (
-        {
-            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
-            'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
-            'expertise_languages': [
-                'ab',  # Abkhazian
-                'aa',  # Afar
-            ],
-            'expertise_products_services_labels': [
-                'Accounting and tax',    # from financial filter
-                'Business development',  # from management consulting filter
-            ],
-        },
-        ['1', '2', '4']
-    ),
-    (
-        {
-            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
-            'expertise_languages': [
-                'ab',  # Abkhazian
-                'aa',  # Afar
-            ],
-            'expertise_products_services_labels': [
-                'Accounting and tax',    # from financial filter
-                'Business development',  # from management consulting filter
-            ],
-        },
-        ['1', '2', '4', '6']
-    ),
-    (
-        {
-            'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
-            'expertise_languages': [
-                'ab',  # Abkhazian
-                'aa',  # Afar
-            ],
-        },
-        ['1', '2', '3', '4', '6']
-    ),
-    (
-        {'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS]},
-        ['1', '2', '3', '4', '5', '6']
-    ),
-    (
-        {},
-        ['1', '2', '3', '4', '5', '6', '7']
-    ),
-])
+@pytest.mark.parametrize(
+    'filters,expected',
+    [
+        (
+            {
+                'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+                'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+                'expertise_countries': [
+                    'AF',  # Afghanistan
+                    'AL',  # Albania
+                ],
+                'expertise_languages': [
+                    'ab',  # Abkhazian
+                    'aa',  # Afar
+                ],
+                'expertise_products_services_labels': [
+                    'Accounting and tax',  # from financial filter
+                    'Business development',  # from management consulting filter
+                ],
+            },
+            ['1', '2'],
+        ),
+        (
+            {
+                'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+                'expertise_regions': ['NORTH_EAST', 'NORTH_WEST'],
+                'expertise_languages': [
+                    'ab',  # Abkhazian
+                    'aa',  # Afar
+                ],
+                'expertise_products_services_labels': [
+                    'Accounting and tax',  # from financial filter
+                    'Business development',  # from management consulting filter
+                ],
+            },
+            ['1', '2', '4'],
+        ),
+        (
+            {
+                'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+                'expertise_languages': [
+                    'ab',  # Abkhazian
+                    'aa',  # Afar
+                ],
+                'expertise_products_services_labels': [
+                    'Accounting and tax',  # from financial filter
+                    'Business development',  # from management consulting filter
+                ],
+            },
+            ['1', '2', '4', '6'],
+        ),
+        (
+            {
+                'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS],
+                'expertise_languages': [
+                    'ab',  # Abkhazian
+                    'aa',  # Afar
+                ],
+            },
+            ['1', '2', '3', '4', '6'],
+        ),
+        ({'expertise_industries': [sectors.AEROSPACE, sectors.AIRPORTS]}, ['1', '2', '3', '4', '5', '6']),
+        ({}, ['1', '2', '3', '4', '5', '6', '7']),
+    ],
+)
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.django_db
 def test_search_filter_and_or(url, filters, expected, api_client, search_data_and_or):
@@ -1608,23 +1494,10 @@ def test_search_filter_and_or_single(url, api_client, settings):
         name='Wolf limited',
         is_published_investment_support_directory=True,
         expertise_products_services={
-            'Legal': [
-                'Company incorporation',
-                'Employment',
-                'Immigration'
-            ],
-            'Human Resources': [
-                'Staff onboarding',
-                'Employment and talent research'
-            ],
-            'Business Support': [
-                'Business relocation',
-                'Staff and family relocation'
-            ],
-            'Management Consulting': [
-                'Workforce development',
-                'Strategy and long-term planning'
-            ]
+            'Legal': ['Company incorporation', 'Employment', 'Immigration'],
+            'Human Resources': ['Staff onboarding', 'Employment and talent research'],
+            'Business Support': ['Business relocation', 'Staff and family relocation'],
+            'Management Consulting': ['Workforce development', 'Strategy and long-term planning'],
         },
         expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
         expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
@@ -1649,7 +1522,7 @@ def test_search_filter_and_or_single(url, api_client, settings):
             'Food and drink',
             'Healthcare and medical',
             'Software and computer services',
-            'Retail and luxury'
+            'Retail and luxury',
         ],
         id=1,
     )
@@ -1658,10 +1531,7 @@ def test_search_filter_and_or_single(url, api_client, settings):
     data = {
         'expertise_regions': ['NORTH_EAST'],
         'expertise_languages': ['es'],
-        'expertise_products_services_labels': [
-            'Accounting and tax',
-            'Regulatory support'
-        ],
+        'expertise_products_services_labels': ['Accounting and tax', 'Regulatory support'],
         'page': '1',
         'size': '10',
     }
@@ -1682,22 +1552,10 @@ def test_search_filter_partial_match(url, api_client, settings):
         name='Wolf limited',
         is_published_investment_support_directory=True,
         expertise_products_services={
-            'Legal': [
-                'Company incorporation',
-                'Immigration'
-            ],
-            'Human Resources': [
-                'Staff onboarding',
-                'Employment and talent research'
-            ],
-            'Business Support': [
-                'Business relocation',
-                'Staff and family relocation'
-            ],
-            'Management Consulting': [
-                'Workforce development',
-                'Strategy and long-term planning'
-            ]
+            'Legal': ['Company incorporation', 'Immigration'],
+            'Human Resources': ['Staff onboarding', 'Employment and talent research'],
+            'Business Support': ['Business relocation', 'Staff and family relocation'],
+            'Management Consulting': ['Workforce development', 'Strategy and long-term planning'],
         },
         expertise_languages=['en,', 'zh', 'fr', 'es', 'pa', 'hi', 'pt', 'ar'],
         expertise_countries=['CN', 'IN', 'PK', 'US', 'ZA', 'EG', 'BR'],
@@ -1722,7 +1580,7 @@ def test_search_filter_partial_match(url, api_client, settings):
             'Food and drink',
             'Healthcare and medical',
             'Software and computer services',
-            'Retail and luxury'
+            'Retail and luxury',
         ],
         id=1,
     )
@@ -1965,17 +1823,17 @@ def test_search_results_highlight(url, search_highlighting_data, api_client):
     results = response.json()
     hits = results['hits']['hits']
 
-    assert hits[0]['highlight'] == {
-        'description': [
-            'Providing the <em>power</em> and beauty of Aardvarks.'
-        ]
-    }
+    assert hits[0]['highlight'] == {'description': ['Providing the <em>power</em> and beauty of Aardvarks.']}
 
 
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-def test_search_results_highlight_long(url, search_highlighting_data, api_client,):
+def test_search_results_highlight_long(
+    url,
+    search_highlighting_data,
+    api_client,
+):
     data = {
         'term': 'wolf',
         'page': 1,
@@ -1990,7 +1848,7 @@ def test_search_results_highlight_long(url, search_highlighting_data, api_client
 
     assert hits[0]['highlight']['description'] == [
         'This is a very long thing about <em>wolf</em> stuff.',
-        'The <em>wolf</em> cries at night.'
+        'The <em>wolf</em> cries at night.',
     ]
 
 
@@ -2015,9 +1873,7 @@ def test_verify_companies_house_invalid_access_token(
     response = authed_client.post(url, {'access_token': '123'})
 
     assert response.status_code == 400
-    assert response.json() == {
-        'access_token': [serializer.MESSAGE_BAD_ACCESS_TOKEN]
-    }
+    assert response.json() == {'access_token': [serializer.MESSAGE_BAD_ACCESS_TOKEN]}
     company = authed_supplier.company
     company.refresh_from_db()
     assert company.verified_with_companies_house_oauth2 is False
@@ -2032,9 +1888,7 @@ def test_verify_companies_house_wrong_company_access_token(
     response = authed_client.post(url, {'access_token': '123'})
 
     assert response.status_code == 400
-    assert response.json() == {
-        'access_token': [serializer.MESSAGE_SCOPE_ERROR]
-    }
+    assert response.json() == {'access_token': [serializer.MESSAGE_SCOPE_ERROR]}
     company = authed_supplier.company
     company.refresh_from_db()
     assert company.verified_with_companies_house_oauth2 is False
@@ -2049,9 +1903,7 @@ def test_verify_companies_house_expired_access_token(
     response = authed_client.post(url, {'access_token': '123'})
 
     assert response.status_code == 400
-    assert response.json() == {
-        'access_token': [serializer.MESSAGE_EXPIRED]
-    }
+    assert response.json() == {'access_token': [serializer.MESSAGE_EXPIRED]}
     company = authed_supplier.company
     company.refresh_from_db()
     assert company.verified_with_companies_house_oauth2 is False
@@ -2135,7 +1987,7 @@ def test_collaboration_request_create(authed_supplier, authed_client):
     url = reverse('collaborator-request')
     data = {
         'role': user_roles.ADMIN,
-     }
+    }
     response = authed_client.post(url, data, format='json')
     assert response.status_code == 201
     collaboration_request = models.CollaborationRequest.objects.get(requestor=authed_supplier)
@@ -2152,15 +2004,15 @@ def test_collaboration_request_list(authed_supplier, authed_client):
     response = authed_client.get(reverse('collaborator-request'))
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
-            {
-                'uuid': str(collaboration_request.uuid),
-                'requestor': collaboration_request.requestor.id,
-                'requestor_sso_id': collaboration_request.requestor.sso_id,
-                'name': collaboration_request.name,
-                'role': collaboration_request.role,
-                'accepted': False,
-                'accepted_date': None
-            }
+        {
+            'uuid': str(collaboration_request.uuid),
+            'requestor': collaboration_request.requestor.id,
+            'requestor_sso_id': collaboration_request.requestor.sso_id,
+            'name': collaboration_request.name,
+            'role': collaboration_request.role,
+            'accepted': False,
+            'accepted_date': None,
+        }
     ]
 
 
@@ -2226,7 +2078,8 @@ def test_request_identity_verification(mock_send_request_identity_message, authe
 @pytest.mark.django_db
 def test_add_collaborator_view(authed_client):
     company = factories.CompanyFactory(
-        name='Test Company', date_of_creation=datetime.date(2000, 10, 10),
+        name='Test Company',
+        date_of_creation=datetime.date(2000, 10, 10),
     )
     data = {
         'sso_id': 300,
@@ -2237,10 +2090,7 @@ def test_add_collaborator_view(authed_client):
     }
 
     url = reverse('register-company-collaborator-request')
-    response = authed_client.post(
-        url,
-        data=data
-    )
+    response = authed_client.post(url, data=data)
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {**data, 'role': user_roles.ADMIN}
@@ -2322,7 +2172,7 @@ def test_collaboration_invite_update(authed_client, authed_supplier):
         'company_user': invite.company_user.pk,
         'accepted_date': mock.ANY,
         'role': invite.role,
-        'accepted': True
+        'accepted': True,
     }
     company_user = models.CompanyUser.objects.get(company_email=invite.collaborator_email)
     assert company_user.company == invite.company
@@ -2393,9 +2243,7 @@ def test_company_user_retrieve(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_company_user_update(authed_client, authed_supplier):
-    response = authed_client.patch(
-        reverse('supplier'), {'company_email': 'a@b.co'}, format='json'
-    )
+    response = authed_client.patch(reverse('supplier'), {'company_email': 'a@b.co'}, format='json')
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()['company_email'] == 'a@b.co'
@@ -2420,14 +2268,7 @@ def test_gecko_num_registered_company_user_view_returns_correct_json():
 
     response = client.get(reverse('gecko-total-registered-suppliers'))
 
-    expected = {
-        "item": [
-            {
-              "value": 1,
-              "text": "Total registered company users"
-            }
-          ]
-    }
+    expected = {"item": [{"value": 1, "text": "Total registered company users"}]}
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected
 
@@ -2445,8 +2286,7 @@ def test_gecko_num_registered_company_user_view_requires_auth():
 def test_gecko_num_registered_company_user_view_rejects_incorrect_creds():
     client = APIClient()
     # correct creds are gecko:X
-    encoded_creds = base64.b64encode(
-        'user:pass'.encode('ascii')).decode("ascii")
+    encoded_creds = base64.b64encode('user:pass'.encode('ascii')).decode("ascii")
     client.credentials(HTTP_AUTHORIZATION='Basic ' + encoded_creds)
 
     response = client.get(reverse('gecko-total-registered-suppliers'))
@@ -2467,9 +2307,7 @@ def test_unsubscribe_company_user(mock_task, authed_client, authed_supplier):
 
 @pytest.mark.django_db
 @mock.patch('notifications.notifications.company_user_unsubscribed')
-def test_unsubscribe_company_user_email_confirmation(
-    mock_company_user_unsubscribed, authed_client, authed_supplier
-):
+def test_unsubscribe_company_user_email_confirmation(mock_company_user_unsubscribed, authed_client, authed_supplier):
     authed_client.post(reverse('unsubscribe-supplier'))
 
     mock_company_user_unsubscribed.assert_called_once_with(company_user=authed_supplier)
@@ -2509,11 +2347,7 @@ def test_external_company_user_details_get_sso_auth(authed_client, authed_suppli
 
 @pytest.mark.django_db
 def test_external_company_user_details_post(authed_client):
-    response = authed_client.post(
-        reverse('external-supplier-details'),
-        {},
-        HTTP_AUTHORIZATION='Bearer 123'
-    )
+    response = authed_client.post(reverse('external-supplier-details'), {}, HTTP_AUTHORIZATION='Bearer 123')
 
     assert response.status_code == 405
 
@@ -2522,11 +2356,7 @@ def test_external_company_user_details_post(authed_client):
 def test_external_company_user_details_get_no_supplier(authed_client, authed_supplier):
     authed_supplier.delete()
 
-    response = authed_client.get(
-        reverse('external-supplier-details'),
-        {},
-        HTTP_AUTHORIZATION='Bearer 123'
-    )
+    response = authed_client.get(reverse('external-supplier-details'), {}, HTTP_AUTHORIZATION='Bearer 123')
 
     assert response.status_code == 404
 
@@ -2599,9 +2429,7 @@ def test_company_collaborators_profile_owner_collaborators(authed_supplier, auth
     response = authed_client.get(url)
 
     assert response.status_code == 200
-    assert response.json() == [
-        serializers.CompanyUserSerializer(authed_supplier).data
-    ]
+    assert response.json() == [serializers.CompanyUserSerializer(authed_supplier).data]
 
 
 @pytest.mark.django_db
@@ -2616,21 +2444,14 @@ def test_company_user_csv_dump(mocked_get_file_from_s3, authed_client):
 
     mocked_body = mock.Mock()
     mocked_body.read.return_value = b'company_name\r\nacme\r\n'
-    mocked_get_file_from_s3.return_value = {
-        'Body': mocked_body
-    }
-    response = authed_client.get(
-        reverse('supplier-csv-dump'),
-        {'token': settings.CSV_DUMP_AUTH_TOKEN}
-    )
+    mocked_get_file_from_s3.return_value = {'Body': mocked_body}
+    response = authed_client.get(reverse('supplier-csv-dump'), {'token': settings.CSV_DUMP_AUTH_TOKEN})
     assert response.status_code == status.HTTP_200_OK
     assert response.content == b'company_name\r\nacme\r\n'
     assert response._headers['content-type'] == ('Content-Type', 'text/csv')
     assert response._headers['content-disposition'] == (
         'Content-Disposition',
-        'attachment; filename="{filename}"'.format(
-            filename=settings.SUPPLIERS_CSV_FILE_NAME
-        )
+        'attachment; filename="{filename}"'.format(filename=settings.SUPPLIERS_CSV_FILE_NAME),
     )
 
 
@@ -2681,11 +2502,10 @@ def test_company_user_retrieve_sso_id(client):
 @pytest.mark.django_db
 def test_company_delete_endpoint_signal_user(authed_client, authed_supplier):
     response = authed_client.delete(
-        reverse('company-delete-by-sso-id',
-                kwargs={
-                    'sso_id': authed_supplier.sso_id,
-                    'request_key': settings.DIRECTORY_SSO_API_SECRET
-                })
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': authed_supplier.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
     )
     assert response.status_code == 204
 
@@ -2702,11 +2522,10 @@ def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
     assert authed_supplier.company.company_users.all().count() == 3
 
     response = authed_client.delete(
-        reverse('company-delete-by-sso-id',
-                kwargs={
-                    'sso_id': authed_supplier.sso_id,
-                    'request_key': settings.DIRECTORY_SSO_API_SECRET
-                })
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': authed_supplier.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
     )
     assert response.status_code == 204
 
@@ -2726,11 +2545,7 @@ def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
 @pytest.mark.django_db
 def test_company_delete_endpoint_for_random_user(authed_client):
     response = authed_client.delete(
-        reverse('company-delete-by-sso-id',
-                kwargs={
-                    'sso_id': 999,
-                    'request_key': settings.DIRECTORY_SSO_API_SECRET
-                })
+        reverse('company-delete-by-sso-id', kwargs={'sso_id': 999, 'request_key': settings.DIRECTORY_SSO_API_SECRET})
     )
     assert response.status_code == 204
 
@@ -2738,11 +2553,7 @@ def test_company_delete_endpoint_for_random_user(authed_client):
 @pytest.mark.django_db
 def test_company_delete_endpoint_for_random_request_key(authed_client):
     response = authed_client.delete(
-        reverse('company-delete-by-sso-id',
-                kwargs={
-                    'sso_id': 999,
-                    'request_key': 'Random'
-                })
+        reverse('company-delete-by-sso-id', kwargs={'sso_id': 999, 'request_key': 'Random'})
     )
     assert response.status_code == 401
 
@@ -2755,12 +2566,11 @@ def test_company_delete_endpoint_for_user_not_associated_with_company(authed_cli
     assert user_before_delete_count == 1
 
     response = authed_client.delete(
-        reverse('company-delete-by-sso-id',
-                kwargs={
-                    'sso_id': non_company_user.sso_id,
-                    'request_key': settings.DIRECTORY_SSO_API_SECRET
-                })
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': non_company_user.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
         )
+    )
 
     assert response.status_code == 204
     user_after_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()

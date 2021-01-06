@@ -1,10 +1,11 @@
+import requests
+from django.db import transaction
+
 from conf.celery import app
 from dataservices.models import CIAFactbook
-from django.db import transaction
-import requests
 
 
-@app.task(autoretry_for=(TimeoutError, ))
+@app.task(autoretry_for=(TimeoutError,))
 @transaction.atomic
 def load_cia_factbook_data_from_url(url):
     # This function expects the pass in a URL for the JSON file which is formatted as
@@ -16,8 +17,4 @@ def load_cia_factbook_data_from_url(url):
     for country in data['countries']:
         country_name = data['countries'][country]['data']['name']
         country_data = data['countries'][country]['data']
-        CIAFactbook(
-            country_key=country,
-            country_name=country_name,
-            factbook_data=country_data
-        ).save()
+        CIAFactbook(country_key=country, country_name=country_name, factbook_data=country_data).save()

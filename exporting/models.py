@@ -1,5 +1,6 @@
-from core.helpers import TimeStampedModel
 from django.db import models
+
+from core.helpers import TimeStampedModel
 
 
 class Office(TimeStampedModel):

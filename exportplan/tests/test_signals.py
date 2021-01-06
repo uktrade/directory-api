@@ -1,25 +1,39 @@
-import pytest
 from unittest import mock
+
+import pytest
 
 from exportplan.tests.factories import CompanyExportPlanFactory
 
 
 @pytest.mark.django_db
 def test_export_plan_target_markets_create(
-        mock_ease_of_business_index, mock_cpi, mock_last_year_data,
-        mock_world_economic_outlook, mock_cia_factbook, cpi_data, last_year_data, ease_of_business_data,
-        world_economic_outlook_data, cia_factbook_data
+    mock_ease_of_business_index,
+    mock_cpi,
+    mock_last_year_data,
+    mock_world_economic_outlook,
+    mock_cia_factbook,
+    cpi_data,
+    last_year_data,
+    ease_of_business_data,
+    world_economic_outlook_data,
+    cia_factbook_data,
 ):
 
-    export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'Australia', }])
+    export_plan = CompanyExportPlanFactory.create(
+        target_markets=[
+            {
+                'country': 'Australia',
+            }
+        ]
+    )
     export_plan.save()
     assert mock_ease_of_business_index.call_args == mock.call('AUS')
     assert mock_cpi.call_args == mock.call('AUS')
     assert mock_last_year_data.call_args == mock.call(commodity_code='101.2002.123', country='Australia')
     assert mock_world_economic_outlook.call_args == mock.call('AUS')
-    assert mock_cia_factbook.call_args == mock.call(country_name='Australia', data_keys=[
-            'languages', 'government', 'transportation', 'people'
-        ])
+    assert mock_cia_factbook.call_args == mock.call(
+        country_name='Australia', data_keys=['languages', 'government', 'transportation', 'people']
+    )
 
     assert mock_ease_of_business_index.call_count == 1
     assert mock_cpi.call_count == 1
@@ -37,10 +51,22 @@ def test_export_plan_target_markets_create(
 
 @pytest.mark.django_db
 def test_export_plan_target_markets_create_no_bad_country(
-        mock_ease_of_business_index, mock_cpi, mock_last_year_data,
-        cpi_data, last_year_data, ease_of_business_data, world_economic_outlook_data, cia_factbook_data
+    mock_ease_of_business_index,
+    mock_cpi,
+    mock_last_year_data,
+    cpi_data,
+    last_year_data,
+    ease_of_business_data,
+    world_economic_outlook_data,
+    cia_factbook_data,
 ):
-    export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'XYZ', }])
+    export_plan = CompanyExportPlanFactory.create(
+        target_markets=[
+            {
+                'country': 'XYZ',
+            }
+        ]
+    )
     export_plan.save()
 
     assert export_plan.target_markets[0].get('corruption_perceptions_index') is None
@@ -52,21 +78,34 @@ def test_export_plan_target_markets_create_no_bad_country(
 
 @pytest.mark.django_db
 def test_signal_target_markets_update(
-        mock_ease_of_business_index, mock_cpi, mock_last_year_data, mock_world_economic_outlook,
-        mock_cia_factbook, cpi_data, last_year_data, ease_of_business_data, world_economic_outlook_data,
-        cia_factbook_data,
+    mock_ease_of_business_index,
+    mock_cpi,
+    mock_last_year_data,
+    mock_world_economic_outlook,
+    mock_cia_factbook,
+    cpi_data,
+    last_year_data,
+    ease_of_business_data,
+    world_economic_outlook_data,
+    cia_factbook_data,
 ):
 
-    export_plan = CompanyExportPlanFactory.create(target_markets=[{'country': 'Australia', }])
+    export_plan = CompanyExportPlanFactory.create(
+        target_markets=[
+            {
+                'country': 'Australia',
+            }
+        ]
+    )
     export_plan.save()
 
     assert mock_ease_of_business_index.call_args == mock.call('AUS')
     assert mock_cpi.call_args == mock.call('AUS')
     assert mock_last_year_data.call_args == mock.call(commodity_code='101.2002.123', country='Australia')
     assert mock_world_economic_outlook.call_args == mock.call('AUS')
-    assert mock_cia_factbook.call_args == mock.call(country_name='Australia', data_keys=[
-            'languages', 'government', 'transportation', 'people'
-        ])
+    assert mock_cia_factbook.call_args == mock.call(
+        country_name='Australia', data_keys=['languages', 'government', 'transportation', 'people']
+    )
 
     assert mock_ease_of_business_index.call_count == 1
     assert mock_cpi.call_count == 1
@@ -94,8 +133,14 @@ def test_signal_target_markets_update(
 
 @pytest.mark.django_db
 def test_export_plan_target_markets_create_commodity_code(
-        mock_ease_of_business_index, mock_cpi, mock_last_year_data,
-        cpi_data, last_year_data, ease_of_business_data, world_economic_outlook_data, cia_factbook_data
+    mock_ease_of_business_index,
+    mock_cpi,
+    mock_last_year_data,
+    cpi_data,
+    last_year_data,
+    ease_of_business_data,
+    world_economic_outlook_data,
+    cia_factbook_data,
 ):
     export_plan = CompanyExportPlanFactory.create(export_commodity_codes=[])
     export_plan.save()

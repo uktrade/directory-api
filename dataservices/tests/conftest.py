@@ -1,4 +1,5 @@
 import pytest
+
 from dataservices import models
 
 
@@ -11,12 +12,7 @@ def internet_usage_data():
             year=2020,
             value=90.97,
         ),
-        models.InternetUsage(
-            country_code='DEU',
-            country_name='Germany',
-            year=2020,
-            value=91.97
-        )
+        models.InternetUsage(country_code='DEU', country_name='Germany', year=2020, value=91.97),
     ]
     yield models.InternetUsage.objects.bulk_create(country_data)
     models.InternetUsage.objects.all().delete()

@@ -1,23 +1,22 @@
-from rest_framework import status, generics
-
-from dataservices import serializers, models, helpers
-from rest_framework.response import Response
 from django.http import Http404
+from rest_framework import generics, status
+from rest_framework.response import Response
 
+from dataservices import helpers, models, serializers
+from dataservices.helpers import get_serialized_instance_from_model, get_urban_rural_data, millify
 from dataservices.models import (
     ConsumerPriceIndex,
     CorruptionPerceptionsIndex,
-    InternetUsage,
     EaseOfDoingBusiness,
-    GDPPerCapita
+    GDPPerCapita,
+    InternetUsage,
 )
-from dataservices.helpers import millify, get_urban_rural_data, get_serialized_instance_from_model
 from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
     CorruptionPerceptionsIndexSerializer,
-    InternetUsageSerializer,
     EaseOfDoingBusinessSerializer,
-    GDPPerCapitalSerializer
+    GDPPerCapitalSerializer,
+    InternetUsageSerializer,
 )
 
 
@@ -67,13 +66,8 @@ class RetrieveLastYearImportDataView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
-        comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-        # from world
-        last_year_data = comtrade.get_last_year_import_data(from_uk=False)
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'last_year_data': last_year_data}
-        )
+        comtrade_response = helpers.get_last_year_import_data(commodity_code=commodity_code, country=country)
+        return Response(status=status.HTTP_200_OK, data={'last_year_data': comtrade_response})
 
 
 class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
@@ -82,12 +76,8 @@ class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         commodity_code = self.request.GET.get('commodity_code', '')
         country = self.request.GET.get('country', '')
-        comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-        last_year_data = comtrade.get_last_year_import_data(from_uk=True)
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'last_year_data': last_year_data}
-        )
+        comtrade_response = helpers.get_last_year_import_data_from_uk(commodity_code=commodity_code, country=country)
+        return Response(status=status.HTTP_200_OK, data={'last_year_data': comtrade_response})
 
 
 class RetrieveHistoricalImportDataView(generics.GenericAPIView):
@@ -100,10 +90,7 @@ class RetrieveHistoricalImportDataView(generics.GenericAPIView):
         comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
 
         historical_data = comtrade.get_all_historical_import_value()
-        return Response(
-            status=status.HTTP_200_OK,
-            data=historical_data
-        )
+        return Response(status=status.HTTP_200_OK, data=historical_data)
 
 
 class RetrieveCountryDataView(generics.GenericAPIView):
@@ -134,41 +121,21 @@ class RetrieveCountryDataView(generics.GenericAPIView):
 
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
-                ConsumerPriceIndex,
-                ConsumerPriceIndexSerializer,
-                filter_args
+                ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
             ),
-            'internet_usage': get_serialized_instance_from_model(
-                InternetUsage,
-                InternetUsageSerializer,
-                filter_args
-            ),
+            'internet_usage': get_serialized_instance_from_model(InternetUsage, InternetUsageSerializer, filter_args),
             'corruption_perceptions_index': get_serialized_instance_from_model(
-                CorruptionPerceptionsIndex,
-                CorruptionPerceptionsIndexSerializer,
-                filter_args
+                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args
             ),
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
-                EaseOfDoingBusiness,
-                EaseOfDoingBusinessSerializer,
-                filter_args
+                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
             ),
-            'gdp_per_capita': get_serialized_instance_from_model(
-                GDPPerCapita,
-                GDPPerCapitalSerializer,
-                filter_args
-            ),
-
+            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
         }
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'country_data': country_data}
-        )
+        return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
 
     def map_dit_to_weo_country_data(self, country):
-        return (
-            country if self.dit_to_weo_country_map.get(country) is None else self.dit_to_weo_country_map.get(country)
-        )
+        return country if self.dit_to_weo_country_map.get(country) is None else self.dit_to_weo_country_map.get(country)
 
 
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
@@ -193,10 +160,7 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
         except models.CIAFactbook.DoesNotExist:
             cia_factbook_data = {}
 
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'cia_factbook_data': cia_factbook_data}
-        )
+        return Response(status=status.HTTP_200_OK, data={'cia_factbook_data': cia_factbook_data})
 
 
 class RetrievePopulationDataView(generics.GenericAPIView):
@@ -228,35 +192,34 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
             country_population = helpers.PopulationData()
             country_data = {'country': country}
             total_population = country_population.get_population_total_data(country=country)
-            population_data = {
-                    'total_population': millify(total_population.get('total_population', 0) * 1000)
-            }
+            population_data = {'total_population': millify(total_population.get('total_population', 0) * 1000)}
 
             # urban population
             urban_population_data = country_population.get_population_urban_rural_data(
-                country=country, classification='urban')
-            urban_population = get_urban_rural_data(urban_population_data,  total_population, 'urban')
+                country=country, classification='urban'
+            )
+            urban_population = get_urban_rural_data(urban_population_data, total_population, 'urban')
 
             # rural population
             rural_population_data = country_population.get_population_urban_rural_data(
-                country=country, classification='rural')
-            rural_population = get_urban_rural_data(rural_population_data,  total_population, 'rural')
+                country=country, classification='rural'
+            )
+            rural_population = get_urban_rural_data(rural_population_data, total_population, 'rural')
 
             internet_usage = helpers.get_internet_usage(country=country)
             cpi = helpers.get_cpi_data(country=country)
 
-            data_set.append({
-                **country_data,
-                **internet_usage,
-                **rural_population,
-                **urban_population,
-                **population_data,
-                **cpi,
-            })
-        return Response(
-            status=status.HTTP_200_OK,
-            data=data_set
-        )
+            data_set.append(
+                {
+                    **country_data,
+                    **internet_usage,
+                    **rural_population,
+                    **urban_population,
+                    **population_data,
+                    **cpi,
+                }
+            )
+        return Response(status=status.HTTP_200_OK, data=data_set)
 
 
 class SuggestedCountriesView(generics.ListAPIView):
@@ -265,15 +228,14 @@ class SuggestedCountriesView(generics.ListAPIView):
 
     def get_queryset(self):
         hs_code = self.request.query_params.get('hs_code', '').lower()
-        queryset = models.SuggestedCountry.objects.filter(hs_code=hs_code).\
-            order_by('order').\
-            values('hs_code', 'country__name', 'country__iso2', 'country__region')
+        queryset = (
+            models.SuggestedCountry.objects.filter(hs_code=hs_code)
+            .order_by('order')
+            .values('hs_code', 'country__name', 'country__iso2', 'country__region')
+        )
         return queryset
 
     def get(self, *args, **kwargs):
         if not self.request.query_params.get('hs_code'):
-            return Response(
-                status=500,
-                data={'error_message': 'hs_code missing in request params'}
-            )
+            return Response(status=500, data={'error_message': 'hs_code missing in request params'})
         return super().get(*args, **kwargs)

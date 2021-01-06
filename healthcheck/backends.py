@@ -4,7 +4,6 @@ from health_check.exceptions import ServiceUnavailable
 
 
 class ElasticSearchCheckBackend(BaseHealthCheckBackend):
-
     def check_status(self):
         connection = connections.get_connection()
         if not connection.ping():

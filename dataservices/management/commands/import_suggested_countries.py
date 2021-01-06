@@ -1,5 +1,4 @@
 import tablib
-
 from django.core.management import BaseCommand
 
 from dataservices.models import Country, SuggestedCountry
@@ -9,8 +8,7 @@ class Command(BaseCommand):
     help = 'Import Countries data'
 
     def handle(self, *args, **options):
-        with open('dataservices/resources/SR.CREST.ALL.csv', 'r',
-                  encoding='utf-8-sig') as f:
+        with open('dataservices/resources/SR.CREST.ALL.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             suggested_product_countries = []
 
@@ -29,11 +27,9 @@ class Command(BaseCommand):
                 if hs_code and len(suggested_countries) > 0:
                     order = 1
                     for country in suggested_countries:
-                        suggested_product_countries.append(SuggestedCountry(
-                            hs_code=hs_code,
-                            country=country,
-                            order=order
-                        ))
+                        suggested_product_countries.append(
+                            SuggestedCountry(hs_code=hs_code, country=country, order=order)
+                        )
                         order += 1
 
             SuggestedCountry.objects.all().delete()

@@ -1,12 +1,11 @@
 from unittest import mock
-import pytest
 
+import pytest
 from django.core.management import call_command
 from django.core.management.commands import migrate
 
-from company.tests.factories import CompanyFactory, CompanyUserFactory
-
 from company.models import Company, CompanyUser
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 from core.management.commands import distributed_migrate
 
 
@@ -57,11 +56,12 @@ def test_distributed_migration_first(mock_is_first_instance, mock_handle):
 @mock.patch.object(migrate.Command, 'handle')
 @mock.patch.object(distributed_migrate.Command, 'is_migration_pending')
 @mock.patch.object(distributed_migrate.Command, 'is_first_instance')
-def test_distributed_migration_second(
-    mock_is_first_instance, mock_is_migration_pending, mock_handle
-):
+def test_distributed_migration_second(mock_is_first_instance, mock_is_migration_pending, mock_handle):
     mock_is_first_instance.return_value = False
-    mock_is_migration_pending.side_effect = (True, False,)
+    mock_is_migration_pending.side_effect = (
+        True,
+        False,
+    )
 
     call_command('distributed_migrate')
 

@@ -1,15 +1,14 @@
-from unittest.mock import patch, Mock, PropertyMock
 import datetime
+from unittest.mock import Mock, PropertyMock, patch
 
-from freezegun import freeze_time
-from freezegun.api import datetime_to_fakedatetime, date_to_fakedate
 import pytest
-
 from django.conf import settings
+from freezegun import freeze_time
+from freezegun.api import date_to_fakedate, datetime_to_fakedatetime
 
-from core.tests.test_views import reload_urlconf
 from company import documents, helpers, serializers
 from company.tests import factories
+from core.tests.test_views import reload_urlconf
 
 
 @pytest.mark.django_db
@@ -17,10 +16,7 @@ from company.tests import factories
 def test_company_doc_type():
     settings.STORAGE_CLASS_NAME = 'local-storage'
     reload_urlconf()
-    company = factories.CompanyFactory(
-        date_of_creation=datetime.date(2000, 10, 10),
-        sectors=['AEROSPACE', 'AIRPORTS']
-    )
+    company = factories.CompanyFactory(date_of_creation=datetime.date(2000, 10, 10), sectors=['AEROSPACE', 'AIRPORTS'])
     case_study = factories.CompanyCaseStudyFactory(company=company)
 
     logo_mock = PropertyMock(return_value=Mock(url='/media/thing.jpg'))
@@ -53,9 +49,7 @@ def test_company_doc_type():
         'expertise_languages': company.expertise_languages,
         'expertise_countries': company.expertise_countries,
         'expertise_products_services': company.expertise_products_services,
-        'expertise_products_services_labels': (
-            expected_expertise_products_services
-        ),
+        'expertise_products_services_labels': expected_expertise_products_services,
         'sectors_label': ['Aerospace', 'Airports'],
         'expertise_labels': company_parser.expertise_labels_for_search,
         'slug': company.slug,
@@ -95,10 +89,7 @@ def test_company_doc_type():
 
 @pytest.mark.django_db
 def test_company_doc_type_single_sector():
-    company = factories.CompanyFactory(
-        date_of_creation=datetime.date(2000, 10, 10),
-        sectors=['AEROSPACE']
-    )
+    company = factories.CompanyFactory(date_of_creation=datetime.date(2000, 10, 10), sectors=['AEROSPACE'])
 
     doc = documents.company_model_to_document(company)
 

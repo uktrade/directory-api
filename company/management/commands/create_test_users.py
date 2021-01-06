@@ -27,10 +27,5 @@ class Command(BaseCommand):
             )
             user = models.CompanyUser.objects.create(sso_id=sso_id, company=company)
 
-            self.stdout.write(
-                self.style.SUCCESS('Successfully created user "%s"' % user.id)
-            )
-            self.stdout.write(
-                self.style.SUCCESS('Successfully created '
-                                   'company "%s"' % company.id)
-            )
+            self.stdout.write(self.style.SUCCESS('Successfully created user "%s"' % user.id))
+            self.stdout.write(self.style.SUCCESS('Successfully created company "%s"' % company.id))
