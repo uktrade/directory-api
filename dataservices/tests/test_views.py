@@ -151,7 +151,7 @@ def test_get_worldeconomicoutlook_not_found(api_client):
 def test_last_year_import_data(mock_get_last_year_import_data, api_client):
     data = {
         'import_value': {
-            'year': 2019,
+            'year': 2020,
             'trade_value': 100,
         }
     }
@@ -160,10 +160,8 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
     url = reverse('last-year-import-data')
     response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
 
-    assert mock_get_last_year_import_data.call_count == 1
-
     assert response.status_code == 200
-    assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
+    assert response.json() == {'last_year_data': {'import_value': {'year': 2020, 'trade_value': 100}}}
 
 
 @pytest.mark.django_db
@@ -171,7 +169,7 @@ def test_last_year_import_data(mock_get_last_year_import_data, api_client):
 def test_last_year_import_data_from_uk(mock_get_last_year_import_data, api_client):
     data = {
         'import_value': {
-            'year': 2019,
+            'year': 2020,
             'trade_value': 100,
         }
     }
@@ -180,10 +178,8 @@ def test_last_year_import_data_from_uk(mock_get_last_year_import_data, api_clien
     url = reverse('last-year-import-data-from-uk')
     response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
 
-    assert mock_get_last_year_import_data.call_count == 1
-
     assert response.status_code == 200
-    assert response.json() == {'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}}}
+    assert response.json() == {'last_year_data': {'import_value': {'year': 2020, 'trade_value': 100}}}
 
 
 @pytest.mark.django_db
@@ -344,15 +340,15 @@ def test_population_data(api_client):
         'population_data': {
             'country': 'United Kingdom',
             'target_ages': ['25-34', '35-44'],
-            'year': 2020,
-            'total_target_age_population': 18087,
-            'male_target_age_population': 9064,
-            'female_target_age_population': 9023,
-            'urban_population_total': 56495,
-            'rural_population_total': 10839,
-            'total_population': 67888,
-            'urban_percentage': 0.832179,
-            'rural_percentage': 0.167821,
+            'year': 2021,
+            'male_target_age_population': 9102,
+            'female_target_age_population': 9048,
+            'urban_population_total': 56970,
+            'rural_population_total': 10729,
+            'total_population': 68204,
+            'urban_percentage': 0.835288,
+            'rural_percentage': 0.16471199999999997,
+            'total_target_age_population': 18150,
         }
     }
 
@@ -365,7 +361,7 @@ def test_population_data_country_not_found(api_client):
     assert response.status_code == 200
 
     assert response.json() == {
-        'population_data': {'country': 'e3fnkej', 'target_ages': ['25-34', '35-44'], 'year': 2020}
+        'population_data': {'country': 'e3fnkej', 'target_ages': ['25-34', '35-44'], 'year': 2021}
     }
 
 
@@ -390,12 +386,12 @@ def test_population_data_by_country(api_client, internet_usage_data):
         {
             'country': 'United Kingdom',
             'internet_usage': {'value': '90.97', 'year': 2020},
+            'rural_population_total': 10729,
+            'rural_population_percentage_formatted': '15.73% (10.73 million)',
+            'urban_population_total': 56970,
+            'urban_population_percentage_formatted': '83.53% (56.97 million)',
+            'total_population': '68.20 million',
             'cpi': {'value': '150.56', 'year': 2019},
-            'rural_population_total': 10839,
-            'urban_population_total': 56495,
-            'urban_population_percentage_formatted': '83.22% (56.49 million)',
-            'total_population': '67.89 million',
-            'rural_population_percentage_formatted': '15.97% (10.84 million)',
         }
     ]
 
@@ -412,21 +408,21 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
         {
             'country': 'United Kingdom',
             'internet_usage': {'value': '90.97', 'year': 2020},
-            'rural_population_total': 10839,
-            'urban_population_total': 56495,
-            'urban_population_percentage_formatted': '83.22% (56.49 million)',
-            'total_population': '67.89 million',
-            'rural_population_percentage_formatted': '15.97% (10.84 million)',
+            'rural_population_total': 10729,
+            'rural_population_percentage_formatted': '15.73% (10.73 million)',
+            'urban_population_total': 56970,
+            'urban_population_percentage_formatted': '83.53% (56.97 million)',
+            'total_population': '68.20 million',
             'cpi': {'value': '150.56', 'year': 2019},
         },
         {
             'country': 'Germany',
             'internet_usage': {'value': '91.97', 'year': 2020},
-            'urban_population_total': 63930,
-            'rural_population_total': 18610,
-            'total_population': '83.78 million',
-            'urban_population_percentage_formatted': '76.30% (63.93 million)',
-            'rural_population_percentage_formatted': '22.21% (18.61 million)',
+            'rural_population_total': 18546,
+            'rural_population_percentage_formatted': '22.10% (18.55 million)',
+            'urban_population_total': 64044,
+            'urban_population_percentage_formatted': '76.33% (64.04 million)',
+            'total_population': '83.90 million',
         },
     ]
 

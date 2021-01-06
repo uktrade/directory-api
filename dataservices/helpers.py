@@ -236,13 +236,13 @@ class PopulationData:
             (un_data_transponsed.country_name == country) & (un_data_transponsed.year == self.year)
         ]
         if not country_data.empty:
-            total_population_target_age = country_data[country_data.age_group.isin(target_ages)].age_value.sum()
+            target_data = country_data.age_group.isin(target_ages)
+            total_population_target_age = pandas.to_numeric(country_data[target_data].age_value, errors='coerce').sum()
             target_age_sex_data[f'{target_sex}_target_age_population'] = total_population_target_age
         return target_age_sex_data
 
     def get_population_total_data(self, country):
         total_population = {}
-
         un_data_transponsed = self.un_female_pop_data.melt(
             ['country_name', 'country_code', 'year', 'type'], var_name='age_group', value_name='age_value'
         )
@@ -258,9 +258,9 @@ class PopulationData:
 
         if not male_country_data.empty and not female_country_data.empty:
             # Only send data if we found country year and data for both males/females
-            total_population['total_population'] = (
-                female_country_data.age_value.sum() + male_country_data.age_value.sum()
-            )
+            male_age_value = pandas.to_numeric(male_country_data.age_value, errors='coerce')
+            female_age_value = pandas.to_numeric(female_country_data.age_value, errors='coerce')
+            total_population['total_population'] = female_age_value.sum() + male_age_value.sum()
         return total_population
 
     def get_population_urban_rural_data(self, country, classification):
