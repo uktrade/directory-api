@@ -171,7 +171,7 @@ def test_get_historical_import_value_partner_country_empty(empty_comtrade, comtr
 
 def test_get_historical_import_value_world(comtrade, comtrade_request_mock):
     reporting_year_data = comtrade.get_historical_import_value_world()
-    assert reporting_year_data == {2016: '350', 2017: '350', 2018: '350'}
+    assert reporting_year_data == {2017: '350', 2018: '350', 2019: '350'}
 
 
 def test_get_historical_import_value_world_empty(empty_comtrade, comtrade_request_mock_empty):
@@ -182,7 +182,7 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
     historical_data = comtrade.get_all_historical_import_value()
     assert historical_data == {
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
-        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'},
+        'historical_trade_value_all': {2019: '350', 2018: '350', 2017: '350'},
     }
 
 
@@ -225,7 +225,7 @@ def test_get_all_historical_import_data_helper(comtrade, comtrade_request_mock):
     historical_data = helpers.get_historical_import_data('AUS', '847.33.22')
     assert historical_data == {
         'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
-        'historical_trade_value_all': {2018: '350', 2017: '350', 2016: '350'},
+        'historical_trade_value_all': {2019: '350', 2018: '350', 2017: '350'},
     }
 
 
@@ -408,8 +408,8 @@ def test_get_cia_factbook_by_keys_some_bad_Keys():
 @pytest.mark.parametrize(
     'sex, expected',
     [
-        ['male', 4636],
-        ['female', 4555],
+        ['male', 4620],
+        ['female', 4525],
     ],
 )
 @pytest.mark.django_db
@@ -435,8 +435,8 @@ def test_get_population_target_age_sex_data_bad_country():
 @pytest.mark.parametrize(
     'classification, expected',
     [
-        ['urban', 56495],
-        ['rural', 10839],
+        ['urban', 56970],
+        ['rural', 10729],
     ],
 )
 @pytest.mark.django_db
@@ -462,7 +462,7 @@ def test_get_population_total_data():
     total_population = helpers.PopulationData().get_population_total_data(
         country='United Kingdom',
     )
-    assert total_population == {'total_population': 67888}
+    assert total_population == {'total_population': 68204}
 
 
 @pytest.mark.django_db
@@ -492,22 +492,22 @@ def test_get_population_data():
     assert population_data == {
         'country': 'United Kingdom',
         'target_ages': ['25-34', '35-44'],
-        'year': 2020,
-        'total_target_age_population': 18087,
-        'male_target_age_population': 9064,
-        'female_target_age_population': 9023,
-        'urban_population_total': 56495,
-        'rural_population_total': 10839,
-        'total_population': 67888,
-        'urban_percentage': 0.832179,
-        'rural_percentage': 0.167821,
+        'year': 2021,
+        'male_target_age_population': 9102,
+        'female_target_age_population': 9048,
+        'urban_population_total': 56970,
+        'rural_population_total': 10729,
+        'total_population': 68204,
+        'urban_percentage': 0.835288,
+        'rural_percentage': 0.16471199999999997,
+        'total_target_age_population': 18150,
     }
 
 
 @pytest.mark.django_db
 def test_get_population_data_bad_country():
     population_data = helpers.PopulationData().get_population_data(country='ewfwe', target_ages=['25-34', '35-44'])
-    assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2020}
+    assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2021}
 
 
 @pytest.mark.django_db
@@ -520,7 +520,7 @@ def test_get_population_total_data_mapped():
     total_population_mapped = helpers.PopulationData().get_population_total_data(
         country='United States',
     )
-    assert total_population_mapped == {'total_population': 331005}
+    assert total_population_mapped == {'total_population': 332914}
 
 
 @pytest.mark.django_db
