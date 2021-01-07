@@ -225,7 +225,6 @@ def test_get_country_data(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
@@ -233,6 +232,7 @@ def test_get_country_data(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'total_population': '38.07 million',
         }
     }
 
@@ -243,7 +243,6 @@ def test_get_country_data_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': None,
@@ -251,6 +250,7 @@ def test_get_country_data_not_found(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'total_population': '0.00',
         }
     }
 
@@ -270,6 +270,7 @@ def test_get_country_data_cpi_not_found(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'total_population': '38.07 million',
         },
     }
 
@@ -281,7 +282,6 @@ def test_get_country_data_internet_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
@@ -289,6 +289,7 @@ def test_get_country_data_internet_not_found(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'total_population': '38.07 million',
         }
     }
 
