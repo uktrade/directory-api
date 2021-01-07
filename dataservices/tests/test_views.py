@@ -78,7 +78,13 @@ def test_get_easeofdoingbusiness(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert response.json() == {'country_name': 'China', 'country_code': 'CN', 'year_2019': 10, 'total': 2}
+    assert response.json() == {
+        'country_name': 'China',
+        'country_code': 'CN',
+        'year_2019': 10,
+        'total': 2,
+        'country': None,
+    }
 
 
 @pytest.mark.django_db
@@ -96,7 +102,13 @@ def test_get_corruptionperceptionsindex(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert response.json() == {'country_name': 'China', 'country_code': 'CN', 'cpi_score_2019': 10, 'rank': 3}
+    assert response.json() == {
+        'country_name': 'China',
+        'country_code': 'CN',
+        'cpi_score_2019': 10,
+        'rank': 3,
+        'country': None,
+    }
 
 
 @pytest.mark.django_db
@@ -124,6 +136,7 @@ def test_get_world_economic_outlook(api_client):
             'units': 'dollars',
             'year_2020': '21234141.000',
             'year_2021': '32432423.000',
+            'country': None,
         },
         {
             'country_code': 'CN',
@@ -133,6 +146,7 @@ def test_get_world_economic_outlook(api_client):
             'units': 'Percent change',
             'year_2020': '323.210',
             'year_2021': '1231.100',
+            'country': None,
         },
     ]
 
@@ -227,13 +241,13 @@ def test_get_country_data(api_client):
     assert response.status_code == 200
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
             'internet_usage': {
                 'country_name': 'Canada',
                 'country_code': 'CNN',
                 'value': '20.230',
                 'year': 2019,
                 'total_internet_usage': '7.70 million',
+                'country': None,
             },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
@@ -278,6 +292,7 @@ def test_get_country_data_cpi_not_found(api_client):
                 'value': '20.230',
                 'year': 2019,
                 'total_internet_usage': '7.70 million',
+                'country': None,
             },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
@@ -296,7 +311,13 @@ def test_get_country_data_internet_not_found(api_client):
     assert response.status_code == 200
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
+            'consumer_price_index': {
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.560',
+                'year': 2019,
+                'country': None,
+            },
             'internet_usage': None,
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
