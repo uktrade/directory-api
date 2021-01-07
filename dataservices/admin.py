@@ -145,6 +145,14 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
 class CountryAdmin(admin.ModelAdmin):
     resource_class = CountryResource
 
+    search_fields = (
+        'name',
+        'iso1',
+        'iso2',
+        'iso3',
+        'region',
+    )
+
     list_display = (
         'name',
         'iso1',
