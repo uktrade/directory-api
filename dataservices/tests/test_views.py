@@ -289,7 +289,8 @@ def test_get_country_data_internet_not_found(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
-            'total_population': '38.07 million'}
+            'total_population': '38.07 million',
+        }
     }
 
 
