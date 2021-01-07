@@ -3,6 +3,7 @@ import re
 from unittest import mock
 
 import pytest
+from django.test import override_settings
 
 from dataservices import helpers, models
 from dataservices.tests import factories
@@ -187,15 +188,26 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
 
 
 @pytest.mark.django_db
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 def test_get_ease_of_business_index():
+
+    models.Country.objects.all().delete()
+    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.EaseOfDoingBusiness.objects.create(
         country_code='AUS',
         country_name='Australia',
         year_2019=20,
+        country=country,
     )
     ease_of_business_data = helpers.get_ease_of_business_index('AUS')
-    assert ease_of_business_data == {'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20}
+    assert ease_of_business_data == {
+        'total': 1,
+        'country_name': 'Australia',
+        'country_code': 'AUS',
+        'year_2019': 20,
+        'country': 'Australia',
+    }
 
 
 @pytest.mark.django_db
@@ -207,12 +219,20 @@ def test_get_ease_of_business_index_not_found():
 
 @pytest.mark.django_db
 def test_get_corruption_perceptions_index():
+    models.Country.objects.all().delete()
+    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21
+        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21, country=country
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
-    assert cpi_data == {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21}
+    assert cpi_data == {
+        'country_name': 'Australia',
+        'country_code': 'AUS',
+        'cpi_score_2019': 24,
+        'rank': 21,
+        'country': 'Australia',
+    }
 
 
 @pytest.mark.django_db
@@ -358,6 +378,7 @@ def test_get_world_economic_outlook_data():
             "units": "dollars",
             "year_2020": "21234141.000",
             "year_2021": "32432423.000",
+            "country": None,
         },
         {
             "country_code": "CN",
@@ -367,6 +388,7 @@ def test_get_world_economic_outlook_data():
             "units": "Percent change",
             "year_2020": "323.210",
             "year_2021": "1231.100",
+            "country": None,
         },
     ]
 

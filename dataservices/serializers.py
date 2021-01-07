@@ -5,6 +5,7 @@ from dataservices import models
 
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
@@ -13,11 +14,21 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     def get_total(self, obj):
         return models.EaseOfDoingBusiness.objects.all().count()
 
+    def get_country(self, obj):
+        if obj.country:
+            return obj.country.name
+
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
+    country = serializers.SerializerMethodField()
+
     class Meta:
         model = models.CorruptionPerceptionsIndex
         exclude = ['created', 'id', 'modified']
+
+    def get_country(self, obj):
+        if obj.country:
+            return obj.country.name
 
 
 class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
