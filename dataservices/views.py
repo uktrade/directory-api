@@ -136,6 +136,12 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
         }
+        if country_data['internet_usage']:
+            total_internet_usage = helpers.calculate_total_internet_population(
+                country_data['internet_usage'], total_population
+            )
+            country_data['internet_usage']['total_internet_usage'] = total_internet_usage
+
         return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
 
     def map_dit_to_weo_country_data(self, country):
