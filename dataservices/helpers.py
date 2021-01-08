@@ -421,3 +421,12 @@ def get_serialized_instance_from_model(model_class, serializer_class, filter_arg
         return serializer.data
     except model_class.DoesNotExist:
         return None
+
+
+def calculate_total_internet_population(internet_usage, total_population):
+    if internet_usage and total_population:
+        percent = (float(internet_usage.get('value'))/100)
+        total = total_population.get('total_population', 0) * 1000
+        return millify(percent*total)
+    else:
+        return ''
