@@ -26,7 +26,9 @@ class Country(TimeStampedModel):
 
 class EaseOfDoingBusiness(TimeStampedModel):
 
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     year_2019 = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
@@ -37,7 +39,9 @@ class EaseOfDoingBusiness(TimeStampedModel):
 
 class CorruptionPerceptionsIndex(TimeStampedModel):
 
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     cpi_score_2019 = models.IntegerField(null=True, blank=True)
     rank = models.IntegerField(null=True, blank=True)
@@ -48,7 +52,10 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
 
 class WorldEconomicOutlook(TimeStampedModel):
+
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
     subject = models.CharField(unique=False, blank=False, null=False, max_length=100)
     scale = models.CharField(unique=False, blank=False, null=False, max_length=100)
@@ -64,6 +71,7 @@ class WorldEconomicOutlook(TimeStampedModel):
 class CIAFactbook(TimeStampedModel):
 
     country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
     factbook_data = JSONField(null=True, blank=True, default=dict)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
@@ -76,8 +84,9 @@ class CIAFactbook(TimeStampedModel):
 
 
 class InternetUsage(TimeStampedModel):
-
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
@@ -88,7 +97,9 @@ class InternetUsage(TimeStampedModel):
 
 
 class ConsumerPriceIndex(TimeStampedModel):
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
@@ -99,7 +110,9 @@ class ConsumerPriceIndex(TimeStampedModel):
 
 
 class GDPPerCapita(TimeStampedModel):
+    # Deprecated country_name - use country.name
     country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
     year_2019 = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
