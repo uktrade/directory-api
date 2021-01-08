@@ -546,3 +546,16 @@ def test_get_internet_usage_with_no_country():
 def test_get_percentage_format(input_1, input_2, expected):
     data = helpers.get_percentage_format(input_1, input_2)
     assert data == expected
+
+
+@pytest.mark.parametrize(
+    "internet_usage,total_population,expected",
+    [
+        ({'value': '94.712'}, {'total_population': 17173}, '16.26 million'),
+        ({}, {'total_population': 17173}, ''),
+        ({'value': '94.712'}, {}, ''),
+    ],
+)
+def test_calculate_total_internet_population(internet_usage, total_population, expected):
+    data = helpers.calculate_total_internet_population(internet_usage, total_population)
+    assert data == expected
