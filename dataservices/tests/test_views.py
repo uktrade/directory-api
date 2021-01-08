@@ -229,8 +229,11 @@ def test_get_country_data(api_client):
         'country_data': {
             'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
             'internet_usage': {
-                'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230',
-                'year': 2019, 'total_internet_usage': '7.70 million'
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.230',
+                'year': 2019,
+                'total_internet_usage': '7.70 million',
             },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
@@ -270,8 +273,11 @@ def test_get_country_data_cpi_not_found(api_client):
         'country_data': {
             'consumer_price_index': None,
             'internet_usage': {
-                'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230',
-                'year': 2019, 'total_internet_usage': '7.70 million',
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.230',
+                'year': 2019,
+                'total_internet_usage': '7.70 million',
             },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
