@@ -9,6 +9,7 @@
 - GP2-1063 - Moved SuggestedCountries under dataservices app
 - GP2-1025 - Refactor economy data from ComTrade
 - GP2-849 - add total pop
+- GP2-849 - add internet usage total
 
 ### Bugs fixed
 
