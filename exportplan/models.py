@@ -38,6 +38,10 @@ class CompanyExportPlan(TimeStampedModel):
     promotion_channels = JSONField(null=True, blank=True, default=list)
     resource_needed = models.TextField(null=True, blank=True, default='', validators=[no_html])
     spend_marketing = models.FloatField(null=True, default=None, unique=False)
+    # Cost and Pricing
+    direct_costs = JSONField(null=True, blank=True, default=dict)
+    overhead_costs = JSONField(null=True, blank=True, default=dict)
+    total_cost_and_price = JSONField(null=True, blank=True, default=dict)
 
 
 class CompanyObjectives(TimeStampedModel):

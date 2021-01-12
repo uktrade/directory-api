@@ -96,6 +96,9 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'target_markets_research',
             'adaptation_target_market',
             'target_market_documents',
+            'direct_costs',
+            'overhead_costs',
+            'total_cost_and_price',
         )
 
     def validate_export_countries(self, value):
