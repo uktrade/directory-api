@@ -4,7 +4,8 @@
 
 ### Implemented enhancements
 
-- GP2-173 - Updated Male population CSV 
+- GP2-1218 - Country data alignment
+- GP2-173 - Updated Male population CSV
 - GP2-1068 - Apply black and isort autoformatting to codebase incl makefile additions
 - GP2-1063 - Moved SuggestedCountries under dataservices app
 - GP2-1025 - Refactor economy data from ComTrade
