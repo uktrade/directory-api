@@ -11,6 +11,7 @@
 - GP2-1025 - Refactor economy data from ComTrade
 - GP2-849 - add total pop
 - GP2-849 - add internet usage total
+- GP2-285 - cost and price be
 
 ### Bugs fixed
 

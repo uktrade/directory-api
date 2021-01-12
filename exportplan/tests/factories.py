@@ -26,6 +26,12 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     about_your_business = {'Location': 'London', 'story': 'new brand'}
     target_markets_research = {'demand': 'high', 'value': 'high'}
     adaptation_target_market = {'labelling': 'manual', 'size': '2l'}
+    direct_costs = {'product_costs': '12.02', 'labour_costs': '13.02'}
+    overhead_costs = {'product_adaption': '13.02', 'other_overhead_costs': '19.23'}
+    total_cost_and_price = {
+        'units_to_export_first_period': {'unit': 'kg', 'value': '10.00'},
+        'average_price_per_unit': '23.44',
+    }
 
     class Meta:
         model = models.CompanyExportPlan
