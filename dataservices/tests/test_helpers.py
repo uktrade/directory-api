@@ -100,9 +100,7 @@ def comtrade_request_mock_empty(comtrade_data, requests_mocker):
 
 
 def test_get_url(comtrade):
-    assert comtrade.get_url() == (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=826&cc=220850&ps=All&rg=1'
-    )
+    assert comtrade.get_url() == ('https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1')
 
 
 def test_get_get_comtrade_company_id(comtrade):
@@ -139,6 +137,9 @@ def test_get_last_year_import__with_various_year_data(comtrade, comtrade_data_wi
 
 def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with_a_year_data_request_mock):
     last_year_data = comtrade.get_last_year_import_data()
+    assert comtrade.get_url(from_uk=False) == (
+        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1'
+    )
     assert last_year_data == {
         'year': '2018',
         'trade_value': '200',
@@ -149,6 +150,9 @@ def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with
 
 def test_get_last_year_import_data_from_uk(comtrade, comtrade_request_mock):
     last_year_data = comtrade.get_last_year_import_data(from_uk=True)
+    assert comtrade.get_url(from_uk=True) == (
+        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=826&p=36&cc=220850&ps=All&rg=2'
+    )
     assert last_year_data == {
         'year': '2018',
         'trade_value': '200',
