@@ -23,6 +23,10 @@ def export_plan_data(company):
         'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
         'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
         'ui_options': {'target_ages': ['25-34', '35-44']},
+        'adaptation_target_market': {'labelling': 'manual', 'size': '2l'},
+        'overhead_costs': {'product_adaption': '13.02', 'other_overhead_costs': '19.23'},
+        'direct_costs': {'product_costs': '12.02', 'labour_costs': '13.02'},
+        'total_cost_and_price': {'average_price_per_unit': '23.44'},
         'company_objectives': [
             {'description': 'export 5k cases of wine'},
         ],
@@ -56,6 +60,9 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
     assert created_export_plan['ui_options'] == export_plan_data['ui_options']
+    assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
+    assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
+    assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
     assert created_export_plan['export_plan_actions'] == [
         {
             'companyexportplan': export_plan_db.pk,
@@ -120,6 +127,9 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'spend_marketing': export_plan.spend_marketing,
         'target_markets_research': export_plan.target_markets_research,
         'adaptation_target_market': export_plan.adaptation_target_market,
+        'direct_costs': export_plan.direct_costs,
+        'overhead_costs': export_plan.overhead_costs,
+        'total_cost_and_price': export_plan.total_cost_and_price,
         'export_plan_actions': [
             {
                 'companyexportplan': export_plan.id,
