@@ -64,7 +64,6 @@ class ComTradeData:
         return ''.join(commodity_list)
 
     def get_last_year_import_data(self, from_uk=False):
-
         url = self.get_url(from_uk=from_uk)
         comdata = requests.get(url)
         if comdata and 'dataset' in comdata.json() and comdata.json()['dataset']:
