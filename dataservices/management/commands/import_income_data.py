@@ -5,14 +5,13 @@ from dataservices.models import Country, Income
 
 
 class Command(BaseCommand):
-    help = 'Import Countries data'
+    help = 'Import Income data'
 
     def handle(self, *args, **options):
         with open('dataservices/resources/ADJ.NNTY.PC.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             income_data = []
 
-            # add only countries and selected columns
             for item in data:
                 try:
                     country = Country.objects.get(iso2=item[2])
