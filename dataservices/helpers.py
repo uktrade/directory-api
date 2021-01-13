@@ -52,8 +52,11 @@ class ComTradeData:
             else:
                 return ''
 
-    def get_url(self):
-        url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=1'
+    def get_url(self, from_uk=False):
+        if from_uk:
+            url_options = f'&r={self.partner_country_id}&p={self.reporting_area_id}&cc={self.product_code}&ps=All&rg=2'
+        else:
+            url_options = f'&r={self.reporting_area_id}&p=0&cc={self.product_code}&ps=All&rg=1'
         return self.url + url_options
 
     def get_product_code(self, commodity_code):
@@ -62,11 +65,7 @@ class ComTradeData:
 
     def get_last_year_import_data(self, from_uk=False):
 
-        url = self.get_url()
-        if from_uk:
-            url_options = f'&r={self.reporting_area_id}&p={self.partner_country_id}&cc={self.product_code}&ps=All&rg=2'
-            url = self.url + url_options
-
+        url = self.get_url(from_uk=from_uk)
         comdata = requests.get(url)
         if comdata and 'dataset' in comdata.json() and comdata.json()['dataset']:
             comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
@@ -77,7 +76,6 @@ class ComTradeData:
                 year_on_year_change = None
                 # check if data available for more than one year
                 if len(comdata_df.index) > 1:
-
                     try:
                         last_year_import = comdata_df[comdata_df.period == comdata_df.period.max() - 1][
                             'TradeValue'
@@ -367,6 +365,7 @@ def get_cia_factbook_data(country_name, data_keys=None):
         return {}
 
 
+@TTLCache()
 def get_internet_usage(country):
     try:
         internet_usage_obj = models.InternetUsage.objects.filter(country_name=country).latest()
@@ -380,6 +379,7 @@ def get_internet_usage(country):
     }
 
 
+@TTLCache()
 def get_cpi_data(country):
     try:
         cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest()
