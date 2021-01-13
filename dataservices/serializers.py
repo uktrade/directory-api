@@ -55,6 +55,12 @@ class GDPPerCapitalSerializer(serializers.ModelSerializer):
         exclude = ['created', 'id', 'modified']
 
 
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Income
+        exclude = ['created', 'id', 'modified']
+
+
 class SuggestedCountrySerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source='country__name')
     country_iso2 = serializers.CharField(source='country__iso2')

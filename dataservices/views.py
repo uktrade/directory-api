@@ -9,6 +9,7 @@ from dataservices.models import (
     CorruptionPerceptionsIndex,
     EaseOfDoingBusiness,
     GDPPerCapita,
+    Income,
     InternetUsage,
 )
 from dataservices.serializers import (
@@ -16,6 +17,7 @@ from dataservices.serializers import (
     CorruptionPerceptionsIndexSerializer,
     EaseOfDoingBusinessSerializer,
     GDPPerCapitalSerializer,
+    IncomeSerializer,
     InternetUsageSerializer,
 )
 
@@ -135,6 +137,7 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             ),
             'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
+            'income': get_serialized_instance_from_model(Income, IncomeSerializer, filter_args),
         }
         if country_data['internet_usage']:
             total_internet_usage = helpers.calculate_total_internet_population(
