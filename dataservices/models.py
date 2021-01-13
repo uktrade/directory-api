@@ -135,3 +135,15 @@ class SuggestedCountry(TimeStampedModel):
     class Meta:
         verbose_name = 'Suggested Country'
         verbose_name_plural = 'Suggested Countries'
+
+
+class Income(TimeStampedModel):
+    # Deprecated country_name - use country.name
+    country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
+    country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    year = models.IntegerField(null=True, blank=True)
+    value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
