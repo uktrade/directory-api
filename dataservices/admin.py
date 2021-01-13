@@ -189,3 +189,8 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
 @admin.register(models.SuggestedCountry)
 class SuggestedCountryAdmin(admin.ModelAdmin):
     list_display = ('hs_code', 'country', 'order')
+
+
+@admin.register(models.Income)
+class IncomeAdmin(admin.ModelAdmin):
+    list_display = ('country', 'year', 'value', 'country_name', 'country_code')
