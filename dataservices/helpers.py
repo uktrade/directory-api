@@ -389,6 +389,22 @@ def get_cpi_data(country):
     }
 
 
+@TTLCache()
+def get_society_data(country):
+    society_data = {}
+    cia_people_data = get_cia_factbook_data(country, data_keys=['people'])
+
+    if not cia_people_data:
+        return society_data
+
+    cia_people_data = cia_people_data.get('people')
+
+    society_data['religions'] = cia_people_data.get('religions', {})
+    society_data['languages'] = cia_people_data.get('languages', {})
+
+    return society_data
+
+
 def millify(n):
     n = float(n)
     mill_names = ['', ' thousand', ' million', ' billion', ' trillion']
