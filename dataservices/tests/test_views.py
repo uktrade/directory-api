@@ -68,6 +68,12 @@ def country_data():
 
 
 @pytest.fixture(autouse=True)
+def society_data():
+    country = models.Country.objects.create(iso2='UK', name='United Kingdom')
+    models.RuleOfLaw.objects.create(iso2='UK', country_name='United Kingdom', rank=10, score=76, country=country)
+
+
+@pytest.fixture(autouse=True)
 def cia_factbook_data():
     return factories.CIAFactBookFactory()
 
@@ -528,7 +534,7 @@ def test_society_data_by_country_with_country_not_found(api_client):
 
     assert response.status_code == 200
 
-    assert response.json() == [{'country': 'abcde'}]
+    assert response.json() == [{'country': 'abcde', 'rule_of_law': None}]
 
 
 @pytest.mark.django_db
@@ -538,7 +544,6 @@ def test_society_data_by_country(api_client):
     response = api_client.get(url, data={'countries': 'United Kingdom'})
 
     assert response.status_code == 200
-
     assert response.json() == [
         {
             'country': 'United Kingdom',
@@ -566,5 +571,18 @@ def test_society_data_by_country(api_client):
                     {'name': 'none', "percent": 25.7},
                 ],
             },
+            'rule_of_law': {
+                'country_name': 'United Kingdom',
+                'iso2': 'UK',
+                'rank': 10,
+                'score': '76.000',
+            },
         }
     ]
+
+
+@pytest.mark.django_db
+def test_society_data_repr():
+    rule_of_law = models.RuleOfLaw.objects.create(iso2='IN', country_name='Canada', rank=10, score=76)
+
+    assert str(rule_of_law) == 'Canada'

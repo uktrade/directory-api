@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 
+- GP2-1267 - Added Rule of Law data
 - GP2-1258 - Society data
 - GP2-1270 - Imported Income data
 - GP2-1218 - Country data alignment
