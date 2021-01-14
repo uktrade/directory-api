@@ -11,6 +11,7 @@ from dataservices.models import (
     GDPPerCapita,
     Income,
     InternetUsage,
+    RuleOfLaw,
 )
 from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
@@ -19,6 +20,7 @@ from dataservices.serializers import (
     GDPPerCapitalSerializer,
     IncomeSerializer,
     InternetUsageSerializer,
+    RuleOfLawSerializer,
 )
 
 
@@ -190,11 +192,17 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
         for country in countries:
             country_data = {'country': country}
             society_data = helpers.get_society_data(country=country)
+            ruleoflaw_data = {
+                'rule_of_law': get_serialized_instance_from_model(
+                    RuleOfLaw, RuleOfLawSerializer, {'country__name': country}
+                )
+            }
 
             data_set.append(
                 {
                     **country_data,
                     **society_data,
+                    **ruleoflaw_data,
                 }
             )
         return Response(status=status.HTTP_200_OK, data=data_set)
