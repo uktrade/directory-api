@@ -1,0 +1,132 @@
+﻿Economy,rank,Score,ISO1 ,ISO2
+Finland,1,100,246,FI
+Norway,2,97.9,578,NO
+Switzerland,3,97,756,CH
+Sweden,4,96.1,752,SE
+New Zealand,5,95.6,554,NZ
+Austria,6,95.6,40,AT
+Singapore,7,94.8,702,SG
+Denmark,8,94.5,208,DK
+Netherlands (the),9,94,528,NL
+Luxembourg,10,93.9,442,LU
+"Hong Kong, China",11,92.8,248,HK
+Canada,12,92.8,124,CA
+Iceland,13,91.5,352,IS
+Australia,14,91.4,36,AU
+United Kingdom (the),15,89.4,#N/A,GB
+Germany,16,89.2,276,DE
+Japan,17,86.7,392,JP
+Ireland,18,84.8,372,IE
+United States of America (the),19,84.5,840,US
+France,20,84.2,251,FR
+Belgium,21,82.3,56,BE
+Estonia,22,79,233,EE
+Republic of Korea (the),23,78.9,410,KR
+Portugal,24,76.4,620,PT
+Chile,25,75.7,152,CL
+Slovenia,26,74.3,705,SI
+Malta,27,74.1,470,MT
+Czech Republic (the),28,74,203,CZ
+Israel,29,72.6,376,IL
+Spain,30,71.9,724,ES
+Lithuania,31,71.6,440,LT
+Latvia,32,71.6,428,LV
+United Arab Emirates (the),33,67.7,784,AE
+Mauritius,34,67,480,MU
+Cyprus,35,66.3,196,CY
+Qatar,36,65.8,634,QA
+Brunei Darussalam,37,63.1,96,BN
+Malaysia,38,62.9,458,MY
+Uruguay,39,62.3,858,UY
+Hungary,40,61.1,348,HU
+Slovakia,41,60.5,703,SK
+Costa Rica,42,59.1,188,CR
+Botswana,43,58.8,72,BW
+Oman,44,58.8,512,OM
+Cabo Verde,45,58.3,132,CV
+Poland,46,57.8,616,PL
+Bahrain,47,57.4,48,BH
+Georgia,48,55.2,268,GE
+Romania,49,55.1,642,RO
+Croatia,50,55.1,191,HR
+Italy,51,53.1,381,IT
+Namibia,52,53.1,516,NA
+Jordan,53,52.8,400,JO
+Kuwait,54,52.2,414,KW
+Greece,55,50.7,300,GR
+Saudi Arabia,56,50.4,682,SA
+Rwanda,57,49.7,646,RW
+Montenegro,58,49.2,499,ME
+Ghana,59,48.5,288,GH
+Tunisia,60,47.7,788,TN
+Sri Lanka,61,47.4,144,LK
+India,62,47.3,356,IN
+Thailand,63,47.3,764,TH
+Viet Nam,64,46.6,704,VN
+Bulgaria,65,45.9,100,BG
+Panama,66,45.1,590,PA
+South Africa,67,44,710,ZA
+Trinidad and Tobago,68,43.5,780,TT
+Morocco,69,43.1,504,MA
+Serbia,70,42.8,688,RS
+Armenia,71,42.8,51,AM
+China,72,41.4,156,CN
+Senegal,73,41.2,686,SN
+Bosnia and Herzegovina,74,40.6,70,BA
+Jamaica,75,40.5,388,JM
+Argentina,76,40.4,32,AR
+Mongolia,77,39.7,496,MN
+Brazil,78,39.4,76,BR
+North Macedonia,79,39.3,807,MK
+Uganda,80,39,800,UG
+Indonesia,81,38.5,360,ID
+Turkey,82,38.3,792,TR
+Zambia,83,37.7,894,ZM
+Malawi,84,36.8,454,MW
+Albania,85,36.4,8,AL
+Dominican Republic (the),86,36.3,214,DO
+Colombia,87,36,170,CO
+Kenya,88,36,404,KE
+Egypt,89,35.9,818,EG
+Republic of Moldova (the),90,35.9,498,MD
+Ethiopia,91,35.5,230,ET
+Kazakhstan,92,35.4,398,KZ
+Burkina Faso,93,35.1,854,BF
+Philippines,94,34.2,608,PH
+Nepal,95,34.2,524,NP
+Peru,96,33.2,604,PE
+Paraguay,97,32.6,600,PY
+United Republic of Tanzania (the),98,32.2,834,TZ
+Côte d'Ivoire,99,31.6,384,CI
+Niger (the),100,31.5,562,NE
+Togo,101,31.3,768,TG
+Azerbaijan,102,31,31,AZ
+Ecuador,103,30.2,218,EC
+Bangladesh,104,30,50,BD
+Pakistan,105,29.1,586,PK
+Mexico,106,29.1,484,MX
+Benin,107,29.1,204,BJ
+Iran (Islamic Republic of),108,28.6,364,IR
+Ukraine,109,28,804,UA
+Lebanon,110,26.7,422,LB
+Algeria,111,26.5,12,DZ
+Mali,112,25.9,466,ML
+Madagascar,113,25.4,450,MG
+Russian Federation (the),114,25.4,643,RU
+El Salvador,115,25.2,222,SV
+Belarus,116,25,112,BY
+Lao People's Democratic Republic (the),117,24.7,418,LA
+Nigeria,118,23.7,566,NG
+Kyrgyzstan,119,23,417,KG
+Honduras,120,20,340,HN
+Myanmar,121,19.8,104,MM
+Mozambique,122,19.5,508,MZ
+Guatemala,123,19.3,320,GT
+Uzbekistan,124,18.7,860,UZ
+Cameroon,125,18.5,120,CM
+Cambodia,126,17.6,116,KH
+Bolivia (Plurinational State of),127,16.7,68,BO
+Guinea,128,15.1,324,GN
+Zimbabwe,129,13.5,716,ZW
+Tajikistan,130,13.2,762,TJ
+Yemen,131,0,886,YE

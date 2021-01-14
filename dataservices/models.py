@@ -147,3 +147,17 @@ class Income(TimeStampedModel):
     )
     year = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+
+
+class RuleOfLaw(TimeStampedModel):
+    country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    # Deprecated country_name - use country.iso2/iso3
+    iso2 = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    rank = models.IntegerField(null=True, blank=True)
+    score = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+
+    def __str__(self):
+        return str(self.country_name)

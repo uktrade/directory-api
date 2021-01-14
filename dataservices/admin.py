@@ -194,3 +194,8 @@ class SuggestedCountryAdmin(admin.ModelAdmin):
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
     list_display = ('country', 'year', 'value', 'country_name', 'country_code')
+
+
+@admin.register(models.RuleOfLaw)
+class RuleOfLawAdmin(admin.ModelAdmin):
+    list_display = ('country_name', 'rank', 'score', 'iso2')
