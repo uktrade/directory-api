@@ -583,6 +583,15 @@ def test_society_data_by_country(api_client):
 
 @pytest.mark.django_db
 def test_society_data_repr():
-    rule_of_law = models.RuleOfLaw.objects.create(iso2='IN', country_name='Canada', rank=10, score=76)
+    rule_of_law = models.RuleOfLaw.objects.create(iso2='CN', country_name='Canada', rank=10, score=76)
 
     assert str(rule_of_law) == 'Canada'
+
+
+@pytest.mark.django_db
+def test_currencies_data_repr():
+    currencies = models.Currency.objects.create(
+        iso2='IN', country_name='India', currency_name='Indian Rupee', alphabetic_code='INR', numeric_code=123
+    )
+
+    assert str(currencies) == 'India'

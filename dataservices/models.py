@@ -161,3 +161,23 @@ class RuleOfLaw(TimeStampedModel):
 
     def __str__(self):
         return str(self.country_name)
+
+
+class Currency(TimeStampedModel):
+    # Deprecated country_name - use country.name
+    country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    # Deprecated - use country.iso2/iso3
+    iso2 = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    currency_name = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    alphabetic_code = models.CharField(max_length=50, blank=True, null=True)
+    numeric_code = models.IntegerField(unique=False, blank=True, null=True)
+    minor_unit = models.CharField(unique=False, max_length=50, blank=True, null=True)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+
+    def __str__(self):
+        return str(self.country_name)
+
+    class Meta:
+        verbose_name = 'Currencies'
