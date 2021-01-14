@@ -61,6 +61,12 @@ class IncomeSerializer(serializers.ModelSerializer):
         exclude = ['created', 'id', 'modified']
 
 
+class RuleOfLawSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RuleOfLaw
+        exclude = ['created', 'id', 'modified', 'country']
+
+
 class SuggestedCountrySerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source='country__name')
     country_iso2 = serializers.CharField(source='country__iso2')
