@@ -48,6 +48,7 @@ def test_import_data_sets_error(management_cmd):
         (models.Country, 'import_countries', 194),
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
+        (models.Currency, 'import_currency_data', 269),
     ),
 )
 def test_import_countries_data_sets(model_name, management_cmd, object_count):
@@ -58,6 +59,8 @@ def test_import_countries_data_sets(model_name, management_cmd, object_count):
 @pytest.mark.django_db
 def test_import_rank_of_law_data_with_no_country():
     management.call_command('import_rank_of_law_data')
+    management.call_command('import_currency_data')
     rule_of_law = models.RuleOfLaw.objects.first()
-
+    currencies_data = models.Currency.objects.first()
     assert rule_of_law.country is None
+    assert currencies_data.country is None

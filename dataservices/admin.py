@@ -199,3 +199,16 @@ class IncomeAdmin(admin.ModelAdmin):
 @admin.register(models.RuleOfLaw)
 class RuleOfLawAdmin(admin.ModelAdmin):
     list_display = ('country_name', 'rank', 'score', 'iso2')
+
+
+@admin.register(models.Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    search_fields = (
+        'country_name',
+        'iso2',
+        'currency_name',
+        'alphabetic_code',
+        'numeric_code',
+    )
+
+    list_display = ('country_name', 'iso2', 'currency_name', 'alphabetic_code', 'numeric_code')
