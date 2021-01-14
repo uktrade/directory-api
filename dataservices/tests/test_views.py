@@ -510,3 +510,51 @@ def test_income_data_api(api_client):
     assert 'income' in json_response['country_data']
     assert 'Canada' == json_response['country_data']['income']['country_name']
     assert '37653.281' == json_response['country_data']['income']['value']
+
+
+@pytest.mark.django_db
+def test_society_data_by_country_with_country_arg_missing(api_client):
+    url = reverse('dataservices-society-data-by-country')
+
+    response = api_client.get(url)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_society_data_by_country_with_country_not_found(api_client):
+    url = reverse('dataservices-society-data-by-country')
+    response = api_client.get(url, data={'countries': 'abcde'})
+
+    assert response.status_code == 200
+
+    assert response.json() == [{'country': 'abcde'}]
+
+
+@pytest.mark.django_db
+def test_society_data_by_country(api_client):
+    url = reverse('dataservices-society-data-by-country')
+
+    response = api_client.get(url, data={'countries': 'United Kingdom'})
+
+    assert response.status_code == 200
+    # import code; code.interact(local=dict(globals(), **locals()))
+
+    assert response.json() == [
+        {
+            'country': 'United Kingdom',
+            'languages': [{'name': 'English'}],
+            'religions': [
+                {
+                    'name': 'Christian',
+                    'note': 'includes Anglican, Roman Catholic, Presbyterian, Methodist',
+                    'percent': 59.5,
+                },
+                {'name': 'Muslim', 'percent': 4.4},
+                {'name': 'Hindu', 'percent': 1.3},
+                {'name': 'other', 'percent': 2},
+                {'name': 'unspecified', 'percent': 7.2},
+                {'name': 'none', 'percent': 25.7},
+            ],
+        }
+    ]

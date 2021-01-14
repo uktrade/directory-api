@@ -275,6 +275,11 @@ urlpatterns = [
         name='cia-factbook-data',
     ),
     url(
+        r'^dataservices/society-data-by-country/$',
+        dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
+        name='dataservices-society-data-by-country',
+    ),
+    url(
         r'^dataservices/historicalimportdata/$',
         dataservices.views.RetrieveHistoricalImportDataView.as_view(),
         name='historical-import-data',
