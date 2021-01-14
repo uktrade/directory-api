@@ -538,23 +538,33 @@ def test_society_data_by_country(api_client):
     response = api_client.get(url, data={'countries': 'United Kingdom'})
 
     assert response.status_code == 200
-    # import code; code.interact(local=dict(globals(), **locals()))
 
     assert response.json() == [
         {
             'country': 'United Kingdom',
-            'languages': [{'name': 'English'}],
-            'religions': [
-                {
-                    'name': 'Christian',
-                    'note': 'includes Anglican, Roman Catholic, Presbyterian, Methodist',
-                    'percent': 59.5,
-                },
-                {'name': 'Muslim', 'percent': 4.4},
-                {'name': 'Hindu', 'percent': 1.3},
-                {'name': 'other', 'percent': 2},
-                {'name': 'unspecified', 'percent': 7.2},
-                {'name': 'none', 'percent': 25.7},
-            ],
+            'languages': {
+                'date': '2012',
+                'note': 'test data',
+                'language': [
+                    {
+                        'name': 'English',
+                    }
+                ],
+            },
+            'religions': {
+                "date": "2011",
+                'religion': [
+                    {
+                        'name': 'Christian',
+                        'note': 'includes Anglican, Roman Catholic, Presbyterian, Methodist',
+                        'percent': 59.5,
+                    },
+                    {'name': 'Muslim', 'percent': 4.4},
+                    {'name': 'Hindu', 'percent': 1.3},
+                    {'name': 'other', 'percent': 2},
+                    {'name': 'unspecified', 'percent': 7.2},
+                    {'name': 'none', "percent": 25.7},
+                ],
+            },
         }
     ]

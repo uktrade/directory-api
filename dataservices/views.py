@@ -188,14 +188,13 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
         data_set = []
 
         for country in countries:
-            country_society = helpers.SocietyData()
             country_data = {'country': country}
-            people_data = country_society.get_people_data(country=country)
+            society_data = helpers.get_society_data(country=country)
 
             data_set.append(
                 {
                     **country_data,
-                    **people_data,
+                    **society_data,
                 }
             )
         return Response(status=status.HTTP_200_OK, data=data_set)
