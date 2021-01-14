@@ -280,6 +280,21 @@ class PopulationData:
         return urban_rural_data
 
 
+class SocietyData:
+    def get_people_data(self, country):
+        people_data = {}
+        cia_people_data = get_cia_factbook_data(country, data_keys=['people'])
+        if not cia_people_data:
+            return people_data
+
+        data = cia_people_data.get('people')
+
+        people_data['religions'] = data.get('religions', {}).get('religion')
+        people_data['languages'] = data.get('languages', {}).get('language')
+
+        return people_data
+
+
 class TTLCache:
     def __init__(self, default_cache_max_age=60 * 60 * 24):
         self.default_max_age = default_cache_max_age

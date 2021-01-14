@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 
+- GP2-1258 - Society data
 - GP2-1270 - Imported Income data
 - GP2-1218 - Country data alignment
 - GP2-173 - Updated Male population CSV

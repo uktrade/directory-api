@@ -176,6 +176,31 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data={'cia_factbook_data': cia_factbook_data})
 
 
+class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        countries = self.request.GET.getlist('countries', '')
+
+        if not countries:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        data_set = []
+
+        for country in countries:
+            country_society = helpers.SocietyData()
+            country_data = {'country': country}
+            people_data = country_society.get_people_data(country=country)
+
+            data_set.append(
+                {
+                    **country_data,
+                    **people_data,
+                }
+            )
+        return Response(status=status.HTTP_200_OK, data=data_set)
+
+
 class RetrievePopulationDataView(generics.GenericAPIView):
     permission_classes = []
 
