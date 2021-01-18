@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from company.tests.factories import CompanyFactory, CompanyUserFactory
 
 from company.models import Company, CompanyUser
+from company.tests.factories import CompanyFactory, CompanyUserFactory
 
 
 class Command(BaseCommand):

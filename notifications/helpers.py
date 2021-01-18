@@ -2,13 +2,13 @@ import urllib
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from django.core.signing import Signer
 from django.conf import settings
+from django.core.signing import Signer
 
 from buyer.models import Buyer
 from company.models import Company, CompanyUser
-from notifications.models import AnonymousUnsubscribe, AnonymousEmailNotification
 from notifications import constants
+from notifications.models import AnonymousEmailNotification, AnonymousUnsubscribe
 
 
 def group_new_companies_by_industry():
@@ -58,12 +58,10 @@ def get_new_companies_anonymous_subscribers():
     unsubscribers = AnonymousUnsubscribe.objects.all()
     delta = timedelta(days=settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS)
     notifications_sent_recently = AnonymousEmailNotification.objects.filter(
-        category=constants.NEW_COMPANIES_IN_SECTOR,
-        date_sent__date__gte=datetime.utcnow() - delta
+        category=constants.NEW_COMPANIES_IN_SECTOR, date_sent__date__gte=datetime.utcnow() - delta
     )
-    exclude_emails = (
-        list(unsubscribers.values_list('email', flat=True)) +
-        list(notifications_sent_recently.values_list('email', flat=True))
+    exclude_emails = list(unsubscribers.values_list('email', flat=True)) + list(
+        notifications_sent_recently.values_list('email', flat=True)
     )
 
     subscribers = {}

@@ -5,7 +5,7 @@ from notifications import notifications
 
 
 def lock_acquired(lock_name):
-    """ Returns False if the lock was already set in the last 20 hours
+    """Returns False if the lock was already set in the last 20 hours
 
     Multiple celery beat schedulers are running at the same time, which
     results in duplicated scheduled tasks. Cache-lock mechanism is used to

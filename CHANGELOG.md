@@ -3,11 +3,22 @@
 ## Pre release
 
 ### Implemented enhancements
+
+- GP2-173 - Updated Male population CSV 
+- GP2-1068 - Apply black and isort autoformatting to codebase incl makefile additions
+- GP2-1063 - Moved SuggestedCountries under dataservices app
+- GP2-1025 - Refactor economy data from ComTrade
+
+### Bugs fixed
+
+## [1.1.0](https://github.com/uktrade/directory-api/releases/tag/1.1.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.0.0...1.1.0)
+
+### Implemented enhancements
+- GP2-1069 - Added deprecation warning for user profile fields
 - GP2-1147 - Added  management command to import GDP Per Capita Data
 - GP2-1025 - New endpoint for getting economy data from ComTrade
 - GP2-849 - target audience progress
-
-### Bugs fixed
 
 
 ## [1.0.0](https://github.com/uktrade/directory-api/releases/tag/1.0.0)
@@ -35,8 +46,8 @@
 - GP2-245 - generic view for CIA factbook
 - GP2-188 - population data from UN
 - GP2-316 - rename json field from target markets to market approach
-- GP2-315 - route-to-market model/view new api 
-- GP2-393 - model changes adaption target markets fields 
+- GP2-315 - route-to-market model/view new api
+- GP2-393 - model changes adaption target markets fields
 - GP2-395 - add target market documents
 - GP2-545 - remove airtable dependency
 - GP2-543 - country name mapping to improve lookup
@@ -53,7 +64,7 @@
 - No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
 - No Ticket - Faker spamming log message - only passing error message
-- No Ticket - Migration leaf node 
+- No Ticket - Migration leaf node
 - GP2-360 - un-data match
 - No Ticket - fix route to markets choices make optional
 - no commodity code make optional

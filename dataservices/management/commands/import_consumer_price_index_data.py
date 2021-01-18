@@ -1,6 +1,7 @@
-from django.core.management import BaseCommand
 import tablib
+from django.core.management import BaseCommand
 from import_export import resources
+
 from dataservices.models import ConsumerPriceIndex
 
 
@@ -13,8 +14,7 @@ class Command(BaseCommand):
         # File customised from world bank
         # https://data.worldbank.org/indicator/IT.NET.USER.ZS
         # TODO refactor merge structures and more intellect import without file manipulation
-        with open('dataservices/resources/Consumer_Price_Index.csv', 'r',
-                  encoding='utf-8-sig') as f:
+        with open('dataservices/resources/Consumer_Price_Index.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             internet_usage_resource = resources.modelresource_factory(model=ConsumerPriceIndex)()
             result = internet_usage_resource.import_data(data, dry_run=True)

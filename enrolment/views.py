@@ -1,22 +1,20 @@
-from rest_framework import status
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from directory_constants import user_roles
-
 from django.core import signing
 from django.db import transaction
-from django.shortcuts import get_object_or_404, Http404
+from django.shortcuts import Http404, get_object_or_404
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from company.models import Company
-from enrolment import models, serializers
 from company.serializers import CompanyUserSerializer
 from company.signals import send_company_registration_letter
+from enrolment import models, serializers
 
 
 class EnrolmentCreateAPIView(APIView):
 
-    http_method_names = ("post", )
+    http_method_names = ("post",)
     company_serializer_class = serializers.CompanyEnrolmentSerializer
     company_user_serializer_class = CompanyUserSerializer
     permission_classes = []
@@ -39,7 +37,7 @@ class EnrolmentCreateAPIView(APIView):
 
 
 class PreVerifiedEnrolmentRetrieveView(generics.RetrieveAPIView):
-    http_method_names = ("get", )
+    http_method_names = ("get",)
     queryset = models.PreVerifiedEnrolment.objects.filter(is_active=True)
     serializer_class = serializers.PreVerifiedEnrolmentSerializer
 
@@ -66,7 +64,7 @@ class LookupSignedCompanyNumberMixin:
 
 
 class PreverifiedCompanyView(LookupSignedCompanyNumberMixin, generics.RetrieveAPIView):
-    http_method_names = ('get', )
+    http_method_names = ('get',)
     serializer_class = serializers.PreverifiedCompanySerializer
     permission_classes = []
 

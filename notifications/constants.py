@@ -7,12 +7,9 @@ SUPPLIER_NOTIFICATION_CATEGORIES = (
     (NO_CASE_STUDIES, 'Case studies not created'),
     (HASNT_LOGGED_IN, 'Not logged in after first 30 days'),
     (VERIFICATION_CODE_NOT_GIVEN, 'Verification code not supplied'),
-    (VERIFICATION_CODE_2ND_EMAIL,
-        'Verification code not supplied - 2nd email'),
+    (VERIFICATION_CODE_2ND_EMAIL, 'Verification code not supplied - 2nd email'),
 )
 
 
 NEW_COMPANIES_IN_SECTOR = 'new_companies_in_sector'
-BUYER_NOTIFICATION_CATEGORIES = (
-    (NEW_COMPANIES_IN_SECTOR, 'New companies in sector'),
-)
+BUYER_NOTIFICATION_CATEGORIES = ((NEW_COMPANIES_IN_SECTOR, 'New companies in sector'),)

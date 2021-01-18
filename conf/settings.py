@@ -1,16 +1,15 @@
 import os
 
-from django.urls import reverse_lazy
+import directory_healthcheck.backends
 import dj_database_url
 import environ
+import sentry_sdk
+from django.urls import reverse_lazy
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
-
-import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-import healthcheck.backends
-import directory_healthcheck.backends
 
+import healthcheck.backends
 
 env = environ.Env()
 for env_file in env.list('ENV_FILES', default=[]):
@@ -90,7 +89,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages'
+                'django.contrib.messages.context_processors.messages',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -113,9 +112,7 @@ else:
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-DATABASES = {
-    'default': dj_database_url.config()
-}
+DATABASES = {'default': dj_database_url.config()}
 
 # Caches
 CACHES = {
@@ -124,7 +121,7 @@ CACHES = {
         'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+        },
     }
 }
 
@@ -152,10 +149,7 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = env.str(
-    'STATICFILES_STORAGE',
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-)
+STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedManifestStaticFilesStorage')
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -166,9 +160,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 
 # Extra places for collectstatic to find static files.
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
@@ -179,7 +171,7 @@ FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED'
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
-        'authbroker_client.backends.AuthbrokerBackend'
+        'authbroker_client.backends.AuthbrokerBackend',
     ]
 
     LOGIN_URL = reverse_lazy('authbroker_client:login')
@@ -195,27 +187,17 @@ SECRET_KEY = env.str('SECRET_KEY')
 
 # DRF
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'core.authentication.SessionAuthenticationSSO',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'core.permissions.IsAuthenticatedSSO',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('core.authentication.SessionAuthenticationSSO',),
+    'DEFAULT_PERMISSION_CLASSES': ('core.permissions.IsAuthenticatedSSO',),
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
 }
 
 
 # Sentry
 if env.str('SENTRY_DSN', ''):
     sentry_sdk.init(
-        dsn=env.str('SENTRY_DSN'),
-        environment=env.str('SENTRY_ENVIRONMENT'),
-        integrations=[DjangoIntegration()]
+        dsn=env.str('SENTRY_DSN'), environment=env.str('SENTRY_ENVIRONMENT'), integrations=[DjangoIntegration()]
     )
 
 
@@ -223,11 +205,7 @@ if DEBUG:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
-        'filters': {
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse'
-            }
-        },
+        'filters': {'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'}},
         'handlers': {
             'console': {
                 'level': 'DEBUG',
@@ -265,7 +243,7 @@ if DEBUG:
                 'level': 'DEBUG',
                 'propagate': False,
             },
-        }
+        },
     }
 
 
@@ -275,7 +253,7 @@ COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
 # Email
 EMAIL_BACKED_CLASSES = {
     'default': 'django.core.mail.backends.smtp.EmailBackend',
-    'console': 'django.core.mail.backends.console.EmailBackend'
+    'console': 'django.core.mail.backends.console.EmailBackend',
 }
 EMAIL_BACKED_CLASS_NAME = env.str('EMAIL_BACKEND_CLASS_NAME', 'default')
 EMAIL_BACKEND = EMAIL_BACKED_CLASSES[EMAIL_BACKED_CLASS_NAME]
@@ -288,12 +266,10 @@ DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
 FAS_FROM_EMAIL = env.str('FAS_FROM_EMAIL', '')
 FAB_FROM_EMAIL = env.str('FAB_FROM_EMAIL', '')
 OWNERSHIP_INVITE_SUBJECT = env.str(
-    'OWNERSHIP_INVITE_SUBJECT',
-    'Confirm ownership of {company_name}’s Find a buyer profile'
+    'OWNERSHIP_INVITE_SUBJECT', 'Confirm ownership of {company_name}’s Find a buyer profile'
 )
 COLLABORATOR_INVITE_SUBJECT = env.str(
-    'COLLABORATOR_INVITE_SUBJECT',
-    'Confirm you’ve been added to {company_name}’s Find a buyer profile'
+    'COLLABORATOR_INVITE_SUBJECT', 'Confirm you’ve been added to {company_name}’s Find a buyer profile'
 )
 
 # Public storage for company profile logo
@@ -346,42 +322,33 @@ DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.str('DIRECTORY_FORMS_API_ZENDESK_S
 
 # Verification letters sent with govnotify
 GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID',
-    '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
+    'GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID', '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
 )
 
 # Registration letters template id
 GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID',
-    '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
+    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID', '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
 )
 GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID',
-    'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID', 'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
 )
 GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID',
-    'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
+    'GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID', 'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
 )
 GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID',
-    '439a8415-52d8-4975-b230-15cd34305bb5'
+    'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID', '439a8415-52d8-4975-b230-15cd34305bb5'
 )
 GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID',
-    'a63f948f-978e-4554-86da-c525bfabbaff'
+    'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID', 'a63f948f-978e-4554-86da-c525bfabbaff'
 )
 GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID',
-    '3be3c49f-a5ad-4e37-b864-cc0a3833705b'
+    'GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID', '3be3c49f-a5ad-4e37-b864-cc0a3833705b'
 )
 GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID',
-    '7f4f0e9c-2a04-4c3c-bd85-ef80f495b6f5'
+    'GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID', '7f4f0e9c-2a04-4c3c-bd85-ef80f495b6f5'
 )
 GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID',
-    '240cfe51-a5fc-4826-a716-84ebaa429315'
+    'GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID', '240cfe51-a5fc-4826-a716-84ebaa429315'
 )
 
 # Duplicate companies notification
@@ -410,12 +377,11 @@ VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.int('VERIFICATION_CODE_NOT_GIVE
 VERIFICATION_CODE_URL = env.str('VERIFICATION_CODE_URL', 'http://great.gov.uk/verify')
 NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.int('NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS', 7)
 NEW_COMPANIES_IN_SECTOR_SUBJECT = env.str(
-    'NEW_COMPANIES_IN_SECTOR_SUBJECT',
-    'Find a supplier service - New UK companies in your industry now available'
+    'NEW_COMPANIES_IN_SECTOR_SUBJECT', 'Find a supplier service - New UK companies in your industry now available'
 )
 NEW_COMPANIES_IN_SECTOR_UTM = env.str(
     'NEW_COMPANIES_IN_SECTOR_UTM',
-    'utm_source=system%20emails&utm_campaign=Companies%20in%20a%20sector&utm_medium=email'
+    'utm_source=system%20emails&utm_campaign=Companies%20in%20a%20sector&utm_medium=email',
 )
 ZENDESK_URL = env.str('ZENDESK_URL', 'https://contact-us.export.great.gov.uk/feedback/directory/')
 UNSUBSCRIBED_SUBJECT = env.str('UNSUBSCRIBED_SUBJECT', 'Find a buyer service - unsubscribed from marketing emails')
@@ -455,12 +421,9 @@ DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str('DIRECTORY_CONSTANTS_URL_GREAT_
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    services = {
-        item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']
-    }
+    services = {item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']}
     ELASTICSEARCH_INSTANCE_NAME = env.str(
-        'ELASTICSEARCH_INSTANCE_NAME',
-        VCAP_SERVICES['elasticsearch'][0]['instance_name']
+        'ELASTICSEARCH_INSTANCE_NAME', VCAP_SERVICES['elasticsearch'][0]['instance_name']
     )
     connections.create_connection(
         alias='default',
@@ -473,7 +436,7 @@ elif ELASTICSEARCH_PROVIDER == 'localhost':
         hosts=[env.str('ELASTICSEARCH_URL', 'localhost:9200')],
         use_ssl=False,
         verify_certs=False,
-        connection_class=RequestsHttpConnection
+        connection_class=RequestsHttpConnection,
     )
 else:
     raise NotImplementedError()

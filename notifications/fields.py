@@ -1,6 +1,5 @@
-from rest_framework import exceptions, fields
-
 from django.core.signing import BadSignature, Signer
+from rest_framework import exceptions, fields
 
 
 class SignedEmailField(fields.EmailField):

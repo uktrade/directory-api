@@ -1,6 +1,6 @@
-import tablib
 import pathlib
 
+import tablib
 from django.core.management import BaseCommand
 
 from company.admin import HsCodeSectorResource

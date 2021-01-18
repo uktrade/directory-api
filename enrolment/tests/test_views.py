@@ -1,11 +1,10 @@
 from unittest import mock
 
-from rest_framework.test import APIClient
-from directory_constants import user_roles
 import pytest
-
+from directory_constants import user_roles
 from django.core import signing
 from django.urls import reverse
+from rest_framework.test import APIClient
 
 from company.models import Company, CompanyUser
 from company.tests.factories import CompanyFactory
@@ -44,7 +43,7 @@ def test_enrolment_viewset_create(mock_send_registration_letter, settings):
         'locality': 'London',
         'po_box': 'PO 344',
         'postal_code': 'E14 POX',
-        'sso_id': 1
+        'sso_id': 1,
     }
     response = APIClient().post(reverse('enrolment'), data, format='json')
 
@@ -84,7 +83,7 @@ def test_enrolment_viewset_create_optional_fields_unset():
         'company_email': 'jim@example.com',
         'contact_email_address': 'jim@example.com',
         'has_exported_before': True,
-        'sso_id': 1
+        'sso_id': 1,
     }
     response = APIClient().post(reverse('enrolment'), data, format='json')
 
@@ -193,7 +192,7 @@ def test_preverified_enrolment_retrieve_not_found(authed_client, default_enrolme
 def test_preverified_enrolment_retrieve_found(authed_client, default_enrolment_data):
     preverified_enrolment = PreVerifiedEnrolmentFactory.create(
         company_number=default_enrolment_data['company_number'],
-        email_address=default_enrolment_data['contact_email_address']
+        email_address=default_enrolment_data['contact_email_address'],
     )
 
     url = reverse('pre-verified-enrolment')
@@ -221,10 +220,7 @@ def test_preverified_claim_company_succcess(authed_client):
 
     company = CompanyFactory()
 
-    url = reverse(
-        'enrolment-claim-preverified',
-        kwargs={'key': signing.Signer().sign(company.number)}
-    )
+    url = reverse('enrolment-claim-preverified', kwargs={'key': signing.Signer().sign(company.number)})
 
     response = authed_client.post(url, {'name': 'Foo bar'})
 
@@ -244,10 +240,7 @@ def test_preverified_claim_company_succcess(authed_client):
 def test_preverified_retrieve_company_succcess(authed_client):
     company = CompanyFactory()
 
-    url = reverse(
-        'enrolment-preverified',
-        kwargs={'key': signing.Signer().sign(company.number)}
-    )
+    url = reverse('enrolment-preverified', kwargs={'key': signing.Signer().sign(company.number)})
 
     response = authed_client.get(url)
 

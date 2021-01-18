@@ -17,15 +17,8 @@ from buyer.models import Buyer
 from buyer.serializers import BuyerSerializer
 from company.models import Company
 from core.authentication import Oauth2AuthenticationSSO
-from testapi.serializers import (
-    CompanySerializer,
-    ISDCompanySerializer,
-    PublishedCompaniesSerializer,
-)
-from testapi.utils import (
-    get_matching_companies,
-    get_published_companies_query_params,
-)
+from testapi.serializers import CompanySerializer, ISDCompanySerializer, PublishedCompaniesSerializer
+from testapi.utils import get_matching_companies, get_published_companies_query_params
 
 
 class TestAPIView(GenericAPIView):
@@ -77,16 +70,11 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
             'is_verification_letter_sent': company.is_verification_letter_sent,
             'is_uk_isd_company': company.is_uk_isd_company,
             'invitation_key': signer.sign(company.number),
-            'is_published_investment_support_directory':
-                company.is_published_investment_support_directory,
-            'is_published_find_a_supplier':
-                company.is_published_find_a_supplier,
-            'is_identity_check_message_sent':
-                company.is_identity_check_message_sent,
-            'verified_with_identity_check':
-                company.verified_with_identity_check,
-            'verified_with_code':
-                company.verified_with_code,
+            'is_published_investment_support_directory': company.is_published_investment_support_directory,
+            'is_published_find_a_supplier': company.is_published_find_a_supplier,
+            'is_identity_check_message_sent': company.is_identity_check_message_sent,
+            'verified_with_identity_check': company.verified_with_identity_check,
+            'verified_with_code': company.verified_with_code,
         }
         return Response(response_data)
 
@@ -107,34 +95,28 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
 class PublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
     queryset = Company.objects.filter(
-        Q(is_published_investment_support_directory=True) |
-        Q(is_published_find_a_supplier=True)
+        Q(is_published_investment_support_directory=True) | Q(is_published_find_a_supplier=True)
     )
     lookup_field = 'is_published'
     http_method_names = 'get'
 
     def get(self, request, *args, **kwargs):
-        limit, minimal_number_of_sectors = \
-            get_published_companies_query_params(request)
-        response_data = get_matching_companies(
-            self.queryset, limit, minimal_number_of_sectors)
+        limit, minimal_number_of_sectors = get_published_companies_query_params(request)
+        response_data = get_matching_companies(self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
 
 
 class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
     serializer_class = PublishedCompaniesSerializer
     queryset = Company.objects.filter(
-        Q(is_published_investment_support_directory=False) |
-        Q(is_published_find_a_supplier=False)
+        Q(is_published_investment_support_directory=False) | Q(is_published_find_a_supplier=False)
     )
     lookup_field = 'is_published'
     http_method_names = 'get'
 
     def get(self, request, *args, **kwargs):
-        limit, minimal_number_of_sectors = \
-            get_published_companies_query_params(request)
-        response_data = get_matching_companies(
-            self.queryset, limit, minimal_number_of_sectors)
+        limit, minimal_number_of_sectors = get_published_companies_query_params(request)
+        response_data = get_matching_companies(self.queryset, limit, minimal_number_of_sectors)
         return Response(response_data)
 
 

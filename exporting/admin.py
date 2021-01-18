@@ -7,9 +7,7 @@ from exporting import models
 
 @admin.register(models.Office)
 class OfficeAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
     search_fields = (
         'name',
         'region_id',

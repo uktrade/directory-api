@@ -1,21 +1,24 @@
-from django.conf import settings
-from django.utils import timezone
 import datetime
 
 from directory_constants import company_types, user_roles
-from company import email, documents, helpers, models
+from django.conf import settings
+from django.utils import timezone
+
+from company import documents, email, helpers, models
 
 FROM_EMAIL = settings.FAS_FROM_EMAIL
 
 
 def send_first_verification_letter(sender, instance, *args, **kwargs):
-    should_send_letter = all([
-        settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
-        not instance.is_verification_letter_sent,
-        not instance.verified_with_preverified_enrolment,
-        instance.company_type == company_types.COMPANIES_HOUSE,
-        instance.has_valid_address(),
-    ])
+    should_send_letter = all(
+        [
+            settings.FEATURE_VERIFICATION_LETTERS_ENABLED,
+            not instance.is_verification_letter_sent,
+            not instance.verified_with_preverified_enrolment,
+            instance.company_type == company_types.COMPANIES_HOUSE,
+            instance.has_valid_address(),
+        ]
+    )
     if should_send_letter:
         helpers.send_verification_letter(
             company=instance,
@@ -26,14 +29,16 @@ def send_first_verification_letter(sender, instance, *args, **kwargs):
 def send_company_registration_letter(sender, instance, *args, **kwargs):
     FEATURE_IMPLEMENTATION_DATE = datetime.datetime(2019, 10, 15, tzinfo=timezone.utc)
 
-    should_send_letter = all([
-        settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
-        not instance.is_registration_letter_sent,
-        instance.company_type == company_types.COMPANIES_HOUSE,
-        bool(instance.address_line_1 and instance.postal_code),
-        instance.company_users.exists(),
-        instance.created > FEATURE_IMPLEMENTATION_DATE,
-    ])
+    should_send_letter = all(
+        [
+            settings.FEATURE_REGISTRATION_LETTERS_ENABLED,
+            not instance.is_registration_letter_sent,
+            instance.company_type == company_types.COMPANIES_HOUSE,
+            bool(instance.address_line_1 and instance.postal_code),
+            instance.company_users.exists(),
+            instance.created > FEATURE_IMPLEMENTATION_DATE,
+        ]
+    )
 
     if should_send_letter:
         helpers.send_registration_letter(
@@ -66,9 +71,7 @@ def save_case_study_change_to_elasticsearch(sender, instance, *args, **kwargs):
         document.save()
 
 
-def send_account_ownership_transfer_notification(
-    sender, instance, created, *args, **kwargs
-):
+def send_account_ownership_transfer_notification(sender, instance, created, *args, **kwargs):
     if not created:
         return
 
@@ -89,8 +92,7 @@ def send_new_invite_collaboration_notification(sender, instance, created, *args,
         )
     else:
         helpers.send_new_user_invite_email(
-            collaboration_invite=instance,
-            form_url='send_new_invite_collaborator_notification'
+            collaboration_invite=instance, form_url='send_new_invite_collaborator_notification'
         )
 
 
@@ -102,10 +104,7 @@ def send_account_collaborator_notification(sender, instance, created, *args, **k
 
 
 def set_non_companies_house_number(sender, instance, *args, **kwargs):
-    if (
-        instance._state.adding
-        and instance.company_type != company_types.COMPANIES_HOUSE
-    ):
+    if instance._state.adding and instance.company_type != company_types.COMPANIES_HOUSE:
         newest = sender.objects.all().order_by('pk').last()
         pk = newest.pk if newest else 1
         # seed operates on pk to avoid leaking primary key in the url
@@ -121,13 +120,12 @@ def send_acknowledgement_admin_email_on_invite_accept(sender, instance, *args, *
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
             company_user_name = helpers.get_company_user_alias_by_email(
-                collaboration_invite=instance,
-                company_users=models.CompanyUser.objects.all()
+                collaboration_invite=instance, company_users=models.CompanyUser.objects.all()
             )
             helpers.send_new_user_alert_invite_accepted_email(
                 collaboration_invite=instance,
                 collaborator_name=company_user_name,
-                form_url='send_acknowledgement_admin_email_on_invite_accept'
+                form_url='send_acknowledgement_admin_email_on_invite_accept',
             )
 
 
@@ -135,17 +133,16 @@ def send_admins_new_collaboration_request_notification(sender, instance, *args, 
     if instance._state.adding:
         admins = instance.requestor.company.company_users.filter(role=user_roles.ADMIN)
         helpers.send_admins_new_collaboration_request_email(
-                company_admins=admins,
-                collaboration_request=instance,
-                form_url='send_admins_new_collaboration_request_email'
+            company_admins=admins,
+            collaboration_request=instance,
+            form_url='send_admins_new_collaboration_request_email',
         )
 
 
 def send_user_collaboration_request_email_on_decline(sender, instance, *args, **kwargs):
     if not instance.accepted:
         helpers.send_user_collaboration_request_declined_email(
-                collaboration_request=instance,
-                form_url='send_user_collaboration_request_email_on_decline'
+            collaboration_request=instance, form_url='send_user_collaboration_request_email_on_decline'
         )
 
 
@@ -154,6 +151,5 @@ def send_user_collaboration_request_email_on_accept(sender, instance, *args, **k
         pre_save_instance = sender.objects.get(pk=instance.pk)
         if instance.accepted and not pre_save_instance.accepted:
             helpers.send_user_collaboration_request_accepted_email(
-                    collaboration_request=instance,
-                    form_url='send_user_collaboration_request_email_on_accept'
+                collaboration_request=instance, form_url='send_user_collaboration_request_email_on_accept'
             )

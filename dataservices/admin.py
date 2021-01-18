@@ -1,36 +1,32 @@
-from import_export import resources
-from dataservices import models
-
 from django import forms
 from django.contrib import admin
-from django.db.models import TextField
 from django.contrib.postgres import fields
+from django.db.models import TextField
 from django_json_widget.widgets import JSONEditorWidget
+from import_export import resources
+
+from dataservices import models
 
 
 class EaseOfDoingBusinessResource(resources.ModelResource):
-
     class Meta:
         model = models.EaseOfDoingBusiness
         fields = ['country_name', 'country_code', 'year_2019']
 
 
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
-
     class Meta:
         model = models.CorruptionPerceptionsIndex
         fields = ['country_name', 'country_code', 'cpi_score_2019', 'rank']
 
 
 class InternetUsageResource(resources.ModelResource):
-
     class Meta:
         model = models.InternetUsage
         fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
 
 
 class CountryResource(resources.ModelResource):
-
     class Meta:
         model = models.Country
         fields = ['name', 'iso1', 'iso2', 'iso3', 'region']
@@ -38,9 +34,7 @@ class CountryResource(resources.ModelResource):
 
 @admin.register(models.EaseOfDoingBusiness)
 class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'country_name',
@@ -57,16 +51,9 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
 
 @admin.register(models.CorruptionPerceptionsIndex)
 class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
-    search_fields = (
-        'country_name',
-        'country_code',
-        'cpi_score_2019',
-        'rank'
-    )
+    search_fields = ('country_name', 'country_code', 'cpi_score_2019', 'rank')
 
     list_display = (
         'country_name',
@@ -78,9 +65,7 @@ class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
 
 @admin.register(models.WorldEconomicOutlook)
 class WorldEconomicOutlookAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'country_name',
@@ -102,9 +87,7 @@ class WorldEconomicOutlookAdmin(admin.ModelAdmin):
 
 @admin.register(models.CIAFactbook)
 class CIAFactbookAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
     }
@@ -122,9 +105,7 @@ class CIAFactbookAdmin(admin.ModelAdmin):
 
 @admin.register(models.InternetUsage)
 class InternetUsageAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'country_name',
@@ -143,9 +124,7 @@ class InternetUsageAdmin(admin.ModelAdmin):
 
 @admin.register(models.ConsumerPriceIndex)
 class ConsumerPriceIndexAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'country_name',
@@ -175,11 +154,10 @@ class CountryAdmin(admin.ModelAdmin):
         'created',
     )
 
-    list_filter = ('region', )
+    list_filter = ('region',)
 
 
 class GDPPerCapitaResource(resources.ModelResource):
-
     class Meta:
         model = models.GDPPerCapita
         fields = ['country_name', 'country_code', 'year_2019']
@@ -198,3 +176,8 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
     class Meta:
         model = models.CorruptionPerceptionsIndex
         fields = ['country_name', 'country_code', 'year_2019']
+
+
+@admin.register(models.SuggestedCountry)
+class SuggestedCountryAdmin(admin.ModelAdmin):
+    list_display = ('hs_code', 'country', 'order')

@@ -22,10 +22,7 @@ class Command(BaseCommand):
                 verification_code='000000000000',
                 verified_with_code=True,
                 is_verification_letter_sent=True,
-                number=company_number
+                number=company_number,
             )
 
-            self.stdout.write(
-                self.style.SUCCESS('Successfully created '
-                                   'company "%s"' % company.id)
-            )
+            self.stdout.write(self.style.SUCCESS('Successfully created company "%s"' % company.id))

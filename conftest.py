@@ -1,14 +1,13 @@
-import logging
 import http
+import logging
 import re
 from unittest import mock
 from urllib.parse import urljoin
 
 import pytest
 import requests_mock
-from rest_framework.test import APIClient
-
 from django.core.management import call_command
+from rest_framework.test import APIClient
 
 from company import documents
 from company.tests import factories
@@ -54,7 +53,7 @@ def sso_session_request_active_user(authed_supplier, requests_mocker, settings):
             'id': authed_supplier.sso_id,
             'email': authed_supplier.company_email,
             'user_profile': {'first_name': 'supplier1', 'last_name': 'bloggs'},
-        }
+        },
     )
 
 
@@ -136,6 +135,7 @@ def elasticsearch_marker(request, django_db_blocker):
             call_command('elasticsearch_migrate')
         yield None
     else:
+
         class CompanyDocument(documents.CompanyDocument):
             def save(self, *args, **kwargs):
                 pass

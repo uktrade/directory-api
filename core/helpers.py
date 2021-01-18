@@ -1,16 +1,14 @@
 import csv
-from functools import partial
 import http
 import logging
 import os
+from functools import partial
 from urllib.parse import urljoin
 from uuid import uuid4
 
 import boto3
-from directory_constants.urls import domestic
 import requests
-
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+from directory_constants.urls import domestic
 from django.conf import settings
 from django.core.signing import Signer
 from django.db import models
@@ -19,7 +17,7 @@ from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 
 logger = logging.getLogger(__name__)
 
@@ -48,34 +46,20 @@ def get_file_from_s3(bucket, key):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
         region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
     )
-    file_object = s3.get_object(
-        Bucket=bucket,
-        Key=key
-    )
+    file_object = s3.get_object(Bucket=bucket, Key=key)
     return file_object
 
 
 def generate_csv_response(queryset, filename, excluded_fields):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = (
-        'attachment; filename="{filename}"'.format(
-            filename=filename
-        )
-    )
-    generate_csv(
-        file_object=response,
-        queryset=queryset,
-        excluded_fields=excluded_fields
-    )
+    response['Content-Disposition'] = 'attachment; filename="{filename}"'.format(filename=filename)
+    generate_csv(file_object=response, queryset=queryset, excluded_fields=excluded_fields)
     return response
 
 
 def generate_csv(file_object, queryset, excluded_fields):
     model = queryset.model
-    fieldnames = sorted(
-        [field.name for field in model._meta.get_fields()
-         if field.name not in excluded_fields]
-    )
+    fieldnames = sorted([field.name for field in model._meta.get_fields() if field.name not in excluded_fields])
 
     objects = queryset.all().values(*fieldnames)
     writer = csv.DictWriter(file_object, fieldnames=fieldnames)
@@ -92,17 +76,20 @@ class TimeStampedModel(models.Model):
     modified fields, inheritance causes issues with field clash.
 
     """
+
     created = CreationDateTimeField(_('created'), null=True)
     modified = ModificationDateTimeField(_('modified'), null=True)
 
     def save(self, **kwargs):
-        self.update_modified = kwargs.pop(
-            'update_modified', getattr(self, 'update_modified', True))
+        self.update_modified = kwargs.pop('update_modified', getattr(self, 'update_modified', True))
         super(TimeStampedModel, self).save(**kwargs)
 
     class Meta:
         get_latest_by = 'modified'
-        ordering = ('-modified', '-created',)
+        ordering = (
+            '-modified',
+            '-created',
+        )
         abstract = True
 
 
@@ -117,7 +104,6 @@ class BearerAuth(requests.auth.AuthBase):
 
 @deconstructible
 class PathAndRename:
-
     def __init__(self, sub_path):
         self.path = sub_path
 
@@ -165,6 +151,7 @@ class SSOUser:
     @cached_property
     def company_user(self):
         from company.models import CompanyUser
+
         try:
             return CompanyUser.objects.select_related('company').get(sso_id=self.id)
         except CompanyUser.DoesNotExist:

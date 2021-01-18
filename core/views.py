@@ -1,8 +1,8 @@
 from django.http import HttpResponse
 from rest_framework.views import APIView
 
-from core.permissions import IsAuthenticatedCSVDump
 from core.helpers import get_file_from_s3
+from core.permissions import IsAuthenticatedCSVDump
 
 
 class CSVDumpAPIView(APIView):
@@ -12,15 +12,8 @@ class CSVDumpAPIView(APIView):
     filename = None
 
     def get(self, request, format=None):
-        csv_file = get_file_from_s3(
-            bucket=self.bucket,
-            key=self.key
-        )
-        response = HttpResponse(
-            csv_file['Body'].read(), content_type="text/csv"
-        )
-        content = 'attachment; filename="{filename}"'.format(
-            filename=self.filename
-        )
+        csv_file = get_file_from_s3(bucket=self.bucket, key=self.key)
+        response = HttpResponse(csv_file['Body'].read(), content_type="text/csv")
+        content = 'attachment; filename="{filename}"'.format(filename=self.filename)
         response['Content-Disposition'] = content
         return response

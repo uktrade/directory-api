@@ -7,9 +7,7 @@ from personalisation import models
 
 @admin.register(models.UserLocation)
 class UserLocationAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        TextField: {'widget': forms.TextInput}
-    }
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
         'sso_id',
@@ -35,13 +33,4 @@ class CountryOfInterestAdmin(admin.ModelAdmin):
         'country',
         'sector',
         'service',
-    )
-
-
-@admin.register(models.SuggestedCountry)
-class SuggestedCountryAdmin(admin.ModelAdmin):
-    list_display = (
-        'hs_code',
-        'country',
-        'order'
     )
