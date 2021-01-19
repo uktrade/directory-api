@@ -3,6 +3,7 @@ import re
 from unittest import mock
 
 import pytest
+from django.test import override_settings
 
 from dataservices import helpers, models
 from dataservices.tests import factories
@@ -99,9 +100,7 @@ def comtrade_request_mock_empty(comtrade_data, requests_mocker):
 
 
 def test_get_url(comtrade):
-    assert comtrade.get_url() == (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=826&cc=220850&ps=All&rg=1'
-    )
+    assert comtrade.get_url() == ('https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1')
 
 
 def test_get_get_comtrade_company_id(comtrade):
@@ -138,6 +137,9 @@ def test_get_last_year_import__with_various_year_data(comtrade, comtrade_data_wi
 
 def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with_a_year_data_request_mock):
     last_year_data = comtrade.get_last_year_import_data()
+    assert comtrade.get_url(from_uk=False) == (
+        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1'
+    )
     assert last_year_data == {
         'year': '2018',
         'trade_value': '200',
@@ -148,6 +150,9 @@ def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with
 
 def test_get_last_year_import_data_from_uk(comtrade, comtrade_request_mock):
     last_year_data = comtrade.get_last_year_import_data(from_uk=True)
+    assert comtrade.get_url(from_uk=True) == (
+        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=826&p=36&cc=220850&ps=All&rg=2'
+    )
     assert last_year_data == {
         'year': '2018',
         'trade_value': '200',
@@ -187,15 +192,26 @@ def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
 
 
 @pytest.mark.django_db
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 def test_get_ease_of_business_index():
+
+    models.Country.objects.all().delete()
+    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.EaseOfDoingBusiness.objects.create(
         country_code='AUS',
         country_name='Australia',
         year_2019=20,
+        country=country,
     )
     ease_of_business_data = helpers.get_ease_of_business_index('AUS')
-    assert ease_of_business_data == {'total': 1, 'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20}
+    assert ease_of_business_data == {
+        'total': 1,
+        'country_name': 'Australia',
+        'country_code': 'AUS',
+        'year_2019': 20,
+        'country': 'Australia',
+    }
 
 
 @pytest.mark.django_db
@@ -207,12 +223,20 @@ def test_get_ease_of_business_index_not_found():
 
 @pytest.mark.django_db
 def test_get_corruption_perceptions_index():
+    models.Country.objects.all().delete()
+    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21
+        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21, country=country
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
-    assert cpi_data == {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21}
+    assert cpi_data == {
+        'country_name': 'Australia',
+        'country_code': 'AUS',
+        'cpi_score_2019': 24,
+        'rank': 21,
+        'country': 'Australia',
+    }
 
 
 @pytest.mark.django_db
@@ -358,6 +382,7 @@ def test_get_world_economic_outlook_data():
             "units": "dollars",
             "year_2020": "21234141.000",
             "year_2021": "32432423.000",
+            "country": None,
         },
         {
             "country_code": "CN",
@@ -367,6 +392,7 @@ def test_get_world_economic_outlook_data():
             "units": "Percent change",
             "year_2020": "323.210",
             "year_2021": "1231.100",
+            "country": None,
         },
     ]
 
@@ -545,4 +571,17 @@ def test_get_internet_usage_with_no_country():
 )
 def test_get_percentage_format(input_1, input_2, expected):
     data = helpers.get_percentage_format(input_1, input_2)
+    assert data == expected
+
+
+@pytest.mark.parametrize(
+    "internet_usage,total_population,expected",
+    [
+        ({'value': '94.712'}, {'total_population': 17173}, '16.26 million'),
+        ({}, {'total_population': 17173}, ''),
+        ({'value': '94.712'}, {}, ''),
+    ],
+)
+def test_calculate_total_internet_population(internet_usage, total_population, expected):
+    data = helpers.calculate_total_internet_population(internet_usage, total_population)
     assert data == expected

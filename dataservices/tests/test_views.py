@@ -68,6 +68,12 @@ def country_data():
 
 
 @pytest.fixture(autouse=True)
+def society_data():
+    country = models.Country.objects.create(iso2='UK', name='United Kingdom')
+    models.RuleOfLaw.objects.create(iso2='UK', country_name='United Kingdom', rank=10, score=76, country=country)
+
+
+@pytest.fixture(autouse=True)
 def cia_factbook_data():
     return factories.CIAFactBookFactory()
 
@@ -78,7 +84,13 @@ def test_get_easeofdoingbusiness(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert response.json() == {'country_name': 'China', 'country_code': 'CN', 'year_2019': 10, 'total': 2}
+    assert response.json() == {
+        'country_name': 'China',
+        'country_code': 'CN',
+        'year_2019': 10,
+        'total': 2,
+        'country': None,
+    }
 
 
 @pytest.mark.django_db
@@ -96,7 +108,13 @@ def test_get_corruptionperceptionsindex(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert response.json() == {'country_name': 'China', 'country_code': 'CN', 'cpi_score_2019': 10, 'rank': 3}
+    assert response.json() == {
+        'country_name': 'China',
+        'country_code': 'CN',
+        'cpi_score_2019': 10,
+        'rank': 3,
+        'country': None,
+    }
 
 
 @pytest.mark.django_db
@@ -124,6 +142,7 @@ def test_get_world_economic_outlook(api_client):
             'units': 'dollars',
             'year_2020': '21234141.000',
             'year_2021': '32432423.000',
+            'country': None,
         },
         {
             'country_code': 'CN',
@@ -133,6 +152,7 @@ def test_get_world_economic_outlook(api_client):
             'units': 'Percent change',
             'year_2020': '323.210',
             'year_2021': '1231.100',
+            'country': None,
         },
     ]
 
@@ -225,14 +245,28 @@ def test_get_country_data(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
-            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'consumer_price_index': {
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.560',
+                'year': 2019,
+                'country': None,
+            },
+            'internet_usage': {
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.230',
+                'year': 2019,
+                'country': None,
+                'total_internet_usage': '7.70 million',
+            },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'income': None,
+            'total_population': '38.07 million',
         }
     }
 
@@ -243,7 +277,6 @@ def test_get_country_data_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': None,
@@ -251,6 +284,8 @@ def test_get_country_data_not_found(api_client):
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'income': None,
+            'total_population': '0.00',
         }
     }
 
@@ -266,10 +301,19 @@ def test_get_country_data_cpi_not_found(api_client):
     assert response.json() == {
         'country_data': {
             'consumer_price_index': None,
-            'internet_usage': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.230', 'year': 2019},
+            'internet_usage': {
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.230',
+                'year': 2019,
+                'total_internet_usage': '7.70 million',
+                'country': None,
+            },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'income': None,
+            'total_population': '38.07 million',
         },
     }
 
@@ -281,14 +325,21 @@ def test_get_country_data_internet_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
-            'consumer_price_index': {'country_name': 'Canada', 'country_code': 'CNN', 'value': '20.560', 'year': 2019},
+            'consumer_price_index': {
+                'country_name': 'Canada',
+                'country_code': 'CNN',
+                'value': '20.560',
+                'year': 2019,
+                'country': None,
+            },
             'internet_usage': None,
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
             'gdp_per_capita': None,
+            'income': None,
+            'total_population': '38.07 million',
         }
     }
 
@@ -452,3 +503,95 @@ def test_suggested_countries_api_without_hs_code(client):
     assert response.status_code == 500
     json_dict = json.loads(response.content)
     assert json_dict['error_message'] == "hs_code missing in request params"
+
+
+@pytest.mark.django_db
+def test_income_data_api(api_client):
+    # import countries and income data
+    management.call_command('import_countries')
+    management.call_command('import_income_data')
+
+    url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
+    json_response = api_client.get(url).json()
+    assert 'income' in json_response['country_data']
+    assert 'Canada' == json_response['country_data']['income']['country_name']
+    assert '37653.281' == json_response['country_data']['income']['value']
+
+
+@pytest.mark.django_db
+def test_society_data_by_country_with_country_arg_missing(api_client):
+    url = reverse('dataservices-society-data-by-country')
+
+    response = api_client.get(url)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_society_data_by_country_with_country_not_found(api_client):
+    url = reverse('dataservices-society-data-by-country')
+    response = api_client.get(url, data={'countries': 'abcde'})
+
+    assert response.status_code == 200
+
+    assert response.json() == [{'country': 'abcde', 'rule_of_law': None}]
+
+
+@pytest.mark.django_db
+def test_society_data_by_country(api_client):
+    url = reverse('dataservices-society-data-by-country')
+
+    response = api_client.get(url, data={'countries': 'United Kingdom'})
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            'country': 'United Kingdom',
+            'languages': {
+                'date': '2012',
+                'note': 'test data',
+                'language': [
+                    {
+                        'name': 'English',
+                    }
+                ],
+            },
+            'religions': {
+                "date": "2011",
+                'religion': [
+                    {
+                        'name': 'Christian',
+                        'note': 'includes Anglican, Roman Catholic, Presbyterian, Methodist',
+                        'percent': 59.5,
+                    },
+                    {'name': 'Muslim', 'percent': 4.4},
+                    {'name': 'Hindu', 'percent': 1.3},
+                    {'name': 'other', 'percent': 2},
+                    {'name': 'unspecified', 'percent': 7.2},
+                    {'name': 'none', "percent": 25.7},
+                ],
+            },
+            'rule_of_law': {
+                'country_name': 'United Kingdom',
+                'iso2': 'UK',
+                'rank': 10,
+                'score': '76.000',
+            },
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_society_data_repr():
+    rule_of_law = models.RuleOfLaw.objects.create(iso2='CN', country_name='Canada', rank=10, score=76)
+
+    assert str(rule_of_law) == 'Canada'
+
+
+@pytest.mark.django_db
+def test_currencies_data_repr():
+    currencies = models.Currency.objects.create(
+        iso2='IN', country_name='India', currency_name='Indian Rupee', alphabetic_code='INR', numeric_code=123
+    )
+
+    assert str(currencies) == 'India'

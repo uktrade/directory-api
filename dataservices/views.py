@@ -9,14 +9,18 @@ from dataservices.models import (
     CorruptionPerceptionsIndex,
     EaseOfDoingBusiness,
     GDPPerCapita,
+    Income,
     InternetUsage,
+    RuleOfLaw,
 )
 from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
     CorruptionPerceptionsIndexSerializer,
     EaseOfDoingBusinessSerializer,
     GDPPerCapitalSerializer,
+    IncomeSerializer,
     InternetUsageSerializer,
+    RuleOfLawSerializer,
 )
 
 
@@ -119,6 +123,9 @@ class RetrieveCountryDataView(generics.GenericAPIView):
         country = self.map_dit_to_weo_country_data(self.kwargs['country'])
         filter_args = {'country_name': country}
 
+        country_population = helpers.PopulationData()
+        total_population = country_population.get_population_total_data(country=self.kwargs['country'])
+
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
                 ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
@@ -131,7 +138,15 @@ class RetrieveCountryDataView(generics.GenericAPIView):
                 EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
             ),
             'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
+            'total_population': millify(total_population.get('total_population', 0) * 1000),
+            'income': get_serialized_instance_from_model(Income, IncomeSerializer, filter_args),
         }
+        if country_data['internet_usage']:
+            total_internet_usage = helpers.calculate_total_internet_population(
+                country_data['internet_usage'], total_population
+            )
+            country_data['internet_usage']['total_internet_usage'] = total_internet_usage
+
         return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
 
     def map_dit_to_weo_country_data(self, country):
@@ -161,6 +176,36 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
             cia_factbook_data = {}
 
         return Response(status=status.HTTP_200_OK, data={'cia_factbook_data': cia_factbook_data})
+
+
+class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        countries = self.request.GET.getlist('countries', '')
+
+        if not countries:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        data_set = []
+
+        for country in countries:
+            country_data = {'country': country}
+            society_data = helpers.get_society_data(country=country)
+            ruleoflaw_data = {
+                'rule_of_law': get_serialized_instance_from_model(
+                    RuleOfLaw, RuleOfLawSerializer, {'country__name': country}
+                )
+            }
+
+            data_set.append(
+                {
+                    **country_data,
+                    **society_data,
+                    **ruleoflaw_data,
+                }
+            )
+        return Response(status=status.HTTP_200_OK, data=data_set)
 
 
 class RetrievePopulationDataView(generics.GenericAPIView):
