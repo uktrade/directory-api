@@ -240,6 +240,16 @@ urlpatterns = [
         name='export-plan-target-market-documents-list-create',
     ),
     url(
+        r'^exportplan/funding-credit-options/(?P<pk>[0-9]+)/$',
+        exportplan.views.FundingCreditOptionsUpdateDestroyView.as_view(),
+        name='export-plan-funding-credit-options-detail-update',
+    ),
+    url(
+        r'^exportplan/funding-credit-options/$',
+        exportplan.views.FundingCreditOptionsCreateAPIView.as_view(),
+        name='export-plan-funding-credit-options-list-create',
+    ),
+    url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
         dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
         name='dataservices-easeofdoingbusiness-index',

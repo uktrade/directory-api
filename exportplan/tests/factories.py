@@ -32,6 +32,10 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
         'units_to_export_first_period': {'unit': 'kg', 'value': '10.00'},
         'average_price_per_unit': '23.44',
     }
+    funding_and_credit = {
+        'override_estimated_total_cost': '23.23',
+        'funding_amount_required': '23.44',
+    }
 
     class Meta:
         model = models.CompanyExportPlan
@@ -80,3 +84,12 @@ class TargetMarketDocumentsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.TargetMarketDocuments
+
+
+class FundingCreditOptionsFactory(factory.django.DjangoModelFactory):
+    amount = factory.fuzzy.FuzzyDecimal(low=1, precision=2)
+    funding_option = factory.fuzzy.FuzzyChoice([i[0] for i in choices.FUNDING_OPTIONS])
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.FundingCreditOptions

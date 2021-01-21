@@ -42,6 +42,8 @@ class CompanyExportPlan(TimeStampedModel):
     direct_costs = JSONField(null=True, blank=True, default=dict)
     overhead_costs = JSONField(null=True, blank=True, default=dict)
     total_cost_and_price = JSONField(null=True, blank=True, default=dict)
+    # Funding and Credit
+    funding_and_credit = JSONField(null=True, blank=True, default=dict)
 
 
 class CompanyObjectives(TimeStampedModel):
@@ -83,4 +85,12 @@ class TargetMarketDocuments(TimeStampedModel):
 
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='target_market_documents', on_delete=models.CASCADE
+    )
+
+
+class FundingCreditOptions(TimeStampedModel):
+    funding_option = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.FUNDING_OPTIONS)
+    amount = models.FloatField(blank=True, null=True, default=0.00)
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='funding_credit_options', on_delete=models.CASCADE
     )
