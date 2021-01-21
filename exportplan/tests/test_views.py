@@ -46,6 +46,7 @@ def export_plan():
     factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
+    factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -167,6 +168,15 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'pk': export_plan.target_market_documents.all()[0].pk,
             }
         ],
+        'funding_credit_options': [
+            {
+                'companyexportplan': export_plan.id,
+                'funding_option': export_plan.funding_credit_options.all()[0].funding_option,
+                'amount': float(export_plan.funding_credit_options.all()[0].amount),
+                'pk': export_plan.funding_credit_options.all()[0].pk,
+            }
+        ],
+        'funding_and_credit': {'override_estimated_total_cost': '23.23', 'funding_amount_required': '23.44'},
         'pk': export_plan.pk,
     }
     assert response.status_code == 200
@@ -597,3 +607,76 @@ def test_export_plan_update_non_json_new_to_partial(authed_client, authed_suppli
     response = authed_client.patch(url, data, format='json')
     assert response.status_code == 200
     assert response.json()['resource_needed'] == 'Old resource'
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': funding_credit_option.pk})
+
+    data = {'amount': '12.34'}
+    response = authed_client.patch(url, data, format='json')
+    funding_credit_option.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert funding_credit_option.amount == float(data['amount'])
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_retrieve(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': funding_credit_option.pk})
+    response = authed_client.get(url)
+    data = response.json()
+    assert response.status_code == http.client.OK
+    assert funding_credit_option.pk == data['pk']
+    assert funding_credit_option.amount == data['amount']
+    assert funding_credit_option.funding_option == data['funding_option']
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_create(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-funding-credit-options-list-create')
+
+    data = {
+        'companyexportplan': export_plan.id,
+        'funding_option': 'government',
+        'amount': '55.23',
+    }
+
+    response = authed_client.post(url, data)
+    data = response.json()
+
+    assert response.status_code == http.client.CREATED
+    export_plan.refresh_from_db()
+    assert export_plan.funding_credit_options.all().count() == 2
+    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    assert funding_credit_option.pk == data['pk']
+    assert funding_credit_option.amount == data['amount']
+    assert funding_credit_option.funding_option == data['funding_option']
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_delete(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    target_market_docs = export_plan.funding_credit_options.all()[0]
+
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': target_market_docs.pk})
+
+    response = authed_client.delete(url)
+    assert response.status_code == http.client.NO_CONTENT
+    assert not export_plan.funding_credit_options.all()
