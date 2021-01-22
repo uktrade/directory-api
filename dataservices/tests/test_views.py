@@ -90,6 +90,8 @@ def test_get_easeofdoingbusiness(api_client):
         'year_2019': 10,
         'total': 2,
         'country': None,
+        'year': '2019',
+        'rank': 10,
     }
 
 
@@ -114,6 +116,8 @@ def test_get_corruptionperceptionsindex(api_client):
         'cpi_score_2019': 10,
         'rank': 3,
         'country': None,
+        'total': 2,
+        'year': '2019',
     }
 
 
@@ -477,6 +481,7 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'urban_population_percentage_formatted': '76.33% (64.04 million)',
             'total_population': '83.90 million',
             'total_population_raw': 83902000,
+            'cpi': {'value': '112.86', 'year': 2019},
         },
     ]
 
