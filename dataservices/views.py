@@ -125,17 +125,16 @@ class RetrieveCountryDataView(generics.GenericAPIView):
 
         country_population = helpers.PopulationData()
         total_population = country_population.get_population_total_data(country=self.kwargs['country'])
-
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
                 ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
             ),
             'internet_usage': get_serialized_instance_from_model(InternetUsage, InternetUsageSerializer, filter_args),
             'corruption_perceptions_index': get_serialized_instance_from_model(
-                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args
+                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args, include_total=True
             ),
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
-                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
+                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args, include_total=True
             ),
             'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
@@ -237,7 +236,10 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
             country_population = helpers.PopulationData()
             country_data = {'country': country}
             total_population = country_population.get_population_total_data(country=country)
-            population_data = {'total_population': millify(total_population.get('total_population', 0) * 1000)}
+            population_data = {
+                'total_population': millify(total_population.get('total_population', 0) * 1000),
+                'total_population_raw': total_population.get('total_population', 0) * 1000
+            }
 
             # urban population
             urban_population_data = country_population.get_population_urban_rural_data(
