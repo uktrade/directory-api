@@ -90,6 +90,8 @@ def test_get_easeofdoingbusiness(api_client):
         'year_2019': 10,
         'total': 2,
         'country': None,
+        'year': '2019',
+        'rank': 10,
     }
 
 
@@ -114,6 +116,8 @@ def test_get_corruptionperceptionsindex(api_client):
         'cpi_score_2019': 10,
         'rank': 3,
         'country': None,
+        'total': 2,
+        'year': '2019',
     }
 
 
@@ -442,6 +446,7 @@ def test_population_data_by_country(api_client, internet_usage_data):
             'urban_population_total': 56970,
             'urban_population_percentage_formatted': '83.53% (56.97 million)',
             'total_population': '68.20 million',
+            'total_population_raw': 68204000,
             'cpi': {'value': '150.56', 'year': 2019},
         }
     ]
@@ -464,6 +469,7 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'urban_population_total': 56970,
             'urban_population_percentage_formatted': '83.53% (56.97 million)',
             'total_population': '68.20 million',
+            'total_population_raw': 68204000,
             'cpi': {'value': '150.56', 'year': 2019},
         },
         {
@@ -474,6 +480,7 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'urban_population_total': 64044,
             'urban_population_percentage_formatted': '76.33% (64.04 million)',
             'total_population': '83.90 million',
+            'total_population_raw': 83902000,
         },
     ]
 
@@ -516,6 +523,18 @@ def test_income_data_api(api_client):
     assert 'income' in json_response['country_data']
     assert 'Canada' == json_response['country_data']['income']['country_name']
     assert '37653.281' == json_response['country_data']['income']['value']
+    # Retrieve India too as it has cpi data mocked
+    url = reverse('dataservices-country-data', kwargs={'country': 'India'})
+    json_response = api_client.get(url).json()
+    assert 'income' in json_response['country_data']
+    assert 'India' == json_response['country_data']['income']['country_name']
+    assert '1735.329' == json_response['country_data']['income']['value']
+    assert 5 == json_response['country_data']['ease_of_doing_bussiness']['year_2019']
+    assert 2 == json_response['country_data']['ease_of_doing_bussiness']['total']
+    assert '2019' == json_response['country_data']['ease_of_doing_bussiness']['year']
+    assert 9 == json_response['country_data']['corruption_perceptions_index']['rank']
+    assert 2 == json_response['country_data']['corruption_perceptions_index']['total']
+    assert '2019' == json_response['country_data']['corruption_perceptions_index']['year']
 
 
 @pytest.mark.django_db

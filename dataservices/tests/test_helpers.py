@@ -211,6 +211,8 @@ def test_get_ease_of_business_index():
         'country_code': 'AUS',
         'year_2019': 20,
         'country': 'Australia',
+        'year': '2019',
+        'rank': 20,
     }
 
 
@@ -236,6 +238,8 @@ def test_get_corruption_perceptions_index():
         'cpi_score_2019': 24,
         'rank': 21,
         'country': 'Australia',
+        'total': 1,
+        'year': '2019',
     }
 
 
