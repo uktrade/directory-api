@@ -238,6 +238,8 @@ def test_get_corruption_perceptions_index():
         'cpi_score_2019': 24,
         'rank': 21,
         'country': 'Australia',
+        'total': 1,
+        'year': '2019',
     }
 
 
