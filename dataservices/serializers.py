@@ -6,6 +6,8 @@ from dataservices import models
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
@@ -18,17 +20,33 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
         if obj.country:
             return obj.country.name
 
+    def get_year(self, obj):
+        # The year is implicit and should be updated when new data are imported
+        return '2019'
+
+    def get_rank(self, obj):
+        return obj.year_2019
+
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
     country = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CorruptionPerceptionsIndex
         exclude = ['created', 'id', 'modified']
 
+    def get_total(self, obj):
+        return models.CorruptionPerceptionsIndex.objects.all().count()
+
     def get_country(self, obj):
         if obj.country:
             return obj.country.name
+
+    def get_year(self, obj):
+        # The year is implicit and should be updated when new data are imported
+        return '2019'
 
 
 class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
