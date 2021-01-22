@@ -519,6 +519,18 @@ def test_income_data_api(api_client):
     assert 'income' in json_response['country_data']
     assert 'Canada' == json_response['country_data']['income']['country_name']
     assert '37653.281' == json_response['country_data']['income']['value']
+    # Retrieve India too as it has cpi data mocked
+    url = reverse('dataservices-country-data', kwargs={'country': 'India'})
+    json_response = api_client.get(url).json()
+    assert 'income' in json_response['country_data']
+    assert 'India' == json_response['country_data']['income']['country_name']
+    assert '1735.329' == json_response['country_data']['income']['value']
+    assert 5 == json_response['country_data']['ease_of_doing_bussiness']['year_2019']
+    assert 2 == json_response['country_data']['ease_of_doing_bussiness']['total']
+    assert '2019' == json_response['country_data']['ease_of_doing_bussiness']['year']
+    assert 9 == json_response['country_data']['corruption_perceptions_index']['rank']
+    assert 2 == json_response['country_data']['corruption_perceptions_index']['total']
+    assert '2019' == json_response['country_data']['corruption_perceptions_index']['year']
 
 
 @pytest.mark.django_db

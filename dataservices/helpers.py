@@ -429,13 +429,11 @@ def get_urban_rural_data(data_object, total_population, classification):
     }
 
 
-def get_serialized_instance_from_model(model_class, serializer_class, filter_args, include_total=False):
+def get_serialized_instance_from_model(model_class, serializer_class, filter_args):
     try:
         instance = model_class.objects.get(**filter_args)
         serializer = serializer_class(instance)
         result = serializer.data
-        if include_total:
-            result.update({'total': model_class.objects.count()})
         return result
     except model_class.DoesNotExist:
         return None

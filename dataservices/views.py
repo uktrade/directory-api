@@ -119,7 +119,6 @@ class RetrieveCountryDataView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-
         country = self.map_dit_to_weo_country_data(self.kwargs['country'])
         filter_args = {'country_name': country}
 
@@ -131,10 +130,10 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             ),
             'internet_usage': get_serialized_instance_from_model(InternetUsage, InternetUsageSerializer, filter_args),
             'corruption_perceptions_index': get_serialized_instance_from_model(
-                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args, include_total=True
+                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args
             ),
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
-                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args, include_total=True
+                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
             ),
             'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
