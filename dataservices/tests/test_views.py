@@ -481,7 +481,6 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'urban_population_percentage_formatted': '76.33% (64.04 million)',
             'total_population': '83.90 million',
             'total_population_raw': 83902000,
-            'cpi': {'value': '112.86', 'year': 2019},
         },
     ]
 
