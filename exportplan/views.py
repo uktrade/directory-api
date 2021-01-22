@@ -72,3 +72,15 @@ class TargetMarketDocumentsUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVi
 class TargetMarketDocumentsCreateAPIView(generics.ListCreateAPIView):
     serializer_class = serializers.TargetMarketDocumentsSerializer
     permission_classes = [IsAuthenticatedSSO]
+
+
+class FundingCreditOptionsUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = serializers.FundingCreditOptionsSerializer
+    permission_classes = [IsAuthenticatedSSO]
+    queryset = models.FundingCreditOptions.objects.all()
+    lookup_field = 'pk'
+
+
+class FundingCreditOptionsCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.FundingCreditOptionsSerializer
+    permission_classes = [IsAuthenticatedSSO]

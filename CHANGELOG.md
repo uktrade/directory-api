@@ -17,6 +17,7 @@
 - GP2-849 - add total pop
 - GP2-849 - add internet usage total
 - GP2-285 - cost and price be
+- GP2-1359 - add funding fields
 
 ### Bugs fixed
 
