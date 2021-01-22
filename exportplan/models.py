@@ -57,6 +57,9 @@ class CompanyObjectives(TimeStampedModel):
         CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name_plural = "Company Objectives"
+
 
 class RouteToMarkets(TimeStampedModel):
     route = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.MARKET_ROUTE_CHOICES)
@@ -66,6 +69,9 @@ class RouteToMarkets(TimeStampedModel):
     market_promotional_channel = models.TextField(blank=True, default='', validators=[no_html])
 
     companyexportplan = models.ForeignKey(CompanyExportPlan, related_name='route_to_markets', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Route To Markets"
 
 
 class ExportPlanActions(TimeStampedModel):
@@ -78,6 +84,9 @@ class ExportPlanActions(TimeStampedModel):
         CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name_plural = "Export Plan Actions"
+
 
 class TargetMarketDocuments(TimeStampedModel):
     document_name = models.TextField(blank=True, default='', validators=[no_html])
@@ -87,6 +96,9 @@ class TargetMarketDocuments(TimeStampedModel):
         CompanyExportPlan, related_name='target_market_documents', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name_plural = "Target Market Documents"
+
 
 class FundingCreditOptions(TimeStampedModel):
     funding_option = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.FUNDING_OPTIONS)
@@ -94,3 +106,6 @@ class FundingCreditOptions(TimeStampedModel):
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='funding_credit_options', on_delete=models.CASCADE
     )
+
+    class Meta:
+        verbose_name_plural = "Funding Credit Options"
