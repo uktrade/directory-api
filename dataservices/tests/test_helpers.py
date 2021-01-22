@@ -211,6 +211,8 @@ def test_get_ease_of_business_index():
         'country_code': 'AUS',
         'year_2019': 20,
         'country': 'Australia',
+        'year': '2019',
+        'rank': 20,
     }
 
 

@@ -7,6 +7,7 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
     year = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
@@ -22,6 +23,9 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     def get_year(self, obj):
         # The year is implicit and should be updated when new data are imported
         return '2019'
+
+    def get_rank(self, obj):
+        return obj.year_2019
 
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
