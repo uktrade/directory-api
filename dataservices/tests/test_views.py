@@ -442,6 +442,7 @@ def test_population_data_by_country(api_client, internet_usage_data):
             'urban_population_total': 56970,
             'urban_population_percentage_formatted': '83.53% (56.97 million)',
             'total_population': '68.20 million',
+            'total_population_raw': 68204000,
             'cpi': {'value': '150.56', 'year': 2019},
         }
     ]
@@ -464,16 +465,19 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
             'urban_population_total': 56970,
             'urban_population_percentage_formatted': '83.53% (56.97 million)',
             'total_population': '68.20 million',
+            'total_population_raw': 68204000,
             'cpi': {'value': '150.56', 'year': 2019},
         },
         {
             'country': 'Germany',
-            'internet_usage': {'value': '91.97', 'year': 2020},
+            'internet_usage': {'value': '89.74', 'year': 2018},
             'rural_population_total': 18546,
             'rural_population_percentage_formatted': '22.10% (18.55 million)',
             'urban_population_total': 64044,
             'urban_population_percentage_formatted': '76.33% (64.04 million)',
             'total_population': '83.90 million',
+            'total_population_raw': 83902000,
+            'cpi': {'value': '112.86', 'year': 2019}
         },
     ]
 
