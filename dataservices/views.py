@@ -238,7 +238,7 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
             total_population = country_population.get_population_total_data(country=country)
             population_data = {
                 'total_population': millify(total_population.get('total_population', 0) * 1000),
-                'total_population_raw': total_population.get('total_population', 0) * 1000
+                'total_population_raw': total_population.get('total_population', 0) * 1000,
             }
 
             # urban population
