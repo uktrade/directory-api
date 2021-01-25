@@ -317,10 +317,10 @@ def test_export_plan_new_actions(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.OK
     export_plan_actions = export_plan.export_plan_actions.all()
     assert len(export_plan_actions) == 2
-    assert export_plan_actions[0].is_reminders_on is False
-    assert export_plan_actions[0].due_date == date(2020, 1, 2)
-    assert export_plan_actions[1].is_reminders_on is True
-    assert export_plan_actions[1].due_date == date(2020, 1, 1)
+    assert export_plan_actions[0].is_reminders_on is True
+    assert export_plan_actions[0].due_date == date(2020, 1, 1)
+    assert export_plan_actions[1].is_reminders_on is False
+    assert export_plan_actions[1].due_date == date(2020, 1, 2)
 
 
 @pytest.mark.django_db
@@ -379,7 +379,7 @@ def test_export_plan_objectives_create(authed_client, authed_supplier, export_pl
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.company_objectives.all().count() == 2
-    my_objective = export_plan.company_objectives.all()[0]
+    my_objective = export_plan.company_objectives.last()
 
     assert my_objective.description == data['description']
     assert my_objective.pk == data['pk']
@@ -457,7 +457,7 @@ def test_route_to_market_create(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.route_to_markets.all().count() == 2
-    route_to_market = export_plan.route_to_markets.all()[0]
+    route_to_market = export_plan.route_to_markets.last()
     assert route_to_market.pk == data['pk']
     assert route_to_market.route == data['route']
     assert route_to_market.promote == data['promote']
@@ -531,7 +531,7 @@ def test_target_market_doc_create(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.target_market_documents.all().count() == 2
-    adaptation_docs = export_plan.target_market_documents.all()[0]
+    adaptation_docs = export_plan.target_market_documents.last()
     assert adaptation_docs.pk == data['pk']
     assert adaptation_docs.document_name == data['document_name']
     assert adaptation_docs.note == data['note']
@@ -661,7 +661,7 @@ def test_funding_credit_options_create(authed_client, authed_supplier, export_pl
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.funding_credit_options.all().count() == 2
-    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    funding_credit_option = export_plan.funding_credit_options.last()
     assert funding_credit_option.pk == data['pk']
     assert funding_credit_option.amount == data['amount']
     assert funding_credit_option.funding_option == data['funding_option']

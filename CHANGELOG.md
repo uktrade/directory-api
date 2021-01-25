@@ -18,7 +18,7 @@
 - GP2-849 - add internet usage total
 - GP2-285 - cost and price be
 - GP2-1359 - add funding fields
-
+- NOTICKET - Add export plan data to admin
 ### Bugs fixed
 
 - GP2-1314 - ComTrade World import value fix
