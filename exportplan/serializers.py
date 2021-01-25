@@ -92,6 +92,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'company',
             'sso_id',
             'ui_options',
+            'ui_progress',
             'export_countries',
             'export_commodity_codes',
             'objectives',

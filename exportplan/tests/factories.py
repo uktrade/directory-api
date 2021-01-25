@@ -12,6 +12,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     export_countries = [{'country_name': 'China', 'country_iso2_code': 'CN'}]
     export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
     ui_options = {'target_ages': ['25-34', '35-44']}
+    ui_progress = {'target-market-research': {'is_complete': True}}
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
     sectors = ['Food and drink', 'hospitality']
