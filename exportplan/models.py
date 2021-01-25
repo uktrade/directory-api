@@ -18,6 +18,7 @@ class CompanyExportPlan(TimeStampedModel):
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
     ui_options = JSONField(null=True, blank=True, default=dict)
+    ui_progress = JSONField(null=True, blank=True, default=dict)
 
     about_your_business = JSONField(null=True, blank=True, default=dict)
     # business objectives
