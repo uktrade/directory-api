@@ -23,6 +23,7 @@ def export_plan_data(company):
         'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
         'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
         'ui_options': {'target_ages': ['25-34', '35-44']},
+        'ui_progress': {'target-markets': {'is_complete': False}},
         'adaptation_target_market': {'labelling': 'manual', 'size': '2l'},
         'overhead_costs': {'product_adaption': '13.02', 'other_overhead_costs': '19.23'},
         'direct_costs': {'product_costs': '12.02', 'labour_costs': '13.02'},
@@ -61,6 +62,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
     assert created_export_plan['ui_options'] == export_plan_data['ui_options']
+    assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
     assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
     assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
     assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
@@ -115,6 +117,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'export_commodity_codes': export_plan.export_commodity_codes,
         'export_countries': export_plan.export_countries,
         'ui_options': export_plan.ui_options,
+        'ui_progress': export_plan.ui_progress,
         'about_your_business': export_plan.about_your_business,
         'objectives': export_plan.objectives,
         'sectors': export_plan.sectors,
