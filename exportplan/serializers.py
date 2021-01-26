@@ -159,7 +159,15 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             ):
                 # For every field for in incoming dictionary update the field from DB
                 for k, v in validated_data[field_name].items():
-                    field_value[k] = v
+                    # If a dict within a dict lets update just the incoming fields to prevent wiping all the dict data
+                    if isinstance(v, dict):
+                        for k2, v2 in v.items():
+                            if not field_value.get(k):
+                                # First time this key is being set, default to empty dict so we don't get index error
+                                field_value[k] = {}
+                            field_value[k][k2] = v2
+                    else:
+                        field_value[k] = v
                 # Send merged data back to validated_data for the method to update the instance
                 validated_data[field_name] = field_value
         super().update(instance, validated_data)
