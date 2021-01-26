@@ -587,6 +587,41 @@ def test_export_plan_update_json_new_to_partial(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
+def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed_supplier):
+    export_plan = factories.CompanyExportPlanFactory.create(ui_progress={'section-a': {'opt-a': 'A', 'opt-b': 'B'}})
+
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    response = authed_client.get(url)
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'B'}}
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    data = {'ui_progress': {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}}
+
+    # add a new section
+    data = {'ui_progress': {'section-b': {'opt-c': 'C'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}, 'section-b': {'opt-c': 'C'}}
+
+    # add a new option
+    data = {'ui_progress': {'section-b': {'opt-d': 'D'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {
+        'section-a': {'opt-a': 'A', 'opt-b': 'b2'},
+        'section-b': {'opt-c': 'C', 'opt-d': 'D'},
+    }
+
+
+@pytest.mark.django_db
 def test_export_plan_update_non_json_new_to_partial(authed_client, authed_supplier):
     export_plan = factories.CompanyExportPlanFactory.create(resource_needed='')
 

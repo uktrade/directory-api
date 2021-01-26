@@ -20,7 +20,7 @@
 - GP2-1359 - add funding fields
 - NOTICKET - Add export plan data to admin
 - GP2-1139 - save EP progress
-
+- NOTICKET - inner dict update by key for json fields
 ### Bugs fixed
 
 - GP2-1314 - ComTrade World import value fix
