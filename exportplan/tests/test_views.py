@@ -616,7 +616,8 @@ def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed
     response = authed_client.patch(url, data, format='json')
     assert response.status_code == 200
     assert response.json()['ui_progress'] == {
-        'section-a': {'opt-a': 'A', 'opt-b': 'b2'}, 'section-b': {'opt-c': 'C', 'opt-d': 'D'}
+        'section-a': {'opt-a': 'A', 'opt-b': 'b2'},
+        'section-b': {'opt-c': 'C', 'opt-d': 'D'},
     }
 
 
