@@ -37,6 +37,10 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
         'override_estimated_total_cost': '23.23',
         'funding_amount_required': '23.44',
     }
+    getting_paid = {
+        'payment_method': {'transport_forms': ['a', 'b'], 'notes': 'no notes'},
+        'incoterms': {'water_transport': ['d', 'e'], 'notes': 'test notes'},
+    }
 
     class Meta:
         model = models.CompanyExportPlan
