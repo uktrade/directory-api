@@ -118,6 +118,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'total_cost_and_price',
             'funding_and_credit',
             'funding_credit_options',
+            'getting_paid',
         )
 
     def validate_export_countries(self, value):
