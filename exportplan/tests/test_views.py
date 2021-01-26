@@ -596,8 +596,6 @@ def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed
 
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
-    import pdb
-    pdb.set_trace()
     assert response.status_code == 200
     assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'B'}}
 
