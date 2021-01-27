@@ -120,10 +120,10 @@ class RetrieveCountryDataView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        filter_args = self.get_filter(self.kwargs['country'])
+        filter_args = self.get_filter(country=self.kwargs['country'])
 
         country_population = helpers.PopulationData()
-        total_population = country_population.get_population_total_data(self.kwargs['country'])
+        total_population = country_population.get_population_total_data(country=self.kwargs['country'])
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
                 ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
