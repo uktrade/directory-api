@@ -116,7 +116,7 @@ class RetrieveCountryDataView(generics.GenericAPIView):
         'The Gambia': 'Gambia, The',
         'Yemen': 'Yemen, Rep.',
         'Venezuela': 'Venezuela, RB',
-        'United States': ['United States of America', 'United States']
+        'United States': ['United States of America', 'United States'],
     }
     permission_classes = []
 
@@ -150,7 +150,7 @@ class RetrieveCountryDataView(generics.GenericAPIView):
 
     def get_filter(self, country):
         weo_country = self.dit_to_weo_country_map.get(country, country)
-        return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country} 
+        return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country}
 
 
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
