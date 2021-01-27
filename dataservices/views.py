@@ -38,7 +38,6 @@ class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
 
 
 class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
-    print('*************  Retrieve CPI')
     serializer_class = serializers.CorruptionPerceptionsIndexSerializer
     permission_classes = []
     lookup_url_kwarg = 'country_code'
