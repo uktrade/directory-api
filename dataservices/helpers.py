@@ -374,7 +374,7 @@ def get_internet_usage(country):
                 'year': internet_usage_obj.year if hasattr(internet_usage_obj, 'year') else None,
             }
         }
-    finally:
+    except Exception:
         return {}
 
 
@@ -388,7 +388,7 @@ def get_cpi_data(country):
                 'year': cpi_obj.year,
             }
         }
-    finally:
+    except Exception:
         return {}
 
 
