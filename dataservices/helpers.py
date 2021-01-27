@@ -368,25 +368,28 @@ def get_cia_factbook_data(country_name, data_keys=None):
 def get_internet_usage(country):
     try:
         internet_usage_obj = models.InternetUsage.objects.filter(country_name=country).latest()
-    except models.InternetUsage.DoesNotExist:
-        return {}
-    return {
-        'internet_usage': {
-            'value': '{:.2f}'.format(internet_usage_obj.value) if hasattr(internet_usage_obj, 'value') else None,
-            'year': internet_usage_obj.year if hasattr(internet_usage_obj, 'year') else None,
+        return {
+            'internet_usage': {
+                'value': '{:.2f}'.format(internet_usage_obj.value) if hasattr(internet_usage_obj, 'value') else None,
+                'year': internet_usage_obj.year if hasattr(internet_usage_obj, 'year') else None,
+            }
         }
-    }
+    finally:
+        return {}
 
 
 @TTLCache()
 def get_cpi_data(country):
     try:
         cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest()
-    except models.ConsumerPriceIndex.DoesNotExist:
+        return {
+            'cpi': {
+                'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None,
+                'year': cpi_obj.year,
+            }
+        }
+    finally:
         return {}
-    return {
-        'cpi': {'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None, 'year': cpi_obj.year}
-    }
 
 
 @TTLCache()
