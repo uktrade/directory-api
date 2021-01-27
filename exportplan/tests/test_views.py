@@ -179,7 +179,8 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'pk': export_plan.funding_credit_options.all()[0].pk,
             }
         ],
-        'funding_and_credit': {'override_estimated_total_cost': '23.23', 'funding_amount_required': '23.44'},
+        'funding_and_credit': export_plan.funding_and_credit,
+        'getting_paid': export_plan.getting_paid,
         'pk': export_plan.pk,
     }
     assert response.status_code == 200
