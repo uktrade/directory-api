@@ -45,6 +45,8 @@ class CompanyExportPlan(TimeStampedModel):
     total_cost_and_price = JSONField(null=True, blank=True, default=dict)
     # Funding and Credit
     funding_and_credit = JSONField(null=True, blank=True, default=dict)
+    # Getting paid
+    getting_paid = JSONField(null=True, blank=True, default=dict)
 
 
 class CompanyObjectives(TimeStampedModel):

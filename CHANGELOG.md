@@ -21,6 +21,8 @@
 - NOTICKET - Add export plan data to admin
 - GP2-1139 - save EP progress
 - NOTICKET - inner dict update by key for json fields
+- GP2-1382 - getting paid structure
+
 ### Bugs fixed
 
 - GP2-1314 - ComTrade World import value fix
