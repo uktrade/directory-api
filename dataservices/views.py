@@ -38,6 +38,7 @@ class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
 
 
 class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
+    print('*************  Retrieve CPI')
     serializer_class = serializers.CorruptionPerceptionsIndexSerializer
     permission_classes = []
     lookup_url_kwarg = 'country_code'
@@ -115,15 +116,15 @@ class RetrieveCountryDataView(generics.GenericAPIView):
         'The Gambia': 'Gambia, The',
         'Yemen': 'Yemen, Rep.',
         'Venezuela': 'Venezuela, RB',
+        'United States': ['United States of America', 'United States']
     }
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        country = self.map_dit_to_weo_country_data(self.kwargs['country'])
-        filter_args = {'country_name': country}
+        filter_args = self.get_filter(self.kwargs['country'])
 
         country_population = helpers.PopulationData()
-        total_population = country_population.get_population_total_data(country=self.kwargs['country'])
+        total_population = country_population.get_population_total_data(self.kwargs['country'])
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
                 ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
@@ -147,8 +148,9 @@ class RetrieveCountryDataView(generics.GenericAPIView):
 
         return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
 
-    def map_dit_to_weo_country_data(self, country):
-        return country if self.dit_to_weo_country_map.get(country) is None else self.dit_to_weo_country_map.get(country)
+    def get_filter(self, country):
+        weo_country = self.dit_to_weo_country_map.get(country, country)
+        return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country} 
 
 
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):

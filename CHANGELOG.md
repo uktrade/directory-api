@@ -25,6 +25,7 @@
 
 ### Bugs fixed
 
+- GP2-1391 - US missing from cpi
 - GP2-1314 - ComTrade World import value fix
 
 ## [1.1.0](https://github.com/uktrade/directory-api/releases/tag/1.1.0)
