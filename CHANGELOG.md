@@ -25,6 +25,7 @@
 
 ### Bugs fixed
 
+- GP2-1347 - Stop missing CPI or internet usage data from blowing up
 - GP2-1391 - US missing from cpi
 - GP2-1314 - ComTrade World import value fix
 
