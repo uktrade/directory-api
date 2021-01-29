@@ -101,31 +101,29 @@ class RetrieveCountryDataView(generics.GenericAPIView):
     dit_to_weo_country_map = {
         'Brunei': 'Brunei Darussalam',
         'Congo': 'Congo, Rep.',
-        'Congo (Democratic Republic)': 'Congo, Dem. Rep.',
+        'Congo (Democratic Republic)': ['Congo, Dem. Rep.', 'Democratic Republic of the Congo'],
         'Dominican': 'Dominican Republic',
-        'Egypt': 'Egypt, Arab Rep.',
+        'Egypt': ['Egypt, Arab Rep.', 'Egypt'],
         'Micronesia': 'Micronesia, Fed. Sts.',
         'Myanmar (Burma)': 'Myanmar',
         'St Kitts and Nevis': 'St. Kitts and Nevis',
-        'St Lucia': 'St. Lucia',
-        'St Vincent': 'St. Vincent and the Grenadines',
-        'Russia': 'Russian Federation',
-        'Syria': 'Syrian Arab Republic',
-        'The Bahamas': 'Bahamas, The',
-        'The Gambia': 'Gambia, The',
-        'Yemen': 'Yemen, Rep.',
-        'Venezuela': 'Venezuela, RB',
+        'St Lucia': ['St. Lucia', 'Saint Lucia'],
+        'St Vincent': ['St. Vincent and the Grenadines', 'Saint Vincent and the Grenadines'],
+        'Russia': ['Russian Federation', 'Russia'],
+        'Syria': ['Syrian Arab Republic', 'Syria'],
+        'The Bahamas': ['Bahamas, The', 'Bahamas'],
+        'The Gambia': ['Gambia, The', 'Gambia'],
+        'Yemen': ['Yemen, Rep.', 'Yemen'],
+        'Venezuela': ['Venezuela, RB', 'Venezuela'],
+        'United States': ['United States of America', 'United States'],
     }
     permission_classes = []
 
     def get(self, *args, **kwargs):
-
-        country = self.map_dit_to_weo_country_data(self.kwargs['country'])
-        filter_args = {'country_name': country}
+        filter_args = self.get_filter(country=self.kwargs['country'])
 
         country_population = helpers.PopulationData()
         total_population = country_population.get_population_total_data(country=self.kwargs['country'])
-
         country_data = {
             'consumer_price_index': get_serialized_instance_from_model(
                 ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
@@ -149,8 +147,9 @@ class RetrieveCountryDataView(generics.GenericAPIView):
 
         return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
 
-    def map_dit_to_weo_country_data(self, country):
-        return country if self.dit_to_weo_country_map.get(country) is None else self.dit_to_weo_country_map.get(country)
+    def get_filter(self, country):
+        weo_country = self.dit_to_weo_country_map.get(country, country)
+        return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country}
 
 
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
@@ -237,7 +236,11 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
             country_population = helpers.PopulationData()
             country_data = {'country': country}
             total_population = country_population.get_population_total_data(country=country)
-            population_data = {'total_population': millify(total_population.get('total_population', 0) * 1000)}
+            total_population_raw = total_population.get('total_population', 0) * 1000
+            population_data = {
+                'total_population': millify(total_population_raw),
+                'total_population_raw': total_population_raw,
+            }
 
             # urban population
             urban_population_data = country_population.get_population_urban_rural_data(

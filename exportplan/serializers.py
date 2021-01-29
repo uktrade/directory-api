@@ -54,6 +54,21 @@ class ExportPlanActionsSerializer(serializers.ModelSerializer):
         }
 
 
+class FundingCreditOptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FundingCreditOptions
+        fields = (
+            'pk',
+            'amount',
+            'funding_option',
+            'companyexportplan',
+        )
+        extra_kwargs = {
+            # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class ExportPlanCountrySerializer(serializers.Serializer):
     country_name = serializers.CharField(required=True)
     country_iso2_code = serializers.CharField(required=False, allow_null=True)
@@ -69,6 +84,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
     target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
+    funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -76,6 +92,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'company',
             'sso_id',
             'ui_options',
+            'ui_progress',
             'export_countries',
             'export_commodity_codes',
             'objectives',
@@ -99,6 +116,9 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'direct_costs',
             'overhead_costs',
             'total_cost_and_price',
+            'funding_and_credit',
+            'funding_credit_options',
+            'getting_paid',
         )
 
     def validate_export_countries(self, value):
@@ -140,7 +160,15 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             ):
                 # For every field for in incoming dictionary update the field from DB
                 for k, v in validated_data[field_name].items():
-                    field_value[k] = v
+                    # If a dict within a dict lets update just the incoming fields to prevent wiping all the dict data
+                    if isinstance(v, dict):
+                        for k2, v2 in v.items():
+                            if not field_value.get(k):
+                                # First time this key is being set, default to empty dict so we don't get index error
+                                field_value[k] = {}
+                            field_value[k][k2] = v2
+                    else:
+                        field_value[k] = v
                 # Send merged data back to validated_data for the method to update the instance
                 validated_data[field_name] = field_value
         super().update(instance, validated_data)

@@ -12,6 +12,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     export_countries = [{'country_name': 'China', 'country_iso2_code': 'CN'}]
     export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
     ui_options = {'target_ages': ['25-34', '35-44']}
+    ui_progress = {'target-market-research': {'is_complete': True}}
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
     sectors = ['Food and drink', 'hospitality']
@@ -31,6 +32,14 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     total_cost_and_price = {
         'units_to_export_first_period': {'unit': 'kg', 'value': '10.00'},
         'average_price_per_unit': '23.44',
+    }
+    funding_and_credit = {
+        'override_estimated_total_cost': '23.23',
+        'funding_amount_required': '23.44',
+    }
+    getting_paid = {
+        'payment_method': {'transport_forms': ['a', 'b'], 'notes': 'no notes'},
+        'incoterms': {'water_transport': ['d', 'e'], 'notes': 'test notes'},
     }
 
     class Meta:
@@ -80,3 +89,12 @@ class TargetMarketDocumentsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.TargetMarketDocuments
+
+
+class FundingCreditOptionsFactory(factory.django.DjangoModelFactory):
+    amount = factory.fuzzy.FuzzyDecimal(low=1, precision=2)
+    funding_option = factory.fuzzy.FuzzyChoice([i[0] for i in choices.FUNDING_OPTIONS])
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.FundingCreditOptions

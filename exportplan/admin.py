@@ -54,3 +54,43 @@ class RouteToMarketsAdmin(admin.ModelAdmin):
         'promote',
         'market_promotional_channel',
     )
+
+
+@admin.register(models.ExportPlanActions)
+class ExportPlanActionsAdmin(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    search_fields = (
+        'owner',
+        'action_type',
+    )
+    list_display = (
+        'companyexportplan',
+        'owner',
+        'due_date',
+        'is_reminders_on',
+        'action_type',
+    )
+
+
+@admin.register(models.TargetMarketDocuments)
+class TargetMarketDocumentsAdmin(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    search_fields = (
+        'document_name',
+        'note',
+    )
+    list_display = (
+        'companyexportplan',
+        'document_name',
+    )
+
+
+@admin.register(models.FundingCreditOptions)
+class FundingCreditOptionsAdmin(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    search_fields = ('funding_option',)
+    list_display = (
+        'companyexportplan',
+        'funding_option',
+        'amount',
+    )

@@ -23,6 +23,7 @@ def export_plan_data(company):
         'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
         'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
         'ui_options': {'target_ages': ['25-34', '35-44']},
+        'ui_progress': {'target-markets': {'is_complete': False}},
         'adaptation_target_market': {'labelling': 'manual', 'size': '2l'},
         'overhead_costs': {'product_adaption': '13.02', 'other_overhead_costs': '19.23'},
         'direct_costs': {'product_costs': '12.02', 'labour_costs': '13.02'},
@@ -46,6 +47,7 @@ def export_plan():
     factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
+    factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -60,6 +62,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
     assert created_export_plan['ui_options'] == export_plan_data['ui_options']
+    assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
     assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
     assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
     assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
@@ -114,6 +117,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'export_commodity_codes': export_plan.export_commodity_codes,
         'export_countries': export_plan.export_countries,
         'ui_options': export_plan.ui_options,
+        'ui_progress': export_plan.ui_progress,
         'about_your_business': export_plan.about_your_business,
         'objectives': export_plan.objectives,
         'sectors': export_plan.sectors,
@@ -167,6 +171,16 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'pk': export_plan.target_market_documents.all()[0].pk,
             }
         ],
+        'funding_credit_options': [
+            {
+                'companyexportplan': export_plan.id,
+                'funding_option': export_plan.funding_credit_options.all()[0].funding_option,
+                'amount': float(export_plan.funding_credit_options.all()[0].amount),
+                'pk': export_plan.funding_credit_options.all()[0].pk,
+            }
+        ],
+        'funding_and_credit': export_plan.funding_and_credit,
+        'getting_paid': export_plan.getting_paid,
         'pk': export_plan.pk,
     }
     assert response.status_code == 200
@@ -307,10 +321,10 @@ def test_export_plan_new_actions(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.OK
     export_plan_actions = export_plan.export_plan_actions.all()
     assert len(export_plan_actions) == 2
-    assert export_plan_actions[0].is_reminders_on is False
-    assert export_plan_actions[0].due_date == date(2020, 1, 2)
-    assert export_plan_actions[1].is_reminders_on is True
-    assert export_plan_actions[1].due_date == date(2020, 1, 1)
+    assert export_plan_actions[0].is_reminders_on is True
+    assert export_plan_actions[0].due_date == date(2020, 1, 1)
+    assert export_plan_actions[1].is_reminders_on is False
+    assert export_plan_actions[1].due_date == date(2020, 1, 2)
 
 
 @pytest.mark.django_db
@@ -369,7 +383,7 @@ def test_export_plan_objectives_create(authed_client, authed_supplier, export_pl
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.company_objectives.all().count() == 2
-    my_objective = export_plan.company_objectives.all()[0]
+    my_objective = export_plan.company_objectives.last()
 
     assert my_objective.description == data['description']
     assert my_objective.pk == data['pk']
@@ -447,7 +461,7 @@ def test_route_to_market_create(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.route_to_markets.all().count() == 2
-    route_to_market = export_plan.route_to_markets.all()[0]
+    route_to_market = export_plan.route_to_markets.last()
     assert route_to_market.pk == data['pk']
     assert route_to_market.route == data['route']
     assert route_to_market.promote == data['promote']
@@ -521,7 +535,7 @@ def test_target_market_doc_create(authed_client, authed_supplier, export_plan):
     assert response.status_code == http.client.CREATED
     export_plan.refresh_from_db()
     assert export_plan.target_market_documents.all().count() == 2
-    adaptation_docs = export_plan.target_market_documents.all()[0]
+    adaptation_docs = export_plan.target_market_documents.last()
     assert adaptation_docs.pk == data['pk']
     assert adaptation_docs.document_name == data['document_name']
     assert adaptation_docs.note == data['note']
@@ -574,6 +588,41 @@ def test_export_plan_update_json_new_to_partial(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
+def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed_supplier):
+    export_plan = factories.CompanyExportPlanFactory.create(ui_progress={'section-a': {'opt-a': 'A', 'opt-b': 'B'}})
+
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    response = authed_client.get(url)
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'B'}}
+
+    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
+    data = {'ui_progress': {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}}
+
+    # add a new section
+    data = {'ui_progress': {'section-b': {'opt-c': 'C'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {'section-a': {'opt-a': 'A', 'opt-b': 'b2'}, 'section-b': {'opt-c': 'C'}}
+
+    # add a new option
+    data = {'ui_progress': {'section-b': {'opt-d': 'D'}}}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 200
+    assert response.json()['ui_progress'] == {
+        'section-a': {'opt-a': 'A', 'opt-b': 'b2'},
+        'section-b': {'opt-c': 'C', 'opt-d': 'D'},
+    }
+
+
+@pytest.mark.django_db
 def test_export_plan_update_non_json_new_to_partial(authed_client, authed_supplier):
     export_plan = factories.CompanyExportPlanFactory.create(resource_needed='')
 
@@ -597,3 +646,76 @@ def test_export_plan_update_non_json_new_to_partial(authed_client, authed_suppli
     response = authed_client.patch(url, data, format='json')
     assert response.status_code == 200
     assert response.json()['resource_needed'] == 'Old resource'
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_update(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': funding_credit_option.pk})
+
+    data = {'amount': '12.34'}
+    response = authed_client.patch(url, data, format='json')
+    funding_credit_option.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert funding_credit_option.amount == float(data['amount'])
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_retrieve(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    funding_credit_option = export_plan.funding_credit_options.all()[0]
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': funding_credit_option.pk})
+    response = authed_client.get(url)
+    data = response.json()
+    assert response.status_code == http.client.OK
+    assert funding_credit_option.pk == data['pk']
+    assert funding_credit_option.amount == data['amount']
+    assert funding_credit_option.funding_option == data['funding_option']
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_create(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-funding-credit-options-list-create')
+
+    data = {
+        'companyexportplan': export_plan.id,
+        'funding_option': 'government',
+        'amount': '55.23',
+    }
+
+    response = authed_client.post(url, data)
+    data = response.json()
+
+    assert response.status_code == http.client.CREATED
+    export_plan.refresh_from_db()
+    assert export_plan.funding_credit_options.all().count() == 2
+    funding_credit_option = export_plan.funding_credit_options.last()
+    assert funding_credit_option.pk == data['pk']
+    assert funding_credit_option.amount == data['amount']
+    assert funding_credit_option.funding_option == data['funding_option']
+
+
+@pytest.mark.django_db
+def test_funding_credit_options_delete(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    target_market_docs = export_plan.funding_credit_options.all()[0]
+
+    url = reverse('export-plan-funding-credit-options-detail-update', kwargs={'pk': target_market_docs.pk})
+
+    response = authed_client.delete(url)
+    assert response.status_code == http.client.NO_CONTENT
+    assert not export_plan.funding_credit_options.all()
