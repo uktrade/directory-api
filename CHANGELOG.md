@@ -4,12 +4,30 @@
 
 ### Implemented enhancements
 
-- GP2-173 - Updated Male population CSV 
+- GP2-1348 - Economy and population raw values and rank totals
+- GP2-1264 - Added currencies data
+- GP2-1267 - Added Rule of Law data
+- GP2-1258 - Society data
+- GP2-1270 - Imported Income data
+- GP2-1218 - Country data alignment
+- GP2-173 - Updated Male population CSV
 - GP2-1068 - Apply black and isort autoformatting to codebase incl makefile additions
 - GP2-1063 - Moved SuggestedCountries under dataservices app
 - GP2-1025 - Refactor economy data from ComTrade
+- GP2-849 - add total pop
+- GP2-849 - add internet usage total
+- GP2-285 - cost and price be
+- GP2-1359 - add funding fields
+- NOTICKET - Add export plan data to admin
+- GP2-1139 - save EP progress
+- NOTICKET - inner dict update by key for json fields
+- GP2-1382 - getting paid structure
 
 ### Bugs fixed
+
+- GP2-1347 - Stop missing CPI or internet usage data from blowing up
+- GP2-1391 - US missing from cpi
+- GP2-1314 - ComTrade World import value fix
 
 ## [1.1.0](https://github.com/uktrade/directory-api/releases/tag/1.1.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.0.0...1.1.0)

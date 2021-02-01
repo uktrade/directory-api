@@ -145,6 +145,14 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
 class CountryAdmin(admin.ModelAdmin):
     resource_class = CountryResource
 
+    search_fields = (
+        'name',
+        'iso1',
+        'iso2',
+        'iso3',
+        'region',
+    )
+
     list_display = (
         'name',
         'iso1',
@@ -181,3 +189,26 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
 @admin.register(models.SuggestedCountry)
 class SuggestedCountryAdmin(admin.ModelAdmin):
     list_display = ('hs_code', 'country', 'order')
+
+
+@admin.register(models.Income)
+class IncomeAdmin(admin.ModelAdmin):
+    list_display = ('country', 'year', 'value', 'country_name', 'country_code')
+
+
+@admin.register(models.RuleOfLaw)
+class RuleOfLawAdmin(admin.ModelAdmin):
+    list_display = ('country_name', 'rank', 'score', 'iso2')
+
+
+@admin.register(models.Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    search_fields = (
+        'country_name',
+        'iso2',
+        'currency_name',
+        'alphabetic_code',
+        'numeric_code',
+    )
+
+    list_display = ('country_name', 'iso2', 'currency_name', 'alphabetic_code', 'numeric_code')

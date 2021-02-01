@@ -5,6 +5,9 @@ from dataservices import models
 
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
+    country = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
+    rank = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
@@ -13,11 +16,37 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     def get_total(self, obj):
         return models.EaseOfDoingBusiness.objects.all().count()
 
+    def get_country(self, obj):
+        if obj.country:
+            return obj.country.name
+
+    def get_year(self, obj):
+        # The year is implicit and should be updated when new data are imported
+        return '2019'
+
+    def get_rank(self, obj):
+        return obj.year_2019
+
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
+    country = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
+
     class Meta:
         model = models.CorruptionPerceptionsIndex
         exclude = ['created', 'id', 'modified']
+
+    def get_total(self, obj):
+        return models.CorruptionPerceptionsIndex.objects.all().count()
+
+    def get_country(self, obj):
+        if obj.country:
+            return obj.country.name
+
+    def get_year(self, obj):
+        # The year is implicit and should be updated when new data are imported
+        return '2019'
 
 
 class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
@@ -42,6 +71,18 @@ class GDPPerCapitalSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.GDPPerCapita
         exclude = ['created', 'id', 'modified']
+
+
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Income
+        exclude = ['created', 'id', 'modified']
+
+
+class RuleOfLawSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RuleOfLaw
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class SuggestedCountrySerializer(serializers.ModelSerializer):

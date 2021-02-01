@@ -18,6 +18,7 @@ class CompanyExportPlan(TimeStampedModel):
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
     ui_options = JSONField(null=True, blank=True, default=dict)
+    ui_progress = JSONField(null=True, blank=True, default=dict)
 
     about_your_business = JSONField(null=True, blank=True, default=dict)
     # business objectives
@@ -38,6 +39,14 @@ class CompanyExportPlan(TimeStampedModel):
     promotion_channels = JSONField(null=True, blank=True, default=list)
     resource_needed = models.TextField(null=True, blank=True, default='', validators=[no_html])
     spend_marketing = models.FloatField(null=True, default=None, unique=False)
+    # Cost and Pricing
+    direct_costs = JSONField(null=True, blank=True, default=dict)
+    overhead_costs = JSONField(null=True, blank=True, default=dict)
+    total_cost_and_price = JSONField(null=True, blank=True, default=dict)
+    # Funding and Credit
+    funding_and_credit = JSONField(null=True, blank=True, default=dict)
+    # Getting paid
+    getting_paid = JSONField(null=True, blank=True, default=dict)
 
 
 class CompanyObjectives(TimeStampedModel):
@@ -51,6 +60,9 @@ class CompanyObjectives(TimeStampedModel):
         CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name_plural = "Company Objectives"
+
 
 class RouteToMarkets(TimeStampedModel):
     route = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.MARKET_ROUTE_CHOICES)
@@ -60,6 +72,9 @@ class RouteToMarkets(TimeStampedModel):
     market_promotional_channel = models.TextField(blank=True, default='', validators=[no_html])
 
     companyexportplan = models.ForeignKey(CompanyExportPlan, related_name='route_to_markets', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Route To Markets"
 
 
 class ExportPlanActions(TimeStampedModel):
@@ -72,6 +87,9 @@ class ExportPlanActions(TimeStampedModel):
         CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
     )
 
+    class Meta:
+        verbose_name_plural = "Export Plan Actions"
+
 
 class TargetMarketDocuments(TimeStampedModel):
     document_name = models.TextField(blank=True, default='', validators=[no_html])
@@ -80,3 +98,17 @@ class TargetMarketDocuments(TimeStampedModel):
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='target_market_documents', on_delete=models.CASCADE
     )
+
+    class Meta:
+        verbose_name_plural = "Target Market Documents"
+
+
+class FundingCreditOptions(TimeStampedModel):
+    funding_option = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.FUNDING_OPTIONS)
+    amount = models.FloatField(blank=True, null=True, default=0.00)
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='funding_credit_options', on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name_plural = "Funding Credit Options"

@@ -21,7 +21,22 @@ class CIAFactBookFactory(factory.django.DjangoModelFactory):
                         'name': 'English',
                     }
                 ],
-            }
+            },
+            'religions': {
+                "date": "2011",
+                'religion': [
+                    {
+                        'name': 'Christian',
+                        'note': 'includes Anglican, Roman Catholic, Presbyterian, Methodist',
+                        'percent': 59.5,
+                    },
+                    {'name': 'Muslim', 'percent': 4.4},
+                    {'name': 'Hindu', 'percent': 1.3},
+                    {'name': 'other', 'percent': 2},
+                    {'name': 'unspecified', 'percent': 7.2},
+                    {'name': 'none', "percent": 25.7},
+                ],
+            },
         },
     }
 
