@@ -212,3 +212,24 @@ class CurrencyAdmin(admin.ModelAdmin):
     )
 
     list_display = ('country_name', 'iso2', 'currency_name', 'alphabetic_code', 'numeric_code')
+
+
+@admin.register(models.TradingBlocs)
+class TradingBlocsAdmin(admin.ModelAdmin):
+    search_fields = (
+        'membership_code',
+        'iso2',
+        'country_territory_name',
+        'trading_bloc_code',
+        'trading_bloc_name',
+    )
+
+    list_display = (
+        'membership_code',
+        'iso2',
+        'country_territory_name',
+        'trading_bloc_code',
+        'trading_bloc_name',
+    )
+
+    list_filter = ('trading_bloc_name',)

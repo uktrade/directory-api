@@ -49,6 +49,7 @@ def test_import_data_sets_error(management_cmd):
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
         (models.Currency, 'import_currency_data', 269),
+        (models.TradingBlocs, 'import_trading_blocs', 356),
     ),
 )
 def test_import_countries_data_sets(model_name, management_cmd, object_count):
