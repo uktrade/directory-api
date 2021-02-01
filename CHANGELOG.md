@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 
+- GP2-1343 - Added Trading blocs data
 - GP2-1348 - Economy and population raw values and rank totals
 - GP2-1264 - Added currencies data
 - GP2-1267 - Added Rule of Law data

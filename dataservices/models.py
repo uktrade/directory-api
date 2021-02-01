@@ -181,3 +181,19 @@ class Currency(TimeStampedModel):
 
     class Meta:
         verbose_name = 'Currencies'
+
+
+class TradingBlocs(TimeStampedModel):
+    membership_code = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    iso2 = models.CharField(unique=False, blank=False, null=False, max_length=50)
+    country_territory_name = models.CharField(unique=False, blank=True, null=True, max_length=255)
+    trading_bloc_code = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    trading_bloc_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
+    membership_start_date = models.DateField(null=True, blank=True)
+    membership_end_date = models.DateField(null=True, blank=True)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+
+    class Meta:
+        verbose_name = "Trading Bloc"
