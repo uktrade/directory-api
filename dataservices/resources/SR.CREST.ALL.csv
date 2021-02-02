@@ -1,0 +1,100 @@
+﻿Product,Country 1,Alpha-2 code,Country 2,Alpha-2 code,Country 3,Alpha-2 code,Country 4,Alpha-2 code,Country 5,Alpha-2 code
+1,Netherlands,NL,Italy,IT,Turkey,TR,Ireland,IE,Germany,DE
+2,Italy,IT,Japan,JP,South Korea,KR,Greece,GR,Egypt,EG
+3,Netherlands,NL,Germany,DE,Portugal,PT,Italy,IT,Belgium,BE
+4,Germany,DE,Italy,IT,Russia,RU,Sweden,SE,Spain,ES
+5,Germany,DE,USA,US,China,CN,Hong Kong,HK,Austria,AT
+6,Netherlands,NL,France,FR,Russia,RU,Germany,DE,Italy,IT
+7,Germany,DE,Netherlands,NL,France,FR,USA,US,Canada,CA
+8,Germany,DE,Belgium,BE,USA,US,Netherlands,NL,Italy,IT
+9,Germany,DE,Belgium,BE,USA,US,France,FR,Italy,IT
+10,Egypt,EG,Italy,IT,Netherlands,NL,Germany,DE,Saudi Arabia,SA
+11,Afghanistan,AF,Iraq,IQ,China,CN,Ghana,GH,Mexico,MX
+12,Netherlands,NL,China,CN,Belgium,BE,Italy,IT,Egypt,EG
+13,USA,US,France,FR,India,IN,Japan,JP,Germany,DE
+14,Netherlands,NL,Spain,ES,Poland,PL,France,FR,Belgium,BE
+15,India,IN,USA,US,Italy,IT,Spain,ES,Egypt,EG
+16,USA,US,Germany,DE,Netherlands,NL,Italy,IT,Belgium,BE
+17,Algeria,DZ,Egypt,EG,France,FR,South Korea,KR,Morocco,MA
+18,USA,US,France,FR,Italy,IT,Germany,DE,Russia,RU
+19,USA,US,Germany,DE,Canada,CA,France,FR,Portugal,PT
+20,USA,US,Germany,DE,France,FR,Belgium,BE,Italy,IT
+21,USA,US,France,FR,Canada,CA,Belgium,BE,Japan,JP
+22,Netherlands,NL,Germany,DE,Belgium,BE,USA,US,Russia,RU
+23,Netherlands,NL,Italy,IT,Turkey,TR,South Korea,KR,Egypt,EG
+24,Germany,DE,Netherlands,NL,Italy,IT,Belgium,BE,France,FR
+25,Netherlands,NL,USA,US,Belgium,BE,Morocco,MA,China,CN
+26,China,CN,Netherlands,NL,Belgium,BE,Ireland,IE,Japan,JP
+27,France,FR,Italy,IT,India,IN,Japan,JP,Spain,ES
+28,Belgium,BE,Netherlands,NL,Norway,NO,Canada,CA,Russia,RU
+29,Germany,DE,Belgium,BE,Ireland,IE,China,CN,Italy,IT
+30,Belgium,BE,Switzerland,CH,Italy,IT,Russia,RU,Denmark,DK
+31,France,FR,Belgium,BE,India,IN,USA,US,Italy,IT
+32,France,FR,Belgium,BE,Canada,CA,Mexico,MX,Switzerland,CH
+33,USA,US,France,FR,Germany,DE,Netherlands,NL,Russia,RU
+34,Germany,DE,Netherlands,NL,France,FR,USA,US,Italy,IT
+35,Netherlands,NL,China,CN,Spain,ES,Russia,RU,France,FR
+36,USA,US,Mexico,MX,China,CN,Norway,NO,Belgium,BE
+37,Belgium,BE,France,FR,China,CN,Spain,ES,Germany,DE
+38,Netherlands,NL,Belgium,BE,France,FR,Germany,DE,Spain,ES
+39,Germany,DE,Italy,IT,Belgium,BE,Mexico,MX,Portugal,PT
+40,Germany,DE,Spain,ES,Italy,IT,Mexico,MX,Czech Republic,CZ
+41,France,FR,Spain,ES,Netherlands,NL,Germany,DE,Portugal,PT
+42,USA,US,Singapore,SG,Canada,CA,Netherlands,NL,Mexico,MX
+43,China,CN,Denmark,DK,Russia,RU,Canada,CA,Cambodia,KH
+44,Germany,DE,China,CN,Italy,IT,USA,US,Netherlands,NL
+45,France,FR,Portugal,PT,Germany,DE,Italy,IT,USA,US
+46,USA,US,Netherlands,NL,Canada,CA,Belgium,BE,Spain,ES
+47,Netherlands,NL,Germany,DE,Italy,IT,France,FR,Poland,PL
+48,Germany,DE,Netherlands,NL,Belgium,BE,Spain,ES,France,FR
+49,USA,US,France,FR,Canada,CA,Germany,DE,Switzerland,CH
+50,India,IN,Italy,IT,Pakistan,PK,Romania,RO,Germany,DE
+51,Italy,IT,Germany,DE,Czech Republic,CZ,China,CN,Egypt,EG
+52,China,CN,Turkey,TR,Bangladesh,BD,Italy,IT,Belgium,BE
+53,China,CN,Belgium,BE,Afghanistan,AF,Turkey,TR,India,IN
+54,Netherlands,NL,France,FR,Italy,IT,Spain,ES,Egypt,EG
+55,Belgium,BE,Germany,DE,Netherlands,NL,Italy,IT,France,FR
+56,Germany,DE,Belgium,BE,France,FR,Italy,IT,Mexico,MX
+57,USA,US,Germany,DE,Canada,CA,Italy,IT,Mexico,MX
+58,Germany,DE,Belgium,BE,France,FR,Egypt,EG,Turkey,TR
+59,Germany,DE,Mexico,MX,USA,US,Russia,RU,Belgium,BE
+60,Germany,DE,France,FR,Italy,IT,Belgium,BE,Netherlands,NL
+61,Germany,DE,Netherlands,NL,Belgium,BE,USA,US,France,FR
+62,USA,US,Netherlands,NL,Belgium,BE,Canada,CA,Spain,ES
+63,USA,US,Netherlands,NL,France,FR,Germany,DE,Canada,CA
+64,USA,US,Belgium,BE,Canada,CA,Switzerland,CH,Netherlands,NL
+65,USA,US,Germany,DE,Netherlands,NL,Italy,IT,Belgium,BE
+66,Germany,DE,USA,US,Netherlands,NL,Belgium,BE,Austria,AT
+67,USA,US,Poland,PL,Italy,IT,Germany,DE,Benin,BJ
+68,France,FR,Netherlands,NL,Belgium,BE,USA,US,Sweden,SE
+69,Belgium,BE,Germany,DE,Netherlands,NL,Israel,IL,South Africa,ZA
+70,France,FR,Germany,DE,Netherlands,NL,USA,US,Spain,ES
+71,USA,US,India,IN,Belgium,BE,United Arab Emirates,AE,Hong Kong,HK
+72,Germany,DE,Belgium,BE,Italy,IT,Netherlands,NL,France,FR
+73,Germany,DE,USA,US,France,FR,Netherlands,NL,Belgium,BE
+74,Belgium,BE,Switzerland,CH,Netherlands,NL,Italy,IT,France,FR
+75,Netherlands,NL,Norway,NO,Switzerland,CH,Finland,FI,Belgium,BE
+76,Netherlands,NL,Italy,IT,Belgium,BE,Poland,PL,Mexico,MX
+77,Germany,DE,Netherlands,NL,Belgium,BE,USA,US,France,FR
+78,USA,US,Spain,ES,Belgium,BE,Czech Republic,CZ,South Korea,KR
+79,Belgium,BE,Netherlands,NL,Italy,IT,China,CN,Poland,PL
+80,Netherlands,NL,USA,US,Germany,DE,Belgium,BE,Spain,ES
+81,Germany,DE,Netherlands,NL,Belgium,BE,USA,US,France,FR
+82,Germany,DE,USA,US,Belgium,BE,Mexico,MX,Russia,RU
+83,Germany,DE,USA,US,France,FR,Mexico,MX,Russia,RU
+84,USA,US,Germany,DE,Netherlands,NL,Mexico,MX,Czech Republic,CZ
+85,Germany,DE,Netherlands,NL,USA,US,Mexico,MX,France,FR
+86,USA,US,Germany,DE,France,FR,Netherlands,NL,Saudi Arabia,SA
+87,Germany,DE,France,FR,Mexico,MX,Spain,ES,Czech Republic,CZ
+88,China,CN,Ireland,IE,Japan,JP,USA,US,Russia,RU
+89,Norway,NO,Netherlands,NL,Nigeria,NG,Singapore,SG,Marshall Islands,MH
+90,Netherlands,NL,Germany,DE,China,CN,South Korea,KR,Mexico,MX
+91,Germany,DE,Netherlands,NL,Belgium,BE,France,FR,Singapore,SG
+92,USA,US,China,CN,Netherlands,NL,Belgium,BE,Germany,DE
+93,Saudi Arabia,SA,United Arab Emirates,AE,France,FR,Qatar,QA,Turkey,TR
+94,Germany,DE,USA,US,Netherlands,NL,France,FR,Belgium,BE
+95,USA,US,Netherlands,NL,Germany,DE,Belgium,BE,Poland,PL
+96,USA,US,Belgium,BE,France,FR,Germany,DE,Netherlands,NL
+97,Switzerland,CH,Germany,DE,Japan,JP,Canada,CA,Netherlands,NL
+98,Germany,DE,Netherlands,NL,Belgium,BE,USA,US,France,FR
+99,Germany,DE,Netherlands,NL,Belgium,BE,USA,US,France,FR
