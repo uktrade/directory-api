@@ -287,3 +287,18 @@ class SuggestedCountriesView(generics.ListAPIView):
         if not self.request.query_params.get('hs_code'):
             return Response(status=500, data={'error_message': 'hs_code missing in request params'})
         return super().get(*args, **kwargs)
+
+
+class TradingBlocsView(generics.ListAPIView):
+    serializer_class = serializers.TradingBlocsSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        iso2 = self.request.query_params.get('iso2', '').lower()
+        queryset = models.TradingBlocs.objects.filter(country__iso2__iexact=iso2)
+        return queryset
+
+    def get(self, *args, **kwargs):
+        if not self.request.query_params.get('iso2'):
+            return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
+        return super().get(*args, **kwargs)
