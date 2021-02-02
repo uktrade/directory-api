@@ -93,3 +93,9 @@ class SuggestedCountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SuggestedCountry
         fields = ('hs_code', 'country_name', 'country_iso2', 'region')
+
+
+class TradingBlocsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TradingBlocs
+        exclude = ['created', 'id', 'modified']

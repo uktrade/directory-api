@@ -4,6 +4,8 @@
 
 ### Implemented enhancements
 
+- 1344 - Added API for trading blocs
+
 ### Bugs fixed
 
 
