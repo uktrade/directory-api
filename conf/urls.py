@@ -200,6 +200,11 @@ urlpatterns = [
         name='dataservices-suggested-countries',
     ),
     url(
+        r'^dataservices/trading-blocs/$',
+        dataservices.views.TradingBlocsView.as_view(),
+        name='dataservices-trading-blocs',
+    ),
+    url(
         r'^exportplan/company-export-plan/$',
         exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
         name='export-plan-list-create',
