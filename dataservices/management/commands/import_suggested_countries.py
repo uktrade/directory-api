@@ -2,8 +2,8 @@ import tablib
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from dataservices.models import Country, SuggestedCountry
 from core.helpers import get_file_from_s3
+from dataservices.models import Country, SuggestedCountry
 
 
 class Command(BaseCommand):
@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         # add only countries and selected columns
         for suggested_tuple in data:
-        # for suggested_tuple in data:
+            # for suggested_tuple in data:
             iso_list = []
             hs_code = None
             for item in suggested_tuple:
@@ -33,9 +33,7 @@ class Command(BaseCommand):
             if hs_code and len(suggested_countries) > 0:
                 order = 1
                 for country in suggested_countries:
-                    suggested_product_countries.append(
-                        SuggestedCountry(hs_code=hs_code, country=country, order=order)
-                    )
+                    suggested_product_countries.append(SuggestedCountry(hs_code=hs_code, country=country, order=order))
                     order += 1
 
         SuggestedCountry.objects.all().delete()
