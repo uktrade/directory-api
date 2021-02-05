@@ -4,7 +4,8 @@
 
 ### Implemented enhancements
 
-- 1344 - Added API for trading blocs
+- GP2-1344 - Added API for trading blocs
+- GP2-1392 - lock down public data access
 
 ### Bugs fixed
 
