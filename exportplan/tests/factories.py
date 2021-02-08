@@ -41,6 +41,10 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
         'payment_method': {'transport_forms': ['a', 'b'], 'notes': 'no notes'},
         'incoterms': {'water_transport': ['d', 'e'], 'notes': 'test notes'},
     }
+    travel_business_policies = {
+        'travel_information': 'All travel to be business class',
+        'visa_information': {'is_required': True, 'duration': '10 Months'},
+    }
 
     class Meta:
         model = models.CompanyExportPlan
@@ -98,3 +102,11 @@ class FundingCreditOptionsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.FundingCreditOptions
+
+
+class BusinessTripsFactory(factory.django.DjangoModelFactory):
+    note = factory.fuzzy.FuzzyText(length=50)
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.BusinessTrips

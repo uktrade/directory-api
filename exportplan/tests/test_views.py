@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from company.tests.factories import CompanyFactory
 from conf import settings
-from exportplan.models import CompanyExportPlan
+from exportplan import models
 from exportplan.tests import factories
 
 
@@ -48,6 +48,7 @@ def export_plan():
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
+    factories.BusinessTripsFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -57,7 +58,7 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert response.status_code == http.client.CREATED
     created_export_plan = response.json()
 
-    export_plan_db = CompanyExportPlan.objects.last()
+    export_plan_db = models.CompanyExportPlan.objects.last()
 
     assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
     assert created_export_plan['export_countries'] == export_plan_data['export_countries']
@@ -181,6 +182,14 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         ],
         'funding_and_credit': export_plan.funding_and_credit,
         'getting_paid': export_plan.getting_paid,
+        'travel_business_policies': export_plan.travel_business_policies,
+        'business_trips': [
+            {
+                'companyexportplan': export_plan.id,
+                'pk': export_plan.business_trips.all()[0].pk,
+                'note': export_plan.business_trips.all()[0].note,
+            }
+        ],
         'pk': export_plan.pk,
     }
     assert response.status_code == 200
@@ -207,7 +216,7 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 @pytest.mark.django_db
 def test_export_plan_target_markets_update_historical_disabled(authed_client, authed_supplier):
     settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
-    CompanyExportPlan.objects.all().delete()
+    models.CompanyExportPlan.objects.all().delete()
     export_plan = factories.CompanyExportPlanFactory.create()
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
     factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
@@ -719,3 +728,146 @@ def test_funding_credit_options_delete(authed_client, authed_supplier, export_pl
     response = authed_client.delete(url)
     assert response.status_code == http.client.NO_CONTENT
     assert not export_plan.funding_credit_options.all()
+
+
+@pytest.mark.parametrize(
+    'model_class, property_name, create_data',
+    [
+        [models.FundingCreditOptions, 'funding_credit_options', {'funding_option': 'government', 'amount': 55.23}],
+        [
+            models.CompanyObjectives,
+            'company_objectives',
+            {
+                'description': 'newly created',
+                'planned_reviews': 'None planned',
+            },
+        ],
+        [
+            models.RouteToMarkets,
+            'route_to_markets',
+            {
+                'route': choices.MARKET_ROUTE_CHOICES[0][0],
+                'promote': choices.PRODUCT_PROMOTIONAL_CHOICES[0][0],
+                'market_promotional_channel': 'facebook',
+            },
+        ],
+        [
+            models.TargetMarketDocuments,
+            'target_market_documents',
+            {'document_name': 'name update', 'note': 'new notes'},
+        ],
+        [models.ExportPlanActions, 'export_plan_actions', {'action_type': 'TARGET_MARKETS', 'is_reminders_on': True}],
+        [models.BusinessTrips, 'business_trips', {'note': 'I just got created'}],
+    ],
+)
+@pytest.mark.django_db
+def test_export_plan_model_create(model_class, property_name, create_data, authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    url = reverse('export-plan-model-object-list-create')
+
+    create_data['companyexportplan'] = export_plan.id
+    create_data['model_name'] = model_class.__name__
+
+    response = authed_client.post(url, create_data)
+    data_returned = response.json()
+    assert response.status_code == http.client.CREATED
+
+    export_plan.refresh_from_db()
+
+    assert data_returned.pop('companyexportplan') == export_plan.id
+    assert getattr(export_plan, property_name).all().count() == 2
+    object_created = getattr(export_plan, property_name).last()
+
+    for k, v in data_returned.items():
+        assert getattr(object_created, k) == v
+
+
+@pytest.mark.parametrize(
+    'model_class, property_name',
+    [
+        [models.FundingCreditOptions, 'funding_credit_options'],
+        [models.CompanyObjectives, 'company_objectives'],
+        [models.RouteToMarkets, 'route_to_markets'],
+        [models.TargetMarketDocuments, 'target_market_documents'],
+        [models.ExportPlanActions, 'export_plan_actions'],
+        [models.BusinessTrips, 'business_trips'],
+    ],
+)
+@pytest.mark.django_db
+def test_export_plan_model_retrieve(model_class, property_name, authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+
+    model_object = getattr(export_plan, property_name).all()[0]
+
+    # lower model name is deliberate to test that it's not case sensitive
+    url = reverse(
+        'export-plan-model-object-detail', kwargs={'pk': model_object.pk, 'model_name': model_class.__name__.lower()}
+    )
+    response = authed_client.get(url)
+
+    model_data = response.json()
+    assert response.status_code == http.client.OK
+    assert response.status_code == http.client.OK
+    assert len(model_data) > 1
+    assert model_data.pop('companyexportplan') == export_plan.id
+    for k, v in model_data.items():
+        assert getattr(model_object, k) == v
+
+
+@pytest.mark.parametrize(
+    'model_class, property_name, data_update',
+    [
+        [models.FundingCreditOptions, 'funding_credit_options', {'amount': 12.34}],
+        [models.CompanyObjectives, 'company_objectives', {'description': 'updated now'}],
+        [models.RouteToMarkets, 'route_to_markets', {'route': choices.MARKET_ROUTE_CHOICES[0][0]}],
+        [models.TargetMarketDocuments, 'target_market_documents', {'document_name': 'update me'}],
+        [models.ExportPlanActions, 'export_plan_actions', {'is_reminders_on': True}],
+        [models.BusinessTrips, 'business_trips', {'note': 'update my trip'}],
+    ],
+)
+@pytest.mark.django_db
+def test_export_plan_model_update(model_class, property_name, data_update, authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    attribute_updated = list(data_update.keys())[0]
+    data_update['model_name'] = model_class.__name__
+    model_object = getattr(export_plan, property_name).all()[0]
+    url = reverse('export-plan-model-object-update-delete', kwargs={'pk': model_object.pk})
+
+    response = authed_client.patch(url, data_update, format='json')
+    model_object.refresh_from_db()
+
+    assert response.status_code == http.client.OK
+    assert getattr(model_object, attribute_updated) == data_update[attribute_updated]
+
+
+@pytest.mark.parametrize(
+    'model_class, property_name',
+    [
+        [models.FundingCreditOptions, 'funding_credit_options'],
+        [models.CompanyObjectives, 'company_objectives'],
+        [models.RouteToMarkets, 'route_to_markets'],
+        [models.TargetMarketDocuments, 'target_market_documents'],
+        [models.ExportPlanActions, 'export_plan_actions'],
+        [models.BusinessTrips, 'business_trips'],
+    ],
+)
+@pytest.mark.django_db
+def test_export_plan_model_delete(model_class, property_name, authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    model_object = getattr(export_plan, property_name).all()[0]
+
+    # Upper model name is deliberate to test that it's not case sensitive
+    data = {'model_name': model_class.__name__.upper()}
+    url = reverse('export-plan-model-object-update-delete', kwargs={'pk': model_object.pk})
+    response = authed_client.delete(url, data, format='json')
+
+    assert response.status_code == http.client.NO_CONTENT
+    assert not getattr(export_plan, property_name).all()

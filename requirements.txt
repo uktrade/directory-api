@@ -38,6 +38,8 @@ cryptography==3.2
     #   requests
 defusedxml==0.6.0
     # via odfpy
+deprecated==1.2.11
+    # via -r requirements.in
 diff-match-patch==20200713
     # via django-import-export
 directory-client-core==6.3.0
@@ -249,6 +251,8 @@ waitress==1.4.3
     # via -r requirements.in
 whitenoise==4.1.4
     # via -r requirements.in
+wrapt==1.12.1
+    # via deprecated
 xlrd==1.2.0
     # via tablib
 xlwt==1.3.0
