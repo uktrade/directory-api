@@ -8,6 +8,7 @@ import pytest
 from directory_constants import choices, company_types, sectors, user_roles
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from elasticsearch_dsl import Index
 from elasticsearch_dsl.connections import connections
@@ -2435,9 +2436,9 @@ def test_company_collaborators_profile_owner_collaborators(authed_supplier, auth
 @pytest.mark.django_db
 @mock.patch('sigauth.helpers.RequestSignatureChecker.test_signature', mock.Mock(return_value=True))
 @mock.patch('core.views.get_file_from_s3')
+@override_settings(STORAGE_CLASS_NAME='default')
+@override_settings(AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE='my_db_buket')
 def test_company_user_csv_dump(mocked_get_file_from_s3, authed_client):
-    settings.STORAGE_CLASS_NAME = 'default'
-    settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = 'my_db_buket'
     reload_module('company.views')
     reload_module('buyer.views')
     reload_urlconf()

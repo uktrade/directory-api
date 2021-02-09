@@ -50,6 +50,11 @@ def get_file_from_s3(bucket, key):
     return file_object
 
 
+def get_s3_file_stream(file_name, bucket_name=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE):
+    s3_resource = get_file_from_s3(bucket_name, file_name)
+    return s3_resource['Body'].read().decode('utf-8')
+
+
 def generate_csv_response(queryset, filename, excluded_fields):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{filename}"'.format(filename=filename)
