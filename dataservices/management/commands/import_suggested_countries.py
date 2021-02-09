@@ -1,8 +1,7 @@
 import tablib
-from django.conf import settings
 from django.core.management import BaseCommand
 
-from core.helpers import get_file_from_s3
+from core.helpers import get_s3_file_stream
 from dataservices.models import Country, SuggestedCountry
 
 
@@ -10,11 +9,8 @@ class Command(BaseCommand):
     help = 'Import Countries data from S3'
 
     def handle(self, *args, **options):
-        file_name = 'SR.CREST.ALL.csv'
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE
-        s3_resource = get_file_from_s3(bucket_name, file_name)
-        csv_file = s3_resource['Body'].read().decode('utf-8')
-        data = tablib.import_set(csv_file, format='csv', headers=True)
+        filestream = get_s3_file_stream('SR.CREST.ALL.csv')
+        data = tablib.import_set(filestream, format='csv', headers=True)
         suggested_product_countries = []
 
         # add only countries and selected columns
