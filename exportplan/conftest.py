@@ -83,4 +83,3 @@ def mock_cia_factbook(cia_factbook_data):
     patch = mock.patch.object(helpers, 'get_cia_factbook_data', return_value=cia_factbook_data)
     yield patch.start()
     patch.stop()
-
