@@ -34,7 +34,8 @@
 - GP2-1139 - save EP progress
 - NOTICKET - inner dict update by key for json fields
 - GP2-1382 - getting paid structure
-
+- GP2-1180 - travel bus BE
+ 
 ### Bugs fixed
 
 - GP2-1347 - Stop missing CPI or internet usage data from blowing up
