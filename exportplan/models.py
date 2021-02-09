@@ -47,6 +47,8 @@ class CompanyExportPlan(TimeStampedModel):
     funding_and_credit = JSONField(null=True, blank=True, default=dict)
     # Getting paid
     getting_paid = JSONField(null=True, blank=True, default=dict)
+    # Travel Business Policies
+    travel_business_policies = JSONField(null=True, blank=True, default=dict)
 
 
 class CompanyObjectives(TimeStampedModel):
@@ -112,3 +114,11 @@ class FundingCreditOptions(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Funding Credit Options"
+
+
+class BusinessTrips(TimeStampedModel):
+    note = models.TextField(blank=True, default='', validators=[no_html])
+    companyexportplan = models.ForeignKey(CompanyExportPlan, related_name='business_trips', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Business Trips"

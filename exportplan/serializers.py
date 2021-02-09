@@ -69,6 +69,20 @@ class FundingCreditOptionsSerializer(serializers.ModelSerializer):
         }
 
 
+class BusinessTripsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BusinessTrips
+        fields = (
+            'pk',
+            'note',
+            'companyexportplan',
+        )
+        extra_kwargs = {
+            # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class ExportPlanCountrySerializer(serializers.Serializer):
     country_name = serializers.CharField(required=True)
     country_iso2_code = serializers.CharField(required=False, allow_null=True)
@@ -85,6 +99,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
     target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
     funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
+    business_trips = BusinessTripsSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -119,6 +134,8 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'funding_and_credit',
             'funding_credit_options',
             'getting_paid',
+            'travel_business_policies',
+            'business_trips',
         )
 
     def validate_export_countries(self, value):
