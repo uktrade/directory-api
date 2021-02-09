@@ -811,7 +811,6 @@ def test_export_plan_model_retrieve(model_class, property_name, authed_client, a
 
     model_data = response.json()
     assert response.status_code == http.client.OK
-    assert response.status_code == http.client.OK
     assert len(model_data) > 1
     assert model_data.pop('companyexportplan') == export_plan.id
     for k, v in model_data.items():
