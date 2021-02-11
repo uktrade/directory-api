@@ -35,6 +35,7 @@
 - NOTICKET - inner dict update by key for json fields
 - GP2-1382 - getting paid structure
 - GP2-1180 - travel bus BE
+- NOTICKET - Exportplan make dict default for JSON fields.
  
 ### Bugs fixed
 
