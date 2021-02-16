@@ -47,6 +47,15 @@ def test_get_file_from_s3(mocked_boto3, data_science_settings):
     )
 
 
+@mock.patch('core.helpers.boto3')
+def test_get_s3_file_stream(mocked_boto3):
+    s3_resource = {'Body': io.BytesIO('S3 file contents'.encode('utf-8'))}
+    mocked_boto3.client().get_object.return_value = s3_resource
+    stream = helpers.get_s3_file_stream('key')
+    assert mocked_boto3.client().get_object.called
+    assert stream == 'S3 file contents'
+
+
 def test_companies_house_client_consumes_auth(settings):
     helpers.CompaniesHouseClient.api_key = 'ff'
     with requests_mock.mock() as mock:

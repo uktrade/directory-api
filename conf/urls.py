@@ -200,6 +200,11 @@ urlpatterns = [
         name='dataservices-suggested-countries',
     ),
     url(
+        r'^dataservices/trading-blocs/$',
+        dataservices.views.TradingBlocsView.as_view(),
+        name='dataservices-trading-blocs',
+    ),
+    url(
         r'^exportplan/company-export-plan/$',
         exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
         name='export-plan-list-create',
@@ -243,6 +248,21 @@ urlpatterns = [
         r'^exportplan/funding-credit-options/(?P<pk>[0-9]+)/$',
         exportplan.views.FundingCreditOptionsUpdateDestroyView.as_view(),
         name='export-plan-funding-credit-options-detail-update',
+    ),
+    url(
+        r'^exportplan/export-plan-model-object-list-create/$',
+        exportplan.views.ExportPlanModelObjectListCreateAPIView.as_view(),
+        name='export-plan-model-object-list-create',
+    ),
+    url(
+        r'^exportplan/export-plan-model-object-update-delete/(?P<pk>[0-9]+)/$',
+        exportplan.views.ExportPlanModelObjectRetrieveUpdateDestroyView.as_view(),
+        name='export-plan-model-object-update-delete',
+    ),
+    url(
+        r'^exportplan/export-plan-model-object-detail/(?P<pk>[0-9]+)/(?P<model_name>.*)/$',
+        exportplan.views.ExportPlanModelObjectRetrieveUpdateDestroyView.as_view(),
+        name='export-plan-model-object-detail',
     ),
     url(
         r'^exportplan/funding-credit-options/$',

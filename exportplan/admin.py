@@ -94,3 +94,13 @@ class FundingCreditOptionsAdmin(admin.ModelAdmin):
         'funding_option',
         'amount',
     )
+
+
+@admin.register(models.BusinessTrips)
+class BusinessTrips(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    search_fields = ('note',)
+    list_display = (
+        'companyexportplan',
+        'note',
+    )
