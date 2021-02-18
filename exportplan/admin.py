@@ -104,3 +104,16 @@ class BusinessTrips(admin.ModelAdmin):
         'companyexportplan',
         'note',
     )
+
+
+@admin.register(models.BusinessRisks)
+class BusinessRisks(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    search_fields = ('risk', 'contingency_plan', 'risk_likelihood', 'risk_impact')
+    list_display = (
+        'companyexportplan',
+        'risk',
+        'contingency_plan',
+        'risk_likelihood',
+        'risk_impact',
+    )
