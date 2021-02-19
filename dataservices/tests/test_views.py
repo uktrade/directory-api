@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from dataservices import helpers, models
-from dataservices.tests import factories, utils
+from dataservices.tests import factories
 
 
 @pytest.fixture

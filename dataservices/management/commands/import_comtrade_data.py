@@ -1,14 +1,11 @@
 import csv
-import io
 
-import tablib
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import connection
-from import_export import resources
 
-from core.helpers import generate_csv, get_s3, get_s3_file_stream, upload_file_object_to_s3, upload_file_to_s3
-from dataservices.models import ComtradeReport, Country
+from core.helpers import get_s3, get_s3_file_stream
+from dataservices.models import ComtradeReport
 
 
 class Command(BaseCommand):
@@ -30,7 +27,6 @@ class Command(BaseCommand):
         )
 
     def upload_file(self, filenames):
-        file = open(filenames[0], 'rb')
         key = settings.COMTRADE_DATA_FILE_NAME
         get_s3().upload_file(Filename=filenames[0], Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE, Key=key)
 
@@ -69,7 +65,7 @@ class Command(BaseCommand):
                             report.save()
                             if written % 100 == 0:
                                 print(f'{read} read, {written} written', end='\r', flush=True)
-                print(f'{read} read, {written} written')
+                self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
     def populate_db_from_s3(self):
         # Read from S3, write into local DB, hook up country table
@@ -77,12 +73,12 @@ class Command(BaseCommand):
         if True:
             filestream = get_s3_file_stream(settings.COMTRADE_DATA_FILE_NAME)
             file_reader = csv.DictReader(filestream.split())
-            print('*******************************************')
-            print(f'Writing comtrade data')
+            self.stdout.write('*******************************************')
+            self.stdout.write('Writing comtrade data')
             written = 0
             for row in file_reader:
                 cursor.execute(
-                    f"INSERT INTO \
+                    "INSERT INTO \
                     dataservices_comtradereport \
                     (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
                     VALUES\
@@ -101,11 +97,11 @@ class Command(BaseCommand):
                 written = written + 1
                 if written % 1000 == 0:
                     print(f'  {written} rows written', end='\r', flush=True)
-            self.stdout.write(self.style.SUCCESS(f'Completed - {written} rows written'))
+            self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
 
-        self.stdout.write(self.style.SUCCESS('Linking countries'))
+        self.stdout.write('Linking countries')
         cursor.execute(
-            f"UPDATE dataservices_comtradereport as d \
+            "UPDATE dataservices_comtradereport as d \
             set country_id=c.id \
             from dataservices_country as c where d.country_iso3=c.iso3;"
         )
