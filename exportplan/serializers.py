@@ -83,6 +83,23 @@ class BusinessTripsSerializer(serializers.ModelSerializer):
         }
 
 
+class BusinessRisksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BusinessRisks
+        fields = (
+            'pk',
+            'risk',
+            'contingency_plan',
+            'risk_likelihood',
+            'risk_impact',
+            'companyexportplan',
+        )
+        extra_kwargs = {
+            # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class ExportPlanCountrySerializer(serializers.Serializer):
     country_name = serializers.CharField(required=True)
     country_iso2_code = serializers.CharField(required=False, allow_null=True)
@@ -100,6 +117,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
     funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
     business_trips = BusinessTripsSerializer(many=True, required=False, read_only=False)
+    business_risks = BusinessRisksSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -136,6 +154,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'getting_paid',
             'travel_business_policies',
             'business_trips',
+            'business_risks',
         )
 
     def validate_export_countries(self, value):
