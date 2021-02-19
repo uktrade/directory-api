@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from dataservices import helpers, models
-from dataservices.tests import factories
+from dataservices.tests import factories, utils
 
 
 @pytest.fixture
@@ -301,7 +301,6 @@ def test_get_country_data_cpi_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': None,
@@ -459,7 +458,6 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
     response = api_client.get(url, data={'countries': ['United Kingdom', 'Germany']})
 
     assert response.status_code == 200
-
     assert response.json() == [
         {
             'country': 'United Kingdom',
@@ -474,7 +472,8 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
         },
         {
             'country': 'Germany',
-            'internet_usage': {'value': '91.97', 'year': 2020},
+            'cpi': {'value': '112.86', 'year': 2019},
+            'internet_usage': {'value': '89.74', 'year': 2018},
             'rural_population_total': 18546,
             'rural_population_percentage_formatted': '22.10% (18.55 million)',
             'urban_population_total': 64044,

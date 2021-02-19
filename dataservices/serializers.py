@@ -99,3 +99,14 @@ class TradingBlocsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TradingBlocs
         exclude = ['created', 'id', 'modified']
+
+
+class ComTradeReportSerializer(serializers.ModelSerializer):
+    year = serializers.SerializerMethodField()
+
+    def get_year(self, obj):
+        return str(obj.year)
+
+    class Meta:
+        model = models.ComtradeReport
+        fields = '__all__'

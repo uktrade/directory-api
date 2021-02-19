@@ -343,6 +343,15 @@ def get_historical_import_data(country, commodity_code):
     return historical_data
 
 
+def get_comtrade_data_by_country(commodity_code, country_list):
+    data = {}
+    for record in models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code):
+        iso_code = record.country.iso2
+        data[iso_code] = data.get(iso_code, [])
+        data[iso_code].append(serializers.ComTradeReportSerializer(record).data)
+    return data
+
+
 @TTLCache()
 def get_world_economic_outlook_data(country_code):
     data = []
@@ -408,6 +417,16 @@ def get_society_data(country):
     return society_data
 
 
+def deep_extend(o1, o2):
+    # Deep extend dict o2 onto o1.  o1 is mutated
+    for key, value in o2.items():
+        if o1.get(key) and isinstance(o1.get(key), dict) and isinstance(value, dict):
+            deep_extend(o1.get(key), value)
+        else:
+            o1[key] = value
+    return o1
+
+
 def millify(n):
     n = float(n)
     mill_names = ['', ' thousand', ' million', ' billion', ' trillion']
@@ -439,6 +458,16 @@ def get_serialized_instance_from_model(model_class, serializer_class, filter_arg
         return serializer.data
     except model_class.DoesNotExist:
         return None
+
+
+def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key):
+    out = {}
+    try:
+        for result in model_class.objects.filter(**filter_args):
+            out[result.country.iso2] = {section_key: serializer_class(result).data}
+    except model_class.DoesNotExist:
+        pass
+    return out
 
 
 def calculate_total_internet_population(internet_usage, total_population):
