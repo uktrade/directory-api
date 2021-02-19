@@ -104,6 +104,7 @@ model_name_map = {
     'companyobjectives': 'CompanyObjectives',
     'exportplanactions': 'ExportPlanActions',
     'routetomarkets': 'RouteToMarkets',
+    'businessrisks': 'BusinessRisks',
 }
 
 

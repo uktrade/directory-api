@@ -122,3 +122,18 @@ class BusinessTrips(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Business Trips"
+
+
+class BusinessRisks(TimeStampedModel):
+    risk = models.TextField(blank=True, default='', validators=[no_html])
+    contingency_plan = models.TextField(blank=True, default='', validators=[no_html])
+    risk_likelihood = models.CharField(
+        max_length=30, blank=True, null=True, default='', choices=choices.RISK_LIKELIHOOD_OPTIONS
+    )
+    risk_impact = models.CharField(
+        max_length=30, blank=True, null=True, default='', choices=choices.RISK_IMPACT_OPTIONS
+    )
+    companyexportplan = models.ForeignKey(CompanyExportPlan, related_name='business_risks', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = "Business Risks"
