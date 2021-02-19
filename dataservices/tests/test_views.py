@@ -455,33 +455,36 @@ def test_population_data_by_country(api_client, internet_usage_data):
 def test_population_data_by_country_multiple_countries(api_client, internet_usage_data):
     url = reverse('dataservices-population-data-by-country')
 
+    uk_data = {
+        'country': 'United Kingdom',
+        'internet_usage': {'value': '90.97', 'year': 2020},
+        'rural_population_total': 10729,
+        'rural_population_percentage_formatted': '15.73% (10.73 million)',
+        'urban_population_total': 56970,
+        'urban_population_percentage_formatted': '83.53% (56.97 million)',
+        'total_population': '68.20 million',
+        'total_population_raw': 68204000,
+        'cpi': {'value': '150.56', 'year': 2019},
+    }
+    germany_data = {
+        'country': 'Germany',
+        'cpi': {'value': '112.86', 'year': 2019},
+        'internet_usage': {'value': '89.74', 'year': 2018},
+        'rural_population_total': 18546,
+        'rural_population_percentage_formatted': '22.10% (18.55 million)',
+        'urban_population_total': 64044,
+        'urban_population_percentage_formatted': '76.33% (64.04 million)',
+        'total_population': '83.90 million',
+        'total_population_raw': 83902000,
+    }
+
     response = api_client.get(url, data={'countries': ['United Kingdom', 'Germany']})
 
     assert response.status_code == 200
-    assert response.json() == [
-        {
-            'country': 'United Kingdom',
-            'internet_usage': {'value': '90.97', 'year': 2020},
-            'rural_population_total': 10729,
-            'rural_population_percentage_formatted': '15.73% (10.73 million)',
-            'urban_population_total': 56970,
-            'urban_population_percentage_formatted': '83.53% (56.97 million)',
-            'total_population': '68.20 million',
-            'total_population_raw': 68204000,
-            'cpi': {'value': '150.56', 'year': 2019},
-        },
-        {
-            'country': 'Germany',
-            'cpi': {'value': '112.86', 'year': 2019},
-            'internet_usage': {'value': '89.74', 'year': 2018},
-            'rural_population_total': 18546,
-            'rural_population_percentage_formatted': '22.10% (18.55 million)',
-            'urban_population_total': 64044,
-            'urban_population_percentage_formatted': '76.33% (64.04 million)',
-            'total_population': '83.90 million',
-            'total_population_raw': 83902000,
-        },
-    ]
+    data = response.json()
+    check_order = [uk_data, germany_data] if data[0]['country'] == 'United Kingdom' else [germany_data, uk_data]
+
+    assert data == check_order
 
 
 @pytest.mark.django_db

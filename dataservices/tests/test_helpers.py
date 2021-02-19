@@ -349,7 +349,8 @@ def test_get_last_year_import_data_helper_not_cached(
 @pytest.mark.django_db
 def test_get_comtrade_data_by_country():
     commodity_code = '123456'
-    country = models.Country.objects.create(name="Aus", iso2='AU')
+    aus = models.Country.objects.create(name="Australia", iso3="AUS", iso2='AU', iso1=36)
+    bel = models.Country.objects.create(name="Belgium", iso3="BEL", iso2='BE', iso1=56)
 
     report = {
         'uk_or_world': 'WLD',
@@ -365,17 +366,33 @@ def test_get_comtrade_data_by_country():
             'trade_value': '111111',
         }
     )
+
     wrong_product = report.copy()
     wrong_product.update({'commodity_code': '234567'})
 
-    models.ComtradeReport.objects.create(country=country, **wld_report)
-    models.ComtradeReport.objects.create(country=country, **uk_report)
-    models.ComtradeReport.objects.create(country=country, **wrong_product)
+    models.ComtradeReport.objects.create(country=aus, **wld_report)
+    models.ComtradeReport.objects.create(country=aus, **uk_report)
+    models.ComtradeReport.objects.create(country=aus, **wrong_product)
+    models.ComtradeReport.objects.create(country=bel, **wld_report)
+    models.ComtradeReport.objects.create(country=bel, **uk_report)
+    models.ComtradeReport.objects.create(country=bel, **wrong_product)
+
+    # Get one country
     data = helpers.get_comtrade_data_by_country(commodity_code, ['AU'])
+    assert len(data) == 1
     country_data = data['AU']
     assert len(country_data) == 2
-    assert utils.deep_compare(country_data[0], wld_report)
-    assert utils.deep_compare(country_data[1], uk_report)
+    data_order = [wld_report, uk_report] if country_data[0].get('uk_or_world') == 'WLD' else [uk_report, wld_report]
+    assert utils.deep_compare(country_data[0], data_order[0])
+    assert utils.deep_compare(country_data[1], data_order[1])
+
+    # Get two countries
+    data = helpers.get_comtrade_data_by_country(commodity_code, ['AU', 'BE'])
+    assert len(data) == 2
+    country_data = data['BE']
+    data_order = [wld_report, uk_report] if country_data[0].get('uk_or_world') == 'WLD' else [uk_report, wld_report]
+    assert utils.deep_compare(country_data[0], data_order[0])
+    assert utils.deep_compare(country_data[1], data_order[1])
 
 
 @pytest.mark.django_db
