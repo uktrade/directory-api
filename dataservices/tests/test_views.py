@@ -468,8 +468,7 @@ def test_population_data_by_country_multiple_countries(api_client, internet_usag
     }
     germany_data = {
         'country': 'Germany',
-        'cpi': {'value': '112.86', 'year': 2019},
-        'internet_usage': {'value': '89.74', 'year': 2018},
+        'internet_usage': {'value': '91.97', 'year': 2020},
         'rural_population_total': 18546,
         'rural_population_percentage_formatted': '22.10% (18.55 million)',
         'urban_population_total': 64044,
