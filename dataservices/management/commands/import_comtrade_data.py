@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import connection
 
-from core.helpers import get_s3, get_s3_file_stream
+from core.helpers import get_s3_file_stream
 from dataservices.models import ComtradeReport
 
 
@@ -21,19 +21,22 @@ class Command(BaseCommand):
             help='Wipe table before loading',
         )
         parser.add_argument(
-            '--upload',
+            '--raw',
             action='store_true',
-            help='Upload data file to S3',
+            help='load raw data files',
         )
 
-    def upload_file(self, filenames):
-        key = settings.COMTRADE_DATA_FILE_NAME
-        get_s3().upload_file(Filename=filenames[0], Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE, Key=key)
+        parser.add_argument(
+            '--test',
+            action='store_true',
+            help='limit rowcount to 1000 for testing',
+        )
 
     def load_raw_files(self, filenames):
         # Loads a raw file as downloaded from comtrade on top of existing data in db
+
         for filename in filenames:
-            print('Loading: ', filename)
+            print('********  Loading: ', filename)
             with open(filename, 'r', encoding='utf-8-sig') as f:
                 written = 0
                 read = 0
@@ -67,37 +70,37 @@ class Command(BaseCommand):
                                 print(f'{read} read, {written} written', end='\r', flush=True)
                 self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
-    def populate_db_from_s3(self):
+    def populate_db_from_s3(self, filename, test):
         # Read from S3, write into local DB, hook up country table
         cursor = connection.cursor()
-        if True:
-            filestream = get_s3_file_stream(settings.COMTRADE_DATA_FILE_NAME)
-            file_reader = csv.DictReader(filestream.split())
-            self.stdout.write('*******************************************')
-            self.stdout.write('Writing comtrade data')
-            written = 0
-            for row in file_reader:
-                cursor.execute(
-                    "INSERT INTO \
-                    dataservices_comtradereport \
-                    (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
-                    VALUES\
-                    (%s, %s, %s, %s, %s, %s, %s)",
-                    [
-                        row.get('id'),
-                        row.get('year'),
-                        row.get('classification'),
-                        row.get('commodity_code'),
-                        row.get('trade_value'),
-                        row.get('uk_or_world'),
-                        row.get('country_iso3'),
-                    ],
-                )
+        filestream = get_s3_file_stream(filename or settings.COMTRADE_DATA_FILE_NAME)
+        file_reader = csv.DictReader(filestream.split())
+        self.stdout.write('*********   Loading comtrade data')
+        written = 0
+        for row in file_reader:
+            cursor.execute(
+                "INSERT INTO \
+                dataservices_comtradereport \
+                (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
+                VALUES\
+                (%s, %s, %s, %s, %s, %s, %s)",
+                [
+                    row.get('id'),
+                    row.get('year'),
+                    row.get('classification'),
+                    row.get('commodity_code'),
+                    row.get('trade_value'),
+                    row.get('uk_or_world'),
+                    row.get('country_iso3'),
+                ],
+            )
 
-                written = written + 1
-                if written % 1000 == 0:
-                    print(f'  {written} rows written', end='\r', flush=True)
-            self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
+            written = written + 1
+            if written % 1000 == 0:
+                print(f'  {written} rows written', end='\r', flush=True)
+            if written >= 1000 and test:
+                break
+        self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
 
         self.stdout.write('Linking countries')
         cursor.execute(
@@ -107,15 +110,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         filenames = options['filenames']
         if options['wipe']:
             ComtradeReport.objects.all().delete()
-        if filenames and options['upload']:
-            self.upload_file(filenames)
-        elif filenames:
+        elif filenames and options['raw']:
             self.load_raw_files(filenames)
         else:
-            self.populate_db_from_s3()
+            self.populate_db_from_s3(filenames and filenames[0], test=options['test'])
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

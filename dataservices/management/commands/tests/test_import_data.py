@@ -65,3 +65,30 @@ def test_import_rank_of_law_data_with_no_country():
     currencies_data = models.Currency.objects.first()
     assert rule_of_law.country is None
     assert currencies_data.country is None
+
+
+@pytest.mark.django_db
+def test_import_comtrade():
+    management.call_command('import_countries')
+    management.call_command('import_comtrade_data', '--test')
+    data = models.ComtradeReport.objects.filter(country_iso3='FRA', year='2019', commodity_code='010649')
+    assert len(models.ComtradeReport.objects.all()) == 1000
+    assert data.first().country.iso3 == 'FRA'
+    assert data.first().commodity_code == '010649'
+    assert len(data) == 2
+    assert data.first().trade_value == 9189567
+
+
+@pytest.mark.django_db
+def test_import_comtrade_raw():
+    management.call_command('import_comtrade_data', '--raw', 'dataservices/resources/comtrade_sample.csv')
+    data = models.ComtradeReport.objects.filter(country_iso3='FRA', commodity_code='390720')
+    assert len(models.ComtradeReport.objects.all()) == 389
+    assert len(data) == 2
+    assert data.first().country_iso3 == 'FRA'
+    assert data.first().commodity_code == '390720'
+    assert data.first().trade_value == 345434516
+    assert data.first().uk_or_world == 'WLD'
+    assert data[1].uk_or_world == 'GBR'
+    management.call_command('import_comtrade_data', '--wipe')
+    assert len(models.ComtradeReport.objects.all()) == 0
