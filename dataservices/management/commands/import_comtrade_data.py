@@ -36,7 +36,7 @@ class Command(BaseCommand):
         # Loads a raw file as downloaded from comtrade on top of existing data in db
 
         for filename in filenames:
-            print('********  Loading: ', filename)
+            self.stdout.write(self.style.SUCCESS(f'********  Loading: {filename}'))
             with open(filename, 'r', encoding='utf-8-sig') as f:
                 written = 0
                 read = 0

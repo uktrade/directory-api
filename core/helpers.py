@@ -25,15 +25,6 @@ logger = logging.getLogger(__name__)
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 
 
-def get_s3():
-    return boto3.client(
-        's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
-        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
-    )
-
-
 def upload_file_object_to_s3(file_object, bucket, key):
     s3 = boto3.client(
         's3',

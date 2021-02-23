@@ -85,10 +85,12 @@ def test_import_comtrade_raw():
     data = models.ComtradeReport.objects.filter(country_iso3='FRA', commodity_code='390720')
     assert len(models.ComtradeReport.objects.all()) == 389
     assert len(data) == 2
+    assert str(data.first()) == 'FRA:390720'
     assert data.first().country_iso3 == 'FRA'
     assert data.first().commodity_code == '390720'
     assert data.first().trade_value == 345434516
     assert data.first().uk_or_world == 'WLD'
     assert data[1].uk_or_world == 'GBR'
+
     management.call_command('import_comtrade_data', '--wipe')
     assert len(models.ComtradeReport.objects.all()) == 0

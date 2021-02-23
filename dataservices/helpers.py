@@ -462,11 +462,8 @@ def get_serialized_instance_from_model(model_class, serializer_class, filter_arg
 
 def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key):
     out = {}
-    try:
-        for result in model_class.objects.filter(**filter_args):
-            out[result.country.iso2] = {section_key: serializer_class(result).data}
-    except model_class.DoesNotExist:
-        pass
+    for result in model_class.objects.filter(**filter_args):
+        out[result.country.iso2] = {section_key: serializer_class(result).data}
     return out
 
 

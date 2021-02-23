@@ -255,7 +255,19 @@ def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
     response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness']})
 
     assert response.status_code == 200
-    print('response', response.json())
+    result = response.json()['FR']
+    assert result['EaseOfDoingBusiness']['rank'] == 12
+    assert result['EaseOfDoingBusiness']['total']
+
+
+@pytest.mark.django_db
+def test_get_country_data_by_country_wrong_field(api_client, ease_of_doing_business_data):
+    # check that if a non-existent model is provided, the correct model data are returned
+    url = reverse('dataservices-country-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'NotAModelName']})
+    assert response.status_code == 200
+    result = response.json()['FR']
+    assert result['EaseOfDoingBusiness']['rank'] == 12
 
 
 @pytest.mark.django_db
