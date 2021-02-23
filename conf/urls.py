@@ -292,7 +292,7 @@ urlpatterns = [
     url(
         r'^dataservices/country-data/$',
         dataservices.views.RetrieveDataByCountryView.as_view(),
-        name='dataservices-countries-data',
+        name='dataservices-country-data-by-country',
     ),
     url(
         r'^dataservices/lastyearimportdata/$',
@@ -307,7 +307,7 @@ urlpatterns = [
     url(
         r'^dataservices/lastyearimportdatabycountry/$',
         dataservices.views.RetrieveLastYearImportDataByCountryView.as_view(),
-        name='last-year-import-data-multi',
+        name='last-year-import-data-by-country',
     ),
     url(
         r'^dataservices/cia-factbook-data/$',

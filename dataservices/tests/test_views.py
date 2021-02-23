@@ -233,6 +233,32 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
 
 
 @pytest.mark.django_db
+def test_comtrade_data_by_country(api_client, comtrade_report_data):
+    url = reverse('last-year-import-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
+    assert response.status_code == 200
+    result = response.json()
+    assert result['FR'][0]['country_iso3'] == 'FRA'
+    assert result['FR'][0]['trade_value'] == '91'
+    response = api_client.get(url, data={'countries': ['FR', 'NL'], 'commodity_code': '123456'})
+    result = response.json()
+    assert result['FR'][0]['trade_value'] == '91'
+    assert result['NL'][0]['trade_value'] == '92'
+    response = api_client.get(url, data={'countries': ['FR', 'NL'], 'commodity_code': '123455'})
+    result = response.json()
+    assert result == {}
+
+
+@pytest.mark.django_db
+def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
+    url = reverse('dataservices-country-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness']})
+
+    assert response.status_code == 200
+    print('response', response.json())
+
+
+@pytest.mark.django_db
 def test_get_cia_factbook_data(api_client):
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, languages'})
