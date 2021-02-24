@@ -23,7 +23,7 @@
 - GP2-1382 - getting paid structure
 - GP2-1180 - travel bus BE
 - NOTICKET - Exportplan make dict default for JSON fields.
-- GP2-1181 - 1398business risk
+- GP2-1181 - business risk
 
 ## Pre release
 ### Bugs fixed

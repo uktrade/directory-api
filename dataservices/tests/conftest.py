@@ -43,7 +43,7 @@ def comtrade_report_data():
         trade_value=91.97,
     )
     yield
-    models.InternetUsage.objects.all().delete()
+    models.ComtradeReport.objects.all().delete()
     models.Country.objects.all().delete()
 
 
@@ -64,5 +64,5 @@ def ease_of_doing_business_data():
         year_2019=13,
     )
     yield
-    models.InternetUsage.objects.all().delete()
+    models.EaseOfDoingBusiness.objects.all().delete()
     models.Country.objects.all().delete()
