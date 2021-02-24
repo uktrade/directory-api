@@ -6,7 +6,7 @@ import pytest
 from django.test import override_settings
 
 from dataservices import helpers, models
-from dataservices.tests import factories
+from dataservices.tests import factories, utils
 
 
 @pytest.fixture(autouse=True)
@@ -205,15 +205,11 @@ def test_get_ease_of_business_index():
         country=country,
     )
     ease_of_business_data = helpers.get_ease_of_business_index('AUS')
-    assert ease_of_business_data == {
-        'total': 1,
-        'country_name': 'Australia',
-        'country_code': 'AUS',
-        'year_2019': 20,
-        'country': 'Australia',
-        'year': '2019',
-        'rank': 20,
-    }
+
+    assert ease_of_business_data['rank'] == 20
+    assert ease_of_business_data['country_code'] == 'AUS'
+    assert ease_of_business_data['year'] == '2019'
+    assert ease_of_business_data['total'] == 1
 
 
 @pytest.mark.django_db
@@ -232,15 +228,11 @@ def test_get_corruption_perceptions_index():
         country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21, country=country
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
-    assert cpi_data == {
-        'country_name': 'Australia',
-        'country_code': 'AUS',
-        'cpi_score_2019': 24,
-        'rank': 21,
-        'country': 'Australia',
-        'total': 1,
-        'year': '2019',
-    }
+    assert cpi_data['rank'] == 21
+    assert cpi_data['cpi_score_2019'] == 24
+    assert cpi_data['country_code'] == 'AUS'
+    assert cpi_data['year'] == '2019'
+    assert cpi_data['total'] == 1
 
 
 @pytest.mark.django_db
@@ -352,6 +344,55 @@ def test_get_last_year_import_data_helper_not_cached(
     assert mock_set_cache_value.call_args == mock.call(
         '["get_historical_import_data",{},["UK","847.1"]]', {'Historical': '2'}
     )
+
+
+@pytest.mark.django_db
+def test_get_comtrade_data_by_country():
+    commodity_code = '123456'
+    aus = models.Country.objects.create(name="Australia", iso3="AUS", iso2='AU', iso1=36)
+    bel = models.Country.objects.create(name="Belgium", iso3="BEL", iso2='BE', iso1=56)
+
+    report = {
+        'uk_or_world': 'WLD',
+        'commodity_code': commodity_code,
+        'trade_value': '222222',
+        'year': '2019',
+    }
+    wld_report = report.copy()
+    uk_report = report.copy()
+    uk_report.update(
+        {
+            'uk_or_world': 'GBR',
+            'trade_value': '111111',
+        }
+    )
+
+    wrong_product = report.copy()
+    wrong_product.update({'commodity_code': '234567'})
+
+    models.ComtradeReport.objects.create(country=aus, **wld_report)
+    models.ComtradeReport.objects.create(country=aus, **uk_report)
+    models.ComtradeReport.objects.create(country=aus, **wrong_product)
+    models.ComtradeReport.objects.create(country=bel, **wld_report)
+    models.ComtradeReport.objects.create(country=bel, **uk_report)
+    models.ComtradeReport.objects.create(country=bel, **wrong_product)
+
+    # Get one country
+    data = helpers.get_comtrade_data_by_country(commodity_code, ['AU'])
+    assert len(data) == 1
+    country_data = data['AU']
+    assert len(country_data) == 2
+    data_order = [wld_report, uk_report] if country_data[0].get('uk_or_world') == 'WLD' else [uk_report, wld_report]
+    assert utils.deep_compare(country_data[0], data_order[0])
+    assert utils.deep_compare(country_data[1], data_order[1])
+
+    # Get two countries
+    data = helpers.get_comtrade_data_by_country(commodity_code, ['AU', 'BE'])
+    assert len(data) == 2
+    country_data = data['BE']
+    data_order = [wld_report, uk_report] if country_data[0].get('uk_or_world') == 'WLD' else [uk_report, wld_report]
+    assert utils.deep_compare(country_data[0], data_order[0])
+    assert utils.deep_compare(country_data[1], data_order[1])
 
 
 @pytest.mark.django_db
@@ -589,3 +630,17 @@ def test_get_percentage_format(input_1, input_2, expected):
 def test_calculate_total_internet_population(internet_usage, total_population, expected):
     data = helpers.calculate_total_internet_population(internet_usage, total_population)
     assert data == expected
+
+
+@pytest.mark.parametrize(
+    "o1,o2,result",
+    [
+        ({'a': 'a', 'b': 'b'}, {'d': 'd', 'b': 'b2'}, {'a': 'a', 'd': 'd', 'b': 'b2'}),
+        ({'a': 'a', 'b': {'c': 'c'}}, {'d': 'd', 'b': {'e': 'e'}}, {'a': 'a', 'd': 'd', 'b': {'c': 'c', 'e': 'e'}}),
+        ({'a': 'a', 'b': 'b'}, {'d': 'd', 'b': {'c': 'c'}}, {'a': 'a', 'd': 'd', 'b': {'c': 'c'}}),
+        ({'a': 'a', 'b': {'c': 'c'}}, {'d': 'd', 'b': 'b2'}, {'a': 'a', 'd': 'd', 'b': 'b2'}),
+    ],
+)
+def test_deep_extend(o1, o2, result):
+
+    assert helpers.deep_extend(o1, o2) == result

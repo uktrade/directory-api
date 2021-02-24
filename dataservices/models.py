@@ -197,3 +197,23 @@ class TradingBlocs(TimeStampedModel):
 
     class Meta:
         verbose_name = "Trading Bloc"
+
+
+class ComtradeReport(models.Model):
+    year = models.IntegerField(null=True, blank=True)
+    classification = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    country_iso3 = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    uk_or_world = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    commodity_code = models.CharField(unique=False, blank=False, null=False, max_length=6)
+    trade_value = models.DecimalField(null=True, blank=True, decimal_places=0, max_digits=15)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['commodity_code', 'country', 'uk_or_world']),
+        ]
+
+    def __str__(self):
+        return str(self.country_iso3) + ':' + str(self.commodity_code)

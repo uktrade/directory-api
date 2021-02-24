@@ -233,6 +233,44 @@ def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mo
 
 
 @pytest.mark.django_db
+def test_comtrade_data_by_country(api_client, comtrade_report_data):
+    url = reverse('last-year-import-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
+    assert response.status_code == 200
+    result = response.json()
+    assert result['FR'][0]['country_iso3'] == 'FRA'
+    assert result['FR'][0]['trade_value'] == '91'
+    response = api_client.get(url, data={'countries': ['FR', 'NL'], 'commodity_code': '123456'})
+    result = response.json()
+    assert result['FR'][0]['trade_value'] == '91'
+    assert result['NL'][0]['trade_value'] == '92'
+    response = api_client.get(url, data={'countries': ['FR', 'NL'], 'commodity_code': '123455'})
+    result = response.json()
+    assert result == {}
+
+
+@pytest.mark.django_db
+def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
+    url = reverse('dataservices-country-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness']})
+
+    assert response.status_code == 200
+    result = response.json()['FR']
+    assert result['EaseOfDoingBusiness']['rank'] == 12
+    assert result['EaseOfDoingBusiness']['total']
+
+
+@pytest.mark.django_db
+def test_get_country_data_by_country_wrong_field(api_client, ease_of_doing_business_data):
+    # check that if a non-existent model is provided, the correct model data are returned
+    url = reverse('dataservices-country-data-by-country')
+    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'NotAModelName']})
+    assert response.status_code == 200
+    result = response.json()['FR']
+    assert result['EaseOfDoingBusiness']['rank'] == 12
+
+
+@pytest.mark.django_db
 def test_get_cia_factbook_data(api_client):
     url = reverse('cia-factbook-data')
     response = api_client.get(url, data={'country': 'United Kingdom', 'data_key': 'people, languages'})
@@ -301,7 +339,6 @@ def test_get_country_data_cpi_not_found(api_client):
 
     response = api_client.get(url)
     assert response.status_code == 200
-
     assert response.json() == {
         'country_data': {
             'consumer_price_index': None,
@@ -456,33 +493,35 @@ def test_population_data_by_country(api_client, internet_usage_data):
 def test_population_data_by_country_multiple_countries(api_client, internet_usage_data):
     url = reverse('dataservices-population-data-by-country')
 
+    uk_data = {
+        'country': 'United Kingdom',
+        'internet_usage': {'value': '90.97', 'year': 2020},
+        'rural_population_total': 10729,
+        'rural_population_percentage_formatted': '15.73% (10.73 million)',
+        'urban_population_total': 56970,
+        'urban_population_percentage_formatted': '83.53% (56.97 million)',
+        'total_population': '68.20 million',
+        'total_population_raw': 68204000,
+        'cpi': {'value': '150.56', 'year': 2019},
+    }
+    germany_data = {
+        'country': 'Germany',
+        'internet_usage': {'value': '91.97', 'year': 2020},
+        'rural_population_total': 18546,
+        'rural_population_percentage_formatted': '22.10% (18.55 million)',
+        'urban_population_total': 64044,
+        'urban_population_percentage_formatted': '76.33% (64.04 million)',
+        'total_population': '83.90 million',
+        'total_population_raw': 83902000,
+    }
+
     response = api_client.get(url, data={'countries': ['United Kingdom', 'Germany']})
 
     assert response.status_code == 200
+    data = response.json()
+    check_order = [uk_data, germany_data] if data[0]['country'] == 'United Kingdom' else [germany_data, uk_data]
 
-    assert response.json() == [
-        {
-            'country': 'United Kingdom',
-            'internet_usage': {'value': '90.97', 'year': 2020},
-            'rural_population_total': 10729,
-            'rural_population_percentage_formatted': '15.73% (10.73 million)',
-            'urban_population_total': 56970,
-            'urban_population_percentage_formatted': '83.53% (56.97 million)',
-            'total_population': '68.20 million',
-            'total_population_raw': 68204000,
-            'cpi': {'value': '150.56', 'year': 2019},
-        },
-        {
-            'country': 'Germany',
-            'internet_usage': {'value': '91.97', 'year': 2020},
-            'rural_population_total': 18546,
-            'rural_population_percentage_formatted': '22.10% (18.55 million)',
-            'urban_population_total': 64044,
-            'urban_population_percentage_formatted': '76.33% (64.04 million)',
-            'total_population': '83.90 million',
-            'total_population_raw': 83902000,
-        },
-    ]
+    assert data == check_order
 
 
 @pytest.mark.django_db
