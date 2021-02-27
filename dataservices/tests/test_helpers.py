@@ -225,11 +225,11 @@ def test_get_corruption_perceptions_index():
     country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS', country_name='Australia', cpi_score_2019=24, rank=21, country=country
+        country_code='AUS', country_name='Australia', cpi_score=24, rank=21, country=country
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
     assert cpi_data['rank'] == 21
-    assert cpi_data['cpi_score_2019'] == 24
+    assert cpi_data['cpi_score'] == 24
     assert cpi_data['country_code'] == 'AUS'
     assert cpi_data['year'] == '2019'
     assert cpi_data['total'] == 1
