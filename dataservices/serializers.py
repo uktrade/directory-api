@@ -62,7 +62,7 @@ class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
         exclude = ['created', 'id', 'modified']
 
 
-class GDPPerCapitalSerializer(serializers.ModelSerializer):
+class GDPPerCapitaSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.GDPPerCapita
         exclude = ['created', 'id', 'modified']

@@ -16,6 +16,7 @@ from dataservices import models
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
         (models.InternetUsage, 'import_internet_usage_data', 264, 1),
         (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 264, 1),
+        (models.GDPPerCapita, 'import_gdp_per_capita_data', 264, 1),
     ),
 )
 def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
