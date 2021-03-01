@@ -612,5 +612,24 @@ def test_currencies_data_repr():
     currencies = models.Currency.objects.create(
         iso2='IN', country_name='India', currency_name='Indian Rupee', alphabetic_code='INR', numeric_code=123
     )
-
     assert str(currencies) == 'India'
+
+
+@pytest.mark.django_db
+def test_trading_blocs_api(client):
+    # Import country and trading blocs data
+    management.call_command('import_countries')
+    management.call_command('import_trading_blocs')
+
+    response = client.get(reverse('dataservices-trading-blocs'), data={'iso2': 'IN'})
+    assert response.status_code == 200
+    json_dict = json.loads(response.content)
+    # we have 4 trading blocs for India in imported csv
+    assert len(json_dict) == 4
+
+
+@pytest.mark.django_db
+def test_trading_blocs_api_with_no_iso2(client):
+
+    response = client.get(reverse('dataservices-trading-blocs'))
+    assert response.status_code == 500

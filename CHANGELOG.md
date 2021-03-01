@@ -1,17 +1,6 @@
 # Changelog
 
-## Pre release
-
 ### Implemented enhancements
-
-### Bugs fixed
-
-
-## [1.3.0](https://github.com/uktrade/directory-api/releases/tag/1.3.0)
-[Full Changelog](https://github.com/uktrade/directory-api/compare/1.2.0...1.3.0)
-
-### Implemented enhancements
-
 - GP2-1343 - Added Trading blocs data
 - GP2-1348 - Economy and population raw values and rank totals
 - GP2-1264 - Added currencies data
@@ -31,7 +20,23 @@
 - GP2-1139 - save EP progress
 - NOTICKET - inner dict update by key for json fields
 - GP2-1382 - getting paid structure
+- GP2-1180 - travel bus BE
+- NOTICKET - Exportplan make dict default for JSON fields.
 
+## Pre release
+### Bugs fixed
+
+## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.3.0...1.4.0)
+### Implemented enhancements
+- GP2-1344 - Added API for trading blocs
+- GP2-1392 - lock down public data access
+
+## [1.3.0](https://github.com/uktrade/directory-api/releases/tag/1.3.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.2.0...1.3.0)
+
+### Implemented enhancements
+ 
 ### Bugs fixed
 
 - GP2-1347 - Stop missing CPI or internet usage data from blowing up
