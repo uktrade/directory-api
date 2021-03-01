@@ -254,7 +254,9 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 @pytest.mark.django_db
 def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
     url = reverse('dataservices-country-data-by-country')
-    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness']})
+    response = api_client.get(
+        url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionIndex']}
+    )
 
     assert response.status_code == 200
     result = response.json()['FR']
