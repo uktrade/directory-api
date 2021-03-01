@@ -15,7 +15,7 @@ from dataservices import models
         (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264, 1),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
         (models.InternetUsage, 'import_internet_usage_data', 264, 1),
-        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 264, 1),
+        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 89, 1),
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264, 1),
     ),
 )

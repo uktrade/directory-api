@@ -1,9 +1,7 @@
 import tablib
 from django.core.management import BaseCommand
-from django.db import connection
-from import_export import resources
 
-from dataservices.models import ConsumerPriceIndex
+from dataservices.models import ConsumerPriceIndex, Country
 
 
 class Command(BaseCommand):
@@ -17,14 +15,21 @@ class Command(BaseCommand):
         # TODO refactor merge structures and more intellect import without file manipulation
         with open('dataservices/resources/Consumer_Price_Index.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
-            internet_usage_resource = resources.modelresource_factory(model=ConsumerPriceIndex)()
-            ConsumerPriceIndex.objects.all().delete()
-            internet_usage_resource.import_data(data, dry_run=False)
-            self.stdout.write('Linking countries')
-            cursor = connection.cursor()
-            cursor.execute(
-                "update dataservices_consumerpriceindex as d \
-                set country_id=c.id \
-                from dataservices_country c where d.country_code=c.iso3;"
-            )
+            cpi_data = []
+
+            for item in data:
+                try:
+                    country = Country.objects.get(iso3=item[1])
+                except Country.DoesNotExist:
+                    country = None
+                cpi_data.append(
+                    ConsumerPriceIndex(
+                        country_name=item[0],
+                        country_code=item[1],
+                        country=country,
+                        year=2020,  # Need to amend based on year in CSV
+                        value=item[4] if item[4] else None,
+                    )
+                )
+            ConsumerPriceIndex.objects.bulk_create(cpi_data)
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
