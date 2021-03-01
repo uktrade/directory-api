@@ -1,6 +1,7 @@
 # Changelog
 
 ### Implemented enhancements
+- GP2-1441 - Update and restructure CPI data
 - GP2-1398 - Comtrade data in database
 - GP2-1343 - Added Trading blocs data
 - GP2-1348 - Economy and population raw values and rank totals
