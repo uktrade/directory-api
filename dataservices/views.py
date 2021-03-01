@@ -24,7 +24,7 @@ from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
     CorruptionPerceptionsIndexSerializer,
     EaseOfDoingBusinessSerializer,
-    GDPPerCapitalSerializer,
+    GDPPerCapitaSerializer,
     IncomeSerializer,
     InternetUsageSerializer,
     RuleOfLawSerializer,
@@ -153,7 +153,7 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
                 EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
             ),
-            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
+            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitaSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
             'income': get_serialized_instance_from_model(Income, IncomeSerializer, filter_args),
         }

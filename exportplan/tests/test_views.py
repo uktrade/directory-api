@@ -258,7 +258,7 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'timezone': 'America/Mexico_City',
         'utz_offset': '-0500',
@@ -301,7 +301,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'historical_import_data': {
             'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},

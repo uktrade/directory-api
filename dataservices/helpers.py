@@ -452,18 +452,23 @@ def get_urban_rural_data(data_object, total_population, classification):
 
 
 def get_serialized_instance_from_model(model_class, serializer_class, filter_args):
-    try:
-        instance = model_class.objects.get(**filter_args)
+    fields = [field.name for field in model_class._meta.fields]
+    results = model_class.objects.filter(**filter_args)
+    if 'year' in fields:
+        results = results.order_by('-year')
+    for instance in results:
         serializer = serializer_class(instance)
         return serializer.data
-    except model_class.DoesNotExist:
-        return None
 
 
 def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key):
     out = {}
-    for result in model_class.objects.filter(**filter_args):
-        out[result.country.iso2] = {section_key: serializer_class(result).data}
+    fields = [field.name for field in model_class._meta.fields]
+    results = model_class.objects.filter(**filter_args)
+    if 'year' in fields:
+        results = results.order_by('-year')
+    for result in results:
+        out[result.country.iso2] = out.get(result.country.iso2, {section_key: serializer_class(result).data})
     return out
 
 

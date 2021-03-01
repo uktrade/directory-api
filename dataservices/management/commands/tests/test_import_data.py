@@ -9,19 +9,22 @@ from dataservices import models
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'model_name, management_cmd, object_count',
+    'model_name, management_cmd, object_count, de_rows',
     (
-        (models.CorruptionPerceptionsIndex, 'import_cpi_data', 180),
-        (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264),
-        (models.WorldEconomicOutlook, 'import_weo_data', 1552),
-        (models.InternetUsage, 'import_internet_usage_data', 264),
-        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 264),
+        (models.CorruptionPerceptionsIndex, 'import_cpi_data', 720, 4),
+        (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264, 1),
+        (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
+        (models.InternetUsage, 'import_internet_usage_data', 264, 1),
+        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 264, 1),
+        (models.GDPPerCapita, 'import_gdp_per_capita_data', 264, 1),
     ),
 )
-def test_import_data_sets(model_name, management_cmd, object_count):
+def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
     model_name.objects.create(country_name='abc', country_code='a')
+    models.Country.objects.create(name='Germ', iso2='DE', iso3='DEU')
     management.call_command(management_cmd)
     assert model_name.objects.count() == object_count
+    assert model_name.objects.filter(country__iso2='DE').count() == de_rows
 
 
 @pytest.mark.django_db
@@ -29,14 +32,13 @@ def test_import_data_sets(model_name, management_cmd, object_count):
 @pytest.mark.parametrize(
     'management_cmd',
     [
-        'import_cpi_data',
         'import_easeofdoingbusiness_data',
         'import_weo_data',
         'import_internet_usage_data',
         'import_consumer_price_index_data',
     ],
 )
-def test_import_data_sets_error(management_cmd):
+def test_error_import_data_sets_error(management_cmd):
     management.call_command(management_cmd)
     assert models.CorruptionPerceptionsIndex.objects.count() == 0
 

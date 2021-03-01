@@ -23,9 +23,11 @@ def easeofdoingbusiness_data():
 
 @pytest.fixture(autouse=True)
 def corruptionperceptionsindex_data():
-    models.CorruptionPerceptionsIndex.objects.create(country_code='CN', country_name='China', cpi_score_2019=10, rank=3)
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='IND', country_name='India', cpi_score_2019=28, rank=9
+        country_code='CN', country_name='China', cpi_score=10, rank=3, year=2019
+    )
+    models.CorruptionPerceptionsIndex.objects.create(
+        country_code='IND', country_name='India', cpi_score=28, rank=9, year=2019
     )
 
 
@@ -113,11 +115,11 @@ def test_get_corruptionperceptionsindex(api_client):
     assert response.json() == {
         'country_name': 'China',
         'country_code': 'CN',
-        'cpi_score_2019': 10,
+        'cpi_score': 10,
         'rank': 3,
         'country': None,
         'total': 2,
-        'year': '2019',
+        'year': 2019,
     }
 
 
@@ -252,7 +254,9 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 @pytest.mark.django_db
 def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
     url = reverse('dataservices-country-data-by-country')
-    response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness']})
+    response = api_client.get(
+        url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex']}
+    )
 
     assert response.status_code == 200
     result = response.json()['FR']
@@ -573,7 +577,6 @@ def test_income_data_api(api_client):
     assert '2019' == json_response['country_data']['ease_of_doing_bussiness']['year']
     assert 9 == json_response['country_data']['corruption_perceptions_index']['rank']
     assert 2 == json_response['country_data']['corruption_perceptions_index']['total']
-    assert '2019' == json_response['country_data']['corruption_perceptions_index']['year']
 
 
 @pytest.mark.django_db
