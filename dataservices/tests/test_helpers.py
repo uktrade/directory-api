@@ -3,6 +3,7 @@ import re
 from unittest import mock
 
 import pytest
+from django.core.cache import cache
 from django.test import override_settings
 
 from dataservices import helpers, models
@@ -222,16 +223,17 @@ def test_get_ease_of_business_index_not_found():
 @pytest.mark.django_db
 def test_get_corruption_perceptions_index():
     models.Country.objects.all().delete()
+    cache.clear()
     country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
 
     models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS', country_name='Australia', cpi_score=24, rank=21, country=country
+        country_code='AUS', country_name='Australia', cpi_score=24, rank=21, country=country, year=2019
     )
     cpi_data = helpers.get_corruption_perception_index('AUS')
     assert cpi_data['rank'] == 21
     assert cpi_data['cpi_score'] == 24
     assert cpi_data['country_code'] == 'AUS'
-    assert cpi_data['year'] == '2019'
+    assert cpi_data['year'] == 2019
     assert cpi_data['total'] == 1
 
 

@@ -65,7 +65,6 @@ class ComTradeData:
 
     def get_last_year_import_data(self, from_uk=False):
         url = self.get_url(from_uk=from_uk)
-        print('URL', url)
         comdata = requests.get(url)
         if comdata and 'dataset' in comdata.json() and comdata.json()['dataset']:
             comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)

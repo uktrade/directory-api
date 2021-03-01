@@ -1,10 +1,8 @@
 import csv
 import re
 
-import tablib
 from django.core.management import BaseCommand
 from django.db import connection
-from import_export import resources
 
 from dataservices.models import CorruptionPerceptionsIndex
 
@@ -17,8 +15,6 @@ class Command(BaseCommand):
         key_mapping = {'CPI score': 'cpi_score', 'Rank': 'rank'}
 
         with open('dataservices/resources/corruption_perception_index.csv', 'r', encoding='utf-8-sig') as f:
-            written = 0
-            read = 0
             file_reader = csv.DictReader(f)
             CorruptionPerceptionsIndex.objects.all().delete()
             for row in file_reader:
@@ -26,7 +22,7 @@ class Command(BaseCommand):
                 country = {'country_name': row.get('Country'), 'country_code': row.get('ISO3')}
                 for col_name, value in row.items():
                     # Gather data for several years
-                    match = re.match('([^\d]*)\s(\d{4})\s*$', col_name)
+                    match = re.match('([^\\d]*)\\s(\\d{4})\\s*$', col_name)
                     if match and value:
                         year = match.group(2)
                         key = match.group(1)

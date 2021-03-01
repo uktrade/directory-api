@@ -23,8 +23,12 @@ def easeofdoingbusiness_data():
 
 @pytest.fixture(autouse=True)
 def corruptionperceptionsindex_data():
-    models.CorruptionPerceptionsIndex.objects.create(country_code='CN', country_name='China', cpi_score=10, rank=3)
-    models.CorruptionPerceptionsIndex.objects.create(country_code='IND', country_name='India', cpi_score=28, rank=9)
+    models.CorruptionPerceptionsIndex.objects.create(
+        country_code='CN', country_name='China', cpi_score=10, rank=3, year=2019
+    )
+    models.CorruptionPerceptionsIndex.objects.create(
+        country_code='IND', country_name='India', cpi_score=28, rank=9, year=2019
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -115,7 +119,7 @@ def test_get_corruptionperceptionsindex(api_client):
         'rank': 3,
         'country': None,
         'total': 2,
-        'year': '2019',
+        'year': 2019,
     }
 
 
@@ -563,7 +567,6 @@ def test_income_data_api(api_client):
     # Retrieve India too as it has cpi data mocked
     url = reverse('dataservices-country-data', kwargs={'country': 'India'})
     json_response = api_client.get(url).json()
-    print(json_response)
     assert 'income' in json_response['country_data']
     assert 'India' == json_response['country_data']['income']['country_name']
     assert '1735.329' == json_response['country_data']['income']['value']
@@ -572,7 +575,6 @@ def test_income_data_api(api_client):
     assert '2019' == json_response['country_data']['ease_of_doing_bussiness']['year']
     assert 9 == json_response['country_data']['corruption_perceptions_index']['rank']
     assert 2 == json_response['country_data']['corruption_perceptions_index']['total']
-    assert '2019' == json_response['country_data']['corruption_perceptions_index']['year']
 
 
 @pytest.mark.django_db
