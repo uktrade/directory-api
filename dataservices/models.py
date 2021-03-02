@@ -40,15 +40,19 @@ class EaseOfDoingBusiness(TimeStampedModel):
 class CorruptionPerceptionsIndex(TimeStampedModel):
 
     # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_name = models.CharField(blank=False, null=False, max_length=255)
     # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
-    cpi_score_2019 = models.IntegerField(null=True, blank=True)
+    country_code = models.CharField(blank=False, null=False, max_length=50)
+    cpi_score = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     rank = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        unique_together = [['country_code', 'year']]
+
     def __str__(self):
-        return self.country_name
+        return f'{self.country_name}:{self.year}'
 
 
 class WorldEconomicOutlook(TimeStampedModel):
@@ -197,3 +201,23 @@ class TradingBlocs(TimeStampedModel):
 
     class Meta:
         verbose_name = "Trading Bloc"
+
+
+class ComtradeReport(models.Model):
+    year = models.IntegerField(null=True, blank=True)
+    classification = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    country_iso3 = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    uk_or_world = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    commodity_code = models.CharField(unique=False, blank=False, null=False, max_length=6)
+    trade_value = models.DecimalField(null=True, blank=True, decimal_places=0, max_digits=15)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['commodity_code', 'country', 'uk_or_world']),
+        ]
+
+    def __str__(self):
+        return str(self.country_iso3) + ':' + str(self.commodity_code)

@@ -49,6 +49,7 @@ def export_plan():
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
     factories.BusinessTripsFactory.create(companyexportplan=export_plan)
+    factories.BusinessRiskFactory.create(companyexportplan=export_plan)
     return export_plan
 
 
@@ -190,6 +191,16 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
                 'note': export_plan.business_trips.all()[0].note,
             }
         ],
+        'business_risks': [
+            {
+                'companyexportplan': export_plan.id,
+                'pk': export_plan.business_risks.all()[0].pk,
+                'risk': export_plan.business_risks.all()[0].risk,
+                'contingency_plan': export_plan.business_risks.all()[0].contingency_plan,
+                'risk_likelihood': export_plan.business_risks.all()[0].risk_likelihood,
+                'risk_impact': export_plan.business_risks.all()[0].risk_impact,
+            }
+        ],
         'pk': export_plan.pk,
     }
     assert response.status_code == 200
@@ -247,7 +258,7 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'timezone': 'America/Mexico_City',
         'utz_offset': '-0500',
@@ -290,7 +301,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'historical_import_data': {
             'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
@@ -699,7 +710,7 @@ def test_funding_credit_options_create(authed_client, authed_supplier, export_pl
 
     data = {
         'companyexportplan': export_plan.id,
-        'funding_option': 'government',
+        'funding_option': 'GOVERNMENT',
         'amount': '55.23',
     }
 
@@ -733,7 +744,7 @@ def test_funding_credit_options_delete(authed_client, authed_supplier, export_pl
 @pytest.mark.parametrize(
     'model_class, property_name, create_data',
     [
-        [models.FundingCreditOptions, 'funding_credit_options', {'funding_option': 'government', 'amount': 55.23}],
+        [models.FundingCreditOptions, 'funding_credit_options', {'funding_option': 'GOVERNMENT', 'amount': 55.23}],
         [
             models.CompanyObjectives,
             'company_objectives',
@@ -758,6 +769,11 @@ def test_funding_credit_options_delete(authed_client, authed_supplier, export_pl
         ],
         [models.ExportPlanActions, 'export_plan_actions', {'action_type': 'TARGET_MARKETS', 'is_reminders_on': True}],
         [models.BusinessTrips, 'business_trips', {'note': 'I just got created'}],
+        [
+            models.BusinessTrips,
+            'business_trips',
+            {'risk': 'new risk', 'contingency_plan': 'contingency', 'risk_likelihood': 'RARE', 'risk_impact': 'SEVERE'},
+        ],
     ],
 )
 @pytest.mark.django_db
@@ -793,6 +809,7 @@ def test_export_plan_model_create(model_class, property_name, create_data, authe
         [models.TargetMarketDocuments, 'target_market_documents'],
         [models.ExportPlanActions, 'export_plan_actions'],
         [models.BusinessTrips, 'business_trips'],
+        [models.BusinessRisks, 'business_risks'],
     ],
 )
 @pytest.mark.django_db
@@ -826,6 +843,7 @@ def test_export_plan_model_retrieve(model_class, property_name, authed_client, a
         [models.TargetMarketDocuments, 'target_market_documents', {'document_name': 'update me'}],
         [models.ExportPlanActions, 'export_plan_actions', {'is_reminders_on': True}],
         [models.BusinessTrips, 'business_trips', {'note': 'update my trip'}],
+        [models.BusinessRisks, 'business_risks', {'risk': 'update my risk'}],
     ],
 )
 @pytest.mark.django_db
@@ -854,6 +872,7 @@ def test_export_plan_model_update(model_class, property_name, data_update, authe
         [models.TargetMarketDocuments, 'target_market_documents'],
         [models.ExportPlanActions, 'export_plan_actions'],
         [models.BusinessTrips, 'business_trips'],
+        [models.BusinessRisks, 'business_risks'],
     ],
 )
 @pytest.mark.django_db

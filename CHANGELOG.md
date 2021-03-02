@@ -1,6 +1,8 @@
 # Changelog
 
 ### Implemented enhancements
+- GP2-1441 - Update and restructure CPI data
+- GP2-1398 - Comtrade data in database
 - GP2-1343 - Added Trading blocs data
 - GP2-1348 - Economy and population raw values and rank totals
 - GP2-1264 - Added currencies data
@@ -22,6 +24,7 @@
 - GP2-1382 - getting paid structure
 - GP2-1180 - travel bus BE
 - NOTICKET - Exportplan make dict default for JSON fields.
+- GP2-1181 - business risk
 
 ## Pre release
 ### Bugs fixed
