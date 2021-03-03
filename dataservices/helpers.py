@@ -390,7 +390,7 @@ def get_internet_usage(country):
 @TTLCache()
 def get_cpi_data(country):
     try:
-        cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest()
+        cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest('year')
         return {
             'cpi': {
                 'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None,

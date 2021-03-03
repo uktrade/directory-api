@@ -102,15 +102,18 @@ class InternetUsage(TimeStampedModel):
 
 class ConsumerPriceIndex(TimeStampedModel):
     # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_name = models.CharField(blank=False, null=False, max_length=255)
     # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    country_code = models.CharField(blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.country_name
+
+    class Meta:
+        unique_together = ('country_code', 'year')
 
 
 class GDPPerCapita(TimeStampedModel):
