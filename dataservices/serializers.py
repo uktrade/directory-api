@@ -105,3 +105,56 @@ class ComTradeReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ComtradeReport
         fields = '__all__'
+
+
+class PopulationDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PopulationData
+        fields = [
+            'year',
+            'gender',
+            '0-4',
+            '5-9',
+            '10-14',
+            '15-19',
+            '20-24',
+            '25-29',
+            '30-34',
+            '35-39',
+            '40-44',
+            '45-49',
+            '50-54',
+            '55-59',
+            '60-64',
+            '65-69',
+            '70-74',
+            '75-59',
+            '80-84',
+            '85-89',
+            '90-94',
+            '95-99',
+            '100+',
+        ]
+        extra_kwargs = {
+            '0-4': {'source': 'age_0_4'},
+            '5-9': {'source': 'age_5_9'},
+            '10-14': {'source': 'age_10_14'},
+            '15-19': {'source': 'age_15_19'},
+            '20-24': {'source': 'age_20_24'},
+            '25-29': {'source': 'age_25_29'},
+            '30-34': {'source': 'age_30_34'},
+            '35-39': {'source': 'age_35_39'},
+            '40-44': {'source': 'age_40_44'},
+            '45-49': {'source': 'age_45_49'},
+            '50-54': {'source': 'age_50_54'},
+            '55-59': {'source': 'age_55_59'},
+            '60-64': {'source': 'age_60_64'},
+            '65-69': {'source': 'age_65_69'},
+            '70-74': {'source': 'age_70_74'},
+            '75-59': {'source': 'age_75_79'},
+            '80-84': {'source': 'age_80_84'},
+            '85-89': {'source': 'age_85_89'},
+            '90-94': {'source': 'age_90_94'},
+            '95-99': {'source': 'age_95_99'},
+            '100+': {'source': 'age_100_plus'},
+        }
