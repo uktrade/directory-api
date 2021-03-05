@@ -232,7 +232,7 @@ class PopulationData(models.Model):
     """
 
     country = models.ForeignKey(
-        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.DO_NOTHING, null=True
     )
     year = models.IntegerField(null=True, blank=True)
     gender = models.CharField(unique=False, blank=False, null=False, max_length=6)
@@ -260,3 +260,4 @@ class PopulationData(models.Model):
 
     class Meta:
         verbose_name = "Target age groups"
+        unique_together = ('country', 'gender', 'year')

@@ -1,4 +1,5 @@
-import tablib
+import csv
+
 from django.core.management import BaseCommand
 
 from dataservices.models import Country, PopulationData
@@ -13,40 +14,40 @@ class Command(BaseCommand):
 
         for gender in genders:
             with open(f'dataservices/resources/world_population_medium_{gender}.csv', 'r', encoding='utf-8-sig') as f:
-                data = tablib.import_set(f.read(), format='csv', headers=True)
+                file_reader = csv.DictReader(f)
 
-                for item in data:
+                for row in file_reader:
                     try:
-                        country = Country.objects.get(iso1=item[1])
+                        country = Country.objects.get(iso1=row['country_code'])
                     except Country.DoesNotExist:
                         country = None
 
                     population_data.append(
                         PopulationData(
                             country=country,
-                            year=item[3] if item[3] else None,
+                            year=row['year'] if row['year'] else None,
                             gender=gender,
-                            age_0_4=item[4] if item[4] and item[4] != '...' else None,
-                            age_5_9=item[5] if item[5] and item[5] != '...' else None,
-                            age_10_14=item[6] if item[6] and item[6] != '...' else None,
-                            age_15_19=item[7] if item[7] and item[7] != '...' else None,
-                            age_20_24=item[8] if item[8] and item[8] != '...' else None,
-                            age_25_29=item[9] if item[9] and item[9] != '...' else None,
-                            age_30_34=item[10] if item[10] and item[10] != '...' else None,
-                            age_35_39=item[11] if item[11] and item[11] != '...' else None,
-                            age_40_44=item[12] if item[12] and item[12] != '...' else None,
-                            age_45_49=item[13] if item[13] and item[13] != '...' else None,
-                            age_50_54=item[14] if item[14] and item[14] != '...' else None,
-                            age_55_59=item[15] if item[15] and item[15] != '...' else None,
-                            age_60_64=item[16] if item[16] and item[16] != '...' else None,
-                            age_65_69=item[17] if item[17] and item[17] != '...' else None,
-                            age_70_74=item[18] if item[18] and item[18] != '...' else None,
-                            age_75_79=item[19] if item[19] and item[19] != '...' else None,
-                            age_80_84=item[20] if item[20] and item[20] != '...' else None,
-                            age_85_89=item[21] if item[21] and item[21] != '...' else None,
-                            age_90_94=item[22] if item[22] and item[22] != '...' else None,
-                            age_95_99=item[23] if item[23] and item[23] != '...' else None,
-                            age_100_plus=item[24] if item[24] and item[24] != '...' else None,
+                            age_0_4=row['0-4'] if row['0-4'] and row['0-4'] != '...' else None,
+                            age_5_9=row['5-9'] if row['5-9'] and row['5-9'] != '...' else None,
+                            age_10_14=row['10-14'] if row['10-14'] and row['10-14'] != '...' else None,
+                            age_15_19=row['15-19'] if row['15-19'] and row['15-19'] != '...' else None,
+                            age_20_24=row['20-24'] if row['20-24'] and row['20-24'] != '...' else None,
+                            age_25_29=row['25-29'] if row['25-29'] and row['25-29'] != '...' else None,
+                            age_30_34=row['30-34'] if row['30-34'] and row['30-34'] != '...' else None,
+                            age_35_39=row['35-39'] if row['35-39'] and row['35-39'] != '...' else None,
+                            age_40_44=row['40-44'] if row['40-44'] and row['40-44'] != '...' else None,
+                            age_45_49=row['45-49'] if row['45-49'] and row['45-49'] != '...' else None,
+                            age_50_54=row['50-54'] if row['50-54'] and row['50-54'] != '...' else None,
+                            age_55_59=row['55-59'] if row['55-59'] and row['55-59'] != '...' else None,
+                            age_60_64=row['60-64'] if row['60-64'] and row['60-64'] != '...' else None,
+                            age_65_69=row['65-69'] if row['65-69'] and row['65-69'] != '...' else None,
+                            age_70_74=row['70-74'] if row['70-74'] and row['70-74'] != '...' else None,
+                            age_75_79=row['75-79'] if row['75-79'] and row['75-79'] != '...' else None,
+                            age_80_84=row['80-84'] if row['80-84'] and row['80-84'] != '...' else None,
+                            age_85_89=row['85-89'] if row['85-89'] and row['85-89'] != '...' else None,
+                            age_90_94=row['90-94'] if row['90-94'] and row['90-94'] != '...' else None,
+                            age_95_99=row['95-99'] if row['95-99'] and row['95-99'] != '...' else None,
+                            age_100_plus=row['100+'] if row['100+'] and row['100+'] != '...' else None,
                         )
                     )
 
