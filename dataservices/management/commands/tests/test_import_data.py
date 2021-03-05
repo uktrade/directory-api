@@ -96,3 +96,15 @@ def test_import_comtrade_raw():
 
     management.call_command('import_comtrade_data', '--wipe')
     assert len(models.ComtradeReport.objects.all()) == 0
+
+
+@pytest.mark.django_db
+def test_import_target_age_groups():
+    management.call_command('import_countries')
+    management.call_command('import_target_age_groups')
+    data = models.PopulationData.objects.filter(country__iso1=276, year=2020)
+
+    assert len(models.PopulationData.objects.all()) == 40986
+    assert data.first().country_id == 276
+    assert len(data) == 2
+    assert data.first().age_100_plus == 0

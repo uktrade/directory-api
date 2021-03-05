@@ -1,6 +1,7 @@
 # Changelog
 
 ### Implemented enhancements
+- GP2-1611 - Dataservices - populatioin target age groups
 - GP2-1441 - Update and restructure CPI data
 - GP2-1398 - Comtrade data in database
 - GP2-1343 - Added Trading blocs data
