@@ -260,8 +260,47 @@ def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
 
     assert response.status_code == 200
     result = response.json()['FR']
-    assert result['EaseOfDoingBusiness']['rank'] == 12
-    assert result['EaseOfDoingBusiness']['total']
+    print('result', result)
+    assert result['EaseOfDoingBusiness'][0]['rank'] == 12
+    assert result['EaseOfDoingBusiness'][0]['total']
+
+
+@pytest.mark.django_db
+def test_get_country_data_by_country_filter(api_client, age_group_data):
+    url = reverse('dataservices-country-data-by-country')
+    # No filter - get two year's data for both genders
+    response = api_client.get(url, data={'countries': ['FR'], 'fields': json.dumps([{'model': 'PopulationData'}])})
+    assert response.status_code == 200
+    result = response.json()['FR']
+    assert (len(result['PopulationData'])) == 4
+    assert result['PopulationData'][0]['year'] == 2019
+    assert result['PopulationData'][0]['gender'] == 'male'
+    assert result['PopulationData'][0]['0-4'] == 1
+    assert result['PopulationData'][1]['year'] == 2019
+    assert result['PopulationData'][1]['gender'] == 'female'
+    assert result['PopulationData'][1]['0-4'] == 2
+    assert result['PopulationData'][2]['year'] == 2020
+    assert result['PopulationData'][2]['gender'] == 'male'
+    assert result['PopulationData'][2]['0-4'] == 3
+    assert result['PopulationData'][3]['year'] == 2020
+    assert result['PopulationData'][3]['gender'] == 'female'
+    assert result['PopulationData'][3]['0-4'] == 4
+    # Apply a latest filter - should get back only 2020
+    response = api_client.get(
+        url, data={'countries': ['FR'], 'fields': json.dumps([{'model': 'PopulationData', 'latest_only': True}])}
+    )
+    result = response.json()['FR']
+    assert (len(result['PopulationData'])) == 2
+    assert result['PopulationData'][0]['year'] == 2020
+    assert result['PopulationData'][1]['year'] == 2020
+    # Get a single year
+    response = api_client.get(
+        url, data={'countries': ['FR'], 'fields': json.dumps([{'model': 'PopulationData', 'filter': {'year': '2019'}}])}
+    )
+    result = response.json()['FR']
+    assert (len(result['PopulationData'])) == 2
+    assert result['PopulationData'][0]['year'] == 2019
+    assert result['PopulationData'][1]['year'] == 2019
 
 
 @pytest.mark.django_db
@@ -271,7 +310,7 @@ def test_get_country_data_by_country_wrong_field(api_client, ease_of_doing_busin
     response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'NotAModelName']})
     assert response.status_code == 200
     result = response.json()['FR']
-    assert result['EaseOfDoingBusiness']['rank'] == 12
+    assert result['EaseOfDoingBusiness'][0]['rank'] == 12
 
 
 @pytest.mark.django_db

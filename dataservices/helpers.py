@@ -461,14 +461,29 @@ def get_serialized_instance_from_model(model_class, serializer_class, filter_arg
         return serializer.data
 
 
-def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key):
+def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key, latest_only):
+    print('multiple', filter_args, section_key, filter_args)
     out = {}
     fields = [field.name for field in model_class._meta.fields]
+
     results = model_class.objects.filter(**filter_args)
-    if 'year' in fields:
+    print('chcegking latest only', results, results.count())
+    if latest_only and 'year' in fields:
+        print('In latest only')
         results = results.order_by('-year')
-    for result in results:
-        out[result.country.iso2] = out.get(result.country.iso2, {section_key: serializer_class(result).data})
+
+    if results:
+        print('***   gffot results')
+        for result in results:
+            iso = result.country.iso2
+            serialized = serializer_class(result).data
+            out[iso] = out.get(iso, {section_key: []})
+            if latest_only and out[iso][section_key]:
+                # We only want the latest, and we have a row - let's see if the new row matches year
+                if out[result.country.iso2][section_key][0].get('year') != serialized.get('year'):
+                    break
+            out[iso][section_key].append(serialized)
+        print('**********   Return ', out)
     return out
 
 
