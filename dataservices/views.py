@@ -1,3 +1,5 @@
+import json
+
 from django.apps import apps
 from django.http import Http404
 from rest_framework import generics, status
@@ -178,15 +180,27 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
         # The return is a map by countries of the serialized model instances
         countries_list = self.request.GET.getlist('countries')
         model_names = self.request.GET.getlist('fields', '')
-        filter_args = {'country__iso2__in': countries_list}
+        if len(model_names) == 1 and model_names[0][0] == '[':
+            model_names = json.loads(model_names[0])
         out = {}
-        for model_name in model_names:
+        for field_spec in model_names:
+            filter_args = {'country__iso2__in': countries_list}
+            if isinstance(field_spec, str):
+                field_spec = {'model': field_spec}
+            filter_args.update(field_spec.get('filter', {}))
             try:
-                model = apps.get_model('dataservices', model_name)
-                serializer = serializers.__dict__.get(model_name + 'Serializer')
+                model = apps.get_model('dataservices', field_spec['model'])
+                serializer = serializers.__dict__.get(field_spec['model'] + 'Serializer')
                 if model and serializer:
                     deep_extend(
-                        out, get_multiple_serialized_instance_from_model(model, serializer, filter_args, model_name)
+                        out,
+                        get_multiple_serialized_instance_from_model(
+                            model_class=model,
+                            serializer_class=serializer,
+                            filter_args=filter_args,
+                            section_key=field_spec['model'],
+                            latest_only=field_spec.get('latest_only', False),
+                        ),
                     )
             except LookupError:
                 pass
