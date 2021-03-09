@@ -16,14 +16,8 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
     sectors = ['Food and drink', 'hospitality']
-    consumer_demand = 'lots of demand for this product'
     target_markets = [{'country': 'Mexico'}]
-    compliance = [{'Change needed': 'lower units', 'Plan': 'less alcohol units'}]
-    export_certificates = [{'Change needed': 'New Labels', 'Plan': 'Print new labels'}]
     marketing_approach = [{'Description': 'selling to retailers', 'option': 'shipping'}]
-    promotion_channels = [{'Description': 'in-store', 'option': 'posters'}]
-    resource_needed = '5 people'
-    spend_marketing = 3000.50
     about_your_business = {'Location': 'London', 'story': 'new brand'}
     target_markets_research = {'demand': 'high', 'value': 'high'}
     adaptation_target_market = {'labelling': 'manual', 'size': '2l'}

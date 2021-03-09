@@ -26,6 +26,8 @@
 - GP2-1180 - travel bus BE
 - NOTICKET - Exportplan make dict default for JSON fields.
 - GP2-1181 - business risk
+- NOTICKET - remove-obsolete-ep-model-fields
+
 
 ## Pre release
 ### Bugs fixed
