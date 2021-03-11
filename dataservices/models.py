@@ -107,7 +107,7 @@ class PopulationUrbanRural(models.Model):
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.country_name
+        return self.country.name
 
     class Meta:
         unique_together = (
