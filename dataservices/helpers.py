@@ -207,13 +207,6 @@ def get_corruption_perception_index(country_code):
         return None
 
 
-@TTLCache()
-def get_historical_import_data(country, commodity_code):
-    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
-    historical_data = comtrade.get_all_historical_import_value()
-    return historical_data
-
-
 def get_comtrade_data_by_country(commodity_code, country_list):
     data = {}
     for record in models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code):
