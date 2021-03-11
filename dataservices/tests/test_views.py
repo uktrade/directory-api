@@ -1,12 +1,11 @@
 import json
-from unittest import mock
 
 import pytest
 from django.core import management
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from dataservices import helpers, models
+from dataservices import models
 from dataservices.tests import factories
 
 
@@ -87,13 +86,11 @@ def test_get_easeofdoingbusiness(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json() == {
-        'country_name': 'China',
-        'country_code': 'CN',
         'year_2019': 10,
         'total': 2,
-        'country': None,
         'year': '2019',
         'rank': 10,
+        'max_rank': 10,
     }
 
 
@@ -113,11 +110,8 @@ def test_get_corruptionperceptionsindex(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json() == {
-        'country_name': 'China',
-        'country_code': 'CN',
         'cpi_score': 10,
         'rank': 3,
-        'country': None,
         'total': 2,
         'year': 2019,
     }
@@ -170,68 +164,6 @@ def test_get_worldeconomicoutlook_not_found(api_client):
     response = api_client.get(url)
     assert response.status_code == 200
     assert response.json() == []
-
-
-@pytest.mark.django_db
-@mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
-def test_last_year_import_data(mock_get_last_year_import_data, api_client):
-    data = {
-        'import_value': {
-            'year': 2020,
-            'trade_value': 100,
-        }
-    }
-    mock_get_last_year_import_data.return_value = data
-
-    url = reverse('last-year-import-data')
-    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
-
-    assert response.status_code == 200
-    assert response.json() == {'last_year_data': {'import_value': {'year': 2020, 'trade_value': 100}}}
-
-
-@pytest.mark.django_db
-@mock.patch.object(helpers.ComTradeData, 'get_last_year_import_data')
-def test_last_year_import_data_from_uk(mock_get_last_year_import_data, api_client):
-    data = {
-        'import_value': {
-            'year': 2020,
-            'trade_value': 100,
-        }
-    }
-    mock_get_last_year_import_data.return_value = data
-
-    url = reverse('last-year-import-data-from-uk')
-    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
-
-    assert response.status_code == 200
-    assert response.json() == {'last_year_data': {'import_value': {'year': 2020, 'trade_value': 100}}}
-
-
-@pytest.mark.django_db
-@mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_world')
-@mock.patch.object(helpers.ComTradeData, 'get_historical_import_value_partner_country')
-@mock.patch.object(helpers.ComTradeData, '__init__')
-def test_historical_import_data(mock_comtrade_constructor, mock_hist_partner, mock_hist_world, api_client):
-    mock_comtrade_constructor.return_value = None
-    hist_partner_data = {'2017': 1000}
-    mock_hist_data = {'2017': 3000}
-
-    mock_hist_partner.return_value = hist_partner_data
-    mock_hist_world.return_value = mock_hist_data
-    url = reverse('historical-import-data')
-    response = api_client.get(url, data={'country': 'Australia', 'commodity_code': '220.850'})
-    assert mock_comtrade_constructor.call_count == 1
-    assert mock_comtrade_constructor.call_args == mock.call(commodity_code='220.850', reporting_area='Australia')
-    assert mock_hist_partner.call_count == 1
-    assert mock_hist_world.call_count == 1
-
-    assert response.status_code == 200
-
-    assert response.json() == {
-        'historical_trade_value_partner': {'2017': 1000},
-        'historical_trade_value_all': {'2017': 3000},
-    }
 
 
 @pytest.mark.django_db
@@ -332,18 +264,12 @@ def test_get_country_data(api_client):
     assert response.json() == {
         'country_data': {
             'consumer_price_index': {
-                'country_name': 'Canada',
-                'country_code': 'CNN',
                 'value': '20.560',
                 'year': 2019,
-                'country': None,
             },
             'internet_usage': {
-                'country_name': 'Canada',
-                'country_code': 'CNN',
                 'value': '20.230',
                 'year': 2019,
-                'country': None,
                 'total_internet_usage': '7.70 million',
             },
             'corruption_perceptions_index': None,
@@ -385,12 +311,9 @@ def test_get_country_data_cpi_not_found(api_client):
         'country_data': {
             'consumer_price_index': None,
             'internet_usage': {
-                'country_name': 'Canada',
-                'country_code': 'CNN',
                 'value': '20.230',
                 'year': 2019,
                 'total_internet_usage': '7.70 million',
-                'country': None,
             },
             'corruption_perceptions_index': None,
             'ease_of_doing_bussiness': None,
@@ -411,11 +334,8 @@ def test_get_country_data_internet_not_found(api_client):
     assert response.json() == {
         'country_data': {
             'consumer_price_index': {
-                'country_name': 'Canada',
-                'country_code': 'CNN',
                 'value': '20.560',
                 'year': 2019,
-                'country': None,
             },
             'internet_usage': None,
             'corruption_perceptions_index': None,
@@ -602,13 +522,11 @@ def test_income_data_api(api_client):
     url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
     json_response = api_client.get(url).json()
     assert 'income' in json_response['country_data']
-    assert 'Canada' == json_response['country_data']['income']['country_name']
     assert '37653.281' == json_response['country_data']['income']['value']
     # Retrieve India too as it has cpi data mocked
     url = reverse('dataservices-country-data', kwargs={'country': 'India'})
     json_response = api_client.get(url).json()
     assert 'income' in json_response['country_data']
-    assert 'India' == json_response['country_data']['income']['country_name']
     assert '1735.329' == json_response['country_data']['income']['value']
     assert 5 == json_response['country_data']['ease_of_doing_bussiness']['year_2019']
     assert 2 == json_response['country_data']['ease_of_doing_bussiness']['total']

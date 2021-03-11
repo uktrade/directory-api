@@ -100,6 +100,23 @@ class InternetUsage(TimeStampedModel):
         return self.country_name
 
 
+class PopulationUrbanRural(models.Model):
+    urban_rural = models.CharField(blank=False, null=False, max_length=5)
+    value = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
+    country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.country_name
+
+    class Meta:
+        unique_together = (
+            'urban_rural',
+            'country',
+            'year',
+        )
+
+
 class ConsumerPriceIndex(TimeStampedModel):
     # Deprecated country_name - use country.name
     country_name = models.CharField(blank=False, null=False, max_length=255)

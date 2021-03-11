@@ -295,16 +295,6 @@ urlpatterns = [
         name='dataservices-country-data-by-country',
     ),
     url(
-        r'^dataservices/lastyearimportdata/$',
-        dataservices.views.RetrieveLastYearImportDataView.as_view(),
-        name='last-year-import-data',
-    ),
-    url(
-        r'^dataservices/lastyearimportdatafromuk/$',
-        dataservices.views.RetrieveLastYearImportDataFromUKView.as_view(),
-        name='last-year-import-data-from-uk',
-    ),
-    url(
         r'^dataservices/lastyearimportdatabycountry/$',
         dataservices.views.RetrieveLastYearImportDataByCountryView.as_view(),
         name='last-year-import-data-by-country',
@@ -318,11 +308,6 @@ urlpatterns = [
         r'^dataservices/society-data-by-country/$',
         dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
         name='dataservices-society-data-by-country',
-    ),
-    url(
-        r'^dataservices/historicalimportdata/$',
-        dataservices.views.RetrieveHistoricalImportDataView.as_view(),
-        name='historical-import-data',
     ),
     url(
         r'^dataservices/population-data/$',
