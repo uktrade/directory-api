@@ -8,11 +8,6 @@ from dataservices import helpers, models
 from dataservices.tests import factories, utils
 
 
-@pytest.fixture(autouse=True)
-def comtrade():
-    return helpers.ComTradeData(commodity_code='220.850', reporting_area='Australia')
-
-
 @pytest.fixture()
 def comtrade_data():
     return {
@@ -98,98 +93,6 @@ def comtrade_request_mock_empty(comtrade_data, requests_mocker):
     return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json={'dataset': []})
 
 
-def test_get_url(comtrade):
-    assert comtrade.get_url() == ('https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1')
-
-
-def test_get_get_comtrade_company_id(comtrade):
-    assert comtrade.get_comtrade_company_id('Australia') == '36'
-
-
-def test_get_comtrade_company_id_not_found(comtrade):
-    assert comtrade.get_comtrade_company_id('no_country') == ''
-
-
-def test_get_product_code(comtrade):
-    assert comtrade.get_product_code('2204.123.2312.231') == '2204123'
-
-
-def test_get_last_year_import_data(comtrade, comtrade_request_mock):
-    last_year_data = comtrade.get_last_year_import_data()
-    assert last_year_data == {
-        'year': '2018',
-        'trade_value': '200',
-        'country_name': 'Australia',
-        'year_on_year_change': '0.5',
-    }
-
-
-def test_get_last_year_import__with_various_year_data(comtrade, comtrade_data_with_various_data_request_mock):
-    last_year_data = comtrade.get_last_year_import_data()
-    assert last_year_data == {
-        'year': '2018',
-        'trade_value': '200',
-        'country_name': 'Australia',
-        'year_on_year_change': None,
-    }
-
-
-def test_get_last_year_import_data_with_a_year_data(comtrade, comtrade_data_with_a_year_data_request_mock):
-    last_year_data = comtrade.get_last_year_import_data()
-    assert comtrade.get_url(from_uk=False) == (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=36&p=0&cc=220850&ps=All&rg=1'
-    )
-    assert last_year_data == {
-        'year': '2018',
-        'trade_value': '200',
-        'country_name': 'Australia',
-        'year_on_year_change': None,
-    }
-
-
-def test_get_last_year_import_data_from_uk(comtrade, comtrade_request_mock):
-    last_year_data = comtrade.get_last_year_import_data(from_uk=True)
-    assert comtrade.get_url(from_uk=True) == (
-        'https://comtrade.un.org/api/get?type=C&freq=A&px=HS&r=826&p=36&cc=220850&ps=All&rg=2'
-    )
-    assert last_year_data == {
-        'year': '2018',
-        'trade_value': '200',
-        'country_name': 'Australia',
-        'year_on_year_change': '0.5',
-    }
-
-
-def test_get_last_year_import_data_empty(empty_comtrade, comtrade_request_mock_empty):
-    assert empty_comtrade.get_last_year_import_data() is None
-
-
-def test_get_historical_import_value_partner_country(comtrade, comtrade_request_mock):
-    reporting_year_data = comtrade.get_historical_import_value_partner_country()
-    assert reporting_year_data == {2016: '50', 2017: '100', 2018: '200'}
-
-
-def test_get_historical_import_value_partner_country_empty(empty_comtrade, comtrade_request_mock_empty):
-    assert empty_comtrade.get_historical_import_value_partner_country() is None
-
-
-def test_get_historical_import_value_world(comtrade, comtrade_request_mock):
-    reporting_year_data = comtrade.get_historical_import_value_world()
-    assert reporting_year_data == {2017: '350', 2018: '350', 2019: '350'}
-
-
-def test_get_historical_import_value_world_empty(empty_comtrade, comtrade_request_mock_empty):
-    assert empty_comtrade.get_historical_import_value_world() == {}
-
-
-def test_get_all_historical_import_value(comtrade, comtrade_request_mock):
-    historical_data = comtrade.get_all_historical_import_value()
-    assert historical_data == {
-        'historical_trade_value_partner': {2018: '200', 2017: '100', 2016: '50'},
-        'historical_trade_value_all': {2019: '350', 2018: '350', 2017: '350'},
-    }
-
-
 @pytest.mark.django_db
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
 def test_get_ease_of_business_index():
@@ -239,17 +142,6 @@ def test_get_corruption_perceptions_index():
 def test_get_corruption_perceptions_index_not_found():
     cpi_data = helpers.get_corruption_perception_index('RXX')
     assert cpi_data is None
-
-
-def test_get_last_year_import_data_helper(comtrade, comtrade_request_mock):
-    historical_data = helpers.get_last_year_import_data('AUS', '847.33.22')
-
-    assert historical_data == {
-        'year': '2018',
-        'trade_value': '200',
-        'country_name': 'Australia',
-        'year_on_year_change': '0.5',
-    }
 
 
 @pytest.mark.django_db

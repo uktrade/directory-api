@@ -34,13 +34,6 @@ def historical_import_data():
 
 
 @pytest.fixture(autouse=True)
-def mock_last_year_data(last_year_data):
-    patch = mock.patch.object(helpers, 'get_last_year_import_data', return_value=last_year_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
 def world_economic_outlook_data():
     return [{'country_name': 'Australia', 'country_code': 'AUS', 'year_2019': 20}]
 
