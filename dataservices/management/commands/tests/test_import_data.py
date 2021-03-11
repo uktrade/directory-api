@@ -117,6 +117,8 @@ def test_import_urban_rural_population():
     data = models.PopulationUrbanRural.objects.filter(country__iso3='DEU', year=2020)
     assert len(models.PopulationUrbanRural.objects.all()) == 3822
     assert data.first().country.name == 'Germany'
+    assert str(data[0]) == 'Germany:urban'
+    assert str(data[1]) == 'Germany:rural'
     assert len(data) == 2
     assert data[0].value == 63930
     assert data[0].urban_rural == 'urban'
