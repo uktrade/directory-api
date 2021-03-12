@@ -59,40 +59,6 @@ class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
         return super().handle_exception(exc)
 
 
-class RetrieveWorldEconomicOutlook(generics.ListAPIView):
-    serializer_class = serializers.WorldEconomicOutlookSerializer
-    permission_classes = []
-
-    def get_queryset(self):
-        country_code = self.kwargs['country_code']
-        return models.WorldEconomicOutlook.objects.filter(country_code=country_code)
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(data={})
-        return super().handle_exception(exc)
-
-
-class RetrieveLastYearImportDataView(generics.GenericAPIView):
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        commodity_code = self.request.GET.get('commodity_code', '')
-        country = self.request.GET.get('country', '')
-        comtrade_response = helpers.get_last_year_import_data(commodity_code=commodity_code, country=country)
-        return Response(status=status.HTTP_200_OK, data={'last_year_data': comtrade_response})
-
-
-class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        commodity_code = self.request.GET.get('commodity_code', '')
-        country = self.request.GET.get('country', '')
-        comtrade_response = helpers.get_last_year_import_data_from_uk(commodity_code=commodity_code, country=country)
-        return Response(status=status.HTTP_200_OK, data={'last_year_data': comtrade_response})
-
-
 class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
     permission_classes = []
 
@@ -102,19 +68,6 @@ class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
             country_list=self.request.GET.getlist('countries', ''),
         )
         return Response(status=status.HTTP_200_OK, data=comtrade_response)
-
-
-class RetrieveHistoricalImportDataView(generics.GenericAPIView):
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        commodity_code = self.request.GET.get('commodity_code', '')
-        country = self.request.GET.get('country', '')
-
-        comtrade = helpers.ComTradeData(commodity_code=commodity_code, reporting_area=country)
-
-        historical_data = comtrade.get_all_historical_import_value()
-        return Response(status=status.HTTP_200_OK, data=historical_data)
 
 
 class RetrieveCountryDataView(generics.GenericAPIView):
@@ -176,7 +129,7 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        # Will be passed a lis of countries and 'fields' === model names
+        # Will be passed a list of countries and 'fields' === model names
         # The return is a map by countries of the serialized model instances
         countries_list = self.request.GET.getlist('countries')
         model_names = self.request.GET.getlist('fields', '')

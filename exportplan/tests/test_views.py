@@ -6,7 +6,6 @@ from directory_constants import choices
 from django.urls import reverse
 
 from company.tests.factories import CompanyFactory
-from conf import settings
 from exportplan import models
 from exportplan.tests import factories
 
@@ -216,104 +215,6 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 
     assert response.status_code == http.client.OK
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
-
-
-@pytest.mark.django_db
-def test_export_plan_target_markets_update_historical_disabled(authed_client, authed_supplier):
-    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
-    models.CompanyExportPlan.objects.all().delete()
-    export_plan = factories.CompanyExportPlanFactory.create()
-    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
-
-    data = {
-        'target_markets': export_plan.target_markets
-        + [
-            {
-                'country': 'Australia',
-            }
-        ]
-    }
-
-    response = authed_client.patch(url, data, format='json')
-    export_plan.refresh_from_db()
-
-    assert response.status_code == http.client.OK
-    country_market_data = {
-        'country': 'Mexico',
-        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
-        'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
-        'corruption_perceptions_index': {
-            'rank': 21,
-            'country_code': 'AUS',
-            'country_name': 'Australia',
-            'cpi_score': 24,
-        },
-        'timezone': 'America/Mexico_City',
-        'utz_offset': '-0500',
-        'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
-        'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
-    }
-    # We can't compare actual time offsets as these vary over time
-    country_market_data['utz_offset'] = export_plan.target_markets[0]['utz_offset']
-    assert export_plan.target_markets[0] == country_market_data
-    country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = export_plan.target_markets[1]['utz_offset']
-    country_market_data['timezone'] = 'Australia/Lord_Howe'
-    assert export_plan.target_markets[1] == country_market_data
-
-
-@pytest.mark.django_db
-def test_export_plan_target_markets_update_historical_enabled(authed_client, authed_supplier):
-    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = True
-    export_plan = factories.CompanyExportPlanFactory.create()
-    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
-
-    data = {'target_markets': export_plan.target_markets + [{'country': 'Australia'}]}
-
-    response = authed_client.patch(url, data, format='json')
-    export_plan.refresh_from_db()
-
-    assert response.status_code == http.client.OK
-
-    country_market_data = {
-        'country': 'Mexico',
-        'last_year_data': {'import_value': {'year': 2019, 'trade_value': 100}},
-        'easeofdoingbusiness': {'total': 1, 'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'},
-        'corruption_perceptions_index': {
-            'rank': 21,
-            'country_code': 'AUS',
-            'country_name': 'Australia',
-            'cpi_score': 24,
-        },
-        'historical_import_data': {
-            'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
-            'historical_trade_value_partner': {'2016': 50, '2017': 100, '2018': 200},
-        },
-        'timezone': 'America/Mexico_City',
-        'utz_offset': '-0500',
-        'world_economic_outlook_data': [{'year_2019': 20, 'country_code': 'AUS', 'country_name': 'Australia'}],
-        'cia_factbook_data': {'capital': 'London', 'currency': 'GBP', 'population': '60m'},
-    }
-    # We can't compare actual time offsets as these vary over time
-    country_market_data['utz_offset'] = export_plan.target_markets[0]['utz_offset']
-    assert export_plan.target_markets[0] == country_market_data
-    country_market_data['country'] = 'Australia'
-    country_market_data['utz_offset'] = export_plan.target_markets[1]['utz_offset']
-    country_market_data['timezone'] = 'Australia/Lord_Howe'
-    assert export_plan.target_markets[1] == country_market_data
-    settings.FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = False
 
 
 @pytest.mark.django_db

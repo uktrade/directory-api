@@ -108,3 +108,19 @@ def test_import_target_age_groups():
     assert data.first().country.iso1 == '276'
     assert len(data) == 2
     assert data.first().age_100_plus == 4
+
+
+@pytest.mark.django_db
+def test_import_urban_rural_population():
+    management.call_command('import_countries')
+    management.call_command('import_population_urbanrural')
+    data = models.PopulationUrbanRural.objects.filter(country__iso3='DEU', year=2020)
+    assert len(models.PopulationUrbanRural.objects.all()) == 3822
+    assert data.first().country.name == 'Germany'
+    assert str(data[0]) == 'Germany:urban'
+    assert str(data[1]) == 'Germany:rural'
+    assert len(data) == 2
+    assert data[0].value == 63930
+    assert data[0].urban_rural == 'urban'
+    assert data[1].value == 18610
+    assert data[1].urban_rural == 'rural'

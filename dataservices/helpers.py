@@ -4,124 +4,9 @@ from datetime import datetime
 from itertools import chain
 
 import pandas
-import requests
 from django.core.cache import cache
 
 from dataservices import models, serializers
-
-COUNTRIES_MAP = {
-    'Bolivia': 'Plurinational State of Bolivia',
-    'Cape Verde': 'Cabo Verde',
-    'East Timor': 'Timor-Leste',
-    'Eswatini': 'Swaziland',
-    'Ivory Coast': 'Côte d\'Ivoire',
-    'Laos': 'Lao People\'s Dem. Rep.',
-    'Micronesia': 'Federated State of Micronesia',
-    'Myanmar (Burma)': 'Myanmar',
-    'North Korea': 'Democratic People\'s Republic of Korea',
-    'North Macedonia': 'The Former Yugoslav Republic of Macedonia',
-    'Russia': 'Russian Federation',
-    'St Kitts and Nevis': 'Saint Kitts and Nevis',
-    'St Lucia': 'Saint Lucia',
-    'St Vincent': 'Saint Vincent and the Grenadines',
-    'South Africa': 'Southern African Customs Union',
-    'Tanzania': 'United Republic of Tanzania',
-    'The Bahamas': 'Bahamas',
-    'The Gambia': 'Gambia',
-    'Vatican City': 'Holy See (Vatican City State)',
-    'Vietnam': 'Former Republic of Vietnam',
-    'United States': 'USA',
-}
-
-
-class ComTradeData:
-    url = 'https://comtrade.un.org/api/get?type=C&freq=A&px=HS'
-
-    def __init__(self, commodity_code, reporting_area, partner_country='United Kingdom'):
-        pandas.set_option('mode.chained_assignment', None)
-        self.product_code = self.get_product_code(commodity_code)
-        self.reporting_area_id = self.get_comtrade_company_id(COUNTRIES_MAP.get(reporting_area, reporting_area))
-        self.partner_country_id = self.get_comtrade_company_id(partner_country)
-
-    def get_comtrade_company_id(self, country_name):
-        with open('dataservices/resources/reporterAreas.json', 'r') as f:
-            json1_str = f.read()
-            counties_data = pandas.DataFrame(json.loads(json1_str)['results'])
-            if not counties_data[counties_data['text'] == country_name]['id'].empty:
-                return counties_data[counties_data['text'] == country_name]['id'].iloc[0]
-            else:
-                return ''
-
-    def get_url(self, from_uk=False):
-        if from_uk:
-            url_options = f'&r={self.partner_country_id}&p={self.reporting_area_id}&cc={self.product_code}&ps=All&rg=2'
-        else:
-            url_options = f'&r={self.reporting_area_id}&p=0&cc={self.product_code}&ps=All&rg=1'
-        return self.url + url_options
-
-    def get_product_code(self, commodity_code):
-        commodity_list = commodity_code.split('.')[0:2]
-        return ''.join(commodity_list)
-
-    def get_last_year_import_data(self, from_uk=False):
-        url = self.get_url(from_uk=from_uk)
-        comdata = requests.get(url)
-        if comdata and 'dataset' in comdata.json() and comdata.json()['dataset']:
-            comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset']).sort_values(by='period', ascending=False)
-
-            if not comdata_df.empty:
-                # Get Last two years data
-                year_import = comdata_df[comdata_df.period == comdata_df.period.max()]
-                year_on_year_change = None
-                # check if data available for more than one year
-                if len(comdata_df.index) > 1:
-                    try:
-                        last_year_import = comdata_df[comdata_df.period == comdata_df.period.max() - 1][
-                            'TradeValue'
-                        ].iloc[0]
-                        year_on_year_change = str(round(last_year_import / year_import.iloc[0]['TradeValue'], 3))
-                    except IndexError:
-                        pass
-
-                return {
-                    'year': str(year_import.iloc[0]['period']),
-                    'trade_value': str(year_import.iloc[0]['TradeValue']),
-                    'country_name': year_import.iloc[0]['rtTitle'],
-                    'year_on_year_change': year_on_year_change,
-                }
-
-    def get_historical_import_value_partner_country(self, no_years=3):
-        comdata = requests.get(self.get_url())
-        comdata_df = pandas.DataFrame.from_dict(comdata.json()['dataset'])
-        if not comdata_df.empty:
-            historical_trade_values = {}
-            reporting_year_df = comdata_df.sort_values(by=['period'], ascending=False).head(no_years)
-
-            for index, row in reporting_year_df.iterrows():
-                historical_trade_values[row['period']] = str(row['TradeValue'])
-            return historical_trade_values
-
-    def get_historical_import_value_world(self, no_years=3):
-        historical_trade_values = {}
-
-        for y in range(1, no_years + 1):
-            reporting_year = datetime.today().year - (y + 1)
-            url_options = f'&r=All&p={self.partner_country_id}&cc={self.product_code}&ps={reporting_year}'
-            world_data = requests.get(self.url + url_options)
-            world_data_df = pandas.DataFrame.from_dict(world_data.json()['dataset'])
-            if not world_data_df.empty:
-                str(world_data_df['TradeValue'].sum())
-                historical_trade_values[reporting_year] = str(world_data_df['TradeValue'].sum())
-        return historical_trade_values
-
-    def get_all_historical_import_value(self, no_years=3):
-        historical_data = {}
-        country_data = self.get_historical_import_value_partner_country(no_years)
-        world_data = self.get_historical_import_value_world(no_years)
-
-        historical_data['historical_trade_value_partner'] = country_data
-        historical_data['historical_trade_value_all'] = world_data
-        return historical_data
 
 
 class PopulationData:
@@ -320,27 +205,6 @@ def get_corruption_perception_index(country_code):
         return serializer.data
     except models.CorruptionPerceptionsIndex.DoesNotExist:
         return None
-
-
-@TTLCache()
-def get_last_year_import_data(country, commodity_code):
-    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
-    last_year_data = comtrade.get_last_year_import_data()
-    return last_year_data
-
-
-@TTLCache()
-def get_last_year_import_data_from_uk(country, commodity_code):
-    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
-    last_year_data = comtrade.get_last_year_import_data(from_uk=True)
-    return last_year_data
-
-
-@TTLCache()
-def get_historical_import_data(country, commodity_code):
-    comtrade = ComTradeData(commodity_code=commodity_code, reporting_area=country)
-    historical_data = comtrade.get_all_historical_import_value()
-    return historical_data
 
 
 def get_comtrade_data_by_country(commodity_code, country_list):
