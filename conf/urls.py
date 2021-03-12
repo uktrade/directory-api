@@ -280,11 +280,6 @@ urlpatterns = [
         name='dataservices-corruptionperceptionsindex',
     ),
     url(
-        r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
-        dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
-        name='dataservices-world-economic-outlook',
-    ),
-    url(
         r'^dataservices/country-data/(?P<country>.*)/$',
         dataservices.views.RetrieveCountryDataView.as_view(),
         name='dataservices-country-data',
