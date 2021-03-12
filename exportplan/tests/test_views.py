@@ -123,14 +123,8 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'about_your_business': export_plan.about_your_business,
         'objectives': export_plan.objectives,
         'sectors': export_plan.sectors,
-        'consumer_demand': export_plan.consumer_demand,
         'target_markets': export_plan.target_markets,
-        'compliance': export_plan.compliance,
-        'export_certificates': export_plan.export_certificates,
         'marketing_approach': export_plan.marketing_approach,
-        'promotion_channels': export_plan.promotion_channels,
-        'resource_needed': export_plan.resource_needed,
-        'spend_marketing': export_plan.spend_marketing,
         'target_markets_research': export_plan.target_markets_research,
         'adaptation_target_market': export_plan.adaptation_target_market,
         'direct_costs': export_plan.direct_costs,
@@ -258,7 +252,7 @@ def test_export_plan_target_markets_update_historical_disabled(authed_client, au
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'timezone': 'America/Mexico_City',
         'utz_offset': '-0500',
@@ -301,7 +295,7 @@ def test_export_plan_target_markets_update_historical_enabled(authed_client, aut
             'rank': 21,
             'country_code': 'AUS',
             'country_name': 'Australia',
-            'cpi_score_2019': 24,
+            'cpi_score': 24,
         },
         'historical_import_data': {
             'historical_trade_value_all': {'2016': 350, '2017': 350, '2018': 350},
@@ -644,7 +638,7 @@ def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed
 
 @pytest.mark.django_db
 def test_export_plan_update_non_json_new_to_partial(authed_client, authed_supplier):
-    export_plan = factories.CompanyExportPlanFactory.create(resource_needed='')
+    export_plan = factories.CompanyExportPlanFactory.create(adaptation_target_market={})
 
     authed_supplier.sso_id = export_plan.sso_id
     authed_supplier.company = export_plan.company
@@ -654,18 +648,18 @@ def test_export_plan_update_non_json_new_to_partial(authed_client, authed_suppli
     response = authed_client.get(url)
 
     assert response.status_code == 200
-    assert response.json()['resource_needed'] == ''
+    assert response.json()['adaptation_target_market'] == {}
 
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
-    data = {'resource_needed': 'New resource'}
+    data = {'adaptation_target_market': {'labelling': 'auto', 'size': '6l'}}
     response = authed_client.patch(url, data, format='json')
     assert response.status_code == 200
-    assert response.json()['resource_needed'] == 'New resource'
+    assert response.json()['adaptation_target_market'] == {'labelling': 'auto', 'size': '6l'}
     # Update
-    data = {'resource_needed': 'Old resource'}
+    data = {'adaptation_target_market': {'labelling': 'manual'}}
     response = authed_client.patch(url, data, format='json')
     assert response.status_code == 200
-    assert response.json()['resource_needed'] == 'Old resource'
+    assert response.json()['adaptation_target_market'] == {'labelling': 'manual', 'size': '6l'}
 
 
 @pytest.mark.django_db

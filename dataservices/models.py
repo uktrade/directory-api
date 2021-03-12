@@ -40,15 +40,19 @@ class EaseOfDoingBusiness(TimeStampedModel):
 class CorruptionPerceptionsIndex(TimeStampedModel):
 
     # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_name = models.CharField(blank=False, null=False, max_length=255)
     # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
-    cpi_score_2019 = models.IntegerField(null=True, blank=True)
+    country_code = models.CharField(blank=False, null=False, max_length=50)
+    cpi_score = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     rank = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        unique_together = [['country_code', 'year']]
+
     def __str__(self):
-        return self.country_name
+        return f'{self.country_name}:{self.year}'
 
 
 class WorldEconomicOutlook(TimeStampedModel):
@@ -98,15 +102,18 @@ class InternetUsage(TimeStampedModel):
 
 class ConsumerPriceIndex(TimeStampedModel):
     # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
+    country_name = models.CharField(blank=False, null=False, max_length=255)
     # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
+    country_code = models.CharField(blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.country_name
+
+    class Meta:
+        unique_together = ('country_code', 'year')
 
 
 class GDPPerCapita(TimeStampedModel):
@@ -217,3 +224,40 @@ class ComtradeReport(models.Model):
 
     def __str__(self):
         return str(self.country_iso3) + ':' + str(self.commodity_code)
+
+
+class PopulationData(models.Model):
+    """
+    Each record represents data from one gender, for one particular place and year.
+    """
+
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.DO_NOTHING, null=True
+    )
+    year = models.IntegerField(null=True, blank=True)
+    gender = models.CharField(unique=False, blank=False, null=False, max_length=6)
+    age_0_4 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_5_9 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_10_14 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_15_19 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_20_24 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_25_29 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_30_34 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_35_39 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_40_44 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_45_49 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_50_54 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_55_59 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_60_64 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_65_69 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_70_74 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_75_79 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_80_84 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_85_89 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_90_94 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_95_99 = models.PositiveIntegerField(null=True, default=None, unique=False)
+    age_100_plus = models.PositiveIntegerField(null=True, default=None, unique=False)
+
+    class Meta:
+        verbose_name = "Target age groups"
+        unique_together = ('country', 'gender', 'year')

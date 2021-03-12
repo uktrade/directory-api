@@ -27,18 +27,11 @@ class CompanyExportPlan(TimeStampedModel):
     target_markets_research = JSONField(null=True, blank=True, default=dict)
     # Target Markets
     sectors = JSONField(null=True, blank=True, default=list)
-    consumer_demand = models.TextField(null=True, blank=True, default='', validators=[no_html])
     target_markets = JSONField(null=True, blank=True, default=dict)
-    # Adaptation for international markets
-    compliance = JSONField(null=True, blank=True, default=dict)
-    export_certificates = JSONField(null=True, blank=True, default=dict)
     # adaptation for your target target
     adaptation_target_market = JSONField(null=True, blank=True, default=dict)
     # Marketing Approach
     marketing_approach = JSONField(null=True, blank=True, default=dict)
-    promotion_channels = JSONField(null=True, blank=True, default=dict)
-    resource_needed = models.TextField(null=True, blank=True, default='', validators=[no_html])
-    spend_marketing = models.FloatField(null=True, default=None, unique=False)
     # Cost and Pricing
     direct_costs = JSONField(null=True, blank=True, default=dict)
     overhead_costs = JSONField(null=True, blank=True, default=dict)

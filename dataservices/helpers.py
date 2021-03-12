@@ -390,7 +390,7 @@ def get_internet_usage(country):
 @TTLCache()
 def get_cpi_data(country):
     try:
-        cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest()
+        cpi_obj = models.ConsumerPriceIndex.objects.filter(country_name=country).latest('year')
         return {
             'cpi': {
                 'value': '{:.2f}'.format(cpi_obj.value) if hasattr(cpi_obj, 'value') else None,
@@ -452,18 +452,33 @@ def get_urban_rural_data(data_object, total_population, classification):
 
 
 def get_serialized_instance_from_model(model_class, serializer_class, filter_args):
-    try:
-        instance = model_class.objects.get(**filter_args)
+    fields = [field.name for field in model_class._meta.fields]
+    results = model_class.objects.filter(**filter_args)
+    if 'year' in fields:
+        results = results.order_by('-year')
+    for instance in results:
         serializer = serializer_class(instance)
         return serializer.data
-    except model_class.DoesNotExist:
-        return None
 
 
-def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key):
+def get_multiple_serialized_instance_from_model(model_class, serializer_class, filter_args, section_key, latest_only):
     out = {}
-    for result in model_class.objects.filter(**filter_args):
-        out[result.country.iso2] = {section_key: serializer_class(result).data}
+    fields = [field.name for field in model_class._meta.fields]
+
+    results = model_class.objects.filter(**filter_args)
+    if latest_only and 'year' in fields:
+        results = results.order_by('-year')
+
+    if results:
+        for result in results:
+            iso = result.country.iso2
+            serialized = serializer_class(result).data
+            out[iso] = out.get(iso, {section_key: []})
+            if latest_only and out[iso][section_key]:
+                # We only want the latest, and we have a row - let's see if the new row matches year
+                if out[result.country.iso2][section_key][0].get('year') != serialized.get('year'):
+                    break
+            out[iso][section_key].append(serialized)
     return out
 
 

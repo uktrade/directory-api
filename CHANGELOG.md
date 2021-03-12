@@ -4,6 +4,8 @@
 ### Bugs fixed
 
 ### Implemented enhancements
+- GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data 
+- GP2-1441 - Update and restructure CPI data
 - GP2-1398 - Comtrade data in database
 - GP2-1267 - Added Rule of Law data
 - GP2-1258 - Society data
@@ -31,7 +33,8 @@
 - GP2-1382 - getting paid structure	
 - GP2-1180 - travel bus BE
 - NOTICKET - Exportplan make dict default for JSON fields.
-
+- GP2-1181 - business risk
+- NOTICKET - remove-obsolete-ep-model-fields
 
 ## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.3.0...1.4.0)
