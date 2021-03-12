@@ -194,59 +194,6 @@ def test_get_comtrade_data_by_country():
 
 
 @pytest.mark.django_db
-def test_get_world_economic_outlook_data():
-
-    models.WorldEconomicOutlook.objects.create(
-        country_code='CN',
-        country_name='China',
-        subject='Gross domestic product',
-        scale='constant prices',
-        units='Percent change',
-        year_2020=323.21,
-        year_2021=1231.1,
-    )
-    models.WorldEconomicOutlook.objects.create(
-        country_code='CN',
-        country_name='China',
-        subject='Gross domestic product per capita, constant prices ',
-        scale='international dollars',
-        units='dollars',
-        year_2020=21234141,
-        year_2021=32432423,
-    )
-
-    weo_data = helpers.get_world_economic_outlook_data('CN')
-    assert weo_data == [
-        {
-            "country_code": "CN",
-            "country_name": "China",
-            "subject": "Gross domestic product per capita, constant prices ",
-            "scale": "international dollars",
-            "units": "dollars",
-            "year_2020": "21234141.000",
-            "year_2021": "32432423.000",
-            "country": None,
-        },
-        {
-            "country_code": "CN",
-            "country_name": "China",
-            "subject": "Gross domestic product",
-            "scale": "constant prices",
-            "units": "Percent change",
-            "year_2020": "323.210",
-            "year_2021": "1231.100",
-            "country": None,
-        },
-    ]
-
-
-@pytest.mark.django_db
-def test_get_world_economic_outlook_data_not_found():
-    cpi_data = helpers.get_world_economic_outlook_data('RXX')
-    assert cpi_data == []
-
-
-@pytest.mark.django_db
 def test_get_cia_factbook_by_country_all_data():
     cia_factbook_data_test_data = factories.CIAFactBookFactory()
     cia_factbook_data = helpers.get_cia_factbook_data('United Kingdom')

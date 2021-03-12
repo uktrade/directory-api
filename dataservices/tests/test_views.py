@@ -127,46 +127,6 @@ def test_get_corruptionperceptionsindex_not_found(api_client):
 
 
 @pytest.mark.django_db
-def test_get_world_economic_outlook(api_client):
-    url = reverse('dataservices-world-economic-outlook', kwargs={'country_code': 'CN'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-
-    assert response.json() == [
-        {
-            'country_code': 'CN',
-            'country_name': 'China',
-            'subject': 'Gross domestic product per capita, constant prices ',
-            'scale': 'international dollars',
-            'units': 'dollars',
-            'year_2020': '21234141.000',
-            'year_2021': '32432423.000',
-            'country': None,
-        },
-        {
-            'country_code': 'CN',
-            'country_name': 'China',
-            'subject': 'Gross domestic product',
-            'scale': 'constant prices',
-            'units': 'Percent change',
-            'year_2020': '323.210',
-            'year_2021': '1231.100',
-            'country': None,
-        },
-    ]
-
-
-@pytest.mark.django_db
-def test_get_worldeconomicoutlook_not_found(api_client):
-    url = reverse('dataservices-world-economic-outlook', kwargs={'country_code': 'xxx'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == []
-
-
-@pytest.mark.django_db
 def test_comtrade_data_by_country(api_client, comtrade_report_data):
     url = reverse('last-year-import-data-by-country')
     response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
