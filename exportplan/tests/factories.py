@@ -110,3 +110,14 @@ class BusinessTripsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.BusinessTrips
+
+
+class BusinessRiskFactory(factory.django.DjangoModelFactory):
+    risk = factory.fuzzy.FuzzyText(length=50)
+    contingency_plan = factory.fuzzy.FuzzyText(length=50)
+    risk_likelihood = factory.fuzzy.FuzzyChoice([i[0] for i in choices.RISK_LIKELIHOOD_OPTIONS])
+    risk_impact = factory.fuzzy.FuzzyChoice([i[0] for i in choices.RISK_IMPACT_OPTIONS])
+    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
+
+    class Meta:
+        model = models.BusinessRisks

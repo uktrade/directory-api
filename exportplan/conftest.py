@@ -12,7 +12,7 @@ def ease_of_business_data():
 
 @pytest.fixture(autouse=True)
 def cpi_data():
-    return {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score_2019': 24, 'rank': 21}
+    return {'country_name': 'Australia', 'country_code': 'AUS', 'cpi_score': 24, 'rank': 21}
 
 
 @pytest.fixture(autouse=True)

@@ -1,9 +1,16 @@
+from django.apps import apps
 from django.http import Http404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
 from dataservices import helpers, models, serializers
-from dataservices.helpers import get_serialized_instance_from_model, get_urban_rural_data, millify
+from dataservices.helpers import (
+    deep_extend,
+    get_multiple_serialized_instance_from_model,
+    get_serialized_instance_from_model,
+    get_urban_rural_data,
+    millify,
+)
 from dataservices.models import (
     ConsumerPriceIndex,
     CorruptionPerceptionsIndex,
@@ -17,7 +24,7 @@ from dataservices.serializers import (
     ConsumerPriceIndexSerializer,
     CorruptionPerceptionsIndexSerializer,
     EaseOfDoingBusinessSerializer,
-    GDPPerCapitalSerializer,
+    GDPPerCapitaSerializer,
     IncomeSerializer,
     InternetUsageSerializer,
     RuleOfLawSerializer,
@@ -84,6 +91,17 @@ class RetrieveLastYearImportDataFromUKView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data={'last_year_data': comtrade_response})
 
 
+class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        comtrade_response = helpers.get_comtrade_data_by_country(
+            commodity_code=self.request.GET.get('commodity_code', ''),
+            country_list=self.request.GET.getlist('countries', ''),
+        )
+        return Response(status=status.HTTP_200_OK, data=comtrade_response)
+
+
 class RetrieveHistoricalImportDataView(generics.GenericAPIView):
     permission_classes = []
 
@@ -135,7 +153,7 @@ class RetrieveCountryDataView(generics.GenericAPIView):
             'ease_of_doing_bussiness': get_serialized_instance_from_model(
                 EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
             ),
-            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitalSerializer, filter_args),
+            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitaSerializer, filter_args),
             'total_population': millify(total_population.get('total_population', 0) * 1000),
             'income': get_serialized_instance_from_model(Income, IncomeSerializer, filter_args),
         }
@@ -150,6 +168,30 @@ class RetrieveCountryDataView(generics.GenericAPIView):
     def get_filter(self, country):
         weo_country = self.dit_to_weo_country_map.get(country, country)
         return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country}
+
+
+class RetrieveDataByCountryView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        # Will be passed a lis of countries and 'fields' === model names
+        # The return is a map by countries of the serialized model instances
+        countries_list = self.request.GET.getlist('countries')
+        model_names = self.request.GET.getlist('fields', '')
+        filter_args = {'country__iso2__in': countries_list}
+        out = {}
+        for model_name in model_names:
+            try:
+                model = apps.get_model('dataservices', model_name)
+                serializer = serializers.__dict__.get(model_name + 'Serializer')
+                if model and serializer:
+                    deep_extend(
+                        out, get_multiple_serialized_instance_from_model(model, serializer, filter_args, model_name)
+                    )
+            except LookupError:
+                pass
+
+        return Response(status=status.HTTP_200_OK, data=out)
 
 
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
@@ -224,7 +266,6 @@ class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-
         countries = self.request.GET.getlist('countries', '')
 
         if not countries:

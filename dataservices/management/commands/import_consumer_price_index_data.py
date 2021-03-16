@@ -1,5 +1,6 @@
 import tablib
 from django.core.management import BaseCommand
+from django.db import connection
 from import_export import resources
 
 from dataservices.models import ConsumerPriceIndex
@@ -17,10 +18,13 @@ class Command(BaseCommand):
         with open('dataservices/resources/Consumer_Price_Index.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             internet_usage_resource = resources.modelresource_factory(model=ConsumerPriceIndex)()
-            result = internet_usage_resource.import_data(data, dry_run=True)
-            self.stdout.write(self.style.SUCCESS(result.has_errors()))
-            if not result.has_errors():
-                # No Errors lets flush table and import the data
-                ConsumerPriceIndex.objects.all().delete()
-                internet_usage_resource.import_data(data, dry_run=False)
+            ConsumerPriceIndex.objects.all().delete()
+            internet_usage_resource.import_data(data, dry_run=False)
+            self.stdout.write('Linking countries')
+            cursor = connection.cursor()
+            cursor.execute(
+                "update dataservices_consumerpriceindex as d \
+                set country_id=c.id \
+                from dataservices_country c where d.country_code=c.iso3;"
+            )
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

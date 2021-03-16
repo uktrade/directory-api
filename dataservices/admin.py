@@ -17,7 +17,7 @@ class EaseOfDoingBusinessResource(resources.ModelResource):
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
     class Meta:
         model = models.CorruptionPerceptionsIndex
-        fields = ['country_name', 'country_code', 'cpi_score_2019', 'rank']
+        fields = ['country_name', 'country_code', 'cpi_score', 'rank']
 
 
 class InternetUsageResource(resources.ModelResource):
@@ -53,12 +53,12 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
 class CorruptionPerceptionsIndexAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
-    search_fields = ('country_name', 'country_code', 'cpi_score_2019', 'rank')
+    search_fields = ('country_name', 'country_code', 'cpi_score', 'rank')
 
     list_display = (
         'country_name',
         'country_code',
-        'cpi_score_2019',
+        'cpi_score',
         'rank',
     )
 
