@@ -280,11 +280,6 @@ urlpatterns = [
         name='dataservices-corruptionperceptionsindex',
     ),
     url(
-        r'^dataservices/world-economic-outlook/(?P<country_code>.*)/$',
-        dataservices.views.RetrieveWorldEconomicOutlook.as_view(),
-        name='dataservices-world-economic-outlook',
-    ),
-    url(
         r'^dataservices/country-data/(?P<country>.*)/$',
         dataservices.views.RetrieveCountryDataView.as_view(),
         name='dataservices-country-data',
@@ -293,16 +288,6 @@ urlpatterns = [
         r'^dataservices/country-data/$',
         dataservices.views.RetrieveDataByCountryView.as_view(),
         name='dataservices-country-data-by-country',
-    ),
-    url(
-        r'^dataservices/lastyearimportdata/$',
-        dataservices.views.RetrieveLastYearImportDataView.as_view(),
-        name='last-year-import-data',
-    ),
-    url(
-        r'^dataservices/lastyearimportdatafromuk/$',
-        dataservices.views.RetrieveLastYearImportDataFromUKView.as_view(),
-        name='last-year-import-data-from-uk',
     ),
     url(
         r'^dataservices/lastyearimportdatabycountry/$',
@@ -318,11 +303,6 @@ urlpatterns = [
         r'^dataservices/society-data-by-country/$',
         dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
         name='dataservices-society-data-by-country',
-    ),
-    url(
-        r'^dataservices/historicalimportdata/$',
-        dataservices.views.RetrieveHistoricalImportDataView.as_view(),
-        name='historical-import-data',
     ),
     url(
         r'^dataservices/population-data/$',

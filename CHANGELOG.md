@@ -4,6 +4,7 @@
 ### Bugs fixed
 
 ### Implemented enhancements
+- GP2-1724 - Population urban/rural model and removal of obsolute comtrade mechanisms
 - GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data 
 - GP2-1441 - Update and restructure CPI data
 - GP2-1398 - Comtrade data in database

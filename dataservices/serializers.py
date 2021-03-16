@@ -1,3 +1,4 @@
+from django.db.models import Max
 from rest_framework import serializers
 
 from dataservices import models
@@ -5,20 +6,21 @@ from dataservices import models
 
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
-    country = serializers.SerializerMethodField()
     year = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
+    max_rank = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
-        exclude = ['created', 'id', 'modified']
+        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+
+    def get_max_rank(self, obj):
+        agg = models.EaseOfDoingBusiness.objects.aggregate(Max('year_2019'))
+        for key in agg:
+            return agg[key]
 
     def get_total(self, obj):
         return models.EaseOfDoingBusiness.objects.all().count()
-
-    def get_country(self, obj):
-        if obj.country:
-            return obj.country.name
 
     def get_year(self, obj):
         # The year is implicit and should be updated when new data are imported
@@ -29,19 +31,14 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
 
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
-    country = serializers.SerializerMethodField()
     total = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CorruptionPerceptionsIndex
-        exclude = ['created', 'id', 'modified']
+        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
 
     def get_total(self, obj):
         return models.CorruptionPerceptionsIndex.objects.filter(year=obj.year).count()
-
-    def get_country(self, obj):
-        if obj.country:
-            return obj.country.name
 
 
 class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
@@ -53,13 +50,13 @@ class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
 class InternetUsageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.InternetUsage
-        exclude = ['created', 'id', 'modified']
+        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
 
 
 class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ConsumerPriceIndex
-        exclude = ['created', 'id', 'modified']
+        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
 
 
 class GDPPerCapitaSerializer(serializers.ModelSerializer):
@@ -71,7 +68,7 @@ class GDPPerCapitaSerializer(serializers.ModelSerializer):
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Income
-        exclude = ['created', 'id', 'modified']
+        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
 
 
 class RuleOfLawSerializer(serializers.ModelSerializer):
@@ -105,6 +102,12 @@ class ComTradeReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ComtradeReport
         fields = '__all__'
+
+
+class PopulationUrbanRuralSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PopulationUrbanRural
+        exclude = ['id', 'country']
 
 
 class PopulationDataSerializer(serializers.ModelSerializer):
