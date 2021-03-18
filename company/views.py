@@ -50,7 +50,11 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
         except models.CompanyUser.DoesNotExist:
             return HttpResponse(status=204)
 
-        companies = models.Company.objects.filter(company_users__sso_id=sso_id)
+        companies = models.Company.objects.filter(
+            company_users__sso_id=sso_id,
+            # exclude ISD users
+            is_published_investment_support_directory=False,
+        )
         if not companies:
             request_user.delete()
             # nothing else to do
@@ -60,11 +64,12 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
             # check if company has other users
             company_users = models.CompanyUser.objects.filter(company=company)
             number_of_company_users = company_users.count()
-            # remove user
             if number_of_company_users == 1:
+                # remove user and related company and related entities
                 request_user.delete()
                 company.delete()
             elif number_of_company_users > 1:
+                # if more then one company user then assign ADMIN role to other active user
                 if request_user.role == user_roles.ADMIN:
                     other_users = company_users.filter(~Q(sso_id=sso_id))
                     other_users.update(role=user_roles.ADMIN)

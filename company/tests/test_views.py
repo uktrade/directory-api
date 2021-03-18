@@ -27,6 +27,8 @@ from company.tests import (
 )
 from core.helpers import CompaniesHouseClient, SSOUser
 from core.tests.test_views import reload_module, reload_urlconf
+from exportplan.models import CompanyExportPlan
+from exportplan.tests.factories import CompanyExportPlanFactory
 
 default_public_profile_data = {
     'name': 'private company',
@@ -2575,4 +2577,34 @@ def test_company_delete_endpoint_for_user_not_associated_with_company(authed_cli
 
     assert response.status_code == 204
     user_after_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
+    assert user_after_delete_count == 0
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_user_with_export_plan(authed_client):
+
+    company = factories.CompanyFactory()
+    company_export_plan = CompanyExportPlanFactory(company=company)
+    company_user = factories.CompanyUserFactory(company=company)
+    user_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
+
+    assert user_count == 1
+    assert company.company_export_plans.count() == 1
+
+    response = authed_client.delete(
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': company_user.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
+    )
+
+    assert response.status_code == 204
+
+    with pytest.raises(models.Company.DoesNotExist):
+        company.refresh_from_db()
+
+    with pytest.raises(CompanyExportPlan.DoesNotExist):
+        company_export_plan.refresh_from_db()
+
+    user_after_delete_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
     assert user_after_delete_count == 0
