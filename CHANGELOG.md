@@ -20,6 +20,7 @@
 - GP2-1359 - add funding fields
 - NOTICKET - Add export plan data to admin
 - GP2-1709 - trade barrier integration
+- NOTICKET - fix vulnerabilities
 
 ## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.5.0...1.6.0)
