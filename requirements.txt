@@ -88,7 +88,7 @@ django-storages==1.8.0
     # via -r requirements.in
 django-timezone-field==4.0
     # via django-celery-beat
-django==2.2.13
+django==2.2.19
     # via
     #   -r requirements.in
     #   directory-client-core
