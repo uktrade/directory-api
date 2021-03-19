@@ -80,7 +80,7 @@ directory-healthcheck==2.0.0
     # via -r requirements.in
 directory-sso-api-client==6.5.3
     # via -r requirements.in
-directory-validators==6.0.3
+directory-validators==6.0.5
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
@@ -207,7 +207,7 @@ pandas==1.0.1
     # via -r requirements.in
 pathspec==0.8.1
     # via black
-pillow==8.0.1
+pillow==8.1.2
     # via directory-validators
 pluggy==0.13.1
     # via pytest
