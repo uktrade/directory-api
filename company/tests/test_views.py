@@ -2608,3 +2608,27 @@ def test_company_delete_endpoint_for_user_with_export_plan(authed_client):
 
     user_after_delete_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
     assert user_after_delete_count == 0
+
+
+@pytest.mark.django_db
+def test_isd_company_delete_endpoint(authed_client):
+
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    company_user = factories.CompanyUserFactory(company=company)
+    user_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
+
+    assert company.is_published_investment_support_directory is True
+    assert user_count == 1
+
+    response = authed_client.delete(
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': company_user.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
+    )
+    assert response.status_code == 204
+
+    company.refresh_from_db()
+    latest_company_obj = models.Company.objects.filter(pk=company.id).first()
+
+    assert latest_company_obj == company
