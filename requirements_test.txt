@@ -125,10 +125,11 @@ django==2.2.13
     #   django-staff-sso-client
     #   django-storages
     #   django-timezone-field
+    #   djangorestframework
     #   sigauth
 django_json_widget==1.0.1
     # via -r requirements.in
-djangorestframework==3.10.3
+djangorestframework==3.11.2
     # via
     #   -r requirements.in
     #   sigauth
