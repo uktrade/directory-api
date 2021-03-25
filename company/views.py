@@ -3,7 +3,7 @@ import abc
 from directory_constants import user_roles
 from django.conf import settings
 from django.db.models import BooleanField, Case, Count, Q, Value, When
-from django.http import Http404, HttpResponse
+from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, status, views, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -45,46 +45,51 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
              and delete user only, no company get deleted in this case.
         """
         sso_id = kwargs['sso_id']
-        company_counter, company_user_count = 0, 0
+        deleted_company, deleted_company_user = 0, 0
         try:
             request_user = models.CompanyUser.objects.get(sso_id=sso_id)
         except models.CompanyUser.DoesNotExist:
-            return HttpResponse(status=204)
+            return JsonResponse(
+                status=200, data={'deleted_company': deleted_company, 'deleted_company_user': deleted_company_user}
+            )
 
         companies = models.Company.objects.filter(
             company_users__sso_id=sso_id,
-            # exclude ISD users
-            is_published_investment_support_directory=False,
         )
         if not companies:
             request_user.delete()
-            company_user_count += 1
+            deleted_company_user += 1
             # nothing else to do
-            return HttpResponse(
-                status=200, data={'company': company_counter, 'company_user_counter': company_user_count}
+            return JsonResponse(
+                status=200, data={'deleted_company': deleted_company, 'deleted_company_user': deleted_company_user}
             )
 
         for company in companies:
+            if company.is_published_investment_support_directory:
+                # if ISD company then dont delete company or user
+                continue
+
             # check if company has other users
             company_users = models.CompanyUser.objects.filter(company=company)
             number_of_company_users = company_users.count()
             if number_of_company_users == 1:
                 # remove user and related company and related entities
                 request_user.delete()
-                company_user_count += 1
+                deleted_company_user += 1
 
                 # delete company
                 company.delete()
-                company_counter += 1
+                deleted_company += 1
             elif number_of_company_users > 1:
                 # if more then one company user then assign ADMIN role to other active user
                 if request_user.role == user_roles.ADMIN:
                     other_users = company_users.filter(~Q(sso_id=sso_id))
                     other_users.update(role=user_roles.ADMIN)
                 request_user.delete()
-                company_user_count += 1
-
-        return HttpResponse(status=200, data={'company': company_counter, 'company_user_counter': company_user_count})
+                deleted_company_user += 1
+        return JsonResponse(
+            status=200, data={'deleted_company': deleted_company, 'deleted_company_user': deleted_company_user}
+        )
 
 
 class CompanyRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):

@@ -1,8 +1,10 @@
 # Changelog
 
 ## Pre release
+
 ### Bugs fixed
 ### Implemented enhancements
+- GP2-1722 - Amended API endpoint to data retention statistics
 - GP2-1720 - Added logic to excluded ISD user and additional tests
 - GP2-1724 - Population urban/rural model and removal of obsolute comtrade mechanisms
 - GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data
