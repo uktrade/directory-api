@@ -36,3 +36,4 @@ airtable-python-wrapper==0.12.*
 iso3166==1.0.1
 django_json_widget==1.0.1
 deprecated==1.2.*
+pyyaml==5.4
