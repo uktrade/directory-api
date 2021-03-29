@@ -132,7 +132,6 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
     response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
     assert response.status_code == 200
     result = response.json()
-    assert result['FR'][0]['country_iso3'] == 'FRA'
     assert result['FR'][0]['trade_value'] == '91'
     response = api_client.get(url, data={'countries': ['FR', 'NL'], 'commodity_code': '123456'})
     result = response.json()
