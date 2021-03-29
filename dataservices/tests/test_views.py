@@ -195,7 +195,7 @@ def test_get_country_data_by_country_filter(api_client, age_group_data):
 
 
 @pytest.mark.django_db
-def test_get_country_data_by_country_wrong_field(api_client, ease_of_doing_business_data):
+def test_get_country_data_by_country_wrong_field(api_client, multi_country_data):
     # check that if a non-existent model is provided, the correct model data are returned
     url = reverse('dataservices-country-data-by-country')
     response = api_client.get(url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'NotAModelName']})
