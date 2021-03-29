@@ -154,7 +154,7 @@ def test_get_comtrade_data_by_country():
         'uk_or_world': 'WLD',
         'commodity_code': commodity_code,
         'trade_value': '222222',
-        'year': '2019',
+        'year': 2019,
     }
     wld_report = report.copy()
     uk_report = report.copy()
