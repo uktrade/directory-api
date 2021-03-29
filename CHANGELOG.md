@@ -3,6 +3,9 @@
 ## Pre release
 ### Bugs fixed
 
+### Hot Fixs
+- NOTICKET - fix-vulnerabilies
+
 ### Implemented enhancements
 - GP2-1724 - Population urban/rural model and removal of obsolute comtrade mechanisms
 - GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data
@@ -41,6 +44,8 @@ GP2-1181 - Business risk
 - NOTICKET - Exportplan make dict default for JSON fields.
 - GP2-1181 - business risk
 - NOTICKET - remove-obsolete-ep-model-fields
+
+### Bugs fixed
 
 ## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.3.0...1.4.0)

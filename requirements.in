@@ -1,9 +1,9 @@
-django==2.2.13
+django >= 2.2, < 2.2.18
 dj-database-url==0.5.0
 django-environ==0.4.5
 django-extensions==2.2.5
 django-field-history==0.7.0
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 django-storages==1.8.0
 django-filter==2.2.0
 django-import-export==2.0.2
@@ -20,7 +20,7 @@ elasticsearch-dsl==7.3.0
 waitress==1.4.3
 sigauth==4.1.1
 django-staff-sso-client==1.0.0
-directory-validators==6.0.3
+directory-validators==6.0.5
 directory-constants==20.23.0
 directory-sso-api-client==6.5.3
 directory-healthcheck==2.0.0
