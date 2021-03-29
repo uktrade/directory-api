@@ -143,16 +143,17 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 
 
 @pytest.mark.django_db
-def test_get_country_data_by_country(api_client, ease_of_doing_business_data):
+def test_get_country_data_by_country_basic(api_client, multi_country_data):
     url = reverse('dataservices-country-data-by-country')
     response = api_client.get(
-        url, data={'countries': ['FR'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex']}
+        url, data={'countries': ['NL'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex', 'CIAFactbook']}
     )
 
     assert response.status_code == 200
-    result = response.json()['FR']
-    assert result['EaseOfDoingBusiness'][0]['rank'] == 12
+    result = response.json()['NL']
+    assert result['EaseOfDoingBusiness'][0]['rank'] == 13
     assert result['EaseOfDoingBusiness'][0]['total']
+    assert result['CIAFactbook'][0]['languages']['language'][0]['name'] == 'Dutch'
 
 
 @pytest.mark.django_db
