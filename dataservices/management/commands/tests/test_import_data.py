@@ -124,3 +124,16 @@ def test_import_urban_rural_population():
     assert data[0].urban_rural == 'urban'
     assert data[1].value == 18610
     assert data[1].urban_rural == 'rural'
+
+
+@pytest.mark.django_db
+def test_import_factbook():
+    management.call_command('import_countries')
+    management.call_command('import_cia_factbook_data')
+    data = models.CIAFactbook.objects.get(country__iso3='DEU')
+    assert len(models.CIAFactbook.objects.all()) == 259
+    assert data.country.name == 'Germany'
+    assert data.factbook_data.get('people').get('languages').get('language')[0] == {
+        'name': 'German',
+        'note': 'official',
+    }

@@ -48,9 +48,8 @@ def comtrade_report_data():
 
 
 @pytest.fixture
-def ease_of_doing_business_data():
+def multi_country_data():
     countries = countries_data()
-
     models.EaseOfDoingBusiness.objects.create(
         country=countries['FR'],
         country_name='France',
@@ -63,8 +62,22 @@ def ease_of_doing_business_data():
         country_name='Netherlands',
         year_2019=13,
     )
+    models.CIAFactbook.objects.create(
+        country=countries['FR'],
+        country_name='France',
+        country_key='france',
+        factbook_data={'people': {'languages': {'language': [{'name': 'French'}]}}},
+    )
+    models.CIAFactbook.objects.create(
+        country=countries['NL'],
+        country_name='Netherlands',
+        country_key='netherlands',
+        factbook_data={'people': {'languages': {'language': [{'name': 'Dutch'}]}}},
+    )
+
     yield
     models.EaseOfDoingBusiness.objects.all().delete()
+    models.CIAFactbook.objects.all().delete()
     models.Country.objects.all().delete()
 
 
