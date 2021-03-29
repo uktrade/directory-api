@@ -66,3 +66,35 @@ def ease_of_doing_business_data():
     yield
     models.EaseOfDoingBusiness.objects.all().delete()
     models.Country.objects.all().delete()
+
+
+@pytest.fixture
+def age_group_data():
+    countries = countries_data()
+    models.PopulationData.objects.create(
+        country=countries['FR'],
+        year=2019,
+        age_0_4=1,
+        gender='male',
+    )
+    models.PopulationData.objects.create(
+        country=countries['FR'],
+        year=2019,
+        age_0_4=2,
+        gender='female',
+    )
+    models.PopulationData.objects.create(
+        country=countries['FR'],
+        year=2020,
+        age_0_4=3,
+        gender='male',
+    )
+    models.PopulationData.objects.create(
+        country=countries['FR'],
+        year=2020,
+        age_0_4=4,
+        gender='female',
+    )
+    yield
+    models.PopulationData.objects.all().delete()
+    models.Country.objects.all().delete()

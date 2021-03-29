@@ -15,7 +15,7 @@ from dataservices import models
         (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264, 1),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
         (models.InternetUsage, 'import_internet_usage_data', 264, 1),
-        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 264, 1),
+        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 89, 1),
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264, 1),
     ),
 )
@@ -96,3 +96,31 @@ def test_import_comtrade_raw():
 
     management.call_command('import_comtrade_data', '--wipe')
     assert len(models.ComtradeReport.objects.all()) == 0
+
+
+@pytest.mark.django_db
+def test_import_target_age_groups():
+    management.call_command('import_countries')
+    management.call_command('import_target_age_groups')
+    data = models.PopulationData.objects.filter(country__iso1=276, year=2020)
+
+    assert len(models.PopulationData.objects.all()) == 40986
+    assert data.first().country.iso1 == '276'
+    assert len(data) == 2
+    assert data.first().age_100_plus == 4
+
+
+@pytest.mark.django_db
+def test_import_urban_rural_population():
+    management.call_command('import_countries')
+    management.call_command('import_population_urbanrural')
+    data = models.PopulationUrbanRural.objects.filter(country__iso3='DEU', year=2020)
+    assert len(models.PopulationUrbanRural.objects.all()) == 3822
+    assert data.first().country.name == 'Germany'
+    assert str(data[0]) == 'Germany:urban'
+    assert str(data[1]) == 'Germany:rural'
+    assert len(data) == 2
+    assert data[0].value == 63930
+    assert data[0].urban_rural == 'urban'
+    assert data[1].value == 18610
+    assert data[1].urban_rural == 'rural'

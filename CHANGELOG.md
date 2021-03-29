@@ -1,14 +1,14 @@
 # Changelog
 
+## Pre release
+### Bugs fixed
+
 ### Hot Fixs
 - NOTICKET - fix-vulnerabilies
 
 ### Implemented enhancements
-- GP2-1441 - Update and restructure CPI data
-- GP2-1398 - Comtrade data in database
-- GP2-1343 - Added Trading blocs data
-- GP2-1348 - Economy and population raw values and rank totals
-- GP2-1264 - Added currencies data
+- GP2-1724 - Population urban/rural model and removal of obsolute comtrade mechanisms
+- GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data
 - GP2-1267 - Added Rule of Law data
 - GP2-1258 - Society data
 - GP2-1270 - Imported Income data
@@ -22,15 +22,29 @@
 - GP2-285 - cost and price be
 - GP2-1359 - add funding fields
 - NOTICKET - Add export plan data to admin
+- GP2-1709 - trade barrier integration
+
+## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.5.0...1.6.0)
+
+### Implemented enhancements
+GP2-1441 - Update and restructure CPI data
+GP2-1398 - Comtrade data in database
+GP2-1181 - Business risk
+
+## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.5.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.4.0...1.5.0)
+- GP2-1343 - Added Trading blocs data
+- GP2-1348 - Economy and population raw values and rank totals
+- GP2-1264 - Added currencies data
 - GP2-1139 - save EP progress
 - NOTICKET - inner dict update by key for json fields
 - GP2-1382 - getting paid structure
 - GP2-1180 - travel bus BE
 - NOTICKET - Exportplan make dict default for JSON fields.
 - GP2-1181 - business risk
+- NOTICKET - remove-obsolete-ep-model-fields
 
-
-## Pre release
 ### Bugs fixed
 
 ## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
@@ -43,7 +57,7 @@
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.2.0...1.3.0)
 
 ### Implemented enhancements
- 
+
 ### Bugs fixed
 
 - GP2-1347 - Stop missing CPI or internet usage data from blowing up

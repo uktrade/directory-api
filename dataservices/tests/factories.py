@@ -61,3 +61,13 @@ class SuggestedCountriesFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.SuggestedCountry
+
+
+class ConsumerPriceIndexFactory(factory.django.DjangoModelFactory):
+    country_name = factory.fuzzy.FuzzyText(length=50)
+    country_code = factory.fuzzy.FuzzyText(length=2)
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+
+    class Meta:
+        model = models.ConsumerPriceIndex
