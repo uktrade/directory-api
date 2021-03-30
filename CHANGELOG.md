@@ -7,6 +7,9 @@
 
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
+
+- NOTICKET - fix-vulnerabilies
+
 ### Implemented enhancements
 
 - GP2-1915 - Align EP data snapshots
@@ -50,6 +53,8 @@ GP2-1181 - Business risk
 - NOTICKET - Exportplan make dict default for JSON fields.
 - GP2-1181 - business risk
 - NOTICKET - remove-obsolete-ep-model-fields
+
+### Bugs fixed
 
 ## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.3.0...1.4.0)
