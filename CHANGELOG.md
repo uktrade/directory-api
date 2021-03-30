@@ -1,12 +1,20 @@
 # Changelog
 
 ## Pre release
-### Bugs fixed
 
-### Hot Fixs
+### Bugs fixed
+### Implemented enhancements
+
+## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
+
 - NOTICKET - fix-vulnerabilies
 
 ### Implemented enhancements
+
+- GP2-1915 - Align EP data snapshots
+- GP2-1722 - Amended API endpoint to data retention statistics
+- GP2-1720 - Added logic to excluded ISD user and additional tests
 - GP2-1724 - Population urban/rural model and removal of obsolute comtrade mechanisms
 - GP2-1611 - Dataservices - population of target age groups + filtering on multi-country data
 - GP2-1267 - Added Rule of Law data
@@ -23,8 +31,9 @@
 - GP2-1359 - add funding fields
 - NOTICKET - Add export plan data to admin
 - GP2-1709 - trade barrier integration
+- NOTICKET - fix vulnerabilities
 
-## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
+## [1.6.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.5.0...1.6.0)
 
 ### Implemented enhancements
