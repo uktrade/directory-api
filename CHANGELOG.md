@@ -4,6 +4,11 @@
 
 ### Bugs fixed
 ### Implemented enhancements
+
+## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
+### Implemented enhancements
+
 - GP2-1915 - Align EP data snapshots
 - GP2-1722 - Amended API endpoint to data retention statistics
 - GP2-1720 - Added logic to excluded ISD user and additional tests
@@ -25,7 +30,7 @@
 - GP2-1709 - trade barrier integration
 - NOTICKET - fix vulnerabilities
 
-## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
+## [1.6.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.5.0...1.6.0)
 
 ### Implemented enhancements
