@@ -18,12 +18,25 @@ class Command(BaseCommand):
         parser.add_argument(
             '--wipe',
             action='store_true',
-            help='Wipe table before loading',
+            help='Wipe table only',
         )
+
         parser.add_argument(
             '--raw',
             action='store_true',
             help='load raw data files',
+        )
+
+        parser.add_argument(
+            '--link_countries',
+            action='store_true',
+            help='Link existing data to countries',
+        )
+
+        parser.add_argument(
+            '--unlink_countries',
+            action='store_true',
+            help='Unlink existing countries so that country data can be deleted',
         )
 
         parser.add_argument(
@@ -70,6 +83,20 @@ class Command(BaseCommand):
                                 print(f'{read} read, {written} written', end='\r', flush=True)
                 self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
+    def link_countries(self):
+        cursor = connection.cursor()
+        self.stdout.write('Linking countries')
+        cursor.execute(
+            "UPDATE dataservices_comtradereport as d \
+            set country_id=c.id \
+            from dataservices_country as c where d.country_iso3=c.iso3;"
+        )
+
+    def unlink_countries(self):
+        cursor = connection.cursor()
+        self.stdout.write('Un-linking countries')
+        cursor.execute("UPDATE dataservices_comtradereport set country_id=null;")
+
     def populate_db_from_s3(self, filename, test):
         # Read from S3, write into local DB, hook up country table
         cursor = connection.cursor()
@@ -101,18 +128,16 @@ class Command(BaseCommand):
             if written >= 1000 and test:
                 break
         self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
-
-        self.stdout.write('Linking countries')
-        cursor.execute(
-            "UPDATE dataservices_comtradereport as d \
-            set country_id=c.id \
-            from dataservices_country as c where d.country_iso3=c.iso3;"
-        )
+        self.link_countries()
 
     def handle(self, *args, **options):
         filenames = options['filenames']
         if options['wipe']:
             ComtradeReport.objects.all().delete()
+        elif options['link_countries']:
+            self.link_countries()
+        elif options['unlink_countries']:
+            self.unlink_countries()
         elif filenames and options['raw']:
             self.load_raw_files(filenames)
         else:

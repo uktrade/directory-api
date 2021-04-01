@@ -3,6 +3,8 @@
 ## Pre release
 
 ### Bugs fixed
+- GP2-1920 Update countries to fix population data
+
 ### Implemented enhancements
 - NOTICKET -UI progress migration adaption tm
 
