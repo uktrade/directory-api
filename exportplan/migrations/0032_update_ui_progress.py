@@ -8,8 +8,6 @@ class Migration(migrations.Migration):
     def migrate_data(apps, schema_editor):
         exportplans = apps.get_model("exportplan", "CompanyExportPlan")
         for exportplan in exportplans.objects.all():
-            import pdb
-            pdb.set_trace()
             if exportplan.ui_progress.get('adaptation-for-your-target-market'):
                 del exportplan.ui_progress['adaptation-for-your-target-market']
                 exportplan.save()
