@@ -1,9 +1,5 @@
 import os
-import sys
-
-import tablib
 from django.core.management import BaseCommand, call_command
-from import_export import resources
 
 
 class Command(BaseCommand):
