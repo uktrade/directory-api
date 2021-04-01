@@ -4,7 +4,7 @@
 
 ### Bugs fixed
 ### Implemented enhancements
-NOTICKET l UI progress migration adaption tm
+- NOTICKET -UI progress migration adaption tm
 
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
