@@ -1,6 +1,5 @@
 import json
 import re
-from unittest import mock
 
 import pytest
 from django.core import management
@@ -631,7 +630,6 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
     response = client.get(reverse('dataservices-trade-barriers'), data={'iso2': ['cn', 'fr']})
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
-    assert trade_barrier_data_request_mock.call_args == mock.call()
     json_dict = json.loads(response.content)
     assert len(json_dict) == 2
     assert json_dict == trade_barrier_data['rows']
