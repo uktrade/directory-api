@@ -68,6 +68,7 @@ def test_import_rank_of_law_data_with_no_country():
     assert rule_of_law.country is None
     assert currencies_data.country is None
 
+
 @pytest.mark.django_db
 def test_import_all():
     models.SuggestedCountry.objects.count() == 0
@@ -85,11 +86,12 @@ def test_import_comtrade():
     assert data.first().commodity_code == '010649'
     assert len(data) == 2
     assert data.first().trade_value == 9189567
-    assert data.first().country_id != None
+    assert data.first().country_id is not None
     management.call_command('import_comtrade_data', '--unlink_countries')
-    assert data.first().country_id == None
+    assert data.first().country_id is None
     management.call_command('import_comtrade_data', '--link_countries')
-    assert data.first().country_id != None
+    assert data.first().country_id is not None
+
 
 @pytest.mark.django_db
 def test_import_raw_comtrade():
@@ -104,13 +106,8 @@ def test_import_raw_comtrade():
     assert data.first().uk_or_world == 'WLD'
     assert data[1].uk_or_world == 'GBR'
 
-
-
-
-
     management.call_command('import_comtrade_data', '--wipe')
     assert len(models.ComtradeReport.objects.all()) == 0
-
 
 
 @pytest.mark.django_db
