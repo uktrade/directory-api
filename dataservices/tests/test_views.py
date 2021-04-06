@@ -637,7 +637,7 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 
 
 @pytest.mark.django_db
-@mock.patch('dataservices.core.client_api.data_gateway.barriers_list')
+@mock.patch('dataservices.core.client_api.trade_barrier_data_gateway.barriers_list')
 def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
     # Import country
