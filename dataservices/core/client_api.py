@@ -1,12 +1,9 @@
 import logging
+from functools import reduce
 from urllib.parse import quote_plus
 
 import requests
 from django.conf import settings
-from django.http import Http404
-
-from dataservices.core.aggregators import TradingBloc, trading_blocs
-from dataservices.core.interfaces import Barrier
 
 logger = logging.getLogger(__name__)
 
@@ -31,42 +28,21 @@ class APIClient:
             raise e
 
     def s3_filters_string(self, filters):
-        ignored_locations = ("All locations",)
         ignored_sectors = ("All sectors",)
         filters_string = ""
         s3_filters = []
 
-        if filters.get("id"):
-            pid = filters["id"]
-            s3_filters.append(f"b.id = '{pid}'")
-        else:
-            # LOCATION filter
-            location = filters.get("location")
-            if location and location.name not in ignored_locations:
-                if isinstance(location, TradingBloc):
-                    # Trading Bloc
-                    location_query_str = f"b.location = '{location.name}'"
-                else:
-                    # Country
-                    # Exact match
-                    location_query_str = f"b.location = '{location.name}'"
-                    # Country with trading bloc
-                    if location.trading_bloc:
-                        location_query_str += f" OR b.location LIKE '%{location.name} (%'"
-                        location_query_str += f" OR b.location = '{location.trading_bloc['name']}'"
-                s3_filters.append(f"( {location_query_str} )")
+        locations = filters.get("locations")
 
-            if filters.get("sector") and filters.get("sector").name not in ignored_sectors:
-                sectors_query_str = f"'{filters['sector']}' IN b.sectors[*].name"
-                sectors_query_str += " OR 'All sectors' IN b.sectors[*].name"
-                s3_filters.append(f"( {sectors_query_str} )")
+        if locations:
+            locations[0] = f"b.location = '{locations[0]}'"
+            location_query_str = reduce(lambda s, l: s + f" OR b.location = '{l}'", locations)
+            s3_filters.append(f"( {location_query_str} )")
 
-            # IS_RESOLVED filter
-            is_resolved = filters.get("is_resolved")
-            if is_resolved is True:
-                s3_filters.append("b.is_resolved = true")
-            elif is_resolved is False:
-                s3_filters.append("b.is_resolved = false")
+        if filters.get("sectors") and filters.get("sectors").name not in ignored_sectors:
+            sectors_query_str = f"'{filters['sector']}' IN b.sectors[*].name"
+            sectors_query_str += " OR 'All sectors' IN b.sectors[*].name"
+            s3_filters.append(f"( {sectors_query_str} )")
 
         if s3_filters:
             filters_string += "SELECT * FROM S3Object[*].barriers[*] AS b WHERE "
@@ -90,63 +66,12 @@ class DataGatewayResource(APIClient):
         data_path = f"{version}/data?format={format}"
         return self.uri(data_path)
 
-    def sort_by_location(self, barriers):
-        trading_bloc_names = [tb.name for tb in trading_blocs.all]
-        return sorted(
-            barriers,
-            key=lambda b: (
-                b.location in trading_bloc_names,
-                b.location,
-                b.sectors == "All sectors",
-                b.sectors,
-            ),
-        )
-
-    def sort_by_sectors(self, barriers):
-        trading_bloc_names = [tb.name for tb in trading_blocs.all]
-        return sorted(
-            barriers,
-            key=lambda b: (
-                b.sectors == "All sectors",
-                b.sectors,
-                b.location in trading_bloc_names,
-                b.location,
-            ),
-        )
-
-    def barriers_list(self, version="latest", filters=None, sort_by=None, headers=None):
+    def barriers_list(self, version="latest", filters=None, headers=None):
         headers = headers or {}
-        import ipdb
-
-        ipdb.set_trace()
         uri = self.versioned_data_uri(version)
 
         barriers = self.get(uri, filters, headers=headers) or ()
-        count = len(barriers)
-        barriers = [Barrier(d) for d in barriers]
-
-        if sort_by == "location":
-            barriers = self.sort_by_location(barriers)
-        elif sort_by == "sectors":
-            barriers = self.sort_by_sectors(barriers)
-
-        data = {
-            "all": barriers,
-            "count": count,
-        }
-        return data
-
-    def barrier_details(self, version="latest", id=None, headers=None):
-        headers = headers or {}
-        uri = self.versioned_data_uri(version)
-        filters = {
-            "id": id,
-        }
-        barriers = self.get(uri, filters, headers=headers) or ()
-        try:
-            return Barrier(barriers[0])
-        except (IndexError, TypeError):
-            raise Http404("Barrier does not exist")
+        return barriers
 
 
 data_gateway = DataGatewayResource(base_uri=settings.PUBLIC_API_GATEWAY_BASE_URI)

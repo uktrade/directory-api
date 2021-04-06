@@ -1,10 +1,13 @@
 import json
+import re
+from unittest import mock
 
 import pytest
 from django.core import management
 from django.urls import reverse
 from rest_framework.test import APIClient
 
+from conf import settings
 from dataservices import models
 from dataservices.tests import factories
 
@@ -77,6 +80,33 @@ def society_data():
 @pytest.fixture(autouse=True)
 def cia_factbook_data():
     return factories.CIAFactBookFactory()
+
+
+@pytest.fixture(autouse=True)
+def trade_barrier_data():
+    return {
+        'rows': [
+            {
+                'id': 'GEOPR9',
+                'country': {'name': 'France'},
+                'location': 'France',
+                'sectors': [{'name': 'Financial and professional services'}],
+                'categories': [{}, {}],
+            },
+            {
+                'id': 'GEOPR10',
+                'country': {'name': 'Belguim'},
+                'location': 'Belguim',
+                'sectors': [{'name': 'Financial and professional services'}],
+                'categories': [{}, {}],
+            },
+        ]
+    }
+
+
+@pytest.fixture()
+def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
+    return requests_mocker.get(re.compile(f'{settings.PUBLIC_API_GATEWAY_BASE_URI}.*'), json=trade_barrier_data)
 
 
 @pytest.mark.django_db
@@ -591,3 +621,17 @@ def test_trading_blocs_api_with_no_iso2(client):
 
     response = client.get(reverse('dataservices-trading-blocs'))
     assert response.status_code == 500
+
+
+@pytest.mark.django_db
+def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
+
+    # Import country
+    management.call_command('import_countries')
+    response = client.get(reverse('dataservices-trade-barriers'), data={'iso2': ['cn', 'fr']})
+    assert response.status_code == 200
+    assert trade_barrier_data_request_mock.call_count == 1
+    assert trade_barrier_data_request_mock.call_args == mock.call()
+    json_dict = json.loads(response.content)
+    assert len(json_dict) == 2
+    assert json_dict == trade_barrier_data['rows']

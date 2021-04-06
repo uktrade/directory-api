@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import directory_healthcheck.backends
 import dj_database_url
@@ -18,6 +19,7 @@ for env_file in env.list('ENV_FILES', default=[]):
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
+ROOT_DIR = ROOT_DIR = Path(__file__).parents[2]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -507,3 +509,7 @@ EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE
 EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')
 
 COMTRADE_DATA_FILE_NAME = env.str('COMTRADE_DATA_FILE_NAME', default='comtrade-import-data.csv')
+
+PUBLIC_API_GATEWAY_BASE_URI = env.str(
+    'PUBLIC_API_GATEWAY_BASE_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
+)
