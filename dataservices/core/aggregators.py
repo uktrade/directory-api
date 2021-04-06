@@ -20,7 +20,6 @@ class Country:
         self.iso2 = instance.iso2
         self.iso3 = instance.iso3
         self.region = instance.region
-        self.records_count = 0
 
     def __str__(self):
         return f"{self.name}"
@@ -60,16 +59,6 @@ class DataAggregator:
             new_groups[k] = sorted(groups[k], key=operator.attrgetter("name"))
 
         return collections.OrderedDict(sorted(new_groups.items()))
-
-    def count_records(self, by_field, dataset=(), op="exact", offset=0):
-        dataset = list(dataset)
-        for item in self.all:
-            if op == "exact":
-                item.records_count = len([d for d in dataset if item.name == getattr(d, by_field)]) + offset
-            if op == "include":
-                item.records_count = len([d for d in dataset if item.name in getattr(d, by_field)]) + offset
-
-        return self.grouped_alphabetically
 
 
 class CountriesAggregator(DataAggregator):

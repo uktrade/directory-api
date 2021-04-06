@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.conf import settings
+from requests.exceptions import HTTPError
 
 from dataservices.core.aggregators import AggregatorData, AllLocations
 from dataservices.core.client_api import trade_barrier_data_gateway
@@ -20,6 +21,15 @@ def test_s3_filters_location_request(mock_trade_barrer_request):
     trade_barrier_data_gateway.barriers_list(filters=filter)
     assert mock_trade_barrer_request.call_count == 1
     assert mock_trade_barrer_request.call_args == mock.call('get', filter_string, headers={})
+
+
+@pytest.mark.django_db
+def test_request_raises_error():
+    filter = {'locations': ['China'], 'sectors': ['Automotive']}
+    with mock.patch('dataservices.core.client_api.requests.get') as mock_trade_barrer_request:
+        mock_trade_barrer_request.side_effect = HTTPError
+        with pytest.raises(HTTPError):
+            trade_barrier_data_gateway.barriers_list(filters=filter)
 
 
 def test_all_locations_name():
