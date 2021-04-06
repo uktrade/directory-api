@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Import Countries data'
 
     def handle(self, *args, **options):
-        with open('dataservices/resources/countries-territories-and-regions-1.0.csv', 'r', encoding='utf-8-sig') as f:
+        with open('dataservices/resources/countries-territories-and-regions-5.35.csv', 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             dataset = tablib.Dataset(
                 headers=[
@@ -29,8 +29,6 @@ class Command(BaseCommand):
 
             # Delete existing entries
             Country.objects.all().delete()
-            result = country_resource.import_data(dataset, dry_run=True)
-            self.stdout.write(self.style.SUCCESS(result.has_errors()))
-            if not result.has_errors():
-                country_resource.import_data(dataset, dry_run=False)
+            country_resource.import_data(dataset)
+
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
