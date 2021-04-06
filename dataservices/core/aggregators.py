@@ -73,21 +73,7 @@ class DataAggregator:
 
 
 class CountriesAggregator(DataAggregator):
-    def count_records(self, by_field, dataset=(), op="exact", offset=0):
-        dataset = list(dataset)
-        for item in self.all:
-            item.records_count = (
-                len(
-                    [
-                        d
-                        for d in dataset
-                        if item.name == d.country or (item.trading_bloc and item.trading_bloc["name"] == d.trading_bloc)
-                    ]
-                )
-                + offset
-            )
-
-        return self.grouped_alphabetically
+    pass
 
 
 class AggregatorData:

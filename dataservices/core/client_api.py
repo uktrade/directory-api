@@ -28,7 +28,6 @@ class APIClient:
             raise e
 
     def s3_filters_string(self, filters):
-        ignored_sectors = ("All sectors",)
         filters_string = ""
         s3_filters = []
 
@@ -39,9 +38,9 @@ class APIClient:
             location_query_str = reduce(lambda s, l: s + f" OR b.location = '{l}'", locations)
             s3_filters.append(f"( {location_query_str} )")
 
-        if filters.get("sectors") and filters.get("sectors").name not in ignored_sectors:
-            sectors_query_str = f"'{filters['sector']}' IN b.sectors[*].name"
-            sectors_query_str += " OR 'All sectors' IN b.sectors[*].name"
+        sectors = filters.get("sectors")
+        if sectors:
+            sectors_query_str = reduce(lambda s, l: s + f" OR b.sector = '{l}'", sectors)
             s3_filters.append(f"( {sectors_query_str} )")
 
         if s3_filters:
@@ -61,7 +60,7 @@ class APIClient:
         return data.get("rows") or data.get("barriers")
 
 
-class DataGatewayResource(APIClient):
+class TradeBarrierDataGatewayResource(APIClient):
     def versioned_data_uri(self, version="latest", format="json"):
         data_path = f"{version}/data?format={format}"
         return self.uri(data_path)
@@ -74,4 +73,4 @@ class DataGatewayResource(APIClient):
         return barriers
 
 
-data_gateway = DataGatewayResource(base_uri=settings.PUBLIC_API_GATEWAY_BASE_URI)
+trade_barrier_data_gateway = TradeBarrierDataGatewayResource(base_uri=settings.PUBLIC_API_GATEWAY_BASE_URI)

@@ -320,9 +320,12 @@ class TradeBarriersView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         data = AggregatorData()
         iso2_countries = self.request.query_params.getlist('iso2')
+        sectors = self.request.query_params.getlist('sectors')
         filters = {'locations': []}
         for iso2 in iso2_countries:
             if data.get_country(iso2):
                 filters['locations'].append(data.get_country(iso2).name)
-        barriers_list = client_api.data_gateway.barriers_list(filters=filters)
+        if sectors:
+            filters['sectors'] = sectors
+        barriers_list = client_api.trade_barrier_data_gateway.barriers_list(filters=filters)
         return Response(status=status.HTTP_200_OK, data=barriers_list)

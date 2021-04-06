@@ -1,5 +1,6 @@
 import json
 import re
+from unittest import mock
 
 import pytest
 from django.core import management
@@ -633,3 +634,18 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
     json_dict = json.loads(response.content)
     assert len(json_dict) == 2
     assert json_dict == trade_barrier_data['rows']
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.core.client_api.data_gateway.barriers_list')
+def test_trading_trade_barrier_with_sectors(mock_api_client, client):
+
+    # Import country
+    management.call_command('import_countries')
+    mock_api_client.return_value = {}
+    response = client.get(
+        reverse('dataservices-trade-barriers'), data={'iso2': ['cn', 'fr'], 'sectors': ['Automotive']}
+    )
+    assert response.status_code == 200
+    assert mock_api_client.call_count == 1
+    assert mock_api_client.call_args == mock.call(filters={'locations': ['China', 'France'], 'sectors': ['Automotive']})
