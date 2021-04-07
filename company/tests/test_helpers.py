@@ -510,7 +510,8 @@ def test_get_duplicate_companies():
     groups = helpers.get_duplicate_companies()
 
     assert len(groups) == 1
-    assert [item.pk for item in groups[0]] == [company_a.pk, company_b.pk, company_c.pk, company_d.pk]
+    for item in groups[0]:
+        assert item.pk in [company_a.pk, company_b.pk, company_c.pk, company_d.pk]
 
 
 @pytest.mark.django_db
