@@ -168,8 +168,8 @@ def test_ver_code_email2_has_expected_vars_in_template(mock_task, settings):
     assert len(mock_task.delay.call_args_list) == 1
     call_args = mock_task.delay.call_args[1]
     assert call_args['from_email'] == settings.FAB_FROM_EMAIL
-    assert company_user.name in call_args['text_body']
-    assert company_user.name in call_args['html_body']
+    assert html.escape(company_user.name) in call_args['text_body']
+    assert html.escape(company_user.name) in call_args['html_body']
     assert 'http://great.gov.uk/verrrrify' in call_args['text_body']
     assert 'http://great.gov.uk/verrrrify' in call_args['html_body']
     assert 'http://help.zendesk.com' in call_args['text_body']
