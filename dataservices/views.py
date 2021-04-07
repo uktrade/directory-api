@@ -322,7 +322,7 @@ class TradeBarriersView(generics.GenericAPIView):
 
     def get(self, *args, **kwargs):
 
-        iso2_countries = self.request.query_params.getlist('iso2')
+        iso2_countries = self.request.query_params.getlist('countries')
         sectors = self.request.query_params.getlist('sectors')
         filters = {'locations': []}
         for iso2 in iso2_countries:

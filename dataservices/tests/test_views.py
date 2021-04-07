@@ -644,7 +644,7 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
     management.call_command('import_countries')
     mock_api_client.return_value = {}
     response = client.get(
-        reverse('dataservices-trade-barriers'), data={'iso2': ['cn', 'fr'], 'sectors': ['Automotive']}
+        reverse('dataservices-trade-barriers'), data={'countries': ['cn', 'fr'], 'sectors': ['Automotive']}
     )
     assert response.status_code == 200
     assert mock_api_client.call_count == 1
