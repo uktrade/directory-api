@@ -249,7 +249,7 @@ class PopulationData(models.Model):
     """
 
     country = models.ForeignKey(
-        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.DO_NOTHING, null=True
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
     year = models.IntegerField(null=True, blank=True)
     gender = models.CharField(unique=False, blank=False, null=False, max_length=6)
