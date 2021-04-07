@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import directory_healthcheck.backends
 import dj_database_url

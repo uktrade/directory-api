@@ -1,15 +1,9 @@
-import collections
 import logging
-import operator
 
 from dataservices.core.utils import convert_to_snake_case
 from dataservices.models import Country as ModelCountry
 
 logger = logging.getLogger(__name__)
-
-
-# INTERFACES
-# ========================================================
 
 
 class Country:
@@ -28,11 +22,7 @@ class Country:
         return f"<{self.__class__.__name__} - {self.name}>"
 
 
-# AGGREGATORS
-# ========================================================
-
-
-class DataAggregator:
+class CountriesAggregator:
     def __init__(self, _class, data, attr_from="name"):
         self.all = set()
         for i in data:
@@ -41,28 +31,6 @@ class DataAggregator:
             attr_name = convert_to_snake_case(value)
             setattr(self, attr_name, instance)
             self.all.add(self.__getattribute__(attr_name))
-
-        self.grouped_alphabetically = self.set_grouped_alphabetically()
-
-    def set_grouped_alphabetically(self):
-        groups = {}
-        for instance in self.all:
-            key = instance.name[0].upper()
-            letter_group = groups.get(key)
-            if letter_group:
-                groups[key].add(instance)
-            else:
-                groups.setdefault(key, {instance})
-
-        new_groups = {}
-        for k, v in groups.items():
-            new_groups[k] = sorted(groups[k], key=operator.attrgetter("name"))
-
-        return collections.OrderedDict(sorted(new_groups.items()))
-
-
-class CountriesAggregator(DataAggregator):
-    pass
 
 
 class AggregatedDataHelper:
