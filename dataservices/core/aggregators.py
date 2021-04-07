@@ -65,7 +65,7 @@ class CountriesAggregator(DataAggregator):
     pass
 
 
-class AggregatorData:
+class AggregatedDataHelper:
     @property
     def get_country_list(self):
         return CountriesAggregator(Country, ModelCountry.objects.all(), attr_from="iso2")

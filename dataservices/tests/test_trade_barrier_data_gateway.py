@@ -4,7 +4,7 @@ import pytest
 from django.conf import settings
 from requests.exceptions import HTTPError
 
-from dataservices.core.aggregators import AggregatorData, AllLocations
+from dataservices.core.aggregators import AggregatedDataHelper, AllLocations
 from dataservices.core.client_api import trade_barrier_data_gateway
 from dataservices.tests.factories import CountryFactory
 
@@ -40,5 +40,5 @@ def test_all_locations_name():
 @pytest.mark.django_db
 def test_country_object():
     CountryFactory(iso2='fr', name='France')
-    country_data = AggregatorData().get_country_list
+    country_data = AggregatedDataHelper().get_country_list
     assert str(country_data.fr) == 'France'

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from dataservices import helpers, models, serializers
 from dataservices.core import client_api
-from dataservices.core.aggregators import AggregatorData
+from dataservices.core.aggregators import AggregatedDataHelper
 from dataservices.helpers import (
     deep_extend,
     get_multiple_serialized_instance_from_model,
@@ -314,17 +314,20 @@ class TradingBlocsView(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
 
+aggregated_data_helper = AggregatedDataHelper()
+
+
 class TradeBarriersView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-        data = AggregatorData()
+
         iso2_countries = self.request.query_params.getlist('iso2')
         sectors = self.request.query_params.getlist('sectors')
         filters = {'locations': []}
         for iso2 in iso2_countries:
-            if data.get_country(iso2):
-                filters['locations'].append(data.get_country(iso2).name)
+            if aggregated_data_helper.get_country(iso2):
+                filters['locations'].append(aggregated_data_helper.get_country(iso2).name)
         if sectors:
             filters['sectors'] = sectors
         barriers_list = client_api.trade_barrier_data_gateway.barriers_list(filters=filters)
