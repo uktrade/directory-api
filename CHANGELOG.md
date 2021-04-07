@@ -2,6 +2,8 @@
 
 ## Pre release
 
+* GP2-2224 - Python upgrade to 3.9.1
+
 ### Bugs fixed
 - GP2-1920 Update countries to fix population data
 
