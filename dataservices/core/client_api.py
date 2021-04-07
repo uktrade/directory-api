@@ -40,7 +40,9 @@ class APIClient:
 
         sectors = filters.get("sectors")
         if sectors:
-            sectors_query_str = reduce(lambda s, l: s + f" OR b.sector = '{l}'", sectors)
+            sectors[0] = f"'{sectors[0]}' IN b.sectors[*].name"
+            sectors_query_str = reduce(lambda sec_qry, s: sec_qry + f" OR '{s}' IN b.sectors[*].name", sectors)
+            sectors_query_str += " OR 'All sectors' IN b.sectors[*].name"
             s3_filters.append(f"( {sectors_query_str} )")
 
         if s3_filters:
@@ -73,4 +75,4 @@ class TradeBarrierDataGatewayResource(APIClient):
         return barriers
 
 
-trade_barrier_data_gateway = TradeBarrierDataGatewayResource(base_uri=settings.PUBLIC_API_GATEWAY_BASE_URI)
+trade_barrier_data_gateway = TradeBarrierDataGatewayResource(base_uri=settings.TRADE_BARRIER_API_URI)

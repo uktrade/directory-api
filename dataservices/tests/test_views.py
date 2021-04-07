@@ -106,7 +106,7 @@ def trade_barrier_data():
 
 @pytest.fixture()
 def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
-    return requests_mocker.get(re.compile(f'{settings.PUBLIC_API_GATEWAY_BASE_URI}.*'), json=trade_barrier_data)
+    return requests_mocker.get(re.compile(f'{settings.TRADE_BARRIER_API_URI}.*'), json=trade_barrier_data)
 
 
 @pytest.mark.django_db
@@ -644,7 +644,7 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
     management.call_command('import_countries')
     mock_api_client.return_value = {}
     response = client.get(
-        reverse('dataservices-trade-barriers'), data={'countries': ['cn', 'fr'], 'sectors': ['Automotive']}
+        reverse('dataservices-trade-barriers'), data={'countries': ['CN', 'FR'], 'sectors': ['Automotive']}
     )
     assert response.status_code == 200
     assert mock_api_client.call_count == 1

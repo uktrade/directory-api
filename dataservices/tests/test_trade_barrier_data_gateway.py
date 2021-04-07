@@ -1,24 +1,37 @@
 from unittest import mock
+from urllib.parse import quote_plus
 
 import pytest
 from django.conf import settings
 from requests.exceptions import HTTPError
 
-from dataservices.core.aggregators import AggregatedDataHelper, AllLocations
 from dataservices.core.client_api import trade_barrier_data_gateway
-from dataservices.tests.factories import CountryFactory
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    "locations,sectors,expected",
+    [
+        (['China'], None, "( b.location = 'China' )"),
+        (['China', 'France'], None, "( b.location = 'China' OR b.location = 'France' )"),
+        (
+            ['China'],
+            ['Automotive', 'Food and drink'],
+            (
+                "( b.location = 'China' ) AND ( 'Automotive' IN b.sectors[*].name OR 'Food and "
+                "drink' IN b.sectors[*].name OR 'All sectors' IN b.sectors[*].name )"
+            ),
+        ),
+        (None, ['Automotive'], "( 'Automotive' IN b.sectors[*].name OR 'All sectors' IN b.sectors[*].name )"),
+    ],
+)
 @mock.patch('dataservices.core.client_api.APIClient.request')
-def test_s3_filters_location_request(mock_trade_barrer_request):
-    filter = {'locations': ['China'], 'sectors': ['Automotive']}
-    filter_string = (
-        f'{settings.PUBLIC_API_GATEWAY_BASE_URI}latest/data?format=json&query-s3-select=SELECT+%2A+FROM'
-        f'+S3Object%5B%2A%5D.barriers%5B%2A%5D+AS+b+WHERE+%28+b.location+%3D+%27China%27+%29+'
-        f'AND+%28+Automotive+%29'
-    )
-    trade_barrier_data_gateway.barriers_list(filters=filter)
+def test_s3_filters_location_request(mock_trade_barrer_request, locations, sectors, expected):
+    filters = {'locations': locations, 'sectors': sectors}
+    sql_filter = quote_plus(f'SELECT * FROM S3Object[*].barriers[*] AS b WHERE {expected}')
+    filter_string = f'{settings.TRADE_BARRIER_API_URI}latest/data?format=json&query-s3-select={sql_filter}'
+
+    trade_barrier_data_gateway.barriers_list(filters=filters)
     assert mock_trade_barrer_request.call_count == 1
     assert mock_trade_barrer_request.call_args == mock.call('get', filter_string, headers={})
 
@@ -26,19 +39,7 @@ def test_s3_filters_location_request(mock_trade_barrer_request):
 @pytest.mark.django_db
 def test_request_raises_error():
     filter = {'locations': ['China'], 'sectors': ['Automotive']}
-    with mock.patch('dataservices.core.client_api.requests.get') as mock_trade_barrer_request:
-        mock_trade_barrer_request.side_effect = HTTPError
+    with mock.patch('dataservices.core.client_api.requests.get') as mock_trade_barrier_request:
+        mock_trade_barrier_request.side_effect = HTTPError
         with pytest.raises(HTTPError):
             trade_barrier_data_gateway.barriers_list(filters=filter)
-
-
-def test_all_locations_name():
-    all_Locations = AllLocations()
-    assert str(all_Locations) == 'All locations'
-
-
-@pytest.mark.django_db
-def test_country_object():
-    CountryFactory(iso2='fr', name='France')
-    country_data = AggregatedDataHelper().get_country_list
-    assert str(country_data.fr) == 'France'
