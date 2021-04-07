@@ -1,4 +1,5 @@
 import logging
+from django.utils.functional import cached_property
 
 from dataservices.core.utils import convert_to_snake_case
 from dataservices.models import Country as ModelCountry
@@ -34,7 +35,7 @@ class CountriesAggregator:
 
 
 class AggregatedDataHelper:
-    @property
+    @cached_property
     def get_country_list(self):
         return CountriesAggregator(Country, ModelCountry.objects.all(), attr_from="iso2")
 
