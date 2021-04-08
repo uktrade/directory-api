@@ -6,6 +6,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from dataservices import helpers, models, serializers
+from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
     get_multiple_serialized_instance_from_model,
@@ -16,6 +17,7 @@ from dataservices.helpers import (
 from dataservices.models import (
     ConsumerPriceIndex,
     CorruptionPerceptionsIndex,
+    Country,
     EaseOfDoingBusiness,
     GDPPerCapita,
     Income,
@@ -310,3 +312,20 @@ class TradingBlocsView(generics.ListAPIView):
         if not self.request.query_params.get('iso2'):
             return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
         return super().get(*args, **kwargs)
+
+
+class TradeBarriersView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+
+        iso2_countries = self.request.query_params.getlist('countries')
+        sectors = self.request.query_params.getlist('sectors')
+        filters = {'locations': []}
+
+        for country in Country.objects.filter(iso2__in=iso2_countries):
+            filters['locations'].append(country.name)
+        if sectors:
+            filters['sectors'] = sectors
+        barriers_list = client_api.trade_barrier_data_gateway.barriers_list(filters=filters)
+        return Response(status=status.HTTP_200_OK, data=barriers_list)
