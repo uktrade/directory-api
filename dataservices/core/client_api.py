@@ -62,11 +62,16 @@ class APIClient:
         return self.bucket_by_country(filters, barriers)
 
     def bucket_by_country(self, filters, barriers_data):
-        bucked_data = {k: {'Barriers': []} for (k) in filters.get('locations').keys()}
+        bucked_data = {k: {'barriers': []} for (k) in filters.get('locations').keys()}
         for iso_2, name in filters.get('locations', {}).items():
             for barrier in barriers_data:
                 if barrier['country']['name'] == name:
-                    bucked_data[iso_2]['Barriers'].append(barrier)
+                    bucked_data[iso_2]['barriers'].append(barrier)
+
+        for k, v in bucked_data.items():
+            bucked_data[k].update(
+                {'count': len(bucked_data[k]['barriers'])}
+            )
         return bucked_data
 
 

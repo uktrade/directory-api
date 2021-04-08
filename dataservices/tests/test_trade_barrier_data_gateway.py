@@ -49,6 +49,8 @@ def test_bucket_by_country(trade_barrier_data):
     filters = {'locations': {'CA': 'Canada', 'FR': 'France'}}
     trade_barrier_data = trade_barrier_data.get('rows')
     bucked_data = trade_barrier_data_gateway.bucket_by_country(filters=filters, barriers_data=trade_barrier_data)
-    assert len(bucked_data['CA']['Barriers']) == 10
-    assert len(bucked_data['FR']['Barriers']) == 2
-    assert bucked_data['CA']['Barriers'][0] == trade_barrier_data[0]
+    assert len(bucked_data['CA']['barriers']) == 10
+    assert bucked_data['CA']['count'] == 10
+    assert len(bucked_data['FR']['barriers']) == 2
+    assert bucked_data['FR']['count'] == 2
+    assert bucked_data['CA']['barriers'][0] == trade_barrier_data[0]

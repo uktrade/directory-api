@@ -610,7 +610,7 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
     json_dict = response.json()
-    assert len(json_dict['CA']['Barriers']) == 10
+    assert len(json_dict['CA']['barriers']) == 10
 
 
 @pytest.mark.django_db
