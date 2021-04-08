@@ -69,9 +69,7 @@ class APIClient:
                     bucked_data[iso_2]['barriers'].append(barrier)
 
         for k, v in bucked_data.items():
-            bucked_data[k].update(
-                {'count': len(bucked_data[k]['barriers'])}
-            )
+            bucked_data[k].update({'count': len(bucked_data[k]['barriers'])})
         return bucked_data
 
 
