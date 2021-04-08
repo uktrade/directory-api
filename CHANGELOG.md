@@ -6,7 +6,7 @@
 
 ### Bugs fixed
 - GP2-1920 Update countries to fix population data
-
+- NOTICKET change default funding for validation
 ### Implemented enhancements
 - NOTICKET - UI progress migration adaption tm
 - GP2-1709 - trade barrier integration

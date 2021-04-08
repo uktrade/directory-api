@@ -100,7 +100,7 @@ class TargetMarketDocuments(TimeStampedModel):
 
 class FundingCreditOptions(TimeStampedModel):
     funding_option = models.CharField(max_length=30, blank=True, null=True, default='', choices=choices.FUNDING_OPTIONS)
-    amount = models.FloatField(blank=True, null=True, default=0.00)
+    amount = models.FloatField(blank=True, null=True)
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='funding_credit_options', on_delete=models.CASCADE
     )
