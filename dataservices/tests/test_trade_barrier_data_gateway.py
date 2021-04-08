@@ -12,17 +12,17 @@ from dataservices.core.client_api import trade_barrier_data_gateway
 @pytest.mark.parametrize(
     "locations,sectors,expected",
     [
-        (['China'], None, "( b.location = 'China' )"),
-        (['China', 'France'], None, "( b.location = 'China' OR b.location = 'France' )"),
+        ({'cn': 'China'}, [], "( b.location = 'China' )"),
+        ({'cn': 'China', 'fr': 'France'}, [], "( b.location = 'China' OR b.location = 'France' )"),
         (
-            ['China'],
+            {'cn': 'China'},
             ['Automotive', 'Food and drink'],
             (
                 "( b.location = 'China' ) AND ( 'Automotive' IN b.sectors[*].name OR 'Food and "
                 "drink' IN b.sectors[*].name OR 'All sectors' IN b.sectors[*].name )"
             ),
         ),
-        (None, ['Automotive'], "( 'Automotive' IN b.sectors[*].name OR 'All sectors' IN b.sectors[*].name )"),
+        ({}, ['Automotive'], "( 'Automotive' IN b.sectors[*].name OR 'All sectors' IN b.sectors[*].name )"),
     ],
 )
 @mock.patch('dataservices.core.client_api.APIClient.request')
@@ -38,8 +38,17 @@ def test_s3_filters_location_request(mock_trade_barrer_request, locations, secto
 
 @pytest.mark.django_db
 def test_request_raises_error():
-    filter = {'locations': ['China'], 'sectors': ['Automotive']}
+    filter = {'locations': {'cn': 'China'}, 'sectors': ['Automotive']}
     with mock.patch('dataservices.core.client_api.requests.get') as mock_trade_barrier_request:
         mock_trade_barrier_request.side_effect = HTTPError
         with pytest.raises(HTTPError):
             trade_barrier_data_gateway.barriers_list(filters=filter)
+
+
+def test_bucket_by_country(trade_barrier_data):
+    filters = {'locations': {'CA': 'Canada', 'FR': 'France'}}
+    trade_barrier_data = trade_barrier_data.get('rows')
+    bucked_data = trade_barrier_data_gateway.bucket_by_country(filters=filters, barriers_data=trade_barrier_data)
+    assert len(bucked_data['CA']['Barriers']) == 10
+    assert len(bucked_data['FR']['Barriers']) == 2
+    assert bucked_data['CA']['Barriers'][0] == trade_barrier_data[0]

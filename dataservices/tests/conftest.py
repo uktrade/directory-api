@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from dataservices import models
@@ -111,3 +113,9 @@ def age_group_data():
     yield
     models.PopulationData.objects.all().delete()
     models.Country.objects.all().delete()
+
+
+@pytest.fixture
+def trade_barrier_data():
+    with open('dataservices/tests/fixtures/trade-barrier-data.json', 'r') as f:
+        return json.loads(f.read())

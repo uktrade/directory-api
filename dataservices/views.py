@@ -321,10 +321,9 @@ class TradeBarriersView(generics.GenericAPIView):
 
         iso2_countries = self.request.query_params.getlist('countries')
         sectors = self.request.query_params.getlist('sectors')
-        filters = {'locations': []}
-
+        filters = {'locations': {}}
         for country in Country.objects.filter(iso2__in=iso2_countries):
-            filters['locations'].append(country.name)
+            filters['locations'][country.iso2] = country.name
         if sectors:
             filters['sectors'] = sectors
         barriers_list = client_api.trade_barrier_data_gateway.barriers_list(filters=filters)

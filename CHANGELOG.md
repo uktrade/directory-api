@@ -10,6 +10,7 @@
 ### Implemented enhancements
 - NOTICKET - UI progress migration adaption tm
 - GP2-1709 - trade barrier integration
+- GP2-1709 - trade barrier data bucket
 
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)

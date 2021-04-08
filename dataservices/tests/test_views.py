@@ -82,28 +82,6 @@ def cia_factbook_data():
     return factories.CIAFactBookFactory()
 
 
-@pytest.fixture(autouse=True)
-def trade_barrier_data():
-    return {
-        'rows': [
-            {
-                'id': 'GEOPR9',
-                'country': {'name': 'France'},
-                'location': 'France',
-                'sectors': [{'name': 'Financial and professional services'}],
-                'categories': [{}, {}],
-            },
-            {
-                'id': 'GEOPR10',
-                'country': {'name': 'Belguim'},
-                'location': 'Belguim',
-                'sectors': [{'name': 'Financial and professional services'}],
-                'categories': [{}, {}],
-            },
-        ]
-    }
-
-
 @pytest.fixture()
 def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
     return requests_mocker.get(re.compile(f'{settings.TRADE_BARRIER_API_URI}.*'), json=trade_barrier_data)
@@ -628,12 +606,11 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 
     # Import country
     management.call_command('import_countries')
-    response = client.get(reverse('dataservices-trade-barriers'), data={'iso2': ['cn', 'fr']})
+    response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
-    json_dict = json.loads(response.content)
-    assert len(json_dict) == 2
-    assert json_dict == trade_barrier_data['rows']
+    json_dict = response.json()
+    assert len(json_dict['CA']['Barriers']) == 10
 
 
 @pytest.mark.django_db
@@ -648,4 +625,6 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
     )
     assert response.status_code == 200
     assert mock_api_client.call_count == 1
-    assert mock_api_client.call_args == mock.call(filters={'locations': ['China', 'France'], 'sectors': ['Automotive']})
+    assert mock_api_client.call_args == mock.call(
+        filters={'locations': {'CN': 'China', 'FR': 'France'}, 'sectors': ['Automotive']}
+    )
