@@ -3,13 +3,19 @@
 ## Pre release
 
 * GP2-2224 - Python upgrade to 3.9.1
+- NOTICKET - UI progress migration adaption tm
+- GP2-1709 - trade barrier integration
+
+### Implemented enhancements
+
+
+## [1.8.0](https://github.com/uktrade/directory-api/releases/tag/1.8.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.7.0...1.8.0)
 
 ### Bugs fixed
 - GP2-1920 Update countries to fix population data
 - NOTICKET change default funding for validation
-### Implemented enhancements
-- NOTICKET - UI progress migration adaption tm
-- GP2-1709 - trade barrier integration
+
 
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
