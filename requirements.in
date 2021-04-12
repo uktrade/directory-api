@@ -1,4 +1,4 @@
-django >= 2.2, < 2.2.18
+django==2.2.19
 dj-database-url==0.5.0
 django-environ==0.4.5
 django-extensions==2.2.5
@@ -36,3 +36,4 @@ airtable-python-wrapper==0.12.*
 iso3166==1.0.1
 django_json_widget==1.0.1
 deprecated==1.2.*
+pyyaml==5.4

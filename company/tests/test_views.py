@@ -1,6 +1,7 @@
 import base64
 import datetime
 import http
+import json
 from io import BytesIO
 from unittest import mock
 
@@ -27,6 +28,8 @@ from company.tests import (
 )
 from core.helpers import CompaniesHouseClient, SSOUser
 from core.tests.test_views import reload_module, reload_urlconf
+from exportplan.models import CompanyExportPlan
+from exportplan.tests.factories import CompanyExportPlanFactory
 
 default_public_profile_data = {
     'name': 'private company',
@@ -2501,14 +2504,18 @@ def test_company_user_retrieve_sso_id(client):
 
 
 @pytest.mark.django_db
-def test_company_delete_endpoint_signal_user(authed_client, authed_supplier):
+def test_company_delete_endpoint_single_user(authed_client, authed_supplier):
     response = authed_client.delete(
         reverse(
             'company-delete-by-sso-id',
             kwargs={'sso_id': authed_supplier.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
         )
     )
-    assert response.status_code == 204
+
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 1
+    assert json_response.get('deleted_company_user') == 1
 
 
 @pytest.mark.django_db
@@ -2528,7 +2535,10 @@ def test_company_delete_endpoint_multiple_users(authed_client, authed_supplier):
             kwargs={'sso_id': authed_supplier.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
         )
     )
-    assert response.status_code == 204
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 0
+    assert json_response.get('deleted_company_user') == 1
 
     company_user_one.refresh_from_db()
     company_user_two.refresh_from_db()
@@ -2548,7 +2558,10 @@ def test_company_delete_endpoint_for_random_user(authed_client):
     response = authed_client.delete(
         reverse('company-delete-by-sso-id', kwargs={'sso_id': 999, 'request_key': settings.DIRECTORY_SSO_API_SECRET})
     )
-    assert response.status_code == 204
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 0
+    assert json_response.get('deleted_company_user') == 0
 
 
 @pytest.mark.django_db
@@ -2573,6 +2586,70 @@ def test_company_delete_endpoint_for_user_not_associated_with_company(authed_cli
         )
     )
 
-    assert response.status_code == 204
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 0
+    assert json_response.get('deleted_company_user') == 1
+
     user_after_delete_count = models.CompanyUser.objects.filter(sso_id=non_company_user.sso_id).count()
     assert user_after_delete_count == 0
+
+
+@pytest.mark.django_db
+def test_company_delete_endpoint_for_user_with_export_plan(authed_client):
+
+    company = factories.CompanyFactory()
+    company_export_plan = CompanyExportPlanFactory(company=company)
+    company_user = factories.CompanyUserFactory(company=company)
+    user_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
+
+    assert user_count == 1
+    assert company.company_export_plans.count() == 1
+
+    response = authed_client.delete(
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': company_user.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
+    )
+
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 1
+    assert json_response.get('deleted_company_user') == 1
+
+    with pytest.raises(models.Company.DoesNotExist):
+        company.refresh_from_db()
+
+    with pytest.raises(CompanyExportPlan.DoesNotExist):
+        company_export_plan.refresh_from_db()
+
+    user_after_delete_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
+    assert user_after_delete_count == 0
+
+
+@pytest.mark.django_db
+def test_isd_company_delete_endpoint(authed_client):
+
+    company = factories.CompanyFactory(is_published_investment_support_directory=True)
+    company_user = factories.CompanyUserFactory(company=company)
+    user_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()
+
+    assert company.is_published_investment_support_directory is True
+    assert user_count == 1
+
+    response = authed_client.delete(
+        reverse(
+            'company-delete-by-sso-id',
+            kwargs={'sso_id': company_user.sso_id, 'request_key': settings.DIRECTORY_SSO_API_SECRET},
+        )
+    )
+    assert response.status_code == 200
+    json_response = json.loads(response.content)
+    assert json_response.get('deleted_company') == 0
+    assert json_response.get('deleted_company_user') == 0
+
+    company.refresh_from_db()
+    latest_company_obj = models.Company.objects.filter(pk=company.id).first()
+
+    assert latest_company_obj == company

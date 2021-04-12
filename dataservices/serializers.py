@@ -93,21 +93,27 @@ class TradingBlocsSerializer(serializers.ModelSerializer):
         exclude = ['created', 'id', 'modified']
 
 
-class ComTradeReportSerializer(serializers.ModelSerializer):
-    year = serializers.SerializerMethodField()
-
-    def get_year(self, obj):
-        return str(obj.year)
-
+class ComtradeReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ComtradeReport
-        fields = '__all__'
+        exclude = ['id', 'country', 'country_iso3']
 
 
 class PopulationUrbanRuralSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PopulationUrbanRural
         exclude = ['id', 'country']
+
+
+class CIAFactbookSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.CIAFactbook
+        exclude = ['id', 'country', 'modified', 'factbook_data']
+
+    def get_languages(self, obj):
+        return (obj.factbook_data or {}).get('people', {}).get('languages', {})
 
 
 class PopulationDataSerializer(serializers.ModelSerializer):
@@ -131,7 +137,7 @@ class PopulationDataSerializer(serializers.ModelSerializer):
             '60-64',
             '65-69',
             '70-74',
-            '75-59',
+            '75-79',
             '80-84',
             '85-89',
             '90-94',
@@ -154,7 +160,7 @@ class PopulationDataSerializer(serializers.ModelSerializer):
             '60-64': {'source': 'age_60_64'},
             '65-69': {'source': 'age_65_69'},
             '70-74': {'source': 'age_70_74'},
-            '75-59': {'source': 'age_75_79'},
+            '75-79': {'source': 'age_75_79'},
             '80-84': {'source': 'age_80_84'},
             '85-89': {'source': 'age_85_89'},
             '90-94': {'source': 'age_90_94'},
