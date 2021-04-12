@@ -31,9 +31,8 @@ class APIClient:
         filters_string = ""
         s3_filters = []
 
-        locations = filters.get("locations")
-
-        if locations:
+        locations = list(filters.get("locations", {}).values())
+        if len(locations):
             locations[0] = f"b.location = '{locations[0]}'"
             location_query_str = reduce(lambda s, l: s + f" OR b.location = '{l}'", locations)
             s3_filters.append(f"( {location_query_str} )")
@@ -59,7 +58,19 @@ class APIClient:
         data = response.json()
         # Worth noting that if filters are applied through query-s3-select
         # the API returns the data in "rows" key - instead of "barriers" key
-        return data.get("rows") or data.get("barriers")
+        barriers = data.get("rows") or data.get("barriers")
+        return self.bucket_by_country(filters, barriers)
+
+    def bucket_by_country(self, filters, barriers_data):
+        bucked_data = {k: {'barriers': []} for (k) in filters.get('locations').keys()}
+        for iso_2, name in filters.get('locations', {}).items():
+            for barrier in barriers_data:
+                if barrier['country']['name'] == name:
+                    bucked_data[iso_2]['barriers'].append(barrier)
+
+        for k, v in bucked_data.items():
+            bucked_data[k].update({'count': len(bucked_data[k]['barriers'])})
+        return bucked_data
 
 
 class TradeBarrierDataGatewayResource(APIClient):

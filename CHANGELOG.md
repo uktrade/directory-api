@@ -16,7 +16,6 @@
 - GP2-1920 Update countries to fix population data
 - NOTICKET change default funding for validation
 
-
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
 
