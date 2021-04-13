@@ -15,12 +15,16 @@ class Command(BaseCommand):
         for gender in genders:
             with open(f'dataservices/resources/world_population_medium_{gender}.csv', 'r', encoding='utf-8-sig') as f:
                 file_reader = csv.DictReader(f)
-
+                country = None
+                country_iso1 = None
                 for row in file_reader:
-                    try:
-                        country = Country.objects.get(iso1=row['country_code'])
-                    except Country.DoesNotExist:
-                        country = None
+                    if country_iso1 != (row['country_code']):
+                        country_iso1 = row['country_code']
+                        try:
+                            country = Country.objects.get(iso1=country_iso1.zfill(3))
+                        except Country.DoesNotExist:
+                            self.stdout.write(f'No country match for {row["country_name"]}')
+                            country = None
 
                     population_data.append(
                         PopulationData(
