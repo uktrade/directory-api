@@ -47,7 +47,7 @@ def test_error_import_data_sets_error(management_cmd):
 @pytest.mark.parametrize(
     'model_name, management_cmd, object_count',
     (
-        (models.Country, 'import_countries', 194),
+        (models.Country, 'import_countries', 195),
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
         (models.Currency, 'import_currency_data', 269),
@@ -70,6 +70,13 @@ def test_import_rank_of_law_data_with_no_country():
 
 
 @pytest.mark.django_db
+def test_import_all():
+    models.SuggestedCountry.objects.count() == 0
+    management.call_command('import_all')
+    models.SuggestedCountry.objects.count() == 493
+
+
+@pytest.mark.django_db
 def test_import_comtrade():
     management.call_command('import_countries')
     management.call_command('import_comtrade_data', '--test')
@@ -79,10 +86,15 @@ def test_import_comtrade():
     assert data.first().commodity_code == '010649'
     assert len(data) == 2
     assert data.first().trade_value == 9189567
+    assert data.first().country_id is not None
+    management.call_command('import_comtrade_data', '--unlink_countries')
+    assert data.first().country_id is None
+    management.call_command('import_comtrade_data', '--link_countries')
+    assert data.first().country_id is not None
 
 
 @pytest.mark.django_db
-def test_import_comtrade_raw():
+def test_import_raw_comtrade():
     management.call_command('import_comtrade_data', '--raw', 'dataservices/resources/comtrade_sample.csv')
     data = models.ComtradeReport.objects.filter(country_iso3='FRA', commodity_code='390720')
     assert len(models.ComtradeReport.objects.all()) == 389
@@ -103,11 +115,12 @@ def test_import_target_age_groups():
     management.call_command('import_countries')
     management.call_command('import_target_age_groups')
     data = models.PopulationData.objects.filter(country__iso1=276, year=2020)
-
     assert len(models.PopulationData.objects.all()) == 40986
     assert data.first().country.iso1 == '276'
     assert len(data) == 2
     assert data.first().age_100_plus == 4
+    data = models.PopulationData.objects.filter(country__iso2='BE', year=2020)
+    assert data.first().country.name == 'Belgium'
 
 
 @pytest.mark.django_db
@@ -124,6 +137,8 @@ def test_import_urban_rural_population():
     assert data[0].urban_rural == 'urban'
     assert data[1].value == 18610
     assert data[1].urban_rural == 'rural'
+    data = models.PopulationUrbanRural.objects.filter(country__iso3='BEL', year=2020)
+    assert data.first().country.name == 'Belgium'
 
 
 @pytest.mark.django_db

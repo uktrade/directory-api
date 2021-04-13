@@ -56,8 +56,6 @@ cryptography==3.3.2
     #   -r requirements.in
     #   pyopenssl
     #   requests
-dataclasses==0.8
-    # via black
 defusedxml==0.6.0
     # via odfpy
 deprecated==1.2.11
@@ -110,7 +108,7 @@ django-storages==1.8.0
     # via -r requirements.in
 django-timezone-field==4.0
     # via django-celery-beat
-django==2.2.19
+django==2.2.20
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -155,10 +153,7 @@ idna==2.8
     # via requests
 importlib-metadata==2.0.0
     # via
-    #   flake8
-    #   jsonschema
     #   kombu
-    #   pluggy
     #   pytest
 iso3166==1.0.1
     # via -r requirements.in
@@ -204,7 +199,7 @@ packaging==20.4
     # via
     #   pytest
     #   pytest-sugar
-pandas==1.0.1
+pandas==1.2.3
     # via -r requirements.in
 pathspec==0.8.1
     # via black
@@ -283,8 +278,6 @@ requests[security]==2.22.0
     #   requests-oauthlib
 requests_mock==1.6.0
     # via -r requirements_test.in
-ruamel.yaml.clib==0.2.2
-    # via ruamel.yaml
 ruamel.yaml==0.16.12
     # via pre-commit-hooks
 s3transfer==0.2.1

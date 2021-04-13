@@ -1,10 +1,13 @@
 import json
+import re
+from unittest import mock
 
 import pytest
 from django.core import management
 from django.urls import reverse
 from rest_framework.test import APIClient
 
+from conf import settings
 from dataservices import models
 from dataservices.tests import factories
 
@@ -77,6 +80,11 @@ def society_data():
 @pytest.fixture(autouse=True)
 def cia_factbook_data():
     return factories.CIAFactBookFactory()
+
+
+@pytest.fixture()
+def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
+    return requests_mocker.get(re.compile(f'{settings.TRADE_BARRIER_API_URI}.*'), json=trade_barrier_data)
 
 
 @pytest.mark.django_db
@@ -591,3 +599,32 @@ def test_trading_blocs_api_with_no_iso2(client):
 
     response = client.get(reverse('dataservices-trading-blocs'))
     assert response.status_code == 500
+
+
+@pytest.mark.django_db
+def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
+
+    # Import country
+    management.call_command('import_countries')
+    response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
+    assert response.status_code == 200
+    assert trade_barrier_data_request_mock.call_count == 1
+    json_dict = response.json()
+    assert len(json_dict['CA']['barriers']) == 10
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.core.client_api.trade_barrier_data_gateway.barriers_list')
+def test_trading_trade_barrier_with_sectors(mock_api_client, client):
+
+    # Import country
+    management.call_command('import_countries')
+    mock_api_client.return_value = {}
+    response = client.get(
+        reverse('dataservices-trade-barriers'), data={'countries': ['CN', 'FR'], 'sectors': ['Automotive']}
+    )
+    assert response.status_code == 200
+    assert mock_api_client.call_count == 1
+    assert mock_api_client.call_args == mock.call(
+        filters={'locations': {'CN': 'China', 'FR': 'France'}, 'sectors': ['Automotive']}
+    )

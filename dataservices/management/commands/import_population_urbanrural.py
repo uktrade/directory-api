@@ -16,11 +16,13 @@ class Command(BaseCommand):
         for urban_rural in ['urban', 'rural']:
             with open(f'dataservices/resources/{urban_rural}_population_annual.csv', 'r', encoding='utf-8-sig') as f:
                 file_reader = csv.DictReader(f)
+
                 for row in file_reader:
                     try:
-                        country = Country.objects.get(iso1=row['country_code'])
+                        country = Country.objects.get(iso1=row['country_code'].zfill(3))
                     except Country.DoesNotExist:
                         country = None
+                        self.stdout.write(f'No country match for {row["country_name"]}')
                     for year in self.import_years:
                         value = row.get(year)
                         if value:

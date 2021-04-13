@@ -88,7 +88,7 @@ django-storages==1.8.0
     # via -r requirements.in
 django-timezone-field==4.0
     # via django-celery-beat
-django==2.2.19
+django==2.2.20
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -128,9 +128,7 @@ future==0.18.2
 idna==2.8
     # via requests
 importlib-metadata==2.0.0
-    # via
-    #   jsonschema
-    #   kombu
+    # via kombu
 iso3166==1.0.1
     # via -r requirements.in
 jdcal==1.4.1
@@ -163,7 +161,7 @@ olefile==0.46
     # via directory-validators
 openpyxl==3.0.5
     # via tablib
-pandas==1.0.1
+pandas==1.2.3
     # via -r requirements.in
 pillow==8.1.2
     # via directory-validators
