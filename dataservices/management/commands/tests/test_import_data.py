@@ -115,11 +115,12 @@ def test_import_target_age_groups():
     management.call_command('import_countries')
     management.call_command('import_target_age_groups')
     data = models.PopulationData.objects.filter(country__iso1=276, year=2020)
-
     assert len(models.PopulationData.objects.all()) == 40986
     assert data.first().country.iso1 == '276'
     assert len(data) == 2
     assert data.first().age_100_plus == 4
+    data = models.PopulationData.objects.filter(country__iso2='BE', year=2020)
+    assert data.first().country.name == 'Belgium'
 
 
 @pytest.mark.django_db
@@ -136,6 +137,8 @@ def test_import_urban_rural_population():
     assert data[0].urban_rural == 'urban'
     assert data[1].value == 18610
     assert data[1].urban_rural == 'rural'
+    data = models.PopulationUrbanRural.objects.filter(country__iso3='BEL', year=2020)
+    assert data.first().country.name == 'Belgium'
 
 
 @pytest.mark.django_db
