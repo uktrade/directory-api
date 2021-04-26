@@ -21,7 +21,7 @@
     $ make install_requirements
 
 ### Requirements
-[Python 3.6](https://www.python.org/downloads/release/python-368/)
+[Python 3.9](https://www.python.org/downloads/release/python-391/)
 [Postgres 9.5](https://www.postgresql.org/)
 [Redis](https://redis.io/)
 

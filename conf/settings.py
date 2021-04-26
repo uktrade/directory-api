@@ -507,3 +507,7 @@ EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE
 EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')
 
 COMTRADE_DATA_FILE_NAME = env.str('COMTRADE_DATA_FILE_NAME', default='comtrade-import-data.csv')
+
+TRADE_BARRIER_API_URI = env.str(
+    'TRADE_BARRIER_API_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
+)
