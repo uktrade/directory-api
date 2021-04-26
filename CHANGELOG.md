@@ -2,7 +2,15 @@
 
 ## Pre release
 
-* GP2-2224 - Python upgrade to 3.9.1
+### Implemented enhancements
+
+### Bugs fixed
+
+
+## [1.9.0](https://github.com/uktrade/directory-api/releases/tag/1.9.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.8.0...1.9.0)
+
+- GP2-2224 - Python upgrade to 3.9.1
 - NOTICKET - UI progress migration adaption tm
 - GP2-1709 - trade barrier integration
 - GP2-2336-collapse-api-object remove redudant collection add/remove/delete methods
