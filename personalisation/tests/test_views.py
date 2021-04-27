@@ -59,7 +59,7 @@ def test_user_location_create_already_exists(user_location_data, authed_client):
 @pytest.mark.django_db
 @patch('personalisation.helpers.search_with_activitystream')
 def test_events_api(mock_search_with_activitystream, authed_client, settings):
-    """ We mock the call to ActivityStream """
+    """We mock the call to ActivityStream"""
     document = {
         "content": "The Independent Hotel Show is the only industry event ... in 2012 to support.",
         "currency": "Sterling",

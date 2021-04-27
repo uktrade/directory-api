@@ -220,41 +220,6 @@ urlpatterns = [
         name='export-plan-detail-update',
     ),
     url(
-        r'^exportplan/company-objectives/(?P<pk>[0-9]+)/$',
-        exportplan.views.CompanyObjectivesRetrieveUpdateDestroyView.as_view(),
-        name='export-plan-objectives-detail-update',
-    ),
-    url(
-        r'^exportplan/company-objectives/$',
-        exportplan.views.CompanyObjectivesListCreateAPIView.as_view(),
-        name='export-plan-objectives-list-create',
-    ),
-    url(
-        r'^exportplan/route-to-markets/(?P<pk>[0-9]+)/$',
-        exportplan.views.RouteToMarketsUpdateDestroyView.as_view(),
-        name='export-plan-route-to-markets-detail-update',
-    ),
-    url(
-        r'^exportplan/route-to-markets/$',
-        exportplan.views.RouteToMarketsListCreateAPIView.as_view(),
-        name='export-plan-route-to-markets-list-create',
-    ),
-    url(
-        r'^exportplan/target-market-documents/(?P<pk>[0-9]+)/$',
-        exportplan.views.TargetMarketDocumentsUpdateDestroyView.as_view(),
-        name='export-plan-target-market-documents-detail-update',
-    ),
-    url(
-        r'^exportplan/target-market-documents/$',
-        exportplan.views.TargetMarketDocumentsCreateAPIView.as_view(),
-        name='export-plan-target-market-documents-list-create',
-    ),
-    url(
-        r'^exportplan/funding-credit-options/(?P<pk>[0-9]+)/$',
-        exportplan.views.FundingCreditOptionsUpdateDestroyView.as_view(),
-        name='export-plan-funding-credit-options-detail-update',
-    ),
-    url(
         r'^exportplan/export-plan-model-object-list-create/$',
         exportplan.views.ExportPlanModelObjectListCreateAPIView.as_view(),
         name='export-plan-model-object-list-create',
@@ -268,11 +233,6 @@ urlpatterns = [
         r'^exportplan/export-plan-model-object-detail/(?P<pk>[0-9]+)/(?P<model_name>.*)/$',
         exportplan.views.ExportPlanModelObjectRetrieveUpdateDestroyView.as_view(),
         name='export-plan-model-object-detail',
-    ),
-    url(
-        r'^exportplan/funding-credit-options/$',
-        exportplan.views.FundingCreditOptionsCreateAPIView.as_view(),
-        name='export-plan-funding-credit-options-list-create',
     ),
     url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',

@@ -13,7 +13,7 @@
 - GP2-2224 - Python upgrade to 3.9.1
 - NOTICKET - UI progress migration adaption tm
 - GP2-1709 - trade barrier integration
-
+- GP2-2336-collapse-api-object remove redudant collection add/remove/delete methods
 ### Implemented enhancements
 
 

@@ -16,7 +16,7 @@
 
     $ git clone https://github.com/uktrade/directory-api
     $ cd directory-api
-    $ virtualenv .venv -p python3.6
+    $ virtualenv .venv -p Python3.9.1
     $ source .venv/bin/activate
     $ make install_requirements
 
