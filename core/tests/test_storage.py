@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 from core import storage
-from core.storage import PrivateStorage
 from core.tests.test_views import reload_module
 
 
