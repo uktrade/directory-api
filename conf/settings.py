@@ -276,9 +276,13 @@ COLLABORATOR_INVITE_SUBJECT = env.str(
 STORAGE_CLASSES = {
     'default': 'storages.backends.s3boto3.S3Boto3Storage',
     'local-storage': 'django.core.files.storage.FileSystemStorage',
+    'private': 'core.storage_classes.PrivateMediaStorage',
 }
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
+# Used for private non public media
+PRIVATE_STORAGE_CLASS_NAME = env.str('PRIVATE_STORAGE_CLASS_NAME', 'private')
+PRIVATE_FILE_STORAGE = STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME]
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_FILE_OVERWRITE = False
