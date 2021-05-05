@@ -500,5 +500,5 @@ def test_export_plan_pdf_upload(authed_client, authed_supplier, export_plan):
     response = authed_client.post(url, data)
     assert response.status_code == 201
     export_plan_upload = models.ExportplanDownloads.objects.last()
-    assert export_plan_upload.id == export_plan.id
+    assert export_plan_upload.companyexportplan.id == export_plan.id
     assert export_plan_upload.pdf_file is not None
