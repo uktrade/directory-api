@@ -3,6 +3,7 @@
 ## Pre release
 
 ### Implemented enhancements
+GP2 2401 - pdf save
 
 ### Bugs fixed
 

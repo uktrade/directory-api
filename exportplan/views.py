@@ -83,3 +83,8 @@ class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDest
             model_name = model_name_map[self.request.data['model_name'].lower()]
         model = getattr(model_classes, model_name)
         return model.objects.all()
+
+
+class ExportPlanUploadFile(generics.CreateAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanDownloadSerializer

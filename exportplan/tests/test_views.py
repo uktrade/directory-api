@@ -1,8 +1,10 @@
 import http
 from datetime import date
+from unittest import mock
 
 import pytest
 from directory_constants import choices
+from django.core.files import File
 from django.urls import reverse
 
 from company.tests.factories import CompanyFactory
@@ -483,3 +485,20 @@ def test_export_plan_model_delete(model_class, property_name, authed_client, aut
 
     assert response.status_code == http.client.NO_CONTENT
     assert not getattr(export_plan, property_name).all()
+
+
+@pytest.mark.django_db
+def test_export_plan_pdf_upload(authed_client, authed_supplier, export_plan):
+    authed_supplier.sso_id = export_plan.sso_id
+    authed_supplier.company = export_plan.company
+    authed_supplier.save()
+    mock_file = mock.Mock(spec=File)
+    url = reverse('export-plan-pdf-upload')
+
+    data = {'companyexportplan': export_plan.id, 'pdf_file': mock_file}
+
+    response = authed_client.post(url, data)
+    assert response.status_code == 201
+    export_plan_upload = models.ExportplanDownloads.objects.last()
+    assert export_plan_upload.id == export_plan.id
+    assert export_plan_upload.pdf_file is not None
