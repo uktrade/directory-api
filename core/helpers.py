@@ -109,17 +109,19 @@ class BearerAuth(requests.auth.AuthBase):
 
 @deconstructible
 class PathAndRename:
-    def __init__(self, sub_path):
+    def __init__(self, sub_path, default_ext=None):
         self.path = sub_path
+        self.default_ext = default_ext
 
     def __call__(self, instance, filename):
         _, ext = os.path.splitext(filename)
+        ext = ext or self.default_ext
         random_filename = '{}{}'.format(uuid4().hex, ext)
         return os.path.join(self.path, random_filename)
 
 
 path_and_rename_logos = PathAndRename(sub_path="company_logos")
-path_and_rename_exportplan_pdf = PathAndRename(sub_path="exportplan_pdfs")
+path_and_rename_exportplan_pdf = PathAndRename(sub_path="exportplan_pdfs", default_ext='.pdf')
 path_and_rename_supplier_case_study = PathAndRename(sub_path="supplier_case_study")
 
 

@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'personalisation.apps.PersonalisationConfig',
     'dataservices.apps.DataservicesConfig',
     'django_json_widget',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
