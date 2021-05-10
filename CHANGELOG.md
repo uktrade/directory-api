@@ -3,6 +3,10 @@
 ## Pre release
 
 ### Implemented enhancements
+ GP2-2401-pdf-save
+GP2 2401 - pdf save
+
+
 ## [1.10.1](https://github.com/uktrade/directory-api/releases/tag/1.10.1)
 
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.9.0...1.10.1)

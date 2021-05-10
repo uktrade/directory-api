@@ -4,7 +4,8 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from company.models import Company
-from core.helpers import TimeStampedModel
+from core.helpers import TimeStampedModel, path_and_rename_exportplan_pdf
+from core.storage import private_storage
 
 
 class CompanyExportPlan(TimeStampedModel):
@@ -57,6 +58,18 @@ class CompanyObjectives(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Company Objectives"
+
+
+class ExportplanDownloads(TimeStampedModel):
+    pdf_file = models.FileField(
+        upload_to=path_and_rename_exportplan_pdf, storage=private_storage, blank=False, null=False
+    )
+    companyexportplan = models.ForeignKey(
+        CompanyExportPlan, related_name='exportplan_downloads', on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name_plural = "Exportplan downloads"
 
 
 class RouteToMarkets(TimeStampedModel):
