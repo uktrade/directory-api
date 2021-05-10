@@ -4,6 +4,7 @@
 
 ### Implemented enhancements
 
+- NOTICKET: Update Django to 2.2.22 (security fix)
 - NOTICKET: Python upgrade to 3.9.2 to follow default Python buildpack
 
 ### Bugs fixed
@@ -18,13 +19,16 @@
 - GP2-2336-collapse-api-object remove redudant collection add/remove/delete methods
 
 ## [1.8.0](https://github.com/uktrade/directory-api/releases/tag/1.8.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.7.0...1.8.0)
 
 ### Bugs fixed
+
 - GP2-1920 Update countries to fix population data
 - NOTICKET change default funding for validation
 
 ## [1.7.0](https://github.com/uktrade/directory-api/releases/tag/1.7.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.6.0...1.7.0)
 
 - NOTICKET - fix-vulnerabilies
@@ -53,15 +57,19 @@
 - NOTICKET - fix vulnerabilities
 
 ## [1.6.0](https://github.com/uktrade/directory-api/releases/tag/1.6.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.5.0...1.6.0)
 
 ### Implemented enhancements
+
 GP2-1441 - Update and restructure CPI data
 GP2-1398 - Comtrade data in database
 GP2-1181 - Business risk
 
 ## [1.5.0](https://github.com/uktrade/directory-api/releases/tag/1.5.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.4.0...1.5.0)
+
 - GP2-1343 - Added Trading blocs data
 - GP2-1348 - Economy and population raw values and rank totals
 - GP2-1264 - Added currencies data
@@ -76,12 +84,16 @@ GP2-1181 - Business risk
 ### Bugs fixed
 
 ## [1.4.0](https://github.com/uktrade/directory-api/releases/tag/1.4.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.3.0...1.4.0)
+
 ### Implemented enhancements
+
 - GP2-1344 - Added API for trading blocs
 - GP2-1392 - lock down public data access
 
 ## [1.3.0](https://github.com/uktrade/directory-api/releases/tag/1.3.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.2.0...1.3.0)
 
 ### Implemented enhancements
@@ -93,16 +105,18 @@ GP2-1181 - Business risk
 - GP2-1314 - ComTrade World import value fix
 
 ## [1.1.0](https://github.com/uktrade/directory-api/releases/tag/1.1.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.0.0...1.1.0)
 
 ### Implemented enhancements
+
 - GP2-1069 - Added deprecation warning for user profile fields
-- GP2-1147 - Added  management command to import GDP Per Capita Data
+- GP2-1147 - Added management command to import GDP Per Capita Data
 - GP2-1025 - New endpoint for getting economy data from ComTrade
 - GP2-849 - target audience progress
 
-
 ## [1.0.0](https://github.com/uktrade/directory-api/releases/tag/1.0.0)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.05.21...1.0.0)
 
 ### Implemented enhancements
@@ -119,7 +133,7 @@ GP2-1181 - Business risk
 - GP2-125 - Add business objectives rest CRUD api
 - GP2-154 - update country list
 - GP2-168 - CIA Fackbook load data
-- GP2-169 - WEO load data world economic  (view/management)
+- GP2-169 - WEO load data world economic (view/management)
 - no-ticket - fix codecov status stuck
 - GP2-187 - pull views cia-factbook
 - GP2-183 - load internet access data from world bank
@@ -138,9 +152,8 @@ GP2-1181 - Business risk
 - Noticket - upgrade-es-7
 - Noticket - allow partial updates json fields
 
-
-
 ### Bugs fixed
+
 - GP2-872 - Reverse order of suggested markets
 - No ticket - Migration fix for new build
 - No ticket - Upgrade django and markdown to fix security vulnerability
@@ -151,9 +164,11 @@ GP2-1181 - Business risk
 - no commodity code make optional
 
 ## [2020.05.21](https://github.com/uktrade/directory-api/releases/tag/2020.05.21)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04_1...020.05.21)
 
 ### Implemented enhancements
+
 No ticket - v3-cipipeline manifest.yml file fix
 TT-2253 - Detect duplicate companies
 TT-2223 - Handle preverified company multiple users
@@ -185,57 +200,68 @@ MVP-479 - Brand Product Details
 MVP-474 - pre-populate dataservices cache task
 
 ### Fixed bugs
+
 TT-2254 - Cleaned up obsolete settings
 no ticket - Django vulnerability upgrade
 TT-2260 - Include email address when creating preverified links
 
-
 ## [2020.02.04_1](https://github.com/uktrade/directory-api/releases/tag/2020.02.04_1)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.02.04...2020.02.04_1)
 
 ## Hotfix
+
 - No ticket - Fix company user deletion
 
-
 ## [2020.02.04](https://github.com/uktrade/directory-api/releases/tag/2020.02.04)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2020.01.14...2020.02.04)
 
 ## Hotfix
+
 - No ticket - CVE-2020-5236 & CVE-2020-7471: Potential SQL injection via StringAgg(delimiter)
 
-
 ## [2020.01.14](https://github.com/uktrade/directory-api/releases/tag/2020.01.14)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.18...2020.01.14)
 
 ### Implemented enhancements
+
 TT-2234 - upgrade staff-sso to allow id rather then email/username
 no-ticket - upgrade waitress vulnerability
 TT-2248 - Facilitate .internal domain communication
 TT2247 - verification confirmation
 
 ### Fixed bugs
+
 TT-2220 sent-verification-letters-in-error
 TT-2165 send user accept/decline new admin request
 TT-1624 send admin new admin request email
 TT-2216 - TestApi: add endpoint to delete buyers created by automated tests
 
 ## [2019.12.18](https://github.com/uktrade/directory-api/releases/tag/2019.12.18)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04_1...2019.12.18)
 
 ### Fixed bugs
+
 No ticket - Remove obsolete code
 No ticket - change admin confirm url
 
 ## [2019.12.04_1](https://github.com/uktrade/directory-api/releases/tag/2019.12.04_1)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.12.04...2019.12.04_1)
 
 ### Hotfix
+
 - No ticket - wait for migrations before starting celery beat
 
 ## [2019.12.04](https://github.com/uktrade/directory-api/releases/tag/2019.12.04)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.10.22...2019.12.04)
 
 ### Implemented enhancements
+
 - TT-2027 - Make testapi to return company number (for testing non-CH companies)
 - TT-2143 - Tech debt refactor: removed user.User, introduced company.CompanUser, and deprecated supplier.Supplier
 - TT-2194 - TestApi: add endpoint to get buyer details by email
@@ -245,6 +271,7 @@ No ticket - change admin confirm url
 - TT-2216 - TestApi: add endpoint to delete buyers created by automated tests
 
 ### Fixed bugs
+
 - TT-2064 - Submit user details with request to verify
 - TT-2168 - Expose company user name in registration email
 - no ticket - Upgrade django
@@ -253,9 +280,11 @@ No ticket - change admin confirm url
 - TT-2202 - Fix enrolment
 
 ## [2019.10.22](https://github.com/uktrade/directory-api/releases/tag/2019.10.22)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.08.22...2019.10.22)
 
 ### Implemented enhancements
+
 - TT-1733 - Added request identity verification feature
 - TT-1733 - Allow name to be provided on supplier create
 - TT-1716 - Allow disconnecting self from company
@@ -277,20 +306,24 @@ No ticket - change admin confirm url
 - TT-2013 - Generate company number for all non registered companies
 
 ## Breaking changes
+
 - TT-1538 - AWS-S3 Pass Bucket setup - Pass is required to be setup in target env and set env variable.
-    ENSURE TO SET DATASCIENCE AWS SETTINGS IN VAULT
+  ENSURE TO SET DATASCIENCE AWS SETTINGS IN VAULT
 
 ### Fixed bugs
+
 - No ticket - Upgrade django to 1.11.23 to fix vulnerability
 - TT-1768 - Fix elasticsearch migrate
-- TT-1538  - Fix datascience s3 bucket - read from vault see above
+- TT-1538 - Fix datascience s3 bucket - read from vault see above
 - TT-1289 - Allow company names longer than 250 chars
 - TT-2011 - Handle verified with id
 
 ## [2019.08.12](https://github.com/uktrade/directory-api/releases/tag/2019.08.12)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.07.15..2019.08.12)
 
 ### Implemented enhancements
+
 - TT-1619 - Sending New Registration Letters new env FEATURE_REGISTRATION_LETTERS_ENABLED
 - no ticket - Increase flake8 Char limit to 120
 - TT-851 - Companies house status check admin upgrade
@@ -300,6 +333,7 @@ No ticket - change admin confirm url
 - TT-1735 - Forms & Directory-API SSO display message for 1st time users
 
 ## [2019.07.15](https://github.com/uktrade/directory-api/releases/tag/2019.07.15)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.06.25...2019.07.15)
 
 ### Implemented enhancements
@@ -308,28 +342,33 @@ No ticket - change admin confirm url
 - TT-1574 - Support more non-companies house companies
 - TT-1590 - Port ISD search logic to FAS
 - No ticket - Remove obsolete case study search endpoint
-- No ticket -  Mask product data make email unique
+- No ticket - Mask product data make email unique
 - No ticket - Upgrade vulnerable django version to django 1.11.22
 
 ### Fixed bugs
+
 - No ticket - Fixed migrations during deployment
 
 ## [2019.06.25](https://github.com/uktrade/directory-api/releases/tag/2019.06.25)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.23...2019.06.25)
 
 ### Implemented enhancements
+
 - TT-1491 Adding sorting via title and more relevance to query that matches in titles
 - TT-1459 Added testapi endpoint to create ISD companies which are used in automated tests
 - TT-1558 Add managment command to mask personal company data
 - No-ticket move factory-boy to requirement.in and upgrade django to 1.11.21
 
 ### Fixed bugs
+
 - No ticket - Upgraded djangorestframework to resolve security vulnerability
 - No ticket - Upgraded directory-client-core to fix inconsistency in cache.
 - TT-1438 - Allow searching for companies via case study attributes
 - TT-1438 - Add website Testimonial to CaseStudySearch
 
 ## [2019.05.23](https://github.com/uktrade/directory-api/releases/tag/2019.05.23)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.16...2019.05.23)
 
 ### Fixed bugs
@@ -339,21 +378,26 @@ No ticket - change admin confirm url
 - TT-1481 - Allow searching via expertise fields in term
 
 ## [2019.05.16](https://github.com/uktrade/directory-api/releases/tag/2019.05.16)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.05.09...2019.05.16)
 
 ### Implemented enhancements
+
 - TT-1408 - Customize ISD search results order.
 
 ### Fixed bugs:
+
 - TT-7 - Fixed Server Error (500) when searching for pre-verified enrolments
 - Replaced is_published field in fixtures/development.json from is_published_investment_support_directory & is_published_find_a_supplier
 - TT-1438 - Fixed inability to search by case study contents.
 - TT-1472 - Fixed unwanted partial matches of expertise filters
 
 ## [2019.05.09](https://github.com/uktrade/directory-api/releases/tag/2019.05.09)
+
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2019.04.08...2019.05.09)
 
 ### Implemented enhancements
+
 - Upgraded Elasticsearch from 5 to 6
 - TT-1317 - Added feature to bulk upload expertise from django admin
 - TT-1348 - Added Investment Support Directory search endpoint
