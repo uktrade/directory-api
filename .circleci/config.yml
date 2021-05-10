@@ -4,7 +4,7 @@ jobs:
   test:
     working_directory: /tmp/cci-test
     docker:
-      - image: circleci/python:3.9.1
+      - image: circleci/python:3.9.2
       - image: circleci/postgres:10.11-alpine
         environment:
           POSTGRES_USER: debug
