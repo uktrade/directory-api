@@ -82,6 +82,7 @@ class RuleOfLawSerializer(serializers.ModelSerializer):
         # The year is implicit and should be updated when new data are imported
         return '2020'
 
+
 class SuggestedCountrySerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source='country__name')
     country_iso2 = serializers.CharField(source='country__iso2')
