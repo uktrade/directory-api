@@ -72,10 +72,15 @@ class IncomeSerializer(serializers.ModelSerializer):
 
 
 class RuleOfLawSerializer(serializers.ModelSerializer):
+    year = serializers.SerializerMethodField()
+
     class Meta:
         model = models.RuleOfLaw
         exclude = ['created', 'id', 'modified', 'country']
 
+    def get_year(self, obj):
+        # The year is implicit and should be updated when new data are imported
+        return '2020'
 
 class SuggestedCountrySerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source='country__name')

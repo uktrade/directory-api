@@ -2,10 +2,11 @@
 
 ## Pre release
 
-### Implemented enhancements
- GP2-2401-pdf-save
-GP2 2401 - pdf save
+### Bugs fixed
+- GP2-2266 Add spoof year to rule of law
 
+### Implemented enhancements
+- GP2-2401-pdf-save
 
 ## [1.10.1](https://github.com/uktrade/directory-api/releases/tag/1.10.1)
 
