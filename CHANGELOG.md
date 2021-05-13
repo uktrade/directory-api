@@ -2,15 +2,21 @@
 
 ## Pre release
 
+### Bugs fixed
+- GP2-2266 Add spoof year to rule of law
+
 ### Implemented enhancements
+- GP2-2401-pdf-save
+
+## [1.10.1](https://github.com/uktrade/directory-api/releases/tag/1.10.1)
+
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.9.0...1.10.1)
 
 - NOTICKET: Update Django to 2.2.22 (security fix)
 - NOTICKET: Python upgrade to 3.9.2 to follow default Python buildpack
 
-### Bugs fixed
 
 ## [1.9.0](https://github.com/uktrade/directory-api/releases/tag/1.9.0)
-
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.8.0...1.9.0)
 
 - GP2-2224 - Python upgrade to 3.9.1

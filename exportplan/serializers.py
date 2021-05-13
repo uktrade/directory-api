@@ -110,6 +110,20 @@ class ExportPlanCommodityCodeSerializer(serializers.Serializer):
     commodity_code = serializers.CharField(required=True)
 
 
+class ExportPlanDownloadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ExportplanDownloads
+        fields = (
+            'pk',
+            'pdf_file',
+            'companyexportplan',
+        )
+        extra_kwargs = {
+            # passed in by CompanyExportPlanSerializer created/updated
+            'companyexportplan': {'required': False},
+        }
+
+
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)

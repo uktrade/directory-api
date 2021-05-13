@@ -10,6 +10,7 @@ django-import-export==2.0.2
 kombu==4.6.6
 django-celery-beat==1.5.0
 django-redis==4.10.0
+django-cleanup==5.2.0
 whitenoise==4.1.4
 psycopg2-binary==2.8.4
 sentry-sdk==0.13.4
