@@ -117,3 +117,15 @@ class BusinessRisks(admin.ModelAdmin):
         'risk_likelihood',
         'risk_impact',
     )
+
+
+@admin.register(models.ExportplanDownloads)
+class ExportplanDownloads(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+    readonly_fields = ('created',)
+    search_fields = ('companyexportplan',)
+    list_display = (
+        'created',
+        'companyexportplan',
+        'pdf_file',
+    )

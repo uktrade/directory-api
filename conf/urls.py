@@ -235,6 +235,11 @@ urlpatterns = [
         name='export-plan-model-object-detail',
     ),
     url(
+        r'^exportplan/pdf-upload/$',
+        exportplan.views.ExportPlanUploadFile.as_view(),
+        name='export-plan-pdf-upload',
+    ),
+    url(
         r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
         dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
         name='dataservices-easeofdoingbusiness-index',
