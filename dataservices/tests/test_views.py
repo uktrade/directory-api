@@ -561,6 +561,7 @@ def test_society_data_by_country(api_client):
                 'iso2': 'UK',
                 'rank': 10,
                 'score': '76.000',
+                'year': '2020',
             },
         }
     ]
