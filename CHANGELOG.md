@@ -1,15 +1,16 @@
 # Changelog
 
 ## Pre release
-
-### Bugs fixed
-- GP2-2266 Add spoof year to rule of law
-
 ### Implemented enhancements
+### Bugs fixed
+
+## [1.11.1](https://github.com/uktrade/directory-api/releases/tag/1.11.1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.10.1...1.11.1)
+
+- GP2-2266 Add spoof year to rule of law
 - GP2-2401-pdf-save
 
 ## [1.10.1](https://github.com/uktrade/directory-api/releases/tag/1.10.1)
-
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.9.0...1.10.1)
 
 - NOTICKET: Update Django to 2.2.22 (security fix)
