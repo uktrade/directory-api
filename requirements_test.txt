@@ -173,7 +173,7 @@ kombu==4.6.6
     # via
     #   -r requirements.in
     #   celery
-markdown2==2.3.9
+markdown2==2.4.0
     # via -r requirements.in
 markuppy==1.14
     # via tablib
