@@ -3,6 +3,7 @@
 ## Pre release
 ### Implemented enhancements
 ### Bugs fixed
+-- GBAU-866 Companies house verify error
 
 ## [1.11.1](https://github.com/uktrade/directory-api/releases/tag/1.11.1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.10.1...1.11.1)

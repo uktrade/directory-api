@@ -172,8 +172,8 @@ class SSOUser:
 
 class CompaniesHouseClient:
     api_key = settings.COMPANIES_HOUSE_API_KEY
-    make_api_url = partial(urljoin, 'https://api.companieshouse.gov.uk')
-    make_oauth2_url = partial(urljoin, 'https://account.companieshouse.gov.uk')
+    make_api_url = partial(urljoin, settings.COMPANIES_HOUSE_API_URL)
+    make_oauth2_url = partial(urljoin, settings.COMPANIES_HOUSE_URL)
     endpoints = {
         'profile': make_api_url('company/{number}'),
         'verify-oauth2-access-token': make_oauth2_url('oauth2/verify'),
