@@ -13,25 +13,8 @@ from dataservices.helpers import (
     get_urban_rural_data,
     millify,
 )
-from dataservices.models import (
-    ConsumerPriceIndex,
-    CorruptionPerceptionsIndex,
-    Country,
-    EaseOfDoingBusiness,
-    GDPPerCapita,
-    Income,
-    InternetUsage,
-    RuleOfLaw,
-)
-from dataservices.serializers import (
-    ConsumerPriceIndexSerializer,
-    CorruptionPerceptionsIndexSerializer,
-    EaseOfDoingBusinessSerializer,
-    GDPPerCapitaSerializer,
-    IncomeSerializer,
-    InternetUsageSerializer,
-    RuleOfLawSerializer,
-)
+from dataservices.models import Country, RuleOfLaw
+from dataservices.serializers import RuleOfLawSerializer
 
 
 class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
