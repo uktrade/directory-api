@@ -240,11 +240,6 @@ urlpatterns = [
         name='export-plan-pdf-upload',
     ),
     url(
-        r'^dataservices/country-data/(?P<country>.*)/$',
-        dataservices.views.RetrieveCountryDataView.as_view(),
-        name='dataservices-country-data',
-    ),
-    url(
         r'^dataservices/country-data/$',
         dataservices.views.RetrieveDataByCountryView.as_view(),
         name='dataservices-country-data-by-country',
