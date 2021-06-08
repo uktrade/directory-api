@@ -1,7 +1,6 @@
 import json
 
 from django.apps import apps
-from django.http import Http404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -33,32 +32,6 @@ from dataservices.serializers import (
     InternetUsageSerializer,
     RuleOfLawSerializer,
 )
-
-
-class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
-    serializer_class = serializers.EaseOfDoingBusinessSerializer
-    permission_classes = []
-    lookup_url_kwarg = 'country_code'
-    lookup_field = 'country_code__iexact'
-    queryset = models.EaseOfDoingBusiness.objects.all()
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(data={})
-        return super().handle_exception(exc)
-
-
-class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
-    serializer_class = serializers.CorruptionPerceptionsIndexSerializer
-    permission_classes = []
-    lookup_url_kwarg = 'country_code'
-    lookup_field = 'country_code__iexact'
-    queryset = models.CorruptionPerceptionsIndex.objects.all()
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(data={})
-        return super().handle_exception(exc)
 
 
 class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):

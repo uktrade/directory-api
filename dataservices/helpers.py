@@ -187,26 +187,6 @@ class TTLCache:
         return inner
 
 
-@TTLCache()
-def get_ease_of_business_index(country_code):
-    try:
-        instance = models.EaseOfDoingBusiness.objects.get(country_code=country_code)
-        serializer = serializers.EaseOfDoingBusinessSerializer(instance)
-        return serializer.data
-    except models.EaseOfDoingBusiness.DoesNotExist:
-        return None
-
-
-@TTLCache()
-def get_corruption_perception_index(country_code):
-    try:
-        instance = models.CorruptionPerceptionsIndex.objects.get(country_code=country_code)
-        serializer = serializers.CorruptionPerceptionsIndexSerializer(instance)
-        return serializer.data
-    except models.CorruptionPerceptionsIndex.DoesNotExist:
-        return None
-
-
 def get_comtrade_data_by_country(commodity_code, country_list):
     data = {}
     for record in models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code):

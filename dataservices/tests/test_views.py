@@ -88,53 +88,6 @@ def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
 
 
 @pytest.mark.django_db
-def test_get_easeofdoingbusiness(api_client):
-    url = reverse('dataservices-easeofdoingbusiness-index', kwargs={'country_code': 'CN'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'year_2019': 10,
-        'total': 2,
-        'year': '2019',
-        'rank': 10,
-        'max_rank': 10,
-    }
-
-
-@pytest.mark.django_db
-def test_get_easeofdoingbusiness_not_found(api_client):
-    url = reverse('dataservices-easeofdoingbusiness-index', kwargs={'country_code': 'xxx'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {}
-
-
-@pytest.mark.django_db
-def test_get_corruptionperceptionsindex(api_client):
-    url = reverse('dataservices-corruptionperceptionsindex', kwargs={'country_code': 'CN'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'cpi_score': 10,
-        'rank': 3,
-        'total': 2,
-        'year': 2019,
-    }
-
-
-@pytest.mark.django_db
-def test_get_corruptionperceptionsindex_not_found(api_client):
-    url = reverse('dataservices-corruptionperceptionsindex', kwargs={'country_code': 'xxx'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {}
-
-
-@pytest.mark.django_db
 def test_comtrade_data_by_country(api_client, comtrade_report_data):
     url = reverse('last-year-import-data-by-country')
     response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
