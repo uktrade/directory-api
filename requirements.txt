@@ -165,7 +165,7 @@ openpyxl==3.0.5
     # via tablib
 pandas==1.2.3
     # via -r requirements.in
-pillow==8.1.2
+pillow==8.2.0
     # via directory-validators
 psycopg2-binary==2.8.4
     # via -r requirements.in
