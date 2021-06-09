@@ -1,7 +1,10 @@
 # Changelog
 
 ## Pre release
+
 ### Implemented enhancements
+- no ticket - dependencies upgrade
+
 ### Bugs fixed
 -- GP2-2856-remove-unused-api-calls
 
