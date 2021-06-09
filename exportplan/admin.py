@@ -56,22 +56,6 @@ class RouteToMarketsAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.ExportPlanActions)
-class ExportPlanActionsAdmin(admin.ModelAdmin):
-    formfield_overrides = {TextField: {'widget': forms.TextInput}}
-    search_fields = (
-        'owner',
-        'action_type',
-    )
-    list_display = (
-        'companyexportplan',
-        'owner',
-        'due_date',
-        'is_reminders_on',
-        'action_type',
-    )
-
-
 @admin.register(models.TargetMarketDocuments)
 class TargetMarketDocumentsAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
