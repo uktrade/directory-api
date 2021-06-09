@@ -44,20 +44,6 @@ def cia_factbook_data():
 
 
 @pytest.fixture(autouse=True)
-def mock_cpi(cpi_data):
-    patch = mock.patch.object(helpers, 'get_corruption_perception_index', return_value=cpi_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
-def mock_ease_of_business_index(ease_of_business_data):
-    patch = mock.patch.object(helpers, 'get_ease_of_business_index', return_value=ease_of_business_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
 def mock_world_economic_outlook(world_economic_outlook_data):
     patch = mock.patch.object(helpers, 'get_world_economic_outlook_data', return_value=world_economic_outlook_data)
     yield patch.start()

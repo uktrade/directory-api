@@ -38,22 +38,6 @@ class TargetMarketDocumentsSerializer(serializers.ModelSerializer):
         }
 
 
-class ExportPlanActionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ExportPlanActions
-        fields = (
-            'owner',
-            'due_date',
-            'is_reminders_on',
-            'action_type',
-            'companyexportplan',
-        )
-        extra_kwargs = {
-            # passed in by CompanyExportPlanSerializer created/updated
-            'companyexportplan': {'required': False},
-        }
-
-
 class FundingCreditOptionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.FundingCreditOptions
@@ -126,7 +110,6 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
 
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
-    export_plan_actions = ExportPlanActionsSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
     target_market_documents = TargetMarketDocumentsSerializer(many=True, required=False, read_only=False)
     funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
@@ -143,13 +126,10 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_countries',
             'export_commodity_codes',
             'objectives',
-            'sectors',
-            'target_markets',
             'marketing_approach',
             'pk',
             'company_objectives',
             'route_to_markets',
-            'export_plan_actions',
             'about_your_business',
             'target_markets_research',
             'adaptation_target_market',
@@ -180,18 +160,11 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         objectives = validated_data.pop('company_objectives', {})
-        actions = validated_data.pop('export_plan_actions', {})
         instance = super().create(validated_data)
         self.recreate_objectives(instance, objectives)
-        self.recreate_actions(instance, actions)
         return instance
 
     def update(self, instance, validated_data):
-
-        actions = {}
-
-        if validated_data.get('export_plan_actions'):
-            actions = validated_data.pop('export_plan_actions')
 
         # This will allow partial updating to json fields during a patch update. Json fields generally represent
         # a export plan page. we only want to update the field being sent else by nature we would wipe all the
@@ -216,7 +189,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
                 # Send merged data back to validated_data for the method to update the instance
                 validated_data[field_name] = field_value
         super().update(instance, validated_data)
-        self.recreate_actions(instance, actions)
         return instance
 
     @transaction.atomic
@@ -227,12 +199,3 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             data = {**objective, 'companyexportplan': instance}
             data_collection.append(models.CompanyObjectives(**data))
         models.CompanyObjectives.objects.bulk_create(data_collection)
-
-    @transaction.atomic
-    def recreate_actions(self, instance, actions):
-        instance.export_plan_actions.all().delete()
-        data_collection = []
-        for action in actions:
-            data = {**action, 'companyexportplan': instance}
-            data_collection.append(models.ExportPlanActions(**data))
-        models.ExportPlanActions.objects.bulk_create(data_collection)

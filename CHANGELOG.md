@@ -6,6 +6,10 @@
 - no ticket - dependencies upgrade
 
 ### Bugs fixed
+-- GP2-2856-remove-unused-api-calls
+
+## [1.11.2](https://github.com/uktrade/directory-api/releases/tag/1.11.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.11.1...1.11.2)
 -- GBAU-866 Companies house verify error
 
 ## [1.11.1](https://github.com/uktrade/directory-api/releases/tag/1.11.1)
