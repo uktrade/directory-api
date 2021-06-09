@@ -1,7 +1,10 @@
 # Changelog
 
 ## Pre release
+
 ### Implemented enhancements
+- no ticket - dependencies upgrade
+
 ### Bugs fixed
 -- GBAU-866 Companies house verify error
 
