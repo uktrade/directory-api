@@ -12,7 +12,8 @@ from django.db import transaction
 
 from company import constants, helpers, models
 from enrolment.forms import PreVerifiedEnrolmentModelForm
-
+from core.helpers import get_companies_house_profile
+from urllib.request import HTTPError
 
 class MobileNumberField(forms.CharField):
     def to_python(self, value):
@@ -175,6 +176,33 @@ class EnrolCompanies(forms.Form):
                         errors=errors,
                         row_number=i + 2,
                         line_errors='Invalid address. Must have line 1, line 2, and postal code. comma delimited.',
+                    )
+            else:
+                try:
+                    profile = get_companies_house_profile(row[8])
+                    if profile.get('registered_office_address'):
+                        address = profile['registered_office_address']
+                        if not address.get('address_line_1') or not address.get('postal_code'):
+                            self.add_bulk_errors(
+                                errors=errors,
+                                row_number=i + 2,
+                                line_errors=f'No valid address returned from companies house for {row[1]}:{row[8]}',
+                            )
+                        else:
+                            data.update(
+                                {
+                                    'address_line_1': address.get('address_line_1', ''),
+                                    'address_line_2': address.get('address_line_2', ''),
+                                    'locality': address.get('locality', ''),
+                                    'po_box': address.get('po_box', ''),
+                                    'postal_code': address.get('postal_code', ''),
+                                }
+                            )
+                except:
+                    self.add_bulk_errors(
+                        errors=errors,
+                        row_number=i + 2,
+                        line_errors=f'Error getting details from companies house for {row[1]}:{row[8]}',
                     )
 
             form = CompanyModelForm(data=data)
