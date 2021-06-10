@@ -9,11 +9,12 @@ from directory_components.forms.fields import PaddedCharField
 from directory_constants import company_types, expertise
 from django import forms
 from django.db import transaction
+from requests.exceptions import HTTPError
 
 from company import constants, helpers, models
-from enrolment.forms import PreVerifiedEnrolmentModelForm
 from core.helpers import get_companies_house_profile
-from urllib.request import HTTPError
+from enrolment.forms import PreVerifiedEnrolmentModelForm
+
 
 class MobileNumberField(forms.CharField):
     def to_python(self, value):
@@ -198,12 +199,15 @@ class EnrolCompanies(forms.Form):
                                     'postal_code': address.get('postal_code', ''),
                                 }
                             )
-                except:
-                    self.add_bulk_errors(
-                        errors=errors,
-                        row_number=i + 2,
-                        line_errors=f'Error getting details from companies house for {row[1]}:{row[8]}',
-                    )
+                except HTTPError as e:
+                    if e.response.status_code == 404:
+                        self.add_bulk_errors(
+                            errors=errors,
+                            row_number=i + 2,
+                            line_errors=f'Unable to find in companies house {row[1]}:{row[8]}',
+                        )
+                    else:
+                        raise e
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
