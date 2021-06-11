@@ -18,6 +18,13 @@ def pytest_runtest_setup(item):
     company_profile = {
         'company_status': 'active',
         'date_of_creation': '2000-10-10',
+        'registered_office_address': {
+            'address_line_1': 'wizzard street',
+            'address_line_2': 'wizzard',
+            'locality': 'town',
+            'po_box': 'PO1234',
+            'postal_code': 'W22 4DD',
+        },
     }
 
     companies_house_adapter = requests_mock.Adapter()
