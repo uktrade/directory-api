@@ -411,6 +411,27 @@ class DownloadCaseStudyCSVTestCase(TestCase):
             pre_verified_queryset = PreVerifiedEnrolment.objects.all()
             assert len(pre_verified_queryset) == 0
 
+    def test_create_companies_form_ch_lookup_raise_non_404(self):
+        file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
+
+        with patch('company.forms.get_companies_house_profile') as ch_get_profile:
+            my_exception = HTTPError()
+            my_exception.response = mock.Mock(status_code=500)
+            ch_get_profile.side_effect = my_exception
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+
+            assert response.status_code == 200
+
+            assert models.Company.objects.count() == 0
+            pre_verified_queryset = PreVerifiedEnrolment.objects.all()
+            assert len(pre_verified_queryset) == 0
+
     def test_create_companies_form_raises_exception(self):
         file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
 

@@ -181,6 +181,9 @@ class EnrolCompanies(forms.Form):
                     )
             else:
                 try:
+                    import pdb
+
+                    pdb.set_trace()
                     profile = get_companies_house_profile(row[8])
                     address = profile.get('registered_office_address')
                     if any(
@@ -213,7 +216,11 @@ class EnrolCompanies(forms.Form):
                             line_errors=f'Unable to find in companies house {row[1]}:{row[8]}',
                         )
                     else:
-                        raise e
+                        self.add_bulk_errors(
+                            errors=errors,
+                            row_number=i + 2,
+                            line_errors=f'Error getting details from companies house {row[1]}:{row[8]} error:{e}',
+                        )
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
