@@ -181,9 +181,6 @@ class EnrolCompanies(forms.Form):
                     )
             else:
                 try:
-                    import pdb
-
-                    pdb.set_trace()
                     profile = get_companies_house_profile(row[8])
                     address = profile.get('registered_office_address')
                     if any(
