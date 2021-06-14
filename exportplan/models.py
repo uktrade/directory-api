@@ -21,6 +21,9 @@ class CompanyExportPlan(TimeStampedModel):
     ui_options = JSONField(null=True, blank=True, default=dict)
     ui_progress = JSONField(null=True, blank=True, default=dict)
     about_your_business = JSONField(null=True, blank=True, default=dict)
+    sectors = JSONField(null=True, blank=True, default=dict)
+    # Temp fix remove once great-cms is released
+    target_markets = JSONField(null=True, blank=True, default=dict)
     # business objectives
     objectives = JSONField(null=True, blank=True, default=dict)
     # Target Markets Research
