@@ -88,53 +88,6 @@ def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
 
 
 @pytest.mark.django_db
-def test_get_easeofdoingbusiness(api_client):
-    url = reverse('dataservices-easeofdoingbusiness-index', kwargs={'country_code': 'CN'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'year_2019': 10,
-        'total': 2,
-        'year': '2019',
-        'rank': 10,
-        'max_rank': 10,
-    }
-
-
-@pytest.mark.django_db
-def test_get_easeofdoingbusiness_not_found(api_client):
-    url = reverse('dataservices-easeofdoingbusiness-index', kwargs={'country_code': 'xxx'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {}
-
-
-@pytest.mark.django_db
-def test_get_corruptionperceptionsindex(api_client):
-    url = reverse('dataservices-corruptionperceptionsindex', kwargs={'country_code': 'CN'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'cpi_score': 10,
-        'rank': 3,
-        'total': 2,
-        'year': 2019,
-    }
-
-
-@pytest.mark.django_db
-def test_get_corruptionperceptionsindex_not_found(api_client):
-    url = reverse('dataservices-corruptionperceptionsindex', kwargs={'country_code': 'xxx'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {}
-
-
-@pytest.mark.django_db
 def test_comtrade_data_by_country(api_client, comtrade_report_data):
     url = reverse('last-year-import-data-by-country')
     response = api_client.get(url, data={'countries': ['FR'], 'commodity_code': '123456'})
@@ -220,98 +173,6 @@ def test_get_cia_factbook_data(api_client):
     assert response.status_code == 200
     assert response.json() == {
         'cia_factbook_data': {'languages': {'date': '2012', 'language': [{'name': 'English'}], 'note': 'test data'}}
-    }
-
-
-@pytest.mark.django_db
-def test_get_country_data(api_client):
-    url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'country_data': {
-            'consumer_price_index': {
-                'value': '20.560',
-                'year': 2019,
-            },
-            'internet_usage': {
-                'value': '20.230',
-                'year': 2019,
-                'total_internet_usage': '7.70 million',
-            },
-            'corruption_perceptions_index': None,
-            'ease_of_doing_bussiness': None,
-            'gdp_per_capita': None,
-            'income': None,
-            'total_population': '38.07 million',
-        }
-    }
-
-
-@pytest.mark.django_db
-def test_get_country_data_not_found(api_client):
-    url = reverse('dataservices-country-data', kwargs={'country': 'xyz'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'country_data': {
-            'consumer_price_index': None,
-            'internet_usage': None,
-            'corruption_perceptions_index': None,
-            'ease_of_doing_bussiness': None,
-            'gdp_per_capita': None,
-            'income': None,
-            'total_population': '0.00',
-        }
-    }
-
-
-@pytest.mark.django_db
-def test_get_country_data_cpi_not_found(api_client):
-    models.ConsumerPriceIndex.objects.get(country_name='Canada').delete()
-    url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'country_data': {
-            'consumer_price_index': None,
-            'internet_usage': {
-                'value': '20.230',
-                'year': 2019,
-                'total_internet_usage': '7.70 million',
-            },
-            'corruption_perceptions_index': None,
-            'ease_of_doing_bussiness': None,
-            'gdp_per_capita': None,
-            'income': None,
-            'total_population': '38.07 million',
-        },
-    }
-
-
-@pytest.mark.django_db
-def test_get_country_data_internet_not_found(api_client):
-    models.InternetUsage.objects.get(country_name='Canada').delete()
-    url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
-
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert response.json() == {
-        'country_data': {
-            'consumer_price_index': {
-                'value': '20.560',
-                'year': 2019,
-            },
-            'internet_usage': None,
-            'corruption_perceptions_index': None,
-            'ease_of_doing_bussiness': None,
-            'gdp_per_capita': None,
-            'income': None,
-            'total_population': '38.07 million',
-        }
     }
 
 
@@ -479,28 +340,6 @@ def test_suggested_countries_api_without_hs_code(client):
     assert response.status_code == 500
     json_dict = json.loads(response.content)
     assert json_dict['error_message'] == "hs_code missing in request params"
-
-
-@pytest.mark.django_db
-def test_income_data_api(api_client):
-    # import countries and income data
-    management.call_command('import_countries')
-    management.call_command('import_income_data')
-
-    url = reverse('dataservices-country-data', kwargs={'country': 'Canada'})
-    json_response = api_client.get(url).json()
-    assert 'income' in json_response['country_data']
-    assert '37653.281' == json_response['country_data']['income']['value']
-    # Retrieve India too as it has cpi data mocked
-    url = reverse('dataservices-country-data', kwargs={'country': 'India'})
-    json_response = api_client.get(url).json()
-    assert 'income' in json_response['country_data']
-    assert '1735.329' == json_response['country_data']['income']['value']
-    assert 5 == json_response['country_data']['ease_of_doing_bussiness']['year_2019']
-    assert 2 == json_response['country_data']['ease_of_doing_bussiness']['total']
-    assert '2019' == json_response['country_data']['ease_of_doing_bussiness']['year']
-    assert 9 == json_response['country_data']['corruption_perceptions_index']['rank']
-    assert 2 == json_response['country_data']['corruption_perceptions_index']['total']
 
 
 @pytest.mark.django_db

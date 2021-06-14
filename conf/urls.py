@@ -240,21 +240,6 @@ urlpatterns = [
         name='export-plan-pdf-upload',
     ),
     url(
-        r'^dataservices/easeofdoingbusiness/(?P<country_code>.*)/$',
-        dataservices.views.RetrieveEaseOfBusinessIndex.as_view(),
-        name='dataservices-easeofdoingbusiness-index',
-    ),
-    url(
-        r'^dataservices/corruption-perceptions-index/(?P<country_code>.*)/$',
-        dataservices.views.RetrieveCorruptionPerceptionsIndex.as_view(),
-        name='dataservices-corruptionperceptionsindex',
-    ),
-    url(
-        r'^dataservices/country-data/(?P<country>.*)/$',
-        dataservices.views.RetrieveCountryDataView.as_view(),
-        name='dataservices-country-data',
-    ),
-    url(
         r'^dataservices/country-data/$',
         dataservices.views.RetrieveDataByCountryView.as_view(),
         name='dataservices-country-data-by-country',

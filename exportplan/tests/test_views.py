@@ -1,5 +1,4 @@
 import http
-from datetime import date
 from unittest import mock
 
 import pytest
@@ -32,12 +31,6 @@ def export_plan_data(company):
         'company_objectives': [
             {'description': 'export 5k cases of wine'},
         ],
-        'export_plan_actions': [
-            {
-                'is_reminders_on': True,
-                'action_type': 'TARGET_MARKETS',
-            }
-        ],
     }
 
 
@@ -45,7 +38,6 @@ def export_plan_data(company):
 def export_plan():
     export_plan = factories.CompanyExportPlanFactory.create()
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    factories.ExportPlanActionsFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
@@ -69,15 +61,6 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
     assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
     assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
-    assert created_export_plan['export_plan_actions'] == [
-        {
-            'companyexportplan': export_plan_db.pk,
-            'owner': None,
-            'due_date': None,
-            'is_reminders_on': True,
-            'action_type': 'TARGET_MARKETS',
-        }
-    ]
 
     assert created_export_plan['company_objectives'] == [
         {
@@ -123,23 +106,12 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         'ui_progress': export_plan.ui_progress,
         'about_your_business': export_plan.about_your_business,
         'objectives': export_plan.objectives,
-        'sectors': export_plan.sectors,
-        'target_markets': export_plan.target_markets,
         'marketing_approach': export_plan.marketing_approach,
         'target_markets_research': export_plan.target_markets_research,
         'adaptation_target_market': export_plan.adaptation_target_market,
         'direct_costs': export_plan.direct_costs,
         'overhead_costs': export_plan.overhead_costs,
         'total_cost_and_price': export_plan.total_cost_and_price,
-        'export_plan_actions': [
-            {
-                'companyexportplan': export_plan.id,
-                'owner': None,
-                'due_date': None,
-                'is_reminders_on': False,
-                'action_type': 'TARGET_MARKETS',
-            }
-        ],
         'company_objectives': [
             {
                 'companyexportplan': export_plan.id,
@@ -217,31 +189,6 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
 
     assert response.status_code == http.client.OK
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
-
-
-@pytest.mark.django_db
-def test_export_plan_new_actions(authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-
-    actions = [
-        {'is_reminders_on': True, 'due_date': '2020-01-01'},
-        {'is_reminders_on': False, 'due_date': '2020-01-02'},
-    ]
-    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
-    data = {'export_plan_actions': actions}
-
-    response = authed_client.patch(url, data, format='json')
-
-    export_plan.refresh_from_db()
-    assert response.status_code == http.client.OK
-    export_plan_actions = export_plan.export_plan_actions.all()
-    assert len(export_plan_actions) == 2
-    assert export_plan_actions[0].is_reminders_on is True
-    assert export_plan_actions[0].due_date == date(2020, 1, 1)
-    assert export_plan_actions[1].is_reminders_on is False
-    assert export_plan_actions[1].due_date == date(2020, 1, 2)
 
 
 @pytest.mark.django_db
@@ -363,7 +310,6 @@ def test_export_plan_update_non_json_new_to_partial(authed_client, authed_suppli
             'target_market_documents',
             {'document_name': 'name update', 'note': 'new notes'},
         ],
-        [models.ExportPlanActions, 'export_plan_actions', {'action_type': 'TARGET_MARKETS', 'is_reminders_on': True}],
         [models.BusinessTrips, 'business_trips', {'note': 'I just got created'}],
         [
             models.BusinessTrips,
@@ -403,7 +349,6 @@ def test_export_plan_model_create(model_class, property_name, create_data, authe
         [models.CompanyObjectives, 'company_objectives'],
         [models.RouteToMarkets, 'route_to_markets'],
         [models.TargetMarketDocuments, 'target_market_documents'],
-        [models.ExportPlanActions, 'export_plan_actions'],
         [models.BusinessTrips, 'business_trips'],
         [models.BusinessRisks, 'business_risks'],
     ],
@@ -437,7 +382,6 @@ def test_export_plan_model_retrieve(model_class, property_name, authed_client, a
         [models.CompanyObjectives, 'company_objectives', {'description': 'updated now'}],
         [models.RouteToMarkets, 'route_to_markets', {'route': choices.MARKET_ROUTE_CHOICES[0][0]}],
         [models.TargetMarketDocuments, 'target_market_documents', {'document_name': 'update me'}],
-        [models.ExportPlanActions, 'export_plan_actions', {'is_reminders_on': True}],
         [models.BusinessTrips, 'business_trips', {'note': 'update my trip'}],
         [models.BusinessRisks, 'business_risks', {'risk': 'update my risk'}],
     ],
@@ -466,7 +410,6 @@ def test_export_plan_model_update(model_class, property_name, data_update, authe
         [models.CompanyObjectives, 'company_objectives'],
         [models.RouteToMarkets, 'route_to_markets'],
         [models.TargetMarketDocuments, 'target_market_documents'],
-        [models.ExportPlanActions, 'export_plan_actions'],
         [models.BusinessTrips, 'business_trips'],
         [models.BusinessRisks, 'business_risks'],
     ],
