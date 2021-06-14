@@ -2,7 +2,7 @@ import http
 import os
 from collections import OrderedDict
 from datetime import timedelta
-from unittest import TestCase
+from unittest import TestCase, mock
 from unittest.mock import patch
 
 import pytest
@@ -15,6 +15,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
+from requests.exceptions import ConnectionError, HTTPError
 
 from company import admin, constants, models
 from company.tests import VALID_REQUEST_DATA, VALID_SUPPLIER_REQUEST_DATA, factories
@@ -272,9 +273,11 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         company_one, company_two = models.Company.objects.all()
 
         assert company_one.name == 'Example Compass'
-        assert company_one.address_line_1 == ''
-        assert company_one.address_line_2 == ''
-        assert company_one.postal_code == ''
+        assert company_one.address_line_1 == 'wizzard street'
+        assert company_one.address_line_2 == 'wizzard'
+        assert company_one.locality == 'town'
+        assert company_one.po_box == 'PO1234'
+        assert company_one.postal_code == 'W22 4DD'
         assert company_one.email_address == ''
         assert company_one.mobile_number == '55555555555'
         assert company_one.number == '12355434'
@@ -333,6 +336,115 @@ class DownloadCaseStudyCSVTestCase(TestCase):
                 ),
             },
         ]
+
+    def test_create_companies_form_no_ch_address(self):
+        file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
+        with patch('company.forms.get_companies_house_profile') as ch_get_profile:
+            ch_get_profile.return_value = {
+                'company_status': 'active',
+                'date_of_creation': '2000-10-10',
+            }
+
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+
+            ch_get_profile.return_value = {
+                'company_status': 'active',
+                'date_of_creation': '2000-10-10',
+                'registered_office_address': {'postal_code': 'W22 4DD'},
+            }
+            assert response.status_code == 200
+
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+            assert response.status_code == 200
+
+            ch_get_profile.return_value = {
+                'company_status': 'active',
+                'date_of_creation': '2000-10-10',
+                'registered_office_address': {'address_line_1': 'wizzard street'},
+            }
+
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+
+            assert response.status_code == 200
+
+            assert models.Company.objects.count() == 0
+
+            pre_verified_queryset = PreVerifiedEnrolment.objects.all()
+            assert len(pre_verified_queryset) == 0
+
+    def test_create_companies_form_ch_lookup_raise_404(self):
+        file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
+
+        with patch('company.forms.get_companies_house_profile') as ch_get_profile:
+            my_exception = HTTPError()
+            my_exception.response = mock.Mock(status_code=404)
+            ch_get_profile.side_effect = my_exception
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+
+            assert response.status_code == 200
+
+            assert models.Company.objects.count() == 0
+            pre_verified_queryset = PreVerifiedEnrolment.objects.all()
+            assert len(pre_verified_queryset) == 0
+
+    def test_create_companies_form_ch_lookup_raise_non_404(self):
+        file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
+
+        with patch('company.forms.get_companies_house_profile') as ch_get_profile:
+            my_exception = HTTPError()
+            my_exception.response = mock.Mock(status_code=500)
+            ch_get_profile.side_effect = my_exception
+            response = self.client.post(
+                reverse('admin:company_company_enrol'),
+                {
+                    'generated_for': constants.UK_ISD,
+                    'csv_file': open(file_path, 'rb'),
+                },
+            )
+
+            assert response.status_code == 200
+
+            assert models.Company.objects.count() == 0
+            pre_verified_queryset = PreVerifiedEnrolment.objects.all()
+            assert len(pre_verified_queryset) == 0
+
+    def test_create_companies_form_raises_exception(self):
+        file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
+
+        with patch('company.forms.get_companies_house_profile') as ch_get_profile:
+            ch_get_profile.side_effect = ConnectionError
+            with pytest.raises(ConnectionError):
+                self.client.post(
+                    reverse('admin:company_company_enrol'),
+                    {
+                        'generated_for': constants.UK_ISD,
+                        'csv_file': open(file_path, 'rb'),
+                    },
+                )
 
     def test_upload_expertise_companies_form_success(self):
 

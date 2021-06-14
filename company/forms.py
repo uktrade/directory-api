@@ -9,8 +9,10 @@ from directory_components.forms.fields import PaddedCharField
 from directory_constants import company_types, expertise
 from django import forms
 from django.db import transaction
+from requests.exceptions import HTTPError
 
 from company import constants, helpers, models
+from core.helpers import get_companies_house_profile
 from enrolment.forms import PreVerifiedEnrolmentModelForm
 
 
@@ -159,6 +161,7 @@ class EnrolCompanies(forms.Form):
                 'website': row[9],
                 'is_uk_isd_company': is_uk_isd_company,
             }
+
             if company_type != company_types.COMPANIES_HOUSE:
                 address = helpers.AddressParser(row[2])
                 data.update(
@@ -176,6 +179,45 @@ class EnrolCompanies(forms.Form):
                         row_number=i + 2,
                         line_errors='Invalid address. Must have line 1, line 2, and postal code. comma delimited.',
                     )
+            else:
+                try:
+                    profile = get_companies_house_profile(row[8])
+                    address = profile.get('registered_office_address')
+                    if any(
+                        [
+                            not profile.get('registered_office_address'),
+                            not profile.get('registered_office_address', {}).get('address_line_1'),
+                            not profile.get('registered_office_address', {}).get('postal_code'),
+                        ]
+                    ):
+                        self.add_bulk_errors(
+                            errors=errors,
+                            row_number=i + 2,
+                            line_errors=f'No valid address returned from companies house for {row[1]}:{row[8]}',
+                        )
+                    else:
+                        data.update(
+                            {
+                                'address_line_1': address.get('address_line_1', ''),
+                                'address_line_2': address.get('address_line_2', ''),
+                                'locality': address.get('locality', ''),
+                                'po_box': address.get('po_box', ''),
+                                'postal_code': address.get('postal_code', ''),
+                            }
+                        )
+                except HTTPError as e:
+                    if e.response.status_code == 404:
+                        self.add_bulk_errors(
+                            errors=errors,
+                            row_number=i + 2,
+                            line_errors=f'Unable to find in companies house {row[1]}:{row[8]}',
+                        )
+                    else:
+                        self.add_bulk_errors(
+                            errors=errors,
+                            row_number=i + 2,
+                            line_errors=f'Error getting details from companies house {row[1]}:{row[8]} error:{e}',
+                        )
 
             form = CompanyModelForm(data=data)
             if form.is_valid():
