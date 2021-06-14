@@ -2,12 +2,11 @@
 
 ## Pre release
 
-### Implemented enhancements
+## [1.12.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.11.2...1.12.0)
 - no ticket - dependencies upgrade
-
-### Bugs fixed
--- GP2-2856 - remove-unused-api-calls
--- GBAU-970 - address-retrieval-upload
+- GP2-2856 - remove-unused-api-calls
+- GBAU-970 - address-retrieval-upload
 
 ## [1.11.2](https://github.com/uktrade/directory-api/releases/tag/1.11.2)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.11.1...1.11.2)
