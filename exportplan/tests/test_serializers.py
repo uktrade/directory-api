@@ -62,17 +62,6 @@ def test_company_exportplan_serializer_commodity_codes_fail():
 
 
 @pytest.mark.django_db
-def test_export_plan_actions_serializer_fail():
-    data = {
-        'companyexportplan': None,
-        'is_reminders_on': None,
-    }
-    serializer = serializers.ExportPlanActionsSerializer(data=data)
-
-    assert serializer.is_valid() is False
-
-
-@pytest.mark.django_db
 def test_export_plan_objectives_serializer_fail():
     data = {
         'companyexportplan': None,

@@ -1,7 +1,6 @@
 import json
 
 from django.apps import apps
-from django.http import Http404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -14,51 +13,8 @@ from dataservices.helpers import (
     get_urban_rural_data,
     millify,
 )
-from dataservices.models import (
-    ConsumerPriceIndex,
-    CorruptionPerceptionsIndex,
-    Country,
-    EaseOfDoingBusiness,
-    GDPPerCapita,
-    Income,
-    InternetUsage,
-    RuleOfLaw,
-)
-from dataservices.serializers import (
-    ConsumerPriceIndexSerializer,
-    CorruptionPerceptionsIndexSerializer,
-    EaseOfDoingBusinessSerializer,
-    GDPPerCapitaSerializer,
-    IncomeSerializer,
-    InternetUsageSerializer,
-    RuleOfLawSerializer,
-)
-
-
-class RetrieveEaseOfBusinessIndex(generics.RetrieveAPIView):
-    serializer_class = serializers.EaseOfDoingBusinessSerializer
-    permission_classes = []
-    lookup_url_kwarg = 'country_code'
-    lookup_field = 'country_code__iexact'
-    queryset = models.EaseOfDoingBusiness.objects.all()
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(data={})
-        return super().handle_exception(exc)
-
-
-class RetrieveCorruptionPerceptionsIndex(generics.RetrieveAPIView):
-    serializer_class = serializers.CorruptionPerceptionsIndexSerializer
-    permission_classes = []
-    lookup_url_kwarg = 'country_code'
-    lookup_field = 'country_code__iexact'
-    queryset = models.CorruptionPerceptionsIndex.objects.all()
-
-    def handle_exception(self, exc):
-        if isinstance(exc, Http404):
-            return Response(data={})
-        return super().handle_exception(exc)
+from dataservices.models import Country, RuleOfLaw
+from dataservices.serializers import RuleOfLawSerializer
 
 
 class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
@@ -70,61 +26,6 @@ class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
             country_list=self.request.GET.getlist('countries', ''),
         )
         return Response(status=status.HTTP_200_OK, data=comtrade_response)
-
-
-class RetrieveCountryDataView(generics.GenericAPIView):
-    dit_to_weo_country_map = {
-        'Brunei': 'Brunei Darussalam',
-        'Congo': 'Congo, Rep.',
-        'Congo (Democratic Republic)': ['Congo, Dem. Rep.', 'Democratic Republic of the Congo'],
-        'Dominican': 'Dominican Republic',
-        'Egypt': ['Egypt, Arab Rep.', 'Egypt'],
-        'Micronesia': 'Micronesia, Fed. Sts.',
-        'Myanmar (Burma)': 'Myanmar',
-        'St Kitts and Nevis': 'St. Kitts and Nevis',
-        'St Lucia': ['St. Lucia', 'Saint Lucia'],
-        'St Vincent': ['St. Vincent and the Grenadines', 'Saint Vincent and the Grenadines'],
-        'Russia': ['Russian Federation', 'Russia'],
-        'Syria': ['Syrian Arab Republic', 'Syria'],
-        'The Bahamas': ['Bahamas, The', 'Bahamas'],
-        'The Gambia': ['Gambia, The', 'Gambia'],
-        'Yemen': ['Yemen, Rep.', 'Yemen'],
-        'Venezuela': ['Venezuela, RB', 'Venezuela'],
-        'United States': ['United States of America', 'United States'],
-    }
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        filter_args = self.get_filter(country=self.kwargs['country'])
-
-        country_population = helpers.PopulationData()
-        total_population = country_population.get_population_total_data(country=self.kwargs['country'])
-        country_data = {
-            'consumer_price_index': get_serialized_instance_from_model(
-                ConsumerPriceIndex, ConsumerPriceIndexSerializer, filter_args
-            ),
-            'internet_usage': get_serialized_instance_from_model(InternetUsage, InternetUsageSerializer, filter_args),
-            'corruption_perceptions_index': get_serialized_instance_from_model(
-                CorruptionPerceptionsIndex, CorruptionPerceptionsIndexSerializer, filter_args
-            ),
-            'ease_of_doing_bussiness': get_serialized_instance_from_model(
-                EaseOfDoingBusiness, EaseOfDoingBusinessSerializer, filter_args
-            ),
-            'gdp_per_capita': get_serialized_instance_from_model(GDPPerCapita, GDPPerCapitaSerializer, filter_args),
-            'total_population': millify(total_population.get('total_population', 0) * 1000),
-            'income': get_serialized_instance_from_model(Income, IncomeSerializer, filter_args),
-        }
-        if country_data['internet_usage']:
-            total_internet_usage = helpers.calculate_total_internet_population(
-                country_data['internet_usage'], total_population
-            )
-            country_data['internet_usage']['total_internet_usage'] = total_internet_usage
-
-        return Response(status=status.HTTP_200_OK, data={'country_data': country_data})
-
-    def get_filter(self, country):
-        weo_country = self.dit_to_weo_country_map.get(country, country)
-        return {'country_name__in': weo_country} if (type(weo_country) is list) else {'country_name': weo_country}
 
 
 class RetrieveDataByCountryView(generics.GenericAPIView):

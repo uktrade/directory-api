@@ -1,8 +1,6 @@
 import re
 
 import pytest
-from django.core.cache import cache
-from django.test import override_settings
 
 from dataservices import helpers, models
 from dataservices.tests import factories, utils
@@ -91,57 +89,6 @@ def comtrade_request_mock(comtrade_data, requests_mocker):
 @pytest.fixture()
 def comtrade_request_mock_empty(comtrade_data, requests_mocker):
     return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json={'dataset': []})
-
-
-@pytest.mark.django_db
-@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}})
-def test_get_ease_of_business_index():
-
-    models.Country.objects.all().delete()
-    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
-
-    models.EaseOfDoingBusiness.objects.create(
-        country_code='AUS',
-        country_name='Australia',
-        year_2019=20,
-        country=country,
-    )
-    ease_of_business_data = helpers.get_ease_of_business_index('AUS')
-
-    assert ease_of_business_data['rank'] == 20
-    assert ease_of_business_data['year'] == '2019'
-    assert ease_of_business_data['total'] == 1
-    assert ease_of_business_data['max_rank'] == 20
-
-
-@pytest.mark.django_db
-def test_get_ease_of_business_index_not_found():
-
-    ease_of_business_data = helpers.get_ease_of_business_index('HDJF')
-    assert ease_of_business_data is None
-
-
-@pytest.mark.django_db
-def test_get_corruption_perceptions_index():
-    models.Country.objects.all().delete()
-    cache.clear()
-    country = models.Country.objects.create(name='Australia', iso1=36, iso2='AU', iso3='AUS', region='Asia Pacific')
-
-    cpi = models.CorruptionPerceptionsIndex.objects.create(
-        country_code='AUS', country_name='Australia', cpi_score=24, rank=21, country=country, year=2019
-    )
-    assert str(cpi) == 'Australia:2019'
-    cpi_data = helpers.get_corruption_perception_index('AUS')
-    assert cpi_data['rank'] == 21
-    assert cpi_data['cpi_score'] == 24
-    assert cpi_data['year'] == 2019
-    assert cpi_data['total'] == 1
-
-
-@pytest.mark.django_db
-def test_get_corruption_perceptions_index_not_found():
-    cpi_data = helpers.get_corruption_perception_index('RXX')
-    assert cpi_data is None
 
 
 @pytest.mark.django_db
@@ -361,19 +308,6 @@ def test_get_internet_usage_with_no_country():
 )
 def test_get_percentage_format(input_1, input_2, expected):
     data = helpers.get_percentage_format(input_1, input_2)
-    assert data == expected
-
-
-@pytest.mark.parametrize(
-    "internet_usage,total_population,expected",
-    [
-        ({'value': '94.712'}, {'total_population': 17173}, '16.26 million'),
-        ({}, {'total_population': 17173}, ''),
-        ({'value': '94.712'}, {}, ''),
-    ],
-)
-def test_calculate_total_internet_population(internet_usage, total_population, expected):
-    data = helpers.calculate_total_internet_population(internet_usage, total_population)
     assert data == expected
 
 

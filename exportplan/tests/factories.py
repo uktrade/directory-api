@@ -15,8 +15,6 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     ui_progress = {'target-market-research': {'is_complete': True}}
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
-    sectors = ['Food and drink', 'hospitality']
-    target_markets = [{'country': 'Mexico'}]
     marketing_approach = [{'Description': 'selling to retailers', 'option': 'shipping'}]
     about_your_business = {'Location': 'London', 'story': 'new brand'}
     target_markets_research = {'demand': 'high', 'value': 'high'}
@@ -66,18 +64,6 @@ class RouteToMarketsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.RouteToMarkets
-
-
-class ExportPlanActionsFactory(factory.django.DjangoModelFactory):
-
-    owner = None
-    due_date = None
-    is_reminders_on = False
-    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
-    action_type = 'TARGET_MARKETS'
-
-    class Meta:
-        model = models.ExportPlanActions
 
 
 class TargetMarketDocumentsFactory(factory.django.DjangoModelFactory):
