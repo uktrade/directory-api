@@ -1,6 +1,7 @@
 # Changelog
 
 ## Pre release
+- GP2-2841: Pinned CF buildpack and upgraded python to 3.9.5
 
 ### Bugs fixed
 - GP2-2856 - remove sectors, target_markets , exportplan actions DO NOT RELEASE TO PROD BEFORE GREAT-CMS
