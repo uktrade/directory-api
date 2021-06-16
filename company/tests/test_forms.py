@@ -47,7 +47,6 @@ def test_company_number_clean(value, expected):
         ('', ''),
         ('www.example.com (pending)', 'http://www.example.com'),
         ('www.example.com and thing.com', 'http://www.example.com'),
-        ('www.example.com\nthing.com', 'http://www.example.com'),
         ('in progress', ''),
     ),
 )
