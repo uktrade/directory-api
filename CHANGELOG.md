@@ -1,6 +1,10 @@
 # Changelog
 
 ## Pre release
+- GP2-2841: Pinned CF buildpack and upgraded python to 3.9.5
+
+### Bugs fixed
+- GP2-2856 - remove sectors, target_markets , exportplan actions DO NOT RELEASE TO PROD BEFORE GREAT-CMS
 
 ## [1.12.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.11.2...1.12.0)

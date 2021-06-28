@@ -21,9 +21,6 @@ class CompanyExportPlan(TimeStampedModel):
     ui_options = JSONField(null=True, blank=True, default=dict)
     ui_progress = JSONField(null=True, blank=True, default=dict)
     about_your_business = JSONField(null=True, blank=True, default=dict)
-    sectors = JSONField(null=True, blank=True, default=dict)
-    # Temp fix remove once great-cms is released
-    target_markets = JSONField(null=True, blank=True, default=dict)
     # business objectives
     objectives = JSONField(null=True, blank=True, default=dict)
     # Target Markets Research
@@ -44,7 +41,6 @@ class CompanyExportPlan(TimeStampedModel):
     travel_business_policies = JSONField(null=True, blank=True, default=dict)
 
 
-# Temp fix remove once great-cms is released
 class CompanyObjectives(TimeStampedModel):
 
     description = models.TextField(null=True, blank=True, default='', validators=[no_html])
@@ -59,20 +55,6 @@ class CompanyObjectives(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Company Objectives"
-
-
-class ExportPlanActions(TimeStampedModel):
-    TARGET_MARKET_CHOICES = ('TARGET_MARKETS', 'Target Markets')
-    owner = models.PositiveIntegerField(null=True, verbose_name='sso user.sso_id', default=None, unique=False)
-    due_date = models.DateField(blank=True, null=True)
-    is_reminders_on = models.BooleanField(default=False)
-    action_type = models.CharField(max_length=15, choices=(TARGET_MARKET_CHOICES,), default=TARGET_MARKET_CHOICES[0])
-    companyexportplan = models.ForeignKey(
-        CompanyExportPlan, related_name='export_plan_actions', on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name_plural = "Export Plan Actions"
 
 
 class ExportplanDownloads(TimeStampedModel):
