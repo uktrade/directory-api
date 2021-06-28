@@ -1,0 +1,1 @@
+DATABASE_URL=postgres://debug:debug@great_postgres:5432/directory_api_debug
