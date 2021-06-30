@@ -34,10 +34,10 @@ css:
 	./node_modules/.bin/gulp sass
 
 secrets:
-	@if [ ! -f ./config/env/secrets-do-not-commit ]; \
-		then sed -e 's/#DO NOT ADD SECRETS TO THIS FILE//g' config/env/secrets-template > config/env/secrets-do-not-commit \
-			&& echo "Created config/env/secrets-do-not-commit"; \
-		else echo "config/env/secrets-do-not-commit already exists. Delete first to recreate it."; \
+	@if [ ! -f ./conf/env/secrets-do-not-commit ]; \
+		then sed -e 's/#DO NOT ADD SECRETS TO THIS FILE//g' conf/env/secrets-template > conf/env/secrets-do-not-commit \
+			&& echo "Created conf/env/secrets-do-not-commit"; \
+		else echo "conf/env/secrets-do-not-commit already exists. Delete it first to recreate it."; \
 	fi
 
 worker:
