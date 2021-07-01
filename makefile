@@ -33,9 +33,12 @@ install_requirements:
 css:
 	./node_modules/.bin/gulp sass
 
-init_secrets:
-	cp conf/env/secrets-template conf/env/secrets-do-not-commit
-	sed -i -e 's/#DO NOT ADD SECRETS TO THIS FILE//g' conf/env/secrets-do-not-commit
+secrets:
+	@if [ ! -f ./conf/env/secrets-do-not-commit ]; \
+		then sed -e 's/#DO NOT ADD SECRETS TO THIS FILE//g' conf/env/secrets-template > conf/env/secrets-do-not-commit \
+			&& echo "Created conf/env/secrets-do-not-commit"; \
+		else echo "conf/env/secrets-do-not-commit already exists. Delete it first to recreate it."; \
+	fi
 
 worker:
 	ENV_FILES='secrets-do-not-commit,dev' celery -A conf worker -l info
