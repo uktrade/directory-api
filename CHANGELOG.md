@@ -5,6 +5,7 @@
 ### Enhancements
 
 - GP2-2867 - dockerise d-api
+- NO TICKET - Firebreak week allow SIC Codes to be stored and updated
 
 ## [1.13.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.12.0...1.13.0)

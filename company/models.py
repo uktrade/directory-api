@@ -103,6 +103,7 @@ class Company(TimeStampedModel):
         ]
     )
     companies_house_company_status = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
+    companies_house_sic_codes = JSONField(blank=True, default=list)
 
     class Meta:
         verbose_name_plural = 'companies'
