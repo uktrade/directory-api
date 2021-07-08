@@ -20,8 +20,8 @@ class Country(TimeStampedModel):
         return self.name
 
     class Meta:
-        verbose_name = 'Country'
-        verbose_name_plural = 'Countries'
+        verbose_name = 'Country | DIT DATA'
+        verbose_name_plural = 'Countries | DIT DATA'
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
@@ -50,6 +50,7 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
     class Meta:
         unique_together = [['country_code', 'year']]
+        verbose_name_plural = 'Corruption perceptions indexes'
 
     def __str__(self):
         return f'{self.country_name}:{self.year}'
@@ -71,6 +72,10 @@ class WorldEconomicOutlook(TimeStampedModel):
     def __str__(self):
         return self.country_name
 
+    class Meta:
+        verbose_name = 'World Economic Outlooks | IMF'
+        verbose_name_plural = 'World Economic Outlooks | IMF'
+
 
 class CIAFactbook(TimeStampedModel):
 
@@ -84,7 +89,8 @@ class CIAFactbook(TimeStampedModel):
         return self.country_name
 
     class Meta:
-        verbose_name = 'CIA Factbook'
+        verbose_name = 'CIA Factbook | CIA'
+        verbose_name_plural = 'CIA Factbook | CIA'
 
 
 class InternetUsage(TimeStampedModel):
@@ -98,6 +104,10 @@ class InternetUsage(TimeStampedModel):
 
     def __str__(self):
         return self.country_name
+
+    class Meta:
+        verbose_name = 'Internet Usage | World Bank'
+        verbose_name_plural = 'Internet Usage | World Bank'
 
 
 class PopulationUrbanRural(models.Model):
@@ -131,6 +141,7 @@ class ConsumerPriceIndex(TimeStampedModel):
 
     class Meta:
         unique_together = ('country_code', 'year')
+        verbose_name_plural = 'Consumer price indexes'
 
 
 class GDPPerCapita(TimeStampedModel):
@@ -143,6 +154,9 @@ class GDPPerCapita(TimeStampedModel):
 
     def __str__(self):
         return self.country_name
+
+    class Meta:
+        verbose_name_plural = 'GDP Per Capita'
 
 
 class SuggestedCountry(TimeStampedModel):
@@ -157,8 +171,8 @@ class SuggestedCountry(TimeStampedModel):
         return str(self.hs_code)
 
     class Meta:
-        verbose_name = 'Suggested Country'
-        verbose_name_plural = 'Suggested Countries'
+        verbose_name = 'Suggested Country | DIT CREST'
+        verbose_name_plural = 'Suggested Countries | DIT CREST'
 
 
 class Income(TimeStampedModel):
@@ -171,6 +185,10 @@ class Income(TimeStampedModel):
     )
     year = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+
+    class Meta:
+        verbose_name = 'Net Adjusted Income | World Bank'
+        verbose_name_plural = 'Net Adjusted Income | World Bank'
 
 
 class RuleOfLaw(TimeStampedModel):
@@ -185,6 +203,10 @@ class RuleOfLaw(TimeStampedModel):
 
     def __str__(self):
         return str(self.country_name)
+
+    class Meta:
+        verbose_name = 'Rule of Law Rank | World Bank'
+        verbose_name_plural = 'Rule of Law Rank | World Bank'
 
 
 class Currency(TimeStampedModel):
@@ -204,7 +226,7 @@ class Currency(TimeStampedModel):
         return str(self.country_name)
 
     class Meta:
-        verbose_name = 'Currencies'
+        verbose_name = 'Currencies | ISO'
 
 
 class TradingBlocs(TimeStampedModel):
