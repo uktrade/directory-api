@@ -220,7 +220,7 @@ def get_cia_factbook_data(country_name, data_keys=None):
 @TTLCache()
 def get_internet_usage(country):
     try:
-        internet_usage_obj = models.InternetUsage.objects.filter(country_name=country).latest()
+        internet_usage_obj = models.InternetUsage.objects.filter(country_name=country).latest('year')
         return {
             'internet_usage': {
                 'value': '{:.2f}'.format(internet_usage_obj.value) if hasattr(internet_usage_obj, 'value') else None,

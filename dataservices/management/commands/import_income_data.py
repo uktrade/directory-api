@@ -14,14 +14,14 @@ class Command(BaseCommand):
 
             for item in data:
                 try:
-                    country = Country.objects.get(iso2=item[2])
+                    country = Country.objects.get(iso3=item[1])
                 except Country.DoesNotExist:
                     country = None
 
-                value = item[3] if item[3] else None
+                value = item[-3] if item[-3] else None
 
                 income_data.append(
-                    Income(country_name=item[0], country_code=item[2], country=country, year=2018, value=value)
+                    Income(country_name=item[0], country_code=item[1], country=country, year=2019, value=value)
                 )
 
             Income.objects.all().delete()
