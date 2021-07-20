@@ -69,3 +69,17 @@ def test_retrieve_sic_codes_companies_house_different_order():
     company.refresh_from_db()
     assert company.modified == original_modified
     assert company.companies_house_sic_codes == ['6789', '12345']
+
+
+@pytest.mark.django_db
+@patch(
+    'company.management.commands.retrieve_sic_codes_companies_house.get_companies_house_profile',
+    Mock(side_effect=Exception()),
+)
+def test_retrieve_sic_codes_companies_house_handle_exception():
+    company = CompanyFactory(number=123)
+
+    call_command('retrieve_sic_codes_companies_house')
+
+    company.refresh_from_db()
+    assert company.companies_house_sic_codes == []
