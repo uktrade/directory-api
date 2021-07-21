@@ -1,10 +1,18 @@
 # Changelog
 
 ## Pre release
-- GP2-2841: Pinned CF buildpack and upgraded python to 3.9.5
-
 ### Bugs fixed
+### Enhancements
+
+- GP2-2867 - dockerise d-api
+- NO TICKET - Firebreak week allow SIC Codes to be stored and updated
+- GP2-1319 - Relabelling data services models
+
+## [1.13.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.12.0...1.13.0)
+
 - GP2-2856 - remove sectors, target_markets , exportplan actions DO NOT RELEASE TO PROD BEFORE GREAT-CMS
+- GP2-2841: Pinned CF buildpack and upgraded python to 3.9.5
 
 ## [1.12.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.11.2...1.12.0)
