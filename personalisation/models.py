@@ -1,7 +1,7 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from core.helpers import TimeStampedModel
-from django.contrib.postgres.fields import JSONField
 
 
 class UserLocation(TimeStampedModel):
@@ -32,4 +32,3 @@ class UserMarket(TimeStampedModel):
 class UserProduct(TimeStampedModel):
     business_user = models.ForeignKey(BusinessUser, on_delete=models.CASCADE)
     product_data = JSONField(blank=True, default=list)
-
