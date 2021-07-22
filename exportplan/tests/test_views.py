@@ -176,8 +176,11 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
             }
         ],
         'pk': export_plan.pk,
+        'export_plan_product': [
+            {'user_product': {'product_data': export_plan.export_plan_product.first().user_product.product_data}}
+        ],
     }
-
+    assert response.json()['export_plan_product']
     assert response.status_code == 200
     assert response.json() == data
 

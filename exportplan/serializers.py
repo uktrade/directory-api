@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from exportplan import models
+from personalisation.serializers import UserProductSerializer
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
@@ -109,13 +110,12 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
 
 
 class ExportPlanProductSerializer(serializers.ModelSerializer):
+    user_product = UserProductSerializer(required=False, read_only=False)
+
     class Meta:
         model = models.ExportPlanProduct
-        fields = (
-            'pk',
-            'companyexportplan',
-            'user_product',
-        )
+        fields = ('user_product',)
+        depth = 2
 
 
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
@@ -127,6 +127,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     business_risks = BusinessRisksSerializer(many=True, required=False, read_only=False)
     export_commodity_codes = serializers.SerializerMethodField()
     export_countries = serializers.SerializerMethodField()
+    export_plan_product = ExportPlanProductSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -155,6 +156,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'travel_business_policies',
             'business_trips',
             'business_risks',
+            'export_plan_product',
         )
 
     def get_export_commodity_codes(self, obj):

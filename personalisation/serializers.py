@@ -32,6 +32,12 @@ class CountryOfInterestSerializer(serializers.ModelSerializer):
         fields = ('country',)
 
 
+class UserProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserProduct
+        fields = ('product_data',)
+
+
 def parse_search_results(content):
     def strip_html(result):
         content = result.get('content', '')
