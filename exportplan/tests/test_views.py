@@ -9,6 +9,7 @@ from django.urls import reverse
 from company.tests.factories import CompanyFactory
 from exportplan import models
 from exportplan.tests import factories
+from personalisation.tests.factories import BusinessUserFactory
 
 
 @pytest.fixture
@@ -37,12 +38,18 @@ def export_plan_data(company):
 @pytest.fixture
 def export_plan():
     export_plan = factories.CompanyExportPlanFactory.create()
+    business_user = BusinessUserFactory(sso_id=export_plan.sso_id)
+    user_product = factories.UserProductFactory(business_user=business_user)
+    user_market = factories.UserMarketFactory(business_user=business_user)
+
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
     factories.BusinessTripsFactory.create(companyexportplan=export_plan)
     factories.BusinessRiskFactory.create(companyexportplan=export_plan)
+    factories.ExportPlanProductFactory(user_product=user_product, companyexportplan=export_plan)
+    factories.ExportPlanMarketFactory(user_market=user_market, companyexportplan=export_plan)
     return export_plan
 
 
@@ -170,6 +177,7 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
         ],
         'pk': export_plan.pk,
     }
+
     assert response.status_code == 200
     assert response.json() == data
 

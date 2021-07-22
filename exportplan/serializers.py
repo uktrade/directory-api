@@ -108,6 +108,16 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
         }
 
 
+class ExportPlanProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ExportPlanProduct
+        fields = (
+            'pk',
+            'companyexportplan',
+            'user_product',
+        )
+
+
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
@@ -115,6 +125,8 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
     business_trips = BusinessTripsSerializer(many=True, required=False, read_only=False)
     business_risks = BusinessRisksSerializer(many=True, required=False, read_only=False)
+    export_commodity_codes = serializers.SerializerMethodField()
+    export_countries = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CompanyExportPlan
@@ -144,6 +156,20 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'business_trips',
             'business_risks',
         )
+
+    def get_export_commodity_codes(self, obj):
+        # Temp we can remove this once we move to multi product, allows EP interface to remain unchanged
+        if obj.export_plan_product.first():
+            return [obj.export_plan_product.first().user_product.product_data]
+        else:
+            return []
+
+    def get_export_countries(self, obj):
+        # Temp we can remove this once we move to multi market, allows EP interface to remain unchanged
+        if obj.export_plan_market.first():
+            return [obj.export_plan_market.first().user_market.data]
+        else:
+            return []
 
     def validate_export_countries(self, value):
         for v in value:

@@ -17,8 +17,10 @@ class CompanyExportPlan(TimeStampedModel):
     )
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', default=None, unique=False)
     business_user = models.ForeignKey(BusinessUser, blank=True, null=True, on_delete=models.CASCADE)
+    # These fields are no longer used, once migrated to multi product/market these can be removed
     export_countries = JSONField(blank=True, default=list)
     export_commodity_codes = JSONField(blank=True, default=list)
+
     ui_options = JSONField(null=True, blank=True, default=dict)
     ui_progress = JSONField(null=True, blank=True, default=dict)
     about_your_business = JSONField(null=True, blank=True, default=dict)
