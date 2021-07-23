@@ -34,3 +34,35 @@ class CountryOfInterestAdmin(admin.ModelAdmin):
         'sector',
         'service',
     )
+
+
+@admin.register(models.BusinessUser)
+class BusinessUserAdmin(admin.ModelAdmin):
+    search_fields = ('sso_id',)
+    list_display = ('sso_id',)
+
+
+@admin.register(models.UserProduct)
+class UserProductAdmin(admin.ModelAdmin):
+    search_fields = (
+        'business_user',
+        'product_data',
+    )
+    list_display = (
+        'business_user',
+        'product_data',
+    )
+
+
+@admin.register(models.UserMarket)
+class UserMarketAdmin(admin.ModelAdmin):
+    search_fields = (
+        'business_user',
+        'country_iso2_code',
+        'data',
+    )
+    list_display = (
+        'business_user',
+        'country_iso2_code',
+        'data',
+    )

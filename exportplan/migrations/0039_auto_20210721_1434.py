@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, null=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, null=True, verbose_name='modified')),
-                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='export_plan_product', to='exportplan.CompanyExportPlan')),
+                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='export_plan_products', to='exportplan.CompanyExportPlan')),
                 ('user_product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='personalisation.UserProduct')),
             ],
             options={
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, null=True, verbose_name='created')),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, null=True, verbose_name='modified')),
-                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='export_plan_market', to='exportplan.CompanyExportPlan')),
+                ('companyexportplan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='export_plan_markets', to='exportplan.CompanyExportPlan')),
                 ('user_market', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='personalisation.UserMarket')),
             ],
             options={
