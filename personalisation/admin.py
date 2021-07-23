@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.db.models import TextField
+from django.contrib.postgres import fields
+from django_json_widget.widgets import JSONEditorWidget
 
 from personalisation import models
 
@@ -36,22 +38,12 @@ class CountryOfInterestAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.BusinessUser)
-class BusinessUserAdmin(admin.ModelAdmin):
-    search_fields = ('sso_id',)
-    list_display = ('sso_id',)
-
-
 @admin.register(models.UserProduct)
 class UserProductAdmin(admin.ModelAdmin):
-    search_fields = (
-        'business_user',
-        'product_data',
-    )
-    list_display = (
-        'business_user',
-        'product_data',
-    )
+
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
 
 
 @admin.register(models.UserMarket)
@@ -66,3 +58,12 @@ class UserMarketAdmin(admin.ModelAdmin):
         'country_iso2_code',
         'data',
     )
+
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+
+
+@admin.register(models.BusinessUser)
+class BusinessUserAdmin(admin.ModelAdmin):
+    pass
