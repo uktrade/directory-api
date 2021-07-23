@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
 from django.db.models import TextField
+from django.contrib.postgres import fields
+from django_json_widget.widgets import JSONEditorWidget
 
 from personalisation import models
 
@@ -34,3 +36,16 @@ class CountryOfInterestAdmin(admin.ModelAdmin):
         'sector',
         'service',
     )
+
+
+@admin.register(models.UserProduct)
+class UserProductAdmin(admin.ModelAdmin):
+
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+
+
+@admin.register(models.BusinessUser)
+class BusinessUserAdmin(admin.ModelAdmin):
+    pass

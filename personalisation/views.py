@@ -2,7 +2,7 @@ import logging
 
 from django.db.models import Count
 from requests.exceptions import HTTPError
-from rest_framework import generics, status
+from rest_framework import generics, status, mixins
 from rest_framework.response import Response
 
 from company.helpers import CompanyParser
@@ -104,3 +104,16 @@ class RecommendedCountriesView(generics.ListAPIView):
             .annotate(num_countries=Count('country'))
             .order_by('-num_countries')[:10]
         )
+
+
+class UserProductsView(generics.ListAPIView):
+    serializer_class = serializers.UserProductSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        return models.UserProduct.objects.filter(business_user=user_id)
+
+    def post(self, *args, **kwargs):
+        response_data = helpers.create_or_update_product(user_id=self.request.user.id, user_product_data=self.request.data, user_product_id = self.request.data.get('id'))
+
+        return Response(status=status.HTTP_200_OK)
