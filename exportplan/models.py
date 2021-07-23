@@ -46,7 +46,7 @@ class CompanyExportPlan(TimeStampedModel):
 
 class ExportPlanProduct(TimeStampedModel):
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, related_name='export_plan_product', on_delete=models.CASCADE
+        CompanyExportPlan, related_name='export_plan_products', on_delete=models.CASCADE
     )
     user_product = models.ForeignKey(UserProduct, on_delete=models.CASCADE)
 
@@ -57,7 +57,7 @@ class ExportPlanProduct(TimeStampedModel):
 class ExportPlanMarket(TimeStampedModel):
 
     companyexportplan = models.ForeignKey(
-        CompanyExportPlan, related_name='export_plan_market', on_delete=models.CASCADE
+        CompanyExportPlan, related_name='export_plan_markets', on_delete=models.CASCADE
     )
     user_market = models.ForeignKey(UserMarket, on_delete=models.CASCADE)
 

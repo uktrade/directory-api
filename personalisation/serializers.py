@@ -38,6 +38,12 @@ class UserProductSerializer(serializers.ModelSerializer):
         fields = ('product_data',)
 
 
+class UserMarketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserMarket
+        fields = ('data', 'country_iso2_code')
+
+
 def parse_search_results(content):
     def strip_html(result):
         content = result.get('content', '')
