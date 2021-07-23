@@ -34,15 +34,13 @@ def test_get_business_user():
 
 @pytest.mark.django_db
 def test_create_or_update_product():
-    product_data1 = {'commodity_name': 'gin'}
+    product_data1 = {'commodity_git pushname': 'gin'}
     product_data2 = {'commodity_name': 'cheese'}
-
-    user_id, user_product_id, user_product_data
     helpers.create_or_update_product(user_id=1, user_product_data=product_data1)
     business_user = helpers.get_business_user(1)
     assert len(models.UserProduct.objects.all()) == 1
     assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data1
-    # Test temporary behaviour.  Adding a product, just updates the one existing one
+    # Test temporary behaviour.  Adding a product, just updates the user's one existing one
     helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
     assert len(models.UserProduct.objects.all()) == 1
     assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data2

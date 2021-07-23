@@ -61,9 +61,3 @@ def parse_search_results(content):
         abridge_long_contents(result)
 
     return results
-
-
-class UserProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.UserProduct
-        fields = ['id', 'product_data']

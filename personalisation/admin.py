@@ -46,6 +46,14 @@ class UserProductAdmin(admin.ModelAdmin):
     }
 
 
+@admin.register(models.UserMarket)
+class UserMarketAdmin(admin.ModelAdmin):
+
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+
+
 @admin.register(models.BusinessUser)
 class BusinessUserAdmin(admin.ModelAdmin):
     pass

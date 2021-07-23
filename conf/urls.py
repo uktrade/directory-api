@@ -200,6 +200,11 @@ urlpatterns = [
         name='personalisation-user-products',
     ),
     url(
+        r'^personalisation/user-markets/$',
+        personalisation.views.UserMarketsView.as_view(),
+        name='personalisation-user-markets',
+    ),
+    url(
         r'^dataservices/suggested-countries/$',
         dataservices.views.SuggestedCountriesView.as_view(),
         name='dataservices-suggested-countries',

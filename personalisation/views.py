@@ -2,7 +2,7 @@ import logging
 
 from django.db.models import Count
 from requests.exceptions import HTTPError
-from rest_framework import generics, status, mixins
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from company.helpers import CompanyParser
@@ -114,6 +114,25 @@ class UserProductsView(generics.ListAPIView):
         return models.UserProduct.objects.filter(business_user=user_id)
 
     def post(self, *args, **kwargs):
-        response_data = helpers.create_or_update_product(user_id=self.request.user.id, user_product_data=self.request.data, user_product_id = self.request.data.get('id'))
+        helpers.create_or_update_product(
+            user_id=self.request.user.id,
+            user_product_data=self.request.data,
+            user_product_id=self.request.data.get('id')
+        )
+        return Response(status=status.HTTP_200_OK)
 
+
+class UserMarketsView(generics.ListAPIView):
+    serializer_class = serializers.UserMarketSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        user_id = self.request.user.id
+        return models.UserMarket.objects.filter(business_user=user_id)
+
+    def post(self, *args, **kwargs):
+        helpers.create_or_update_market(
+            user_id=self.request.user.id,
+            user_market_data=self.request.data,
+            user_market_id=self.request.data.get('id')
+        )
         return Response(status=status.HTTP_200_OK)

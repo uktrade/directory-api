@@ -9,6 +9,10 @@ from mohawk import Sender
 from personalisation import serializers, models
 from exportplan import models as exportplan_models
 
+# TODO: remove this
+# This flag forces compatibility mode where users only have a single product/market/exportplan
+single_item_mode = True
+
 
 def get_business_user(sso_id):
     # Gets or creates a business_user object to maintain DB integrity
@@ -132,14 +136,16 @@ class ExportingIsGreatClient:
 exopps_client = ExportingIsGreatClient()
 
 
-def add_exportplan_product(exportplan, user_product):
+def add_exportplan_join_item(exportplan, model, item, attribute_name):
+    # TODO: remove this
+    # Creates or updates a jointable item (product or market) in 1 to 1 mode.
+    # If the item does not exist in join table, create one - otherwise update existing
     try:
-        exportplan_product = exportplan_models.ExportPlanProduct.objects.get(companyexportplan=exportplan)
-        exportplan_product.user_product = user_product
-    except exportplan_models.ExportPlanProduct.DoesNotExist:
-        exportplan_product = exportplan_models.ExportPlanProduct(
-            companyexportplan=exportplan, user_product=user_product)
-    exportplan_product.save()
+        exportplan_join = model.objects.get(companyexportplan=exportplan)
+    except model.DoesNotExist:
+        exportplan_join = model(companyexportplan=exportplan)
+    setattr(exportplan_join, attribute_name, item)
+    exportplan_join.save()
 
 
 def attach_one_exportplan(business_user):
@@ -155,16 +161,19 @@ def attach_one_exportplan(business_user):
     # Attach any products
     try:
         user_product = models.UserProduct.objects.get(business_user=business_user)
-        add_exportplan_product(exportplan, user_product)
-
+        add_exportplan_join_item(exportplan, exportplan_models.ExportPlanProduct, user_product, 'user_product')
     except models.UserProduct.DoesNotExist:
+        pass
+    # Attach any markets
+    try:
+        user_market = models.UserMarket.objects.get(business_user=business_user)
+        add_exportplan_join_item(exportplan, exportplan_models.ExportPlanMarket, user_market, 'user_market')
+    except models.UserMarket.DoesNotExist:
         pass
 
 
 def create_or_update_product(user_id, user_product_id, user_product_data):
     # Add a user product or update it if a product_id is supplied.
-    # BODGE MODE for single product mimic - ignore product_id and update if this user has an existing product.
-    # Also, attach to Export plan
     business_user = get_business_user(user_id)
     if user_product_id:
         # Update product
@@ -172,16 +181,49 @@ def create_or_update_product(user_id, user_product_id, user_product_data):
         user_product.product_data = user_product_data
         user_product.save()
     else:
-        # TODO: remove this 
-        # TEMPORARY CODE FOR SINGLE-PRODUCT OPERATION
-        try:
-            user_product = models.UserProduct.objects.get(business_user=business_user)
-        except models.UserProduct.DoesNotExist:
+        # TODO: remove this
+        if single_item_mode:
+            try:
+                user_product = models.UserProduct.objects.get(business_user=business_user)
+            except models.UserProduct.DoesNotExist:
+                user_product = models.UserProduct()
+        else:
             user_product = models.UserProduct()
-        attach_one_exportplan(business_user=business_user)
-        # TEMPORARY CODE END
 
         user_product.business_user = business_user
         user_product.product_data = user_product_data
         user_product.save()
+        # TODO: remove this
+        if single_item_mode:
+            attach_one_exportplan(business_user=business_user)
+
     return models.UserProduct.objects.filter(business_user=business_user)
+
+
+def create_or_update_market(user_id, user_market_id, user_market_data):
+    # Add a user market or update it if a user_market_id is supplied.
+    business_user = get_business_user(user_id)
+    if user_market_id:
+        # Update user_market
+        user_market = models.UserMarket.objects.get(business_user=business_user, id=user_market_id)
+        user_market.data = user_market_data
+        user_market.country_iso2_code = user_market_data.get('country_iso2_code')  # copy iso code into outer object
+        user_market.save()
+    else:
+        # TODO: remove this
+        if single_item_mode:
+            try:
+                user_market = models.UserMarket.objects.get(business_user=business_user)
+            except models.UserMarket.DoesNotExist:
+                user_market = models.UserMarket()
+        else:
+            user_market = models.UserMarket()
+
+        user_market.business_user = business_user
+        user_market.data = user_market_data
+        user_market.country_iso2_code = user_market_data.get('country_iso2_code')
+        user_market.save()
+        # TODO: remove this
+        if single_item_mode:
+            attach_one_exportplan(business_user=business_user)
+    return models.UserMarket.objects.filter(business_user=business_user)
