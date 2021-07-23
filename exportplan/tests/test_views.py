@@ -463,22 +463,3 @@ def test_export_plan_pdf_upload(authed_client, authed_supplier, export_plan):
     export_plan_upload = models.ExportplanDownloads.objects.last()
     assert export_plan_upload.companyexportplan.id == export_plan.id
     assert export_plan_upload.pdf_file is not None
-
-
-@pytest.mark.django_db
-def test_export_plan_update(authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-    url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
-
-    data = {
-        'export_plan_products': [{'user_product': {'product_data': {}}}],
-    }
-    assert export_plan.export_commodity_codes != data['export_commodity_codes']
-
-    response = authed_client.patch(url, data, format='json')
-    export_plan.refresh_from_db()
-
-    assert response.status_code == http.client.OK
-    assert export_plan.export_commodity_codes == data['export_commodity_codes']

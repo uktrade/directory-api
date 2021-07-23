@@ -6,8 +6,8 @@ import requests
 from django.conf import settings
 from mohawk import Sender
 
-from personalisation import serializers, models
 from exportplan import models as exportplan_models
+from personalisation import models, serializers
 
 # TODO: remove this
 # This flag forces compatibility mode where users only have a single product/market/exportplan

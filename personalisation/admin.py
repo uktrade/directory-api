@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
-from django.db.models import TextField
 from django.contrib.postgres import fields
+from django.db.models import TextField
 from django_json_widget.widgets import JSONEditorWidget
 
 from personalisation import models

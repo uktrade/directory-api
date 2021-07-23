@@ -231,4 +231,5 @@ def test_user_products_api_post(mock_create_or_update_product, authed_client):
     authed_client.post(url, product_data, format='json')
     mock_create_or_update_product.assert_called()
     mock_create_or_update_product.assert_called_once_with(
-        user_id=0, user_product_id=None, user_product_data=product_data)
+        user_id=0, user_product_id=None, user_product_data=product_data
+    )
