@@ -46,3 +46,22 @@ def test_create_or_update_product():
     helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
     assert len(models.UserProduct.objects.all()) == 1
     assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data2
+
+
+@pytest.mark.django_db
+def test_create_or_update_market():
+    market_data1 = {'market pushname': 'China', 'country_iso2_code': 'CN'}
+    market_data2 = {'country_name': 'Netherlands', 'country_iso2_code': 'NL'}
+
+    helpers.create_or_update_market(user_id=1, user_market_data=market_data1)
+    business_user = helpers.get_business_user(1)
+    assert len(models.UserMarket.objects.all()) == 1
+    assert models.UserMarket.objects.get(business_user=business_user).data == market_data1
+    # Test temporary behaviour.  Adding a market, just updates the user's one existing one
+    helpers.create_or_update_market(user_id=1, user_market_data=market_data2)
+    assert len(models.UserMarket.objects.all()) == 1
+    assert models.UserMarket.objects.get(business_user=business_user).data == market_data2
+    assert (
+        models.UserMarket.objects.get(business_user=business_user).country_iso2_code
+        == market_data2['country_iso2_code']
+    )

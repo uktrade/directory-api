@@ -200,7 +200,7 @@ def create_or_update_product(user_id, user_product_data, user_product_id=None):
     return models.UserProduct.objects.filter(business_user=business_user)
 
 
-def create_or_update_market(user_id, user_market_id, user_market_data):
+def create_or_update_market(user_id, user_market_data, user_market_id=None):
     # Add a user market or update it if a user_market_id is supplied.
     business_user = get_business_user(user_id)
     if user_market_id:
