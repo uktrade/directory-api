@@ -7,7 +7,7 @@
 - GP2-2867 - dockerise d-api
 - NO TICKET - Firebreak week allow SIC Codes to be stored and updated
 - GP2-1319 - Relabelling data services models
-- GP2-3115 - remodel multiple products
+- GP2-3115 - remodel multiple products and migrate data 
 
 ## [1.13.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.12.0...1.13.0)
