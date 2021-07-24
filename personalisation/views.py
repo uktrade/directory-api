@@ -127,9 +127,6 @@ class UserMarketsView(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         user_id = self.request.user.id
-        import pdb
-
-        pdb.set_trace()
         return models.UserMarket.objects.filter(business_user=user_id)
 
     def post(self, *args, **kwargs):

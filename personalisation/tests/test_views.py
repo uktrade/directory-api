@@ -233,3 +233,11 @@ def test_user_products_api_post(mock_create_or_update_product, authed_client, au
     mock_create_or_update_product.assert_called_once_with(
         user_id=authed_supplier.sso_id, user_product_id=None, user_product_data=product_data
     )
+
+
+@pytest.mark.django_db
+def test_user_market_api_get(authed_client, authed_supplier):
+    business_user = factories.BusinessUserFactory(sso_id=authed_supplier.sso_id)
+    factories.UserMarketFactory(business_user=business_user)
+    response = authed_client.get(reverse('personalisation-user-markets'))
+    assert response.data[0]['data'] == {'country_iso2_code': 'CN', 'country_name': 'China'}
