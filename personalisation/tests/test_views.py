@@ -215,8 +215,8 @@ def test_recommended_countries_api(client):
 
 
 @pytest.mark.django_db
-def test_user_products_api_get(authed_client):
-    business_user = factories.BusinessUserFactory()
+def test_user_products_api_get(authed_client, authed_supplier):
+    business_user = factories.BusinessUserFactory(sso_id=authed_supplier.sso_id)
     factories.UserProductFactory(business_user=business_user)
     response = authed_client.get(reverse('personalisation-user-products'))
     assert response.data[0]['product_data'] == {'commodity_code': '101.2002.123', 'commodity_name': 'gin'}
@@ -224,12 +224,12 @@ def test_user_products_api_get(authed_client):
 
 @pytest.mark.django_db
 @patch('personalisation.helpers.create_or_update_product')
-def test_user_products_api_post(mock_create_or_update_product, authed_client):
+def test_user_products_api_post(mock_create_or_update_product, authed_client, authed_supplier):
     mock_create_or_update_product.return_value = {}
     url = reverse('personalisation-user-products')
     product_data = {'commodity_code': '123456', 'commodity_name': 'gin'}
     authed_client.post(url, product_data, format='json')
     mock_create_or_update_product.assert_called()
     mock_create_or_update_product.assert_called_once_with(
-        user_id=0, user_product_id=None, user_product_data=product_data
+        user_id=authed_supplier.sso_id, user_product_id=None, user_product_data=product_data
     )

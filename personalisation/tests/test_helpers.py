@@ -37,6 +37,7 @@ def test_get_business_user():
 def test_create_or_update_product():
     product_data1 = {'commodity_git pushname': 'gin'}
     product_data2 = {'commodity_name': 'cheese'}
+
     helpers.create_or_update_product(user_id=1, user_product_data=product_data1)
     business_user = helpers.get_business_user(1)
     assert len(models.UserProduct.objects.all()) == 1

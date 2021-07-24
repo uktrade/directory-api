@@ -172,7 +172,7 @@ def attach_one_exportplan(business_user):
         pass
 
 
-def create_or_update_product(user_id, user_product_id, user_product_data):
+def create_or_update_product(user_id, user_product_data, user_product_id=None):
     # Add a user product or update it if a product_id is supplied.
     business_user = get_business_user(user_id)
     if user_product_id:
