@@ -170,6 +170,11 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'export_plan_markets',
         )
 
+        extra_kwargs = {
+            'export_countries': {'read-only': True},
+            'export_commodity_codes': {'read-only': True},
+        }
+
     def get_export_commodity_codes(self, obj):
         # Temp we can remove this once we move to multi product, allows EP interface to remain unchanged
         if obj.export_plan_products.first():
@@ -183,18 +188,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             return [obj.export_plan_markets.first().user_market.data]
         else:
             return []
-
-    def validate_export_countries(self, value):
-        for v in value:
-            serializer = ExportPlanCountrySerializer(data=v)
-            serializer.is_valid(raise_exception=True)
-        return value
-
-    def validate_export_commodity_codes(self, value):
-        for v in value:
-            serializer = ExportPlanCommodityCodeSerializer(data=v)
-            serializer.is_valid(raise_exception=True)
-        return value
 
     def create(self, validated_data):
 

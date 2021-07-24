@@ -56,13 +56,14 @@ def export_plan():
 @pytest.mark.django_db
 def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
     response = authed_client.post(reverse('export-plan-list-create'), export_plan_data, format='json')
+
     assert response.status_code == http.client.CREATED
     created_export_plan = response.json()
 
     export_plan_db = models.CompanyExportPlan.objects.last()
 
-    assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
-    assert created_export_plan['export_countries'] == export_plan_data['export_countries']
+    assert created_export_plan['export_commodity_codes'] == []
+    assert created_export_plan['export_countries'] == []
     assert created_export_plan['ui_options'] == export_plan_data['ui_options']
     assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
     assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
@@ -199,14 +200,19 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
     authed_supplier.save()
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
-    data = {'export_commodity_codes': [{'commodity_name': 'vodka', 'commodity_code': '104.2402.123'}]}
-    assert export_plan.export_commodity_codes != data['export_commodity_codes']
+    data = {
+        'total_cost_and_price': {
+            'units_to_export_first_period': {'unit': 'kg', 'value': '10.00'},
+            'average_price_per_unit': '50.00',
+        }
+    }
+    assert export_plan.total_cost_and_price != data['total_cost_and_price']
 
     response = authed_client.patch(url, data, format='json')
     export_plan.refresh_from_db()
 
     assert response.status_code == http.client.OK
-    assert export_plan.export_commodity_codes == data['export_commodity_codes']
+    assert export_plan.total_cost_and_price == data['total_cost_and_price']
 
 
 @pytest.mark.django_db
