@@ -68,7 +68,7 @@ def test_create_or_update_market():
 
 
 @pytest.mark.django_db
-def test_create_or_update_market_existing():
+def test_create_or_update_market_existing_mulitple(settings):
     market_data1 = {'market pushname': 'China', 'country_iso2_code': 'CN'}
     market_data2 = {'country_name': 'Netherlands', 'country_iso2_code': 'NL'}
 
@@ -84,10 +84,13 @@ def test_create_or_update_market_existing():
         models.UserMarket.objects.get(business_user=business_user).country_iso2_code
         == market_data2['country_iso2_code']
     )
+    settings.SINGLE_BASKET_MODEL = False
+    helpers.create_or_update_product(user_id=1, user_market_data=market_data1)
+    assert len(models.UserMarket.objects.all()) == 2
 
 
 @pytest.mark.django_db
-def test_create_or_update_product_existing():
+def test_create_or_update_product_existing_multiple(settings):
     product_data1 = {'commodity_git pushname': 'gin'}
     product_data2 = {'commodity_name': 'cheese'}
 
@@ -96,3 +99,7 @@ def test_create_or_update_product_existing():
     helpers.create_or_update_product(user_id=1, user_product_data=product_data2, user_product_id=new_product[0].id)
     assert len(models.UserProduct.objects.all()) == 1
     assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data2
+
+    settings.SINGLE_BASKET_MODEL = False
+    helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
+    assert len(models.UserProduct.objects.all()) == 2
