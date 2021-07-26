@@ -68,7 +68,7 @@ def test_create_or_update_market():
 
 
 @pytest.mark.django_db
-def test_create_or_update_market_existing_mulitple(settings):
+def test_create_or_update_market_existing_multiple(settings):
     market_data1 = {'market pushname': 'China', 'country_iso2_code': 'CN'}
     market_data2 = {'country_name': 'Netherlands', 'country_iso2_code': 'NL'}
 
@@ -85,7 +85,7 @@ def test_create_or_update_market_existing_mulitple(settings):
         == market_data2['country_iso2_code']
     )
     settings.SINGLE_BASKET_MODEL = False
-    helpers.create_or_update_product(user_id=1, user_market_data=market_data1)
+    helpers.create_or_update_market(user_id=1, user_market_data=market_data1)
     assert len(models.UserMarket.objects.all()) == 2
 
 
