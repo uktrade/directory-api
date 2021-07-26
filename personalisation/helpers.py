@@ -11,7 +11,7 @@ from personalisation import models, serializers
 
 # TODO: remove this
 # This flag forces compatibility mode where users only have a single product/market/exportplan
-single_item_mode = True
+SINGLE_ITEM_MODE = True
 
 
 def get_business_user(sso_id):
@@ -182,7 +182,7 @@ def create_or_update_product(user_id, user_product_data, user_product_id=None):
         user_product.save()
     else:
         # TODO: remove this
-        if single_item_mode:
+        if SINGLE_ITEM_MODE:
             try:
                 user_product = models.UserProduct.objects.get(business_user=business_user)
             except models.UserProduct.DoesNotExist:
@@ -194,7 +194,7 @@ def create_or_update_product(user_id, user_product_data, user_product_id=None):
         user_product.product_data = user_product_data
         user_product.save()
         # TODO: remove this
-        if single_item_mode:
+        if SINGLE_ITEM_MODE:
             attach_one_exportplan(business_user=business_user)
 
     return models.UserProduct.objects.filter(business_user=business_user)
@@ -211,7 +211,7 @@ def create_or_update_market(user_id, user_market_data, user_market_id=None):
         user_market.save()
     else:
         # TODO: remove this
-        if single_item_mode:
+        if SINGLE_ITEM_MODE:
             try:
                 user_market = models.UserMarket.objects.get(business_user=business_user)
             except models.UserMarket.DoesNotExist:
@@ -224,6 +224,6 @@ def create_or_update_market(user_id, user_market_data, user_market_id=None):
         user_market.country_iso2_code = user_market_data.get('country_iso2_code')
         user_market.save()
         # TODO: remove this
-        if single_item_mode:
+        if SINGLE_ITEM_MODE:
             attach_one_exportplan(business_user=business_user)
     return models.UserMarket.objects.filter(business_user=business_user)

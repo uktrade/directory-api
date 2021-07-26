@@ -66,6 +66,7 @@ def test_create_or_update_market():
         == market_data2['country_iso2_code']
     )
 
+
 @pytest.mark.django_db
 def test_create_or_update_market_existing():
     market_data1 = {'market pushname': 'China', 'country_iso2_code': 'CN'}
