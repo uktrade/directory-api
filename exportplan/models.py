@@ -1,8 +1,8 @@
 from directory_constants import choices
 from directory_validators.string import no_html
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from company.models import Company
 from core.helpers import TimeStampedModel, path_and_rename_exportplan_pdf
