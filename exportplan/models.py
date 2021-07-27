@@ -6,7 +6,7 @@ from django.db import models
 from company.models import Company
 from core.helpers import TimeStampedModel, path_and_rename_exportplan_pdf
 from core.storage import private_storage
-from personalisation.models import BusinessUser, UserMarket, UserProduct
+from personalisation.models import BusinessUser
 
 
 class CompanyExportPlan(TimeStampedModel):
@@ -42,27 +42,6 @@ class CompanyExportPlan(TimeStampedModel):
     getting_paid = JSONField(null=True, blank=True, default=dict)
     # Travel Business Policies
     travel_business_policies = JSONField(null=True, blank=True, default=dict)
-
-
-class ExportPlanProduct(TimeStampedModel):
-    companyexportplan = models.ForeignKey(
-        CompanyExportPlan, related_name='export_plan_products', on_delete=models.CASCADE
-    )
-    user_product = models.ForeignKey(UserProduct, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('companyexportplan', 'user_product')
-
-
-class ExportPlanMarket(TimeStampedModel):
-
-    companyexportplan = models.ForeignKey(
-        CompanyExportPlan, related_name='export_plan_markets', on_delete=models.CASCADE
-    )
-    user_market = models.ForeignKey(UserMarket, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('companyexportplan', 'user_market')
 
 
 class CompanyObjectives(TimeStampedModel):

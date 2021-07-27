@@ -38,18 +38,13 @@ def export_plan_data(company):
 @pytest.fixture
 def export_plan():
     export_plan = factories.CompanyExportPlanFactory.create()
-    business_user = BusinessUserFactory(sso_id=export_plan.sso_id)
-    user_product = factories.UserProductFactory(business_user=business_user)
-    user_market = factories.UserMarketFactory(business_user=business_user)
-
+    BusinessUserFactory(sso_id=export_plan.sso_id)
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
     factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
     factories.BusinessTripsFactory.create(companyexportplan=export_plan)
     factories.BusinessRiskFactory.create(companyexportplan=export_plan)
-    factories.ExportPlanProductFactory(user_product=user_product, companyexportplan=export_plan)
-    factories.ExportPlanMarketFactory(user_market=user_market, companyexportplan=export_plan)
     return export_plan
 
 
@@ -62,8 +57,10 @@ def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
 
     export_plan_db = models.CompanyExportPlan.objects.last()
 
-    assert created_export_plan['export_commodity_codes'] == []
-    assert created_export_plan['export_countries'] == []
+    assert created_export_plan['export_commodity_codes'] == [
+        {'commodity_code': '101.2002.123', 'commodity_name': 'gin'}
+    ]
+    assert created_export_plan['export_countries'] == [{'country_iso2_code': 'CN', 'country_name': 'China'}]
     assert created_export_plan['ui_options'] == export_plan_data['ui_options']
     assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
     assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
@@ -177,17 +174,6 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
             }
         ],
         'pk': export_plan.pk,
-        'export_plan_products': [
-            {'user_product': {'product_data': export_plan.export_plan_products.first().user_product.product_data}}
-        ],
-        'export_plan_markets': [
-            {
-                'user_market': {
-                    'data': export_plan.export_plan_markets.first().user_market.data,
-                    'country_iso2_code': export_plan.export_plan_markets.first().user_market.country_iso2_code,
-                }
-            }
-        ],
     }
     assert response.status_code == 200
     assert response.json() == data

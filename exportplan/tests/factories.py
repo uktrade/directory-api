@@ -4,7 +4,6 @@ from directory_constants import choices
 
 from company.tests import factories
 from exportplan import models
-from personalisation.tests.factories import UserMarketFactory, UserProductFactory
 
 
 class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
@@ -102,19 +101,3 @@ class BusinessRiskFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.BusinessRisks
-
-
-class ExportPlanProductFactory(factory.django.DjangoModelFactory):
-    user_product = factory.SubFactory(UserProductFactory)
-    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
-
-    class Meta:
-        model = models.ExportPlanProduct
-
-
-class ExportPlanMarketFactory(factory.django.DjangoModelFactory):
-    user_market = factory.SubFactory(UserMarketFactory)
-    companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
-
-    class Meta:
-        model = models.ExportPlanMarket

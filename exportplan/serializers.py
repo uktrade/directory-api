@@ -3,7 +3,6 @@ from django.db import transaction
 from rest_framework import serializers
 
 from exportplan import models
-from personalisation.serializers import UserMarketSerializer, UserProductSerializer
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
@@ -109,24 +108,6 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
         }
 
 
-class ExportPlanProductSerializer(serializers.ModelSerializer):
-    user_product = UserProductSerializer(required=False, read_only=False)
-
-    class Meta:
-        model = models.ExportPlanProduct
-        fields = ('user_product',)
-        depth = 2
-
-
-class ExportPlanMarketSerializer(serializers.ModelSerializer):
-    user_market = UserMarketSerializer(required=False, read_only=False)
-
-    class Meta:
-        model = models.ExportPlanMarket
-        fields = ('user_market',)
-        depth = 2
-
-
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
@@ -134,10 +115,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     funding_credit_options = FundingCreditOptionsSerializer(many=True, required=False, read_only=False)
     business_trips = BusinessTripsSerializer(many=True, required=False, read_only=False)
     business_risks = BusinessRisksSerializer(many=True, required=False, read_only=False)
-    export_commodity_codes = serializers.SerializerMethodField()
-    export_countries = serializers.SerializerMethodField()
-    export_plan_products = ExportPlanProductSerializer(many=True, required=False, read_only=False)
-    export_plan_markets = ExportPlanMarketSerializer(many=True, required=False, read_only=False)
 
     class Meta:
         model = models.CompanyExportPlan
@@ -166,28 +143,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             'travel_business_policies',
             'business_trips',
             'business_risks',
-            'export_plan_products',
-            'export_plan_markets',
         )
-
-        extra_kwargs = {
-            'export_countries': {'read-only': True},
-            'export_commodity_codes': {'read-only': True},
-        }
-
-    def get_export_commodity_codes(self, obj):
-        # Temp we can remove this once we move to multi product, allows EP interface to remain unchanged
-        if obj.export_plan_products.first():
-            return [obj.export_plan_products.first().user_product.product_data]
-        else:
-            return []
-
-    def get_export_countries(self, obj):
-        # Temp we can remove this once we move to multi market, allows EP interface to remain unchanged
-        if obj.export_plan_markets.first():
-            return [obj.export_plan_markets.first().user_market.data]
-        else:
-            return []
 
     def create(self, validated_data):
 
