@@ -6,7 +6,6 @@ import requests
 from django.conf import settings
 from mohawk import Sender
 
-from exportplan import models as exportplan_models
 from personalisation import models, serializers
 
 
@@ -144,30 +143,6 @@ def add_exportplan_join_item(exportplan, model, item, attribute_name):
     exportplan_join.save()
 
 
-def attach_one_exportplan(business_user):
-    # TODO: remove this
-    # This is temporary code to mimic single product mode.
-    # Force the user's product into exportplan
-    try:
-        exportplan = exportplan_models.CompanyExportPlan.objects.get(sso_id=business_user.sso_id)
-        exportplan.business_user = business_user
-    except exportplan_models.CompanyExportPlan.DoesNotExist:
-        exportplan = exportplan_models.CompanyExportPlan(business_user=business_user, sso_id=business_user.sso_id)
-    exportplan.save()
-    # Attach any products
-    try:
-        user_product = models.UserProduct.objects.get(business_user=business_user)
-        add_exportplan_join_item(exportplan, exportplan_models.ExportPlanProduct, user_product, 'user_product')
-    except models.UserProduct.DoesNotExist:
-        pass
-    # Attach any markets
-    try:
-        user_market = models.UserMarket.objects.get(business_user=business_user)
-        add_exportplan_join_item(exportplan, exportplan_models.ExportPlanMarket, user_market, 'user_market')
-    except models.UserMarket.DoesNotExist:
-        pass
-
-
 def create_or_update_product(user_id, user_product_data, user_product_id=None):
     # Add a user product or update it if a product_id is supplied.
 
@@ -178,23 +153,12 @@ def create_or_update_product(user_id, user_product_data, user_product_id=None):
         user_product.product_data = user_product_data
         user_product.save()
     else:
-        # TODO: remove this
-        if settings.SINGLE_BASKET_MODEL:
-            try:
-                user_product = models.UserProduct.objects.get(business_user=business_user)
-            except models.UserProduct.DoesNotExist:
-                user_product = models.UserProduct()
-        else:
-            user_product = models.UserProduct()
-
+        user_product = models.UserProduct()
         user_product.business_user = business_user
         user_product.product_data = user_product_data
         user_product.save()
-        # TODO: remove this
-        if settings.SINGLE_BASKET_MODEL:
-            attach_one_exportplan(business_user=business_user)
 
-    return models.UserProduct.objects.filter(business_user=business_user)
+    return user_product
 
 
 def create_or_update_market(user_id, user_market_data, user_market_id=None):
@@ -207,20 +171,10 @@ def create_or_update_market(user_id, user_market_data, user_market_id=None):
         user_market.country_iso2_code = user_market_data.get('country_iso2_code')  # copy iso code into outer object
         user_market.save()
     else:
-        # TODO: remove this
-        if settings.SINGLE_BASKET_MODEL:
-            try:
-                user_market = models.UserMarket.objects.get(business_user=business_user)
-            except models.UserMarket.DoesNotExist:
-                user_market = models.UserMarket()
-        else:
-            user_market = models.UserMarket()
-
+        user_market = models.UserMarket()
         user_market.business_user = business_user
         user_market.data = user_market_data
         user_market.country_iso2_code = user_market_data.get('country_iso2_code')
         user_market.save()
-        # TODO: remove this
-        if settings.SINGLE_BASKET_MODEL:
-            attach_one_exportplan(business_user=business_user)
-    return models.UserMarket.objects.filter(business_user=business_user)
+
+    return user_market

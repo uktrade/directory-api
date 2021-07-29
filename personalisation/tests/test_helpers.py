@@ -42,10 +42,10 @@ def test_create_or_update_product():
     business_user = helpers.get_business_user(1)
     assert len(models.UserProduct.objects.all()) == 1
     assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data1
-    # Test temporary behaviour.  Adding a product, just updates the user's one existing one
-    helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
-    assert len(models.UserProduct.objects.all()) == 1
-    assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data2
+
+    updated_product = helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
+    assert len(models.UserProduct.objects.all()) == 2
+    assert models.UserProduct.objects.get(id=updated_product.id).product_data == product_data2
 
 
 @pytest.mark.django_db
@@ -57,49 +57,8 @@ def test_create_or_update_market():
     business_user = helpers.get_business_user(1)
     assert len(models.UserMarket.objects.all()) == 1
     assert models.UserMarket.objects.get(business_user=business_user).data == market_data1
-    # Test temporary behaviour.  Adding a market, just updates the user's one existing one
-    helpers.create_or_update_market(user_id=1, user_market_data=market_data2)
-    assert len(models.UserMarket.objects.all()) == 1
-    assert models.UserMarket.objects.get(business_user=business_user).data == market_data2
-    assert (
-        models.UserMarket.objects.get(business_user=business_user).country_iso2_code
-        == market_data2['country_iso2_code']
-    )
 
-
-@pytest.mark.django_db
-def test_create_or_update_market_existing_multiple(settings):
-    market_data1 = {'market pushname': 'China', 'country_iso2_code': 'CN'}
-    market_data2 = {'country_name': 'Netherlands', 'country_iso2_code': 'NL'}
-
-    new_market = helpers.create_or_update_market(user_id=1, user_market_data=market_data1)
-
-    business_user = helpers.get_business_user(1)
-
-    # Test temporary behaviour.  Adding a market, just updates the user's one existing one
-    helpers.create_or_update_market(user_id=1, user_market_data=market_data2, user_market_id=new_market[0].id)
-    assert len(models.UserMarket.objects.all()) == 1
-    assert models.UserMarket.objects.get(business_user=business_user).data == market_data2
-    assert (
-        models.UserMarket.objects.get(business_user=business_user).country_iso2_code
-        == market_data2['country_iso2_code']
-    )
-    settings.SINGLE_BASKET_MODEL = False
-    helpers.create_or_update_market(user_id=1, user_market_data=market_data1)
+    updated_market = helpers.create_or_update_market(user_id=1, user_market_data=market_data2)
     assert len(models.UserMarket.objects.all()) == 2
-
-
-@pytest.mark.django_db
-def test_create_or_update_product_existing_multiple(settings):
-    product_data1 = {'commodity_git pushname': 'gin'}
-    product_data2 = {'commodity_name': 'cheese'}
-
-    new_product = helpers.create_or_update_product(user_id=1, user_product_data=product_data1)
-    business_user = helpers.get_business_user(1)
-    helpers.create_or_update_product(user_id=1, user_product_data=product_data2, user_product_id=new_product[0].id)
-    assert len(models.UserProduct.objects.all()) == 1
-    assert models.UserProduct.objects.get(business_user=business_user).product_data == product_data2
-
-    settings.SINGLE_BASKET_MODEL = False
-    helpers.create_or_update_product(user_id=1, user_product_data=product_data2)
-    assert len(models.UserProduct.objects.all()) == 2
+    assert models.UserMarket.objects.get(id=updated_market.id).data == market_data2
+    assert models.UserMarket.objects.get(id=updated_market.id).country_iso2_code == market_data2['country_iso2_code']

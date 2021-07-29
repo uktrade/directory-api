@@ -519,5 +519,3 @@ COMTRADE_DATA_FILE_NAME = env.str('COMTRADE_DATA_FILE_NAME', default='comtrade-i
 TRADE_BARRIER_API_URI = env.str(
     'TRADE_BARRIER_API_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
 )
-
-SINGLE_BASKET_MODEL = env.bool('SINGLE_BASKET_MODEL', True)
