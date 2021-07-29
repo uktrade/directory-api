@@ -131,18 +131,6 @@ class ExportingIsGreatClient:
 exopps_client = ExportingIsGreatClient()
 
 
-def add_exportplan_join_item(exportplan, model, item, attribute_name):
-    # TODO: remove this
-    # Creates or updates a jointable item (product or market) in 1 to 1 mode.
-    # If the item does not exist in join table, create one - otherwise update existing
-    try:
-        exportplan_join = model.objects.get(companyexportplan=exportplan)
-    except model.DoesNotExist:
-        exportplan_join = model(companyexportplan=exportplan)
-    setattr(exportplan_join, attribute_name, item)
-    exportplan_join.save()
-
-
 def create_or_update_product(user_id, user_product_data, user_product_id=None):
     # Add a user product or update it if a product_id is supplied.
 
