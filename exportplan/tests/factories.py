@@ -47,8 +47,10 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
     description = 'export 5k cases of wine'
     planned_reviews = 'None planned'
     owner = None
-    start_date = None
-    end_date = None
+    start_month = None
+    start_year = None
+    end_month = None
+    end_year = None
     companyexportplan = factory.SubFactory(CompanyExportPlanFactory)
 
     class Meta:

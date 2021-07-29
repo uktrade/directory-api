@@ -29,14 +29,18 @@ class CompanyCompanyObjectivesAdmin(admin.ModelAdmin):
         'companyexportplan',
         'description',
         'owner',
-        'start_date',
-        'end_date',
+        'start_month',
+        'start_year',
+        'end_month',
+        'end_year',
     )
     list_display = (
         'companyexportplan',
         'owner',
-        'start_date',
-        'end_date',
+        'start_month',
+        'start_year',
+        'end_month',
+        'end_year',
     )
 
 

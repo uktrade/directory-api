@@ -1,6 +1,7 @@
 from directory_constants import choices
 from directory_validators.string import no_html
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from company.models import Company
@@ -50,7 +51,11 @@ class CompanyObjectives(TimeStampedModel):
     planned_reviews = models.TextField(blank=True, default='', validators=[no_html])
     owner = models.TextField(null=True, blank=True, max_length=100)
     start_date = models.DateField(blank=True, null=True)
+    start_month = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(12)])
+    start_year = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9999)])
     end_date = models.DateField(blank=True, null=True)
+    end_month = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(12)])
+    end_year = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0), MaxValueValidator(9999)])
 
     companyexportplan = models.ForeignKey(
         CompanyExportPlan, related_name='company_objectives', on_delete=models.CASCADE

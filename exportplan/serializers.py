@@ -9,7 +9,17 @@ class CompanyObjectivesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyObjectives
         id = serializers.IntegerField(label='ID', read_only=False)
-        fields = ('description', 'planned_reviews', 'owner', 'start_date', 'end_date', 'companyexportplan', 'pk')
+        fields = (
+            'description',
+            'planned_reviews',
+            'owner',
+            'start_month',
+            'start_year',
+            'end_month',
+            'end_year',
+            'companyexportplan',
+            'pk',
+        )
         extra_kwargs = {
             # passed in by CompanyExportPlanSerializer created/updated
             'companyexportplan': {'required': False},
