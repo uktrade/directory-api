@@ -15,6 +15,7 @@ class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
+    # Once we move to Multiple can break out create and remove list
     serializer_class = serializers.CompanyExportPlanSerializer
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'sso_id'
@@ -25,6 +26,24 @@ class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class ExportPlanListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanListSerializer
+    queryset = CompanyExportPlan.objects.all()
+    lookup_field = 'sso_id'
+
+    def get_queryset(self):
+        return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class ExportPlanCreateAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(sso_id=self.request.user.id)
 
 
 class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):

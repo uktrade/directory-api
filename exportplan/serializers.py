@@ -118,6 +118,28 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
         }
 
 
+class ExportPlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyExportPlan
+        fields = (
+            'pk',
+            'created',
+            'ui_progress',
+            'export_countries',
+            'export_commodity_codes',
+        )
+
+
+class ExportPlanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyExportPlan
+        fields = (
+            'sso_id',
+            'export_countries',
+            'export_commodity_codes',
+        )
+
+
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
@@ -160,6 +182,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             serializer = ExportPlanCountrySerializer(data=v)
             serializer.is_valid(raise_exception=True)
         return value
+
 
     def validate_export_commodity_codes(self, value):
         for v in value:

@@ -189,10 +189,45 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
     assert export_plan.export_commodity_codes != data['export_commodity_codes']
 
     response = authed_client.patch(url, data, format='json')
-    export_plan.refresh_from_db()
 
     assert response.status_code == http.client.OK
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
+
+
+@pytest.mark.django_db
+def test_export_plan_list_detail_only(authed_client, authed_supplier):
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id + 1)
+
+    response = authed_client.get(reverse('export-plan-list'))
+    assert list(response.json()[0].keys()) == [
+        'pk', 'created', 'ui_progress', 'export_countries', 'export_commodity_codes'
+    ]
+    assert response.status_code == 200
+
+    assert len(response.json()) == 2
+
+
+@pytest.mark.django_db
+def test_export_plan_create_only(authed_client, authed_supplier):
+
+    url = reverse('export-plan-create')
+
+    data = {
+        'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
+        'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}]
+    }
+    response = authed_client.post(url, data, format='json')
+
+    assert response.status_code == 201
+    export_plan_db = models.CompanyExportPlan.objects.last()
+    created_export_plan = response.json()
+
+    assert export_plan_db.sso_id == authed_supplier.sso_id
+    assert export_plan_db.export_commodity_codes == created_export_plan['export_commodity_codes']
+    assert export_plan_db.export_countries == created_export_plan['export_countries']
+
 
 
 @pytest.mark.django_db

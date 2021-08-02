@@ -210,6 +210,16 @@ urlpatterns = [
         name='dataservices-trade-barriers',
     ),
     url(
+        r'^exportplan/export-plan-list/$',
+        exportplan.views.ExportPlanListAPIView.as_view(),
+        name='export-plan-list',
+    ),
+    url(
+        r'^exportplan/export-plan-create/$',
+        exportplan.views.ExportPlanCreateAPIView.as_view(),
+        name='export-plan-create',
+    ),
+    url(
         r'^exportplan/company-export-plan/$',
         exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
         name='export-plan-list-create',
@@ -224,6 +234,7 @@ urlpatterns = [
         exportplan.views.ExportPlanModelObjectListCreateAPIView.as_view(),
         name='export-plan-model-object-list-create',
     ),
+
     url(
         r'^exportplan/export-plan-model-object-update-delete/(?P<pk>[0-9]+)/$',
         exportplan.views.ExportPlanModelObjectRetrieveUpdateDestroyView.as_view(),
