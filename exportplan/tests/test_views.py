@@ -47,50 +47,6 @@ def export_plan():
 
 
 @pytest.mark.django_db
-def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
-    response = authed_client.post(reverse('export-plan-list-create'), export_plan_data, format='json')
-    assert response.status_code == http.client.CREATED
-    created_export_plan = response.json()
-
-    export_plan_db = models.CompanyExportPlan.objects.last()
-
-    assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
-    assert created_export_plan['export_countries'] == export_plan_data['export_countries']
-    assert created_export_plan['ui_options'] == export_plan_data['ui_options']
-    assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
-    assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
-    assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
-    assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
-
-    assert created_export_plan['company_objectives'] == [
-        {
-            'companyexportplan': export_plan_db.pk,
-            'description': 'export 5k cases of wine',
-            'owner': None,
-            'start_month': None,
-            'start_year': None,
-            'end_month': None,
-            'end_year': None,
-            'planned_reviews': '',
-            'pk': 1,
-        }
-    ]
-    assert created_export_plan['sso_id'] == authed_supplier.sso_id
-
-
-@pytest.mark.django_db
-def test_export_plan_list(authed_client, authed_supplier):
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id + 1)
-
-    response = authed_client.get(reverse('export-plan-list-create'))
-
-    assert len(response.json()) == 2
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
 def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
 
     authed_supplier.sso_id = export_plan.sso_id
@@ -189,20 +145,24 @@ def test_export_plan_update(authed_client, authed_supplier, export_plan):
     assert export_plan.export_commodity_codes != data['export_commodity_codes']
 
     response = authed_client.patch(url, data, format='json')
-
     assert response.status_code == http.client.OK
+    export_plan.refresh_from_db()
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
 
 
 @pytest.mark.django_db
-def test_export_plan_list_detail_only(authed_client, authed_supplier):
+def test_export_plan_list_detail(authed_client, authed_supplier):
     factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
     factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
     factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id + 1)
 
-    response = authed_client.get(reverse('export-plan-list'))
+    response = authed_client.get(reverse('export-plan-detail-list'))
     assert list(response.json()[0].keys()) == [
-        'pk', 'created', 'ui_progress', 'export_countries', 'export_commodity_codes'
+        'pk',
+        'created',
+        'ui_progress',
+        'export_countries',
+        'export_commodity_codes',
     ]
     assert response.status_code == 200
 
@@ -210,13 +170,13 @@ def test_export_plan_list_detail_only(authed_client, authed_supplier):
 
 
 @pytest.mark.django_db
-def test_export_plan_create_only(authed_client, authed_supplier):
+def test_export_plan_create(authed_client, authed_supplier):
 
     url = reverse('export-plan-create')
 
     data = {
         'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
-        'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}]
+        'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
     }
     response = authed_client.post(url, data, format='json')
 
@@ -227,7 +187,6 @@ def test_export_plan_create_only(authed_client, authed_supplier):
     assert export_plan_db.sso_id == authed_supplier.sso_id
     assert export_plan_db.export_commodity_codes == created_export_plan['export_commodity_codes']
     assert export_plan_db.export_countries == created_export_plan['export_countries']
-
 
 
 @pytest.mark.django_db

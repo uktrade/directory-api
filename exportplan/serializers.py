@@ -183,7 +183,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             serializer.is_valid(raise_exception=True)
         return value
 
-
     def validate_export_commodity_codes(self, value):
         for v in value:
             serializer = ExportPlanCommodityCodeSerializer(data=v)
