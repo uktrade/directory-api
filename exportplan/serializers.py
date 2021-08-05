@@ -189,13 +189,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             serializer.is_valid(raise_exception=True)
         return value
 
-    def create(self, validated_data):
-
-        objectives = validated_data.pop('company_objectives', {})
-        instance = super().create(validated_data)
-        self.recreate_objectives(instance, objectives)
-        return instance
-
     def update(self, instance, validated_data):
 
         # This will allow partial updating to json fields during a patch update. Json fields generally represent
@@ -222,12 +215,3 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
                 validated_data[field_name] = field_value
         super().update(instance, validated_data)
         return instance
-
-    @transaction.atomic
-    def recreate_objectives(self, instance, objectives):
-        instance.company_objectives.all().delete()
-        data_collection = []
-        for objective in objectives:
-            data = {**objective, 'companyexportplan': instance}
-            data_collection.append(models.CompanyObjectives(**data))
-        models.CompanyObjectives.objects.bulk_create(data_collection)
