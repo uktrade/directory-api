@@ -210,9 +210,14 @@ urlpatterns = [
         name='dataservices-trade-barriers',
     ),
     url(
-        r'^exportplan/company-export-plan/$',
-        exportplan.views.CompanyExportPlanListCreateAPIView.as_view(),
-        name='export-plan-list-create',
+        r'^exportplan/detail-list/',
+        exportplan.views.ExportPlanListAPIView.as_view(),
+        name='export-plan-detail-list',
+    ),
+    url(
+        r'^exportplan/create/',
+        exportplan.views.ExportPlanCreateAPIView.as_view(),
+        name='export-plan-create',
     ),
     url(
         r'^exportplan/company-export-plan/(?P<pk>[0-9]+)/$',

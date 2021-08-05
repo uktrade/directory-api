@@ -14,17 +14,22 @@ class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     lookup_field = 'pk'
 
 
-class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = serializers.CompanyExportPlanSerializer
+class ExportPlanListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanListSerializer
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'sso_id'
 
-    def perform_create(self, serializer):
-        serializer.validated_data['sso_id'] = self.request.user.id
-        serializer.save()
-
     def get_queryset(self):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class ExportPlanCreateAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(sso_id=self.request.user.id)
 
 
 class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
