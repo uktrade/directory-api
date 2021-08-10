@@ -4,6 +4,7 @@
 ### Bugs fixed
 ### Enhancements
 
+- GP2-1319 - relabelling/adding data services models's attributes
 - GP2-2867 - dockerise d-api
 - NO TICKET - Firebreak week allow SIC Codes to be stored and updated
 - GP2-1319 - Relabelling data services models
