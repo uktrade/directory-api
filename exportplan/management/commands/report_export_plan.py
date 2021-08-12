@@ -1,21 +1,19 @@
 from django.core.management.base import BaseCommand
 from exportplan import models
 from company.models import Company
+from exportplan.helpers import is_ep_plan_empty
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        ep_sections = [
-            "about_your_business",
-            "objectives",
-            "target_markets_research",
-            "adaptation_target_market",
-            "marketing_approach",
-            "total_cost_and_price",
-            "funding_and_credit",
-            "getting_paid",
-            "travel_business_policies",
-            "business_risks",
+
+        foreign_key_sections = [
+            "company_objectives",
+            "exportplan_downloads",
+            "route_to_markets",
+            "target_market_documents",
+            "funding_credit_options",
+            "business_trips",
         ]
         empty_ep_counter = 0
         not_empty_ep_counter = 0
@@ -27,36 +25,30 @@ class Command(BaseCommand):
                 self.style.WARNING("No Company is associated with this EP.")
             )
 
+            # With country or commodity checks.
             if plan.export_commodity_codes or plan.export_countries:
                 self.stdout.write(
                     self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')
                 )
                 self.stdout.write(self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}'))
 
-                if not plan.ui_progress:
+                if is_ep_plan_empty(plan):
                     empty_ep_counter += 1
                     self.stdout.write(self.style.WARNING("EP is empty"))
                     self.stdout.write("---")
-                    return
                 else:
-                    for section in ep_sections:
-                        content = getattr(plan, section)
-                        if content:
-                            not_empty_ep_counter += 1
-                            self.stdout.write(self.style.SUCCESS("This EP has content."))
-                            break
+                    not_empty_ep_counter += 1
+                    self.stdout.write(self.style.SUCCESS("This EP has content."))
+
+            # No country or product selected then checks everything elses.
             else:
-                if not plan.ui_progress:
+                if is_ep_plan_empty(plan):
                     empty_ep_counter += 1
                     self.stdout.write(self.style.WARNING("EP is empty"))
                     self.stdout.write("---")
                 else:
-                    for section in ep_sections:
-                        content = getattr(plan, section)
-                        if content:
-                            not_empty_ep_counter += 1
-                            self.stdout.write(self.style.SUCCESS("This EP has content."))
-                            break
+                    not_empty_ep_counter += 1
+                    self.stdout.write(self.style.SUCCESS("This EP has content."))
 
             self.stdout.write("---")
 
