@@ -44,7 +44,7 @@ def is_ep_plan_empty(plan):
 
     for section in ep_sections:
         content = getattr(plan, section)
-        print(content)
+
         if content:
             return False
 
