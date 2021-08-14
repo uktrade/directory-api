@@ -29,7 +29,6 @@ def is_ep_plan_empty(plan):
         "funding_and_credit",
         "getting_paid",
         "travel_business_policies",
-        "business_risks",
     ]
     foreign_key_sections = [
         "company_objectives",
@@ -38,6 +37,7 @@ def is_ep_plan_empty(plan):
         "target_market_documents",
         "funding_credit_options",
         "business_trips",
+        "business_risks",
     ]
     if not plan.ui_progress:
         return True

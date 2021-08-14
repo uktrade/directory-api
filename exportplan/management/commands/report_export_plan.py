@@ -7,18 +7,11 @@ from exportplan.helpers import is_ep_plan_empty
 class Command(BaseCommand):
     def handle(self, *args, **options):
 
-        foreign_key_sections = [
-            "company_objectives",
-            "exportplan_downloads",
-            "route_to_markets",
-            "target_market_documents",
-            "funding_credit_options",
-            "business_trips",
-        ]
         empty_ep_counter = 0
         not_empty_ep_counter = 0
 
         export_plans = models.CompanyExportPlan.objects.all()
+        print(export_plans)
 
         for plan in export_plans.iterator():
             self.stdout.write(self.style.SUCCESS(f'{plan.company}:')) if plan.company else self.stdout.write(
@@ -29,8 +22,10 @@ class Command(BaseCommand):
             if plan.export_commodity_codes or plan.export_countries:
                 self.stdout.write(
                     self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')
-                )
-                self.stdout.write(self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}'))
+                ) if plan.export_commodity_codes else None
+                self.stdout.write(
+                    self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}')
+                ) if plan.export_countries else None
 
                 if is_ep_plan_empty(plan):
                     empty_ep_counter += 1
