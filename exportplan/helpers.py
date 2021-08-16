@@ -39,8 +39,9 @@ def is_ep_plan_empty(plan):
         "business_trips",
         "business_risks",
     ]
-    if not plan.ui_progress:
-        return True
+    print(plan.ui_progress)
+    if plan.ui_progress:
+        return False
 
     for section in ep_sections:
         content = getattr(plan, section)

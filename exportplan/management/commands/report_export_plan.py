@@ -11,7 +11,6 @@ class Command(BaseCommand):
         not_empty_ep_counter = 0
 
         export_plans = models.CompanyExportPlan.objects.all()
-        print(export_plans)
 
         for plan in export_plans.iterator():
             self.stdout.write(self.style.SUCCESS(f'{plan.company}:')) if plan.company else self.stdout.write(
