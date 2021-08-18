@@ -133,6 +133,7 @@ class ExportPlanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyExportPlan
         fields = (
+            'pk',
             'sso_id',
             'export_countries',
             'export_commodity_codes',
