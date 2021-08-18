@@ -3,7 +3,7 @@
 ## Pre release
 ### Bugs fixed
 ### Enhancements
-
+- GP2-3171 - Add export plan PK to serializer
 - GP2-1319 - relabelling/adding data services models's attributes
 - GP2-2867 - dockerise d-api
 - NO TICKET - Firebreak week allow SIC Codes to be stored and updated
