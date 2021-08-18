@@ -250,8 +250,8 @@ class TradingBlocs(TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = "Trading Bloc | DIT DATA"
-        verbose_name_plural = "Trading Bloc | DIT DATA"
+        verbose_name = "Trading Blocs | DIT DATA"
+        verbose_name_plural = "Trading Blocs | DIT DATA"
 
 
 class ComtradeReport(models.Model):
