@@ -5,11 +5,14 @@
 ### Enhancements
 - GP2-3171 - Add export plan PK to serializer
 - GP2-1319 - relabelling/adding data services models's attributes
+- GP2-3173 - multi-Export-plan-list-detail
+
+## [1.14.0](https://github.com/uktrade/directory-api/releases/tag/1.14.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/1.13.0...1.14.0)
 - GP2-2867 - dockerise d-api
 - NO TICKET - Firebreak week allow SIC Codes to be stored and updated
 - GP2-1319 - Relabelling data services models
 - GP2-2896 - Split company objectives start/end date fields
-- GP2-3173 - multi-Export-plan-list-detail
 
 ## [1.13.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.12.0...1.13.0)
