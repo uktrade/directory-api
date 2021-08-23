@@ -1,4 +1,3 @@
-import exportplan
 import pytest
 from django.core import management
 from exportplan.models import CompanyExportPlan

@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from exportplan import models
-from company.models import Company
 from exportplan.helpers import is_ep_plan_empty
 
 
