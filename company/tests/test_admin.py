@@ -580,6 +580,7 @@ class DownloadCSVTestCase(TestCase):
                 ('company__address_line_1', 'test_address_line_1'),
                 ('company__address_line_2', 'test_address_line_2'),
                 ('company__companies_house_company_status', ''),
+                ('company__companies_house_sic_codes', '[]'),
                 ('company__company_export_plans', ''),
                 ('company__country', 'test_country'),
                 ('company__created', '2012-01-14 12:00:00+00:00'),
@@ -647,7 +648,6 @@ class DownloadCSVTestCase(TestCase):
         )
 
         actual = str(response.content, 'utf-8').split('\r\n')
-
         assert actual[0] == ','.join(expected_data.keys())
         assert actual[1] == ','.join(expected_data.values())
 
@@ -666,6 +666,7 @@ class DownloadCSVTestCase(TestCase):
                 ('company__address_line_1', 'test_address_line_1'),
                 ('company__address_line_2', 'test_address_line_2'),
                 ('company__companies_house_company_status', ''),
+                ('company__companies_house_sic_codes', '[]'),
                 ('company__company_export_plans', ''),
                 ('company__country', 'test_country'),
                 ('company__created', '2012-01-14 12:00:00+00:00'),
@@ -757,6 +758,7 @@ class DownloadCSVTestCase(TestCase):
                 ('company__address_line_1', 'test_address_line_1'),
                 ('company__address_line_2', 'test_address_line_2'),
                 ('company__companies_house_company_status', ''),
+                ('company__companies_house_sic_codes', '[]'),
                 ('company__company_export_plans', ''),
                 ('company__country', 'test_country'),
                 ('company__created', '2012-01-14 12:00:00+00:00'),
@@ -828,6 +830,7 @@ class DownloadCSVTestCase(TestCase):
                 ('company__address_line_1', 'test_address_line_1'),
                 ('company__address_line_2', 'test_address_line_2'),
                 ('company__companies_house_company_status', ''),
+                ('company__companies_house_sic_codes', '[]'),
                 ('company__company_export_plans', ''),
                 ('company__country', 'test_country'),
                 ('company__created', '2012-01-14 12:00:00+00:00'),
