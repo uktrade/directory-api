@@ -3,6 +3,7 @@
 ## Pre release
 ### Bugs fixed
 ### Enhancements
+- GP2-3275 - Export plan delete
 - GP2-3171 - Add export plan PK to serializer
 - GP2-1319 - relabelling/adding data services models's attributes
 - GP2-3173 - multi-Export-plan-list-detail
