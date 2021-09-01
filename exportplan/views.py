@@ -7,7 +7,7 @@ from exportplan import models, serializers
 from exportplan.models import CompanyExportPlan
 
 
-class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CompanyExportPlanSerializer
     permission_classes = [IsAuthenticatedSSO]
     queryset = CompanyExportPlan.objects.all()
