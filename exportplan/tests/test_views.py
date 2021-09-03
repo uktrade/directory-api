@@ -141,8 +141,8 @@ def test_export_plan_retrieve_403(authed_client, export_plan):
 @pytest.mark.django_db
 def test_export_plan_retrieve_not_found(authed_client, export_plan):
     url = reverse('export-plan-detail-update', kwargs={'pk': 10000})
-    response = authed_client.get(url)
-    assert response.status_code == 404
+    with pytest.raises(models.CompanyExportPlan.DoesNotExist):
+        authed_client.get(url)
 
 
 @pytest.mark.django_db
