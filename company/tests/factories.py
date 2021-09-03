@@ -100,7 +100,7 @@ class CollaborationRequestFactory(factory.django.DjangoModelFactory):
 
 
 class CompanyUserFactory(factory.django.DjangoModelFactory):
-    sso_id = factory.Iterator(range(99999999))
+    sso_id = factory.fuzzy.FuzzyInteger(1, 9999)
     name = factory.Faker('name', locale='en_GB')
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
     company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
