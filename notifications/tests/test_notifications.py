@@ -508,7 +508,8 @@ def test_new_companies_in_sector_single_email_per_buyer(mock_task, settings):
 @freeze_time()
 @pytest.mark.django_db
 @patch('core.tasks.send_email')
-def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
+@patch('notifications.email.NewCompaniesInSectorNotification.unsubscribe_url', new_callable=PropertyMock)
+def test_new_companies_in_sector_company_multiple_sectors(mock_notification_unsubscribe_url, mock_task, settings):
     settings.NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = 3
 
     days_ago_three = datetime.utcnow() - timedelta(days=3)
@@ -518,15 +519,15 @@ def test_new_companies_in_sector_company_multiple_sectors(mock_task, settings):
     company_one = CompanyFactory(sectors=['AEROSPACE', 'AIRPORTS'], date_published=days_ago_three)
     company_two = CompanyFactory(sectors=['AIRPORTS'], date_published=days_ago_three)
 
+    unsubscribe_url = 'http://supplier.trade.great:8005/unsubscribe?uidb64=aBcDe&token=1a-234bcd'
+
+    mock_notification_unsubscribe_url.return_value = unsubscribe_url
     notifications.new_companies_in_sector()
-    unsubscribe_url = (
-        'http://supplier.trade.great:8005/unsubscribe?email=jim%40example.com%3A2Kkc4EAEos2htrZXeLj73CSVBWA'
-    )
 
     assert len(mock_task.delay.call_args_list) == 1
     assert company_one.name in mock_task.delay.call_args[1]['text_body']
     assert company_two.name in mock_task.delay.call_args[1]['text_body']
-    assert unsubscribe_url in mock_task.delay.call_args[1]['text_body']
+    assert html.escape(unsubscribe_url) in mock_task.delay.call_args[1]['text_body']
 
 
 @pytest.mark.django_db

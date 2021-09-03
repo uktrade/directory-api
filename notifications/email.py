@@ -3,9 +3,11 @@ from collections import namedtuple
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 import core.tasks
-from notifications import constants, helpers, models
+from notifications import constants, helpers, models, tokens
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
 
@@ -65,6 +67,9 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
     def __init__(self, subscriber):
         self.subscriber = subscriber
+        self.notification = models.AnonymousEmailNotification.objects.create(
+            email=self.recipient.email, category=self.category
+        )
 
     @property
     def recipient(self):
@@ -72,7 +77,6 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
 
     def send(self):
         text_body, html_body = self.get_bodies()
-        models.AnonymousEmailNotification.objects.create(email=self.recipient.email, category=self.category)
         core.tasks.send_email.delay(
             subject=self.subject,
             text_body=text_body,
@@ -118,7 +122,9 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
 
     @property
     def unsubscribe_url(self):
-        return helpers.get_anonymous_unsubscribe_url(self.recipient.email)
+        uidb64 = urlsafe_base64_encode(force_bytes(self.notification.pk))
+        token = tokens.anonymous_unsubscribe_token.make_token(self.notification)
+        return helpers.get_anonymous_unsubscribe_url(uidb64, token)
 
     def get_context_data(self):
         return super().get_context_data(

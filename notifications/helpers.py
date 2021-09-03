@@ -3,7 +3,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.core.signing import Signer
 
 from buyer.models import Buyer
 from company.models import Company, CompanyUser
@@ -76,10 +75,10 @@ def get_new_companies_anonymous_subscribers():
     return list(subscribers.values())
 
 
-def get_anonymous_unsubscribe_url(email):
+def get_anonymous_unsubscribe_url(uidb64, token):
     return '{base_url}?{querystring}'.format(
         base_url=settings.FAS_NOTIFICATIONS_UNSUBSCRIBE_URL,
-        querystring=urllib.parse.urlencode({'email': Signer().sign(email)}),
+        querystring=urllib.parse.urlencode({'uidb64': uidb64, 'token': token}),
     )
 
 
