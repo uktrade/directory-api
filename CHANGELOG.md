@@ -7,6 +7,7 @@
 - GP2-3171 - Add export plan PK to serializer
 - GP2-1319 - relabelling/adding data services models's attributes
 - GP2-3173 - multi-Export-plan-list-detail
+- GP2-3351 - Authentication ensure export-plan can only be accessed by owner 
 
 ## [1.14.0](https://github.com/uktrade/directory-api/releases/tag/1.14.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.13.0...1.14.0)
