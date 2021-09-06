@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from exportplan import models
-from exportplan.management.commands.report_helper import is_ep_plan_empty
+from exportplan.management.commands.report_helper import is_ep_plan_empty, set_useable_fields
 
 
 class Command(BaseCommand):
@@ -14,19 +14,6 @@ class Command(BaseCommand):
 
         product_country_no_data = 0
         product_country_with_data = 0
-
-        not_needed_model_fields = [
-            "id",
-            "created",
-            "modified",
-            "sso_id",
-            "company",
-            "export_countries",
-            "export_commodity_codes",
-            "ui_progress",
-        ]
-        my_model_fields = [field.name for field in models.CompanyExportPlan._meta.get_fields()]
-        useable_fields = [field for field in my_model_fields if field not in not_needed_model_fields]
 
         export_plans = models.CompanyExportPlan.objects.all()
 
@@ -45,7 +32,7 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}')
                 ) if plan.export_countries else None
 
-                if is_ep_plan_empty(plan, useable_fields):
+                if is_ep_plan_empty(plan, set_useable_fields()):
                     empty_ep_counter += 1
                     product_country_no_data += 1
                     self.stdout.write(self.style.WARNING("EP is empty"))
@@ -57,7 +44,7 @@ class Command(BaseCommand):
 
             # No country or product selected then checks everything elses.
             else:
-                if is_ep_plan_empty(plan, useable_fields):
+                if is_ep_plan_empty(plan, set_useable_fields()):
                     empty_ep_counter += 1
                     no_product_country_no_data += 1
                     self.stdout.write(self.style.WARNING("EP is empty"))
