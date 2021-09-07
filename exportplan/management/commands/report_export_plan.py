@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 self.style.WARNING("No Company is associated with this EP.")
             )
 
-            # Terminal stdout for Picket Product or Country.
+            # Terminal stdout for Picked Product or Country.
             if plan.export_commodity_codes or plan.export_countries:
                 self.stdout.write(
                     self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')

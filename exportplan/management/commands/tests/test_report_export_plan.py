@@ -74,6 +74,12 @@ def export_plan_empty_data():
     return export_plan
 
 
+@pytest.fixture
+def export_plan_only_no_foreign_values():
+    export_plan = factories.CompanyExportPlanFactory.create()
+    return export_plan
+
+
 @pytest.mark.django_db
 def test_report_export_plan_sum(
     export_plan_no_product_or_country_no_data,
@@ -83,5 +89,6 @@ def test_report_export_plan_sum(
     export_plan_with_product_with_data,
     export_plan_with_country_with_data,
     export_plan_empty_data,
+    export_plan_only_no_foreign_values,
 ):
     management.call_command('report_export_plan')
