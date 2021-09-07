@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 self.style.WARNING("No Company is associated with this EP.")
             )
 
-            # With country or commodity checks.
+            # Terminal stdout for Picket Product or Country.
             if plan.export_commodity_codes or plan.export_countries:
                 self.stdout.write(
                     self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')
@@ -32,27 +32,24 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}')
                 ) if plan.export_countries else None
 
-                if is_ep_plan_empty(plan, set_useable_fields()):
-                    empty_ep_counter += 1
-                    product_country_no_data += 1
-                    self.stdout.write(self.style.WARNING("EP is empty"))
-                    self.stdout.write("---")
-                else:
-                    not_empty_ep_counter += 1
-                    product_country_with_data += 1
-                    self.stdout.write(self.style.SUCCESS("This EP has content."))
+            if is_ep_plan_empty(plan, set_useable_fields()):
+                empty_ep_counter += 1
 
-            # No country or product selected then checks everything elses.
-            else:
-                if is_ep_plan_empty(plan, set_useable_fields()):
-                    empty_ep_counter += 1
-                    no_product_country_no_data += 1
-                    self.stdout.write(self.style.WARNING("EP is empty"))
-                    self.stdout.write("---")
+                if plan.export_commodity_codes or plan.export_countries:
+                    product_country_no_data += 1
                 else:
-                    not_empty_ep_counter += 1
+                    no_product_country_no_data += 1
+
+                self.stdout.write(self.style.WARNING("EP is empty"))
+                self.stdout.write("---")
+            else:
+                not_empty_ep_counter += 1
+
+                if plan.export_commodity_codes or plan.export_countries:
+                    product_country_with_data += 1
+                else:
                     no_product_country_with_data += 1
-                    self.stdout.write(self.style.SUCCESS("This EP has content."))
+                self.stdout.write(self.style.SUCCESS("This EP has content."))
 
             self.stdout.write("---")
 
