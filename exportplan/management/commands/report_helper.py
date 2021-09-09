@@ -10,7 +10,7 @@ def is_ep_plan_empty(plan, fields):
             attr = getattr(plan, section).all()
             if attr:
                 return False
-        except:
+        except AttributeError:
             attr = getattr(plan, section)
             if attr:
                 return False
