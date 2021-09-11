@@ -8,6 +8,7 @@
 - GP2-1319 - relabelling/adding data services models's attributes
 - GP2-3173 - multi-Export-plan-list-detail
 - GP2-3351 - Add permission class to export-plan api can only be changed/accessed by owner 
+- GP2-3179 - Spike management command: report_export_plan
 
 
 ## [1.14.0](https://github.com/uktrade/directory-api/releases/tag/1.14.0)
