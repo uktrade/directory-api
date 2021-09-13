@@ -81,6 +81,28 @@ def export_plan_only_no_foreign_values():
     return export_plan
 
 
+@pytest.fixture
+def export_plan_commodity_code_country_no_name():
+    export_plan = factories.CompanyExportPlanFactory.create(
+        export_countries=[{'country_iso2_code': 'CN'}],
+        export_commodity_codes=[{'commodity_code': '101.2002.123'}],
+        ui_options={},
+        ui_progress={},
+        objectives={},
+        marketing_approach=[],
+        about_your_business={},
+        target_markets_research={},
+        adaptation_target_market={},
+        direct_costs={},
+        overhead_costs={},
+        total_cost_and_price={},
+        funding_and_credit={},
+        getting_paid={},
+        travel_business_policies={},
+    )
+    return export_plan
+
+
 @pytest.mark.django_db
 def test_report_export_plan_sum(
     export_plan_no_product_or_country_no_data,
@@ -91,6 +113,7 @@ def test_report_export_plan_sum(
     export_plan_with_country_with_data,
     export_plan_empty_data,
     export_plan_only_no_foreign_values,
+    export_plan_commodity_code_country_no_name,
 ):
     management.call_command('report_export_plan')
 

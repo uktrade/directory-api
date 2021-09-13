@@ -25,12 +25,12 @@ class Command(BaseCommand):
 
             # Terminal stdout for Picked Product or Country.
             if plan.export_commodity_codes or plan.export_countries:
-                self.stdout.write(
-                    self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')
-                ) if plan.export_commodity_codes else None
-                self.stdout.write(
-                    self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}')
-                ) if plan.export_countries else None
+                if plan.export_commodity_codes and "commodity_name" in plan.export_commodity_codes[0]:
+                    self.stdout.write(
+                        self.style.SUCCESS(f'Picked Product: {plan.export_commodity_codes[0]["commodity_name"]}')
+                    )
+                if plan.export_countries and "country_name" in plan.export_countries[0]:
+                    self.stdout.write(self.style.SUCCESS(f'Picked Country: {plan.export_countries[0]["country_name"]}'))
 
             if is_ep_plan_empty(plan, set_useable_fields()):
                 empty_ep_counter += 1
