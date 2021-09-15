@@ -8,6 +8,7 @@
 - NO TICKET - Firebreak week allow SIC Codes to be stored and updated
 - GP2-1319 - Relabelling data services models
 - GP2-2896 - Split company objectives start/end date fields
+- GP2-3179 - Spike management command: report_export_plan
 
 ## [1.13.0](https://github.com/uktrade/directory-api/releases/tag/1.12.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.12.0...1.13.0)
