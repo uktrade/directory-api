@@ -54,17 +54,30 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Empty plan: {empty_ep_counter}"))
         self.stdout.write(self.style.SUCCESS(f"Not Empty plan: {not_empty_ep_counter}"))
-        self.stdout.write(self.style.SUCCESS(f"No product or country added, no data: {no_product_or_country_no_data}"))
         self.stdout.write(
-            self.style.SUCCESS(f"No product and country added, some data: {no_product_and_country_with_data}")
+            self.style.SUCCESS(f"No product or country added, no data added by user: {no_product_or_country_no_data}")
         )
         self.stdout.write(
-            self.style.SUCCESS(f"No product or country added, some data: {no_product_or_country_with_data}")
-        )
-        self.stdout.write(self.style.SUCCESS(f"One of product/country added, no data: {product_or_country_no_data}"))
-        self.stdout.write(
-            self.style.SUCCESS(f"One of product and country added, some data:" f"{product_and_country_with_data}")
+            self.style.SUCCESS(
+                f"No product and country added, some data added by user: {no_product_and_country_with_data}"
+            )
         )
         self.stdout.write(
-            self.style.SUCCESS(f"One of product/country added, some data: {product_or_country_with_data}")
+            self.style.SUCCESS(
+                f"No product or country added, some data added by user: {no_product_or_country_with_data}"
+            )
+        )
+        self.stdout.write(
+            self.style.SUCCESS(f"One of product/country added, no data added by user: {product_or_country_no_data}")
+        )
+        # fmt: off
+        self.stdout.write(
+            self.style.SUCCESS(
+                "One of product and country added, some data added by user: "
+                f"{product_and_country_with_data}"
+            )
+        )
+        # fmt: on
+        self.stdout.write(
+            self.style.SUCCESS(f"One of product/country added, some data added by user: {product_or_country_with_data}")
         )
