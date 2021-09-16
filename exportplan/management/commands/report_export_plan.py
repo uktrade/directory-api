@@ -72,7 +72,8 @@ class Command(BaseCommand):
         )
         self.stdout.write(
             self.style.SUCCESS(
-                f"One of product and country added, some data added by user: {product_and_country_with_data}"
+                "One of product and country added, some data added by user:"
+                f"{product_and_country_with_data}"
             )
         )
         self.stdout.write(
