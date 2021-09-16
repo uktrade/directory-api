@@ -85,6 +85,16 @@ def test_create_anonymous_unsubscribe_already_unsubscribed(
 
 
 @pytest.mark.django_db
+@patch('core.tasks.send_email')
+def test_create_anonymous_unsubscribe_backwards_compatible(mock_task, client):
+    url = reverse('anonymous-unsubscribe')
+    response = client.post(url, {'email': 'test@example.com'})
+
+    assert response.status_code == http.client.CREATED
+    assert mock_task.delay.called is True
+
+
+@pytest.mark.django_db
 @patch('notifications.notifications.anonymous_unsubscribed')
 @patch('notifications.models.AnonymousEmailNotification.objects.get')
 @patch('notifications.tokens.TokenGenerator.check_token', return_value=True)
