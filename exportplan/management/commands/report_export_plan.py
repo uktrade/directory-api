@@ -70,14 +70,11 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f"One of product/country added, no data added by user: {product_or_country_no_data}")
         )
-        # fmt: off
         self.stdout.write(
             self.style.SUCCESS(
-                "One of product and country added, some data added by user: "
-                f"{product_and_country_with_data}"
+                f"One of product and country added, some data added by user: {product_and_country_with_data}"
             )
         )
-        # fmt: on
         self.stdout.write(
             self.style.SUCCESS(f"One of product/country added, some data added by user: {product_or_country_with_data}")
         )
