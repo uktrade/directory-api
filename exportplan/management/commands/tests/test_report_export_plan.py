@@ -6,17 +6,6 @@ from exportplan.management.commands import report_helper
 
 
 @pytest.fixture
-def export_plan():
-    export_plan = factories.CompanyExportPlanFactory.create()
-    factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
-    factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
-    factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
-    factories.FundingCreditOptionsFactory.create(companyexportplan=export_plan)
-    factories.BusinessTripsFactory.create(companyexportplan=export_plan)
-    factories.BusinessRiskFactory.create(companyexportplan=export_plan)
-    return export_plan
-
-@pytest.fixture
 def export_plan_no_product_or_country_no_data():
     export_plan = factories.CompanyExportPlanFactory.create(
         export_countries=[], export_commodity_codes=[], ui_progress={}

@@ -58,18 +58,23 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"No product or country added, no data added by user: {no_product_or_country_no_data}")
         )
         self.stdout.write(
-            self.style.SUCCESS(f"No product and country added, some data added by user: {no_product_and_country_with_data}")
+            self.style.SUCCESS(
+                f"No product and country added, some data added by user: {no_product_and_country_with_data}"
+            )
         )
         self.stdout.write(
-            self.style.SUCCESS(f"No product or country added, some data added by user: {no_product_or_country_with_data}")
+            self.style.SUCCESS(
+                f"No product or country added, some data added by user: {no_product_or_country_with_data}"
+            )
         )
         self.stdout.write(
             self.style.SUCCESS(f"One of product/country added, no data added by user: {product_or_country_no_data}")
         )
         self.stdout.write(
-            self.style.SUCCESS(f"One of product and country added, some data added by user: {product_and_country_with_data}")
+            self.style.SUCCESS(
+                f"One of product and country added, some data added by user: {product_and_country_with_data}"
+            )
         )
         self.stdout.write(
             self.style.SUCCESS(f"One of product/country added, some data added by user: {product_or_country_with_data}")
         )
-
