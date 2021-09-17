@@ -28,6 +28,11 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
         notifications.anonymous_unsubscribed(recipient_email=instance.email)
 
     def get_email(self):
+        email = self.request.data.get('email')
+
+        if email is not None:
+            return email
+
         uidb64 = self.request.data.get('uidb64')
         token = self.request.data.get('token')
 
