@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
         no_product_or_country_no_data = 0
         no_product_or_country_with_data = 0
-        no_product_and_country_with_data = 0
+        product_country_no_data = 0
 
         product_or_country_no_data = 0
         product_or_country_with_data = 0
@@ -33,7 +33,7 @@ class Command(BaseCommand):
                 empty_ep_counter += 1
 
                 if plan.export_commodity_codes and plan.export_countries:
-                    no_product_and_country_with_data += 1
+                    product_country_no_data += 1
                 elif plan.export_commodity_codes or plan.export_countries:
                     product_or_country_no_data += 1
                 else:
@@ -55,26 +55,24 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Empty plan: {empty_ep_counter}"))
         self.stdout.write(self.style.SUCCESS(f"Not Empty plan: {not_empty_ep_counter}"))
         self.stdout.write(
-            self.style.SUCCESS(f"No product or country added, no data added by user: {no_product_or_country_no_data}")
-        )
-        self.stdout.write(
             self.style.SUCCESS(
-                f"No product and country added, some data added by user: {no_product_and_country_with_data}"
+                f"NO product and NO country added, NO data added by user: {no_product_or_country_no_data}"
             )
         )
         self.stdout.write(
-            self.style.SUCCESS(
-                f"No product or country added, some data added by user: {no_product_or_country_with_data}"
-            )
-        )
-        self.stdout.write(
-            self.style.SUCCESS(f"One of product/country added, no data added by user: {product_or_country_no_data}")
+            self.style.SUCCESS(f"Product and Country added, NO data added by use: {product_country_no_data}")
         )
         self.stdout.write(
             self.style.SUCCESS(
-                f"One of product and country added, some data added by user: {product_and_country_with_data}"
+                f"NO product and NO country added, some data added by user: {no_product_or_country_with_data}"
             )
         )
         self.stdout.write(
-            self.style.SUCCESS(f"One of product/country added, some data added by user: {product_or_country_with_data}")
+            self.style.SUCCESS(f"Product or Country added, NO data added by user: {product_or_country_no_data}")
+        )
+        self.stdout.write(
+            self.style.SUCCESS(f"Product and Country added, some data added by user: {product_and_country_with_data}")
+        )
+        self.stdout.write(
+            self.style.SUCCESS(f"Product or Country added, some data added by user: {product_or_country_with_data}")
         )
