@@ -23,7 +23,6 @@ class OfficeForm(forms.ModelForm):
 
 @admin.register(models.Office)
 class OfficeAdmin(admin.ModelAdmin):
-    formfield_overrides = {models.Office.name: {'widget': forms.TextInput}}
     form = OfficeForm
     search_fields = (
         'name',
