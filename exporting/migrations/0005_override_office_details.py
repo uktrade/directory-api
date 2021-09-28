@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name='office',
             name='override_office_details',
             field=models.TextField(blank=True,
-                                   help_text='If this field has a value all fields above will be ignored and the details in this field will be displayedOther office details will not be displayed if this is the main search resultIf this office is in the results page of other offices, this will be the details displayed.',
+                                   help_text='If this field has a value all fields above will be ignored and the details in this field will be displayed. Other office details will not be displayed if this is the main search result. If this office is in the results page of other offices, this will be the details displayed.',
                                    null=True),
 
         ),
