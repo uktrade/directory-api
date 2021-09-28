@@ -17,3 +17,11 @@ class Office(TimeStampedModel):
     phone_other = models.TextField(blank=True, null=True)
     phone_other_comment = models.TextField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
+    override_office_details = models.TextField(
+        blank=True, null=True,
+        help_text=(
+            'If this field has a value all fields above will be ignored and the details in this field will be displayed'
+            'Other office details will not be displayed if this is the main search result'
+            'If this office is in the results page of other offices, this will be the details displayed.'
+        ),
+    )
