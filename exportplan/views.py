@@ -6,10 +6,12 @@ from core.permissions import IsAuthenticatedSSO
 from exportplan import models, serializers
 from exportplan.models import CompanyExportPlan
 
+from .permissions import IsExportPlanOwner
 
-class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+
+class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CompanyExportPlanSerializer
-    permission_classes = [IsAuthenticatedSSO]
+    permission_classes = [IsAuthenticatedSSO, IsExportPlanOwner]
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'pk'
 
@@ -91,5 +93,5 @@ class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDest
 
 
 class ExportPlanUploadFile(generics.CreateAPIView):
-    permission_classes = [IsAuthenticatedSSO]
+    permission_classes = [IsAuthenticatedSSO, IsExportPlanOwner]
     serializer_class = serializers.ExportPlanDownloadSerializer

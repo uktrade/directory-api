@@ -9,12 +9,14 @@ from exportplan import models
 class CompanyExportPlanAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
     search_fields = (
+        'pk',
         'company',
         'sso_id',
         'export_countries',
         'export_commodity_codes',
     )
     list_display = (
+        'pk',
         'company',
         'sso_id',
         'export_countries',

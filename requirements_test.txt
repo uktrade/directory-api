@@ -205,7 +205,7 @@ pandas==1.2.3
     # via -r requirements.in
 pathspec==0.8.1
     # via black
-pillow==8.2.0
+pillow==8.3.2
     # via directory-validators
 pluggy==0.13.1
     # via pytest
@@ -307,7 +307,7 @@ six==1.15.0
     #   w3lib
 soupsieve==2.0.1
     # via beautifulsoup4
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 tablib[html,ods,xls,xlsx,yaml]==2.0.0
     # via django-import-export

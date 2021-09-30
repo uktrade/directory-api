@@ -18,6 +18,7 @@ def test_notification_base_rejects_if_required_properties_missing():
     )
 
 
+@pytest.mark.django_db
 def test_new_companies_in_sector_limit_companies():
     notification = email.NewCompaniesInSectorNotification(
         subscriber={'email': 'jim@examle.com', 'name': 'Jim'},
