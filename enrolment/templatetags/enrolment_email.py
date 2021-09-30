@@ -1,12 +1,9 @@
-import os
-
 from django import template
-
-from enrolment import constants
+from django.conf import settings
 
 register = template.Library()
 
 
 @register.simple_tag
 def email_image(image_name):
-    return os.path.join(constants.EMAIL_STATIC_FILE_BUCKET, image_name)
+    return 'https://{0}.s3.amazonaws.com/{1}'.format(settings.AWS_STORAGE_BUCKET_NAME_EMAIL, image_name)
