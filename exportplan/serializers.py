@@ -141,7 +141,6 @@ class ExportPlanCreateSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        print('*****  find sso id',validated_data)
         validated_data['name'] = helpers.get_unique_exportplan_name(validated_data)
         new_plan = models.CompanyExportPlan(**validated_data)
         new_plan.save()
