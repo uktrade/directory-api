@@ -12,7 +12,7 @@ from core.storage import private_storage
 class CompanyExportPlan(TimeStampedModel):
 
     # General fields
-
+    name = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
         Company, related_name='company_export_plans', on_delete=models.CASCADE, blank=True, null=True
     )
