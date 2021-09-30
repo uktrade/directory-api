@@ -1,5 +1,4 @@
 from django.contrib.postgres.fields import JSONField
-from django.db import transaction
 from rest_framework import serializers
 
 from exportplan import models
@@ -118,6 +117,29 @@ class ExportPlanDownloadSerializer(serializers.ModelSerializer):
         }
 
 
+class ExportPlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyExportPlan
+        fields = (
+            'pk',
+            'created',
+            'ui_progress',
+            'export_countries',
+            'export_commodity_codes',
+        )
+
+
+class ExportPlanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyExportPlan
+        fields = (
+            'pk',
+            'sso_id',
+            'export_countries',
+            'export_commodity_codes',
+        )
+
+
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
     route_to_markets = RouteToMarketsSerializer(many=True, required=False, read_only=False)
@@ -167,13 +189,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
             serializer.is_valid(raise_exception=True)
         return value
 
-    def create(self, validated_data):
-
-        objectives = validated_data.pop('company_objectives', {})
-        instance = super().create(validated_data)
-        self.recreate_objectives(instance, objectives)
-        return instance
-
     def update(self, instance, validated_data):
 
         # This will allow partial updating to json fields during a patch update. Json fields generally represent
@@ -200,12 +215,3 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
                 validated_data[field_name] = field_value
         super().update(instance, validated_data)
         return instance
-
-    @transaction.atomic
-    def recreate_objectives(self, instance, objectives):
-        instance.company_objectives.all().delete()
-        data_collection = []
-        for objective in objectives:
-            data = {**objective, 'companyexportplan': instance}
-            data_collection.append(models.CompanyObjectives(**data))
-        models.CompanyObjectives.objects.bulk_create(data_collection)

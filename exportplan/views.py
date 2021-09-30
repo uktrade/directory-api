@@ -6,25 +6,32 @@ from core.permissions import IsAuthenticatedSSO
 from exportplan import models, serializers
 from exportplan.models import CompanyExportPlan
 
+from .permissions import IsExportPlanOwner
 
-class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+
+class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CompanyExportPlanSerializer
-    permission_classes = [IsAuthenticatedSSO]
+    permission_classes = [IsAuthenticatedSSO, IsExportPlanOwner]
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'pk'
 
 
-class CompanyExportPlanListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = serializers.CompanyExportPlanSerializer
+class ExportPlanListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanListSerializer
     queryset = CompanyExportPlan.objects.all()
     lookup_field = 'sso_id'
 
-    def perform_create(self, serializer):
-        serializer.validated_data['sso_id'] = self.request.user.id
-        serializer.save()
-
     def get_queryset(self):
         return models.CompanyExportPlan.objects.filter(sso_id=self.request.user.id)
+
+
+class ExportPlanCreateAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticatedSSO]
+    serializer_class = serializers.ExportPlanCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(sso_id=self.request.user.id)
 
 
 class CompanyExportPlanListAddTargetCountryAPIView(generics.ListCreateAPIView):
@@ -86,5 +93,5 @@ class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDest
 
 
 class ExportPlanUploadFile(generics.CreateAPIView):
-    permission_classes = [IsAuthenticatedSSO]
+    permission_classes = [IsAuthenticatedSSO, IsExportPlanOwner]
     serializer_class = serializers.ExportPlanDownloadSerializer

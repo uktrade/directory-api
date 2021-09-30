@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from notifications import fields, models
+from notifications import models
 
 
 class AnonymousUnsubscribeSerializer(serializers.ModelSerializer):
-    email = fields.SignedEmailField()
+    email = serializers.EmailField()
 
     class Meta(object):
         model = models.AnonymousUnsubscribe
