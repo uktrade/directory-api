@@ -1,4 +1,5 @@
 import pytest
+
 from exportplan import helpers
 from exportplan.tests import factories
 
@@ -34,31 +35,29 @@ def test_get_iso3_by_country_name_lower():
 def test_get_iso3_by_country_name_none():
     assert helpers.get_iso3_by_country_name(None) is None
 
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'existing_indices, expected',
     [
         [[], 0],
         [[0], 1],
-        [[0,1], 2],
-        [[0,2], 1],
-        [[1,2], 0],
+        [[0, 1], 2],
+        [[0, 2], 1],
+        [[1, 2], 0],
     ],
 )
 def test_get_unique_exportplan_name(existing_indices, expected, authed_supplier):
-
     def get_name(id):
         postscript = f' ({id})' if id else ''
         return f'Export plan for selling cheese to Russia{postscript}'
-    
+
     for idx in existing_indices:
         factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id, name=get_name(idx))
     ep = {
-    'sso_id': authed_supplier.sso_id,
-    'export_commodity_codes':[{'commodity_name':'cheese'}],
-    'export_countries':[{'country_name':'Russia'}],
+        'sso_id': authed_supplier.sso_id,
+        'export_commodity_codes': [{'commodity_name': 'cheese'}],
+        'export_countries': [{'country_name': 'Russia'}],
     }
     new_name = helpers.get_unique_exportplan_name(ep)
-    assert new_name == get_name(expected) 
-
-
+    assert new_name == get_name(expected)

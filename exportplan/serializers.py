@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from rest_framework import serializers
 
-from exportplan import models, helpers
+from exportplan import helpers, models
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
