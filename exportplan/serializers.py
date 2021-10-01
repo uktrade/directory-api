@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from rest_framework import serializers
 
-from exportplan import models
+from exportplan import helpers, models
 
 
 class CompanyObjectivesSerializer(serializers.ModelSerializer):
@@ -122,6 +122,7 @@ class ExportPlanListSerializer(serializers.ModelSerializer):
         model = models.CompanyExportPlan
         fields = (
             'pk',
+            'name',
             'created',
             'ui_progress',
             'export_countries',
@@ -139,6 +140,12 @@ class ExportPlanCreateSerializer(serializers.ModelSerializer):
             'export_commodity_codes',
         )
 
+    def create(self, validated_data):
+        validated_data['name'] = helpers.get_unique_exportplan_name(validated_data)
+        new_plan = models.CompanyExportPlan(**validated_data)
+        new_plan.save()
+        return new_plan
+
 
 class CompanyExportPlanSerializer(serializers.ModelSerializer):
     company_objectives = CompanyObjectivesSerializer(many=True, required=False, read_only=False)
@@ -151,6 +158,7 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyExportPlan
         fields = (
+            'name',
             'company',
             'sso_id',
             'ui_options',

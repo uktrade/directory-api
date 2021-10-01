@@ -52,6 +52,7 @@ def test_export_plan_retrieve(authed_client, export_plan):
     response = authed_client.get(url)
 
     data = {
+        'name': None,
         'company': export_plan.company.id,
         'sso_id': export_plan.sso_id,
         'export_commodity_codes': export_plan.export_commodity_codes,
@@ -177,6 +178,7 @@ def test_export_plan_list_detail(authed_client, authed_supplier):
     response = authed_client.get(reverse('export-plan-detail-list'))
     assert list(response.json()[0].keys()) == [
         'pk',
+        'name',
         'created',
         'ui_progress',
         'export_countries',

@@ -20,6 +20,7 @@ def is_ep_plan_empty(plan, fields):
 def set_useable_fields():
     not_needed_model_fields = [
         "id",
+        "name",
         "created",
         "modified",
         "sso_id",
