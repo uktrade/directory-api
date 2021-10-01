@@ -17,6 +17,7 @@ sentry-sdk==0.13.4
 boto3==1.17.90
 celery[redis]==4.3.0
 requests[security]==2.25.1
+elasticsearch==7.9.1
 elasticsearch-dsl==7.3.0
 waitress==1.4.3
 sigauth==4.1.1
