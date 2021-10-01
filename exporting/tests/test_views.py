@@ -49,6 +49,7 @@ def test_lookup_by_postcode_success(mock_postcode_to_region_id, api_client, offi
         'phone_other': office.phone_other,
         'phone_other_comment': office.phone_other_comment,
         'website': office.website,
+        'override_office_details': office.override_office_details,
     }
 
     total_offices = Office.objects.all().count()
