@@ -114,7 +114,9 @@ djangorestframework==3.11.2
     #   -r requirements.in
     #   sigauth
 elasticsearch==7.9.1
-    # via elasticsearch-dsl
+    # via
+    #   -r requirements.in
+    #   elasticsearch-dsl
 elasticsearch-dsl==7.3.0
     # via -r requirements.in
 et-xmlfile==1.0.1
