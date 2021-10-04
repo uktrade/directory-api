@@ -36,6 +36,10 @@ class EaseOfDoingBusiness(TimeStampedModel):
     def __str__(self):
         return self.country_name
 
+    class Meta:
+        verbose_name = 'Ease of doing business | World Bank Doing Business'
+        verbose_name_plural = 'Ease of doing business | World Bank Doing Business'
+
 
 class CorruptionPerceptionsIndex(TimeStampedModel):
 
@@ -50,7 +54,8 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
     class Meta:
         unique_together = [['country_code', 'year']]
-        verbose_name_plural = 'Corruption perceptions indexes'
+        verbose_name = 'Corruption perceptions indexes  | Transparency International'
+        verbose_name_plural = 'Corruption perceptions indexes  | Transparency International'
 
     def __str__(self):
         return f'{self.country_name}:{self.year}'
@@ -141,7 +146,8 @@ class ConsumerPriceIndex(TimeStampedModel):
 
     class Meta:
         unique_together = ('country_code', 'year')
-        verbose_name_plural = 'Consumer price indexes'
+        verbose_name = 'Consumer price indexes | IMF'
+        verbose_name_plural = 'Consumer price indexes | IMF'
 
 
 class GDPPerCapita(TimeStampedModel):
@@ -156,8 +162,8 @@ class GDPPerCapita(TimeStampedModel):
         return self.country_name
 
     class Meta:
-        verbose_name = 'GDP Per Capita'
-        verbose_name_plural = 'GDP Per Capita'
+        verbose_name = 'GDP Per Capita | World Bank'
+        verbose_name_plural = 'GDP Per Capita | World Bank'
 
 
 class SuggestedCountry(TimeStampedModel):
@@ -188,8 +194,8 @@ class Income(TimeStampedModel):
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
 
     class Meta:
-        verbose_name = 'Net Adjusted Income | World Bank'
-        verbose_name_plural = 'Net Adjusted Income | World Bank'
+        verbose_name = 'Annual Net Adjusted Income per Capita | World Bank'
+        verbose_name_plural = 'Annual Net Adjusted Income per Capita | World Bank'
 
 
 class RuleOfLaw(TimeStampedModel):
@@ -206,8 +212,8 @@ class RuleOfLaw(TimeStampedModel):
         return str(self.country_name)
 
     class Meta:
-        verbose_name = 'Rule of Law Rank | World Bank'
-        verbose_name_plural = 'Rule of Law Rank | World Bank'
+        verbose_name = 'Rule of Law Rank | Global Innovation Index'
+        verbose_name_plural = 'Rule of Law Rank | Global Innovation Index'
 
 
 class Currency(TimeStampedModel):
@@ -244,7 +250,8 @@ class TradingBlocs(TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = "Trading Bloc"
+        verbose_name = "Trading blocs | DIT DATA"
+        verbose_name_plural = "Trading blocs | DIT DATA"
 
 
 class ComtradeReport(models.Model):
@@ -300,5 +307,6 @@ class PopulationData(models.Model):
     age_100_plus = models.PositiveIntegerField(null=True, default=None, unique=False)
 
     class Meta:
-        verbose_name = "Target age groups"
+        verbose_name = "Target age groups | UN Population division"
+        verbose_name_plural = "Target age groups | UN Population division"
         unique_together = ('country', 'gender', 'year')

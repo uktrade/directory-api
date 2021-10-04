@@ -35,8 +35,8 @@ def export_plan_data(company):
 
 
 @pytest.fixture
-def export_plan():
-    export_plan = factories.CompanyExportPlanFactory.create()
+def export_plan(authed_supplier):
+    export_plan = factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
     factories.CompanyObjectivesFactory.create(companyexportplan=export_plan)
     factories.RouteToMarketsFactory.create(companyexportplan=export_plan)
     factories.TargetMarketDocumentsFactory.create(companyexportplan=export_plan)
@@ -47,59 +47,12 @@ def export_plan():
 
 
 @pytest.mark.django_db
-def test_export_plan_create(export_plan_data, authed_client, authed_supplier):
-    response = authed_client.post(reverse('export-plan-list-create'), export_plan_data, format='json')
-    assert response.status_code == http.client.CREATED
-    created_export_plan = response.json()
-
-    export_plan_db = models.CompanyExportPlan.objects.last()
-
-    assert created_export_plan['export_commodity_codes'] == export_plan_data['export_commodity_codes']
-    assert created_export_plan['export_countries'] == export_plan_data['export_countries']
-    assert created_export_plan['ui_options'] == export_plan_data['ui_options']
-    assert created_export_plan['ui_progress'] == export_plan_data['ui_progress']
-    assert created_export_plan['total_cost_and_price'] == export_plan_data['total_cost_and_price']
-    assert created_export_plan['overhead_costs'] == export_plan_data['overhead_costs']
-    assert created_export_plan['direct_costs'] == export_plan_data['direct_costs']
-
-    assert created_export_plan['company_objectives'] == [
-        {
-            'companyexportplan': export_plan_db.pk,
-            'description': 'export 5k cases of wine',
-            'owner': None,
-            'start_month': None,
-            'start_year': None,
-            'end_month': None,
-            'end_year': None,
-            'planned_reviews': '',
-            'pk': 1,
-        }
-    ]
-    assert created_export_plan['sso_id'] == authed_supplier.sso_id
-
-
-@pytest.mark.django_db
-def test_export_plan_list(authed_client, authed_supplier):
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
-    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id + 1)
-
-    response = authed_client.get(reverse('export-plan-list-create'))
-
-    assert len(response.json()) == 2
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_retrieve(authed_client, export_plan):
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
 
     data = {
+        'name': None,
         'company': export_plan.company.id,
         'sso_id': export_plan.sso_id,
         'export_commodity_codes': export_plan.export_commodity_codes,
@@ -179,30 +132,86 @@ def test_export_plan_retrieve(authed_client, authed_supplier, export_plan):
 
 
 @pytest.mark.django_db
-def test_export_plan_update(authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_retrieve_403(authed_client, export_plan):
+    non_owner_exportplan = factories.CompanyExportPlanFactory.create(sso_id=export_plan.sso_id + 1)
+    url = reverse('export-plan-detail-update', kwargs={'pk': non_owner_exportplan.pk})
+    response = authed_client.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_export_plan_retrieve_not_found(authed_client, export_plan):
+    url = reverse('export-plan-detail-update', kwargs={'pk': 10000})
+    with pytest.raises(models.CompanyExportPlan.DoesNotExist):
+        authed_client.get(url)
+
+
+@pytest.mark.django_db
+def test_export_plan_update(authed_client, export_plan):
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
 
     data = {'export_commodity_codes': [{'commodity_name': 'vodka', 'commodity_code': '104.2402.123'}]}
     assert export_plan.export_commodity_codes != data['export_commodity_codes']
 
     response = authed_client.patch(url, data, format='json')
-    export_plan.refresh_from_db()
-
     assert response.status_code == http.client.OK
+    export_plan.refresh_from_db()
     assert export_plan.export_commodity_codes == data['export_commodity_codes']
 
 
 @pytest.mark.django_db
+def test_export_plan_update_403(authed_client, export_plan):
+    non_owner_exportplan = factories.CompanyExportPlanFactory.create(sso_id=export_plan.sso_id + 1)
+    url = reverse('export-plan-detail-update', kwargs={'pk': non_owner_exportplan.pk})
+
+    data = {'export_commodity_codes': [{'commodity_name': 'vodka', 'commodity_code': '104.2402.123'}]}
+    response = authed_client.patch(url, data, format='json')
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_export_plan_list_detail(authed_client, authed_supplier):
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id)
+    factories.CompanyExportPlanFactory.create(sso_id=authed_supplier.sso_id + 1)
+
+    response = authed_client.get(reverse('export-plan-detail-list'))
+    assert list(response.json()[0].keys()) == [
+        'pk',
+        'name',
+        'created',
+        'ui_progress',
+        'export_countries',
+        'export_commodity_codes',
+    ]
+    assert response.status_code == 200
+
+    assert len(response.json()) == 2
+
+
+@pytest.mark.django_db
+def test_export_plan_create(authed_client, authed_supplier):
+
+    url = reverse('export-plan-create')
+
+    data = {
+        'export_commodity_codes': [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
+        'export_countries': [{'country_name': 'China', 'country_iso2_code': 'CN'}],
+    }
+    response = authed_client.post(url, data, format='json')
+
+    assert response.status_code == 201
+    export_plan_db = models.CompanyExportPlan.objects.last()
+    created_export_plan = response.json()
+
+    assert export_plan_db.sso_id == authed_supplier.sso_id
+    assert export_plan_db.export_commodity_codes == created_export_plan['export_commodity_codes']
+    assert export_plan_db.export_countries == created_export_plan['export_countries']
+
+
+@pytest.mark.django_db
 def test_export_plan_update_json_new_to_partial(authed_client, authed_supplier):
-    export_plan = factories.CompanyExportPlanFactory.create(about_your_business={})
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-
+    export_plan = factories.CompanyExportPlanFactory.create(about_your_business={}, sso_id=authed_supplier.sso_id)
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
 
@@ -229,12 +238,9 @@ def test_export_plan_update_json_new_to_partial(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed_supplier):
-    export_plan = factories.CompanyExportPlanFactory.create(ui_progress={'section-a': {'opt-a': 'A', 'opt-b': 'B'}})
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
-
+    export_plan = factories.CompanyExportPlanFactory.create(
+        ui_progress={'section-a': {'opt-a': 'A', 'opt-b': 'B'}}, sso_id=authed_supplier.sso_id
+    )
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
     assert response.status_code == 200
@@ -264,11 +270,7 @@ def test_export_plan_update_json_new_to_partial_inner_dict(authed_client, authed
 
 @pytest.mark.django_db
 def test_export_plan_update_non_json_new_to_partial(authed_client, authed_supplier):
-    export_plan = factories.CompanyExportPlanFactory.create(adaptation_target_market={})
-
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+    export_plan = factories.CompanyExportPlanFactory.create(adaptation_target_market={}, sso_id=authed_supplier.sso_id)
 
     url = reverse('export-plan-detail-update', kwargs={'pk': export_plan.pk})
     response = authed_client.get(url)
@@ -323,10 +325,7 @@ def test_export_plan_update_non_json_new_to_partial(authed_client, authed_suppli
     ],
 )
 @pytest.mark.django_db
-def test_export_plan_model_create(model_class, property_name, create_data, authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_model_create(model_class, property_name, create_data, authed_client, export_plan):
     url = reverse('export-plan-model-object-list-create')
 
     create_data['companyexportplan'] = export_plan.id
@@ -358,10 +357,7 @@ def test_export_plan_model_create(model_class, property_name, create_data, authe
     ],
 )
 @pytest.mark.django_db
-def test_export_plan_model_retrieve(model_class, property_name, authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_model_retrieve(model_class, property_name, authed_client, export_plan):
 
     model_object = getattr(export_plan, property_name).all()[0]
 
@@ -391,10 +387,8 @@ def test_export_plan_model_retrieve(model_class, property_name, authed_client, a
     ],
 )
 @pytest.mark.django_db
-def test_export_plan_model_update(model_class, property_name, data_update, authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_model_update(model_class, property_name, data_update, authed_client, export_plan):
+
     attribute_updated = list(data_update.keys())[0]
     data_update['model_name'] = model_class.__name__
     model_object = getattr(export_plan, property_name).all()[0]
@@ -419,10 +413,8 @@ def test_export_plan_model_update(model_class, property_name, data_update, authe
     ],
 )
 @pytest.mark.django_db
-def test_export_plan_model_delete(model_class, property_name, authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_model_delete(model_class, property_name, authed_client, export_plan):
+
     model_object = getattr(export_plan, property_name).all()[0]
 
     # Upper model name is deliberate to test that it's not case sensitive
@@ -435,10 +427,7 @@ def test_export_plan_model_delete(model_class, property_name, authed_client, aut
 
 
 @pytest.mark.django_db
-def test_export_plan_pdf_upload(authed_client, authed_supplier, export_plan):
-    authed_supplier.sso_id = export_plan.sso_id
-    authed_supplier.company = export_plan.company
-    authed_supplier.save()
+def test_export_plan_pdf_upload(authed_client, export_plan):
     mock_file = mock.Mock(spec=File)
     url = reverse('export-plan-pdf-upload')
 
@@ -449,3 +438,14 @@ def test_export_plan_pdf_upload(authed_client, authed_supplier, export_plan):
     export_plan_upload = models.ExportplanDownloads.objects.last()
     assert export_plan_upload.companyexportplan.id == export_plan.id
     assert export_plan_upload.pdf_file is not None
+
+
+@pytest.mark.django_db
+def test_export_plan_pdf_upload_403(authed_client, export_plan):
+    mock_file = mock.Mock(spec=File)
+    url = reverse('export-plan-pdf-upload')
+    non_owner_exportplan = factories.CompanyExportPlanFactory.create(sso_id=export_plan.sso_id + 1)
+    data = {'companyexportplan': non_owner_exportplan.id, 'pdf_file': mock_file}
+
+    response = authed_client.post(url, data)
+    assert response.status_code == 403

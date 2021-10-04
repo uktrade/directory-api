@@ -20,4 +20,5 @@ class OfficeSerializer(serializers.ModelSerializer):
             'phone_other',
             'phone_other_comment',
             'website',
+            'override_office_details',
         )
