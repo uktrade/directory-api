@@ -44,7 +44,7 @@ def derive_export_end_date(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exportplan', '0039_auto_20210726_1520'),
+        ('exportplan', '0040_companyexportplan_name'),
     ]
 
     operations = [
