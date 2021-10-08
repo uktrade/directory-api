@@ -11,6 +11,7 @@
 - GP2-3351 - Add permission class to export-plan api can only be changed/accessed by owner 
 - GP2-3179 - Spike management command: report_export_plan
 - GP2-3405 - migrate ep name
+- GP2-3646 - Saving down exportplan to csv command
 
 ## [1.14.0](https://github.com/uktrade/directory-api/releases/tag/1.14.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.13.0...1.14.0)
