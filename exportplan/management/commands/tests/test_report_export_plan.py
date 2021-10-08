@@ -5,9 +5,6 @@ from exportplan.tests import factories
 from exportplan.management.commands import report_helper
 import os
 import csv
-from unittest import TestCase
-from dataclasses import dataclass, fields
-from typing import TypedDict
 import ast
 
 
