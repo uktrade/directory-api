@@ -3,6 +3,9 @@ from django.core import management
 
 from exportplan.tests import factories
 from exportplan.management.commands import report_helper
+import os
+import csv
+import ast
 
 
 @pytest.fixture
@@ -172,3 +175,36 @@ def test_set_useable_fields():
     actual_fields = report_helper.set_useable_fields()
     fields_different = set(expected_fields) ^ set(actual_fields)
     assert not fields_different
+
+
+def test_write_ep_csv():
+    data = [
+        {
+            "sso_id": 1,
+            "export_countries": [{'country_name': 'China', 'country_iso2_code': 'CN'}],
+            "export_commodity_codes": [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}],
+        }
+    ]
+
+    # Write your test data in a temporary file
+    tmp_file = 'tmp.csv'
+    report_helper.write_ep_csv(data, tmp_file)
+    test_list = []
+
+    # Process the data
+    with open(tmp_file, 'r') as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            export_countries = ast.literal_eval(row["export_countries"])
+            export_commodity_codes = ast.literal_eval(row["export_commodity_codes"])
+            test_list.append(
+                {
+                    "sso_id": int(row["sso_id"]),
+                    "export_countries": export_countries,
+                    "export_commodity_codes": export_commodity_codes,
+                }
+            )
+
+    assert data == test_list
+    # Clean the temporary file
+    os.remove(tmp_file)

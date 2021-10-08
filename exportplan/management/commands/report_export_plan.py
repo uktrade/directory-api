@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from exportplan import models
-from exportplan.management.commands.report_helper import is_ep_plan_empty, set_useable_fields
+from exportplan.management.commands.report_helper import is_ep_plan_empty, set_useable_fields, write_ep_csv
 
 
 class Command(BaseCommand):
@@ -22,8 +22,9 @@ class Command(BaseCommand):
 
         export_plans = models.CompanyExportPlan.objects.all()
 
+        ep_list_to_csv = []
+
         for plan in export_plans.iterator():
-            print(plan.sso_id)
             # Terminal stdout for Picked Product or Country.
             if plan.export_commodity_codes or plan.export_countries:
                 if plan.export_commodity_codes and "commodity_name" in plan.export_commodity_codes[0]:
@@ -58,6 +59,15 @@ class Command(BaseCommand):
 
             self.stdout.write("---")
 
+            # Appends to list to get converted to CSV file at the end.
+            ep_list_to_csv.append(
+                {
+                    "sso_id": plan.sso_id,
+                    "export_countries": plan.export_countries,
+                    "export_commodity_codes": plan.export_commodity_codes,
+                }
+            )
+
         self.stdout.write(self.style.SUCCESS(f"Empty plan: {empty_ep_counter}"))
         self.stdout.write(self.style.SUCCESS(f"Not Empty plan: {not_empty_ep_counter}"))
         self.stdout.write(
@@ -86,3 +96,5 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"No Product and No country with data SSOID: {ssoid_no_product_and_country_data}")
         )
         self.stdout.write(self.style.SUCCESS(f"Product or country with data SSOID: {ssoid_product_or_country_data}"))
+
+        write_ep_csv(ep_list_to_csv, 'ep_plan.csv')
