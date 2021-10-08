@@ -25,7 +25,6 @@ class Command(BaseCommand):
         ep_list_to_csv = []
 
         for plan in export_plans.iterator():
-            print(plan.sso_id)
             # Terminal stdout for Picked Product or Country.
             if plan.export_commodity_codes or plan.export_countries:
                 if plan.export_commodity_codes and "commodity_name" in plan.export_commodity_codes[0]:
@@ -98,4 +97,4 @@ class Command(BaseCommand):
         )
         self.stdout.write(self.style.SUCCESS(f"Product or country with data SSOID: {ssoid_product_or_country_data}"))
 
-        write_ep_csv(ep_list_to_csv)
+        write_ep_csv(ep_list_to_csv, 'ep_plan.csv')

@@ -34,8 +34,8 @@ def set_useable_fields():
     return [field for field in my_model_fields if field not in not_needed_model_fields]
 
 
-def write_ep_csv(ep_list):
-    with open('ep_plan.csv', mode='w') as exportplan:
+def write_ep_csv(ep_list, path):
+    with open(path, mode='w') as exportplan:
         fieldnames = ['sso_id', 'export_countries', 'export_commodity_codes']
         writer = csv.DictWriter(exportplan, fieldnames=fieldnames)
 
