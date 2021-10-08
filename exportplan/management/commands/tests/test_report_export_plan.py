@@ -197,8 +197,6 @@ def test_write_ep_csv():
     # Process the data
     with open(tmp_file, 'r') as csv_file:
         reader = csv.DictReader(csv_file)
-        line_count = 0
-
         for row in reader:
             export_countries = ast.literal_eval(row["export_countries"])
             export_commodity_codes = ast.literal_eval(row["export_commodity_codes"])
@@ -209,7 +207,6 @@ def test_write_ep_csv():
                     "export_commodity_codes": export_commodity_codes,
                 }
             )
-            line_count += 1
 
     assert data == test_list
     # Clean the temporary file
