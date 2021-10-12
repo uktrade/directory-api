@@ -1,5 +1,6 @@
-from exportplan import models
 import csv
+
+from exportplan import models
 
 
 def is_ep_plan_empty(plan, fields):
