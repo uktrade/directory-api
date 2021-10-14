@@ -2,6 +2,8 @@
 
 ## Pre release
 ### Bugs fixed
+- [HOTFIX] - Anonymous unsubscribe
+
 ### Enhancements
 - GP2-3343 - Making unsubscribe token based
 - GP2-3275 - Export plan delete
