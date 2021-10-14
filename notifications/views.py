@@ -1,4 +1,5 @@
 from django.db.utils import IntegrityError
+from django.http import QueryDict
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from rest_framework.generics import CreateAPIView
@@ -15,9 +16,6 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
 
     def create(self, *args, **kwargs):
         try:
-            self.request.data._mutable = True
-            self.request.data['email'] = self.get_email()
-            self.request.data._mutable = False
             return super().create(*args, **kwargs)
         # if email has already unsubscribed integrity error happens
         except IntegrityError:
@@ -26,6 +24,13 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
     def perform_create(self, serializer):
         instance = serializer.save()
         notifications.anonymous_unsubscribed(recipient_email=instance.email)
+
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(self.request.data, QueryDict):
+            self.request.data._mutable = True
+
+        self.request.data.update({'email': self.get_email()})
+        return super().get_serializer(*args, **kwargs)
 
     def get_email(self):
         email = self.request.data.get('email')
