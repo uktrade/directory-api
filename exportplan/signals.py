@@ -10,6 +10,6 @@ def update_exportplan_label_on_update(sender, instance, *args, **kwargs):
     if instance.export_countries and instance.export_commodity_codes:
         # Since this is only needed if either export_countries or export_commodity_codes was not selected
         previous_instance = sender.objects.get(id=instance.id)
-        if not (previous_instance.export_countries or previous_instance.export_commodity_codes):
+        if not previous_instance.export_countries or not previous_instance.export_commodity_codes:
             data = model_to_dict(instance)
             instance.name = get_unique_exportplan_name(data)
