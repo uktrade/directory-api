@@ -5,6 +5,7 @@
 - [HOTFIX] - Anonymous unsubscribe
 
 ### Enhancements
+- GP2-3436 - Add created date to ep serializer
 - GP2-3343 - Making unsubscribe token based
 - GP2-3275 - Export plan delete
 - GP2-3171 - Add export plan PK to serializer
