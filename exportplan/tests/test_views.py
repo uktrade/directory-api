@@ -126,6 +126,7 @@ def test_export_plan_retrieve(authed_client, export_plan):
             }
         ],
         'pk': export_plan.pk,
+        'created': export_plan.created.isoformat().replace('+00:00', 'Z'),
     }
     assert response.status_code == 200
     assert response.json() == data
