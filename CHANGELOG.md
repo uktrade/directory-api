@@ -5,6 +5,7 @@
 - [HOTFIX] - Anonymous unsubscribe
 
 ### Enhancements
+- GP2-3780 - Default EP name to "Export plan" if product or market missing
 - GP2-3436 - Add created date to ep serializer
 - GP2-3343 - Making unsubscribe token based
 - GP2-3275 - Export plan delete
