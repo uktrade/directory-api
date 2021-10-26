@@ -61,3 +61,33 @@ def test_get_unique_exportplan_name(existing_indices, expected, authed_supplier)
     }
     new_name = helpers.get_unique_exportplan_name(ep)
     assert new_name == get_name(expected)
+
+
+@pytest.mark.django_db
+def test_get_unique_exportplan_name_empty():
+    product = {'commodity_name': 'cheese'}
+    country = {'country_name': 'Russia'}
+    ep_both = {
+        'sso_id': 100,
+        'export_commodity_codes': [product],
+        'export_countries': [country],
+    }
+    ep_no_product = {
+        'sso_id': 101,
+        'export_commodity_codes': [],
+        'export_countries': [country],
+    }
+    ep_no_country = {
+        'sso_id': 102,
+        'export_commodity_codes': [product],
+        'export_countries': [],
+    }
+    ep_nothing = {
+        'sso_id': 103,
+        'export_commodity_codes': [],
+        'export_countries': [],
+    }
+    assert helpers.get_unique_exportplan_name(ep_both) == 'Export plan for selling cheese to Russia'
+    assert helpers.get_unique_exportplan_name(ep_no_product) == 'Export plan'
+    assert helpers.get_unique_exportplan_name(ep_no_country) == 'Export plan'
+    assert helpers.get_unique_exportplan_name(ep_nothing) == 'Export plan'

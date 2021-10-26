@@ -29,7 +29,11 @@ def get_unique_exportplan_name(ep_dict):
     commodity_name = products[0].get('commodity_name') if products else ''
     countries = ep_dict.get('export_countries')
     country_name = countries[0].get('country_name') if countries else ''
-    new_name = f'Export plan for selling {commodity_name} to {country_name}'
+    new_name = (
+        f'Export plan for selling {commodity_name} to {country_name}'
+        if commodity_name and country_name
+        else 'Export plan'
+    )
     clashes = models.CompanyExportPlan.objects.filter(sso_id=sso_id, name__startswith=new_name)
     if clashes:
         get_number = re.compile('\\((\\d*)\\)')

@@ -20,8 +20,8 @@ def test_populate_exportplan_name(migration):
     ep_populated.refresh_from_db()
     ep_populated_with_name.refresh_from_db()
 
-    assert ep_no_countries.name == 'Export plan for selling gin to '
-    assert ep_no_product.name == 'Export plan for selling  to China'
-    assert ep_no_product_no_counties.name == 'Export plan for selling  to '
+    assert ep_no_countries.name == 'Export plan'
+    assert ep_no_product.name == 'Export plan'
+    assert ep_no_product_no_counties.name == 'Export plan'
     assert ep_populated.name == 'Export plan for selling gin to China'
     assert ep_populated_with_name.name == 'do not override'
