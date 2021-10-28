@@ -5,6 +5,8 @@
 - [HOTFIX] - Anonymous unsubscribe
 
 ### Enhancements
+- GP2-3780 - Default EP name to "Export plan" if product or market missing
+- GP2-3436 - Add created date to ep serializer
 - GP2-3343 - Making unsubscribe token based
 - GP2-3275 - Export plan delete
 - GP2-3171 - Add export plan PK to serializer
@@ -12,7 +14,9 @@
 - GP2-3173 - multi-Export-plan-list-detail
 - GP2-3351 - Add permission class to export-plan api can only be changed/accessed by owner 
 - GP2-3179 - Spike management command: report_export_plan
-
+- GP2-3405 - migrate ep name
+- GP2-3646 - Saving down exportplan to csv command
+- GP2-3715 - update ep label on update
 
 ## [1.14.0](https://github.com/uktrade/directory-api/releases/tag/1.14.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.13.0...1.14.0)
