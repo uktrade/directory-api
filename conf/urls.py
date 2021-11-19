@@ -264,16 +264,6 @@ urlpatterns = [
         dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
         name='dataservices-society-data-by-country',
     ),
-    url(
-        r'^dataservices/population-data/$',
-        dataservices.views.RetrievePopulationDataView.as_view(),
-        name='population-data',
-    ),
-    url(
-        r'^dataservices/population-data-by-country/$',
-        dataservices.views.RetrievePopulationDataViewByCountry.as_view(),
-        name='dataservices-population-data-by-country',
-    ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     url(
