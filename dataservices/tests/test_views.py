@@ -213,6 +213,7 @@ def test_get_cia_factbook_data_no_key(api_client):
         'cia_factbook_data': models.CIAFactbook.objects.get(country_name='United Kingdom').factbook_data
     }
 
+
 @pytest.mark.django_db
 def test_suggested_countries_api(client):
     # Two with same country and sector
