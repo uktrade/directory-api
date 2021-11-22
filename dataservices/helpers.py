@@ -37,15 +37,6 @@ def get_comtrade_data_by_country(commodity_code, country_list):
 
 
 @TTLCache()
-def get_world_economic_outlook_data(country_code):
-    data = []
-    for record in models.WorldEconomicOutlook.objects.filter(country_code=country_code):
-        data.append(serializers.WorldEconomicOutlookSerializer(record).data)
-    serializer = serializers.WorldEconomicOutlookSerializer(data, many=True)
-    return json.loads(json.dumps(serializer.data))
-
-
-@TTLCache()
 def get_cia_factbook_data(country_name, data_keys=None):
     try:
         cia_data = models.CIAFactbook.objects.get(country_name=country_name).factbook_data
