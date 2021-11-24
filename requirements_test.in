@@ -9,7 +9,9 @@ freezegun==0.3.12
 codecov==2.1.7
 
 # Pinned because pre-commit features specific versions
-black==21.4b0
+black==21.11b1
+# Pinned pin dataclasses as 0.08 specified by black doesn't exist
+dataclasses==0.06
 blacken-docs==1.6.0
 isort==5.6.4
 flake8==3.8.4
