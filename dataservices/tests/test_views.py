@@ -66,15 +66,15 @@ def worldeconomicoutlook_data():
 
 @pytest.fixture(autouse=True)
 def country_data():
-    models.ConsumerPriceIndex.objects.create(country_code='UK', country_name='United Kingdom', year=2019, value=150.56)
+    models.ConsumerPriceIndex.objects.create(country_code='GB', country_name='United Kingdom', year=2019, value=150.56)
     models.ConsumerPriceIndex.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.56)
     models.InternetUsage.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.23)
 
 
 @pytest.fixture(autouse=True)
 def society_data():
-    country = models.Country.objects.create(iso2='UK', name='United Kingdom')
-    models.RuleOfLaw.objects.create(iso2='UK', country_name='United Kingdom', rank=10, score=76, country=country)
+    country = models.Country.objects.create(iso2='GB', iso3='GBR', name='United Kingdom', iso1=826)
+    models.RuleOfLaw.objects.create(iso2='GB', country_name='United Kingdom', rank=10, score=76, country=country)
 
 
 @pytest.fixture(autouse=True)
@@ -105,6 +105,7 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 
 @pytest.mark.django_db
 def test_get_country_data_by_country_basic(api_client, multi_country_data):
+
     url = reverse('dataservices-country-data-by-country')
     response = api_client.get(
         url, data={'countries': ['NL'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex', 'CIAFactbook']}
@@ -296,7 +297,7 @@ def test_society_data_by_country(api_client):
             },
             'rule_of_law': {
                 'country_name': 'United Kingdom',
-                'iso2': 'UK',
+                'iso2': 'GB',
                 'rank': 10,
                 'score': '76.000',
                 'year': '2020',

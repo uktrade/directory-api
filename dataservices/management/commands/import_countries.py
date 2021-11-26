@@ -1,6 +1,7 @@
 import tablib
 from django.core.management import BaseCommand
-from import_export import resources, fields
+from import_export import fields, resources
+
 from dataservices.models import Country
 
 
@@ -55,8 +56,6 @@ class Command(BaseCommand):
             country_resource = CountryResource()
             report = country_resource.import_data(dataset)
             [
-                self.stdout.write(
-                    self.style.SUCCESS(f'Results:  {key} : {value}')
-                ) for key, value in report.totals.items()
+                self.stdout.write(self.style.SUCCESS(f'Results:  {key} : {value}'))
+                for key, value in report.totals.items()
             ]
-
