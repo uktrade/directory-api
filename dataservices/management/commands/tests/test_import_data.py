@@ -47,7 +47,7 @@ def test_error_import_data_sets_error(management_cmd):
 @pytest.mark.parametrize(
     'model_name, management_cmd, object_count',
     (
-        (models.Country, 'import_countries', 195),
+        (models.Country, 'import_countries', 196),
         (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
         (models.Currency, 'import_currency_data', 269),
@@ -57,6 +57,34 @@ def test_error_import_data_sets_error(management_cmd):
 def test_import_countries_data_sets(model_name, management_cmd, object_count):
     management.call_command(management_cmd)
     assert model_name.objects.count() == object_count
+
+
+@pytest.mark.django_db
+def test_import_country_data_crud():
+    from dataservices.tests import factories
+
+    old_country = factories.CountryFactory(is_active=True)
+    change_country = factories.CountryFactory(name='Ital', iso2='IT')
+    factories.CountryFactory(name='Maldives', iso2='MV', iso1=462, iso3='MDV', region='South Asia')
+    inactive_country = factories.CountryFactory(
+        name='India', iso2='IN', iso1=356, iso3='IND', region='South Asia', is_active=False
+    )
+    management.call_command('import_countries', 'dataservices/tests/fixtures/import-countries-crud-test.csv')
+
+    old_country.refresh_from_db()
+    change_country.refresh_from_db()
+    inactive_country.refresh_from_db()
+
+    assert models.Country.objects.all().count() == 5
+    assert models.Country.objects.filter(is_active=True).count() == 4
+    assert change_country.name == 'Italy'
+    assert change_country.iso2 == 'IT'
+    assert change_country.iso1 == '380'
+    assert change_country.iso3 == 'ITA'
+    assert change_country.region == 'Europe'
+    assert change_country.is_active is True
+    assert old_country.is_active is False
+    assert inactive_country.is_active is True
 
 
 @pytest.mark.django_db
