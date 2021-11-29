@@ -16,7 +16,6 @@ class Command(BaseCommand):
     help = 'Import easeofdoingbusiness data from worldbank.'
 
     def delete_junk(self):
-        EaseOfDoingBusiness.objects.filter(country_code=None).delete()
         EaseOfDoingBusiness.objects.filter(year=None).delete()
 
     def handle(self, *args, **options):
@@ -41,9 +40,7 @@ class Command(BaseCommand):
                                 country = Country.objects.get(iso3=country_code)
                                 entry = EaseOfDoingBusiness.objects.filter(country=country, year=year).first()
                                 if not entry:
-                                    entry = EaseOfDoingBusiness.objects.create(
-                                        country=country, country_code=country_code, year=year, value=value
-                                    )
+                                    entry = EaseOfDoingBusiness.objects.create(country=country, year=year, value=value)
                                     rows_added += 1
                                 elif entry.value != value:
                                     entry.value = value

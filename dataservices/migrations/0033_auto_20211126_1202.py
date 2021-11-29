@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataservices', '0031_auto_20211005_0834'),
+        ('dataservices', '0032_country_is_active'),
     ]
 
     operations = [
@@ -19,18 +19,17 @@ class Migration(migrations.Migration):
             model_name='easeofdoingbusiness',
             name='country_name',
         ),
+        migrations.RemoveField(
+            model_name='easeofdoingbusiness',
+            name='country_code',
+        ),
         migrations.AddField(
             model_name='easeofdoingbusiness',
             name='year',
             field=models.IntegerField(blank=True, null=True),
         ),
-        migrations.AlterField(
-            model_name='easeofdoingbusiness',
-            name='country_code',
-            field=models.CharField(max_length=50),
-        ),
         migrations.AlterUniqueTogether(
             name='easeofdoingbusiness',
-            unique_together={('country_code', 'year')},
+            unique_together={('country', 'year')},
         ),
     ]

@@ -12,7 +12,7 @@ from dataservices import models
     'model_name, management_cmd, object_count, de_rows',
     (
         (models.CorruptionPerceptionsIndex, 'import_cpi_data', 720, 4),
-        (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264, 1),
+        (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 4, 2),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
         (models.InternetUsage, 'import_internet_usage_data', 264, 1),
         (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 89, 1),
@@ -20,8 +20,9 @@ from dataservices import models
     ),
 )
 def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
-    model_name.objects.create(country_name='abc', country_code='a')
-    models.Country.objects.create(name='Germ', iso2='DE', iso3='DEU')
+    model_name.objects.create()
+    models.Country.objects.create(name='Germ', iso1=276, iso2='DE', iso3='DEU')
+    models.Country.objects.create(name='Ned', iso1=528, iso2='NL', iso3='NLD')
     management.call_command(management_cmd)
     assert model_name.objects.count() == object_count
     assert model_name.objects.filter(country__iso2='DE').count() == de_rows

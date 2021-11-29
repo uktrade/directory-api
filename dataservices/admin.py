@@ -35,16 +35,15 @@ class CountryResource(resources.ModelResource):
 @admin.register(models.EaseOfDoingBusiness)
 class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
-    ordering = ('country_code', 'year')
+    ordering = ('country', 'year')
 
     search_fields = (
-        'country_code',
+        'country',
         'year',
     )
 
     list_display = (
         'country',
-        'country_code',
         'year',
         'value',
     )
