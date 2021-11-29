@@ -1,14 +1,16 @@
-import tablib
 import csv
-import re
 import glob
+import re
+
+import tablib
 from django.core.management import BaseCommand
 from django.db import connection
 from import_export import resources
 
-from dataservices.models import EaseOfDoingBusiness, Country
+from dataservices.models import Country, EaseOfDoingBusiness
 
 REG_GET_YEAR = re.compile(r'.*(\d{4})$')
+
 
 class Command(BaseCommand):
     help = 'Import easeofdoingbusiness data from worldbank.'
@@ -40,7 +42,8 @@ class Command(BaseCommand):
                                 entry = EaseOfDoingBusiness.objects.filter(country=country, year=year).first()
                                 if not entry:
                                     entry = EaseOfDoingBusiness.objects.create(
-                                        country=country, country_code=country_code, year=year, value=value)
+                                        country=country, country_code=country_code, year=year, value=value
+                                    )
                                     rows_added += 1
                                 elif entry.value != value:
                                     entry.value = value
