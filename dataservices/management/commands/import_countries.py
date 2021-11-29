@@ -36,7 +36,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         filename = options['filename'] if options['filename'] else self.DEFAULT_FILENAME
-        print(filename)
         with open(filename, 'r', encoding='utf-8-sig') as f:
             data = tablib.import_set(f.read(), format='csv', headers=True)
             dataset = tablib.Dataset(
