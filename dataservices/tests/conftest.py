@@ -22,8 +22,8 @@ def internet_usage_data():
 
 def countries_data():
     return {
-        'FR': models.Country.objects.create(iso1='1', iso2='FR', iso3='FRA', name='France'),
-        'NL': models.Country.objects.create(iso1='2', iso2='NL', iso3='NLD', name='Netherlands'),
+        'FR': models.Country.objects.create(iso1='250', iso2='FR', iso3='FRA', name='France'),
+        'NL': models.Country.objects.create(iso1='528', iso2='NL', iso3='NLD', name='Netherlands'),
     }
 
 

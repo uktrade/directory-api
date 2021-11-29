@@ -15,6 +15,7 @@ class Country(TimeStampedModel):
     iso2 = models.CharField(unique=True, max_length=10)
     iso3 = models.CharField(unique=True, max_length=10)
     region = models.CharField(blank=False, null=False, max_length=50)
+    is_active = models.BooleanField(default=True, null=False)
 
     def __str__(self):
         return self.name

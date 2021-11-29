@@ -38,7 +38,7 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
             model_names = json.loads(model_names[0])
         out = {}
         for field_spec in model_names:
-            filter_args = {'country__iso2__in': countries_list}
+            filter_args = {'country__iso2__in': countries_list, 'country__is_active': True}
             if isinstance(field_spec, str):
                 field_spec = {'model': field_spec}
             filter_args.update(field_spec.get('filter', {}))
