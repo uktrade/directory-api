@@ -26,18 +26,16 @@ class Country(TimeStampedModel):
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
-
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
-    year_2019 = models.IntegerField(null=True, blank=True)
+    country_code = models.CharField(blank=False, null=False, max_length=50)
+    year = models.IntegerField(null=True, blank=True)
+    value = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.country_name
+        return f'{self.country_code}:{self.year}'
 
     class Meta:
+        unique_together = [['country_code', 'year']]
         verbose_name = 'Ease of doing business | World Bank Doing Business'
         verbose_name_plural = 'Ease of doing business | World Bank Doing Business'
 
