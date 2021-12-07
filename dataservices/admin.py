@@ -42,7 +42,6 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
         'value',
     )
 
-
     list_display = (
         'country',
         'year',
@@ -192,7 +191,11 @@ class SuggestedCountryAdmin(admin.ModelAdmin):
 
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ('country', 'year', 'value',)
+    list_display = (
+        'country',
+        'year',
+        'value',
+    )
 
 
 @admin.register(models.RuleOfLaw)

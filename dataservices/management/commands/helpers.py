@@ -1,8 +1,8 @@
 import io
-import requests
-
-import xmltodict
 from zipfile import ZipFile
+
+import requests
+import xmltodict
 
 
 def flatten_ordered_dict(d):

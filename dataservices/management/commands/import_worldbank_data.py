@@ -1,9 +1,10 @@
-from conf import settings
+from django.apps import apps
 from django.core.management import BaseCommand
 
+from conf import settings
 from dataservices.models import Country
+
 from .helpers import flatten_ordered_dict, from_url_get_xml
-from django.apps import apps
 
 
 class Command(BaseCommand):
@@ -12,22 +13,21 @@ class Command(BaseCommand):
     loader_info = {
         'cpi': {
             'url': f'{settings.WORLD_BANK_API_URI}FP.CPI.TOTL.ZG?downloadformat=xml',
-            'model_name': 'ConsumerPriceIndex'
+            'model_name': 'ConsumerPriceIndex',
         },
         'gdpcapita': {
             'url': f'{settings.WORLD_BANK_API_URI}NY.GDP.PCAP.CD?downloadformat=xml',
-            'model_name': 'GDPPerCapita'
+            'model_name': 'GDPPerCapita',
         },
         'easeofdoingbusiness': {
             'url': f'{settings.WORLD_BANK_API_URI}IC.BUS.EASE.XQ?downloadformat=xml',
-            'model_name': 'EaseOfDoingBusiness'
+            'model_name': 'EaseOfDoingBusiness',
         },
         'income': {
             'url': f'{settings.WORLD_BANK_API_URI}/NY.ADJ.NNTY.PC.CD?downloadformat=xml',
-            'model_name': 'Income'
-        }
+            'model_name': 'Income',
+        },
     }
-
 
     def handle(self, *args, **options):
         world_bank_load = options['world_bank_load']
@@ -45,9 +45,11 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # Positional arguments
         parser.add_argument(
-            'world_bank_load', nargs='*', type=str, default=['all'], help=(
-                'Specify worldbank loader options : cpi, gdpcapita, easeofdoingbusiness all'
-            )
+            'world_bank_load',
+            nargs='*',
+            type=str,
+            default=['all'],
+            help=('Specify worldbank loader options : cpi, gdpcapita, easeofdoingbusiness all'),
         )
 
     def load_worldbank_data(self, url, model_name):

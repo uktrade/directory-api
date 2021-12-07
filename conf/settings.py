@@ -526,7 +526,4 @@ TRADE_BARRIER_API_URI = env.str(
 )
 
 
-WORLD_BANK_API_URI = env.str(
-    'WORLD_BANK_API_URI', 'https://api.worldbank.org/v2/en/indicator/'
-)
-
+WORLD_BANK_API_URI = env.str('WORLD_BANK_API_URI', 'https://api.worldbank.org/v2/en/indicator/')

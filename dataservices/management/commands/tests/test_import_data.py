@@ -1,11 +1,11 @@
 import re
 from unittest import mock
-from conf import settings
 
 import pytest
 from django.core import management
 from import_export import results
 
+from conf import settings
 from dataservices import models
 
 
@@ -186,7 +186,6 @@ def test_import_factbook():
 
 @pytest.fixture
 def world_bank_mock(requests_mocker):
-
     def mock_request(loader_file):
         with open(f'dataservices/tests/fixtures/{loader_file}.zip', 'rb') as f:
             return requests_mocker.get(
