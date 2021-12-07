@@ -207,3 +207,16 @@ def test_import_worldbank_data(world_bank_mock, model_name, load_name, object_co
     management.call_command('import_countries')
     management.call_command('import_worldbank_data', load_name)
     assert len(model_name.objects.all()) == object_count
+
+
+@pytest.mark.django_db
+def test_import_worldbank_data_unknown_cmd():
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', 'bad_load')
+
+
+@pytest.mark.django_db
+def test_import_worldbank_data_all(world_bank_mock):
+    world_bank_mock('easeofdoingbusiness')
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', 'all')
