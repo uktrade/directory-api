@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = 'Import consumer price index data from world bank'
 
     loader_info = {
-        'cpi': {
+        'consumerpriceindex': {
             'url': f'{settings.WORLD_BANK_API_URI}FP.CPI.TOTL.ZG?downloadformat=xml',
             'model_name': 'ConsumerPriceIndex',
         },
