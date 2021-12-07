@@ -65,11 +65,7 @@ def multi_country_data(countries):
         year=2019,
         value=12,
     )
-    models.EaseOfDoingBusiness.objects.create(
-        country=countries['NL'],
-        year=2019,
-        value=13
-    )
+    models.EaseOfDoingBusiness.objects.create(country=countries['NL'], year=2019, value=13)
     models.CIAFactbook.objects.create(
         country=countries['FR'],
         country_name='France',
