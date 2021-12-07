@@ -45,6 +45,7 @@ def test_request_raises_error():
             trade_barrier_data_gateway.barriers_list(filters=filter)
 
 
+@pytest.mark.django_db
 def test_bucket_by_country(trade_barrier_data):
     filters = {'locations': {'CA': 'Canada', 'FR': 'France'}}
     trade_barrier_data = trade_barrier_data.get('rows')

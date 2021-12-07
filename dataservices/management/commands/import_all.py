@@ -15,7 +15,6 @@ class Command(BaseCommand):
         'import_target_age_groups',
         'import_trading_blocs',
         'import_suggested_countries',
-        'import_worldbank_data',
     ]
 
     def run_command(self, command, **options):

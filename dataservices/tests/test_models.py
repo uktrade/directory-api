@@ -18,4 +18,4 @@ def test_cia_factbook_country_name():
 @pytest.mark.django_db
 def test_consumer_price_index():
     cpi = ConsumerPriceIndexFactory()
-    assert str(cpi) == cpi.country_name
+    assert str(cpi) == cpi.country.name

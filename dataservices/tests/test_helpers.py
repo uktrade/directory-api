@@ -165,6 +165,7 @@ def test_get_internet_usage_with_no_country():
     assert data == {}
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "o1,o2,result",
     [

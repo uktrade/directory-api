@@ -5,6 +5,24 @@ import pytest
 from dataservices import models
 
 
+@pytest.fixture(autouse=True)
+def countries():
+    country_uk, _ = models.Country.objects.get_or_create(iso2='GB', iso3='GBR', name='United Kingdom', iso1=826)
+    country_in, _ = models.Country.objects.get_or_create(iso2='IN', iso3='IND', name='India', iso1=200)
+    country_ca, _ = models.Country.objects.get_or_create(iso2='CA', iso3='CAN', name='Canada', iso1=201)
+    country_cn, _ = models.Country.objects.get_or_create(iso2='CN', iso3='CHN', name='China', iso1=203)
+    country_fr, _ = models.Country.objects.get_or_create(iso1='250', iso2='FR', iso3='FRA', name='France')
+    country_nl, _ = models.Country.objects.get_or_create(iso1='528', iso2='NL', iso3='NLD', name='Netherlands')
+    return {
+        'IN': country_in,
+        'GB': country_uk,
+        'CA': country_ca,
+        'CN': country_cn,
+        'FR': country_fr,
+        'NL': country_nl,
+    }
+
+
 @pytest.fixture
 def internet_usage_data():
     country_data = [
@@ -20,16 +38,8 @@ def internet_usage_data():
     models.InternetUsage.objects.all().delete()
 
 
-def countries_data():
-    return {
-        'FR': models.Country.objects.create(iso1='250', iso2='FR', iso3='FRA', name='France'),
-        'NL': models.Country.objects.create(iso1='528', iso2='NL', iso3='NLD', name='Netherlands'),
-    }
-
-
 @pytest.fixture
-def comtrade_report_data():
-    countries = countries_data()
+def comtrade_report_data(countries):
     models.ComtradeReport.objects.create(
         country=countries['FR'],
         country_iso3='FRA',
@@ -46,23 +56,19 @@ def comtrade_report_data():
     )
     yield
     models.ComtradeReport.objects.all().delete()
-    models.Country.objects.all().delete()
 
 
 @pytest.fixture
-def multi_country_data():
-    countries = countries_data()
+def multi_country_data(countries):
     models.EaseOfDoingBusiness.objects.create(
         country=countries['FR'],
-        country_name='France',
-        country_code='FR',
-        year_2019=12,
+        year=2019,
+        value=12,
     )
     models.EaseOfDoingBusiness.objects.create(
         country=countries['NL'],
-        country_code='NL',
-        country_name='Netherlands',
-        year_2019=13,
+        year=2019,
+        value=13
     )
     models.CIAFactbook.objects.create(
         country=countries['FR'],
@@ -80,12 +86,10 @@ def multi_country_data():
     yield
     models.EaseOfDoingBusiness.objects.all().delete()
     models.CIAFactbook.objects.all().delete()
-    models.Country.objects.all().delete()
 
 
 @pytest.fixture
-def age_group_data():
-    countries = countries_data()
+def age_group_data(countries):
     models.PopulationData.objects.create(
         country=countries['FR'],
         year=2019,
@@ -112,7 +116,6 @@ def age_group_data():
     )
     yield
     models.PopulationData.objects.all().delete()
-    models.Country.objects.all().delete()
 
 
 @pytest.fixture
