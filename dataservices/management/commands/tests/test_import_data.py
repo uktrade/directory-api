@@ -1,4 +1,6 @@
+import re
 from unittest import mock
+from conf import settings
 
 import pytest
 from django.core import management
@@ -180,3 +182,35 @@ def test_import_factbook():
         'name': 'German',
         'note': 'official',
     }
+
+
+@pytest.fixture
+def world_bank_mock(requests_mocker):
+
+    def mock_request(loader_file):
+        with open(f'dataservices/tests/fixtures/{loader_file}.zip', 'rb') as f:
+            return requests_mocker.get(
+                re.compile(f'{settings.WORLD_BANK_API_URI}*'),
+                status_code=200,
+                content=f.read(),
+            )
+
+    return mock_request
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'model_name, load_name, object_count',
+    (
+        (models.ConsumerPriceIndex, 'cpi', 20),
+        (models.GDPPerCapita, 'gdpcapita', 5),
+        (models.EaseOfDoingBusiness, 'easeofdoingbusiness', 2),
+        (models.Income, 'income', 4),
+    ),
+)
+@pytest.mark.django_db
+def test_import_worldbank_data(world_bank_mock, model_name, load_name, object_count):
+    world_bank_mock(load_name)
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', load_name)
+    assert len(model_name.objects.all()) == object_count
