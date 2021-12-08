@@ -1,4 +1,3 @@
-import attr
 import pytest
 
 from dataservices.tests.factories import (
