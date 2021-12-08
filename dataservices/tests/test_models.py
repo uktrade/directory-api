@@ -7,6 +7,7 @@ from dataservices.tests.factories import (
     GDPPerCapitaFactory,
     IncomeFactory,
     SuggestedCountriesFactory,
+    InternetUsageFactory,
 )
 
 
@@ -18,6 +19,7 @@ from dataservices.tests.factories import (
         EaseOfDoingBusiness,
         GDPPerCapitaFactory,
         IncomeFactory,
+        InternetUsageFactory,
     ),
 )
 @pytest.mark.django_db

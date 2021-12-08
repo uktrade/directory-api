@@ -25,47 +25,6 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
         return obj.value
 
 
-class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
-    total = serializers.SerializerMethodField()
-
-    class Meta:
-        model = models.CorruptionPerceptionsIndex
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
-
-    def get_total(self, obj):
-        return models.CorruptionPerceptionsIndex.objects.filter(year=obj.year).count()
-
-
-class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.WorldEconomicOutlook
-        exclude = ['created', 'id', 'modified']
-
-
-class InternetUsageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.InternetUsage
-        exclude = ['created', 'id', 'modified', 'country']
-
-
-class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ConsumerPriceIndex
-        exclude = ['created', 'id', 'modified', 'country']
-
-
-class GDPPerCapitaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.GDPPerCapita
-        exclude = ['created', 'id', 'modified']
-
-
-class IncomeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Income
-        exclude = ['created', 'id', 'modified', 'country']
-
-
 class RuleOfLawSerializer(serializers.ModelSerializer):
     year = serializers.SerializerMethodField()
 

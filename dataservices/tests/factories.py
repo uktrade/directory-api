@@ -90,6 +90,14 @@ class IncomeFactory(factory.django.DjangoModelFactory):
         model = models.Income
 
 
+class InternetUsageFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.InternetUsage
+
 class GDPPerCapitaFactory(factory.django.DjangoModelFactory):
     year = factory.fuzzy.FuzzyInteger(low=999)
     value = factory.fuzzy.FuzzyInteger(low=99)
