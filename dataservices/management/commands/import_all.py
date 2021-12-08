@@ -9,7 +9,6 @@ class Command(BaseCommand):
     command_list = [
         'import_cia_factbook_data',
         'import_cpi_data',
-        'import_internet_usage_data',
         'import_population_urbanrural',
         'import_rank_of_law_data',
         'import_target_age_groups',

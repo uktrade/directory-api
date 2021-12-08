@@ -8,7 +8,7 @@ from .helpers import flatten_ordered_dict, from_url_get_xml
 
 
 class Command(BaseCommand):
-    help = 'Import consumer price index data from world bank'
+    help = 'Import data from world bank'
 
     loader_info = {
         'consumerpriceindex': {
@@ -26,6 +26,10 @@ class Command(BaseCommand):
         'income': {
             'url': f'{settings.WORLD_BANK_API_URI}/NY.ADJ.NNTY.PC.CD?downloadformat=xml',
             'model_name': 'Income',
+        },
+        'internetusage': {
+            'url': f'{settings.WORLD_BANK_API_URI}/IT.NET.USER.ZS?downloadformat=xml',
+            'model_name': 'InternetUsage',
         },
     }
 

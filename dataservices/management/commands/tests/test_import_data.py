@@ -15,7 +15,6 @@ from dataservices import models
     (
         (models.CorruptionPerceptionsIndex, 'import_cpi_data', 720, 4),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
-        (models.InternetUsage, 'import_internet_usage_data', 264, 1),
     ),
 )
 def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
@@ -28,15 +27,8 @@ def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
 
 @pytest.mark.django_db
 @mock.patch.object(results.Result, 'has_errors', mock.Mock(return_value=True))
-@pytest.mark.parametrize(
-    'management_cmd',
-    [
-        'import_weo_data',
-        'import_internet_usage_data',
-    ],
-)
-def test_error_import_data_sets_error(management_cmd):
-    management.call_command(management_cmd)
+def test_error_import_data_sets_error():
+    management.call_command('import_weo_data')
     assert models.CorruptionPerceptionsIndex.objects.count() == 0
 
 
@@ -199,6 +191,7 @@ def world_bank_mock(requests_mocker):
         (models.GDPPerCapita, 'gdpcapita', 5),
         (models.EaseOfDoingBusiness, 'easeofdoingbusiness', 2),
         (models.Income, 'income', 4),
+        (models.InternetUsage, 'internetusage', 7),
     ),
 )
 @pytest.mark.django_db

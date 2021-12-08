@@ -8,12 +8,6 @@ from import_export import resources
 from dataservices import models
 
 
-class EaseOfDoingBusinessResource(resources.ModelResource):
-    class Meta:
-        model = models.EaseOfDoingBusiness
-        fields = ['country', 'year', 'value']
-
-
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
     class Meta:
         model = models.CorruptionPerceptionsIndex
@@ -108,15 +102,13 @@ class InternetUsageAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
@@ -163,12 +155,6 @@ class CountryAdmin(admin.ModelAdmin):
     list_filter = ('region',)
 
 
-class GDPPerCapitaResource(resources.ModelResource):
-    class Meta:
-        model = models.GDPPerCapita
-        fields = ['country', 'year', 'value']
-
-
 @admin.register(models.GDPPerCapita)
 class GDPPerCapitaAdmin(admin.ModelAdmin):
     list_display = (
@@ -176,8 +162,6 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
         'year',
         'value',
     )
-
-    resource_class = GDPPerCapitaResource
 
     class Meta:
         model = models.GDPPerCapita

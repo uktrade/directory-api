@@ -23,7 +23,7 @@ from dataservices.tests.factories import (
 @pytest.mark.django_db
 def test_model_to_str(factory):
     create_model = factory()
-    assert str(create_model) == create_model.country.name
+    assert str(create_model) == f'{create_model.country.name}:{create_model.year}'
 
 
 @pytest.mark.django_db

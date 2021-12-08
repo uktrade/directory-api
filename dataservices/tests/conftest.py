@@ -13,6 +13,7 @@ def countries():
     country_cn, _ = models.Country.objects.get_or_create(iso2='CN', iso3='CHN', name='China', iso1=203)
     country_fr, _ = models.Country.objects.get_or_create(iso1='250', iso2='FR', iso3='FRA', name='France')
     country_nl, _ = models.Country.objects.get_or_create(iso1='528', iso2='NL', iso3='NLD', name='Netherlands')
+    country_de, _ = models.Country.objects.get_or_create(iso2='DE', iso3='DEU', name='Germany')
     return {
         'IN': country_in,
         'GB': country_uk,
@@ -20,19 +21,19 @@ def countries():
         'CN': country_cn,
         'FR': country_fr,
         'NL': country_nl,
+        'DE': country_de,
     }
 
 
 @pytest.fixture
-def internet_usage_data():
+def internet_usage_data(countries):
     country_data = [
         models.InternetUsage(
-            country_code='GBR',
-            country_name='United Kingdom',
+            country=countries['GB'],
             year=2020,
             value=90.97,
         ),
-        models.InternetUsage(country_code='DEU', country_name='Germany', year=2020, value=91.97),
+        models.InternetUsage(country=countries['DE'], year=2020, value=91.97),
     ]
     yield models.InternetUsage.objects.bulk_create(country_data)
     models.InternetUsage.objects.all().delete()

@@ -45,13 +45,13 @@ class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
 class InternetUsageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.InternetUsage
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ConsumerPriceIndex
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class GDPPerCapitaSerializer(serializers.ModelSerializer):
@@ -63,7 +63,7 @@ class GDPPerCapitaSerializer(serializers.ModelSerializer):
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Income
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class RuleOfLawSerializer(serializers.ModelSerializer):

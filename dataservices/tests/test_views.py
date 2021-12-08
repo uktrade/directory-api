@@ -68,7 +68,7 @@ def worldeconomicoutlook_data():
 def country_data(countries):
     models.ConsumerPriceIndex.objects.create(country=countries['GB'], year=2019, value=150.56)
     models.ConsumerPriceIndex.objects.create(country=countries['CN'], year=2019, value=20.56)
-    models.InternetUsage.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.23)
+    models.InternetUsage.objects.create(country=countries['CN'], year=2019, value=20.23)
 
 
 @pytest.fixture(autouse=True)
@@ -346,7 +346,6 @@ def test_trading_blocs_api_with_no_iso2(client):
 def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
 
     # Import country
-    # management.call_command('import_countries')
     response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
@@ -359,7 +358,6 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
     # Import country
-    # management.call_command('import_countries')
     mock_api_client.return_value = {}
     response = client.get(
         reverse('dataservices-trade-barriers'), data={'countries': ['CN', 'FR'], 'sectors': ['Automotive']}
