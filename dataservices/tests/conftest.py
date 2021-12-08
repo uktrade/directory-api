@@ -36,7 +36,6 @@ def internet_usage_data(countries):
         models.InternetUsage(country=countries['DE'], year=2020, value=91.97),
     ]
     yield models.InternetUsage.objects.bulk_create(country_data)
-    models.InternetUsage.objects.all().delete()
 
 
 @pytest.fixture

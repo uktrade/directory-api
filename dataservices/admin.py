@@ -14,12 +14,6 @@ class CorruptionPerceptionsIndexResource(resources.ModelResource):
         fields = ['country_name', 'country_code', 'cpi_score', 'rank']
 
 
-class InternetUsageResource(resources.ModelResource):
-    class Meta:
-        model = models.InternetUsage
-        fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
-
-
 class CountryResource(resources.ModelResource):
     class Meta:
         model = models.Country
