@@ -98,6 +98,7 @@ class InternetUsageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.InternetUsage
 
+
 class GDPPerCapitaFactory(factory.django.DjangoModelFactory):
     year = factory.fuzzy.FuzzyInteger(low=999)
     value = factory.fuzzy.FuzzyInteger(low=99)

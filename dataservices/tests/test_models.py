@@ -6,8 +6,8 @@ from dataservices.tests.factories import (
     EaseOfDoingBusiness,
     GDPPerCapitaFactory,
     IncomeFactory,
-    SuggestedCountriesFactory,
     InternetUsageFactory,
+    SuggestedCountriesFactory,
 )
 
 
