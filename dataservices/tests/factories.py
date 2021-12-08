@@ -70,3 +70,30 @@ class ConsumerPriceIndexFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.ConsumerPriceIndex
+
+
+class EaseOfDoingBusiness(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.EaseOfDoingBusiness
+
+
+class IncomeFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.Income
+
+
+class GDPPerCapitaFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.GDPPerCapita
