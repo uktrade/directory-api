@@ -156,9 +156,7 @@ def test_get_cia_factbook_by_keys_some_bad_Keys():
 @pytest.mark.django_db
 def test_get_internet_usage(internet_usage_data):
     data = helpers.get_internet_usage(country='United Kingdom')
-    assert data == {
-        'internet_usage':{'value': '90.97', 'year': 2020}
-    }
+    assert data == {'internet_usage': {'value': '90.97', 'year': 2020}}
 
 
 @pytest.mark.django_db
