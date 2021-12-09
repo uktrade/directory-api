@@ -18,9 +18,9 @@ def api_client():
 
 
 @pytest.fixture(autouse=True)
-def easeofdoingbusiness_data():
-    models.EaseOfDoingBusiness.objects.create(country_code='CN', country_name='China', year_2019=10)
-    models.EaseOfDoingBusiness.objects.create(country_code='IND', country_name='India', year_2019=5)
+def easeofdoingbusiness_data(countries):
+    models.EaseOfDoingBusiness.objects.create(country=countries['GB'], year=2019, value=10)
+    models.EaseOfDoingBusiness.objects.create(country=countries['IN'], year=2019, value=5)
 
 
 @pytest.fixture(autouse=True)
@@ -65,16 +65,17 @@ def worldeconomicoutlook_data():
 
 
 @pytest.fixture(autouse=True)
-def country_data():
-    models.ConsumerPriceIndex.objects.create(country_code='UK', country_name='United Kingdom', year=2019, value=150.56)
-    models.ConsumerPriceIndex.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.56)
-    models.InternetUsage.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.23)
+def country_data(countries):
+    models.ConsumerPriceIndex.objects.create(country=countries['GB'], year=2019, value=150.56)
+    models.ConsumerPriceIndex.objects.create(country=countries['CN'], year=2019, value=20.56)
+    models.InternetUsage.objects.create(country=countries['CN'], year=2019, value=20.23)
 
 
 @pytest.fixture(autouse=True)
-def society_data():
-    country = models.Country.objects.create(iso2='UK', name='United Kingdom')
-    models.RuleOfLaw.objects.create(iso2='UK', country_name='United Kingdom', rank=10, score=76, country=country)
+def society_data(countries):
+    models.RuleOfLaw.objects.create(
+        iso2=countries['GB'].iso2, country_name=countries['GB'].name, rank=10, score=76, country=countries['GB']
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -105,6 +106,7 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 
 @pytest.mark.django_db
 def test_get_country_data_by_country_basic(api_client, multi_country_data):
+
     url = reverse('dataservices-country-data-by-country')
     response = api_client.get(
         url, data={'countries': ['NL'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex', 'CIAFactbook']}
@@ -215,107 +217,6 @@ def test_get_cia_factbook_data_no_key(api_client):
 
 
 @pytest.mark.django_db
-def test_population_data(api_client):
-    url = reverse('population-data')
-    response = api_client.get(url, data={'country': 'United Kingdom', 'target_ages': ['25-34', '35-44']})
-    assert response.status_code == 200
-    assert response.json() == {
-        'population_data': {
-            'country': 'United Kingdom',
-            'target_ages': ['25-34', '35-44'],
-            'year': 2021,
-            'male_target_age_population': 9102,
-            'female_target_age_population': 9048,
-            'urban_population_total': 56970,
-            'rural_population_total': 10729,
-            'total_population': 68204,
-            'urban_percentage': 0.835288,
-            'rural_percentage': 0.16471199999999997,
-            'total_target_age_population': 18150,
-        }
-    }
-
-
-@pytest.mark.django_db
-def test_population_data_country_not_found(api_client):
-    url = reverse('population-data')
-    response = api_client.get(url, data={'country': 'e3fnkej', 'target_ages': ['25-34', '35-44']})
-
-    assert response.status_code == 200
-
-    assert response.json() == {
-        'population_data': {'country': 'e3fnkej', 'target_ages': ['25-34', '35-44'], 'year': 2021}
-    }
-
-
-@pytest.mark.django_db
-def test_population_data_by_country_with_country_arg_missing(api_client):
-    url = reverse('dataservices-population-data-by-country')
-
-    response = api_client.get(url)
-
-    assert response.status_code == 400
-
-
-@pytest.mark.django_db
-def test_population_data_by_country(api_client, internet_usage_data):
-    url = reverse('dataservices-population-data-by-country')
-
-    response = api_client.get(url, data={'countries': 'United Kingdom'})
-
-    assert response.status_code == 200
-
-    assert response.json() == [
-        {
-            'country': 'United Kingdom',
-            'internet_usage': {'value': '90.97', 'year': 2020},
-            'rural_population_total': 10729,
-            'rural_population_percentage_formatted': '15.73% (10.73 million)',
-            'urban_population_total': 56970,
-            'urban_population_percentage_formatted': '83.53% (56.97 million)',
-            'total_population': '68.20 million',
-            'total_population_raw': 68204000,
-            'cpi': {'value': '150.56', 'year': 2019},
-        }
-    ]
-
-
-@pytest.mark.django_db
-def test_population_data_by_country_multiple_countries(api_client, internet_usage_data):
-    url = reverse('dataservices-population-data-by-country')
-
-    uk_data = {
-        'country': 'United Kingdom',
-        'internet_usage': {'value': '90.97', 'year': 2020},
-        'rural_population_total': 10729,
-        'rural_population_percentage_formatted': '15.73% (10.73 million)',
-        'urban_population_total': 56970,
-        'urban_population_percentage_formatted': '83.53% (56.97 million)',
-        'total_population': '68.20 million',
-        'total_population_raw': 68204000,
-        'cpi': {'value': '150.56', 'year': 2019},
-    }
-    germany_data = {
-        'country': 'Germany',
-        'internet_usage': {'value': '91.97', 'year': 2020},
-        'rural_population_total': 18546,
-        'rural_population_percentage_formatted': '22.10% (18.55 million)',
-        'urban_population_total': 64044,
-        'urban_population_percentage_formatted': '76.33% (64.04 million)',
-        'total_population': '83.90 million',
-        'total_population_raw': 83902000,
-    }
-
-    response = api_client.get(url, data={'countries': ['United Kingdom', 'Germany']})
-
-    assert response.status_code == 200
-    data = response.json()
-    check_order = [uk_data, germany_data] if data[0]['country'] == 'United Kingdom' else [germany_data, uk_data]
-
-    assert data == check_order
-
-
-@pytest.mark.django_db
 def test_suggested_countries_api(client):
     # Two with same country and sector
     management.call_command('import_countries')
@@ -397,7 +298,7 @@ def test_society_data_by_country(api_client):
             },
             'rule_of_law': {
                 'country_name': 'United Kingdom',
-                'iso2': 'UK',
+                'iso2': 'GB',
                 'rank': 10,
                 'score': '76.000',
                 'year': '2020',
@@ -445,7 +346,6 @@ def test_trading_blocs_api_with_no_iso2(client):
 def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
 
     # Import country
-    management.call_command('import_countries')
     response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
@@ -458,7 +358,6 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
     # Import country
-    management.call_command('import_countries')
     mock_api_client.return_value = {}
     response = client.get(
         reverse('dataservices-trade-barriers'), data={'countries': ['CN', 'FR'], 'sectors': ['Automotive']}

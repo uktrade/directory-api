@@ -1,9 +1,11 @@
+import re
 from unittest import mock
 
 import pytest
 from django.core import management
 from import_export import results
 
+from conf import settings
 from dataservices import models
 
 
@@ -12,11 +14,7 @@ from dataservices import models
     'model_name, management_cmd, object_count, de_rows',
     (
         (models.CorruptionPerceptionsIndex, 'import_cpi_data', 720, 4),
-        (models.EaseOfDoingBusiness, 'import_easeofdoingbusiness_data', 264, 1),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
-        (models.InternetUsage, 'import_internet_usage_data', 264, 1),
-        (models.ConsumerPriceIndex, 'import_consumer_price_index_data', 89, 1),
-        (models.GDPPerCapita, 'import_gdp_per_capita_data', 264, 1),
     ),
 )
 def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
@@ -29,17 +27,8 @@ def test_import_data_sets(model_name, management_cmd, object_count, de_rows):
 
 @pytest.mark.django_db
 @mock.patch.object(results.Result, 'has_errors', mock.Mock(return_value=True))
-@pytest.mark.parametrize(
-    'management_cmd',
-    [
-        'import_easeofdoingbusiness_data',
-        'import_weo_data',
-        'import_internet_usage_data',
-        'import_consumer_price_index_data',
-    ],
-)
-def test_error_import_data_sets_error(management_cmd):
-    management.call_command(management_cmd)
+def test_error_import_data_sets_error():
+    management.call_command('import_weo_data')
     assert models.CorruptionPerceptionsIndex.objects.count() == 0
 
 
@@ -48,7 +37,6 @@ def test_error_import_data_sets_error(management_cmd):
     'model_name, management_cmd, object_count',
     (
         (models.Country, 'import_countries', 195),
-        (models.GDPPerCapita, 'import_gdp_per_capita_data', 264),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
         (models.Currency, 'import_currency_data', 269),
         (models.TradingBlocs, 'import_trading_blocs', 356),
@@ -57,6 +45,34 @@ def test_error_import_data_sets_error(management_cmd):
 def test_import_countries_data_sets(model_name, management_cmd, object_count):
     management.call_command(management_cmd)
     assert model_name.objects.count() == object_count
+
+
+@pytest.mark.django_db
+def test_import_country_data_crud():
+    from dataservices.tests import factories
+
+    old_country = factories.CountryFactory(is_active=True)
+    change_country = factories.CountryFactory(name='Ital', iso2='IT')
+    factories.CountryFactory(name='Maldives', iso2='MV', iso1=462, iso3='MDV', region='South Asia')
+    inactive_country = factories.CountryFactory(
+        name='India', iso2='IN', iso1=356, iso3='IND', region='South Asia', is_active=False
+    )
+    management.call_command('import_countries', 'dataservices/tests/fixtures/import-countries-crud-test.csv')
+
+    old_country.refresh_from_db()
+    change_country.refresh_from_db()
+    inactive_country.refresh_from_db()
+
+    assert models.Country.objects.all().count() == 5
+    assert models.Country.objects.filter(is_active=True).count() == 4
+    assert change_country.name == 'Italy'
+    assert change_country.iso2 == 'IT'
+    assert change_country.iso1 == '380'
+    assert change_country.iso3 == 'ITA'
+    assert change_country.region == 'Europe'
+    assert change_country.is_active is True
+    assert old_country.is_active is False
+    assert inactive_country.is_active is True
 
 
 @pytest.mark.django_db
@@ -152,3 +168,48 @@ def test_import_factbook():
         'name': 'German',
         'note': 'official',
     }
+
+
+@pytest.fixture
+def world_bank_mock(requests_mocker):
+    def mock_request(loader_file):
+        with open(f'dataservices/tests/fixtures/{loader_file}.zip', 'rb') as f:
+            return requests_mocker.get(
+                re.compile(f'{settings.WORLD_BANK_API_URI}*'),
+                status_code=200,
+                content=f.read(),
+            )
+
+    return mock_request
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'model_name, load_name, object_count',
+    (
+        (models.ConsumerPriceIndex, 'consumerpriceindex', 20),
+        (models.GDPPerCapita, 'gdpcapita', 5),
+        (models.EaseOfDoingBusiness, 'easeofdoingbusiness', 2),
+        (models.Income, 'income', 4),
+        (models.InternetUsage, 'internetusage', 7),
+    ),
+)
+@pytest.mark.django_db
+def test_import_worldbank_data(world_bank_mock, model_name, load_name, object_count):
+    world_bank_mock(load_name)
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', load_name)
+    assert len(model_name.objects.all()) == object_count
+
+
+@pytest.mark.django_db
+def test_import_worldbank_data_unknown_cmd():
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', 'bad_load')
+
+
+@pytest.mark.django_db
+def test_import_worldbank_data_all(world_bank_mock):
+    world_bank_mock('easeofdoingbusiness')
+    management.call_command('import_countries')
+    management.call_command('import_worldbank_data', 'all')

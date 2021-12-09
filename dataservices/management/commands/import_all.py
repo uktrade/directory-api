@@ -8,12 +8,7 @@ class Command(BaseCommand):
 
     command_list = [
         'import_cia_factbook_data',
-        'import_consumer_price_index_data',
         'import_cpi_data',
-        'import_easeofdoingbusiness_data',
-        'import_gdp_per_capita_data',
-        'import_income_data',
-        'import_internet_usage_data',
         'import_population_urbanrural',
         'import_rank_of_law_data',
         'import_target_age_groups',
@@ -21,7 +16,7 @@ class Command(BaseCommand):
         'import_suggested_countries',
     ]
 
-    def run_command(self, command):
+    def run_command(self, command, **options):
         f = open(os.devnull, 'w')
         self.stdout.write('Running ' + command)
         call_command(command, stdout=f)

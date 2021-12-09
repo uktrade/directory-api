@@ -10,8 +10,6 @@ from dataservices.helpers import (
     deep_extend,
     get_multiple_serialized_instance_from_model,
     get_serialized_instance_from_model,
-    get_urban_rural_data,
-    millify,
 )
 from dataservices.models import Country, RuleOfLaw
 from dataservices.serializers import RuleOfLawSerializer
@@ -40,7 +38,7 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
             model_names = json.loads(model_names[0])
         out = {}
         for field_spec in model_names:
-            filter_args = {'country__iso2__in': countries_list}
+            filter_args = {'country__iso2__in': countries_list, 'country__is_active': True}
             if isinstance(field_spec, str):
                 field_spec = {'model': field_spec}
             filter_args.update(field_spec.get('filter', {}))
@@ -114,68 +112,6 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
                     **country_data,
                     **society_data,
                     **ruleoflaw_data,
-                }
-            )
-        return Response(status=status.HTTP_200_OK, data=data_set)
-
-
-class RetrievePopulationDataView(generics.GenericAPIView):
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        target_ages = self.request.GET.getlist('target_ages', [])
-        country = self.request.GET.get('country', '')
-        population_data = helpers.PopulationData().get_population_data(country=country, target_ages=target_ages)
-        return Response(
-            status=status.HTTP_200_OK,
-            data={'population_data': population_data},
-        )
-
-
-class RetrievePopulationDataViewByCountry(generics.GenericAPIView):
-    permission_classes = []
-
-    def get(self, *args, **kwargs):
-        countries = self.request.GET.getlist('countries', '')
-
-        if not countries:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        data_set = []
-
-        for country in countries:
-            country_population = helpers.PopulationData()
-            country_data = {'country': country}
-            total_population = country_population.get_population_total_data(country=country)
-            total_population_raw = total_population.get('total_population', 0) * 1000
-            population_data = {
-                'total_population': millify(total_population_raw),
-                'total_population_raw': total_population_raw,
-            }
-
-            # urban population
-            urban_population_data = country_population.get_population_urban_rural_data(
-                country=country, classification='urban'
-            )
-            urban_population = get_urban_rural_data(urban_population_data, total_population, 'urban')
-
-            # rural population
-            rural_population_data = country_population.get_population_urban_rural_data(
-                country=country, classification='rural'
-            )
-            rural_population = get_urban_rural_data(rural_population_data, total_population, 'rural')
-
-            internet_usage = helpers.get_internet_usage(country=country)
-            cpi = helpers.get_cpi_data(country=country)
-
-            data_set.append(
-                {
-                    **country_data,
-                    **internet_usage,
-                    **rural_population,
-                    **urban_population,
-                    **population_data,
-                    **cpi,
                 }
             )
         return Response(status=status.HTTP_200_OK, data=data_set)

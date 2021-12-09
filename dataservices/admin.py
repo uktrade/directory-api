@@ -8,22 +8,10 @@ from import_export import resources
 from dataservices import models
 
 
-class EaseOfDoingBusinessResource(resources.ModelResource):
-    class Meta:
-        model = models.EaseOfDoingBusiness
-        fields = ['country_name', 'country_code', 'year_2019']
-
-
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
     class Meta:
         model = models.CorruptionPerceptionsIndex
         fields = ['country_name', 'country_code', 'cpi_score', 'rank']
-
-
-class InternetUsageResource(resources.ModelResource):
-    class Meta:
-        model = models.InternetUsage
-        fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
 
 
 class CountryResource(resources.ModelResource):
@@ -37,15 +25,15 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country',
+        'year',
+        'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country',
+        'year',
+        'value',
     )
 
 
@@ -108,15 +96,13 @@ class InternetUsageAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
@@ -127,15 +113,13 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
+        'country',
         'year',
         'value',
     )
@@ -165,25 +149,17 @@ class CountryAdmin(admin.ModelAdmin):
     list_filter = ('region',)
 
 
-class GDPPerCapitaResource(resources.ModelResource):
-    class Meta:
-        model = models.GDPPerCapita
-        fields = ['country_name', 'country_code', 'year_2019']
-
-
 @admin.register(models.GDPPerCapita)
 class GDPPerCapitaAdmin(admin.ModelAdmin):
     list_display = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country',
+        'year',
+        'value',
     )
 
-    resource_class = GDPPerCapitaResource
-
     class Meta:
-        model = models.CorruptionPerceptionsIndex
-        fields = ['country_name', 'country_code', 'year_2019']
+        model = models.GDPPerCapita
+        fields = ['country', 'year', 'value']
 
 
 @admin.register(models.SuggestedCountry)
@@ -193,7 +169,11 @@ class SuggestedCountryAdmin(admin.ModelAdmin):
 
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ('country', 'year', 'value', 'country_name', 'country_code')
+    list_display = (
+        'country',
+        'year',
+        'value',
+    )
 
 
 @admin.register(models.RuleOfLaw)
