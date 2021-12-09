@@ -7,6 +7,8 @@
 ### Enhancements
 - GP2-3123 - remove redundant code
 - GP2-2857 - refactor countries import
+- GP2-3876 automate worldbank data
+
 
 ## [2.00.0](https://github.com/uktrade/directory-api/releases/tag/2.00.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/1.14.0...2.00.0)

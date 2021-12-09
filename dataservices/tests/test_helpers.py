@@ -76,21 +76,6 @@ def comtrade_data_with_a_year_data_request_mock(comtrade_data_with_a_year_data, 
     return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data_with_a_year_data)
 
 
-@pytest.fixture()
-def empty_comtrade():
-    return helpers.ComTradeData(commodity_code='2120.8350', reporting_area='Australia')
-
-
-@pytest.fixture()
-def comtrade_request_mock(comtrade_data, requests_mocker):
-    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data)
-
-
-@pytest.fixture()
-def comtrade_request_mock_empty(comtrade_data, requests_mocker):
-    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json={'dataset': []})
-
-
 @pytest.mark.django_db
 def test_get_comtrade_data_by_country():
     commodity_code = '123456'
@@ -180,6 +165,7 @@ def test_get_internet_usage_with_no_country():
     assert data == {}
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "o1,o2,result",
     [

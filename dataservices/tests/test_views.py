@@ -18,9 +18,9 @@ def api_client():
 
 
 @pytest.fixture(autouse=True)
-def easeofdoingbusiness_data():
-    models.EaseOfDoingBusiness.objects.create(country_code='CN', country_name='China', year_2019=10)
-    models.EaseOfDoingBusiness.objects.create(country_code='IND', country_name='India', year_2019=5)
+def easeofdoingbusiness_data(countries):
+    models.EaseOfDoingBusiness.objects.create(country=countries['GB'], year=2019, value=10)
+    models.EaseOfDoingBusiness.objects.create(country=countries['IN'], year=2019, value=5)
 
 
 @pytest.fixture(autouse=True)
@@ -65,16 +65,17 @@ def worldeconomicoutlook_data():
 
 
 @pytest.fixture(autouse=True)
-def country_data():
-    models.ConsumerPriceIndex.objects.create(country_code='GB', country_name='United Kingdom', year=2019, value=150.56)
-    models.ConsumerPriceIndex.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.56)
-    models.InternetUsage.objects.create(country_code='CNN', country_name='Canada', year=2019, value=20.23)
+def country_data(countries):
+    models.ConsumerPriceIndex.objects.create(country=countries['GB'], year=2019, value=150.56)
+    models.ConsumerPriceIndex.objects.create(country=countries['CN'], year=2019, value=20.56)
+    models.InternetUsage.objects.create(country=countries['CN'], year=2019, value=20.23)
 
 
 @pytest.fixture(autouse=True)
-def society_data():
-    country = models.Country.objects.create(iso2='GB', iso3='GBR', name='United Kingdom', iso1=826)
-    models.RuleOfLaw.objects.create(iso2='GB', country_name='United Kingdom', rank=10, score=76, country=country)
+def society_data(countries):
+    models.RuleOfLaw.objects.create(
+        iso2=countries['GB'].iso2, country_name=countries['GB'].name, rank=10, score=76, country=countries['GB']
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -345,7 +346,6 @@ def test_trading_blocs_api_with_no_iso2(client):
 def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
 
     # Import country
-    management.call_command('import_countries')
     response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
     assert response.status_code == 200
     assert trade_barrier_data_request_mock.call_count == 1
@@ -358,7 +358,6 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
     # Import country
-    management.call_command('import_countries')
     mock_api_client.return_value = {}
     response = client.get(
         reverse('dataservices-trade-barriers'), data={'countries': ['CN', 'FR'], 'sectors': ['Automotive']}

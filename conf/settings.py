@@ -524,3 +524,6 @@ COMTRADE_DATA_FILE_NAME = env.str('COMTRADE_DATA_FILE_NAME', default='comtrade-i
 TRADE_BARRIER_API_URI = env.str(
     'TRADE_BARRIER_API_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
 )
+
+
+WORLD_BANK_API_URI = env.str('WORLD_BANK_API_URI', 'https://api.worldbank.org/v2/en/indicator/')

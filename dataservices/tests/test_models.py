@@ -1,6 +1,31 @@
 import pytest
 
-from dataservices.tests.factories import CIAFactBookFactory, ConsumerPriceIndexFactory, SuggestedCountriesFactory
+from dataservices.tests.factories import (
+    CIAFactBookFactory,
+    ConsumerPriceIndexFactory,
+    EaseOfDoingBusiness,
+    GDPPerCapitaFactory,
+    IncomeFactory,
+    InternetUsageFactory,
+    SuggestedCountriesFactory,
+)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'factory',
+    (
+        ConsumerPriceIndexFactory,
+        EaseOfDoingBusiness,
+        GDPPerCapitaFactory,
+        IncomeFactory,
+        InternetUsageFactory,
+    ),
+)
+@pytest.mark.django_db
+def test_model_to_str(factory):
+    create_model = factory()
+    assert str(create_model) == f'{create_model.country.name}:{create_model.year}'
 
 
 @pytest.mark.django_db
@@ -13,9 +38,3 @@ def test_suggested_country_hs_code():
 def test_cia_factbook_country_name():
     country = CIAFactBookFactory()
     assert str(country) == country.country_name
-
-
-@pytest.mark.django_db
-def test_consumer_price_index():
-    cpi = ConsumerPriceIndexFactory()
-    assert str(cpi) == cpi.country_name
