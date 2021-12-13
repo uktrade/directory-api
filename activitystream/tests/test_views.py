@@ -9,6 +9,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from company.tests.factories import CompanyFactory
+from exportplan.tests.factories import CompanyExportPlanFactory
 
 
 @pytest.fixture
@@ -24,6 +25,11 @@ def activities_url():
 @pytest.fixture
 def companies_url():
     return 'http://testserver' + reverse('activity-stream:activity-stream-companies')
+
+
+@pytest.fixture
+def exportplan_url():
+    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plans')
 
 
 @pytest.fixture
@@ -383,6 +389,118 @@ def _expected_company_response(company):
     }
 
 
+def _expected_export_plan_response(export_plan):
+    modfied = export_plan.modified.isoformat()
+    return {
+        '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            {'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1'},
+        ],
+        'type': 'Collection',
+        'orderedItems': [
+            [
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'export_countries',
+                        'dit:directory:Exportplan:Content:Question': 'country_name',
+                        'dit:directory:Exportplan:Content:Response': 'China',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'export_countries',
+                        'dit:directory:Exportplan:Content:Question': 'country_iso2_code',
+                        'dit:directory:Exportplan:Content:Response': 'CN',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'export_commodity_codes',
+                        'dit:directory:Exportplan:Content:Question': 'commodity_code',
+                        'dit:directory:Exportplan:Content:Response': '101.2002.123',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'export_commodity_codes',
+                        'dit:directory:Exportplan:Content:Question': 'commodity_name',
+                        'dit:directory:Exportplan:Content:Response': 'gin',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'about_your_business',
+                        'dit:directory:Exportplan:Content:Question': 'q_1',
+                        'dit:directory:Exportplan:Content:Response': 'response 1',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'about_your_business',
+                        'dit:directory:Exportplan:Content:Question': 'q_2',
+                        'dit:directory:Exportplan:Content:Response': 'response 1',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'target_markets_research',
+                        'dit:directory:Exportplan:Content:Question': 'q_1',
+                        'dit:directory:Exportplan:Content:Response': 'response 3',
+                    },
+                },
+                {
+                    'id': 'dit:directory:Exportplan:1:Update',
+                    'modified': modfied,
+                    'type': 'dit:directory:Exportplan',
+                    'object': {
+                        'id': 'dit:directory:Exportplan:Content:1',
+                        'type': 'dit:directory:Exportplan:Content',
+                        'dit:directory:Exportplan:Content:Section': 'target_markets_research',
+                        'dit:directory:Exportplan:Content:Question': 'q_2',
+                        'dit:directory:Exportplan:Content:Response': 'response 4',
+                    },
+                },
+            ]
+        ],
+        'next': 'http://testserver/activity-stream/exportplan/?after=1598961602.0_1',
+    }
+
+
 @pytest.mark.django_db
 @mock.patch('activitystream.views.MAX_PER_PAGE', 1)
 def test_company_viewset(api_client, companies_url):
@@ -430,3 +548,26 @@ def test_company_viewset(api_client, companies_url):
     response_json = response.json()
     assert response_json['orderedItems'] == []
     assert 'next' not in response_json
+
+
+@pytest.mark.django_db
+@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
+def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
+
+    about_your_business = {"q_1": "response 1", "q_2": "response 1"}
+    target_markets_research = {"q_1": "response 3", "q_2": "response 4"}
+
+    with freeze_time('2020-09-01 12:00:02'):
+        export_plan = CompanyExportPlanFactory(
+            about_your_business=about_your_business, target_markets_research=target_markets_research
+        )
+    # Page 1
+    auth = _auth_sender(exportplan_url).request_header
+    response = api_client.get(
+        exportplan_url,
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == _expected_export_plan_response(export_plan)
