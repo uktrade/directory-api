@@ -9,6 +9,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from company.tests.factories import CompanyFactory
+from exportplan.tests.factories import CompanyExportPlanFactory
 
 
 @pytest.fixture
@@ -24,6 +25,11 @@ def activities_url():
 @pytest.fixture
 def companies_url():
     return 'http://testserver' + reverse('activity-stream:activity-stream-companies')
+
+
+@pytest.fixture
+def exportplan_url():
+    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plans')
 
 
 @pytest.fixture
@@ -383,6 +389,119 @@ def _expected_company_response(company):
     }
 
 
+def _expected_export_plan_response(export_plan):
+    modified = export_plan.modified.isoformat()
+    exportplan_id = export_plan.id
+    return [
+        [
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'export_countries',
+                    'dit:directory:ExportPlan:Content:Question': 'country_name',
+                    'dit:directory:ExportPlan:Content:Response': 'China',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'export_countries',
+                    'dit:directory:ExportPlan:Content:Question': 'country_iso2_code',
+                    'dit:directory:ExportPlan:Content:Response': 'CN',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'export_commodity_codes',
+                    'dit:directory:ExportPlan:Content:Question': 'commodity_code',
+                    'dit:directory:ExportPlan:Content:Response': '101.2002.123',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'export_commodity_codes',
+                    'dit:directory:ExportPlan:Content:Question': 'commodity_name',
+                    'dit:directory:ExportPlan:Content:Response': 'gin',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'about_your_business',
+                    'dit:directory:ExportPlan:Content:Question': 'q_1',
+                    'dit:directory:ExportPlan:Content:Response': 'response 1',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'about_your_business',
+                    'dit:directory:ExportPlan:Content:Question': 'q_2',
+                    'dit:directory:ExportPlan:Content:Response': 'response 2',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'target_markets_research',
+                    'dit:directory:ExportPlan:Content:Question': 'q_1',
+                    'dit:directory:ExportPlan:Content:Response': 'response 3',
+                },
+            },
+            {
+                'dit:application': 'DirectoryAPI',
+                'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+                'modified': modified,
+                'type': 'dit:directory:ExportPlan',
+                'object': {
+                    'id': f'dit:directory:ExportPlan:Content:{exportplan_id}',
+                    'type': 'dit:directory:ExportPlan:Content',
+                    'dit:directory:ExportPlan:Content:Section': 'target_markets_research',
+                    'dit:directory:ExportPlan:Content:Question': 'q_2',
+                    'dit:directory:ExportPlan:Content:Response': 'response 4',
+                },
+            },
+        ]
+    ]
+
+
 @pytest.mark.django_db
 @mock.patch('activitystream.views.MAX_PER_PAGE', 1)
 def test_company_viewset(api_client, companies_url):
@@ -430,3 +549,59 @@ def test_company_viewset(api_client, companies_url):
     response_json = response.json()
     assert response_json['orderedItems'] == []
     assert 'next' not in response_json
+
+
+@pytest.mark.django_db
+@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
+def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
+
+    about_your_business = {"q_1": "response 1", "q_2": "response 2"}
+    target_markets_research = {"q_1": "response 3", "q_2": "response 4"}
+
+    with freeze_time('2020-09-01 12:00:02'):
+        export_plan_1 = CompanyExportPlanFactory(
+            about_your_business=about_your_business, target_markets_research=target_markets_research
+        )
+
+    with freeze_time('2020-11-01 12:00:02'):
+        export_plan_2 = CompanyExportPlanFactory(
+            about_your_business=about_your_business, target_markets_research=target_markets_research
+        )
+
+    # Page 1
+    auth = _auth_sender(exportplan_url).request_header
+    response = api_client.get(
+        exportplan_url,
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+
+    assert response_json['orderedItems'] == _expected_export_plan_response(export_plan_1)
+
+    # Page 2
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == _expected_export_plan_response(export_plan_2)
+
+    # Page 3
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == []
