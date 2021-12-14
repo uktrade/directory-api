@@ -85,3 +85,48 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
                 **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
             },
         }
+
+
+class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
+    """
+    Export plan  serializer for activity stream.
+
+    - Adds extra response fields required by activity stream.
+    - Adds the required prefix to field names
+    """
+
+    def to_representation(self, instance):
+        """
+        Prefix field names to match activity stream format
+        """
+        prefix = 'dit:directory:ExportPlan'
+        prefix_content = f'{prefix}:Content'
+        reporting_keys = [
+            {'section': 'export_countries', 'id': 1},
+            {'section': 'export_commodity_codes', 'id': 2},
+            {'section': 'about_your_business', 'id': 3},
+            {'section': 'target_markets_research', 'id': 4},
+        ]
+        object_list = []
+
+        for reporting_key in reporting_keys:
+            section_name = reporting_key['section']
+            section_value = getattr(instance, section_name)
+            section_value = section_value[0] if isinstance(section_value, list) else section_value
+            for section_key, value in section_value.items():
+                object_list.append(
+                    {
+                        'dit:application': 'DirectoryAPI',
+                        'id': f'{prefix}:{instance.id}:Update',
+                        'modified': instance.modified.isoformat(),
+                        'type': prefix,
+                        'object': {
+                            'id': f'{prefix_content}:{instance.id}',
+                            'type': prefix_content,
+                            f'{prefix_content}:Section': section_name,
+                            f'{prefix_content}:Question': section_key,
+                            f'{prefix_content}:Response': value,
+                        },
+                    }
+                )
+        return object_list
