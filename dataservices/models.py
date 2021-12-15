@@ -141,7 +141,7 @@ class ConsumerPriceIndex(TimeStampedModel):
 
 
 class GDPPerCapita(TimeStampedModel):
-    year = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+    year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
 
