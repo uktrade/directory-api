@@ -260,6 +260,17 @@ class ComtradeReport(models.Model):
         return str(self.country_iso3) + ':' + str(self.commodity_code)
 
 
+class ComtradeReportLoadblock(TimeStampedModel):
+    year = models.IntegerField(null=False, blank=False)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.CASCADE, null=False
+    )
+    uk_or_world = models.CharField(unique=False, blank=False, null=False, max_length=3)
+    process = models.BooleanField(default=False, null=False)
+    result = models.TextField(null=True, blank=True)
+    row_count = models.IntegerField(null=True, blank=True)
+
+
 class PopulationData(models.Model):
     """
     Each record represents data from one gender, for one particular place and year.

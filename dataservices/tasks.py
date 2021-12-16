@@ -1,8 +1,11 @@
+from datetime import datetime
+
 import requests
 from django.db import transaction
 
 from conf.celery import app
 from dataservices.models import CIAFactbook
+from dataservices.task_helpers import ComtradeLoader
 
 
 @app.task(autoretry_for=(TimeoutError,))
@@ -18,3 +21,9 @@ def load_cia_factbook_data_from_url(url):
         country_name = data['countries'][country]['data']['name']
         country_data = data['countries'][country]['data']
         CIAFactbook(country_key=country, country_name=country_name, factbook_data=country_data).save()
+
+
+@app.task(autoretry_for=(TimeoutError,))
+def load_comtrade_data():
+    loader = ComtradeLoader()
+    loader.process_all()

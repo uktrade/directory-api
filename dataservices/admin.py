@@ -243,3 +243,8 @@ class PopulationDataAdmin(admin.ModelAdmin):
         'age_95_99',
         'age_100_plus',
     )
+
+
+@admin.register(models.ComtradeReportLoadblock)
+class ComtradeReportLoadblockAdmin(admin.ModelAdmin):
+    list_display = ('year', 'country', 'row_count')
