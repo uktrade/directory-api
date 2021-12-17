@@ -38,9 +38,9 @@ class ComtradeLoader:
 
     def write(self, txt, error=False):
         if error:
-            sys.stdout.write(txt)
+            sys.stdout.write(str(txt) + '\n')
         else:
-            sys.stdout.write(txt)
+            sys.stdout.write(str(txt) + '\n')
 
     def request_api(self, year, reporter, partner='0,826', direction=1, code='AG6'):
         url = 'https://comtrade.un.org/api/get'
@@ -63,17 +63,19 @@ class ComtradeLoader:
         if self.last_request:
             while (datetime.now() - self.last_request).total_seconds() < 1:
                 time.sleep(0.1)
-
-        response = requests.get(url=url, headers=headers, params=params)
-        self.last_request = datetime.now()
-        if response.status_code == 200:
-            return response.json().get('dataset')
-        elif response.status_code == 409:
-            self.write(f'Request blocked {response.status_code}', True)
-            self.write(f'{response.text}', True)
-        else:
-            self.write(f'Bad response {response.status_code}', True)
-            self.write(f'{response.text}', True)
+        try:
+            response = requests.get(url=url, headers=headers, params=params)
+            self.last_request = datetime.now()
+            if response.status_code == 200:
+                return response.json().get('dataset')
+            elif response.status_code == 409:
+                self.write(f'Request blocked {response.status_code}', True)
+                self.write(f'{response.text}', True)
+            else:
+                self.write(f'Bad response {response.status_code}', True)
+                self.write(f'{response.text}', True)
+        except requests.exceptions.RequestException as e:
+            self.write(f'Connection failure {e}', True)
         return
 
     def load_existing(self, year, country):
@@ -132,10 +134,8 @@ class ComtradeLoader:
         error_count = 0
         for country in Country.objects.all():
             if country.iso1:
-                blocks = ComtradeReportLoadblock.objects.filter(year=year, country=country, uk_or_world='WLD')
-                block = (
-                    blocks.first() if blocks else ComtradeReportLoadblock(year=year, country=country, uk_or_world='WLD')
-                )
+                blocks = ComtradeReportLoadblock.objects.filter(year=year, country=country)
+                block = blocks.first() if blocks else ComtradeReportLoadblock(year=year, country=country)
 
                 created_updated = block.modified or block.created
                 if block.row_count is None or (self.block_refresh_time and created_updated < self.block_refresh_time):
