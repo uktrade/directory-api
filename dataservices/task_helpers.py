@@ -87,11 +87,10 @@ class ComtradeLoader:
         return int(self.iso_mapping.get(country.iso3, country.iso1))
 
     def populate_from_bulk_request(self, country, year):
-        skipped = 0
 
         self.write(f'{country.name} {year}')
         dataset = self.request_api(year=year, reporter=self.map_iso_code(country))
-        if not dataset == None:
+        if dataset is not None:
             create_block = []
             update_block = []
             existing = self.load_existing(year=year, country=country)
@@ -132,15 +131,14 @@ class ComtradeLoader:
     def process_year(self, year):
         error_count = 0
         for country in Country.objects.all():
-            if country.iso1:  # and country.iso1 == '840': #usa-840 mor 504
-                uk_or_world = 'WLD'
+            if country.iso1:
                 blocks = ComtradeReportLoadblock.objects.filter(year=year, country=country, uk_or_world='WLD')
                 block = (
                     blocks.first() if blocks else ComtradeReportLoadblock(year=year, country=country, uk_or_world='WLD')
                 )
 
                 created_updated = block.modified or block.created
-                if block.row_count == None or (self.block_refresh_time and created_updated < self.block_refresh_time):
+                if block.row_count is None or (self.block_refresh_time and created_updated < self.block_refresh_time):
                     block.result, block.row_count = self.populate_from_bulk_request(country, year)
                     block.save()
                     error_count = 0 if block.result else error_count + 1

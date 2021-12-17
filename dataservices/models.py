@@ -265,7 +265,6 @@ class ComtradeReportLoadblock(TimeStampedModel):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.CASCADE, null=False
     )
-    uk_or_world = models.CharField(unique=False, blank=False, null=False, max_length=3)
     process = models.BooleanField(default=False, null=False)
     result = models.TextField(null=True, blank=True)
     row_count = models.IntegerField(null=True, blank=True)
