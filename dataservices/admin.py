@@ -25,7 +25,7 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country',
+        'country__name',
         'year',
         'value',
     )
@@ -96,7 +96,7 @@ class InternetUsageAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country',
+        'country__name',
         'year',
         'value',
     )
@@ -113,7 +113,7 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country',
+        'country__name',
         'year',
         'value',
     )
@@ -156,6 +156,10 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
         'year',
         'value',
     )
+    search_fields = (
+        'country__name',
+        'year',
+    )
 
     class Meta:
         model = models.GDPPerCapita
@@ -173,6 +177,10 @@ class IncomeAdmin(admin.ModelAdmin):
         'country',
         'year',
         'value',
+    )
+    search_fields = (
+        'country__name',
+        'year',
     )
 
 
