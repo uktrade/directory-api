@@ -32,9 +32,23 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
 
     list_display = (
         'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.CorruptionPerceptionsIndex)
@@ -103,9 +117,23 @@ class InternetUsageAdmin(admin.ModelAdmin):
 
     list_display = (
         'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.ConsumerPriceIndex)
@@ -120,9 +148,23 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
 
     list_display = (
         'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.Country)
@@ -153,6 +195,8 @@ class CountryAdmin(admin.ModelAdmin):
 class GDPPerCapitaAdmin(admin.ModelAdmin):
     list_display = (
         'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
@@ -160,6 +204,18 @@ class GDPPerCapitaAdmin(admin.ModelAdmin):
         'country__name',
         'year',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
     class Meta:
         model = models.GDPPerCapita
@@ -175,6 +231,8 @@ class SuggestedCountryAdmin(admin.ModelAdmin):
 class IncomeAdmin(admin.ModelAdmin):
     list_display = (
         'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
@@ -182,6 +240,18 @@ class IncomeAdmin(admin.ModelAdmin):
         'country__name',
         'year',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.RuleOfLaw)
