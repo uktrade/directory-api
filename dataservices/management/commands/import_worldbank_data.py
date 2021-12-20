@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     loader_info = {
         'consumerpriceindex': {
-            'url': f'{settings.WORLD_BANK_API_URI}FP.CPI.TOTL.ZG?downloadformat=xml',
+            'url': f'{settings.WORLD_BANK_API_URI}FP.CPI.TOTL?downloadformat=xml',
             'model_name': 'ConsumerPriceIndex',
         },
         'gdpcapita': {
