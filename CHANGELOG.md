@@ -3,6 +3,8 @@
 ## Pre release
 
 ### Bugs fixed
+- GP2-3898 - fix consumer price index
+- GP2-3899 - fix ease rank
 
 ### Enhancements
 - GP2-3123 - remove redundant code

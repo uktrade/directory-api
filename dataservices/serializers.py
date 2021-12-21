@@ -14,7 +14,7 @@ class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
         exclude = ['created', 'id', 'modified', 'country']
 
     def get_max_rank(self, obj):
-        agg = models.EaseOfDoingBusiness.objects.aggregate(Max('year'))
+        agg = models.EaseOfDoingBusiness.objects.aggregate(Max('value'))
         for key in agg:
             return agg[key]
 
