@@ -8,22 +8,10 @@ from import_export import resources
 from dataservices import models
 
 
-class EaseOfDoingBusinessResource(resources.ModelResource):
-    class Meta:
-        model = models.EaseOfDoingBusiness
-        fields = ['country_name', 'country_code', 'year_2019']
-
-
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
     class Meta:
         model = models.CorruptionPerceptionsIndex
         fields = ['country_name', 'country_code', 'cpi_score', 'rank']
-
-
-class InternetUsageResource(resources.ModelResource):
-    class Meta:
-        model = models.InternetUsage
-        fields = ['country_name', 'country_code', 'year_2017', 'year_2018']
 
 
 class CountryResource(resources.ModelResource):
@@ -37,16 +25,30 @@ class EaseOfDoingBusinessAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country__name',
+        'year',
+        'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country',
+        'get_iso2',
+        'get_iso3',
+        'year',
+        'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.CorruptionPerceptionsIndex)
@@ -108,18 +110,30 @@ class InternetUsageAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
+        'country__name',
         'year',
         'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
+        'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.ConsumerPriceIndex)
@@ -127,18 +141,30 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
     formfield_overrides = {TextField: {'widget': forms.TextInput}}
 
     search_fields = (
-        'country_name',
-        'country_code',
+        'country__name',
         'year',
         'value',
     )
 
     list_display = (
-        'country_name',
-        'country_code',
+        'country',
+        'get_iso2',
+        'get_iso3',
         'year',
         'value',
     )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.Country)
@@ -165,25 +191,35 @@ class CountryAdmin(admin.ModelAdmin):
     list_filter = ('region',)
 
 
-class GDPPerCapitaResource(resources.ModelResource):
-    class Meta:
-        model = models.GDPPerCapita
-        fields = ['country_name', 'country_code', 'year_2019']
-
-
 @admin.register(models.GDPPerCapita)
 class GDPPerCapitaAdmin(admin.ModelAdmin):
     list_display = (
-        'country_name',
-        'country_code',
-        'year_2019',
+        'country',
+        'get_iso2',
+        'get_iso3',
+        'year',
+        'value',
+    )
+    search_fields = (
+        'country__name',
+        'year',
     )
 
-    resource_class = GDPPerCapitaResource
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
     class Meta:
-        model = models.CorruptionPerceptionsIndex
-        fields = ['country_name', 'country_code', 'year_2019']
+        model = models.GDPPerCapita
+        fields = ['country', 'year', 'value']
 
 
 @admin.register(models.SuggestedCountry)
@@ -193,7 +229,29 @@ class SuggestedCountryAdmin(admin.ModelAdmin):
 
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ('country', 'year', 'value', 'country_name', 'country_code')
+    list_display = (
+        'country',
+        'get_iso2',
+        'get_iso3',
+        'year',
+        'value',
+    )
+    search_fields = (
+        'country__name',
+        'year',
+    )
+
+    def get_iso2(self, obj):
+        return obj.country.iso2
+
+    get_iso2.admin_order_field = 'country'
+    get_iso2.short_description = 'iso2'
+
+    def get_iso3(self, obj):
+        return obj.country.iso3
+
+    get_iso3.admin_order_field = 'country'
+    get_iso3.short_description = 'iso3'
 
 
 @admin.register(models.RuleOfLaw)

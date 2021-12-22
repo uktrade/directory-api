@@ -6,28 +6,23 @@ from dataservices import models
 
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
-    year = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
     max_rank = serializers.SerializerMethodField()
 
     class Meta:
         model = models.EaseOfDoingBusiness
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
     def get_max_rank(self, obj):
-        agg = models.EaseOfDoingBusiness.objects.aggregate(Max('year_2019'))
+        agg = models.EaseOfDoingBusiness.objects.aggregate(Max('value'))
         for key in agg:
             return agg[key]
 
     def get_total(self, obj):
-        return models.EaseOfDoingBusiness.objects.all().count()
-
-    def get_year(self, obj):
-        # The year is implicit and should be updated when new data are imported
-        return '2019'
+        return models.EaseOfDoingBusiness.objects.filter(year=obj.year).count()
 
     def get_rank(self, obj):
-        return obj.year_2019
+        return obj.value
 
 
 class CorruptionPerceptionsIndexSerializer(serializers.ModelSerializer):
@@ -50,13 +45,13 @@ class WorldEconomicOutlookSerializer(serializers.ModelSerializer):
 class InternetUsageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.InternetUsage
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class ConsumerPriceIndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ConsumerPriceIndex
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class GDPPerCapitaSerializer(serializers.ModelSerializer):
@@ -68,7 +63,7 @@ class GDPPerCapitaSerializer(serializers.ModelSerializer):
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Income
-        exclude = ['created', 'id', 'modified', 'country', 'country_name', 'country_code']
+        exclude = ['created', 'id', 'modified', 'country']
 
 
 class RuleOfLawSerializer(serializers.ModelSerializer):

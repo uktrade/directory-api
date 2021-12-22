@@ -64,10 +64,45 @@ class SuggestedCountriesFactory(factory.django.DjangoModelFactory):
 
 
 class ConsumerPriceIndexFactory(factory.django.DjangoModelFactory):
-    country_name = factory.fuzzy.FuzzyText(length=50)
-    country_code = factory.fuzzy.FuzzyText(length=2)
     year = factory.fuzzy.FuzzyInteger(low=999)
     value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
 
     class Meta:
         model = models.ConsumerPriceIndex
+
+
+class EaseOfDoingBusiness(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.EaseOfDoingBusiness
+
+
+class IncomeFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.Income
+
+
+class InternetUsageFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.InternetUsage
+
+
+class GDPPerCapitaFactory(factory.django.DjangoModelFactory):
+    year = factory.fuzzy.FuzzyInteger(low=999)
+    value = factory.fuzzy.FuzzyInteger(low=99)
+    country = factory.SubFactory(CountryFactory)
+
+    class Meta:
+        model = models.GDPPerCapita

@@ -76,21 +76,6 @@ def comtrade_data_with_a_year_data_request_mock(comtrade_data_with_a_year_data, 
     return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data_with_a_year_data)
 
 
-@pytest.fixture()
-def empty_comtrade():
-    return helpers.ComTradeData(commodity_code='2120.8350', reporting_area='Australia')
-
-
-@pytest.fixture()
-def comtrade_request_mock(comtrade_data, requests_mocker):
-    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json=comtrade_data)
-
-
-@pytest.fixture()
-def comtrade_request_mock_empty(comtrade_data, requests_mocker):
-    return requests_mocker.get(re.compile('https://comtrade.un.org/.*'), json={'dataset': []})
-
-
 @pytest.mark.django_db
 def test_get_comtrade_data_by_country():
     commodity_code = '123456'
@@ -168,124 +153,6 @@ def test_get_cia_factbook_by_keys_some_bad_Keys():
     assert cia_factbook_data == {'capital': 'London'}
 
 
-@pytest.mark.parametrize(
-    'sex, expected',
-    [
-        ['male', 4620],
-        ['female', 4525],
-    ],
-)
-@pytest.mark.django_db
-def test_get_population_target_age_sex_data(sex, expected):
-    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
-        country='United Kingdom',
-        target_ages=['25-29', '30-34'],
-        sex=sex,
-    )
-    assert target_age_data == {f'{sex}_target_age_population': expected}
-
-
-@pytest.mark.django_db
-def test_get_population_target_age_sex_data_bad_country():
-    target_age_data = helpers.PopulationData().get_population_target_age_sex_data(
-        country='xyz',
-        target_ages=['25-29', '30-34'],
-        sex='male',
-    )
-    assert target_age_data == {}
-
-
-@pytest.mark.parametrize(
-    'classification, expected',
-    [
-        ['urban', 56970],
-        ['rural', 10729],
-    ],
-)
-@pytest.mark.django_db
-def test_get_population_urban_rural_data(classification, expected):
-    population_data = helpers.PopulationData().get_population_urban_rural_data(
-        country='United Kingdom',
-        classification=classification,
-    )
-    assert population_data == {f'{classification}_population_total': expected}
-
-
-@pytest.mark.django_db
-def test_get_population_urban_rural_data_bad_country():
-    population_data = helpers.PopulationData().get_population_urban_rural_data(
-        country='jehfjh',
-        classification='urban',
-    )
-    assert population_data == {}
-
-
-@pytest.mark.django_db
-def test_get_population_total_data():
-    total_population = helpers.PopulationData().get_population_total_data(
-        country='United Kingdom',
-    )
-    assert total_population == {'total_population': 68204}
-
-
-@pytest.mark.django_db
-def test_get_population_total_data_bad_country():
-    total_population = helpers.PopulationData().get_population_total_data(
-        country='efwe',
-    )
-    assert total_population == {}
-
-
-@pytest.mark.parametrize(
-    'target_age_groups, expected',
-    [[['0-14'], ['0-4', '5-9', '10-14']], [['15-19', '25-34'], ['15-19', '25-29', '30-34']]],
-)
-@pytest.mark.django_db
-def test_get_mapped_age_groups(target_age_groups, expected):
-    mapped_ages = helpers.PopulationData().get_mapped_age_groups(target_age_groups)
-    assert mapped_ages == expected
-
-
-@pytest.mark.django_db
-def test_get_population_data():
-    population_data = helpers.PopulationData().get_population_data(
-        country='United Kingdom', target_ages=['25-34', '35-44']
-    )
-
-    assert population_data == {
-        'country': 'United Kingdom',
-        'target_ages': ['25-34', '35-44'],
-        'year': 2021,
-        'male_target_age_population': 9102,
-        'female_target_age_population': 9048,
-        'urban_population_total': 56970,
-        'rural_population_total': 10729,
-        'total_population': 68204,
-        'urban_percentage': 0.835288,
-        'rural_percentage': 0.16471199999999997,
-        'total_target_age_population': 18150,
-    }
-
-
-@pytest.mark.django_db
-def test_get_population_data_bad_country():
-    population_data = helpers.PopulationData().get_population_data(country='ewfwe', target_ages=['25-34', '35-44'])
-    assert population_data == {'country': 'ewfwe', 'target_ages': ['25-34', '35-44'], 'year': 2021}
-
-
-@pytest.mark.django_db
-def test_get_population_total_data_mapped():
-    total_population_bad_map = helpers.PopulationData().get_population_total_data(
-        country='United States of America',
-    )
-    assert total_population_bad_map == {}
-
-    total_population_mapped = helpers.PopulationData().get_population_total_data(
-        country='United States',
-    )
-    assert total_population_mapped == {'total_population': 332914}
-
-
 @pytest.mark.django_db
 def test_get_internet_usage(internet_usage_data):
     data = helpers.get_internet_usage(country='United Kingdom')
@@ -298,19 +165,7 @@ def test_get_internet_usage_with_no_country():
     assert data == {}
 
 
-@pytest.mark.parametrize(
-    "input_1,input_2,expected",
-    [
-        (1, 30, '3.33% (1.00 thousand)'),
-        (1, 0, None),
-        (1, None, None),
-    ],
-)
-def test_get_percentage_format(input_1, input_2, expected):
-    data = helpers.get_percentage_format(input_1, input_2)
-    assert data == expected
-
-
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "o1,o2,result",
     [

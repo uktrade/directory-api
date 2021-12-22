@@ -44,13 +44,6 @@ def cia_factbook_data():
 
 
 @pytest.fixture(autouse=True)
-def mock_world_economic_outlook(world_economic_outlook_data):
-    patch = mock.patch.object(helpers, 'get_world_economic_outlook_data', return_value=world_economic_outlook_data)
-    yield patch.start()
-    patch.stop()
-
-
-@pytest.fixture(autouse=True)
 def mock_cia_factbook(cia_factbook_data):
     patch = mock.patch.object(helpers, 'get_cia_factbook_data', return_value=cia_factbook_data)
     yield patch.start()

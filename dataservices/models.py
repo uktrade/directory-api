@@ -15,6 +15,7 @@ class Country(TimeStampedModel):
     iso2 = models.CharField(unique=True, max_length=10)
     iso3 = models.CharField(unique=True, max_length=10)
     region = models.CharField(blank=False, null=False, max_length=50)
+    is_active = models.BooleanField(default=True, null=False)
 
     def __str__(self):
         return self.name
@@ -26,15 +27,12 @@ class Country(TimeStampedModel):
 
 class EaseOfDoingBusiness(TimeStampedModel):
 
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
-    year_2019 = models.IntegerField(null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
+    value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
 
     def __str__(self):
-        return self.country_name
+        return f'{self.country.name}:{self.year}'
 
     class Meta:
         verbose_name = 'Ease of doing business | World Bank Doing Business'
@@ -99,16 +97,12 @@ class CIAFactbook(TimeStampedModel):
 
 
 class InternetUsage(TimeStampedModel):
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=True, blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.country_name
+        return f'{self.country.name}:{self.year}'
 
     class Meta:
         verbose_name = 'Internet Usage | World Bank'
@@ -133,33 +127,26 @@ class PopulationUrbanRural(models.Model):
 
 
 class ConsumerPriceIndex(TimeStampedModel):
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(blank=False, null=False, max_length=50)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.country_name
+        return f'{self.country.name}:{self.year}'
 
     class Meta:
-        unique_together = ('country_code', 'year')
+        unique_together = ('country', 'year')
         verbose_name = 'Consumer price indexes | IMF'
         verbose_name_plural = 'Consumer price indexes | IMF'
 
 
 class GDPPerCapita(TimeStampedModel):
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
-    year_2019 = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+    year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
+    value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
 
     def __str__(self):
-        return self.country_name
+        return f'{self.country.name}:{self.year}'
 
     class Meta:
         verbose_name = 'GDP Per Capita | World Bank'
@@ -183,15 +170,14 @@ class SuggestedCountry(TimeStampedModel):
 
 
 class Income(TimeStampedModel):
-    # Deprecated country_name - use country.name
-    country_name = models.CharField(unique=False, blank=False, null=False, max_length=255)
-    # Deprecated country_name - use country.iso2/iso3
-    country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
     year = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
+
+    def __str__(self):
+        return f'{self.country.name}:{self.year}'
 
     class Meta:
         verbose_name = 'Annual Net Adjusted Income per Capita | World Bank'

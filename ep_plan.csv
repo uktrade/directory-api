@@ -1,0 +1,10 @@
+sso_id,export_countries,export_commodity_codes
+9,[{'country_iso2_code': 'CN'}],[{'commodity_code': '101.2002.123'}]
+8,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]","[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+7,[],[]
+6,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
+5,[],"[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+4,[],"[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+3,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
+2,[],[]
+1,[],[]
