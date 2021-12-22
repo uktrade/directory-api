@@ -3,6 +3,13 @@
 ## Pre release
 
 ### Bugs fixed
+
+### Enhancements
+
+## [2.1.0](https://github.com/uktrade/directory-api/releases/tag/2.1.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.00.0...2.1.0)
+
+### Bugs fixed
 - GP2-3898 - fix consumer price index
 - GP2-3899 - fix ease rank
 
