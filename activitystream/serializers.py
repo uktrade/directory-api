@@ -112,6 +112,7 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
         for reporting_key in reporting_keys:
             section_name = reporting_key['section']
             section_value = getattr(instance, section_name)
+            section_value = section_value[0] if (isinstance(section_value, list) and section_value) else section_value
 
             if not isinstance(section_value, dict):
                 section_value = {section_name: section_value}
