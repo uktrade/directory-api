@@ -133,4 +133,5 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
                         },
                     }
                 )
+
         return object_list
