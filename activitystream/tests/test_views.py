@@ -609,13 +609,13 @@ def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
 
 @pytest.mark.django_db
 @mock.patch('activitystream.views.MAX_PER_PAGE', 1)
-def test_activty_stream_exportplan_viewset_index_error(api_client, exportplan_url):
+def test_activty_stream_exportplan_viewset_empty_countries(api_client, exportplan_url):
 
     about_your_business = {"q_1": "response 1", "q_2": "response 2"}
     target_markets_research = {"q_1": "response 3", "q_2": "response 4"}
 
     with freeze_time('2020-09-01 12:00:02'):
-        export_plan_1 = CompanyExportPlanFactory(
+        CompanyExportPlanFactory(
             about_your_business=about_your_business,
             target_markets_research=target_markets_research,
             export_countries=[],
