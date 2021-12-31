@@ -100,7 +100,6 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
         Prefix field names to match activity stream format
         """
         prefix = 'dit:directory:ExportPlan'
-        prefix_content = f'{prefix}:Content'
         reporting_keys = [
             {'section': 'export_countries', 'id': 1},
             {'section': 'export_commodity_codes', 'id': 2},
@@ -120,18 +119,19 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
             for section_key, value in section_value.items():
                 object_list.append(
                     {
-                        'dit:application': 'DirectoryAPI',
                         'id': f'{prefix}:{instance.id}:Update',
                         'modified': instance.modified.isoformat(),
-                        'type': prefix,
+                        'generator': {
+                            'type': 'Application',
+                            'name': 'dit:directory',
+                        },
                         'object': {
-                            'id': f'{prefix_content}:{instance.id}',
-                            'type': prefix_content,
-                            f'{prefix_content}:Section': section_name,
-                            f'{prefix_content}:Question': section_key,
-                            f'{prefix_content}:Response': value,
+                            'id': f'{prefix}:{instance.id}',
+                            'type': prefix,
+                            f'{prefix}:Section': section_name,
+                            f'{prefix}:Question': section_key,
+                            f'{prefix}:Response': value,
                         },
                     }
                 )
-
         return object_list
