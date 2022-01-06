@@ -31,5 +31,9 @@ class Command(BaseCommand):
             self.run_command(command)
 
         self.stdout.write(self.style.SUCCESS('Import all data - Complete'))
-        self.stdout.write(self.style.WARNING('The ComTrade data import takes longer and has not been run. '
-                                             'Run it separately with the `import_comtrade_data` management command.'))
+        self.stdout.write(
+            self.style.WARNING(
+                'The ComTrade data import takes longer and has not been run. '
+                'Run it separately with the `import_comtrade_data` management command.'
+            )
+        )
