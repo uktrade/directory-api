@@ -4,13 +4,13 @@
 #
 #    pip-compile requirements.in
 #
-amqp==2.5.2
+amqp==5.0.9
     # via kombu
 attrs==20.2.0
     # via jsonschema
 beautifulsoup4==4.9.3
     # via directory-components
-billiard==3.6.3.0
+billiard==3.6.4.0
     # via celery
 boto3==1.17.90
     # via -r requirements.in
@@ -18,8 +18,10 @@ botocore==1.20.90
     # via
     #   boto3
     #   s3transfer
-celery[redis]==4.3.0
-    # via -r requirements.in
+celery[redis]==5.2.3
+    # via
+    #   -r requirements.in
+    #   django-celery-beat
 certifi==2020.6.20
     # via
     #   elasticsearch
@@ -29,6 +31,18 @@ cffi==1.14.3
     # via cryptography
 chardet==3.0.4
     # via requests
+click-didyoumean==0.3.0
+    # via celery
+click-plugins==1.1.1
+    # via celery
+click-repl==0.2.0
+    # via celery
+click==8.0.3
+    # via
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
 cryptography==3.3.2
     # via
     #   -r requirements.in
@@ -56,13 +70,13 @@ directory-healthcheck==2.0.0
     # via -r requirements.in
 directory-sso-api-client==6.5.3
     # via -r requirements.in
-directory-validators==6.0.6
+directory-validators==7.0.1
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
 django-admin-ip-restrictor==2.1.0
     # via -r requirements.in
-django-celery-beat==1.5.0
+django-celery-beat==2.2.1
     # via -r requirements.in
 django-cleanup==5.2.0
     # via -r requirements.in
@@ -86,7 +100,7 @@ django-staff-sso-client==1.0.0
     # via -r requirements.in
 django-storages==1.8.0
     # via -r requirements.in
-django-timezone-field==4.0
+django-timezone-field==4.2.1
     # via django-celery-beat
 django==2.2.24
     # via
@@ -97,6 +111,7 @@ django==2.2.24
     #   directory-healthcheck
     #   directory-validators
     #   django-admin-ip-restrictor
+    #   django-celery-beat
     #   django-filter
     #   django-import-export
     #   django-redis
@@ -127,10 +142,6 @@ future==0.18.2
     # via django-json-widget
 idna==2.8
     # via requests
-importlib-metadata==2.0.0
-    # via
-    #   jsonschema
-    #   kombu
 iso3166==1.0.1
     # via -r requirements.in
 jdcal==1.4.1
@@ -141,7 +152,7 @@ jmespath==0.10.0
     #   botocore
 jsonschema==3.2.0
     # via directory-components
-kombu==4.6.6
+kombu==5.2.3
     # via
     #   -r requirements.in
     #   celery
@@ -163,6 +174,8 @@ openpyxl==3.0.5
     # via tablib
 pillow==8.3.2
     # via directory-validators
+prompt-toolkit==3.0.24
+    # via click-repl
 psycopg2-binary==2.8.4
     # via -r requirements.in
 pycparser==2.20
@@ -179,7 +192,7 @@ python-dateutil==2.8.1
     #   elasticsearch-dsl
     #   faker
     #   python-crontab
-pytz==2019.3
+pytz==2021.3
     # via
     #   celery
     #   directory-validators
@@ -212,6 +225,7 @@ sigauth==4.1.1
     #   directory-client-core
 six==1.15.0
     # via
+    #   click-repl
     #   cryptography
     #   django-extensions
     #   elasticsearch-dsl
@@ -236,14 +250,17 @@ urllib3==1.26.5
     #   elasticsearch
     #   requests
     #   sentry-sdk
-vine==1.3.0
+vine==5.0.0
     # via
     #   amqp
     #   celery
+    #   kombu
 w3lib==1.22.0
     # via directory-client-core
 waitress==1.4.3
     # via -r requirements.in
+wcwidth==0.2.5
+    # via prompt-toolkit
 whitenoise==4.1.4
     # via -r requirements.in
 wrapt==1.12.1
@@ -254,8 +271,6 @@ xlwt==1.3.0
     # via tablib
 xmltodict==0.12.0
     # via -r requirements.in
-zipp==3.3.1
-    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

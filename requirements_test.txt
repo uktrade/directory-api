@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements_test.in
 #
-amqp==2.5.2
+amqp==5.0.9
     # via kombu
 atomicwrites==1.4.0
     # via pytest
@@ -14,7 +14,7 @@ attrs==20.2.0
     #   pytest
 beautifulsoup4==4.9.3
     # via directory-components
-billiard==3.6.3.0
+billiard==3.6.4.0
     # via celery
 black==21.11b1
     # via
@@ -28,8 +28,10 @@ botocore==1.20.90
     # via
     #   boto3
     #   s3transfer
-celery[redis]==4.3.0
-    # via -r requirements.in
+celery[redis]==5.2.3
+    # via
+    #   -r requirements.in
+    #   django-celery-beat
 certifi==2020.6.20
     # via
     #   elasticsearch
@@ -39,8 +41,19 @@ cffi==1.14.3
     # via cryptography
 chardet==3.0.4
     # via requests
-click==7.1.2
-    # via black
+click-didyoumean==0.3.0
+    # via celery
+click-plugins==1.1.1
+    # via celery
+click-repl==0.2.0
+    # via celery
+click==8.0.3
+    # via
+    #   black
+    #   celery
+    #   click-didyoumean
+    #   click-plugins
+    #   click-repl
 codecov==2.1.7
     # via -r requirements_test.in
 coverage==5.3
@@ -52,10 +65,8 @@ cryptography==3.3.2
     #   -r requirements.in
     #   pyopenssl
     #   requests
-dataclasses==0.6
-    # via
-    #   -r requirements_test.in
-    #   black
+dataclasses==0.06
+    # via -r requirements_test.in
 defusedxml==0.6.0
     # via odfpy
 deprecated==1.2.11
@@ -78,13 +89,13 @@ directory-healthcheck==2.0.0
     # via -r requirements.in
 directory-sso-api-client==6.5.3
     # via -r requirements.in
-directory-validators==6.0.6
+directory-validators==7.0.1
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
 django-admin-ip-restrictor==2.1.0
     # via -r requirements.in
-django-celery-beat==1.5.0
+django-celery-beat==2.2.1
     # via -r requirements.in
 django-cleanup==5.2.0
     # via -r requirements.in
@@ -108,7 +119,7 @@ django-staff-sso-client==1.0.0
     # via -r requirements.in
 django-storages==1.8.0
     # via -r requirements.in
-django-timezone-field==4.0
+django-timezone-field==4.2.1
     # via django-celery-beat
 django==2.2.24
     # via
@@ -119,6 +130,7 @@ django==2.2.24
     #   directory-healthcheck
     #   directory-validators
     #   django-admin-ip-restrictor
+    #   django-celery-beat
     #   django-filter
     #   django-import-export
     #   django-redis
@@ -154,12 +166,7 @@ future==0.18.2
 idna==2.8
     # via requests
 importlib-metadata==2.0.0
-    # via
-    #   flake8
-    #   jsonschema
-    #   kombu
-    #   pluggy
-    #   pytest
+    # via pytest
 iso3166==1.0.1
     # via -r requirements.in
 isort==5.6.4
@@ -172,7 +179,7 @@ jmespath==0.10.0
     #   botocore
 jsonschema==3.2.0
     # via directory-components
-kombu==4.6.6
+kombu==5.2.3
     # via
     #   -r requirements.in
     #   celery
@@ -212,6 +219,8 @@ pluggy==0.13.1
     # via pytest
 pre-commit-hooks==3.3.0
     # via -r requirements_test.in
+prompt-toolkit==3.0.24
+    # via click-repl
 psycopg2-binary==2.8.4
     # via -r requirements.in
 py==1.10.0
@@ -249,7 +258,7 @@ python-dateutil==2.8.1
     #   faker
     #   freezegun
     #   python-crontab
-pytz==2019.3
+pytz==2021.3
     # via
     #   celery
     #   directory-validators
@@ -278,8 +287,6 @@ requests[security]==2.25.1
     #   requests-oauthlib
 requests_mock==1.6.0
     # via -r requirements_test.in
-ruamel.yaml.clib==0.2.6
-    # via ruamel.yaml
 ruamel.yaml==0.16.12
     # via pre-commit-hooks
 s3transfer==0.4.2
@@ -292,6 +299,7 @@ sigauth==4.1.1
     #   directory-client-core
 six==1.15.0
     # via
+    #   click-repl
     #   cryptography
     #   django-extensions
     #   elasticsearch-dsl
@@ -318,8 +326,6 @@ toml==0.10.2
     # via pre-commit-hooks
 tomli==1.2.2
     # via black
-typed-ast==1.5.0
-    # via black
 typing-extensions==4.0.0
     # via black
 urllib3==1.26.5
@@ -330,16 +336,19 @@ urllib3==1.26.5
     #   elasticsearch
     #   requests
     #   sentry-sdk
-vine==1.3.0
+vine==5.0.0
     # via
     #   amqp
     #   celery
+    #   kombu
 w3lib==1.22.0
     # via directory-client-core
 waitress==1.4.3
     # via -r requirements.in
 wcwidth==0.2.5
-    # via pytest
+    # via
+    #   prompt-toolkit
+    #   pytest
 whitenoise==4.1.4
     # via -r requirements.in
 wrapt==1.12.1
