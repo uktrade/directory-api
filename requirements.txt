@@ -86,7 +86,7 @@ django-extensions==2.2.5
     # via -r requirements.in
 django-field-history==0.7.0
     # via -r requirements.in
-django-filter==2.2.0
+django-filter==21.1
     # via -r requirements.in
 django-health-check==3.8.0
     # via directory-healthcheck
@@ -102,7 +102,7 @@ django-storages==1.8.0
     # via -r requirements.in
 django-timezone-field==4.2.1
     # via django-celery-beat
-django==2.2.24
+django==2.2.25
     # via
     #   -r requirements.in
     #   directory-client-core
