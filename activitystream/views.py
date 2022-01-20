@@ -14,7 +14,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from activitystream.serializers import ActivityStreamCompanySerializer, ActivityStreamExportPlanSerializer
+from activitystream.serializers import (
+    ActivityStreamCompanySerializer,
+    ActivityStreamExportPlanDeliveryServicesSerializer,
+    ActivityStreamExportPlanSerializer,
+)
 from company.models import Company
 from exportplan.models import CompanyExportPlan
 
@@ -280,5 +284,24 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
         data = ActivityStreamExportPlanSerializer(export_plans, many=True).data
         return self._generate_response(
             data[0] if data else [],
+            self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
+        )
+
+
+class ActivityStreamExportPlanDeliveryServicesViewSet(BaseActivityStreamViewSet):
+    """View set to list export plan delivery services for activity stream"""
+
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    def list(self, request):
+        after_ts, after_id = self._parse_after(request)
+
+        export_plans = list(
+            CompanyExportPlan.objects.filter(
+                Q(modified=after_ts, id__gt=after_id) | Q(modified__gt=after_ts),
+            ).order_by('modified', 'id')[:MAX_PER_PAGE]
+        )
+
+        return self._generate_response(
+            ActivityStreamExportPlanDeliveryServicesSerializer(export_plans, many=True).data,
             self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
         )

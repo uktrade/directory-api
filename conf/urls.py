@@ -36,6 +36,11 @@ activity_stream_urls = [
         activitystream.views.ActivityStreamExportPlanViewSet.as_view({'get': 'list'}),
         name='activity-stream-export-plans',
     ),
+    url(
+        r'^exportplan-delivery-services/$',
+        activitystream.views.ActivityStreamExportPlanDeliveryServicesViewSet.as_view({'get': 'list'}),
+        name='activity-stream-export-plans-delivery-services',
+    ),
 ]
 
 

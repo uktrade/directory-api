@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from company.models import Company
+from exportplan.models import CompanyExportPlan
 
 
 class ActivityStreamCompanySerializer(serializers.ModelSerializer):
@@ -89,7 +90,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
 
 class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
     """
-    Export plan  serializer for activity stream.
+    Export plan serializer for activity stream.
 
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
@@ -135,3 +136,63 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
                     }
                 )
         return object_list
+
+
+class ActivityStreamExportPlanDeliveryServicesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyExportPlan
+        fields = ('sso_id',)
+
+    def to_representation(self, instance):
+        prefix = 'dit:directory:ExportPlan'
+        country = instance.export_countries[0].get('country_name', None) if instance.export_countries else None
+        product = (
+            instance.export_commodity_codes[0].get('commodity_name', None) if instance.export_commodity_codes else None
+        )
+
+        reporting_keys = [
+            {'section': 'about_your_business'},
+            {'section': 'objectives'},
+            {'section': 'target_markets_research'},
+            {'section': 'adaptation_target_market'},
+            {'section': 'marketing_approach'},
+            {'section': 'total_cost_and_price'},
+            {'section': 'funding_and_credit'},
+            {'section': 'getting_paid'},
+            {'section': 'travel_business_policies'},
+        ]
+        object_list = []
+
+        for reporting_key in reporting_keys:
+            section_name = reporting_key['section']
+            section_value = getattr(instance, section_name)
+            section_value = section_value[0] if (isinstance(section_value, list) and section_value) else section_value
+
+            if not isinstance(section_value, dict):
+                section_value = {section_name: section_value}
+
+            for section_key, value in section_value.items():
+                object_list.append(
+                    {
+                        f'{prefix}:Section': section_name,
+                        f'{prefix}:Question': section_key,
+                        f'{prefix}:Response': value,
+                    }
+                )
+
+        return {
+            'id': f'{prefix}:{instance.id}:Update',
+            'published': instance.modified.isoformat(),
+            'generator': {
+                'type': 'Application',
+                'name': 'dit:directory',
+            },
+            'object': {
+                'id': f'{prefix}:{instance.id}',
+                'type': 'dit:directory:ExportPlan',
+                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
+                f'{prefix}:Country': country,
+                f'{prefix}:Product': product,
+                f'{prefix}:Questions': object_list,
+            },
+        }

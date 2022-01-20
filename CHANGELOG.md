@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 ### Enhancements
+GLS-56 - Added Export Plan for Delivery Services Activity Stream endpoint
 
 ## [2.1.0](https://github.com/uktrade/directory-api/releases/tag/2.1.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.00.0...2.1.0)

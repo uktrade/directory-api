@@ -33,6 +33,11 @@ def exportplan_url():
 
 
 @pytest.fixture
+def exportplan_delivery_services_url():
+    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plans-delivery-services')
+
+
+@pytest.fixture
 def _url_incorrect_domain():
     return 'http://incorrect' + reverse('activity-stream:activity-stream')
 
@@ -516,6 +521,113 @@ def _expected_export_plan_response(export_plan):
     ]
 
 
+def _expected_export_plan_delivery_services_response(export_plan):
+    modified = export_plan.modified.isoformat()
+    exportplan_id = export_plan.id
+    sso_id = export_plan.sso_id
+    return [
+        {
+            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
+            'published': modified,
+            'generator': {'type': 'Application', 'name': 'dit:directory'},
+            'object': {
+                'id': f'dit:directory:ExportPlan:{exportplan_id}',
+                'type': 'dit:directory:ExportPlan',
+                'dit:directory:ExportPlan:sso_id': sso_id,
+                'dit:directory:ExportPlan:Country': 'China',
+                'dit:directory:ExportPlan:Product': 'gin',
+                'dit:directory:ExportPlan:Questions': [
+                    {
+                        'dit:directory:ExportPlan:Section': 'about_your_business',
+                        'dit:directory:ExportPlan:Question': 'story',
+                        'dit:directory:ExportPlan:Response': 'response 1',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'about_your_business',
+                        'dit:directory:ExportPlan:Question': 'performance',
+                        'dit:directory:ExportPlan:Response': 'response 2',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'objectives',
+                        'dit:directory:ExportPlan:Question': 'rationale',
+                        'dit:directory:ExportPlan:Response': 'Gin has exceptional growth',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'target_markets_research',
+                        'dit:directory:ExportPlan:Question': 'trend',
+                        'dit:directory:ExportPlan:Response': 'response 3',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'target_markets_research',
+                        'dit:directory:ExportPlan:Question': 'demand',
+                        'dit:directory:ExportPlan:Response': 'response 4',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'adaptation_target_market',
+                        'dit:directory:ExportPlan:Question': 'size',
+                        'dit:directory:ExportPlan:Response': '2l',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'adaptation_target_market',
+                        'dit:directory:ExportPlan:Question': 'labelling',
+                        'dit:directory:ExportPlan:Response': 'manual',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'marketing_approach',
+                        'dit:directory:ExportPlan:Question': 'option',
+                        'dit:directory:ExportPlan:Response': 'shipping',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'marketing_approach',
+                        'dit:directory:ExportPlan:Question': 'Description',
+                        'dit:directory:ExportPlan:Response': 'selling to retailers',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'total_cost_and_price',
+                        'dit:directory:ExportPlan:Question': 'average_price_per_unit',
+                        'dit:directory:ExportPlan:Response': '23.44',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'total_cost_and_price',
+                        'dit:directory:ExportPlan:Question': 'units_to_export_first_period',
+                        'dit:directory:ExportPlan:Response': {'unit': 'kg', 'value': '10.00'},
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'funding_and_credit',
+                        'dit:directory:ExportPlan:Question': 'funding_amount_required',
+                        'dit:directory:ExportPlan:Response': '23.44',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'funding_and_credit',
+                        'dit:directory:ExportPlan:Question': 'override_estimated_total_cost',
+                        'dit:directory:ExportPlan:Response': '23.23',
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'getting_paid',
+                        'dit:directory:ExportPlan:Question': 'incoterms',
+                        'dit:directory:ExportPlan:Response': {'notes': 'test notes', 'water_transport': ['d', 'e']},
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'getting_paid',
+                        'dit:directory:ExportPlan:Question': 'payment_method',
+                        'dit:directory:ExportPlan:Response': {'notes': 'no notes', 'transport_forms': ['a', 'b']},
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'travel_business_policies',
+                        'dit:directory:ExportPlan:Question': 'visa_information',
+                        'dit:directory:ExportPlan:Response': {'duration': '10 Months', 'is_required': True},
+                    },
+                    {
+                        'dit:directory:ExportPlan:Section': 'travel_business_policies',
+                        'dit:directory:ExportPlan:Question': 'travel_information',
+                        'dit:directory:ExportPlan:Response': 'All travel to be business class',
+                    },
+                ],
+            },
+        }
+    ]
+
+
 @pytest.mark.django_db
 @mock.patch('activitystream.views.MAX_PER_PAGE', 1)
 def object_list(api_client, companies_url):
@@ -645,3 +757,58 @@ def test_activty_stream_exportplan_viewset_empty_countries(api_client, exportpla
     assert response.status_code == status.HTTP_200_OK
     response_json = response.json()
     assert response_json['orderedItems'][0]['object']['dit:directory:ExportPlan:Response'] == []
+
+
+@pytest.mark.django_db
+@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
+def test_activty_stream_exportplan_delivery_services_viewset(api_client, exportplan_delivery_services_url):
+
+    about_your_business = {"story": "response 1", "performance": "response 2"}
+    target_markets_research = {"trend": "response 3", "demand": "response 4"}
+
+    with freeze_time('2020-09-01 12:00:02'):
+        export_plan_1 = CompanyExportPlanFactory(
+            about_your_business=about_your_business, target_markets_research=target_markets_research
+        )
+
+    with freeze_time('2020-11-01 12:00:02'):
+        export_plan_2 = CompanyExportPlanFactory(
+            about_your_business=about_your_business, target_markets_research=target_markets_research
+        )
+
+    # Page 1
+    auth = _auth_sender(exportplan_delivery_services_url).request_header
+    response = api_client.get(
+        exportplan_delivery_services_url,
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == _expected_export_plan_delivery_services_response(export_plan_1)
+
+    # Page 2
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == _expected_export_plan_delivery_services_response(export_plan_2)
+
+    # Page 3
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == []

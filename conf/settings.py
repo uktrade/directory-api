@@ -495,6 +495,7 @@ FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.bool('FEATURE_COMTRADE_HISTORICAL
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
     'activity-stream',
+    'activity-stream-export-plans-delivery-services',
     'activity-stream-export-plans',
     'activity-stream-companies',
     'gecko-total-registered-suppliers',
