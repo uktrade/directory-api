@@ -434,9 +434,9 @@ DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str('DIRECTORY_CONSTANTS_URL_GREAT_
 ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
 if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    services = {item['instance_name']: item for item in VCAP_SERVICES['elasticsearch']}
+    services = {item['instance_name']: item for item in VCAP_SERVICES['opensearch']}
     ELASTICSEARCH_INSTANCE_NAME = env.str(
-        'ELASTICSEARCH_INSTANCE_NAME', VCAP_SERVICES['elasticsearch'][0]['instance_name']
+        'ELASTICSEARCH_INSTANCE_NAME', VCAP_SERVICES['opensearch'][0]['instance_name']
     )
     connections.create_connection(
         alias='default',
