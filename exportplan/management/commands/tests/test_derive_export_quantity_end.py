@@ -79,6 +79,18 @@ def test_do_not_derive_end_date_when_already_done():
 
 
 @pytest.mark.django_db
+def test_do_not_derive_end_date_when_invalid_unit():
+    export_plan = empty_export_plan(
+        {'units_to_export_second_period': {'unit': 'w', 'value': 40}}
+    )
+    management.call_command('derive_export_quantity_end')
+    export_plan.refresh_from_db()
+
+    assert export_plan.total_cost_and_price == {
+        'units_to_export_second_period': {'unit': 'w', 'value': 40},
+    }
+
+@pytest.mark.django_db
 def test_derive_end_date_from_days_value():
     export_plan = empty_export_plan({'units_to_export_second_period': {'unit': 'd', 'value': 40}})
     management.call_command('derive_export_quantity_end')
