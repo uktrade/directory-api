@@ -6,6 +6,12 @@
 
 ### Enhancements
 
+## [2.2.2](https://github.com/uktrade/directory-api/releases/tag/2.2.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.2.1...2.2.2)
+
+### Enhancements
+- GLS-107 - django upgrade
+
 ## [2.2.1](https://github.com/uktrade/directory-api/releases/tag/2.2.1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.1.0...2.2.1)
 
