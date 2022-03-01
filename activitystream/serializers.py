@@ -65,6 +65,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
             'expertise_countries',
             'expertise_languages',
             'expertise_products_services',
+            'date_published',
         )
 
     def to_representation(self, instance):
