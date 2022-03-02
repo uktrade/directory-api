@@ -5,6 +5,28 @@
 ### Bugs fixed
 
 ### Enhancements
+- GLS-58 - Updated CPI data source csv
+
+## [2.2.2](https://github.com/uktrade/directory-api/releases/tag/2.2.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.2.1...2.2.2)
+
+### Enhancements
+- GLS-107 - django upgrade
+
+## [2.2.1](https://github.com/uktrade/directory-api/releases/tag/2.2.1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.1.0...2.2.1)
+
+### Enhancements
+- GLS-3 - migration to opensearch
+
+## [2.1.0](https://github.com/uktrade/directory-api/releases/tag/2.1.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.0.0...2.1.0)
+
+### Bugs fixed
+- GP2-3898 - fix consumer price index
+- GP2-3899 - fix ease rank
+
+### Enhancements
 - GP2-3123 - remove redundant code
 - GP2-2857 - refactor countries import
 - GP2-3876 automate worldbank data
@@ -24,7 +46,7 @@
 - GP2-3171 - Add export plan PK to serializer
 - GP2-1319 - relabelling/adding data services models's attributes
 - GP2-3173 - multi-Export-plan-list-detail
-- GP2-3351 - Add permission class to export-plan api can only be changed/accessed by owner 
+- GP2-3351 - Add permission class to export-plan api can only be changed/accessed by owner
 - GP2-3179 - Spike management command: report_export_plan
 - GP2-3405 - migrate ep name
 - GP2-3646 - Saving down exportplan to csv command
