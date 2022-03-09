@@ -16,7 +16,6 @@ class Command(BaseCommand):
 
         with open('dataservices/resources/corruption_perception_index.csv', 'r', encoding='utf-8-sig') as f:
             file_reader = csv.DictReader(f)
-            CorruptionPerceptionsIndex.objects.all().delete()
             for row in file_reader:
                 store = {}
                 country = {'country_name': row.get('Country'), 'country_code': row.get('ISO3')}
