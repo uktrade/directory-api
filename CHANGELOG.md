@@ -5,6 +5,7 @@
 ### Bugs fixed
 
 ### Enhancements
+- GLS-122 - Add published date of Company to the ActivityStream company serializer
 - GLS-58 - Updated CPI data source csv
 
 ## [2.2.2](https://github.com/uktrade/directory-api/releases/tag/2.2.2)

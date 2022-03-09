@@ -385,6 +385,7 @@ def _expected_company_response(company):
                 'other': ['Regulatory', 'Finance', 'IT'],
                 'Finance': ['Insurance'],
             },
+            'dit:directory:Company:date_published': company.date_published.strftime('%Y-%m-%d'),
         },
     }
 
@@ -518,7 +519,7 @@ def _expected_export_plan_response(export_plan):
 
 @pytest.mark.django_db
 @mock.patch('activitystream.views.MAX_PER_PAGE', 1)
-def object_list(api_client, companies_url):
+def test_activty_stream_company_viewset(api_client, companies_url):
     with freeze_time('2020-09-01 12:00:02'):
         company_1 = CompanyFactory(number='10000001', date_published=datetime.datetime(2020, 9, 1))
     with freeze_time('2012-09-01 12:00:01'):
