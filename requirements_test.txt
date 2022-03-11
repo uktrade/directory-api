@@ -212,7 +212,7 @@ packaging==21.3
     #   redis
 pathspec==0.9.0
     # via black
-pillow==9.0.0
+pillow==9.0.1
     # via directory-validators
 platformdirs==2.4.1
     # via black

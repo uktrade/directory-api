@@ -174,7 +174,7 @@ openpyxl==3.0.9
     # via tablib
 packaging==21.3
     # via redis
-pillow==9.0.0
+pillow==9.0.1
     # via directory-validators
 prompt-toolkit==3.0.26
     # via click-repl
