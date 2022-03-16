@@ -72,7 +72,7 @@ directory-healthcheck==2.0.0
     # via -r requirements.in
 directory-sso-api-client==6.5.3
     # via -r requirements.in
-directory-validators==8.0.0
+directory-validators==8.0.1
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
@@ -114,7 +114,7 @@ django-import-export==2.0.2
     # via -r requirements.in
 django-ipware==2.1.0
     # via django-admin-ip-restrictor
-django-json-widget==1.0.1
+django_json_widget==1.0.1
     # via -r requirements.in
 django-redis==4.10.0
     # via -r requirements.in
@@ -174,7 +174,7 @@ openpyxl==3.0.9
     # via tablib
 packaging==21.3
     # via redis
-pillow==9.0.0
+pillow==9.0.1
     # via directory-validators
 prompt-toolkit==3.0.26
     # via click-repl
