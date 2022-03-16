@@ -13,7 +13,7 @@ from dataservices import models
 @pytest.mark.parametrize(
     'model_name, management_cmd, object_count, de_rows',
     (
-        (models.CorruptionPerceptionsIndex, 'import_cpi_data', 720, 4),
+        (models.CorruptionPerceptionsIndex, 'import_cpi_data', 181, 1),
         (models.WorldEconomicOutlook, 'import_weo_data', 1552, 0),
     ),
 )
