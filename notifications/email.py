@@ -1,12 +1,16 @@
 import abc
+import csv
+import os
 from collections import namedtuple
 
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from notifications_python_client import prepare_upload
 
 import core.tasks
+from core.helpers import notifications_client
 from notifications import constants, helpers, models, tokens
 
 Recipient = namedtuple('Recipient', ['email', 'name'])
@@ -75,7 +79,6 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
     def recipient(self):
         return Recipient(name=self.subscriber['name'], email=self.subscriber['email'])
 
-    def send(self):
         text_body, html_body = self.get_bodies()
         core.tasks.send_email.delay(
             subject=self.subject,
@@ -115,6 +118,7 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
     category = constants.NEW_COMPANIES_IN_SECTOR
     subject = settings.NEW_COMPANIES_IN_SECTOR_SUBJECT
     text_template = 'new_companies_in_sector_email.txt'
+    template_id = settings.GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID
 
     def __init__(self, subscriber, companies):
         self.companies = companies
@@ -132,6 +136,41 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
             utm_params=settings.NEW_COMPANIES_IN_SECTOR_UTM,
             companies=list(self.companies)[:5],  # show only 5: ED-1228
         )
+
+    def send(self):
+        with open('new-companies-in-sector.csv', 'w+') as csvfile:
+            filewriter = csv.writer(csvfile)
+            filewriter.writerow(
+                [
+                    'Name',
+                    'Summary',
+                    'Description',
+                    'Number',
+                    'Profile URL',
+                ]
+            )
+            for company in self.companies:
+                filewriter.writerow(
+                    [
+                        company.name,
+                        company.summary,
+                        company.description,
+                        company.number,
+                        settings.FAS_COMPANY_PROFILE_URL.format(number=company.number),
+                    ]
+                )
+
+        with open('new-companies-in-sector.csv', 'rb') as f:
+            notifications_client.send_email_notification(
+                email_address=self.recipient.email,
+                template_id=self.template_id,
+                personalisation={
+                    'link_to_file': prepare_upload(f),
+                    'company_list_url': settings.FAS_COMPANY_LIST_URL,
+                    'utm_params': settings.NEW_COMPANIES_IN_SECTOR_UTM,
+                },
+            )
+        os.remove('new-companies-in-sector.csv')
 
 
 class SupplierUbsubscribed(SupplierNotificationBase):
