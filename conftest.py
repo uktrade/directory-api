@@ -157,6 +157,19 @@ def elasticsearch_marker(request, django_db_blocker):
         stub.stop()
 
 
+class MockResponse:
+    # GOV notification response doesnt send any status_code for valid request
+    pass
+
+
+@pytest.fixture
+def mock_notification_client():
+    with mock.patch('notifications.email.notifications_client') as mock_client:
+        mock_instance = mock_client.return_value
+        mock_instance.send_email_notification.return_value = MockResponse
+        yield mock_instance
+
+
 @pytest.fixture()
 def migration(transactional_db):
     """

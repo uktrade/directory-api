@@ -9,7 +9,6 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from notifications_python_client import prepare_upload
 
-import core.tasks
 from core.helpers import notifications_client
 from notifications import constants, helpers, models, tokens
 
@@ -54,16 +53,17 @@ class SupplierNotificationBase(NotificationBase):
     def recipient(self):
         return Recipient(name=self.company_user.name, email=self.company_user.company_email)
 
-    def send(self):
-        text_body, html_body = self.get_bodies()
-        models.SupplierEmailNotification.objects.create(company_user=self.company_user, category=self.category)
-        core.tasks.send_email.delay(
-            subject=self.subject,
-            text_body=text_body,
-            html_body=html_body,
-            recipient_email=self.recipient.email,
-            from_email=self.from_email,
-        )
+    # TODO: deprecated - to be removed
+    # def send(self):
+    #     text_body, html_body = self.get_bodies()
+    #     models.SupplierEmailNotification.objects.create(company_user=self.company_user, category=self.category)
+    #     core.tasks.send_email.delay(
+    #         subject=self.subject,
+    #         text_body=text_body,
+    #         html_body=html_body,
+    #         recipient_email=self.recipient.email,
+    #         from_email=self.from_email,
+    #     )
 
 
 class AnonymousSubscriberNotificationBase(NotificationBase):
@@ -79,14 +79,16 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
     def recipient(self):
         return Recipient(name=self.subscriber['name'], email=self.subscriber['email'])
 
-        text_body, html_body = self.get_bodies()
-        core.tasks.send_email.delay(
-            subject=self.subject,
-            text_body=text_body,
-            html_body=html_body,
-            recipient_email=self.recipient.email,
-            from_email=self.from_email,
-        )
+    # TODO: deprecated - to be removed
+    # def send(self):
+    #     text_body, html_body = self.get_bodies()
+    #     core.tasks.send_email.delay(
+    #         subject=self.subject,
+    #         text_body=text_body,
+    #         html_body=html_body,
+    #         recipient_email=self.recipient.email,
+    #         from_email=self.from_email,
+    #     )
 
 
 class VerificationWaitingNotification(SupplierNotificationBase):
@@ -95,9 +97,20 @@ class VerificationWaitingNotification(SupplierNotificationBase):
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT
     text_template = 'verification_code_not_given_email.txt'
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
+    template_id = settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
 
     def get_context_data(self):
         return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL)
+
+    def send(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'verification_url': settings.VERIFICATION_CODE_URL,
+                'zendesk_url': settings.ZENDESK_URL,
+            },
+        )
 
 
 class VerificationStillWaitingNotification(SupplierNotificationBase):
@@ -106,10 +119,21 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL
     text_template = 'verification_code_not_given_2nd_email.txt'
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
+    template_id = settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID
 
     def get_context_data(self):
         return super().get_context_data(
             verification_url=settings.VERIFICATION_CODE_URL,
+        )
+
+    def send(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'verification_url': settings.VERIFICATION_CODE_URL,
+                'zendesk_url': settings.ZENDESK_URL,
+            },
         )
 
 
@@ -179,6 +203,17 @@ class SupplierUbsubscribed(SupplierNotificationBase):
     subject = settings.UNSUBSCRIBED_SUBJECT
     text_template = 'unsubscribed-supplier.txt'
     unsubscribe_url = None
+    template_id = settings.GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID
+
+    def send(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'full_name': self.recipient.name,
+                'zendesk_url': settings.ZENDESK_URL,
+            },
+        )
 
 
 class AnonymousSubscriberUbsubscribed(AnonymousSubscriberNotificationBase):
@@ -187,3 +222,14 @@ class AnonymousSubscriberUbsubscribed(AnonymousSubscriberNotificationBase):
     subject = settings.UNSUBSCRIBED_SUBJECT
     text_template = 'unsubscribed-anonymous-subscriber.txt'
     unsubscribe_url = None
+    template_id = settings.GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID
+
+    def send(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'full_name': self.recipient.name,
+                'zendesk_url': settings.ZENDESK_URL,
+            },
+        )

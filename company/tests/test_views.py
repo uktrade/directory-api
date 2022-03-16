@@ -2300,21 +2300,24 @@ def test_gecko_num_registered_company_user_view_rejects_incorrect_creds():
 
 @pytest.mark.django_db
 @mock.patch('core.tasks.send_email')
-def test_unsubscribe_company_user(mock_task, authed_client, authed_supplier):
+def test_unsubscribe_company_user(mock_client, mock_notification_client, authed_client, authed_supplier):
     response = authed_client.post(reverse('unsubscribe-supplier'))
 
     authed_supplier.refresh_from_db()
     assert response.status_code == 200
     assert authed_supplier.unsubscribed is True
-    assert mock_task.delay.called
+    assert mock_notification_client.send_email_notification.calle
 
 
 @pytest.mark.django_db
 @mock.patch('notifications.notifications.company_user_unsubscribed')
-def test_unsubscribe_company_user_email_confirmation(mock_company_user_unsubscribed, authed_client, authed_supplier):
+def test_unsubscribe_company_user_email_confirmation(
+    mock_company_user_unsubscribed, mock_notification_client, authed_client, authed_supplier
+):
     authed_client.post(reverse('unsubscribe-supplier'))
 
     mock_company_user_unsubscribed.assert_called_once_with(company_user=authed_supplier)
+    mock_notification_client.send_email_notification.called
 
 
 @pytest.mark.django_db
