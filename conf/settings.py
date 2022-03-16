@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'dataservices.apps.DataservicesConfig',
     'django_json_widget',
     'django_cleanup.apps.CleanupConfig',
+    'import_export',
 ]
 
 MIDDLEWARE = [
