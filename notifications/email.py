@@ -4,7 +4,6 @@ import os
 from collections import namedtuple
 
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from notifications_python_client import prepare_upload
@@ -33,12 +32,6 @@ class NotificationBase(abc.ABC):
             **kwargs,
         }
 
-    def get_bodies(self):
-        context = self.get_context_data()
-        text_body = render_to_string(self.text_template, context)
-        html_body = render_to_string(self.html_template, context)
-        return text_body, html_body
-
     def send(self):
         raise NotImplementedError
 
@@ -53,18 +46,6 @@ class SupplierNotificationBase(NotificationBase):
     def recipient(self):
         return Recipient(name=self.company_user.name, email=self.company_user.company_email)
 
-    # TODO: deprecated - to be removed
-    # def send(self):
-    #     text_body, html_body = self.get_bodies()
-    #     models.SupplierEmailNotification.objects.create(company_user=self.company_user, category=self.category)
-    #     core.tasks.send_email.delay(
-    #         subject=self.subject,
-    #         text_body=text_body,
-    #         html_body=html_body,
-    #         recipient_email=self.recipient.email,
-    #         from_email=self.from_email,
-    #     )
-
 
 class AnonymousSubscriberNotificationBase(NotificationBase):
     from_email = settings.FAS_FROM_EMAIL
@@ -78,17 +59,6 @@ class AnonymousSubscriberNotificationBase(NotificationBase):
     @property
     def recipient(self):
         return Recipient(name=self.subscriber['name'], email=self.subscriber['email'])
-
-    # TODO: deprecated - to be removed
-    # def send(self):
-    #     text_body, html_body = self.get_bodies()
-    #     core.tasks.send_email.delay(
-    #         subject=self.subject,
-    #         text_body=text_body,
-    #         html_body=html_body,
-    #         recipient_email=self.recipient.email,
-    #         from_email=self.from_email,
-    #     )
 
 
 class VerificationWaitingNotification(SupplierNotificationBase):
