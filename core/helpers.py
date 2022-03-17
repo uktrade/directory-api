@@ -22,7 +22,10 @@ from notifications_python_client.notifications import NotificationsAPIClient
 
 logger = logging.getLogger(__name__)
 
-notifications_client = NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
+
+def notifications_client():
+    return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
+
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 
