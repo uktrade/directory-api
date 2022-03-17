@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from core import tasks
+from core.helpers import notifications_client
 
 
 class MultiUserOwnershipBaseNotification:
@@ -27,22 +27,33 @@ class MultiUserOwnershipBaseNotification:
         html_body = render_to_string(self.html_template, context)
         return text_body, html_body
 
-    def send_async(self):
-        text_body, html_body = self.get_bodies()
-        tasks.send_email.delay(
-            subject=self.instance.subject,
-            text_body=text_body,
-            html_body=html_body,
-            recipient_email=self.instance.recipient_email,
-            from_email=self.from_email,
-        )
-
 
 class OwnershipChangeNotification(MultiUserOwnershipBaseNotification):
-    html_template = 'account_ownership_transfer_email.html'
-    text_template = 'account_ownership_transfer_email.txt'
+    template_id = settings.GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID
+
+    def send_async(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'invite_link': self.instance.invite_link,
+                'requestor': (self.instance.requestor.name or self.instance.requestor.company_email),
+                'company_name': self.instance.company.name,
+            },
+        )
 
 
 class CollaboratorNotification(MultiUserOwnershipBaseNotification):
     html_template = 'account_collaborator_email.html'
     text_template = 'account_collaborator_email.txt'
+
+    def send_async(self):
+        notifications_client.send_email_notification(
+            email_address=self.recipient.email,
+            template_id=self.template_id,
+            personalisation={
+                'invite_link': self.instance.invite_link,
+                'requestor': (self.instance.requestor.name or self.instance.requestor.company_email),
+                'company_name': self.instance.company.name,
+            },
+        )
