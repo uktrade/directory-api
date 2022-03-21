@@ -18,8 +18,13 @@ from django.utils.deconstruct import deconstructible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
+from notifications_python_client.notifications import NotificationsAPIClient
 
 logger = logging.getLogger(__name__)
+
+
+def notifications_client():
+    return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
 
 
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
