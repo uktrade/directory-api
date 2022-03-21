@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView
+from import_export.admin import ExportActionMixin
 from import_export.fields import Field
 from import_export.resources import ModelResource
 
@@ -38,12 +39,14 @@ class PublishedLocationFilter(admin.SimpleListFilter):
     ISD = 'ISD'
     FAS = 'FAS'
     ALL = 'ALL'
+    BOTH = 'BOTH'
 
     def lookups(self, request, model_admin):
         return (
             (self.FAS, 'Find a Supplier'),
             (self.ISD, 'Investment Support Directory'),
             (self.ALL, 'Either'),
+            (self.BOTH, 'Both'),
         )
 
     def queryset(self, request, queryset):
@@ -56,6 +59,8 @@ class PublishedLocationFilter(admin.SimpleListFilter):
             queryset = isd
         elif value == self.FAS:
             queryset = fas
+        elif value == self.BOTH:
+            queryset = isd & fas
         return queryset
 
 
@@ -202,7 +207,7 @@ class CompanyUserInline(admin.options.TabularInline):
 
 
 @admin.register(models.Company)
-class CompanyAdmin(admin.ModelAdmin):
+class CompanyAdmin(ExportActionMixin, admin.ModelAdmin):
     inlines = (CompanyUserInline,)
     search_fields = (
         'name',
@@ -235,7 +240,7 @@ class CompanyAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified', 'date_verification_letter_sent', 'date_registration_letter_sent')
 
     def get_urls(self):
-        urls = super(CompanyAdmin, self).get_urls()
+        urls = super().get_urls()
         additional_urls = [
             url(
                 r'^publish/$',
