@@ -118,7 +118,7 @@ django-import-export==2.0.2
     # via -r requirements.in
 django-ipware==2.1.0
     # via django-admin-ip-restrictor
-django_json_widget==1.0.1
+django-json-widget==1.0.1
     # via -r requirements.in
 django-redis==4.10.0
     # via -r requirements.in
@@ -304,7 +304,7 @@ vine==5.0.0
     #   kombu
 w3lib==1.22.0
     # via directory-client-core
-waitress==1.4.3
+waitress==2.1.1
     # via -r requirements.in
 wcwidth==0.2.5
     # via prompt-toolkit
