@@ -4,6 +4,14 @@
 
 ### Bugs fixed
 
+## [2.4.0](https://github.com/uktrade/directory-api/releases/tag/2.4.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.3.0...2.4.0)
+### Enhancements
+- GLS - 150 - migrating to gov notification service
+
+
+## [2.3.0](https://github.com/uktrade/directory-api/releases/tag/2.3.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.2.2...2.3.0)
 ### Enhancements
 - GLS-122 - Add published date of Company to the ActivityStream company serializer
 - GLS-58 - Updated CPI data source csv
