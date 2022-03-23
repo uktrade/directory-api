@@ -1,7 +1,0 @@
-{% extends "account_ownership_base_email.txt" %}
-
-{% block body %}
-{{ requestor }} wants to add you as a user to the Find a buyer profile for {{ company_name }}.
-
-Click the link to confirm you want to be added to the profile.
-{% endblock %}
