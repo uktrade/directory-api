@@ -26,72 +26,69 @@ def test_create_anonymous_unsubscribe_create_missing_params(client):
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email')
+@patch('notifications.email.notifications_client')
 @patch('notifications.models.AnonymousEmailNotification.objects.get')
 @patch('notifications.tokens.TokenGenerator.check_token', return_value=True)
-def test_create_anonymous_unsubscribe_no_email(mock_check_token, mock_notification, mock_task, client):
+def test_create_anonymous_unsubscribe_no_email(mock_check_token, mock_notification, mock_client, client):
     mock_notification.side_effect = AnonymousEmailNotification.DoesNotExist
 
     url = reverse('anonymous-unsubscribe')
-    response = client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
+    client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
 
-    assert response.status_code == http.client.BAD_REQUEST
-    assert mock_task.delay.called is False
+    assert mock_client.send_email_notification.called is False
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email')
 @patch('notifications.models.AnonymousEmailNotification.objects.get')
 @patch('notifications.tokens.TokenGenerator.check_token', return_value=False)
-def test_create_anonymous_unsubscribe_token_invalid(mock_check_token, mock_notification, mock_task, client):
-    mock_notification.return_value = AnonymousEmailNotificationFactory()
+def test_create_anonymous_unsubscribe_token_invalid(mock_check_token, client, mock_notification_client):
+    mock_notification_client.return_value = AnonymousEmailNotificationFactory()
 
     url = reverse('anonymous-unsubscribe')
-    response = client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
+    client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
 
-    assert response.status_code == http.client.BAD_REQUEST
-    assert mock_task.delay.called is False
+    assert mock_notification_client.send_email_notification.called is False
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email')
+@patch('notifications.email.notifications_client')
 @patch('notifications.models.AnonymousEmailNotification.objects.get')
 @patch('notifications.tokens.TokenGenerator.check_token', return_value=True)
-def test_create_anonymous_unsubscribe_email_and_token_valid(mock_check_token, mock_notification, mock_task, client):
-    mock_notification.return_value = AnonymousEmailNotificationFactory()
-
-    url = reverse('anonymous-unsubscribe')
-    response = client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
-
-    assert response.status_code == http.client.CREATED
-    assert mock_task.delay.called is True
-
-
-@pytest.mark.django_db
-@patch('core.tasks.send_email')
-@patch('notifications.models.AnonymousEmailNotification.objects.get')
-@patch('notifications.tokens.TokenGenerator.check_token', return_value=True)
-@patch('rest_framework.generics.CreateAPIView.create', side_effect=IntegrityError)
-def test_create_anonymous_unsubscribe_already_unsubscribed(
-    mock_api_create, mock_check_token, mock_notification, mock_task, client
+def test_create_anonymous_unsubscribe_email_and_token_valid(
+    mock_check_token, mock_notification, mock_notification_client, client
 ):
     mock_notification.return_value = AnonymousEmailNotificationFactory()
 
     url = reverse('anonymous-unsubscribe')
-    response = client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
+    client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
 
-    assert response.status_code == http.client.OK
-    assert mock_task.delay.called is False
+    assert mock_notification_client.send_email_notification.called is True
 
 
 @pytest.mark.django_db
-@patch('core.tasks.send_email')
-def test_create_anonymous_unsubscribe_backwards_compatible(mock_task, client):
+@patch('notifications.email.notifications_client')
+@patch('notifications.models.AnonymousEmailNotification.objects.get')
+@patch('notifications.tokens.TokenGenerator.check_token', return_value=True)
+@patch('rest_framework.generics.CreateAPIView.create', side_effect=IntegrityError)
+def test_create_anonymous_unsubscribe_already_unsubscribed(
+    mock_api_create, mock_check_token, mock_notification, mock_client, client
+):
+    mock_notification.return_value = AnonymousEmailNotificationFactory()
+
+    url = reverse('anonymous-unsubscribe')
+    client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
+
+    assert mock_notification.send_email_notification.called is False
+
+
+@pytest.mark.django_db
+@patch('notifications.email.notifications_client')
+def test_create_anonymous_unsubscribe_backwards_compatible(mock_client, client):
     url = reverse('anonymous-unsubscribe')
     response = client.post(url, {'email': 'test@example.com'})
 
     assert response.status_code == http.client.CREATED
-    assert mock_task.delay.called is True
+    assert mock_client.send_email_notification.called is True
 
 
 @pytest.mark.django_db
