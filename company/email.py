@@ -15,7 +15,7 @@ class OwnershipChangeNotification(MultiUserOwnershipBaseNotification):
 
     def send_async(self):
         notifications_client.send_email_notification(
-            email_address=self.recipient.email,
+            email_address=self.instance.recipient_email,
             template_id=self.template_id,
             personalisation={
                 'invite_link': self.instance.invite_link,
@@ -30,7 +30,7 @@ class CollaboratorNotification(MultiUserOwnershipBaseNotification):
 
     def send_async(self):
         notifications_client.send_email_notification(
-            email_address=self.recipient.email,
+            email_address=self.instance.recipient_email,
             template_id=self.template_id,
             personalisation={
                 'invite_link': self.instance.invite_link,

@@ -19,7 +19,7 @@ celery[redis]>=5.2.2
 requests[security]==2.25.1
 elasticsearch>=7.0.0,<7.14.0
 elasticsearch-dsl>=7.0.0,<8.0.0
-waitress==1.4.3
+waitress==2.1.1
 sigauth==4.1.1
 django-staff-sso-client==1.0.0
 directory-validators==8.0.1
