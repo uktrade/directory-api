@@ -4,6 +4,17 @@
 
 ### Bugs fixed
 
+## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.1...2.4.2)
+### Bugs fixed
+- No ticket: notification bug fix
+
+## [2.4.1](https://github.com/uktrade/directory-api/releases/tag/2.4.1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.0...2.4.1)
+### Enhancements
+- No ticket: waitress vulneribilities fixes
+
+
 ## [2.4.0](https://github.com/uktrade/directory-api/releases/tag/2.4.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.3.0...2.4.0)
 ### Enhancements
