@@ -73,7 +73,7 @@ class VerificationWaitingNotification(SupplierNotificationBase):
         return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL)
 
     def send(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.recipient.email,
             template_id=self.template_id,
             personalisation={
@@ -97,7 +97,7 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
         )
 
     def send(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.recipient.email,
             template_id=self.template_id,
             personalisation={
@@ -155,7 +155,7 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
                 )
 
         with open('new-companies-in-sector.csv', 'rb') as f:
-            notifications_client.send_email_notification(
+            notifications_client().send_email_notification(
                 email_address=self.recipient.email,
                 template_id=self.template_id,
                 personalisation={
@@ -176,7 +176,7 @@ class SupplierUbsubscribed(SupplierNotificationBase):
     template_id = settings.GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID
 
     def send(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.recipient.email,
             template_id=self.template_id,
             personalisation={
@@ -195,7 +195,7 @@ class AnonymousSubscriberUbsubscribed(AnonymousSubscriberNotificationBase):
     template_id = settings.GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID
 
     def send(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.recipient.email,
             template_id=self.template_id,
             personalisation={

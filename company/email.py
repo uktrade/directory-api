@@ -14,7 +14,7 @@ class OwnershipChangeNotification(MultiUserOwnershipBaseNotification):
     template_id = settings.GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID
 
     def send_async(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.instance.recipient_email,
             template_id=self.template_id,
             personalisation={
@@ -29,7 +29,7 @@ class CollaboratorNotification(MultiUserOwnershipBaseNotification):
     template_id = settings.GOVNOTIFY_ACCOUNT_COLLABORATOR_TEMPLATE_ID
 
     def send_async(self):
-        notifications_client.send_email_notification(
+        notifications_client().send_email_notification(
             email_address=self.instance.recipient_email,
             template_id=self.template_id,
             personalisation={

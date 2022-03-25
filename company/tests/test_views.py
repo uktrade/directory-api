@@ -2306,7 +2306,7 @@ def test_unsubscribe_company_user(notification_client, authed_client, authed_sup
     authed_supplier.refresh_from_db()
     assert response.status_code == 200
     assert authed_supplier.unsubscribed is True
-    assert notification_client.send_email_notification.called
+    assert notification_client().send_email_notification.called
 
 
 @pytest.mark.django_db
@@ -2317,7 +2317,7 @@ def test_unsubscribe_company_user_email_confirmation(
     authed_client.post(reverse('unsubscribe-supplier'))
 
     mock_company_user_unsubscribed.assert_called_once_with(company_user=authed_supplier)
-    mock_notification_client.send_email_notification.called
+    mock_notification_client().send_email_notification.called
 
 
 @pytest.mark.django_db
