@@ -62,7 +62,7 @@ def test_create_anonymous_unsubscribe_email_and_token_valid(
     url = reverse('anonymous-unsubscribe')
     client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
 
-    assert mock_notification_client.send_email_notification.called is True
+    assert mock_notification_client().send_email_notification.called is True
 
 
 @pytest.mark.django_db
@@ -78,7 +78,7 @@ def test_create_anonymous_unsubscribe_already_unsubscribed(
     url = reverse('anonymous-unsubscribe')
     client.post(url, {'uidb64': 'aBcD', 'token': '1a2b3c'})
 
-    assert mock_notification.send_email_notification.called is False
+    assert mock_client().send_email_notification.called is False
 
 
 @pytest.mark.django_db
@@ -88,7 +88,7 @@ def test_create_anonymous_unsubscribe_backwards_compatible(mock_client, client):
     response = client.post(url, {'email': 'test@example.com'})
 
     assert response.status_code == http.client.CREATED
-    assert mock_client.send_email_notification.called is True
+    assert mock_client().send_email_notification.called is True
 
 
 @pytest.mark.django_db
