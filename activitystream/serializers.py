@@ -31,11 +31,6 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
         prefix = 'dit:directory:CompanyUser'
         return {
             'id': f'{prefix}:{instance.id}:Update',
-            'published': instance.date_joined.isoformat(),
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
             'object': {
                 'id': f'{prefix}:{instance.id}',
                 'type': 'dit:directory:CompanyUser',
