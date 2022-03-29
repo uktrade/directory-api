@@ -20,7 +20,7 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
             'name',
             'role',
             'sso_id',
-            'unsubscribed',]
+            'unsubscribed']
 
     def to_representation(self, instance):
         """
@@ -40,6 +40,7 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
                 **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
             },
         }
+
 
 class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     """
