@@ -1,7 +1,45 @@
 from rest_framework import serializers
 
-from company.models import Company
+from company.models import Company, CompanyUser
 
+
+class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
+    """
+    CompanyUser serializer for activity stream.
+
+    - Adds extra response fields required by activity stream.
+    - Adds the required prefix to field names
+    """
+    class Meta:
+        model = CompanyUser
+        fields = [
+            'company_email',
+            'date_joined',
+            'is_active',
+            'mobile_number',
+            'name',
+            'role',
+            'sso_id',
+            'unsubscribed',]
+
+    def to_representation(self, instance):
+        """
+        Prefix field names to match activity stream format
+        """
+        prefix = 'dit:directory:CompanyUser'
+        return {
+            'id': f'{prefix}:{instance.id}:Update',
+            'published': instance.date_joined.isoformat(),
+            'generator': {
+                'type': 'Application',
+                'name': 'dit:directory',
+            },
+            'object': {
+                'id': f'{prefix}:{instance.id}',
+                'type': 'dit:directory:CompanyUser',
+                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
+            },
+        }
 
 class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     """
@@ -10,6 +48,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
     """
+    company_user = ActivityStreamCompanyUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Company
@@ -66,14 +105,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
             'expertise_languages',
             'expertise_products_services',
             'date_published',
-            'company_email',
-            'date_joined',
-            'is_active',
-            'mobile_number',
-            'name',
-            'role',
-            'sso_id',
-            'unsubscribed',
+            'company_user',
         )
 
     def to_representation(self, instance):
