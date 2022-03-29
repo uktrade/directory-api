@@ -10,6 +10,7 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
     """
+
     class Meta:
         model = CompanyUser
         fields = [
@@ -20,7 +21,8 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
             'name',
             'role',
             'sso_id',
-            'unsubscribed']
+            'unsubscribed',
+        ]
 
     def to_representation(self, instance):
         """
@@ -49,6 +51,7 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
     """
+
     company_user = ActivityStreamCompanyUserSerializer(many=True, read_only=True)
 
     class Meta:
