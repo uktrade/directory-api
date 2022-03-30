@@ -30,10 +30,7 @@ class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
         """
         prefix = 'dit:directory:CompanyUser'
         return {
-            'id': f'{prefix}:{instance.id}:Update',
             'object': {
-                'id': f'{prefix}:{instance.id}',
-                'type': 'dit:directory:CompanyUser',
                 **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
             },
         }

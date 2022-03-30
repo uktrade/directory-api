@@ -386,6 +386,38 @@ def _expected_company_response(company):
                 'Finance': ['Insurance'],
             },
             'dit:directory:Company:date_published': company.date_published.strftime('%Y-%m-%d'),
+            'dit:directory:Company:CompanyUser': {
+                'company_email': company.companyuser_set.company_email,
+                'date_joined': company.companyuser_set.date_joined,
+                'is_active': company.companyuser_set.is_active,
+                'mobile_number': company.companyuser_set.mobile_number,
+                'name': company.companyuser_set.name,
+                'role': company.companyuser_set.role,
+                'sso_id': company.companyuser_set.sso_id,
+                'unsubscribed': company.companyuser_set.unsubscribed,
+            },
+        },
+    }
+
+
+def _expected_companyuser_response(companyuser):
+    return {
+        'id': f'dit:directory:CompanyUser:{companyuser.sso_id}:Update',
+        'published': companyuser.date_joined.datetime.strftime("%Y-%m-%d, "
+                                                               "%H:%M:%S"),
+        'generator': {'type': 'Application', 'name': 'dit:directory'},
+        'object': {
+            'id': f'dit:directory:CompanyUser:{companyuser.sso_id}',
+            'type': 'dit:directory:CompanyUser',
+            'dit:directory:CompanyUser:sso_id': companyuser.sso_id,
+            'dit:directory:CompanyUser:name': companyuser.name,
+            'dit:directory:CompanyUser:company': companyuser.company,
+            'dit:directory:CompanyUser:company_email': companyuser.company_email,
+            'dit:directory:CompanyUser:is_active': companyuser.is_active,
+            'dit:directory:CompanyUser:date_joined': companyuser.date_joined,
+            'dit:directory:CompanyUser:mobile_number': companyuser.mobile_number,
+            'dit:directory:CompanyUser:unsubscribed': companyuser.unsubscribed,
+            'dit:directory:CompanyUser:role': companyuser.role
         },
     }
 
