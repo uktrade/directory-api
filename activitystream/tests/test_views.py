@@ -387,14 +387,14 @@ def _expected_company_response(company):
             },
             'dit:directory:Company:date_published': company.date_published.strftime('%Y-%m-%d'),
             'dit:directory:Company:CompanyUser': {
-                'company_email': company.companyuser_set.company_email,
-                'date_joined': company.companyuser_set.date_joined,
-                'is_active': company.companyuser_set.is_active,
-                'mobile_number': company.companyuser_set.mobile_number,
-                'name': company.companyuser_set.name,
-                'role': company.companyuser_set.role,
-                'sso_id': company.companyuser_set.sso_id,
-                'unsubscribed': company.companyuser_set.unsubscribed,
+                'company_email': company.companyuser.company_email,
+                'date_joined': company.companyuser.date_joined,
+                'is_active': company.companyuser.is_active,
+                'mobile_number': company.companyuser.mobile_number,
+                'name': company.companyuser.name,
+                'role': company.companyuser.role,
+                'sso_id': company.companyuser.sso_id,
+                'unsubscribed': company.companyuser.unsubscribed,
             },
         },
     }
@@ -403,8 +403,7 @@ def _expected_company_response(company):
 def _expected_companyuser_response(companyuser):
     return {
         'id': f'dit:directory:CompanyUser:{companyuser.sso_id}:Update',
-        'published': companyuser.date_joined.datetime.strftime("%Y-%m-%d, "
-                                                               "%H:%M:%S"),
+        'published': companyuser.date_joined.datetime.strftime("%Y-%m-%d, " "%H:%M:%S"),
         'generator': {'type': 'Application', 'name': 'dit:directory'},
         'object': {
             'id': f'dit:directory:CompanyUser:{companyuser.sso_id}',
@@ -417,7 +416,7 @@ def _expected_companyuser_response(companyuser):
             'dit:directory:CompanyUser:date_joined': companyuser.date_joined,
             'dit:directory:CompanyUser:mobile_number': companyuser.mobile_number,
             'dit:directory:CompanyUser:unsubscribed': companyuser.unsubscribed,
-            'dit:directory:CompanyUser:role': companyuser.role
+            'dit:directory:CompanyUser:role': companyuser.role,
         },
     }
 
