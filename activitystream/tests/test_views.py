@@ -385,7 +385,7 @@ def _expected_company_response(company):
                 'other': ['Regulatory', 'Finance', 'IT'],
                 'Finance': ['Insurance'],
             },
-            'dit:directory:Company:date_published': company.date_published,
+            # 'dit:directory:Company:date_published': company.date_published,
         },
     }
 
