@@ -19,6 +19,20 @@ fake.add_provider(factory.Faker('building_number'))
 fake.add_provider(factory.Faker('street_name'))
 
 
+class CompanyUserFactory(factory.django.DjangoModelFactory):
+    sso_id = factory.fuzzy.FuzzyInteger(1, 9999)
+    name = factory.Faker('name', locale='en_GB')
+    mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
+    company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
+    role = user_roles.ADMIN
+    # 1
+    # company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
+    # 2
+    company = factory.SubFactory('company.tests.factories.CompanyFactory')
+
+    class Meta:
+        model = models.CompanyUser
+
 class CompanyFactory(factory.django.DjangoModelFactory):
 
     number = factory.Iterator(company_house_number())
@@ -59,7 +73,10 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
-    company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory', company_user=None)
+    # 1
+    # company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory', company_user=None)
+    # 2
+    company_user = factory.RelatedFactory(CompanyUserFactory, action=models.CompanyUser.ACTION_CREATE)
 
     class Meta:
         model = models.Company
@@ -100,14 +117,3 @@ class CollaborationRequestFactory(factory.django.DjangoModelFactory):
         model = models.CollaborationRequest
 
 
-class CompanyUserFactory(factory.django.DjangoModelFactory):
-    sso_id = factory.fuzzy.FuzzyInteger(1, 9999)
-    name = factory.Faker('name', locale='en_GB')
-    mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
-    company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
-    # company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
-    company = factory.SubFactory(CompanyFactory)
-    role = user_roles.ADMIN
-
-    class Meta:
-        model = models.CompanyUser
