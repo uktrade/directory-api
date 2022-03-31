@@ -105,7 +105,8 @@ class CompanyUserFactory(factory.django.DjangoModelFactory):
     name = factory.Faker('name', locale='en_GB')
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
     company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
-    company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
+    # company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
+    company = factory.SubFactory(CompanyFactory)
     role = user_roles.ADMIN
 
     class Meta:
