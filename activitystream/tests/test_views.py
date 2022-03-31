@@ -386,16 +386,6 @@ def _expected_company_response(company):
                 'Finance': ['Insurance'],
             },
             'dit:directory:Company:date_published': company.date_published.strftime('%Y-%m-%d'),
-            'dit:directory:Company:CompanyUser': {
-                'company_email': company.companyuser_set.company_email,
-                'date_joined': company.companyuser_set.date_joined,
-                'is_active': company.companyuser_set.is_active,
-                'mobile_number': company.companyuser_set.mobile_number,
-                'name': company.companyuser_set.name,
-                'role': company.companyuser_set.role,
-                'sso_id': company.companyuser_set.sso_id,
-                'unsubscribed': company.companyuser_set.unsubscribed,
-            },
         },
     }
 
