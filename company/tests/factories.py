@@ -76,7 +76,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # 1
     # company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory', company_user=None)
     # 2
-    company_user = factory.RelatedFactory(CompanyUserFactory, action=models.CompanyUser.ACTION_CREATE)
+    company_user = factory.RelatedFactory(CompanyUserFactory)
 
     class Meta:
         model = models.Company
