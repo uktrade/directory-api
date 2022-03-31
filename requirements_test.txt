@@ -62,7 +62,7 @@ coverage==6.3
     # via
     #   codecov
     #   pytest-cov
-cryptography==3.3.2
+cryptography
     # via
     #   -r requirements.in
     #   pyopenssl
@@ -242,7 +242,7 @@ pre-commit-hooks==3.3.0
     # via -r requirements_test.in
 prompt-toolkit==3.0.26
     # via click-repl
-psycopg2-binary==2.8.4
+psycopg2-binary
     # via -r requirements.in
 py==1.11.0
     # via pytest
