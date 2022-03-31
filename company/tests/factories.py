@@ -25,10 +25,7 @@ class CompanyUserFactory(factory.django.DjangoModelFactory):
     mobile_number = factory.fuzzy.FuzzyText(length=11, chars='1234567890')
     company_email = factory.LazyAttribute(lambda x: f'{slugify(x.name)}-{x.sso_id}@example.com')
     role = user_roles.ADMIN
-    # 1
-    # company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
-    # 2
-    company = factory.SubFactory('company.tests.factories.CompanyFactory', company=None)
+    # company = factory.SubFactory('company.tests.factories.CompanyFactory', company_user=None)
 
     class Meta:
         model = models.CompanyUser
@@ -73,10 +70,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
-    # 1
-    # company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory', company_user=None)
-    # 2
-    company_user = factory.RelatedFactory('company.tests.factories.CompanyUserFactory')
+    # company_user = factory.RelatedFactory('company.tests.factories.CompanyUserFactory')
 
     class Meta:
         model = models.Company
