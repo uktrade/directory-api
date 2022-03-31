@@ -28,7 +28,7 @@ class CompanyUserFactory(factory.django.DjangoModelFactory):
     # 1
     # company = factory.RelatedFactory(CompanyFactory, factory_related_name='company_user')
     # 2
-    company = factory.SubFactory('company.tests.factories.CompanyFactory')
+    company = factory.SubFactory('company.tests.factories.CompanyFactory', company=None)
 
     class Meta:
         model = models.CompanyUser
@@ -76,7 +76,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     # 1
     # company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory', company_user=None)
     # 2
-    company_user = factory.RelatedFactory(CompanyUserFactory)
+    company_user = factory.RelatedFactory('company.tests.factories.CompanyUserFactory')
 
     class Meta:
         model = models.Company
