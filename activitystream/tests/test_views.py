@@ -526,7 +526,7 @@ def test_activty_stream_company_viewset(api_client, companies_url):
         company_2 = CompanyFactory(number='10000002', date_published=datetime.datetime(2020, 9, 2))
 
     # Create a company without a date_published date. This shouldn't be included in the response
-    CompanyFactory(number='10000003', date_published=None)
+    CompanyFactory(number='10000003)
 
     # Page 1
     auth = _auth_sender(companies_url).request_header

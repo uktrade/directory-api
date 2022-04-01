@@ -59,7 +59,7 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
-    date_published = factory.Faker('date')
+    # date_published = factory.Faker('date')
 
     class Meta:
         model = models.Company
