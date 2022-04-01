@@ -3,6 +3,39 @@ from rest_framework import serializers
 from company.models import Company, CompanyUser
 
 
+class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
+    """
+    CompanyUser serializer for activity stream.
+
+    - Adds extra response fields required by activity stream.
+    - Adds the required prefix to field names
+    """
+
+    class Meta:
+        model = CompanyUser
+        fields = [
+            'company_email',
+            'date_joined',
+            'is_active',
+            'mobile_number',
+            'name',
+            'role',
+            'sso_id',
+            'unsubscribed',
+        ]
+
+    def to_representation(self, instance):
+        """
+        Prefix field names to match activity stream format
+        """
+        prefix = 'dit:directory:CompanyUser'
+        return {
+            'object': {
+                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
+            },
+        }
+
+
 class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     """
     Company serializer for activity stream.
@@ -86,39 +119,6 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
             'object': {
                 'id': f'{prefix}:{instance.id}',
                 'type': 'dit:directory:Company',
-                **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
-            },
-        }
-
-
-class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
-    """
-    CompanyUser serializer for activity stream.
-
-    - Adds extra response fields required by activity stream.
-    - Adds the required prefix to field names
-    """
-
-    class Meta:
-        model = CompanyUser
-        fields = [
-            'company_email',
-            'date_joined',
-            'is_active',
-            'mobile_number',
-            'name',
-            'role',
-            'sso_id',
-            'unsubscribed',
-        ]
-
-    def to_representation(self, instance):
-        """
-        Prefix field names to match activity stream format
-        """
-        prefix = 'dit:directory:CompanyUser'
-        return {
-            'object': {
                 **{f'{prefix}:{k}': v for k, v in super().to_representation(instance).items()},
             },
         }
