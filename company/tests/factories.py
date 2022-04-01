@@ -59,7 +59,6 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     email_full_name = factory.Faker('name')
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
-    company_user = factory.RelatedFactory('company.tests.factories.CompanyUserFactory', factory_related_name='companyuser')
 
 
     class Meta:
