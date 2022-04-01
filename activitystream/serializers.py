@@ -43,8 +43,8 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
     - Adds the required prefix to field names
     """
 
-    company_user = ActivityStreamCompanyUserSerializer(many=True,
-                                                       read_only=True)
+    company_user = ActivityStreamCompanyUserSerializer(many=True, read_only=True)
+
     class Meta:
         model = Company
         fields = (

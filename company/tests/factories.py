@@ -60,7 +60,6 @@ class CompanyFactory(factory.django.DjangoModelFactory):
     postal_full_name = email_full_name
     email_address = factory.LazyAttribute(lambda x: f'{slugify(x.name)}@example.com')
 
-
     class Meta:
         model = models.Company
 
