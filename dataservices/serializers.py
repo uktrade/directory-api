@@ -168,3 +168,11 @@ class PopulationDataSerializer(serializers.ModelSerializer):
             '95-99': {'source': 'age_95_99'},
             '100+': {'source': 'age_100_plus'},
         }
+
+
+class UKTotalTradeSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source='country.name')
+
+    class Meta:
+        model = models.UKTotalTrade
+        exclude = ['id', 'country']

@@ -269,6 +269,11 @@ urlpatterns = [
         dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
         name='dataservices-society-data-by-country',
     ),
+    url(
+        r'^dataservices/uk-total-trade-data-by-country/(?P<iso2>.*)/$',
+        dataservices.views.UKTotalTradeView.as_view(),
+        name='dataservices-uk-total-trade-data-by-country',
+    ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     url(
