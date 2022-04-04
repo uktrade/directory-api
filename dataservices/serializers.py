@@ -168,3 +168,11 @@ class PopulationDataSerializer(serializers.ModelSerializer):
             '95-99': {'source': 'age_95_99'},
             '100+': {'source': 'age_100_plus'},
         }
+
+
+class CommodityExportsSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source='country.name')
+
+    class Meta:
+        model = models.CommodityExports
+        exclude = ['id', 'modified', 'country', 'created']

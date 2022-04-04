@@ -296,3 +296,18 @@ class PopulationData(models.Model):
         verbose_name = "Target age groups | UN Population division"
         verbose_name_plural = "Target age groups | UN Population division"
         unique_together = ('country', 'gender', 'year')
+
+
+class CommodityExports(TimeStampedModel):
+    commodity_code = models.CharField(null=True, blank=True, max_length=10)
+    commodity = models.CharField(blank=False, null=False, max_length=250)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    direction = models.CharField(blank=True, null=True, max_length=50)
+    month = models.CharField(blank=True, null=True, max_length=50)
+    value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Country by commodity"
+        verbose_name_plural = "Country by commodity"
