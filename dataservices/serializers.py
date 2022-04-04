@@ -184,3 +184,10 @@ class UKTradeInServiceByCountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UKTradeInServiceByCountry
         exclude = ['id', 'modified', 'country', 'created']
+
+class UKTotalTradeSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source='country.name')
+
+    class Meta:
+        model = models.UKTotalTrade
+        exclude = ['id', 'country']
