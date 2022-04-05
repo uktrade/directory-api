@@ -311,3 +311,19 @@ class CommodityExports(TimeStampedModel):
     class Meta:
         verbose_name = "Country by commodity"
         verbose_name_plural = "Country by commodity"
+
+
+class UKTradeInServiceByCountry(TimeStampedModel):
+    DIRECTION_TYPES = [
+        ('IMPORTS', 'Imports'),
+        ('EXPORTS', 'Exports'),
+    ]
+    direction = models.CharField(max_length=10, choices=DIRECTION_TYPES)
+    servicetype_code = models.CharField(null=True, blank=True, max_length=200)
+    service_type = models.CharField(null=True, blank=True, max_length=200)
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    year = models.IntegerField(null=True, blank=True)
+    quarter = models.IntegerField(null=True, blank=True)
+    value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)

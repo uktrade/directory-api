@@ -182,3 +182,20 @@ class CommodityExportsView(generics.ListAPIView):
         if not iso2:
             return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
         return super().get(*args, **kwargs)
+
+
+class UKTradeInServiceByCountryView(generics.ListAPIView):
+    serializer_class = serializers.UKTradeInServiceByCountrySerializer
+    permission_classes = []
+
+    def get_queryset(self):
+
+        iso2 = self.kwargs.get('iso2').lower()
+        queryset = models.UKTradeInServiceByCountry.objects.filter(country__iso2__iexact=iso2)
+        return queryset
+
+    def get(self, *args, **kwargs):
+        iso2 = self.kwargs.get('iso2')
+        if not iso2:
+            return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
+        return super().get(*args, **kwargs)

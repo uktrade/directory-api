@@ -274,6 +274,11 @@ urlpatterns = [
         dataservices.views.CommodityExportsView.as_view(),
         name='dataservices-commodity-exports-data-by-country',
     ),
+    url(
+        r'^dataservices/trade-in-service-by-country/(?P<iso2>.*)/$',
+        dataservices.views.UKTradeInServiceByCountryView.as_view(),
+        name='dataservices-trade-in-service-by-country',
+    ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     url(

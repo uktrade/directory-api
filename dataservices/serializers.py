@@ -176,3 +176,11 @@ class CommodityExportsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CommodityExports
         exclude = ['id', 'modified', 'country', 'created']
+
+
+class UKTradeInServiceByCountrySerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source='country.name')
+
+    class Meta:
+        model = models.UKTradeInServiceByCountry
+        exclude = ['id', 'modified', 'country', 'created']
