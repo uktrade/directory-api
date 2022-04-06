@@ -280,7 +280,7 @@ urlpatterns = [
         name='dataservices-trade-in-service-by-country',
     ),
     url(
-        r'^dataservices/uk-total-trade-data-by-country/(?P<iso2>.*)/$',
+        r'^dataservices/uk-total-trade-data-by-country/$',
         dataservices.views.UKTotalTradeView.as_view(),
         name='dataservices-uk-total-trade-data-by-country',
     ),
