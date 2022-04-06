@@ -330,6 +330,7 @@ class UKTradeInServiceByCountry(TimeStampedModel):
     quarter = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
+
 class UKTotalTrade(models.Model):
     FLOW_TYPES = [
         ('IMPORT', 'Import'),
@@ -346,6 +347,8 @@ class UKTotalTrade(models.Model):
     flow_type = models.CharField(max_length=15, choices=FLOW_TYPES)
     product_type = models.CharField(max_length=15, choices=PRODUCT_TYPES)
     value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    objects = models.Manager()
 
     class Meta:
         verbose_name = "UK total trade by country"
