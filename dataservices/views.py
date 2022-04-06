@@ -203,7 +203,7 @@ class UKTotalTradeView(generics.ListAPIView):
 
     def get_queryset(self):
         iso2 = self.kwargs.get('iso2').lower()
-        queryset = models.UKTotalTrade.objects.filter(country__iso2__iexact=iso2)
+        queryset = models.UKTotalTrade.objects.filter(country_id=iso2)
         return queryset
 
     def get(self, *args, **kwargs):
