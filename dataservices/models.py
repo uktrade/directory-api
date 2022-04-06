@@ -298,14 +298,35 @@ class PopulationData(models.Model):
         unique_together = ('country', 'gender', 'year')
 
 
-# class UKTotalImportsManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(flow_type='IMPORT')
+class UKTotalTradeQuerySet(models.QuerySet):
+    def goods(self):
+        return self.filter(product_type='GOODS')
+
+    def services(self):
+        return self.filter(product_type='SERVICES')
+
+    def imports(self):
+        return self.filter(flow_type='IMPORT')
+
+    def exports(self):
+        return self.filter(flow_type='EXPORT')
 
 
-# class UKTotalExportsManager(TimeStampedModel):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(flow_type='EXPORT')
+class UKTotalTradeManager(models.Manager):
+    def get_queryset(self):
+        return UKTotalTradeQuerySet(self.model, using=self._db)
+
+    def goods(self):
+        return self.get_queryset().goods()
+
+    def services(self):
+        return self.get_queryset().services()
+
+    def imports(self):
+        return self.get_queryset().imports()
+
+    def exports(self):
+        return self.get_queryset().exports()
 
 
 class UKTotalTrade(models.Model):
@@ -325,9 +346,7 @@ class UKTotalTrade(models.Model):
     product_type = models.CharField(max_length=15, choices=PRODUCT_TYPES)
     value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-    objects = models.Manager()
-    # imports = UKTotalImportsManager()
-    # exports = UKTotalExportsManager()
+    objects = UKTotalTradeManager()
 
     class Meta:
         verbose_name = "UK total trade by country"
