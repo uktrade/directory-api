@@ -270,12 +270,12 @@ urlpatterns = [
         name='dataservices-society-data-by-country',
     ),
     url(
-        r'^dataservices/commodity-exports-data-by-country/(?P<iso2>.*)/$',
+        r'^dataservices/commodity-exports-data-by-country/$',
         dataservices.views.CommodityExportsView.as_view(),
         name='dataservices-commodity-exports-data-by-country',
     ),
     url(
-        r'^dataservices/trade-in-service-by-country/(?P<iso2>.*)/$',
+        r'^dataservices/trade-in-service-by-country/$',
         dataservices.views.UKTradeInServiceByCountryView.as_view(),
         name='dataservices-trade-in-service-by-country',
     ),

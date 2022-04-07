@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
                 except Country.DoesNotExist:
                     country = None
-                    self.stdout.write(f'No country match for {row["Country code"]}')
+                    # if country is not found then it could be region or something - just ignoring
                     if not country:
                         continue
                 for year in self.import_years:
