@@ -417,3 +417,88 @@ def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
     assert response.status_code == 400
 
     models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_total_trade_by_country_api(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
+
+    response = client.get(reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY'})
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 10
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_total_trade_by_country_api_no_county_code(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory(country=country)
+
+    response = client.get(reverse('dataservices-uk-total-trade-data-by-country'))
+    assert response.status_code == 400
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_total_trade_by_country_api_filter_by_flow_type(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
+
+    response = client.get(
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'exports'}
+    )
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+    for record in records:
+        assert record['flow_type'] == 'EXPORT'
+
+    response = client.get(
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'imports'}
+    )
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+    for record in records:
+        assert record['flow_type'] == 'IMPORT'
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_total_trade_by_country_api_filter_by_product_type(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
+
+    response = client.get(
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'product': 'goods'}
+    )
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+    for record in records:
+        assert record['product_type'] == 'GOODS'
+
+    response = client.get(
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'product': 'services'}
+    )
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+    for record in records:
+        assert record['product_type'] == 'SERVICES'
+
+    models.Country.objects.filter(iso2='XY').delete()

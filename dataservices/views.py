@@ -1,6 +1,7 @@
 import json
 
 from django.apps import apps
+from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -197,3 +198,44 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
         if not iso2:
             return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
         return super().get(*args, **kwargs)
+
+
+class UKTotalTradeByCountryView(generics.ListAPIView):
+    serializer_class = serializers.UKTotalTradeByCountrySerializer
+    permission_classes = []
+
+    def get_flow_type(self, queryset):
+        if self.request.query_params.get('type') == 'imports':
+            queryset = queryset.imports()
+        elif self.request.query_params.get('type') == 'exports':
+            queryset = queryset.exports()
+
+        return queryset
+
+    def get_product_type(self, queryset):
+        if self.request.query_params.get('product') == 'goods':
+            queryset = queryset.goods()
+        elif self.request.query_params.get('product') == 'services':
+            queryset = queryset.services()
+
+        return queryset
+
+    def get_queryset(self):
+        iso2 = self.request.query_params.get('iso2', '').upper()
+        queryset = models.UKTotalTradeByCountry.objects.filter(country__iso2__iexact=iso2)
+
+        # Param filters
+        queryset = self.get_flow_type(queryset)
+        queryset = self.get_product_type(queryset)
+
+        return queryset
+
+    def get(self, *args, **kwargs):
+        iso2 = self.request.query_params.get('iso2')
+        if not iso2:
+            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
+
+        res = super().get(*args, **kwargs)
+        res.data = {'meta': {'iso2': iso2, 'source': settings.UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL}, 'data': res.data}
+
+        return res

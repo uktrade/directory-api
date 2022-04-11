@@ -329,3 +329,57 @@ class UKTradeInServiceByCountry(TimeStampedModel):
     year = models.IntegerField(null=True, blank=True)
     quarter = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+
+
+class UKTotalTradeQuerySet(models.QuerySet):
+    def goods(self):
+        return self.filter(product_type='GOODS')
+
+    def services(self):
+        return self.filter(product_type='SERVICES')
+
+    def imports(self):
+        return self.filter(flow_type='IMPORT')
+
+    def exports(self):
+        return self.filter(flow_type='EXPORT')
+
+
+class UKTotalTradeManager(models.Manager):
+    def get_queryset(self):
+        return UKTotalTradeQuerySet(self.model, using=self._db)
+
+    def goods(self):
+        return self.get_queryset().goods()
+
+    def services(self):
+        return self.get_queryset().services()
+
+    def imports(self):
+        return self.get_queryset().imports()
+
+    def exports(self):
+        return self.get_queryset().exports()
+
+
+class UKTotalTradeByCountry(models.Model):
+    FLOW_TYPES = [
+        ('IMPORT', 'Import'),
+        ('EXPORT', 'Export'),
+    ]
+    PRODUCT_TYPES = [
+        ('GOODS', 'Goods'),
+        ('SERVICES', 'Services'),
+    ]
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    year = models.IntegerField(null=True, blank=True)
+    flow_type = models.CharField(max_length=15, choices=FLOW_TYPES)
+    product_type = models.CharField(max_length=15, choices=PRODUCT_TYPES)
+    value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    objects = UKTotalTradeManager()
+
+    class Meta:
+        verbose_name = "UK total trade by country"

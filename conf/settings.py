@@ -546,5 +546,9 @@ TRADE_BARRIER_API_URI = env.str(
     'TRADE_BARRIER_API_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
 )
 
-
 WORLD_BANK_API_URI = env.str('WORLD_BANK_API_URI', 'https://api.worldbank.org/v2/en/indicator/')
+
+UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL = env.str(
+    'UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL',
+    'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktradeallcountriesseasonallyadjusted',
+)
