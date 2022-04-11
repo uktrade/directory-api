@@ -185,6 +185,7 @@ class UKTradeInServiceByCountrySerializer(serializers.ModelSerializer):
         model = models.UKTradeInServiceByCountry
         exclude = ['id', 'modified', 'country', 'created']
 
+
 class UKTotalTradeByCountrySerializer(serializers.ModelSerializer):
     value = serializers.FloatField()
 

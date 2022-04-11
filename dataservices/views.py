@@ -2,7 +2,7 @@ import json
 
 from django.apps import apps
 from django.conf import settings
-from rest_framework import generics, status, views
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from dataservices import helpers, models, serializers
@@ -197,6 +197,8 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
         iso2 = self.request.query_params.get('iso2', '')
         if not iso2:
             return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
+        return super().get(*args, **kwargs)
+
 
 class UKTotalTradeByCountryView(generics.ListAPIView):
     serializer_class = serializers.UKTotalTradeByCountrySerializer

@@ -2,6 +2,9 @@
 
 ## Pre release
 
+### Enhancements
+- GLS-173 - Add model + endpoint for handling UK total trade data by country
+
 ### Bugs fixed
 
 ## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)

@@ -1,5 +1,6 @@
 import pytest
 
+from dataservices.models import UKTotalTradeByCountry
 from dataservices.tests.factories import (
     CIAFactBookFactory,
     ConsumerPriceIndexFactory,
@@ -8,6 +9,7 @@ from dataservices.tests.factories import (
     IncomeFactory,
     InternetUsageFactory,
     SuggestedCountriesFactory,
+    UKTotalTradeByCountryFactory,
 )
 
 
@@ -38,3 +40,13 @@ def test_suggested_country_hs_code():
 def test_cia_factbook_country_name():
     country = CIAFactBookFactory()
     assert str(country) == country.country_name
+
+
+@pytest.mark.django_db
+def test_uk_total_trade_manager():
+    UKTotalTradeByCountryFactory.create_batch(10)
+
+    assert UKTotalTradeByCountry.objects.imports().count() == 5
+    assert UKTotalTradeByCountry.objects.exports().count() == 5
+    assert UKTotalTradeByCountry.objects.goods().count() == 5
+    assert UKTotalTradeByCountry.objects.services().count() == 5

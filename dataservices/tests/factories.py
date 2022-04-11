@@ -46,7 +46,7 @@ class CIAFactBookFactory(factory.django.DjangoModelFactory):
 
 class CountryFactory(factory.django.DjangoModelFactory):
     name = factory.fuzzy.FuzzyText(length=50)
-    iso1 = factory.fuzzy.FuzzyText(length=1)
+    iso1 = factory.fuzzy.FuzzyText(length=3, chars='1234567890')
     iso2 = factory.fuzzy.FuzzyText(length=2)
     iso3 = factory.fuzzy.FuzzyText(length=3)
     region = factory.fuzzy.FuzzyText(length=10)
@@ -79,6 +79,17 @@ class UKTradeInServiceByCountryFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.UKTradeInServiceByCountry
+
+
+class UKTotalTradeByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    flow_type = factory.Iterator(['IMPORT', 'EXPORT'])
+    product_type = factory.Iterator(['GOODS', 'SERVICES'])
+    year = factory.fuzzy.FuzzyInteger(low=1996)
+    value = factory.fuzzy.FuzzyDecimal(low=0)
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
 
 
 class SuggestedCountriesFactory(factory.django.DjangoModelFactory):
