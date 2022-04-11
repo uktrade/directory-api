@@ -3,7 +3,7 @@ from itertools import product
 import tablib
 from django.core.management import BaseCommand
 
-from dataservices.models import Country, UKTotalTrade
+from dataservices.models import Country, UKTotalTradeByCountry
 
 
 class Command(BaseCommand):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     for idx, year in enumerate(years):
                         value = None if row[idx + 1] == 'N/A' else row[idx + 1]
                         trade_data.append(
-                            UKTotalTrade(
+                            UKTotalTradeByCountry(
                                 country=country,
                                 year=year,
                                 flow_type=flow_type.upper(),
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                                 value=value,
                             )
                         )
-        UKTotalTrade.objects.all().delete()
-        UKTotalTrade.objects.bulk_create(trade_data)
+        UKTotalTradeByCountry.objects.all().delete()
+        UKTotalTradeByCountry.objects.bulk_create(trade_data)
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

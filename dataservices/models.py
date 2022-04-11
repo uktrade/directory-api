@@ -362,7 +362,7 @@ class UKTotalTradeManager(models.Manager):
         return self.get_queryset().exports()
 
 
-class UKTotalTrade(models.Model):
+class UKTotalTradeByCountry(models.Model):
     FLOW_TYPES = [
         ('IMPORT', 'Import'),
         ('EXPORT', 'Export'),

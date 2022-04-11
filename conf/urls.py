@@ -281,7 +281,7 @@ urlpatterns = [
     ),
     url(
         r'^dataservices/uk-total-trade-data-by-country/$',
-        dataservices.views.UKTotalTradeView.as_view(),
+        dataservices.views.UKTotalTradeByCountryView.as_view(),
         name='dataservices-uk-total-trade-data-by-country',
     ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),

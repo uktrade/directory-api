@@ -198,8 +198,8 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
         if not iso2:
             return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
 
-class UKTotalTradeView(generics.ListAPIView):
-    serializer_class = serializers.UKTotalTradeSerializer
+class UKTotalTradeByCountryView(generics.ListAPIView):
+    serializer_class = serializers.UKTotalTradeByCountrySerializer
     permission_classes = []
 
     def get_flow_type(self, queryset):
@@ -218,18 +218,13 @@ class UKTotalTradeView(generics.ListAPIView):
 
         return queryset
 
-    def get_year(self, queryset):
-        if self.request.query_params.get('from_year'):
-            return queryset.filter(year__gte=self.request.query_params['from_year'])
-
     def get_queryset(self):
         iso2 = self.request.query_params.get('iso2', '').upper()
-        queryset = models.UKTotalTrade.objects.filter(country__iso2__iexact=iso2)
+        queryset = models.UKTotalTradeByCountry.objects.filter(country__iso2__iexact=iso2)
 
         # Param filters
         queryset = self.get_flow_type(queryset)
         queryset = self.get_product_type(queryset)
-        # queryset = self.get_year(queryset)
 
         return queryset
 
