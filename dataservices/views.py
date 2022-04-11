@@ -179,7 +179,7 @@ class CommodityExportsView(generics.ListAPIView):
     def get(self, *args, **kwargs):
         iso2 = self.request.query_params.get('iso2', '')
         if not iso2:
-            return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
+            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
         return super().get(*args, **kwargs)
 
 
@@ -195,5 +195,5 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
     def get(self, *args, **kwargs):
         iso2 = self.request.query_params.get('iso2', '')
         if not iso2:
-            return Response(status=500, data={'error_message': 'Country ISO2 is missing in request params'})
+            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
         return super().get(*args, **kwargs)

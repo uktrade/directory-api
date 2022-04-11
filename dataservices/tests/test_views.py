@@ -395,3 +395,25 @@ def test_dataservices_trade_in_service_by_country_api(client):
 
     assert len(json_dict) == 1
     models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_commodity_exports_data_by_country_api_for_no_iso2(client):
+    country = factories.CountryFactory(iso2='ZX')
+    factories.CommodityExportsFactory(country=country)
+
+    response = client.get(reverse('dataservices-commodity-exports-data-by-country'))
+    assert response.status_code == 400
+
+    models.Country.objects.filter(iso2='ZX').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTradeInServiceByCountryFactory(country=country)
+
+    response = client.get(reverse('dataservices-trade-in-service-by-country'))
+    assert response.status_code == 400
+
+    models.Country.objects.filter(iso2='XY').delete()

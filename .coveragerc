@@ -12,6 +12,9 @@ omit =
     conf/celery.py
     *__init__*
     notifications/tasks.py
+    # importing following two take longer and timesout
+    dataservices/management/commands/import_country_commodity_export_data.py
+    dataservices/management/commands/import_uktradeinservice.py
 
 [report]
 exclude_lines =
