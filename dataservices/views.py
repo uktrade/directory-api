@@ -1,7 +1,8 @@
 import json
 
 from django.apps import apps
-from rest_framework import generics, status
+from django.conf import settings
+from rest_framework import generics, status, views
 from rest_framework.response import Response
 
 from dataservices import helpers, models, serializers
@@ -233,7 +234,11 @@ class UKTotalTradeView(generics.ListAPIView):
         return queryset
 
     def get(self, *args, **kwargs):
-        if not self.request.query_params.get('iso2'):
+        iso2 = self.request.query_params.get('iso2')
+        if not iso2:
             return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
 
-        return super().get(*args, **kwargs)
+        res = super().get(*args, **kwargs)
+        res.data = {'meta': {'iso2': iso2, 'source': settings.UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL}, 'data': res.data}
+
+        return res
