@@ -377,7 +377,7 @@ def test_dataservices_commodity_exports_data_by_country_api(client):
     response = client.get(reverse('dataservices-commodity-exports-data-by-country'), data={'iso2': 'ZX'})
     assert response.status_code == 200
 
-    json_dict = json.loads(response.content)
+    json_dict = json.loads(response.content)['data']
 
     assert len(json_dict) == 1
     models.Country.objects.filter(iso2='ZX').delete()
@@ -391,7 +391,7 @@ def test_dataservices_trade_in_service_by_country_api(client):
     response = client.get(reverse('dataservices-trade-in-service-by-country'), data={'iso2': 'XY'})
     assert response.status_code == 200
 
-    json_dict = json.loads(response.content)
+    json_dict = json.loads(response.content)['data']
 
     assert len(json_dict) == 1
     models.Country.objects.filter(iso2='XY').delete()
@@ -445,12 +445,12 @@ def test_dataservices_total_trade_by_country_api_no_county_code(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_total_trade_by_country_api_filter_by_flow_type(client):
+def test_dataservices_total_trade_by_country_api_filter_by_direction(client):
     country = factories.CountryFactory(iso2='XY')
     factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
 
     response = client.get(
-        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'exports'}
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'direction': 'export'}
     )
     assert response.status_code == 200
 
@@ -458,10 +458,10 @@ def test_dataservices_total_trade_by_country_api_filter_by_flow_type(client):
 
     assert len(records) == 5
     for record in records:
-        assert record['flow_type'] == 'EXPORT'
+        assert record['direction'] == 'EXPORT'
 
     response = client.get(
-        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'imports'}
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'direction': 'import'}
     )
     assert response.status_code == 200
 
@@ -469,18 +469,27 @@ def test_dataservices_total_trade_by_country_api_filter_by_flow_type(client):
 
     assert len(records) == 5
     for record in records:
-        assert record['flow_type'] == 'IMPORT'
+        assert record['direction'] == 'IMPORT'
 
     models.Country.objects.filter(iso2='XY').delete()
 
 
 @pytest.mark.django_db
-def test_dataservices_total_trade_by_country_api_filter_by_product_type(client):
+def test_dataservices_total_trade_by_country_api_filter_by_type(client):
     country = factories.CountryFactory(iso2='XY')
     factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
 
+    response = client.get(reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'goods'})
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+    for record in records:
+        assert record['type'] == 'GOODS'
+
     response = client.get(
-        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'product': 'goods'}
+        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'type': 'services'}
     )
     assert response.status_code == 200
 
@@ -488,17 +497,6 @@ def test_dataservices_total_trade_by_country_api_filter_by_product_type(client):
 
     assert len(records) == 5
     for record in records:
-        assert record['product_type'] == 'GOODS'
-
-    response = client.get(
-        reverse('dataservices-uk-total-trade-data-by-country'), data={'iso2': 'XY', 'product': 'services'}
-    )
-    assert response.status_code == 200
-
-    records = json.loads(response.content)['data']
-
-    assert len(records) == 5
-    for record in records:
-        assert record['product_type'] == 'SERVICES'
+        assert record['type'] == 'SERVICES'
 
     models.Country.objects.filter(iso2='XY').delete()

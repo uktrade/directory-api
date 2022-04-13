@@ -83,8 +83,8 @@ class UKTradeInServiceByCountryFactory(factory.django.DjangoModelFactory):
 
 class UKTotalTradeByCountryFactory(factory.django.DjangoModelFactory):
     country = factory.SubFactory(CountryFactory)
-    flow_type = factory.Iterator(['IMPORT', 'EXPORT'])
-    product_type = factory.Iterator(['GOODS', 'SERVICES'])
+    direction = factory.Iterator(['IMPORT', 'EXPORT'])
+    type = factory.Iterator(['GOODS', 'SERVICES'])
     year = factory.fuzzy.FuzzyInteger(low=1996)
     value = factory.fuzzy.FuzzyDecimal(low=0)
 

@@ -5,7 +5,7 @@ from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from dataservices import helpers, models, serializers
+from dataservices import filters, helpers, models, serializers
 from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
@@ -169,73 +169,45 @@ class TradeBarriersView(generics.GenericAPIView):
 
 
 class CommodityExportsView(generics.ListAPIView):
-    serializer_class = serializers.CommodityExportsSerializer
     permission_classes = []
-
-    def get_queryset(self):
-        iso2 = self.request.query_params.get('iso2').lower()
-        queryset = models.CommodityExports.objects.filter(country__iso2__iexact=iso2)
-        return queryset
+    queryset = models.CommodityExports.objects.all()
+    serializer_class = serializers.CommodityExportsSerializer
+    filter_class = filters.CommodityExportsFilter
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '')
-        if not iso2:
-            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
-        return super().get(*args, **kwargs)
+        iso2 = self.request.query_params.get('iso2', '').upper()
+
+        res = super().get(*args, **kwargs)
+        res.data = {'metadata': {'iso2': iso2}, 'data': res.data}
+
+        return res
 
 
 class UKTradeInServiceByCountryView(generics.ListAPIView):
-    serializer_class = serializers.UKTradeInServiceByCountrySerializer
     permission_classes = []
-
-    def get_queryset(self):
-        iso2 = self.request.query_params.get('iso2').lower()
-        queryset = models.UKTradeInServiceByCountry.objects.filter(country__iso2__iexact=iso2)
-        return queryset
+    queryset = models.UKTradeInServiceByCountry.objects.all()
+    serializer_class = serializers.UKTradeInServiceByCountrySerializer
+    filter_class = filters.UKTradeInServiceByCountryFilter
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '')
-        if not iso2:
-            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
-        return super().get(*args, **kwargs)
+        iso2 = self.request.query_params.get('iso2', '').upper()
+
+        res = super().get(*args, **kwargs)
+        res.data = {'metadata': {'iso2': iso2}, 'data': res.data}
+
+        return res
 
 
 class UKTotalTradeByCountryView(generics.ListAPIView):
-    serializer_class = serializers.UKTotalTradeByCountrySerializer
     permission_classes = []
-
-    def get_flow_type(self, queryset):
-        if self.request.query_params.get('type') == 'imports':
-            queryset = queryset.imports()
-        elif self.request.query_params.get('type') == 'exports':
-            queryset = queryset.exports()
-
-        return queryset
-
-    def get_product_type(self, queryset):
-        if self.request.query_params.get('product') == 'goods':
-            queryset = queryset.goods()
-        elif self.request.query_params.get('product') == 'services':
-            queryset = queryset.services()
-
-        return queryset
-
-    def get_queryset(self):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-        queryset = models.UKTotalTradeByCountry.objects.filter(country__iso2__iexact=iso2)
-
-        # Param filters
-        queryset = self.get_flow_type(queryset)
-        queryset = self.get_product_type(queryset)
-
-        return queryset
+    queryset = models.UKTotalTradeByCountry.objects.all()
+    serializer_class = serializers.UKTotalTradeByCountrySerializer
+    filter_class = filters.UKTodalTradeByCountryFilter
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2')
-        if not iso2:
-            return Response(status=400, data={'error_message': 'Country ISO2 is missing in request params'})
+        iso2 = self.request.query_params.get('iso2', '').upper()
 
         res = super().get(*args, **kwargs)
-        res.data = {'meta': {'iso2': iso2, 'source': settings.UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL}, 'data': res.data}
+        res.data = {'metadata': {'iso2': iso2, 'source': settings.UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL}, 'data': res.data}
 
         return res

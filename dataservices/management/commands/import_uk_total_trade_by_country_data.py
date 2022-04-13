@@ -10,15 +10,15 @@ class Command(BaseCommand):
     help = 'Import UK total trade data by country'
 
     def handle(self, *args, **options):
-        product_types = ['goods', 'services']
-        flow_types = ['import', 'export']
-        combinations = list(product(product_types, flow_types))
+        types = ['goods', 'services']
+        directions = ['import', 'export']
+        combinations = list(product(types, directions))
         trade_data = []
 
         for iteration in combinations:
-            product_type = iteration[0]
-            flow_type = iteration[1]
-            filename = f'dataservices/resources/uk_{product_type}_{flow_type}s_by_country.csv'
+            type = iteration[0]
+            direction = iteration[1]
+            filename = f'dataservices/resources/uk_{type}_{direction}s_by_country.csv'
 
             with open(filename, 'r', encoding='utf-8-sig') as f:
                 data = tablib.import_set(f.read(), format='csv', headers=True)
@@ -37,8 +37,8 @@ class Command(BaseCommand):
                             UKTotalTradeByCountry(
                                 country=country,
                                 year=year,
-                                flow_type=flow_type.upper(),
-                                product_type=product_type.upper(),
+                                direction=direction.upper(),
+                                type=type.upper(),
                                 value=value,
                             )
                         )
