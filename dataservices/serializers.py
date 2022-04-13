@@ -186,9 +186,19 @@ class UKTradeInServiceByCountrySerializer(serializers.ModelSerializer):
         exclude = ['id', 'modified', 'country', 'created']
 
 
-class UKTotalTradeByCountrySerializer(serializers.ModelSerializer):
-    value = serializers.FloatField()
+class UKMarketTrendsSerializer(serializers.ModelSerializer):
+    imports = serializers.SerializerMethodField()
+    exports = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.UKTotalTradeByCountry
+        model = models.UKMarketTrends
         exclude = ['id', 'country']
+
+    def millions_to_currency_unit(self, value):
+        return value * int(1e6)
+
+    def get_imports(self, obj):
+        return self.millions_to_currency_unit(obj.imports)
+
+    def get_exports(self, obj):
+        return self.millions_to_currency_unit(obj.exports)

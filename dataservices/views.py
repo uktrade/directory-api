@@ -2,6 +2,7 @@ import json
 
 from django.apps import apps
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -198,16 +199,29 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
         return res
 
 
-class UKTotalTradeByCountryView(generics.ListAPIView):
+class UKMarketTrendsView(generics.ListAPIView):
     permission_classes = []
-    queryset = models.UKTotalTradeByCountry.objects.all()
-    serializer_class = serializers.UKTotalTradeByCountrySerializer
-    filter_class = filters.UKTodalTradeByCountryFilter
+    queryset = models.UKMarketTrends.objects.all()
+    serializer_class = serializers.UKMarketTrendsSerializer
+    filter_class = filters.UKMarketTrendsFilter
+
+    def get_country(self, iso2):
+        return get_object_or_404(
+            models.Country,
+            iso2__iexact=iso2,
+        )
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-
         res = super().get(*args, **kwargs)
-        res.data = {'metadata': {'iso2': iso2, 'source': settings.UK_TOTAL_TRADE_BY_COUNTRY_FILE_URL}, 'data': res.data}
+        country = self.get_country(self.request.query_params.get('iso2', ''))
+        res.data = {
+            'metadata': {
+                'country': country.name,
+                'iso2': country.iso2,
+                'source': settings.MARKET_TRENDS_SOURCE,
+                'source_url': settings.MARKET_TRENDS_SOURCE_URL,
+            },
+            'data': res.data,
+        }
 
         return res

@@ -280,9 +280,9 @@ urlpatterns = [
         name='dataservices-trade-in-service-by-country',
     ),
     url(
-        r'^dataservices/uk-total-trade-data-by-country/$',
-        dataservices.views.UKTotalTradeByCountryView.as_view(),
-        name='dataservices-uk-total-trade-data-by-country',
+        r'^dataservices/uk-market-trends/$',
+        dataservices.views.UKMarketTrendsView.as_view(),
+        name='dataservices-market-trends',
     ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),

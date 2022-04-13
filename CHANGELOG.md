@@ -4,6 +4,7 @@
 
 ### Enhancements
 - GLS-173 - Add model + endpoint for handling UK total trade data by country
+- GLS-186 - Dataservices addition for market trends
 
 ### Bugs fixed
 
