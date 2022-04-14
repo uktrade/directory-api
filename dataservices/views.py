@@ -216,10 +216,8 @@ class UKMarketTrendsView(generics.ListAPIView):
         country = self.get_country(self.request.query_params.get('iso2', ''))
         res.data = {
             'metadata': {
-                'country': country.name,
-                'iso2': country.iso2,
-                'source': settings.MARKET_TRENDS_SOURCE,
-                'source_url': settings.MARKET_TRENDS_SOURCE_URL,
+                'country': {'name': country.name, 'iso2': country.iso2},
+                'source': {'label': settings.MARKET_TRENDS_SOURCE, 'url': settings.MARKET_TRENDS_SOURCE_URL},
             },
             'data': res.data,
         }
