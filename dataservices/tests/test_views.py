@@ -422,7 +422,7 @@ def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
 @pytest.mark.django_db
 def test_dataservices_market_trends_api(client):
     country = factories.CountryFactory(iso2='XY')
-    factories.UKMarketTrendsFactory.create_batch(10, country=country)
+    factories.UKTotalTradeByCountryFactory.create_batch(10, country=country)
 
     response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
     assert response.status_code == 200
@@ -436,7 +436,7 @@ def test_dataservices_market_trends_api(client):
 @pytest.mark.django_db
 def test_dataservices_market_trends_api_no_county_code(client):
     country = factories.CountryFactory(iso2='XY')
-    factories.UKMarketTrendsFactory(country=country)
+    factories.UKTotalTradeByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-market-trends'))
     assert response.status_code == 400
@@ -448,7 +448,7 @@ def test_dataservices_market_trends_api_no_county_code(client):
 def test_dataservices_market_trends_api_filter_by_year(client):
     country = factories.CountryFactory(iso2='XY')
     for year in [1995, 1996, 1997, 1998, 1999]:
-        factories.UKMarketTrendsFactory.create(country=country, year=year)
+        factories.UKTotalTradeByCountryFactory.create(country=country, year=year)
 
     response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
     assert response.status_code == 200

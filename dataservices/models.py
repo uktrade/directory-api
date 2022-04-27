@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from core.helpers import TimeStampedModel
+from dataservices import managers
 
 
 class Country(TimeStampedModel):
@@ -331,13 +332,16 @@ class UKTradeInServiceByCountry(TimeStampedModel):
     value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
 
-class UKMarketTrends(models.Model):
+class UKTotalTradeByCountry(models.Model):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
     year = models.PositiveSmallIntegerField(null=True, blank=True)
+    quarter = models.PositiveSmallIntegerField(null=True, blank=True)
     imports = models.PositiveIntegerField(null=True, blank=True)
     exports = models.PositiveIntegerField(null=True, blank=True)
 
+    objects = managers.UKTotalTradeDataManager()
+
     class Meta:
-        verbose_name = "UK market trends by country"
+        verbose_name = "UK total trade by country"
