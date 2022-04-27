@@ -83,10 +83,10 @@ class UKTradeInServiceByCountryFactory(factory.django.DjangoModelFactory):
 
 class UKTotalTradeByCountryFactory(factory.django.DjangoModelFactory):
     country = factory.SubFactory(CountryFactory)
-    year = factory.fuzzy.FuzzyInteger(low=1996)
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
     quarter = factory.Iterator([1, 2, 3, 4])
-    imports = factory.fuzzy.FuzzyDecimal(low=0)
-    exports = factory.fuzzy.FuzzyDecimal(low=0)
+    imports = factory.fuzzy.FuzzyInteger(1, 10)
+    exports = factory.fuzzy.FuzzyInteger(1, 10)
 
     class Meta:
         model = models.UKTotalTradeByCountry

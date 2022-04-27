@@ -213,3 +213,13 @@ def test_import_worldbank_data_all(world_bank_mock):
     world_bank_mock('easeofdoingbusiness')
     management.call_command('import_countries')
     management.call_command('import_worldbank_data', 'all')
+
+
+@pytest.mark.django_db
+def test_import_uk_total_trade_data():
+    assert len(models.UKTotalTradeByCountry.objects.all()) == 0
+
+    management.call_command('import_countries')
+    management.call_command('import_uk_total_trade_data')
+
+    assert len(models.UKTotalTradeByCountry.objects.all()) == 4439

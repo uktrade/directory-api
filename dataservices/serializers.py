@@ -222,7 +222,7 @@ class UKTradeHighlightsSerializer(serializers.Serializer):
     def get_reference_period(self):
         view = self.context["view"]
         resolution = view.METADATA_DATA_RESOLUTION
-        year, period = view.get_queryset().current_period().values()
+        year, period = view.get_queryset().get_current_period().values()
         return {'resolution': resolution, 'period': period, 'year': year}
 
     def to_representation(self, obj):
