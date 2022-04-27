@@ -1,7 +1,6 @@
 import json
 
 from django.apps import apps
-from django.shortcuts import Http404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -214,8 +213,6 @@ class UKMarketTrendsView(generics.ListAPIView):
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
-        if not res.data:
-            raise Http404
 
         res.data = {
             'metadata': {
@@ -241,6 +238,17 @@ class UKTradeHighlightsView(generics.GenericAPIView):
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKTradeHighlightsSerializer
 
+    def get_metadata(self):
+        year, period = self.get_queryset().get_current_period().values()
+
+        return {
+            'source': {
+                'label': self.METADATA_DATA_SOURCE_LABEL,
+                'url': self.METADATA_DATA_SOURCE_URL,
+            },
+            'reference_period': {'resolution': self.METADATA_DATA_RESOLUTION, 'period': period, 'year': year},
+        }
+
     def get_object(self):
         iso2 = self.request.query_params.get('iso2', '').upper()
         qs = self.get_queryset().highlights()
@@ -254,9 +262,11 @@ class UKTradeHighlightsView(generics.GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"iso2": ['This field is required.']})
 
         obj = self.get_object()
-        if not obj:
-            raise Http404
-
         serializer = self.get_serializer(obj)
 
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        data = {
+            'metadata': self.get_metadata(),
+            'data': serializer.data,
+        }
+
+        return Response(status=status.HTTP_200_OK, data=data)

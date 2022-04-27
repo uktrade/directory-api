@@ -206,35 +206,13 @@ class UKMarketTrendsSerializer(serializers.ModelSerializer):
 
 
 class UKTradeHighlightsSerializer(serializers.Serializer):
-    def get_metadata(self):
-        return {
-            'source': self.get_source(),
-            'reference_period': self.get_reference_period(),
-        }
-
-    def get_source(self):
-        view = self.context["view"]
-        return {
-            'label': view.METADATA_DATA_SOURCE_LABEL,
-            'url': view.METADATA_DATA_SOURCE_URL,
-        }
-
-    def get_reference_period(self):
-        view = self.context["view"]
-        resolution = view.METADATA_DATA_RESOLUTION
-        year, period = view.get_queryset().get_current_period().values()
-        return {'resolution': resolution, 'period': period, 'year': year}
-
     def to_representation(self, obj):
         total_uk_exports = millions_to_currency_unit(obj['total_uk_exports'])
         trading_position = obj['trading_position']
         percentage_of_uk_trade = obj['percentage_of_uk_trade']
 
         return {
-            'metadata': self.get_metadata(),
-            'data': {
-                'total_uk_exports': total_uk_exports,
-                'trading_position': trading_position,
-                'percentage_of_uk_trade': percentage_of_uk_trade,
-            },
+            'total_uk_exports': total_uk_exports,
+            'trading_position': trading_position,
+            'percentage_of_uk_trade': percentage_of_uk_trade,
         }
