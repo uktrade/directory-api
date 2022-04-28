@@ -422,21 +422,26 @@ def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
 @pytest.mark.django_db
 def test_dataservices_market_trends_api(client):
     country = factories.CountryFactory(iso2='XY')
-    factories.UKMarketTrendsFactory.create_batch(10, country=country)
+    for year in [2020, 2021]:
+        for quarter in [1, 2, 3, 4]:
+            factories.UKTotalTradeByCountryFactory.create(
+                country=country, year=year, quarter=quarter, imports=1, exports=1
+            )
 
     response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
     assert response.status_code == 200
 
     records = json.loads(response.content)['data']
 
-    assert len(records) == 10
+    assert len(records) == 2
+
     models.Country.objects.filter(iso2='XY').delete()
 
 
 @pytest.mark.django_db
 def test_dataservices_market_trends_api_no_county_code(client):
     country = factories.CountryFactory(iso2='XY')
-    factories.UKMarketTrendsFactory(country=country)
+    factories.UKTotalTradeByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-market-trends'))
     assert response.status_code == 400
@@ -448,7 +453,10 @@ def test_dataservices_market_trends_api_no_county_code(client):
 def test_dataservices_market_trends_api_filter_by_year(client):
     country = factories.CountryFactory(iso2='XY')
     for year in [1995, 1996, 1997, 1998, 1999]:
-        factories.UKMarketTrendsFactory.create(country=country, year=year)
+        for quarter in [1, 2, 3, 4]:
+            factories.UKTotalTradeByCountryFactory.create(
+                country=country, year=year, quarter=quarter, imports=1, exports=1
+            )
 
     response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
     assert response.status_code == 200
@@ -464,5 +472,34 @@ def test_dataservices_market_trends_api_filter_by_year(client):
 
     assert len(records) == 1
     assert records[0]['year'] == 1999
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_highlights_api(client):
+    country = factories.CountryFactory(iso2='XY')
+    for year in [2020, 2021]:
+        for quarter in [1, 2, 3, 4]:
+            factories.UKTotalTradeByCountryFactory.create(country=country, year=year, quarter=quarter, exports=1)
+
+    response = client.get(reverse('dataservices-trade-highlights'), data={'iso2': 'XY'})
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 3
+    assert records['total_uk_exports'] == 4000000
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_highlights_no_county_code(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory(country=country)
+
+    response = client.get(reverse('dataservices-trade-highlights'))
+    assert response.status_code == 400
 
     models.Country.objects.filter(iso2='XY').delete()

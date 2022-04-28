@@ -1,8 +1,6 @@
 import json
 
 from django.apps import apps
-from django.conf import settings
-from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -200,26 +198,75 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
 
 
 class UKMarketTrendsView(generics.ListAPIView):
+    # These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradeallcountriesseasonallyadjusted'
+    )
+
     permission_classes = []
-    queryset = models.UKMarketTrends.objects.all()
+    queryset = models.UKTotalTradeByCountry.objects.market_trends()
     serializer_class = serializers.UKMarketTrendsSerializer
     filter_class = filters.UKMarketTrendsFilter
 
-    def get_country(self, iso2):
-        return get_object_or_404(
-            models.Country,
-            iso2__iexact=iso2,
-        )
-
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
-        country = self.get_country(self.request.query_params.get('iso2', ''))
+
         res.data = {
             'metadata': {
-                'country': {'name': country.name, 'iso2': country.iso2},
-                'source': {'label': settings.MARKET_TRENDS_SOURCE, 'url': settings.MARKET_TRENDS_SOURCE_URL},
+                'source': {'label': self.METADATA_DATA_SOURCE_LABEL, 'url': self.METADATA_DATA_SOURCE_URL},
             },
             'data': res.data,
         }
 
         return res
+
+
+class UKTradeHighlightsView(generics.GenericAPIView):
+    # These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradeallcountriesseasonallyadjusted'
+    )
+    METADATA_DATA_RESOLUTION = 'quarter'
+
+    permission_classes = []
+    queryset = models.UKTotalTradeByCountry.objects
+    serializer_class = serializers.UKTradeHighlightsSerializer
+
+    def get_metadata(self):
+        year, period = self.get_queryset().get_current_period().values()
+
+        return {
+            'source': {
+                'label': self.METADATA_DATA_SOURCE_LABEL,
+                'url': self.METADATA_DATA_SOURCE_URL,
+            },
+            'reference_period': {'resolution': self.METADATA_DATA_RESOLUTION, 'period': period, 'year': year},
+        }
+
+    def get_object(self):
+        iso2 = self.request.query_params.get('iso2', '').upper()
+        qs = self.get_queryset().highlights()
+        obj = next((item for item in qs if item.get('country__iso2') == iso2), None)
+
+        return obj
+
+    def get(self, *args, **kwargs):
+        iso2 = self.request.query_params.get('iso2', '')
+        if not iso2:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"iso2": ['This field is required.']})
+
+        obj = self.get_object()
+        serializer = self.get_serializer(obj)
+
+        data = {
+            'metadata': self.get_metadata(),
+            'data': serializer.data,
+        }
+
+        return Response(status=status.HTTP_200_OK, data=data)

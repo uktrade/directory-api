@@ -4,6 +4,10 @@ from rest_framework import serializers
 from dataservices import models
 
 
+def millions_to_currency_unit(value):
+    return value * int(1e6)
+
+
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
@@ -191,14 +195,24 @@ class UKMarketTrendsSerializer(serializers.ModelSerializer):
     exports = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.UKMarketTrends
-        exclude = ['id', 'country']
-
-    def millions_to_currency_unit(self, value):
-        return value * int(1e6)
+        model = models.UKTotalTradeByCountry
+        exclude = ['id', 'country', 'quarter']
 
     def get_imports(self, obj):
-        return self.millions_to_currency_unit(obj.imports)
+        return millions_to_currency_unit(obj['imports'])
 
     def get_exports(self, obj):
-        return self.millions_to_currency_unit(obj.exports)
+        return millions_to_currency_unit(obj['exports'])
+
+
+class UKTradeHighlightsSerializer(serializers.Serializer):
+    def to_representation(self, obj):
+        total_uk_exports = millions_to_currency_unit(obj['total_uk_exports'])
+        trading_position = obj['trading_position']
+        percentage_of_uk_trade = obj['percentage_of_uk_trade']
+
+        return {
+            'total_uk_exports': total_uk_exports,
+            'trading_position': trading_position,
+            'percentage_of_uk_trade': percentage_of_uk_trade,
+        }

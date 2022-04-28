@@ -24,5 +24,5 @@ class UKMarketTrendsFilter(django_filters.rest_framework.FilterSet):
     from_year = django_filters.NumberFilter(field_name='year', lookup_expr='gte')
 
     class Meta:
-        model = models.UKMarketTrends
+        model = models.UKTotalTradeByCountry
         fields = ['iso2', 'from_year']
