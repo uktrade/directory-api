@@ -168,6 +168,14 @@ class TradeBarriersView(generics.GenericAPIView):
 
 
 class CommodityExportsView(generics.ListAPIView):
+    # TODO: These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradecountrybycommodityexports'
+    )
+
     permission_classes = []
     queryset = models.CommodityExports.objects.all()
     serializer_class = serializers.CommodityExportsSerializer
@@ -177,12 +185,29 @@ class CommodityExportsView(generics.ListAPIView):
         iso2 = self.request.query_params.get('iso2', '').upper()
 
         res = super().get(*args, **kwargs)
-        res.data = {'metadata': {'iso2': iso2}, 'data': res.data}
+        res.data = {
+            'metadata': {
+                'source': {
+                    'label': self.METADATA_DATA_SOURCE_LABEL,
+                    'url': self.METADATA_DATA_SOURCE_URL,
+                    'iso2': iso2,
+                },
+            },
+            'data': res.data,
+        }
 
         return res
 
 
 class UKTradeInServiceByCountryView(generics.ListAPIView):
+    # TODO: These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
+    )
+
     permission_classes = []
     queryset = models.UKTradeInServiceByCountry.objects.all()
     serializer_class = serializers.UKTradeInServiceByCountrySerializer
@@ -192,13 +217,22 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
         iso2 = self.request.query_params.get('iso2', '').upper()
 
         res = super().get(*args, **kwargs)
-        res.data = {'metadata': {'iso2': iso2}, 'data': res.data}
+        res.data = {
+            'metadata': {
+                'source': {
+                    'label': self.METADATA_DATA_SOURCE_LABEL,
+                    'url': self.METADATA_DATA_SOURCE_URL,
+                    'iso2': iso2,
+                },
+            },
+            'data': res.data,
+        }
 
         return res
 
 
 class UKMarketTrendsView(generics.ListAPIView):
-    # These values will be handled by a metadata db-backed class
+    # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/'
@@ -225,7 +259,7 @@ class UKMarketTrendsView(generics.ListAPIView):
 
 
 class UKTradeHighlightsView(generics.GenericAPIView):
-    # These values will be handled by a metadata db-backed class
+    # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/'
