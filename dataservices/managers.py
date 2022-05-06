@@ -7,7 +7,7 @@ from django.db.models.functions import RowNumber
 class UKTradeInServiceByCountryManager(models.Manager):
     def get_top_five_services(self, country, year):
         return (
-            self.filter(direction='EXPORTS', country_id=country, year=year, quarter__isnull=True)
+            self.filter(direction='EXPORTS', country__iso2=country, year=year, quarter__isnull=True)
             .exclude(servicetype_code__in=[0, 10])
             .order_by('-value')[:5]
         )

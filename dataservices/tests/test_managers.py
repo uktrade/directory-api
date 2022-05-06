@@ -1,7 +1,7 @@
 import pytest
 
-from dataservices.models import UKTotalTradeByCountry
-from dataservices.tests.factories import UKTotalTradeByCountryFactory
+from dataservices.models import UKTotalTradeByCountry, UKTradeInServiceByCountry
+from dataservices.tests.factories import UKTotalTradeByCountryFactory, UKTradeInServiceByCountryFactory
 
 
 @pytest.fixture(autouse=True)
@@ -69,3 +69,47 @@ def test_uk_total_trade_manager_highlights_no_data(countries):
     highlights_queryset = UKTotalTradeByCountry.objects.highlights()
 
     assert len(highlights_queryset) == 0
+
+
+@pytest.mark.django_db
+def test_uk_top_five_services(countries):
+    [
+        UKTradeInServiceByCountryFactory(country=countries['GB'], year=2022, quarter=None, value=value)
+        for value in range(1, 11)
+    ]
+    top_five_services = UKTradeInServiceByCountry.objects.get_top_five_services('GB', 2022)
+
+    assert top_five_services.first().value == 10.0
+
+    assert len(top_five_services) == 5
+
+
+@pytest.mark.django_db
+def test_uk_top_five_services_with_one_record(countries):
+    UKTradeInServiceByCountryFactory(country=countries['GB'], year=2022, quarter=None, value=1)
+
+    top_five_services = UKTradeInServiceByCountry.objects.get_top_five_services('GB', 2022)
+
+    assert top_five_services.first().value == 1.0
+
+    assert len(top_five_services) == 1
+
+
+@pytest.mark.django_db
+def test_uk_top_five_services_with_no_record(countries):
+
+    top_five_services = UKTradeInServiceByCountry.objects.get_top_five_services('GB', 2022)
+
+    assert len(top_five_services) == 0
+
+
+@pytest.mark.django_db
+def test_uk_top_five_services_query_non_existing_random_country(countries):
+    [
+        UKTradeInServiceByCountryFactory(country=countries['GB'], year=2022, quarter=None, value=value)
+        for value in range(1, 11)
+    ]
+
+    top_five_services = UKTradeInServiceByCountry.objects.get_top_five_services('DE', 2022)
+
+    assert len(top_five_services) == 0
