@@ -81,8 +81,6 @@ def test_uk_top_five_services(countries):
 
     assert top_five_services.first().value == 10.0
 
-    assert len(top_five_services) == 5
-
 
 @pytest.mark.django_db
 def test_uk_top_five_services_with_one_record(countries):

@@ -275,9 +275,9 @@ urlpatterns = [
         name='dataservices-commodity-exports-data-by-country',
     ),
     url(
-        r'^dataservices/trade-in-service-by-country/$',
-        dataservices.views.UKTradeInServiceByCountryView.as_view(),
-        name='dataservices-trade-in-service-by-country',
+        r'^dataservices/top-five-services/$',
+        dataservices.views.TopFiveServicesByCountryView.as_view(),
+        name='dataservices-top-five-services-by-country',
     ),
     url(
         r'^dataservices/uk-market-trends/$',
