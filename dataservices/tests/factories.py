@@ -69,12 +69,12 @@ class CommodityExportsFactory(factory.django.DjangoModelFactory):
 
 
 class UKTradeInServiceByCountryFactory(factory.django.DjangoModelFactory):
-    servicetype_code = 0
+    servicetype_code = factory.fuzzy.FuzzyInteger(1, 10)
     service_type = factory.fuzzy.FuzzyText(length=2)
-    country = factory.fuzzy.FuzzyText(length=3)
-    direction = 'Exports'
+    country = factory.SubFactory(CountryFactory)
+    direction = 'EXPORTS'
     year = 2022
-    quarter = 1
+    quarter = None
     value = 1.0
 
     class Meta:

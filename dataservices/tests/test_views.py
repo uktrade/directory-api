@@ -388,7 +388,7 @@ def test_dataservices_trade_in_service_by_country_api(client):
     country = factories.CountryFactory(iso2='XY')
     factories.UKTradeInServiceByCountryFactory(country=country)
 
-    response = client.get(reverse('dataservices-trade-in-service-by-country'), data={'iso2': 'XY'})
+    response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'XY', 'year': 2022})
     assert response.status_code == 200
 
     json_dict = json.loads(response.content)['data']
@@ -413,7 +413,7 @@ def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
     country = factories.CountryFactory(iso2='XY')
     factories.UKTradeInServiceByCountryFactory(country=country)
 
-    response = client.get(reverse('dataservices-trade-in-service-by-country'))
+    response = client.get(reverse('dataservices-top-five-services-by-country'))
     assert response.status_code == 400
 
     models.Country.objects.filter(iso2='XY').delete()

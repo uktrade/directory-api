@@ -331,6 +331,8 @@ class UKTradeInServiceByCountry(TimeStampedModel):
     quarter = models.IntegerField(null=True, blank=True)
     value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
 
+    objects = managers.UKTradeInServiceByCountryManager()
+
 
 class UKTotalTradeByCountry(models.Model):
     country = models.ForeignKey(

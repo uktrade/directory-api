@@ -4,6 +4,15 @@ from django.db.models.expressions import Window
 from django.db.models.functions import RowNumber
 
 
+class UKTradeInServiceByCountryManager(models.Manager):
+    def get_top_five_services(self, country, year):
+        return (
+            self.filter(direction='EXPORTS', country__iso2=country, year=year, quarter__isnull=True)
+            # excluding total services type
+            .exclude(servicetype_code=0).order_by('-value')
+        )
+
+
 class UKTotalTradeDataManager(models.Manager):
     def _last_four_quarters(self):
         year, quarter = self.get_current_period().values()

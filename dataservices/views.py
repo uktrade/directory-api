@@ -199,7 +199,7 @@ class CommodityExportsView(generics.ListAPIView):
         return res
 
 
-class UKTradeInServiceByCountryView(generics.ListAPIView):
+class TopFiveServicesByCountryView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = (
@@ -209,12 +209,24 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
     )
 
     permission_classes = []
-    queryset = models.UKTradeInServiceByCountry.objects.all()
     serializer_class = serializers.UKTradeInServiceByCountrySerializer
     filter_class = filters.UKTradeInServiceByCountryFilter
 
+    def get_queryset(self):
+        iso2 = self.request.query_params.get('iso2', '').upper()
+        year = self.request.query_params.get('year', '')
+        queryset = models.UKTradeInServiceByCountry.objects.get_top_five_services(country=iso2, year=year)
+        return queryset
+
     def get(self, *args, **kwargs):
         iso2 = self.request.query_params.get('iso2', '').upper()
+        year = self.request.query_params.get('year', '')
+
+        if not iso2:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"iso2": ['This field is required.']})
+
+        if not year:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"year": ['This field is required.']})
 
         res = super().get(*args, **kwargs)
         res.data = {
@@ -222,10 +234,11 @@ class UKTradeInServiceByCountryView(generics.ListAPIView):
                 'source': {
                     'label': self.METADATA_DATA_SOURCE_LABEL,
                     'url': self.METADATA_DATA_SOURCE_URL,
-                    'iso2': iso2,
                 },
+                'iso2': iso2,
+                'year': year,
             },
-            'data': res.data,
+            'data': res.data[:5],
         }
 
         return res
