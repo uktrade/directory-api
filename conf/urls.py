@@ -275,6 +275,11 @@ urlpatterns = [
         name='dataservices-commodity-exports-data-by-country',
     ),
     url(
+        r'^dataservices/top-five-goods/$',
+        dataservices.views.TopFiveGoodsByCountryView.as_view(),
+        name='dataservices-top-five-goods-by-country',
+    ),
+    url(
         r'^dataservices/top-five-services/$',
         dataservices.views.TopFiveServicesByCountryView.as_view(),
         name='dataservices-top-five-services-by-country',

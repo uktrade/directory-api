@@ -1,6 +1,7 @@
 import json
 
 from django.apps import apps
+from django.db.models import Sum
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -195,6 +196,67 @@ class CommodityExportsView(generics.ListAPIView):
             },
             'data': res.data,
         }
+
+        return res
+
+
+class TopFiveGoodsByCountryView(generics.ListAPIView):
+    # TODO: These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradecountrybycommodityexports'
+    )
+
+    permission_classes = []
+    queryset = models.CommodityExports.objects.all()
+
+    def get_data(self):
+        iso2 = self.request.query_params.get('iso2')
+        year = self.request.query_params.get('year')
+
+        data = list(
+            item
+            for item in models.CommodityExports.objects.filter(
+                year=year, country__iso2=iso2.upper(), direction='Exports'
+            )
+            .values('commodity', 'country__name', 'year')
+            .annotate(total_value=Sum('value'))
+            .order_by('-total_value')
+        )[:5]
+        return data
+
+    def get(self, *args, **kwargs):
+        iso2 = self.request.query_params.get('iso2')
+        year = self.request.query_params.get('year')
+        error = {}
+
+        if not iso2:
+            error["iso2"] = ['This field is required.']
+
+        if not year:
+            error["year"] = ['This field is required.']
+
+        if not (iso2 and year):
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
+
+        data = [item for item in self.get_data()]
+
+        res = Response(
+            status=status.HTTP_200_OK,
+            data={
+                'metadata': {
+                    'source': {
+                        'label': self.METADATA_DATA_SOURCE_LABEL,
+                        'url': self.METADATA_DATA_SOURCE_URL,
+                    },
+                    'iso2': iso2,
+                    'year': year,
+                },
+                'data': data,
+            },
+        )
 
         return res
 
