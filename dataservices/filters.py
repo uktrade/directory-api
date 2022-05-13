@@ -14,10 +14,11 @@ class CommodityExportsFilter(django_filters.rest_framework.FilterSet):
 
 class UKTradeInServiceByCountryFilter(django_filters.rest_framework.FilterSet):
     iso2 = django_filters.CharFilter(field_name='country__iso2', lookup_expr='iexact', required=True)
+    year = django_filters.NumberFilter(field_name='year', lookup_expr='exact', required=True)
 
     class Meta:
         model = models.UKTradeInServiceByCountry
-        fields = ['iso2']
+        fields = ['iso2', 'year']
 
 
 class UKMarketTrendsFilter(django_filters.rest_framework.FilterSet):

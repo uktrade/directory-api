@@ -275,20 +275,15 @@ class TopFiveServicesByCountryView(generics.ListAPIView):
     filter_class = filters.UKTradeInServiceByCountryFilter
 
     def get_queryset(self):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-        year = self.request.query_params.get('year', '')
+        iso2 = self.request.query_params.get('iso2')
+        year = self.request.query_params.get('year')
+
         queryset = models.UKTradeInServiceByCountry.objects.get_top_five_services(country=iso2, year=year)
         return queryset
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-        year = self.request.query_params.get('year', '')
-
-        if not iso2:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"iso2": ['This field is required.']})
-
-        if not year:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"year": ['This field is required.']})
+        iso2 = self.request.query_params.get('iso2')
+        year = self.request.query_params.get('year')
 
         res = super().get(*args, **kwargs)
         res.data = {
