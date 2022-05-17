@@ -9,10 +9,7 @@ from dataservices.models import Country, UKTotalTradeByCountry
 class Command(BaseCommand):
     help = 'Import ONS UK total trade data by country from Data Workspace'
 
-    db_name = 'ons.trade__uk_totals_sa'
-    engine = sa.create_engine(
-        f'{settings.DATA_WORKSPACE_DATASETS_URL}/{db_name}', execution_options={'stream_results': True}
-    )
+    engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
     sql = '''
         SELECT
             ons_iso_alpha_2_code, period, direction, value
