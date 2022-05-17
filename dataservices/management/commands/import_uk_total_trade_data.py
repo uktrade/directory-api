@@ -1,39 +1,47 @@
-import tablib
+import pandas as pd
+import sqlalchemy as sa
+from django.conf import settings
 from django.core.management import BaseCommand
 
 from dataservices.models import Country, UKTotalTradeByCountry
 
 
 class Command(BaseCommand):
-    help = 'Import UK total trade data by country'
+    help = 'Import ONS UK total trade data by country from Data Workspace'
+
+    db_name = 'ons.trade__uk_totals_sa'
+    engine = sa.create_engine(
+        f'{settings.DATA_WORKSPACE_DATASETS_URL}/{db_name}', execution_options={'stream_results': True}
+    )
+    sql = '''
+        SELECT
+            ons_iso_alpha_2_code, period, direction, value
+        FROM
+            "ons.trade__uk_totals_sa"
+        WHERE
+            period_type = 'quarter'
+            AND product_name = 'goods-and-services';
+    '''
 
     def handle(self, *args, **options):
+        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
+
         UKTotalTradeByCountry.objects.all().delete()
-        directions = ['imports', 'exports']
 
-        for direction in directions:
-            filename = f'dataservices/resources/uk_total_{direction}_by_country.csv'
+        for chunk in chunks:
+            for _idx, row in chunk.iterrows():
+                try:
+                    country = Country.objects.get(iso2=row.ons_iso_alpha_2_code)
+                except Country.DoesNotExist:
+                    continue
 
-            with open(filename, 'r', encoding='utf-8-sig') as f:
-                data = tablib.import_set(f.read(), format='csv', headers=True)
-                years_quarters = data.headers[1:]
+                year, quarter = row.period.split('-Q')
 
-                for row in data:
-                    try:
-                        iso2 = row[0]
-                        country = Country.objects.get(iso2=iso2)
-                    except Country.DoesNotExist:
-                        continue
-
-                    for idx, year_quarter in enumerate(years_quarters):
-                        value = None if row[idx + 1] == 'N/A' else row[idx + 1]
-                        year, quarter = year_quarter.split('Q')
-
-                        UKTotalTradeByCountry.objects.update_or_create(
-                            country=country,
-                            year=year,
-                            quarter=quarter,
-                            defaults={direction: value},
-                        )
+                UKTotalTradeByCountry.objects.update_or_create(
+                    country=country,
+                    year=year,
+                    quarter=quarter,
+                    defaults={row.direction: row.value},
+                )
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

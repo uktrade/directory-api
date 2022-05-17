@@ -1,8 +1,10 @@
 import re
 from unittest import mock
 
+import pandas as pd
 import pytest
 from django.core import management
+from django.test import override_settings
 from import_export import results
 
 from conf import settings
@@ -216,10 +218,20 @@ def test_import_worldbank_data_all(world_bank_mock):
 
 
 @pytest.mark.django_db
-def test_import_uk_total_trade_data():
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_uk_total_trade_data(read_sql_mock):
+    mock_data = {
+        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
+        'period': ['2021-Q1', '2021-Q2', '2021-Q3', '2021-Q1', '2021-Q2', '2021-Q3', '2021-Q1'],
+        'direction': ['exports', 'exports', 'exports', 'imports', 'imports', 'imports', 'exports'],
+        'value': [1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(mock_data)]
+
     assert len(models.UKTotalTradeByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
     management.call_command('import_uk_total_trade_data')
 
-    assert len(models.UKTotalTradeByCountry.objects.all()) == 4439
+    assert len(models.UKTotalTradeByCountry.objects.all()) == 3
