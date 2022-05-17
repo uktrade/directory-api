@@ -17,7 +17,7 @@ class Command(BaseCommand):
         SELECT
             ons_iso_alpha_2_code, period, direction, value
         FROM
-            "ons.trade__uk_totals_sa"
+            ons.trade__uk_totals_sa
         WHERE
             period_type = 'quarter'
             AND product_name = 'goods-and-services';
