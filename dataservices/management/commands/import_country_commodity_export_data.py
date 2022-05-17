@@ -1,7 +1,7 @@
 import decimal
 import re
 
-import tablib
+import pandas as pd
 from django.core.management import BaseCommand
 
 from dataservices.models import CommodityExports, Country
@@ -13,35 +13,43 @@ class Command(BaseCommand):
     help = 'Import Currency data'
 
     def handle(self, *args, **options):
-        with open('dataservices/resources/country-by-commodity-exports.csv', 'r', encoding='utf-8-sig') as f:
-            data = tablib.import_set(f.read(), format='csv', headers=True)
-            export_data = []
-            for item in data:
-                try:
-                    iso2 = item[2].split()[0]
-                    country = Country.objects.get(iso2=iso2)
-                except Country.DoesNotExist:
-                    country = None
-                _, year, month = re.split('^(\d{4})', item[4])  # noqa
-                root_code = re.split('^(\d+)', item[0].strip())  # noqa
+        data = pd.read_csv('dataservices/resources/goods_exports_by_country.csv')
+        export_data = []
 
-                export_data.append(
-                    CommodityExports(
-                        root_code=root_code[1] if root_code else None,
-                        commodity_code=item[0].strip() if item[0] else None,
-                        commodity=item[1],
-                        country=country,
-                        direction='Exports',
-                        # adding 1 as python index start at 0
-                        month=month_list.index(month) + 1 if month else None,
-                        year=year if year else None,
-                        value=decimal.Decimal(float(item[5])) if item[5] not in ['N/A', None] else None,
+        values = data.columns[3:]
+
+        for _idx, row in data.iterrows():
+            try:
+                iso2 = row.COUNTRY.split()[0]
+                country = Country.objects.get(iso2=iso2)
+            except Country.DoesNotExist:
+                country = None
+
+            code_matches = re.match('^((\d+)[A-Z]*)\s+(.*)$', row.COMMODITY.strip())
+            root_code = code_matches[2] if code_matches else None
+            commodity_code = code_matches[1] if code_matches else None
+            commodity = code_matches[3] if code_matches else None
+
+            if commodity:
+                for period in values:
+                    year, quarter = period.split('Q')
+
+                    export_data.append(
+                        CommodityExports(
+                            root_code=root_code,
+                            commodity_code=commodity_code,
+                            commodity=commodity,
+                            country=country,
+                            direction='Exports',
+                            quarter=quarter,
+                            year=year,
+                            value=decimal.Decimal(float(row[period])) if row[period] not in ['N/A', 'X', None] else None,
+                        )
                     )
-                )
 
-            CommodityExports.objects.all().delete()
+        CommodityExports.objects.all().delete()
 
-            for chunk in [export_data[x : x + 1000] for x in range(0, len(export_data), 1000)]:  # noqa
-                CommodityExports.objects.bulk_create(chunk)
+        for chunk in [export_data[x : x + 1000] for x in range(0, len(export_data), 1000)]:  # noqa
+            CommodityExports.objects.bulk_create(chunk)
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

@@ -1,8 +1,12 @@
+import io
 import re
+import unittest
+from decimal import Decimal
 from unittest import mock
 
 import pandas as pd
 import pytest
+import tablib
 from django.core import management
 from django.test import override_settings
 from import_export import results
@@ -235,3 +239,50 @@ def test_import_uk_total_trade_data(read_sql_mock):
     management.call_command('import_uk_total_trade_data')
 
     assert len(models.UKTotalTradeByCountry.objects.all()) == 3
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_csv')
+def test_import_country_commodity_export_data(mock_read_csv):
+    mock_read_csv.return_value = pd.DataFrame({
+        'COMMODITY': [
+            ' 0 Food & live animals',
+            '27 Crude minerals & fertilisers',
+            '33R Refined oil'
+        ],
+        'COUNTRY': [
+            'AD Andorra',
+            'AE United Arab Emirates',
+            'BE Belgium'
+        ],
+        'DIRECTION': ['EX Exports', 'EX Exports', 'EX Exports'],
+        '2018Q1': [0.01, 51.86, 385.92],
+        '2019Q2': [0, 47.49, 621.56],
+    })
+
+    assert len(models.CommodityExports.objects.all()) == 0
+
+    management.call_command('import_countries')
+    management.call_command('import_country_commodity_export_data')
+
+    assert len(models.CommodityExports.objects.all()) == 6
+
+    sample1 = models.CommodityExports.objects.all()[0]
+
+    assert sample1.country.iso2 == 'AD'
+    assert sample1.commodity == 'Food & live animals'
+    assert sample1.commodity_code == '0'
+    assert sample1.root_code == '0'
+    assert sample1.year == 2018
+    assert sample1.quarter == 1
+    assert sample1.value == Decimal('0.01')
+
+    sample2 = models.CommodityExports.objects.all()[5]
+
+    assert sample2.country.iso2 == 'BE'
+    assert sample2.commodity == 'Refined oil'
+    assert sample2.commodity_code == '33R'
+    assert sample2.root_code == '33'
+    assert sample2.year == 2019
+    assert sample2.quarter == 2
+    assert sample2.value == Decimal('621.56')

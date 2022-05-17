@@ -307,7 +307,7 @@ class CommodityExports(TimeStampedModel):
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
     direction = models.CharField(blank=True, null=True, max_length=50)
-    month = models.IntegerField(blank=True, null=True)
+    quarter = models.IntegerField(blank=True, null=True)
     year = models.IntegerField(blank=True, null=True)
     value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
