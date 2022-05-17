@@ -174,6 +174,8 @@ future==0.18.2
     #   arabic-reshaper
     #   django-json-widget
     #   notifications-python-client
+greenlet==1.1.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -214,6 +216,8 @@ mypy-extensions==0.4.3
     # via black
 notifications-python-client==5.4.1
     # via -r requirements.in
+numpy==1.22.3
+    # via pandas
 oauthlib==3.1.1
     # via requests-oauthlib
 odfpy==1.4.1
@@ -227,6 +231,8 @@ packaging==21.3
     #   pytest
     #   pytest-sugar
     #   redis
+pandas==1.4.2
+    # via -r requirements.in
 pathspec==0.9.0
     # via black
 pillow==9.0.1
@@ -286,6 +292,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
     #   faker
     #   freezegun
+    #   pandas
     #   python-crontab
 pytz==2021.3
     # via
@@ -293,6 +300,7 @@ pytz==2021.3
     #   directory-validators
     #   django
     #   django-timezone-field
+    #   pandas
 pyyaml==5.4
     # via
     #   -r requirements.in
@@ -351,6 +359,8 @@ six==1.16.0
     #   w3lib
 soupsieve==2.3.1
     # via beautifulsoup4
+sqlalchemy==1.4.36
+    # via -r requirements.in
 sqlparse==0.4.2
     # via django
 svglib==1.2.1

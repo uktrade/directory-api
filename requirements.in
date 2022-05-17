@@ -42,3 +42,5 @@ xmltodict==0.12.0
 notifications-python-client==5.4.1
 xhtml2pdf==0.2.6
 pyjwt==1.7.0
+pandas==1.4.2
+sqlalchemy==1.4.36

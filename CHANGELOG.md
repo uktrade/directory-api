@@ -6,6 +6,7 @@
 - GLS-173 - Add model + endpoint for handling UK total trade data by country
 - GLS-186 - Dataservices addition for market trends
 - GLS-186 - Dataservices addition for trade highlights
+- GLS-208 - Ingest market guides data from Data Workspace
 
 ### Bugs fixed
 
