@@ -235,3 +235,41 @@ def test_import_uk_total_trade_data(read_sql_mock):
     management.call_command('import_uk_total_trade_data')
 
     assert len(models.UKTotalTradeByCountry.objects.all()) == 3
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_uk_trade_in_services_data(read_sql_mock):
+    mock_data = {
+        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
+        'period': [
+            'quarter/2021-Q1',
+            'quarter/2021-Q2',
+            'quarter/2021-Q3',
+            'quarter/2021-Q1',
+            'quarter/2021-Q2',
+            'quarter/2021-Q3',
+            'quarter/2021-Q1',
+        ],
+        'direction': ['exports', 'exports', 'exports', 'imports', 'imports', 'imports', 'exports'],
+        'product_code': [1, 1, 1, 1, 1, 1, 1],
+        'product_name': [
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+        ],
+        'value': [1.0, 2.0, 3.0, 3.0, 2.0, None, 1.0],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(mock_data)]
+
+    assert len(models.UKTradeInServiceByCountry.objects.all()) == 0
+
+    management.call_command('import_countries')
+    management.call_command('import_uk_trade_in_services_data')
+
+    assert len(models.UKTradeInServiceByCountry.objects.all()) == 3
