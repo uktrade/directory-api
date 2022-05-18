@@ -25,7 +25,7 @@ class Command(BaseCommand):
             except Country.DoesNotExist:
                 country = None
 
-            code_matches = re.match('^((\d+)[A-Z]*)\s+(.*)$', row.COMMODITY.strip())
+            code_matches = re.match(r'^((\d+)[A-Z]*)\s+(.*)$', row.COMMODITY.strip())
             root_code = code_matches[2] if code_matches else None
             commodity_code = code_matches[1] if code_matches else None
             commodity = code_matches[3] if code_matches else None
@@ -43,7 +43,9 @@ class Command(BaseCommand):
                             direction='Exports',
                             quarter=quarter,
                             year=year,
-                            value=decimal.Decimal(float(row[period])) if row[period] not in ['N/A', 'X', None] else None,
+                            value=decimal.Decimal(float(row[period]))
+                            if row[period] not in ['N/A', 'X', None]
+                            else None,
                         )
                     )
 

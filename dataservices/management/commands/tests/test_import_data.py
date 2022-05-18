@@ -1,12 +1,9 @@
-import io
 import re
-import unittest
 from decimal import Decimal
 from unittest import mock
 
 import pandas as pd
 import pytest
-import tablib
 from django.core import management
 from django.test import override_settings
 from import_export import results
@@ -244,21 +241,15 @@ def test_import_uk_total_trade_data(read_sql_mock):
 @pytest.mark.django_db
 @mock.patch('pandas.read_csv')
 def test_import_country_commodity_export_data(mock_read_csv):
-    mock_read_csv.return_value = pd.DataFrame({
-        'COMMODITY': [
-            ' 0 Food & live animals',
-            '27 Crude minerals & fertilisers',
-            '33R Refined oil'
-        ],
-        'COUNTRY': [
-            'AD Andorra',
-            'AE United Arab Emirates',
-            'BE Belgium'
-        ],
-        'DIRECTION': ['EX Exports', 'EX Exports', 'EX Exports'],
-        '2018Q1': [0.01, 51.86, 385.92],
-        '2019Q2': [0, 47.49, 621.56],
-    })
+    mock_read_csv.return_value = pd.DataFrame(
+        {
+            'COMMODITY': [' 0 Food & live animals', '27 Crude minerals & fertilisers', '33R Refined oil'],
+            'COUNTRY': ['AD Andorra', 'AE United Arab Emirates', 'BE Belgium'],
+            'DIRECTION': ['EX Exports', 'EX Exports', 'EX Exports'],
+            '2018Q1': [0.01, 51.86, 385.92],
+            '2019Q2': [0, 47.49, 621.56],
+        }
+    )
 
     assert len(models.CommodityExports.objects.all()) == 0
 
