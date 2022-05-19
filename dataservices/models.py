@@ -327,7 +327,7 @@ class UKTradeInServiceByCountry(models.Model):
     imports = models.PositiveIntegerField(null=True, blank=True)
     exports = models.PositiveIntegerField(null=True, blank=True)
 
-    objects = managers.UKTradeInServiceByCountryManager()
+    objects = managers.UKTtradeInServicesDataManager()
 
 
 class UKTotalTradeByCountry(models.Model):

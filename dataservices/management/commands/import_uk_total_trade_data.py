@@ -33,12 +33,13 @@ class Command(BaseCommand):
                     continue
 
                 year, quarter = row.period.split('-Q')
+                value = None if row.value < 0 else row.value
 
                 UKTotalTradeByCountry.objects.update_or_create(
                     country=country,
                     year=year,
                     quarter=quarter,
-                    defaults={row.direction: row.value},
+                    defaults={row.direction: value},
                 )
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

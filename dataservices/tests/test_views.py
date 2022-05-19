@@ -406,20 +406,6 @@ def test_dataservices_top_five_goods_by_country_api_for_no_year(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_in_service_by_country_api(client):
-    country = factories.CountryFactory(iso2='XY')
-    factories.UKTradeInServiceByCountryFactory(country=country)
-
-    response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'XY', 'year': 2022})
-    assert response.status_code == 200
-
-    json_dict = json.loads(response.content)['data']
-
-    assert len(json_dict) == 1
-    models.Country.objects.filter(iso2='XY').delete()
-
-
-@pytest.mark.django_db
 def test_dataservices_commodity_exports_data_by_country_api_for_no_iso2(client):
     country = factories.CountryFactory(iso2='ZX')
     factories.CommodityExportsFactory(country=country)
@@ -431,14 +417,21 @@ def test_dataservices_commodity_exports_data_by_country_api_for_no_iso2(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_in_service_by_country_api_for_no_iso(client):
-    country = factories.CountryFactory(iso2='XY')
-    factories.UKTradeInServiceByCountryFactory(country=country)
+def test_dataservices_trade_in_service_by_country_api(client, trade_in_services_records):
+    response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'DE'})
+    assert response.status_code == 200
 
-    response = client.get(reverse('dataservices-top-five-services-by-country'))
-    assert response.status_code == 400
+    json_dict = json.loads(response.content)['data']
 
+    assert len(json_dict) == 5
     models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_in_service_by_country_api_for_no_iso(client, trade_in_services_records):
+    response = client.get(reverse('dataservices-top-five-services-by-country'))
+
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db
@@ -461,14 +454,9 @@ def test_dataservices_market_trends_api(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_market_trends_api_no_county_code(client):
-    country = factories.CountryFactory(iso2='XY')
-    factories.UKTotalTradeByCountryFactory(country=country)
-
+def test_dataservices_market_trends_api_no_county_code(client, total_trade_records):
     response = client.get(reverse('dataservices-market-trends'))
     assert response.status_code == 400
-
-    models.Country.objects.filter(iso2='XY').delete()
 
 
 @pytest.mark.django_db
