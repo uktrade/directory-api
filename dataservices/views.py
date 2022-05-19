@@ -2,6 +2,7 @@ import json
 
 from django.apps import apps
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -269,31 +270,35 @@ class TopFiveServicesByCountryView(generics.ListAPIView):
         'economy/nationalaccounts/balanceofpayments/datasets/'
         'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
     )
+    METADATA_DATA_RESOLUTION = 'quarter'
 
     permission_classes = []
-    serializer_class = serializers.UKTradeInServiceByCountrySerializer
-    filter_class = filters.UKTradeInServiceByCountryFilter
-
-    def get_queryset(self):
-        iso2 = self.request.query_params.get('iso2')
-        year = self.request.query_params.get('year')
-
-        queryset = models.UKTradeInServiceByCountry.objects.get_top_five_services(country=iso2, year=year)
-        return queryset
+    queryset = models.UKTradeInServiceByCountry.objects.top_services_exports()
+    serializer_class = serializers.UKTradeInServicesByCountrySerializer
+    filter_class = filters.UKTradeInServicesByCountryFilter
 
     def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2')
-        year = self.request.query_params.get('year')
-
         res = super().get(*args, **kwargs)
+
+        iso2 = self.request.query_params.get('iso2', '')
+        country = get_object_or_404(models.Country, iso2__iexact=iso2)
+        year, period = self.get_queryset().model.objects.get_current_period().values()
+
         res.data = {
             'metadata': {
+                'country': {
+                    'name': country.name,
+                    'iso2': country.iso2,
+                },
                 'source': {
                     'label': self.METADATA_DATA_SOURCE_LABEL,
                     'url': self.METADATA_DATA_SOURCE_URL,
                 },
-                'iso2': iso2,
-                'year': year,
+                'reference_period': {
+                    'resolution': self.METADATA_DATA_RESOLUTION,
+                    'period': period,
+                    'year': year,
+                },
             },
             'data': res.data[:5],
         }
@@ -318,8 +323,15 @@ class UKMarketTrendsView(generics.ListAPIView):
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
 
+        iso2 = self.request.query_params.get('iso2', '')
+        country = get_object_or_404(models.Country, iso2__iexact=iso2)
+
         res.data = {
             'metadata': {
+                'country': {
+                    'name': country.name,
+                    'iso2': country.iso2,
+                },
                 'source': {'label': self.METADATA_DATA_SOURCE_LABEL, 'url': self.METADATA_DATA_SOURCE_URL},
             },
             'data': res.data,
@@ -343,9 +355,15 @@ class UKTradeHighlightsView(generics.GenericAPIView):
     serializer_class = serializers.UKTradeHighlightsSerializer
 
     def get_metadata(self):
+        iso2 = self.request.query_params.get('iso2', '')
+        country = get_object_or_404(models.Country, iso2__iexact=iso2)
         year, period = self.get_queryset().get_current_period().values()
 
         return {
+            'country': {
+                'name': country.name,
+                'iso2': country.iso2,
+            },
             'source': {
                 'label': self.METADATA_DATA_SOURCE_LABEL,
                 'url': self.METADATA_DATA_SOURCE_URL,

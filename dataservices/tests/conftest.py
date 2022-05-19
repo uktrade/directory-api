@@ -118,3 +118,38 @@ def age_group_data(countries):
 def trade_barrier_data():
     with open('dataservices/tests/fixtures/trade-barrier-data.json', 'r') as f:
         return json.loads(f.read())
+
+
+@pytest.fixture()
+def total_trade_records(countries):
+    for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
+        for year in [2020, 2021]:
+            for quarter in [1, 2, 3, 4]:
+                models.UKTotalTradeByCountry.objects.create(
+                    country=countries[iso2], year=year, quarter=quarter, imports=idx, exports=idx
+                )
+
+
+@pytest.fixture()
+def trade_in_services_records(countries):
+    for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
+        services = [
+            {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
+            {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
+            {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
+            {'code': '4', 'name': 'fourth', 'exports': 3, 'imports': 1},
+            {'code': '5', 'name': 'fifth', 'exports': 2, 'imports': 1},
+            {'code': '6', 'name': 'last', 'exports': 1, 'imports': 1},
+        ]
+        for year in [2020, 2021]:
+            for quarter in [1, 2, 3, 4]:
+                for service in services:
+                    models.UKTradeInServiceByCountry.objects.create(
+                        country=countries[iso2],
+                        year=year,
+                        quarter=quarter,
+                        service_code=service['code'],
+                        service_name=service['name'],
+                        imports=service['imports'],
+                        exports=service['exports'],
+                    )

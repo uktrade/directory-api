@@ -4,16 +4,7 @@ from django.db.models.expressions import Window
 from django.db.models.functions import RowNumber
 
 
-class UKTradeInServiceByCountryManager(models.Manager):
-    def get_top_five_services(self, country, year):
-        return (
-            self.filter(direction='EXPORTS', country__iso2=country, year=year, quarter__isnull=True)
-            # excluding total services type
-            .exclude(servicetype_code=0).order_by('-value')
-        )
-
-
-class UKTotalTradeDataManager(models.Manager):
+class BaseDataManager(models.manager.Manager):
     def _last_four_quarters(self):
         year, quarter = self.get_current_period().values()
 
@@ -29,6 +20,8 @@ class UKTotalTradeDataManager(models.Manager):
             'quarter': None,
         }
 
+
+class UKTotalTradeDataManager(BaseDataManager):
     def market_trends(self):
         qs = self
         year, quarter = self.get_current_period().values()
@@ -52,3 +45,14 @@ class UKTotalTradeDataManager(models.Manager):
             )
 
         return self.none()
+
+
+class UKTtradeInServicesDataManager(BaseDataManager):
+    def top_services_exports(self):
+        last_four_quarters = self._last_four_quarters()
+
+        return (
+            last_four_quarters.values('country__iso2', 'service_code')
+            .annotate(label=F('service_name'), value=Sum('exports'))
+            .order_by('-value')
+        )
