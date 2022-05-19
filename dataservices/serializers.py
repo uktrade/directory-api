@@ -174,15 +174,15 @@ class PopulationDataSerializer(serializers.ModelSerializer):
         }
 
 
-class CommodityExportsSerializer(serializers.ModelSerializer):
+class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source='country.name')
 
     class Meta:
-        model = models.CommodityExports
+        model = models.UKTradeInGoodsByCountry
         exclude = ['id', 'modified', 'country', 'created']
 
 
-class UKTradeInServicesByCountrySerializer(serializers.ModelSerializer):
+class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
     # country_name = serializers.CharField(source='country.name')
     label = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()

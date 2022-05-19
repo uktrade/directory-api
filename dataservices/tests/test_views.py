@@ -372,7 +372,7 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 @pytest.mark.django_db
 def test_dataservices_top_five_goods_by_country_api(client):
     country = factories.CountryFactory(iso2='ZX')
-    factories.CommodityExportsFactory(country=country)
+    factories.UKTradeInGoodsByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-top-five-goods-by-country'), data={'iso2': 'ZX', 'year': 2022})
     assert response.status_code == 200
@@ -386,7 +386,7 @@ def test_dataservices_top_five_goods_by_country_api(client):
 @pytest.mark.django_db
 def test_dataservices_top_five_goods_by_country_api_for_no_iso2(client):
     country = factories.CountryFactory(iso2='ZX')
-    factories.CommodityExportsFactory(country=country)
+    factories.UKTradeInGoodsByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-top-five-goods-by-country'))
     assert response.status_code == 400
@@ -397,20 +397,9 @@ def test_dataservices_top_five_goods_by_country_api_for_no_iso2(client):
 @pytest.mark.django_db
 def test_dataservices_top_five_goods_by_country_api_for_no_year(client):
     country = factories.CountryFactory(iso2='ZX')
-    factories.CommodityExportsFactory(country=country)
+    factories.UKTradeInGoodsByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-top-five-goods-by-country'), data={'iso2': 'ZX'})
-    assert response.status_code == 400
-
-    models.Country.objects.filter(iso2='ZX').delete()
-
-
-@pytest.mark.django_db
-def test_dataservices_commodity_exports_data_by_country_api_for_no_iso2(client):
-    country = factories.CountryFactory(iso2='ZX')
-    factories.CommodityExportsFactory(country=country)
-
-    response = client.get(reverse('dataservices-commodity-exports-data-by-country'))
     assert response.status_code == 400
 
     models.Country.objects.filter(iso2='ZX').delete()

@@ -169,7 +169,7 @@ class TradeBarriersView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=barriers_list)
 
 
-class CommodityExportsView(generics.ListAPIView):
+class TopFiveGoodsExportsByCountryView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = (
@@ -179,39 +179,9 @@ class CommodityExportsView(generics.ListAPIView):
     )
 
     permission_classes = []
-    queryset = models.CommodityExports.objects.all()
-    serializer_class = serializers.CommodityExportsSerializer
-    filter_class = filters.CommodityExportsFilter
-
-    def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-
-        res = super().get(*args, **kwargs)
-        res.data = {
-            'metadata': {
-                'source': {
-                    'label': self.METADATA_DATA_SOURCE_LABEL,
-                    'url': self.METADATA_DATA_SOURCE_URL,
-                    'iso2': iso2,
-                },
-            },
-            'data': res.data,
-        }
-
-        return res
-
-
-class TopFiveGoodsByCountryView(generics.ListAPIView):
-    # TODO: These values will be handled by a metadata db-backed class
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradecountrybycommodityexports'
-    )
-
-    permission_classes = []
-    queryset = models.CommodityExports.objects.all()
+    queryset = models.UKTradeInGoodsByCountry.objects.all()
+    serializer_class = serializers.UKTopFiveGoodsExportsSerializer
+    filter_class = filters.UKTopFiveGoodsExportsFilter
 
     def get_data(self):
         iso2 = self.request.query_params.get('iso2')
@@ -219,7 +189,7 @@ class TopFiveGoodsByCountryView(generics.ListAPIView):
 
         data = list(
             item
-            for item in models.CommodityExports.objects.filter(
+            for item in models.UKTradeInGoodsByCountry.objects.filter(
                 year=year, country__iso2=iso2.upper(), direction='Exports'
             )
             .values('commodity', 'country__name', 'year')
@@ -262,7 +232,7 @@ class TopFiveGoodsByCountryView(generics.ListAPIView):
         return res
 
 
-class TopFiveServicesByCountryView(generics.ListAPIView):
+class TopFiveServicesExportsByCountryView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = (
@@ -274,8 +244,8 @@ class TopFiveServicesByCountryView(generics.ListAPIView):
 
     permission_classes = []
     queryset = models.UKTradeInServiceByCountry.objects.top_services_exports()
-    serializer_class = serializers.UKTradeInServicesByCountrySerializer
-    filter_class = filters.UKTradeInServicesByCountryFilter
+    serializer_class = serializers.UKTopFiveServicesExportSerializer
+    filter_class = filters.UKTopFiveServicesExportsFilter
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)

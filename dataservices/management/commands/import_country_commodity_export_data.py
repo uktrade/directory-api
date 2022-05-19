@@ -4,7 +4,7 @@ import re
 import tablib
 from django.core.management import BaseCommand
 
-from dataservices.models import CommodityExports, Country
+from dataservices.models import UKTradeInGoodsByCountry, Country
 
 month_list = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 root_code = re.split('^(\d+)', item[0].strip())  # noqa
 
                 export_data.append(
-                    CommodityExports(
+                    UKTradeInGoodsByCountry(
                         root_code=root_code[1] if root_code else None,
                         commodity_code=item[0].strip() if item[0] else None,
                         commodity=item[1],
@@ -39,9 +39,9 @@ class Command(BaseCommand):
                     )
                 )
 
-            CommodityExports.objects.all().delete()
+            UKTradeInGoodsByCountry.objects.all().delete()
 
             for chunk in [export_data[x : x + 1000] for x in range(0, len(export_data), 1000)]:  # noqa
-                CommodityExports.objects.bulk_create(chunk)
+                UKTradeInGoodsByCountry.objects.bulk_create(chunk)
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
