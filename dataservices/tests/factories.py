@@ -55,20 +55,21 @@ class CountryFactory(factory.django.DjangoModelFactory):
         model = models.Country
 
 
-class CommodityExportsFactory(factory.django.DjangoModelFactory):
-    root_code = 0
-    commodity_code = 0
-    commodity = factory.fuzzy.FuzzyText(length=2)
-    country = factory.fuzzy.FuzzyText(length=3)
-    direction = 'Exports'
-    year = 2022
-    value = 1.0
+class UKTradeInGoodsByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
+    quarter = factory.Iterator([1, 2, 3, 4])
+    commodity_code = factory.fuzzy.FuzzyText(length=2)
+    commodity_name = factory.fuzzy.FuzzyText(length=10)
+    parent_code = factory.fuzzy.FuzzyText(length=2)
+    imports = factory.fuzzy.FuzzyInteger(1, 10)
+    exports = factory.fuzzy.FuzzyInteger(1, 10)
 
     class Meta:
-        model = models.CommodityExports
+        model = models.UKTradeInGoodsByCountry
 
 
-class UKTradeInServiceByCountryFactory(factory.django.DjangoModelFactory):
+class UKTradeInServicesByCountryFactory(factory.django.DjangoModelFactory):
     country = factory.SubFactory(CountryFactory)
     year = factory.fuzzy.FuzzyInteger(1996, 2022)
     quarter = factory.Iterator([1, 2, 3, 4])

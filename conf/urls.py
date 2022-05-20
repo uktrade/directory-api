@@ -270,18 +270,13 @@ urlpatterns = [
         name='dataservices-society-data-by-country',
     ),
     url(
-        r'^dataservices/commodity-exports-data-by-country/$',
-        dataservices.views.CommodityExportsView.as_view(),
-        name='dataservices-commodity-exports-data-by-country',
-    ),
-    url(
         r'^dataservices/top-five-goods/$',
-        dataservices.views.TopFiveGoodsByCountryView.as_view(),
+        dataservices.views.TopFiveGoodsExportsByCountryView.as_view(),
         name='dataservices-top-five-goods-by-country',
     ),
     url(
         r'^dataservices/top-five-services/$',
-        dataservices.views.TopFiveServicesByCountryView.as_view(),
+        dataservices.views.TopFiveServicesExportsByCountryView.as_view(),
         name='dataservices-top-five-services-by-country',
     ),
     url(

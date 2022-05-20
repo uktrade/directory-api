@@ -56,3 +56,14 @@ class UKTtradeInServicesDataManager(BaseDataManager):
             .annotate(label=F('service_name'), value=Sum('exports'))
             .order_by('-value')
         )
+
+
+class UKTtradeInGoodsDataManager(BaseDataManager):
+    def top_goods_exports(self):
+        last_four_quarters = self._last_four_quarters()
+
+        return (
+            last_four_quarters.values('country__iso2', 'commodity_code')
+            .annotate(label=F('commodity_name'), value=Sum('exports'))
+            .order_by('-value')
+        )
