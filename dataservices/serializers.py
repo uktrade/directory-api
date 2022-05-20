@@ -175,15 +175,21 @@ class PopulationDataSerializer(serializers.ModelSerializer):
 
 
 class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
-    country_name = serializers.CharField(source='country.name')
+    label = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    def get_label(self, obj):
+        return obj['label']
+
+    def get_value(self, obj):
+        return millions_to_currency_unit(obj['value'])
 
     class Meta:
         model = models.UKTradeInGoodsByCountry
-        exclude = ['id', 'modified', 'country', 'created']
+        fields = ['label', 'value']
 
 
 class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
-    # country_name = serializers.CharField(source='country.name')
     label = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()
 

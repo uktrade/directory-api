@@ -1,7 +1,6 @@
 import json
 
 from django.apps import apps
-from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -169,92 +168,18 @@ class TradeBarriersView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=barriers_list)
 
 
-class TopFiveGoodsExportsByCountryView(generics.ListAPIView):
+class BaseUKTradeListAPIView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradecountrybycommodityexports'
-    )
 
     permission_classes = []
-    queryset = models.UKTradeInGoodsByCountry.objects.all()
-    serializer_class = serializers.UKTopFiveGoodsExportsSerializer
-    filter_class = filters.UKTopFiveGoodsExportsFilter
+    limit = None
 
-    def get_data(self):
-        iso2 = self.request.query_params.get('iso2')
-        year = self.request.query_params.get('year')
-
-        data = list(
-            item
-            for item in models.UKTradeInGoodsByCountry.objects.filter(
-                year=year, country__iso2=iso2.upper(), direction='Exports'
-            )
-            .values('commodity', 'country__name', 'year')
-            .annotate(total_value=Sum('value'))
-            .order_by('-total_value')
-        )[:5]
-        return data
-
-    def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2')
-        year = self.request.query_params.get('year')
-        error = {}
-
-        if not iso2:
-            error["iso2"] = ['This field is required.']
-
-        if not year:
-            error["year"] = ['This field is required.']
-
-        if not (iso2 and year):
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=error)
-
-        data = [item for item in self.get_data()]
-
-        res = Response(
-            status=status.HTTP_200_OK,
-            data={
-                'metadata': {
-                    'source': {
-                        'label': self.METADATA_DATA_SOURCE_LABEL,
-                        'url': self.METADATA_DATA_SOURCE_URL,
-                    },
-                    'iso2': iso2,
-                    'year': year,
-                },
-                'data': data,
-            },
-        )
-
-        return res
-
-
-class TopFiveServicesExportsByCountryView(generics.ListAPIView):
-    # TODO: These values will be handled by a metadata db-backed class
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
-    )
-    METADATA_DATA_RESOLUTION = 'quarter'
-
-    permission_classes = []
-    queryset = models.UKTradeInServiceByCountry.objects.top_services_exports()
-    serializer_class = serializers.UKTopFiveServicesExportSerializer
-    filter_class = filters.UKTopFiveServicesExportsFilter
-
-    def get(self, *args, **kwargs):
-        res = super().get(*args, **kwargs)
-
+    def get_metadata(self):
         iso2 = self.request.query_params.get('iso2', '')
         country = get_object_or_404(models.Country, iso2__iexact=iso2)
-        year, period = self.get_queryset().model.objects.get_current_period().values()
 
-        res.data = {
+        return {
             'metadata': {
                 'country': {
                     'name': country.name,
@@ -264,21 +189,74 @@ class TopFiveServicesExportsByCountryView(generics.ListAPIView):
                     'label': self.METADATA_DATA_SOURCE_LABEL,
                     'url': self.METADATA_DATA_SOURCE_URL,
                 },
-                'reference_period': {
-                    'resolution': self.METADATA_DATA_RESOLUTION,
-                    'period': period,
-                    'year': year,
-                },
-            },
-            'data': res.data[:5],
+            }
+        }
+
+    def get(self, *args, **kwargs):
+        res = super().get(*args, **kwargs)
+
+        res.data = {
+            'metadata': self.get_metadata(),
+            'data': res.data[: self.limit],
         }
 
         return res
 
 
-class UKMarketTrendsView(generics.ListAPIView):
-    # TODO: These values will be handled by a metadata db-backed class
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
+    )
+    METADATA_DATA_RESOLUTION = 'quarter'
+
+    permission_classes = []
+    queryset = models.UKTradeInGoodsByCountry.objects.top_goods_exports()
+    serializer_class = serializers.UKTopFiveGoodsExportsSerializer
+    filter_class = filters.UKTopFiveGoodsExportsFilter
+    limit = 5
+
+    def get_metadata(self):
+        metadata = super().get_metadata()
+        year, period = self.get_queryset().model.objects.get_current_period().values()
+
+        metadata['reference_period'] = {
+            'resolution': self.METADATA_DATA_RESOLUTION,
+            'period': period,
+            'year': year,
+        }
+
+        return metadata
+
+
+class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktradecountrybycommodityexports'
+    )
+    METADATA_DATA_RESOLUTION = 'quarter'
+
+    queryset = models.UKTradeInServiceByCountry.objects.top_services_exports()
+    serializer_class = serializers.UKTopFiveServicesExportSerializer
+    filter_class = filters.UKTopFiveServicesExportsFilter
+    limit = 5
+
+    def get_metadata(self):
+        metadata = super().get_metadata()
+        year, period = self.get_queryset().model.objects.get_current_period().values()
+
+        metadata['reference_period'] = {
+            'resolution': self.METADATA_DATA_RESOLUTION,
+            'period': period,
+            'year': year,
+        }
+
+        return metadata
+
+
+class UKMarketTrendsView(BaseUKTradeListAPIView):
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/'
         'economy/nationalaccounts/balanceofpayments/datasets/'
@@ -289,25 +267,6 @@ class UKMarketTrendsView(generics.ListAPIView):
     queryset = models.UKTotalTradeByCountry.objects.market_trends()
     serializer_class = serializers.UKMarketTrendsSerializer
     filter_class = filters.UKMarketTrendsFilter
-
-    def get(self, *args, **kwargs):
-        res = super().get(*args, **kwargs)
-
-        iso2 = self.request.query_params.get('iso2', '')
-        country = get_object_or_404(models.Country, iso2__iexact=iso2)
-
-        res.data = {
-            'metadata': {
-                'country': {
-                    'name': country.name,
-                    'iso2': country.iso2,
-                },
-                'source': {'label': self.METADATA_DATA_SOURCE_LABEL, 'url': self.METADATA_DATA_SOURCE_URL},
-            },
-            'data': res.data,
-        }
-
-        return res
 
 
 class UKTradeHighlightsView(generics.GenericAPIView):
