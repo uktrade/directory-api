@@ -53,8 +53,8 @@ class UKTtradeInServicesDataManager(BaseDataManager):
 
         return (
             last_four_quarters.values('country__iso2', 'service_code')
-            .annotate(label=F('service_name'), value=Sum('exports'))
-            .order_by('-value')
+            .annotate(label=F('service_name'), total_value=Sum('exports'))
+            .order_by('-total_value')
         )
 
 
@@ -64,6 +64,6 @@ class UKTtradeInGoodsDataManager(BaseDataManager):
 
         return (
             last_four_quarters.values('country__iso2', 'commodity_code')
-            .annotate(label=F('commodity_name'), value=Sum('exports'))
-            .order_by('-value')
+            .annotate(label=F('commodity_name'), total_value=Sum('exports'))
+            .order_by('-total_value')
         )

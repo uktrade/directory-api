@@ -61,7 +61,6 @@ class UKTradeInGoodsByCountryFactory(factory.django.DjangoModelFactory):
     quarter = factory.Iterator([1, 2, 3, 4])
     commodity_code = factory.fuzzy.FuzzyText(length=2)
     commodity_name = factory.fuzzy.FuzzyText(length=10)
-    parent_code = factory.fuzzy.FuzzyText(length=2)
     imports = factory.fuzzy.FuzzyInteger(1, 10)
     exports = factory.fuzzy.FuzzyInteger(1, 10)
 
@@ -79,7 +78,7 @@ class UKTradeInServicesByCountryFactory(factory.django.DjangoModelFactory):
     exports = factory.fuzzy.FuzzyInteger(1, 10)
 
     class Meta:
-        model = models.UKTradeInServiceByCountry
+        model = models.UKTradeInServicesByCountry
 
 
 class UKTotalTradeByCountryFactory(factory.django.DjangoModelFactory):

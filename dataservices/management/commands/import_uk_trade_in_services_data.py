@@ -3,7 +3,7 @@ import sqlalchemy as sa
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from dataservices.models import Country, UKTradeInServiceByCountry
+from dataservices.models import Country, UKTradeInServicesByCountry
 
 
 class Command(BaseCommand):
@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
-        UKTradeInServiceByCountry.objects.all().delete()
+        UKTradeInServicesByCountry.objects.all().delete()
 
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 year, quarter = row.period.replace('quarter/', '').split('-Q')
                 value = None if row.value != row.value else row.value
 
-                UKTradeInServiceByCountry.objects.update_or_create(
+                UKTradeInServicesByCountry.objects.update_or_create(
                     country=country,
                     year=year,
                     quarter=quarter,

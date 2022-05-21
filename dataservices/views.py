@@ -212,14 +212,17 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
     METADATA_DATA_RESOLUTION = 'quarter'
 
     permission_classes = []
-    queryset = models.UKTradeInGoodsByCountry.objects.top_goods_exports()
+    queryset = models.UKTradeInGoodsByCountry.objects
     serializer_class = serializers.UKTopFiveGoodsExportsSerializer
     filter_class = filters.UKTopFiveGoodsExportsFilter
     limit = 5
 
+    def get_queryset(self):
+        return self.queryset.top_goods_exports()
+
     def get_metadata(self):
         metadata = super().get_metadata()
-        year, period = self.get_queryset().model.objects.get_current_period().values()
+        year, period = self.queryset.get_current_period().values()
 
         metadata['reference_period'] = {
             'resolution': self.METADATA_DATA_RESOLUTION,
@@ -238,14 +241,17 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
     )
     METADATA_DATA_RESOLUTION = 'quarter'
 
-    queryset = models.UKTradeInServiceByCountry.objects.top_services_exports()
+    queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
     filter_class = filters.UKTopFiveServicesExportsFilter
     limit = 5
 
+    def get_queryset(self):
+        return self.queryset.top_services_exports()
+
     def get_metadata(self):
         metadata = super().get_metadata()
-        year, period = self.get_queryset().model.objects.get_current_period().values()
+        year, period = self.queryset.get_current_period().values()
 
         metadata['reference_period'] = {
             'resolution': self.METADATA_DATA_RESOLUTION,
@@ -264,9 +270,12 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
     )
 
     permission_classes = []
-    queryset = models.UKTotalTradeByCountry.objects.market_trends()
+    queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKMarketTrendsSerializer
     filter_class = filters.UKMarketTrendsFilter
+
+    def get_queryset(self):
+        return self.queryset.market_trends()
 
 
 class UKTradeHighlightsView(generics.GenericAPIView):
@@ -286,7 +295,7 @@ class UKTradeHighlightsView(generics.GenericAPIView):
     def get_metadata(self):
         iso2 = self.request.query_params.get('iso2', '')
         country = get_object_or_404(models.Country, iso2__iexact=iso2)
-        year, period = self.get_queryset().get_current_period().values()
+        year, period = self.queryset.get_current_period().values()
 
         return {
             'country': {

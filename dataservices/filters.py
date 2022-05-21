@@ -15,7 +15,7 @@ class UKTopFiveServicesExportsFilter(django_filters.rest_framework.FilterSet):
     iso2 = django_filters.CharFilter(field_name='country__iso2', lookup_expr='iexact', required=True)
 
     class Meta:
-        model = models.UKTradeInServiceByCountry
+        model = models.UKTradeInServicesByCountry
         fields = ['iso2']
 
 
