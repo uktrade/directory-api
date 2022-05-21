@@ -217,6 +217,34 @@ def test_import_worldbank_data_all(world_bank_mock):
     management.call_command('import_worldbank_data', 'all')
 
 
+@pytest.fixture()
+def trade_by_quarter_raw_data():
+    return {
+        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
+        'period': [
+            'quarter/2021-Q1',
+            'quarter/2021-Q2',
+            'quarter/2021-Q3',
+            'quarter/2021-Q1',
+            'quarter/2021-Q2',
+            'quarter/2021-Q3',
+            'quarter/2021-Q1',
+        ],
+        'direction': ['exports', 'exports', 'exports', 'imports', 'imports', 'imports', 'exports'],
+        'product_code': [1, 1, 1, 1, 1, 1, 1],
+        'product_name': [
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+            'Manufacturing',
+        ],
+        'value': [1.0, 2.0, 3.0, 3.0, 2.0, None, 1.0],
+    }
+
+
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
@@ -240,70 +268,22 @@ def test_import_uk_total_trade_data(read_sql_mock):
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_trade_in_services_data(read_sql_mock):
-    mock_data = {
-        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
-        'period': [
-            'quarter/2021-Q1',
-            'quarter/2021-Q2',
-            'quarter/2021-Q3',
-            'quarter/2021-Q1',
-            'quarter/2021-Q2',
-            'quarter/2021-Q3',
-            'quarter/2021-Q1',
-        ],
-        'direction': ['exports', 'exports', 'exports', 'imports', 'imports', 'imports', 'exports'],
-        'product_code': [1, 1, 1, 1, 1, 1, 1],
-        'product_name': [
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-        ],
-        'value': [1.0, 2.0, 3.0, 3.0, 2.0, None, 1.0],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(mock_data)]
+def test_import_uk_trade_in_services_data(read_sql_mock, trade_by_quarter_raw_data):
+    read_sql_mock.return_value = [pd.DataFrame(trade_by_quarter_raw_data)]
 
-    assert len(models.UKTradeInServiceByCountry.objects.all()) == 0
+    assert len(models.UKTradeInServicesByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
     management.call_command('import_uk_trade_in_services_data')
 
-    assert len(models.UKTradeInServiceByCountry.objects.all()) == 3
+    assert len(models.UKTradeInServicesByCountry.objects.all()) == 3
 
 
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_trade_in_goods_data(read_sql_mock):
-    mock_data = {
-        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
-        'period': [
-            'quarter/2021-Q1',
-            'quarter/2021-Q2',
-            'quarter/2021-Q3',
-            'quarter/2021-Q1',
-            'quarter/2021-Q2',
-            'quarter/2021-Q3',
-            'quarter/2021-Q1',
-        ],
-        'direction': ['exports', 'exports', 'exports', 'imports', 'imports', 'imports', 'exports'],
-        'product_code': [1, 1, 1, 1, 1, 1, 1],
-        'product_name': [
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-            'Manufacturing',
-        ],
-        'value': [1.0, 2.0, 3.0, 3.0, 2.0, None, 1.0],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(mock_data)]
+def test_import_uk_trade_in_goods_data(read_sql_mock, trade_by_quarter_raw_data):
+    read_sql_mock.return_value = [pd.DataFrame(trade_by_quarter_raw_data)]
 
     assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
 

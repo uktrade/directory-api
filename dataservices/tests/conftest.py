@@ -144,7 +144,7 @@ def trade_in_services_records(countries):
         for year in [2020, 2021]:
             for quarter in [1, 2, 3, 4]:
                 for record in records:
-                    models.UKTradeInServiceByCountry.objects.create(
+                    models.UKTradeInServicesByCountry.objects.create(
                         country=countries[iso2],
                         year=year,
                         quarter=quarter,
@@ -159,12 +159,12 @@ def trade_in_services_records(countries):
 def trade_in_goods_records(countries):
     for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
         records = [
-            {'code': '1', 'name': 'first', 'parent': None, 'exports': 6, 'imports': 1},
-            {'code': '2', 'name': 'second', 'parent': None, 'exports': 5, 'imports': 1},
-            {'code': '3', 'name': 'third', 'parent': None, 'exports': 4, 'imports': 1},
-            {'code': '4', 'name': 'fourth', 'parent': None, 'exports': 3, 'imports': 1},
-            {'code': '5', 'name': 'fifth', 'parent': None, 'exports': 2, 'imports': 1},
-            {'code': '6', 'name': 'last', 'parent': None, 'exports': 1, 'imports': 1},
+            {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
+            {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
+            {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
+            {'code': '4', 'name': 'fourth', 'exports': 3, 'imports': 1},
+            {'code': '5', 'name': 'fifth', 'exports': 2, 'imports': 1},
+            {'code': '6', 'name': 'last', 'exports': 1, 'imports': 1},
         ]
         for year in [2020, 2021]:
             for quarter in [1, 2, 3, 4]:
@@ -175,7 +175,6 @@ def trade_in_goods_records(countries):
                         quarter=quarter,
                         commodity_code=record['code'],
                         commodity_name=record['name'],
-                        parent_code=record['parent'],
                         imports=record['imports'],
                         exports=record['exports'],
                     )

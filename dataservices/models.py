@@ -307,7 +307,6 @@ class UKTradeInGoodsByCountry(models.Model):
     quarter = models.PositiveSmallIntegerField(null=True, blank=True)
     commodity_code = models.CharField(null=True, blank=True, max_length=10)
     commodity_name = models.CharField(blank=False, null=False, max_length=250)
-    parent_code = models.CharField(null=True, blank=True, max_length=10)
     imports = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     exports = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
@@ -317,7 +316,7 @@ class UKTradeInGoodsByCountry(models.Model):
         verbose_name = 'UK trade in goods by country'
 
 
-class UKTradeInServiceByCountry(models.Model):
+class UKTradeInServicesByCountry(models.Model):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )

@@ -1,6 +1,6 @@
 import pytest
 
-from dataservices.models import UKTotalTradeByCountry, UKTradeInServiceByCountry
+from dataservices.models import UKTotalTradeByCountry, UKTradeInGoodsByCountry, UKTradeInServicesByCountry
 from dataservices.tests.factories import UKTotalTradeByCountryFactory
 
 
@@ -63,15 +63,31 @@ def test_uk_total_trade_manager_highlights_no_data(countries, total_trade_record
 
 @pytest.mark.django_db
 def test_uk_top_services(countries, trade_in_services_records):
-    top_services_exports = UKTradeInServiceByCountry.objects.top_services_exports()
+    top_services_exports = UKTradeInServicesByCountry.objects.top_services_exports()
 
     assert top_services_exports[0]['label'] == 'first'
-    assert top_services_exports[0]['value'] == 24
+    assert top_services_exports[0]['total_value'] == 24
 
 
 @pytest.mark.django_db
 def test_uk_top_services_with_no_records(countries):
 
-    top_services_exports = UKTradeInServiceByCountry.objects.top_services_exports()
+    top_services_exports = UKTradeInServicesByCountry.objects.top_services_exports()
 
     assert len(top_services_exports) == 0
+
+
+@pytest.mark.django_db
+def test_uk_top_goods(countries, trade_in_goods_records):
+    top_services_exports = UKTradeInGoodsByCountry.objects.top_goods_exports()
+
+    assert top_services_exports[0]['label'] == 'first'
+    assert top_services_exports[0]['total_value'] == 24
+
+
+@pytest.mark.django_db
+def test_uk_top_goods_with_no_records(countries):
+
+    top_goods_exports = UKTradeInGoodsByCountry.objects.top_goods_exports()
+
+    assert len(top_goods_exports) == 0
