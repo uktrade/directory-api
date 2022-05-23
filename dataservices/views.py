@@ -205,10 +205,9 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
 
 
 class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade'
     METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest'
     )
     METADATA_DATA_RESOLUTION = 'quarter'
 
@@ -225,6 +224,9 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
         metadata = super().get_metadata()
         year, period = self.queryset.get_current_period().values()
 
+        metadata['source'].update({
+            'next_release': '13 June 2022'
+        })
         metadata['reference_period'] = {
             'resolution': self.METADATA_DATA_RESOLUTION,
             'period': period,
