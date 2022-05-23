@@ -378,10 +378,7 @@ def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_recor
     json_dict = json.loads(response.content)['data']
 
     assert len(json_dict) == 5
-    assert json_dict[0] == {
-        'label': 'first',
-        'value': 24000000
-    }
+    assert json_dict[0] == {'label': 'first', 'value': 24000000}
 
 
 @pytest.mark.django_db
@@ -400,10 +397,7 @@ def test_dataservices_trade_in_services_by_country_api(client, trade_in_services
     json_dict = json.loads(response.content)['data']
 
     assert len(json_dict) == 5
-    assert json_dict[0] == {
-        'label': 'first',
-        'value': 24000000
-    }
+    assert json_dict[0] == {'label': 'first', 'value': 24000000}
 
 
 @pytest.mark.django_db
