@@ -176,32 +176,32 @@ class PopulationDataSerializer(serializers.ModelSerializer):
 
 class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField()
-    total_value = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
 
     def get_label(self, obj):
         return obj['label']
 
-    def get_total_value(self, obj):
+    def get_value(self, obj):
         return millions_to_currency_unit(obj['total_value'])
 
     class Meta:
         model = models.UKTradeInGoodsByCountry
-        fields = ['label', 'total_value']
+        fields = ['label', 'value']
 
 
 class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField()
-    total_value = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
 
     def get_label(self, obj):
         return obj['label']
 
-    def get_total_value(self, obj):
+    def get_value(self, obj):
         return millions_to_currency_unit(obj['total_value'])
 
     class Meta:
         model = models.UKTradeInServicesByCountry
-        fields = ['label', 'total_value']
+        fields = ['label', 'value']
 
 
 class UKMarketTrendsSerializer(serializers.ModelSerializer):
