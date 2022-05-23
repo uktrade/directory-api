@@ -235,10 +235,10 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
 
 
 class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade in services: service type by partner country'
     METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradecountrybycommodityexports'
+        'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
+        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
     )
     METADATA_DATA_RESOLUTION = 'quarter'
 
@@ -254,6 +254,9 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
         metadata = super().get_metadata()
         year, period = self.queryset.get_current_period().values()
 
+        metadata['source'].update({
+            'next_release': 'To be announced'
+        })
         metadata['reference_period'] = {
             'resolution': self.METADATA_DATA_RESOLUTION,
             'period': period,
