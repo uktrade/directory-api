@@ -507,10 +507,21 @@ def test_dataservices_trade_highlights_api(client):
 
     assert response.status_code == 200
 
-    records = json.loads(response.content)['data']
+    api_data = json.loads(response.content)
 
-    assert len(records) == 3
-    assert records['total_uk_exports'] == 4000000
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK total trade: all countries',
+        'url': (
+            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+            '/uktotaltradeallcountriesseasonallyadjusted'
+        ),
+        'next_release': 'To be announced',
+        'notes': [
+            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
+        ],
+    }
+    assert len(api_data['data']) == 3
+    assert api_data['data']['total_uk_exports'] == 4000000
 
     models.Country.objects.filter(iso2='XY').delete()
 
