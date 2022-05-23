@@ -171,6 +171,9 @@ class TradeBarriersView(generics.GenericAPIView):
 class BaseUKTradeListAPIView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
+    )
 
     permission_classes = []
     limit = None
@@ -180,16 +183,14 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
         country = get_object_or_404(models.Country, iso2__iexact=iso2)
 
         return {
-            'metadata': {
-                'country': {
-                    'name': country.name,
-                    'iso2': country.iso2,
-                },
-                'source': {
-                    'label': self.METADATA_DATA_SOURCE_LABEL,
-                    'url': self.METADATA_DATA_SOURCE_URL,
-                },
-            }
+            'country': {
+                'name': country.name,
+                'iso2': country.iso2,
+            },
+            'source': {
+                'label': self.METADATA_DATA_SOURCE_LABEL,
+                'url': self.METADATA_DATA_SOURCE_URL,
+            },
         }
 
     def get(self, *args, **kwargs):
@@ -263,10 +264,11 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
 
 
 class UKMarketTrendsView(BaseUKTradeListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/'
         'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktradeallcountriesseasonallyadjusted'
+        'uktotaltradeallcountriesseasonallyadjusted'
     )
 
     permission_classes = []
@@ -276,6 +278,19 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
 
     def get_queryset(self):
         return self.queryset.market_trends()
+
+    def get_metadata(self):
+        metadata = super().get_metadata()
+
+        metadata['source'].update({
+            'next_release': 'To be announced',
+            'notes': [
+                'Total trade is the sum of all exports and imports over the same time period.',
+                'Data includes goods and services combined.'
+            ]
+        })
+
+        return metadata
 
 
 class UKTradeHighlightsView(generics.GenericAPIView):
