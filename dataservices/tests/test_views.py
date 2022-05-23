@@ -380,7 +380,7 @@ def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_recor
     assert api_data['metadata']['source'] == {
         'label': 'ONS UK trade',
         'url': 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest',
-        'next_release': '13 June 2022'
+        'next_release': '13 June 2022',
     }
     assert api_data['metadata']['reference_period'] == {
         'resolution': 'quarter',
@@ -408,8 +408,9 @@ def test_dataservices_trade_in_services_by_country_api(client, trade_in_services
 
     assert api_data['metadata']['source'] == {
         'label': 'ONS UK trade in services: service type by partner country',
-        'url': 'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted',
-        'next_release': 'To be announced'
+        'url': 'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
+        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted',
+        'next_release': 'To be announced',
     }
     assert api_data['metadata']['reference_period'] == {
         'resolution': 'quarter',
@@ -451,8 +452,8 @@ def test_dataservices_market_trends_api(client):
         'next_release': 'To be announced',
         'notes': [
             'Total trade is the sum of all exports and imports over the same time period.',
-            'Data includes goods and services combined.'
-        ]
+            'Data includes goods and services combined.',
+        ],
     }
     assert len(api_data['data']) == 2
 

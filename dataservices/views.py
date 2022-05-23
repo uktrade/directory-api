@@ -171,9 +171,7 @@ class TradeBarriersView(generics.GenericAPIView):
 class BaseUKTradeListAPIView(generics.ListAPIView):
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
-    )
+    METADATA_DATA_SOURCE_URL = 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
     METADATA_DATA_SOURCE_NEXT_RELEASE = None
     METADATA_DATA_SOURCE_NOTES = None
     METADATA_DATA_RESOLUTION = 'quarter'
@@ -270,9 +268,9 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
     )
     METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
     METADATA_DATA_SOURCE_NOTES = [
-                'Total trade is the sum of all exports and imports over the same time period.',
-                'Data includes goods and services combined.'
-            ]
+        'Total trade is the sum of all exports and imports over the same time period.',
+        'Data includes goods and services combined.',
+    ]
 
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
