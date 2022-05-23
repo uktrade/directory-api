@@ -174,15 +174,27 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
     )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = None
+    METADATA_DATA_SOURCE_NOTES = None
+    METADATA_DATA_RESOLUTION = 'quarter'
 
     permission_classes = []
     limit = None
+
+    def get_reference_period(self):
+        year, period = self.queryset.get_current_period().values()
+
+        return {
+            'resolution': self.METADATA_DATA_RESOLUTION,
+            'period': period,
+            'year': year,
+        }
 
     def get_metadata(self):
         iso2 = self.request.query_params.get('iso2', '')
         country = get_object_or_404(models.Country, iso2__iexact=iso2)
 
-        return {
+        metadata = {
             'country': {
                 'name': country.name,
                 'iso2': country.iso2,
@@ -192,6 +204,17 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
                 'url': self.METADATA_DATA_SOURCE_URL,
             },
         }
+
+        if self.queryset.get_current_period:
+            metadata['reference_period'] = self.get_reference_period()
+
+        if self.METADATA_DATA_SOURCE_NEXT_RELEASE:
+            metadata['source']['next_release'] = self.METADATA_DATA_SOURCE_NEXT_RELEASE
+
+        if self.METADATA_DATA_SOURCE_NOTES:
+            metadata['source']['notes'] = self.METADATA_DATA_SOURCE_NOTES
+
+        return metadata
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
@@ -209,7 +232,7 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest'
     )
-    METADATA_DATA_RESOLUTION = 'quarter'
+    METADATA_DATA_SOURCE_NEXT_RELEASE = '13 June 2022'
 
     permission_classes = []
     queryset = models.UKTradeInGoodsByCountry.objects
@@ -220,21 +243,6 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
     def get_queryset(self):
         return self.queryset.top_goods_exports()
 
-    def get_metadata(self):
-        metadata = super().get_metadata()
-        year, period = self.queryset.get_current_period().values()
-
-        metadata['source'].update({
-            'next_release': '13 June 2022'
-        })
-        metadata['reference_period'] = {
-            'resolution': self.METADATA_DATA_RESOLUTION,
-            'period': period,
-            'year': year,
-        }
-
-        return metadata
-
 
 class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK trade in services: service type by partner country'
@@ -242,7 +250,7 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
         'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
         '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
     )
-    METADATA_DATA_RESOLUTION = 'quarter'
+    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
 
     queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
@@ -252,21 +260,6 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
     def get_queryset(self):
         return self.queryset.top_services_exports()
 
-    def get_metadata(self):
-        metadata = super().get_metadata()
-        year, period = self.queryset.get_current_period().values()
-
-        metadata['source'].update({
-            'next_release': 'To be announced'
-        })
-        metadata['reference_period'] = {
-            'resolution': self.METADATA_DATA_RESOLUTION,
-            'period': period,
-            'year': year,
-        }
-
-        return metadata
-
 
 class UKMarketTrendsView(BaseUKTradeListAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
@@ -275,6 +268,11 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
         'economy/nationalaccounts/balanceofpayments/datasets/'
         'uktotaltradeallcountriesseasonallyadjusted'
     )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
+    METADATA_DATA_SOURCE_NOTES = [
+                'Total trade is the sum of all exports and imports over the same time period.',
+                'Data includes goods and services combined.'
+            ]
 
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
@@ -283,19 +281,6 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
 
     def get_queryset(self):
         return self.queryset.market_trends()
-
-    def get_metadata(self):
-        metadata = super().get_metadata()
-
-        metadata['source'].update({
-            'next_release': 'To be announced',
-            'notes': [
-                'Total trade is the sum of all exports and imports over the same time period.',
-                'Data includes goods and services combined.'
-            ]
-        })
-
-        return metadata
 
 
 class UKTradeHighlightsView(generics.GenericAPIView):
