@@ -134,6 +134,7 @@ def total_trade_records(countries):
 def trade_in_services_records(countries):
     for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
         records = [
+            {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
             {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
             {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
             {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
@@ -159,6 +160,7 @@ def trade_in_services_records(countries):
 def trade_in_goods_records(countries):
     for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
         records = [
+            {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
             {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
             {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
             {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
