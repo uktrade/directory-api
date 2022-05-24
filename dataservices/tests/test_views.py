@@ -375,9 +375,20 @@ def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_recor
 
     assert response.status_code == 200
 
-    json_dict = json.loads(response.content)['data']
+    api_data = json.loads(response.content)
 
-    assert len(json_dict) == 5
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK trade',
+        'url': 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest',
+        'next_release': '13 June 2022',
+    }
+    assert api_data['metadata']['reference_period'] == {
+        'resolution': 'quarter',
+        'period': 4,
+        'year': 2021,
+    }
+    assert len(api_data['data']) == 5
+    assert api_data['data'][0] == {'label': 'first', 'value': 24000000}
 
 
 @pytest.mark.django_db
@@ -393,9 +404,21 @@ def test_dataservices_trade_in_services_by_country_api(client, trade_in_services
 
     assert response.status_code == 200
 
-    json_dict = json.loads(response.content)['data']
+    api_data = json.loads(response.content)
 
-    assert len(json_dict) == 5
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK trade in services: service type by partner country',
+        'url': 'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
+        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted',
+        'next_release': 'To be announced',
+    }
+    assert api_data['metadata']['reference_period'] == {
+        'resolution': 'quarter',
+        'period': 4,
+        'year': 2021,
+    }
+    assert len(api_data['data']) == 5
+    assert api_data['data'][0] == {'label': 'first', 'value': 24000000}
 
 
 @pytest.mark.django_db
@@ -418,15 +441,27 @@ def test_dataservices_market_trends_api(client):
 
     assert response.status_code == 200
 
-    records = json.loads(response.content)['data']
+    api_data = json.loads(response.content)
 
-    assert len(records) == 2
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK total trade: all countries',
+        'url': (
+            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+            '/uktotaltradeallcountriesseasonallyadjusted'
+        ),
+        'next_release': 'To be announced',
+        'notes': [
+            'Total trade is the sum of all exports and imports over the same time period.',
+            'Data includes goods and services combined.',
+        ],
+    }
+    assert len(api_data['data']) == 2
 
     models.Country.objects.filter(iso2='XY').delete()
 
 
 @pytest.mark.django_db
-def test_dataservices_market_trends_api_no_county_code(client, total_trade_records):
+def test_dataservices_market_trends_api_no_country_code(client, total_trade_records):
     response = client.get(reverse('dataservices-market-trends'))
 
     assert response.status_code == 400
@@ -472,10 +507,21 @@ def test_dataservices_trade_highlights_api(client):
 
     assert response.status_code == 200
 
-    records = json.loads(response.content)['data']
+    api_data = json.loads(response.content)
 
-    assert len(records) == 3
-    assert records['total_uk_exports'] == 4000000
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK total trade: all countries',
+        'url': (
+            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+            '/uktotaltradeallcountriesseasonallyadjusted'
+        ),
+        'next_release': 'To be announced',
+        'notes': [
+            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
+        ],
+    }
+    assert len(api_data['data']) == 3
+    assert api_data['data']['total_uk_exports'] == 4000000
 
     models.Country.objects.filter(iso2='XY').delete()
 
