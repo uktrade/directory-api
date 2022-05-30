@@ -24,7 +24,7 @@ class PeriodDataMixin:
 
 class UKTotalTradeDataManager(PeriodDataMixin, CTEManager):
     def market_trends(self):
-        qs = self
+        qs = self.exclude(country__isnull=True)
         year, quarter = self.get_current_period().values()
 
         if quarter and quarter != 4:
