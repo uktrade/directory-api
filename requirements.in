@@ -44,3 +44,4 @@ xhtml2pdf==0.2.6
 pyjwt==2.4.0
 pandas==1.4.2
 sqlalchemy==1.4.36
+django-cte==1.2.0
