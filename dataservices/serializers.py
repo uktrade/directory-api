@@ -208,25 +208,31 @@ class UKMarketTrendsSerializer(serializers.ModelSerializer):
     imports = serializers.SerializerMethodField()
     exports = serializers.SerializerMethodField()
 
-    class Meta:
-        model = models.UKTotalTradeByCountry
-        exclude = ['id', 'country', 'quarter']
-
     def get_imports(self, obj):
         return millions_to_currency_unit(obj['imports'])
 
     def get_exports(self, obj):
         return millions_to_currency_unit(obj['exports'])
 
+    class Meta:
+        model = models.UKTotalTradeByCountry
+        exclude = ['id', 'country', 'quarter']
+
 
 class UKTradeHighlightsSerializer(serializers.Serializer):
-    def to_representation(self, obj):
-        total_uk_exports = millions_to_currency_unit(obj['total_uk_exports'])
-        trading_position = obj['trading_position']
-        percentage_of_uk_trade = obj['percentage_of_uk_trade']
+    total_uk_exports = serializers.SerializerMethodField()
+    trading_position = serializers.SerializerMethodField()
+    percentage_of_uk_trade = serializers.SerializerMethodField()
 
-        return {
-            'total_uk_exports': total_uk_exports,
-            'trading_position': trading_position,
-            'percentage_of_uk_trade': percentage_of_uk_trade,
-        }
+    def get_total_uk_exports(self, obj):
+        return millions_to_currency_unit(obj['total_uk_exports'])
+
+    def get_trading_position(self, obj):
+        return obj['trading_position']
+
+    def get_percentage_of_uk_trade(self, obj):
+        return obj['percentage_of_uk_trade']
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
+        fields = ['total_uk_exports', 'trading_position', 'percentage_of_uk_trade']

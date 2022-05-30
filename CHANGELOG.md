@@ -9,6 +9,8 @@
 - GLS-232 - Ingest ONS data for UK total trade from Data Workspace
 - GLS-233 - Ingest ONS data for UK trade in goods from Data Workspace
 - GLS-234 - Ingest ONS data for UK trade in services from Data Workspace
+- GLS-246 - Use World Total records for percentage calculations on highlights
+- GLS-247 - Use correct ranking algorithm for highligths
 
 ### Bugs fixed
 

@@ -30,7 +30,11 @@ class Command(BaseCommand):
                 try:
                     country = Country.objects.get(iso2=row.ons_iso_alpha_2_code)
                 except Country.DoesNotExist:
-                    continue
+                    # We need to store rows for 'World Total' (iso2 'W1')
+                    if row.ons_iso_alpha_2_code == 'W1':
+                        country = None
+                    else:
+                        continue
 
                 year, quarter = row.period.split('-Q')
                 value = None if row.value < 0 else row.value

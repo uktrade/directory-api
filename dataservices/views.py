@@ -168,7 +168,7 @@ class TradeBarriersView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=barriers_list)
 
 
-class BaseUKTradeListAPIView(generics.ListAPIView):
+class MetadataMixin:
     # TODO: These values will be handled by a metadata db-backed class
     METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
     METADATA_DATA_SOURCE_URL = 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
@@ -176,7 +176,6 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
     METADATA_DATA_SOURCE_NOTES = None
     METADATA_DATA_RESOLUTION = 'quarter'
 
-    permission_classes = []
     limit = None
 
     def get_reference_period(self):
@@ -216,16 +215,21 @@ class BaseUKTradeListAPIView(generics.ListAPIView):
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
+        metadata = self.get_metadata()
+        data = res.data
+
+        if isinstance(data, list):
+            data = data[: self.limit]
 
         res.data = {
-            'metadata': self.get_metadata(),
-            'data': res.data[: self.limit],
+            'metadata': metadata,
+            'data': data,
         }
 
         return res
 
 
-class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
+class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK trade'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest'
@@ -242,7 +246,7 @@ class TopFiveGoodsExportsByCountryView(BaseUKTradeListAPIView):
         return self.queryset.top_goods_exports()
 
 
-class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
+class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK trade in services: service type by partner country'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
@@ -250,6 +254,7 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
     )
     METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
 
+    permission_classes = []
     queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
     filter_class = filters.UKTopFiveServicesExportsFilter
@@ -259,7 +264,7 @@ class TopFiveServicesExportsByCountryView(BaseUKTradeListAPIView):
         return self.queryset.top_services_exports()
 
 
-class UKMarketTrendsView(BaseUKTradeListAPIView):
+class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/'
@@ -281,8 +286,7 @@ class UKMarketTrendsView(BaseUKTradeListAPIView):
         return self.queryset.market_trends()
 
 
-class UKTradeHighlightsView(BaseUKTradeListAPIView):
-    # TODO: These values will be handled by a metadata db-backed class
+class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
     METADATA_DATA_SOURCE_URL = (
         'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
@@ -297,25 +301,13 @@ class UKTradeHighlightsView(BaseUKTradeListAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKTradeHighlightsSerializer
+    filter_class = filters.UKTradeHighlightsFilter
+    lookup_field = 'country__iso2'
 
-    def get_object(self):
-        iso2 = self.request.query_params.get('iso2', '').upper()
-        qs = self.get_queryset().highlights()
-        obj = next((item for item in qs if item.get('country__iso2') == iso2), None)
+    def dispatch(self, *args, **kwargs):
+        kwargs[self.lookup_field] = self.request.GET.get('iso2', '').upper()
 
-        return obj
+        return super().dispatch(*args, **kwargs)
 
-    def get(self, *args, **kwargs):
-        iso2 = self.request.query_params.get('iso2', '')
-        if not iso2:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"iso2": ['This field is required.']})
-
-        obj = self.get_object()
-        serializer = self.get_serializer(obj)
-
-        data = {
-            'metadata': self.get_metadata(),
-            'data': serializer.data,
-        }
-
-        return Response(status=status.HTTP_200_OK, data=data)
+    def get_queryset(self):
+        return super().get_queryset().highlights()
