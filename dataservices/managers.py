@@ -1,10 +1,11 @@
 from django.db import models
 from django.db.models import ExpressionWrapper, F, FloatField, Q, Sum
 from django.db.models.expressions import Window
-from django.db.models.functions import RowNumber
+from django.db.models.functions import Rank
+from django_cte import CTEManager, With
 
 
-class BaseDataManager(models.manager.Manager):
+class PeriodDataMixin:
     def _last_four_quarters(self):
         year, quarter = self.get_current_period().values()
 
@@ -21,9 +22,9 @@ class BaseDataManager(models.manager.Manager):
         }
 
 
-class UKTotalTradeDataManager(BaseDataManager):
+class UKTotalTradeDataManager(PeriodDataMixin, CTEManager):
     def market_trends(self):
-        qs = self
+        qs = self.exclude(country__isnull=True)
         year, quarter = self.get_current_period().values()
 
         if quarter and quarter != 4:
@@ -33,21 +34,26 @@ class UKTotalTradeDataManager(BaseDataManager):
 
     def highlights(self):
         last_four_quarters = self._last_four_quarters()
-        total = last_four_quarters.aggregate(total=Sum('exports'))['total']
+        total = last_four_quarters.filter(country__isnull=True).aggregate(total=Sum('exports'))['total']
 
         if total and total != 0:
-            return last_four_quarters.values('country__iso2').annotate(
-                total_uk_exports=Sum('exports'),
-                trading_position=Window(expression=RowNumber(), order_by=F('total_uk_exports').desc()),
-                percentage_of_uk_trade=ExpressionWrapper(
-                    F('total_uk_exports') * 100.0 / total, output_field=FloatField()
-                ),
+            cte = With(
+                last_four_quarters.exclude(country__isnull=True)
+                .values('country')
+                .annotate(
+                    total_uk_exports=Sum('exports'),
+                    trading_position=Window(expression=Rank(), order_by=F('total_uk_exports').desc()),
+                    percentage_of_uk_trade=ExpressionWrapper(
+                        F('total_uk_exports') * 100.0 / total, output_field=FloatField()
+                    ),
+                )
             )
+            return cte.queryset().with_cte(cte)
 
         return self.none()
 
 
-class UKTtradeInServicesDataManager(BaseDataManager):
+class UKTtradeInServicesDataManager(PeriodDataMixin, models.Manager):
     def top_services_exports(self):
         last_four_quarters = self._last_four_quarters()
 
@@ -59,7 +65,7 @@ class UKTtradeInServicesDataManager(BaseDataManager):
         )
 
 
-class UKTtradeInGoodsDataManager(BaseDataManager):
+class UKTtradeInGoodsDataManager(PeriodDataMixin, models.Manager):
     def top_goods_exports(self):
         last_four_quarters = self._last_four_quarters()
 

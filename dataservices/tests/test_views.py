@@ -498,10 +498,11 @@ def test_dataservices_market_trends_api_filter_by_year(client):
 
 @pytest.mark.django_db
 def test_dataservices_trade_highlights_api(client):
-    country = factories.CountryFactory(iso2='XY')
-    for year in [2020, 2021]:
-        for quarter in [1, 2, 3, 4]:
-            factories.UKTotalTradeByCountryFactory.create(country=country, year=year, quarter=quarter, exports=1)
+    countries = [factories.CountryFactory(iso2='XY'), None]
+    for country in countries:
+        for year in [2020, 2021]:
+            for quarter in [1, 2, 3, 4]:
+                factories.UKTotalTradeByCountryFactory.create(country=country, year=year, quarter=quarter, exports=1)
 
     response = client.get(reverse('dataservices-trade-highlights'), data={'iso2': 'XY'})
 

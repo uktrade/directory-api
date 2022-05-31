@@ -6,16 +6,18 @@ from dataservices.tests.factories import UKTotalTradeByCountryFactory
 
 @pytest.mark.django_db
 def test_uk_total_trade_manager_current_period_full_year(total_trade_records):
-    assert UKTotalTradeByCountry.objects.count() == 24
+    assert UKTotalTradeByCountry.objects.count() == 32
     assert UKTotalTradeByCountry.objects.get_current_period() == {'year': 2021, 'quarter': 4}
 
 
 @pytest.mark.django_db
 def test_uk_total_trade_manager_current_period_partial_year(countries, total_trade_records):
-    for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
-        UKTotalTradeByCountryFactory.create(country=countries[iso2], year=2022, quarter=1, imports=idx, exports=idx)
+    for idx, iso2 in enumerate(['', 'DE', 'FR', 'CN']):
+        UKTotalTradeByCountryFactory.create(
+            country=countries.get(iso2, None), year=2022, quarter=1, imports=idx, exports=idx
+        )
 
-    assert UKTotalTradeByCountry.objects.count() == 27
+    assert UKTotalTradeByCountry.objects.count() == 36
     assert UKTotalTradeByCountry.objects.get_current_period() == {'year': 2022, 'quarter': 1}
 
 
@@ -43,7 +45,7 @@ def test_uk_total_trade_manager_highlights(total_trade_records):
     assert len(highlights_queryset) == 3
     for record in highlights_queryset:
         assert list(record.keys()) == [
-            'country__iso2',
+            'country',
             'total_uk_exports',
             'trading_position',
             'percentage_of_uk_trade',
