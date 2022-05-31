@@ -216,7 +216,7 @@ class UKMarketTrendsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.UKTotalTradeByCountry
-        exclude = ['id', 'country', 'quarter']
+        exclude = ['id', 'country', 'ons_iso_alpha_2_code', 'quarter']
 
 
 class UKTradeHighlightsSerializer(serializers.Serializer):

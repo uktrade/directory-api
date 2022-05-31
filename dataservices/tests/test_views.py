@@ -502,7 +502,10 @@ def test_dataservices_trade_highlights_api(client):
     for country in countries:
         for year in [2020, 2021]:
             for quarter in [1, 2, 3, 4]:
-                factories.UKTotalTradeByCountryFactory.create(country=country, year=year, quarter=quarter, exports=1)
+                ons_iso_alpha_2_code = country.iso2 if country else 'W1'
+                factories.UKTotalTradeByCountryFactory.create(
+                    country=country, ons_iso_alpha_2_code=ons_iso_alpha_2_code, year=year, quarter=quarter, exports=1
+                )
 
     response = client.get(reverse('dataservices-trade-highlights'), data={'iso2': 'XY'})
 

@@ -122,11 +122,16 @@ def trade_barrier_data():
 
 @pytest.fixture()
 def total_trade_records(countries):
-    for idx, iso2 in enumerate(['', 'DE', 'FR', 'CN']):
+    for idx, iso2 in enumerate(['W1', 'DE', 'FR', 'CN']):
         for year in [2020, 2021]:
             for quarter in [1, 2, 3, 4]:
                 models.UKTotalTradeByCountry.objects.create(
-                    country=countries.get(iso2, None), year=year, quarter=quarter, imports=idx + 1, exports=idx + 1
+                    country=countries.get(iso2, None),
+                    ons_iso_alpha_2_code=iso2,
+                    year=year,
+                    quarter=quarter,
+                    imports=idx + 1,
+                    exports=idx + 1,
                 )
 
 

@@ -12,12 +12,17 @@ class Command(BaseCommand):
     engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
     sql = '''
         SELECT
-            ons_iso_alpha_2_code, period, direction, value
+            ons_iso_alpha_2_code,
+            period,
+            direction,
+            value
         FROM
             ons.trade__uk_totals_sa
         WHERE
             period_type = 'quarter'
-            AND product_name = 'goods-and-services';
+            AND product_name = 'goods-and-services'
+            -- 	this value sneaked into the source somehow
+            AND ons_iso_alpha_2_code <> 'Country Code';
     '''
 
     def handle(self, *args, **options):
@@ -30,17 +35,14 @@ class Command(BaseCommand):
                 try:
                     country = Country.objects.get(iso2=row.ons_iso_alpha_2_code)
                 except Country.DoesNotExist:
-                    # We need to store rows for 'World Total' (iso2 'W1')
-                    if row.ons_iso_alpha_2_code == 'W1':
-                        country = None
-                    else:
-                        continue
+                    country = None
 
                 year, quarter = row.period.split('-Q')
                 value = None if row.value < 0 else row.value
 
                 UKTotalTradeByCountry.objects.update_or_create(
                     country=country,
+                    ons_iso_alpha_2_code=row.ons_iso_alpha_2_code,
                     year=year,
                     quarter=quarter,
                     defaults={row.direction: value},
