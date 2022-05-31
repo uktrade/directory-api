@@ -337,6 +337,7 @@ class UKTotalTradeByCountry(models.Model):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
+    ons_iso_alpha_2_code = models.CharField(unique=False, null=False, blank=False, max_length=2)
     year = models.PositiveSmallIntegerField(null=True, blank=True)
     quarter = models.PositiveSmallIntegerField(null=True, blank=True)
     imports = models.PositiveIntegerField(null=True, blank=True)

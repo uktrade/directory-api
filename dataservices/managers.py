@@ -24,7 +24,7 @@ class PeriodDataMixin:
 
 class UKTotalTradeDataManager(PeriodDataMixin, CTEManager):
     def market_trends(self):
-        qs = self.exclude(country__isnull=True)
+        qs = self.exclude(ons_iso_alpha_2_code__regex=r'\d')  # We want individual records for countries only
         year, quarter = self.get_current_period().values()
 
         if quarter and quarter != 4:
@@ -34,12 +34,13 @@ class UKTotalTradeDataManager(PeriodDataMixin, CTEManager):
 
     def highlights(self):
         last_four_quarters = self._last_four_quarters()
-        total = last_four_quarters.filter(country__isnull=True).aggregate(total=Sum('exports'))['total']
+        # Totals are computed in records with a ons_iso_alpha_2_code column of the value W1
+        total = last_four_quarters.filter(ons_iso_alpha_2_code='W1').aggregate(total=Sum('exports'))['total']
 
         if total and total != 0:
             cte = With(
-                last_four_quarters.exclude(country__isnull=True)
-                .values('country')
+                last_four_quarters.exclude(ons_iso_alpha_2_code__regex=r'\d')
+                .values('country', 'ons_iso_alpha_2_code')
                 .annotate(
                     total_uk_exports=Sum('exports'),
                     trading_position=Window(expression=Rank(), order_by=F('total_uk_exports').desc()),

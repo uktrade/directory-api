@@ -12,9 +12,9 @@ def test_uk_total_trade_manager_current_period_full_year(total_trade_records):
 
 @pytest.mark.django_db
 def test_uk_total_trade_manager_current_period_partial_year(countries, total_trade_records):
-    for idx, iso2 in enumerate(['', 'DE', 'FR', 'CN']):
+    for idx, iso2 in enumerate(['W1', 'DE', 'FR', 'CN']):
         UKTotalTradeByCountryFactory.create(
-            country=countries.get(iso2, None), year=2022, quarter=1, imports=idx, exports=idx
+            country=countries.get(iso2, None), ons_iso_alpha_2_code=iso2, year=2022, quarter=1, imports=idx, exports=idx
         )
 
     assert UKTotalTradeByCountry.objects.count() == 36
@@ -46,6 +46,7 @@ def test_uk_total_trade_manager_highlights(total_trade_records):
     for record in highlights_queryset:
         assert list(record.keys()) == [
             'country',
+            'ons_iso_alpha_2_code',
             'total_uk_exports',
             'trading_position',
             'percentage_of_uk_trade',

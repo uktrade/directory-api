@@ -262,7 +262,7 @@ def test_import_uk_total_trade_data(read_sql_mock):
     management.call_command('import_countries')
     management.call_command('import_uk_total_trade_data')
 
-    assert len(models.UKTotalTradeByCountry.objects.all()) == 3
+    assert len(models.UKTotalTradeByCountry.objects.all()) == 4
 
 
 @pytest.mark.django_db

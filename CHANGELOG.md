@@ -11,6 +11,7 @@
 - GLS-234 - Ingest ONS data for UK trade in services from Data Workspace
 - GLS-246 - Use World Total records for percentage calculations on highlights
 - GLS-247 - Use correct ranking algorithm for highligths
+- GLS-252 - Set correct trade partners ranking pool
 
 ### Bugs fixed
 
