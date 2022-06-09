@@ -418,7 +418,7 @@ def test_dataservices_trade_in_services_by_country_api(client, trade_in_services
         'year': 2021,
     }
     assert len(api_data['data']) == 5
-    assert api_data['data'][0] == {'label': 'first', 'value': 24000000}
+    assert api_data['data'][0] == {'label': 'first', 'value': 6000000}
 
 
 @pytest.mark.django_db

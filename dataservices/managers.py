@@ -58,7 +58,7 @@ class UKTtradeInServicesDataManager(models.Manager):
     def _last_four_quarters(self):
         current_year, current_quarter = self.get_current_period().values()
 
-        if not current_year and current_quarter:
+        if not current_year and not current_quarter:
             return self.none()
 
         if current_quarter != 4:
@@ -75,10 +75,18 @@ class UKTtradeInServicesDataManager(models.Manager):
         return self.filter(period__in=period_list)
 
     def get_current_period(self):
-        current_period = self.filter(period_type='quarter').order_by('-period').first().period
-        current_year, current_quarter = list(map(int, current_period.removeprefix('quarter/').split('-Q')))
+        current_period = (
+            self.filter(period_type='quarter').order_by('-period').distinct('period').values('period').first()
+        )
 
-        return {'year': current_year or None, 'quarter': current_quarter or None}
+        if current_period:
+            current_year, current_quarter = list(
+                map(int, current_period.get('period').removeprefix('quarter/').split('-Q'))
+            )
+        else:
+            current_year = current_quarter = None
+
+        return {'year': current_year, 'quarter': current_quarter}
 
     def top_services_exports(self):
         last_four_quarters = self._last_four_quarters()

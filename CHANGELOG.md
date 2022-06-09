@@ -12,6 +12,7 @@
 - GLS-246 - Use World Total records for percentage calculations on highlights
 - GLS-247 - Use correct ranking algorithm for highligths
 - GLS-252 - Set correct trade partners ranking pool
+- GLS-264 - Handle edge cases where trade-in-services quarterly data is non-disclosed
 
 ### Bugs fixed
 

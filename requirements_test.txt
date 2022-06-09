@@ -175,7 +175,6 @@ future==0.18.2
     # via
     #   arabic-reshaper
     #   django-json-widget
-    #   notifications-python-client
 greenlet==1.1.2
     # via sqlalchemy
 html5lib==1.1
@@ -209,14 +208,12 @@ mccabe==0.6.1
 mohawk==0.3.4
     # via sigauth
 monotonic==1.6
-    # via
-    #   directory-client-core
-    #   notifications-python-client
+    # via directory-client-core
 more-itertools==8.12.0
     # via pytest
 mypy-extensions==0.4.3
     # via black
-notifications-python-client==5.4.1
+notifications-python-client==6.3.0
     # via -r requirements.in
 numpy==1.22.3
     # via pandas
