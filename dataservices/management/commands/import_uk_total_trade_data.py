@@ -14,21 +14,32 @@ class Command(BaseCommand):
         SELECT
             ons_iso_alpha_2_code,
             period,
-            direction,
-            value
-        FROM
-            ons.trade__uk_totals_sa
-        WHERE
-            period_type = 'quarter'
-            AND product_name = 'goods-and-services'
-            -- 	this value sneaked into the source somehow
-            AND ons_iso_alpha_2_code <> 'Country Code';
+            sum(imports) AS imports,
+            sum(exports) AS exports
+        FROM (
+            SELECT
+                ons_iso_alpha_2_code,
+                period,
+                CASE WHEN direction = 'imports' THEN
+                    value
+                END AS imports,
+                CASE WHEN direction = 'exports' THEN
+                    value
+                END AS exports
+            FROM
+                ons.trade__uk_totals_sa
+            WHERE
+                period_type = 'quarter'
+                AND product_name = 'goods-and-services'
+                AND ons_iso_alpha_2_code <> 'Country Code') s
+        GROUP BY
+            ons_iso_alpha_2_code,
+            period;
     '''
 
     def handle(self, *args, **options):
+        data = []
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
-
-        UKTotalTradeByCountry.objects.all().delete()
 
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
@@ -38,14 +49,20 @@ class Command(BaseCommand):
                     country = None
 
                 year, quarter = row.period.split('-Q')
-                value = None if row.value < 0 else row.value
+                imports = None if row.imports < 0 else row.imports
+                exports = None if row.exports < 0 else row.exports
 
-                UKTotalTradeByCountry.objects.update_or_create(
-                    country=country,
-                    ons_iso_alpha_2_code=row.ons_iso_alpha_2_code,
-                    year=year,
-                    quarter=quarter,
-                    defaults={row.direction: value},
+                data.append(
+                    UKTotalTradeByCountry(
+                        country=country,
+                        ons_iso_alpha_2_code=row.ons_iso_alpha_2_code,
+                        year=year,
+                        quarter=quarter,
+                        imports=imports,
+                        exports=exports,
+                    )
                 )
+        UKTotalTradeByCountry.objects.all().delete()
+        UKTotalTradeByCountry.objects.bulk_create(data)
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
