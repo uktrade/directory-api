@@ -320,8 +320,8 @@ class UKTradeInServicesByCountry(models.Model):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
-    year = models.IntegerField(null=True, blank=True)
-    quarter = models.PositiveSmallIntegerField(null=True, blank=True)
+    period = models.CharField(null=False, blank=False, max_length=20)
+    period_type = models.CharField(null=False, blank=False, max_length=10)
     service_code = models.CharField(null=True, blank=True, max_length=200)
     service_name = models.CharField(null=True, blank=True, max_length=200)
     imports = models.PositiveIntegerField(null=True, blank=True)

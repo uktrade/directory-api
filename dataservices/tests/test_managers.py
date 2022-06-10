@@ -65,16 +65,45 @@ def test_uk_total_trade_manager_highlights_no_data(countries, total_trade_record
 
 
 @pytest.mark.django_db
-def test_uk_top_services(countries, trade_in_services_records):
+def test_uk_top_services_yearly_totals(countries, trade_in_services_records):
     top_services_exports = UKTradeInServicesByCountry.objects.top_services_exports()
 
     assert top_services_exports[0]['label'] == 'first'
-    assert top_services_exports[0]['total_value'] == 24
+    assert top_services_exports[0]['total_value'] == 6
+
+
+@pytest.mark.django_db
+def test_uk_top_services_quarterly_totals(countries, trade_in_services_records):
+    records = [
+        {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
+        {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
+        {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
+        {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
+        {'code': '4', 'name': 'fourth', 'exports': 3, 'imports': 1},
+        {'code': '5', 'name': 'fifth', 'exports': 2, 'imports': 1},
+        {'code': '6', 'name': 'last', 'exports': 1, 'imports': 1},
+    ]
+
+    for iso2 in ['DE', 'FR', 'CN']:
+        for record in records:
+            UKTradeInServicesByCountry.objects.create(
+                country=countries[iso2],
+                period='quarter/2022-Q1',
+                period_type='quarter',
+                service_code=record['code'],
+                service_name=record['name'],
+                imports=record['imports'],
+                exports=record['exports'],
+            )
+
+    top_services_exports = UKTradeInServicesByCountry.objects.top_services_exports()
+
+    assert top_services_exports[0]['label'] == 'first'
+    assert top_services_exports[0]['total_value'] == 6
 
 
 @pytest.mark.django_db
 def test_uk_top_services_with_no_records(countries):
-
     top_services_exports = UKTradeInServicesByCountry.objects.top_services_exports()
 
     assert len(top_services_exports) == 0

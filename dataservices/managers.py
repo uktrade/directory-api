@@ -54,13 +54,46 @@ class UKTotalTradeDataManager(PeriodDataMixin, CTEManager):
         return self.none()
 
 
-class UKTtradeInServicesDataManager(PeriodDataMixin, models.Manager):
+class UKTtradeInServicesDataManager(models.Manager):
+    def _last_four_quarters(self):
+        current_year, current_quarter = self.get_current_period().values()
+
+        if not current_year and not current_quarter:
+            return self.none()
+
+        if current_quarter != 4:
+            period_type = 'quarter'
+            period_list = []
+            for quarter in [1, 2, 3, 4][current_quarter:]:
+                period_list.append(f'{period_type}/{current_year}-Q{quarter}')
+            for quarter in [1, 2, 3, 4][:current_quarter]:
+                period_list.append(f'{period_type}/{current_year - 1}-Q{quarter}')
+        else:
+            period_type = 'year'
+            period_list = [f'{period_type}/{current_year}']
+
+        return self.filter(period__in=period_list)
+
+    def get_current_period(self):
+        current_period = (
+            self.filter(period_type='quarter').order_by('-period').distinct('period').values('period').first()
+        )
+
+        if current_period:
+            current_year, current_quarter = list(
+                map(int, current_period.get('period').removeprefix('quarter/').split('-Q'))
+            )
+        else:
+            current_year = current_quarter = None
+
+        return {'year': current_year, 'quarter': current_quarter}
+
     def top_services_exports(self):
         last_four_quarters = self._last_four_quarters()
 
         return (
             last_four_quarters.values('country__iso2', 'service_code')
-            .exclude(exports__isnull=True)
+            .exclude(Q(exports__isnull=True) | Q(exports=0))
             .annotate(label=F('service_name'), total_value=Sum('exports'))
             .order_by('-total_value')
         )
