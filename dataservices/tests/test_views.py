@@ -367,3 +367,176 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
     assert mock_api_client.call_args == mock.call(
         filters={'locations': {'CN': 'China', 'FR': 'France'}, 'sectors': ['Automotive']}
     )
+
+
+@pytest.mark.django_db
+def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_records):
+    response = client.get(reverse('dataservices-top-five-goods-by-country'), data={'iso2': 'DE'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK trade',
+        'url': 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest',
+        'next_release': '13 June 2022',
+    }
+    assert api_data['metadata']['reference_period'] == {
+        'resolution': 'quarter',
+        'period': 4,
+        'year': 2021,
+    }
+    assert len(api_data['data']) == 5
+    assert api_data['data'][0] == {'label': 'first', 'value': 24000000}
+
+
+@pytest.mark.django_db
+def test_dataservices_top_five_goods_by_country_api_for_no_iso2(client, trade_in_goods_records):
+    response = client.get(reverse('dataservices-top-five-goods-by-country'))
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_in_services_by_country_api(client, trade_in_services_records):
+    response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'DE'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK trade in services: service type by partner country',
+        'url': 'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
+        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted',
+        'next_release': 'To be announced',
+    }
+    assert api_data['metadata']['reference_period'] == {
+        'resolution': 'quarter',
+        'period': 4,
+        'year': 2021,
+    }
+    assert len(api_data['data']) == 5
+    assert api_data['data'][0] == {'label': 'first', 'value': 6000000}
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_in_services_by_country_api_for_no_iso(client, trade_in_services_records):
+    response = client.get(reverse('dataservices-top-five-services-by-country'))
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_dataservices_market_trends_api(client):
+    country = factories.CountryFactory(iso2='XY')
+    for year in [2020, 2021]:
+        for quarter in [1, 2, 3, 4]:
+            factories.UKTotalTradeByCountryFactory.create(
+                country=country, year=year, quarter=quarter, imports=1, exports=1
+            )
+
+    response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK total trade: all countries',
+        'url': (
+            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+            '/uktotaltradeallcountriesseasonallyadjusted'
+        ),
+        'next_release': 'To be announced',
+        'notes': [
+            'Total trade is the sum of all exports and imports over the same time period.',
+            'Data includes goods and services combined.',
+        ],
+    }
+    assert len(api_data['data']) == 2
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_market_trends_api_no_country_code(client, total_trade_records):
+    response = client.get(reverse('dataservices-market-trends'))
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_dataservices_market_trends_api_filter_by_year(client):
+    country = factories.CountryFactory(iso2='XY')
+    for year in [1995, 1996, 1997, 1998, 1999]:
+        for quarter in [1, 2, 3, 4]:
+            factories.UKTotalTradeByCountryFactory.create(
+                country=country, year=year, quarter=quarter, imports=1, exports=1
+            )
+
+    response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY'})
+
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 5
+
+    response = client.get(reverse('dataservices-market-trends'), data={'iso2': 'XY', 'from_year': 1999})
+
+    assert response.status_code == 200
+
+    records = json.loads(response.content)['data']
+
+    assert len(records) == 1
+    assert records[0]['year'] == 1999
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_highlights_api(client):
+    countries = [factories.CountryFactory(iso2='XY'), None]
+    for country in countries:
+        for year in [2020, 2021]:
+            for quarter in [1, 2, 3, 4]:
+                ons_iso_alpha_2_code = country.iso2 if country else 'W1'
+                factories.UKTotalTradeByCountryFactory.create(
+                    country=country, ons_iso_alpha_2_code=ons_iso_alpha_2_code, year=year, quarter=quarter, exports=1
+                )
+
+    response = client.get(reverse('dataservices-trade-highlights'), data={'iso2': 'XY'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']['source'] == {
+        'label': 'ONS UK total trade: all countries',
+        'url': (
+            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+            '/uktotaltradeallcountriesseasonallyadjusted'
+        ),
+        'next_release': 'To be announced',
+        'notes': [
+            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
+        ],
+    }
+    assert len(api_data['data']) == 3
+    assert api_data['data']['total_uk_exports'] == 4000000
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_trade_highlights_no_county_code(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.UKTotalTradeByCountryFactory(country=country)
+
+    response = client.get(reverse('dataservices-trade-highlights'))
+
+    assert response.status_code == 400
+
+    models.Country.objects.filter(iso2='XY').delete()

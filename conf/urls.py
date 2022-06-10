@@ -269,6 +269,26 @@ urlpatterns = [
         dataservices.views.RetrieveSocietyDataByCountryView.as_view(),
         name='dataservices-society-data-by-country',
     ),
+    url(
+        r'^dataservices/top-five-goods/$',
+        dataservices.views.TopFiveGoodsExportsByCountryView.as_view(),
+        name='dataservices-top-five-goods-by-country',
+    ),
+    url(
+        r'^dataservices/top-five-services/$',
+        dataservices.views.TopFiveServicesExportsByCountryView.as_view(),
+        name='dataservices-top-five-services-by-country',
+    ),
+    url(
+        r'^dataservices/uk-market-trends/$',
+        dataservices.views.UKMarketTrendsView.as_view(),
+        name='dataservices-market-trends',
+    ),
+    url(
+        r'^dataservices/uk-trade-highlights/$',
+        dataservices.views.UKTradeHighlightsView.as_view(),
+        name='dataservices-trade-highlights',
+    ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     url(

@@ -80,7 +80,7 @@ directory-validators==8.0.1
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
-django==2.2.27
+django==2.2.28
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -103,6 +103,8 @@ django-admin-ip-restrictor==2.1.0
 django-celery-beat==2.2.1
     # via -r requirements.in
 django-cleanup==5.2.0
+    # via -r requirements.in
+django-cte==1.2.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
@@ -150,7 +152,8 @@ future==0.18.2
     # via
     #   arabic-reshaper
     #   django-json-widget
-    #   notifications-python-client
+greenlet==1.1.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -176,11 +179,11 @@ markuppy==1.14
 mohawk==0.3.4
     # via sigauth
 monotonic==1.6
-    # via
-    #   directory-client-core
-    #   notifications-python-client
-notifications-python-client==5.4.1
+    # via directory-client-core
+notifications-python-client==6.3.0
     # via -r requirements.in
+numpy==1.22.3
+    # via pandas
 oauthlib==3.1.1
     # via requests-oauthlib
 odfpy==1.4.1
@@ -191,6 +194,8 @@ openpyxl==3.0.9
     # via tablib
 packaging==21.3
     # via redis
+pandas==1.4.2
+    # via -r requirements.in
 pillow==9.0.1
     # via
     #   directory-validators
@@ -202,7 +207,7 @@ psycopg2-binary==2.8.4
     # via -r requirements.in
 pycparser==2.21
     # via cffi
-pyjwt==1.7.0
+pyjwt==2.4.0
     # via
     #   -r requirements.in
     #   notifications-python-client
@@ -223,6 +228,7 @@ python-dateutil==2.8.2
     #   botocore
     #   elasticsearch-dsl
     #   faker
+    #   pandas
     #   python-crontab
 pytz==2021.3
     # via
@@ -230,6 +236,7 @@ pytz==2021.3
     #   directory-validators
     #   django
     #   django-timezone-field
+    #   pandas
 pyyaml==5.4
     # via
     #   -r requirements.in
@@ -275,6 +282,8 @@ six==1.16.0
     #   w3lib
 soupsieve==2.3.1
     # via beautifulsoup4
+sqlalchemy==1.4.36
+    # via -r requirements.in
 sqlparse==0.4.2
     # via django
 svglib==1.2.1
@@ -304,7 +313,7 @@ vine==5.0.0
     #   kombu
 w3lib==1.22.0
     # via directory-client-core
-waitress==2.1.1
+waitress==2.1.2
     # via -r requirements.in
 wcwidth==0.2.5
     # via prompt-toolkit

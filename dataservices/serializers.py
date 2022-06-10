@@ -4,6 +4,10 @@ from rest_framework import serializers
 from dataservices import models
 
 
+def millions_to_currency_unit(value):
+    return value * int(1e6)
+
+
 class EaseOfDoingBusinessSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
@@ -168,3 +172,67 @@ class PopulationDataSerializer(serializers.ModelSerializer):
             '95-99': {'source': 'age_95_99'},
             '100+': {'source': 'age_100_plus'},
         }
+
+
+class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    def get_label(self, obj):
+        return obj['label']
+
+    def get_value(self, obj):
+        return millions_to_currency_unit(obj['total_value'])
+
+    class Meta:
+        model = models.UKTradeInGoodsByCountry
+        fields = ['label', 'value']
+
+
+class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
+    label = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    def get_label(self, obj):
+        return obj['label']
+
+    def get_value(self, obj):
+        return millions_to_currency_unit(obj['total_value'])
+
+    class Meta:
+        model = models.UKTradeInServicesByCountry
+        fields = ['label', 'value']
+
+
+class UKMarketTrendsSerializer(serializers.ModelSerializer):
+    imports = serializers.SerializerMethodField()
+    exports = serializers.SerializerMethodField()
+
+    def get_imports(self, obj):
+        return millions_to_currency_unit(obj['imports'])
+
+    def get_exports(self, obj):
+        return millions_to_currency_unit(obj['exports'])
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
+        exclude = ['id', 'country', 'ons_iso_alpha_2_code', 'quarter']
+
+
+class UKTradeHighlightsSerializer(serializers.Serializer):
+    total_uk_exports = serializers.SerializerMethodField()
+    trading_position = serializers.SerializerMethodField()
+    percentage_of_uk_trade = serializers.SerializerMethodField()
+
+    def get_total_uk_exports(self, obj):
+        return millions_to_currency_unit(obj['total_uk_exports'])
+
+    def get_trading_position(self, obj):
+        return obj['trading_position']
+
+    def get_percentage_of_uk_trade(self, obj):
+        return obj['percentage_of_uk_trade']
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
+        fields = ['total_uk_exports', 'trading_position', 'percentage_of_uk_trade']
