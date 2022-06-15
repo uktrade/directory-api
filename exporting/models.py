@@ -27,3 +27,4 @@ class Office(TimeStampedModel):
             ' If this office is in the results page of other offices, this will be the details displayed.'
         ),
     )
+    order = models.IntegerField(blank=True, null=True)

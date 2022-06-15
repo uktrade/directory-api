@@ -21,4 +21,9 @@ class Migration(migrations.Migration):
             field=models.AutoField(auto_created=True, primary_key=True, serialize=False),
             preserve_default=False,
         ),
+        migrations.AddField(
+            model_name='office',
+            name='order',
+            field=models.IntegerField(blank=True, null=True),
+        ),
     ]
