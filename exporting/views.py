@@ -24,4 +24,4 @@ class RetrieveOfficesByPostCode(ListAPIView):
                 default=Value(False),
                 output_field=BooleanField(),
             )
-        )
+        ).order_by('order')
