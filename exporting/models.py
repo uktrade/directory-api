@@ -7,7 +7,8 @@ class Office(TimeStampedModel):
     class Meta:
         ordering = ['region_id']
 
-    region_id = models.TextField(primary_key=True)
+    id = models.AutoField(auto_created=True, primary_key=True)
+    region_id = models.TextField()
     name = models.TextField()
     address_street = models.TextField()
     address_city = models.TextField()
@@ -26,3 +27,4 @@ class Office(TimeStampedModel):
             ' If this office is in the results page of other offices, this will be the details displayed.'
         ),
     )
+    order = models.IntegerField(blank=True, null=True)
