@@ -14,6 +14,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
             region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
         except requests.exceptions.RequestException:
             region_id = None
+
         return models.Office.objects.annotate(
             is_match=Case(
                 When(
@@ -23,4 +24,4 @@ class RetrieveOfficesByPostCode(ListAPIView):
                 default=Value(False),
                 output_field=BooleanField(),
             )
-        )
+        ).order_by('order')
