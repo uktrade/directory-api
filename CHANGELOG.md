@@ -1,7 +1,12 @@
 # Changelog
 
 ## Pre release
+### Enhancements
 
+### Bugs fixed
+
+## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.1...2.4.2)
 ### Enhancements
 - GLS-173 - Add model + endpoint for handling UK total trade data by country
 - GLS-186 - Dataservices addition for market trends
