@@ -2,7 +2,30 @@
 
 ## Pre release
 
+### Enhancements
+- GLS-173 - Add model + endpoint for handling UK total trade data by country
+- GLS-186 - Dataservices addition for market trends
+- GLS-186 - Dataservices addition for trade highlights
+- GLS-232 - Ingest ONS data for UK total trade from Data Workspace
+- GLS-233 - Ingest ONS data for UK trade in goods from Data Workspace
+- GLS-234 - Ingest ONS data for UK trade in services from Data Workspace
+- GLS-246 - Use World Total records for percentage calculations on highlights
+- GLS-247 - Use correct ranking algorithm for highligths
+- GLS-252 - Set correct trade partners ranking pool
+- GLS-264 - Handle edge cases where trade-in-services quarterly data is non-disclosed
+
 ### Bugs fixed
+
+## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.1...2.4.2)
+### Bugs fixed
+- No ticket: notification bug fix
+
+## [2.4.1](https://github.com/uktrade/directory-api/releases/tag/2.4.1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.0...2.4.1)
+### Enhancements
+- No ticket: waitress vulneribilities fixes
+
 
 ## [2.4.0](https://github.com/uktrade/directory-api/releases/tag/2.4.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.3.0...2.4.0)

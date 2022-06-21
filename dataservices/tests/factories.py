@@ -46,13 +46,51 @@ class CIAFactBookFactory(factory.django.DjangoModelFactory):
 
 class CountryFactory(factory.django.DjangoModelFactory):
     name = factory.fuzzy.FuzzyText(length=50)
-    iso1 = factory.fuzzy.FuzzyText(length=1)
+    iso1 = factory.fuzzy.FuzzyText(length=3, chars='1234567890')
     iso2 = factory.fuzzy.FuzzyText(length=2)
     iso3 = factory.fuzzy.FuzzyText(length=3)
     region = factory.fuzzy.FuzzyText(length=10)
 
     class Meta:
         model = models.Country
+
+
+class UKTradeInGoodsByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
+    quarter = factory.Iterator([1, 2, 3, 4])
+    commodity_code = factory.fuzzy.FuzzyText(length=2)
+    commodity_name = factory.fuzzy.FuzzyText(length=10)
+    imports = factory.fuzzy.FuzzyInteger(1, 10)
+    exports = factory.fuzzy.FuzzyInteger(1, 10)
+
+    class Meta:
+        model = models.UKTradeInGoodsByCountry
+
+
+class UKTradeInServicesByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
+    quarter = factory.Iterator([1, 2, 3, 4])
+    service_code = factory.fuzzy.FuzzyText(length=2)
+    service_name = factory.fuzzy.FuzzyText(length=10)
+    imports = factory.fuzzy.FuzzyInteger(1, 10)
+    exports = factory.fuzzy.FuzzyInteger(1, 10)
+
+    class Meta:
+        model = models.UKTradeInServicesByCountry
+
+
+class UKTotalTradeByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    ons_iso_alpha_2_code = factory.SelfAttribute('country.iso2')
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
+    quarter = factory.Iterator([1, 2, 3, 4])
+    imports = factory.fuzzy.FuzzyInteger(1, 10)
+    exports = factory.fuzzy.FuzzyInteger(1, 10)
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
 
 
 class SuggestedCountriesFactory(factory.django.DjangoModelFactory):

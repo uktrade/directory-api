@@ -1,10 +1,11 @@
 import json
 
 from django.apps import apps
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from dataservices import helpers, models, serializers
+from dataservices import filters, helpers, models, serializers
 from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
@@ -165,3 +166,148 @@ class TradeBarriersView(generics.GenericAPIView):
             filters['sectors'] = sectors
         barriers_list = client_api.trade_barrier_data_gateway.barriers_list(filters=filters)
         return Response(status=status.HTTP_200_OK, data=barriers_list)
+
+
+class MetadataMixin:
+    # TODO: These values will be handled by a metadata db-backed class
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
+    METADATA_DATA_SOURCE_URL = 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
+    METADATA_DATA_SOURCE_NEXT_RELEASE = None
+    METADATA_DATA_SOURCE_NOTES = None
+    METADATA_DATA_RESOLUTION = 'quarter'
+
+    limit = None
+
+    def get_reference_period(self):
+        year, period = self.queryset.get_current_period().values()
+
+        return {
+            'resolution': self.METADATA_DATA_RESOLUTION,
+            'period': period,
+            'year': year,
+        }
+
+    def get_metadata(self):
+        iso2 = self.request.query_params.get('iso2', '')
+        country = get_object_or_404(models.Country, iso2__iexact=iso2)
+
+        metadata = {
+            'country': {
+                'name': country.name,
+                'iso2': country.iso2,
+            },
+            'source': {
+                'label': self.METADATA_DATA_SOURCE_LABEL,
+                'url': self.METADATA_DATA_SOURCE_URL,
+            },
+        }
+
+        if self.queryset.get_current_period:
+            metadata['reference_period'] = self.get_reference_period()
+
+        if self.METADATA_DATA_SOURCE_NEXT_RELEASE:
+            metadata['source']['next_release'] = self.METADATA_DATA_SOURCE_NEXT_RELEASE
+
+        if self.METADATA_DATA_SOURCE_NOTES:
+            metadata['source']['notes'] = self.METADATA_DATA_SOURCE_NOTES
+
+        return metadata
+
+    def get(self, *args, **kwargs):
+        res = super().get(*args, **kwargs)
+        metadata = self.get_metadata()
+        data = res.data
+
+        if isinstance(data, list):
+            data = data[: self.limit]
+
+        res.data = {
+            'metadata': metadata,
+            'data': data,
+        }
+
+        return res
+
+
+class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest'
+    )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = '13 June 2022'
+
+    permission_classes = []
+    queryset = models.UKTradeInGoodsByCountry.objects
+    serializer_class = serializers.UKTopFiveGoodsExportsSerializer
+    filter_class = filters.UKTopFiveGoodsExportsFilter
+    limit = 5
+
+    def get_queryset(self):
+        return self.queryset.top_goods_exports()
+
+
+class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade in services: service type by partner country'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
+        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
+    )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
+
+    permission_classes = []
+    queryset = models.UKTradeInServicesByCountry.objects
+    serializer_class = serializers.UKTopFiveServicesExportSerializer
+    filter_class = filters.UKTopFiveServicesExportsFilter
+    limit = 5
+
+    def get_queryset(self):
+        return self.queryset.top_services_exports()
+
+
+class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/'
+        'economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktotaltradeallcountriesseasonallyadjusted'
+    )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
+    METADATA_DATA_SOURCE_NOTES = [
+        'Total trade is the sum of all exports and imports over the same time period.',
+        'Data includes goods and services combined.',
+    ]
+
+    permission_classes = []
+    queryset = models.UKTotalTradeByCountry.objects
+    serializer_class = serializers.UKMarketTrendsSerializer
+    filter_class = filters.UKMarketTrendsFilter
+
+    def get_queryset(self):
+        return self.queryset.market_trends()
+
+
+class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
+    METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
+    METADATA_DATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
+        '/uktotaltradeallcountriesseasonallyadjusted'
+    )
+    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
+    # NOTE: this note could be dynamic, as it depends on the reference period
+    METADATA_DATA_SOURCE_NOTES = [
+        'Data includes goods and services combined in the four quarters to the end of Q4 2021.'
+    ]
+
+    permission_classes = []
+    queryset = models.UKTotalTradeByCountry.objects
+    serializer_class = serializers.UKTradeHighlightsSerializer
+    filter_class = filters.UKTradeHighlightsFilter
+    lookup_field = 'country__iso2'
+
+    def dispatch(self, *args, **kwargs):
+        kwargs[self.lookup_field] = self.request.GET.get('iso2', '').upper()
+
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().highlights()

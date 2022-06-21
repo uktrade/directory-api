@@ -1170,8 +1170,8 @@ def test_verify_company_with_code_invalid_code(authed_client, authed_supplier, s
 
 
 search_urls = (
-    reverse('investment-support-directory-search'),
-    reverse('find-a-supplier-search'),
+    'investment-support-directory-search',
+    'find-a-supplier-search',
 )
 
 
@@ -1192,7 +1192,7 @@ def test_search(mock_get_search_results, url, api_client):
         'size': 10,
         'sectors': [choices.INDUSTRIES[0][0]],
     }
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
     assert response.json() == expected_value
@@ -1218,7 +1218,7 @@ def test_search_paginate_first_page(url, page_number, expected_start, api_client
     with mock.patch.object(es, 'search', return_value={}) as mock_search:
         data = {'term': 'bones', 'page': page_number, 'size': 5}
 
-        response = api_client.get(url, data=data)
+        response = api_client.get(reverse(url), data=data)
 
         assert response.status_code == 200, response.content
         assert mock_search.call_count == 1
@@ -1236,7 +1236,7 @@ def test_search_sector_filter(url, api_client, settings):
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(url, data=data)
+        response = api_client.get(reverse(url), data=data)
 
         assert response.status_code == 200, response.content
 
@@ -1257,7 +1257,7 @@ def test_search_wildcard_filters(url, api_client, settings):
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(url, data=data)
+        response = api_client.get(reverse(url), data=data)
         assert response.status_code == 200, response.content
 
 
@@ -1274,7 +1274,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
             'size': 5,
             'page': 1,
         }
-        response = api_client.get(url, data=data)
+        response = api_client.get(reverse(url), data=data)
 
         assert response.status_code == 200, response.content
 
@@ -1343,7 +1343,7 @@ def test_search_results(url, term, filter_name, filter_value, expected, search_d
         filter_name: filter_value,
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
 
@@ -1365,7 +1365,7 @@ def test_search_results_stopwords(url, stop_term, search_companies_stopwords, ap
         'size': '5',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
 
@@ -1394,7 +1394,7 @@ def test_search_term_expertise(url, term, expected, search_data, api_client):
         'size': '5',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
 
@@ -1481,7 +1481,7 @@ def test_search_filter_and_or(url, filters, expected, api_client, search_data_an
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1540,7 +1540,7 @@ def test_search_filter_and_or_single(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1600,7 +1600,7 @@ def test_search_filter_partial_match(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1642,7 +1642,7 @@ def test_search_order_sibling_filters(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1681,7 +1681,7 @@ def test_search_order_search_term(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1733,7 +1733,7 @@ def test_search_order_case_study(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1771,7 +1771,7 @@ def test_search_american_english_full_words(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1802,7 +1802,7 @@ def test_search_american_english_synonyms(url, api_client, settings):
         'size': '10',
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200, response.json()
 
@@ -1821,7 +1821,7 @@ def test_search_results_highlight(url, search_highlighting_data, api_client):
         'size': 5,
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
     results = response.json()
@@ -1844,7 +1844,7 @@ def test_search_results_highlight_long(
         'size': 5,
     }
 
-    response = api_client.get(url, data=data)
+    response = api_client.get(reverse(url), data=data)
 
     assert response.status_code == 200
     results = response.json()

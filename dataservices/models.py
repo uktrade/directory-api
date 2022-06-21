@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from core.helpers import TimeStampedModel
+from dataservices import managers
 
 
 class Country(TimeStampedModel):
@@ -296,3 +297,53 @@ class PopulationData(models.Model):
         verbose_name = "Target age groups | UN Population division"
         verbose_name_plural = "Target age groups | UN Population division"
         unique_together = ('country', 'gender', 'year')
+
+
+class UKTradeInGoodsByCountry(models.Model):
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    year = models.IntegerField(blank=True, null=True)
+    quarter = models.PositiveSmallIntegerField(null=True, blank=True)
+    commodity_code = models.CharField(null=True, blank=True, max_length=10)
+    commodity_name = models.CharField(blank=False, null=False, max_length=250)
+    imports = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    exports = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    objects = managers.UKTtradeInGoodsDataManager()
+
+    class Meta:
+        verbose_name = 'UK trade in goods by country'
+
+
+class UKTradeInServicesByCountry(models.Model):
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    period = models.CharField(null=False, blank=False, max_length=20)
+    period_type = models.CharField(null=False, blank=False, max_length=10)
+    service_code = models.CharField(null=True, blank=True, max_length=200)
+    service_name = models.CharField(null=True, blank=True, max_length=200)
+    imports = models.PositiveIntegerField(null=True, blank=True)
+    exports = models.PositiveIntegerField(null=True, blank=True)
+
+    objects = managers.UKTtradeInServicesDataManager()
+
+    class Meta:
+        verbose_name = 'UK trade in services by country'
+
+
+class UKTotalTradeByCountry(models.Model):
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    ons_iso_alpha_2_code = models.CharField(unique=False, null=False, blank=False, max_length=2)
+    year = models.PositiveSmallIntegerField(null=True, blank=True)
+    quarter = models.PositiveSmallIntegerField(null=True, blank=True)
+    imports = models.PositiveIntegerField(null=True, blank=True)
+    exports = models.PositiveIntegerField(null=True, blank=True)
+
+    objects = managers.UKTotalTradeDataManager()
+
+    class Meta:
+        verbose_name = "UK total trade by country"
