@@ -46,3 +46,10 @@ def get_unique_exportplan_name(ep_dict):
         postscript = f' ({new_index})' if new_index > 0 else ''
         new_name = f'{new_name}{postscript}'
     return new_name
+
+
+def dictfetchall(cursor):
+    """Returns all rows from a cursor as a dict"""
+    desc = cursor.description
+
+    return [dict(zip([col[0] for col in desc], row)) for row in cursor.fetchall()]

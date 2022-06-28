@@ -14,7 +14,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from activitystream.serializers import ActivityStreamCompanySerializer, ActivityStreamExportPlanSerializer
+from activitystream.serializers import (
+    ActivityStreamCompanySerializer,
+    ActivityStreamExportPlanSectionSerializer,
+    ActivityStreamExportPlanSerializer,
+)
 from company.models import Company
 from exportplan.models import CompanyExportPlan
 
@@ -281,4 +285,23 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
         return self._generate_response(
             data[0] if data else [],
             self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
+        )
+
+
+class ActivityStreamExportPlanSectionsViewSet(BaseActivityStreamViewSet):
+    """View set to list export plan sections for the activity stream"""
+
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    def list(self, request):
+        """A single page of export plan sections to be consumed by activity stream."""
+        after_ts, after_id = self._parse_after(request)
+
+        export_plan_sections = CompanyExportPlan.objects.get_sections(after_ts, after_id)[:MAX_PER_PAGE]
+        data = ActivityStreamExportPlanSectionSerializer(export_plan_sections, many=True).data
+
+        return self._generate_response(
+            data[0] if data else [],
+            self._build_after(request, export_plan_sections[-1].modified, export_plan_sections[-1].id)
+            if export_plan_sections
+            else None,
         )

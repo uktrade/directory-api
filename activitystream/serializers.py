@@ -171,3 +171,20 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
                     }
                 )
         return object_list
+
+
+class ActivityStreamExportPlanSectionSerializer(serializers.ModelSerializer):
+    """
+    Export plan section serializer for activity stream.
+
+    - Adds extra response fields required by activity stream.
+    - Adds the required prefix to field names
+    """
+
+    def to_representation(self, instance):
+        """
+        Prefix field names to match activity stream format
+        """
+        # prefix = 'dit:directory:ExportPlanSection'
+
+        pass
