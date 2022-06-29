@@ -15,10 +15,11 @@ class CompanyExportPlanQuerySet(models.QuerySet):
     def get_sections(after_ts, after_id):
         with connection.cursor() as cursor:
             cursor.execute(
-                """
+                f"""
                 SELECT
                     exportplan_id,
                     sso_id,
+                    modified,
                     section,
                     (
                         SELECT
@@ -31,6 +32,7 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                         SELECT
                             id AS exportplan_id,
                             sso_id,
+                            modified,
                             unnest(
                                 ARRAY ['about_your_business', 'objectives',
                                 'target_markets_research', 'adaptation_target_market',
@@ -47,7 +49,18 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                             ) AS section_obj
                         FROM
                             exportplan_companyexportplan
-                    ) sq;
+                    ) sq
+                WHERE
+                    (
+                        (
+                            exportplan_id > {after_id}
+                            AND modified = '{after_ts}'::timestamptz
+                        )
+                    OR modified > '{after_ts}'::timestamptz
+                    )
+                ORDER BY
+	                modified ASC,
+	                exportplan_id ASC;
                 """
             )
             return helpers.dictfetchall(cursor)
