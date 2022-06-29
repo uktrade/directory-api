@@ -288,7 +288,7 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
         )
 
 
-class ActivityStreamExportPlanSectionsViewSet(BaseActivityStreamViewSet):
+class ActivityStreamExportPlanSectionViewSet(BaseActivityStreamViewSet):
     """View set to list export plan sections for the activity stream"""
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)

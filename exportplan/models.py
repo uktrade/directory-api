@@ -59,8 +59,8 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                     OR modified > '{after_ts}'::timestamptz
                     )
                 ORDER BY
-	                modified ASC,
-	                exportplan_id ASC;
+                    modified ASC,
+                    exportplan_id ASC;
                 """
             )
             return helpers.dictfetchall(cursor)
