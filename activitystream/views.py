@@ -13,6 +13,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from rest_framework import generics
 
 from activitystream.serializers import (
     ActivityStreamCompanySerializer,
@@ -133,7 +134,7 @@ class ActivityStreamHawkResponseMiddleware:
 
 
 class BaseActivityStreamViewSet(ViewSet):
-    authentication_classes = (ActivityStreamAuthentication,)
+    # authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
 
     @staticmethod
@@ -291,17 +292,18 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
 class ActivityStreamExportPlanSectionViewSet(BaseActivityStreamViewSet):
     """View set to list export plan sections for the activity stream"""
 
-    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    # @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of export plan sections to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
-
         export_plan_sections = CompanyExportPlan.objects.get_sections(after_ts, after_id)[:MAX_PER_PAGE]
         data = ActivityStreamExportPlanSectionSerializer(export_plan_sections, many=True).data
 
         return self._generate_response(
             data[0] if data else [],
-            self._build_after(request, export_plan_sections[-1].modified, export_plan_sections[-1].id)
+            self._build_after(
+                request, export_plan_sections[-1]['exportplan_modified'], export_plan_sections[-1]['exportplan_id']
+            )
             if export_plan_sections
             else None,
         )

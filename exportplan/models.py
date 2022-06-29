@@ -19,7 +19,7 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                 SELECT
                     exportplan_id,
                     sso_id,
-                    modified,
+                    exportplan_modified,
                     section,
                     (
                         SELECT
@@ -30,25 +30,33 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                 FROM
                     (
                         SELECT
-                            id AS exportplan_id,
+                            exportplan_companyexportplan.id AS exportplan_id,
                             sso_id,
-                            modified,
+                            exportplan_companyexportplan.modified AS exportplan_modified,
                             unnest(
                                 ARRAY ['about_your_business', 'objectives',
                                 'target_markets_research', 'adaptation_target_market',
                                 'marketing_approach', 'total_cost_and_price',
                                 'funding_and_credit', 'getting_paid',
-                                'travel_business_policies']
+                                'travel_business_policies', 'business_risks']
                             ) AS section,
                             unnest(
                                 ARRAY [about_your_business, objectives,
                                 target_markets_research, adaptation_target_market,
                                 marketing_approach, total_cost_and_price,
                                 funding_and_credit, getting_paid,
-                                travel_business_policies]
+                                travel_business_policies,
+                                CASE
+                                    WHEN exportplan_businessrisks.id IS NULL THEN '{{}}'::jsonb
+                                    ELSE '{"key": "value"}'::jsonb
+                                END]
                             ) AS section_obj
                         FROM
                             exportplan_companyexportplan
+                        LEFT JOIN
+                            exportplan_businessrisks
+                        ON
+                            exportplan_companyexportplan.id = exportplan_businessrisks.companyexportplan_id
                     ) sq
                 WHERE
                     (
