@@ -48,6 +48,69 @@ def get_unique_exportplan_name(ep_dict):
     return new_name
 
 
+def build_query(after_ts, after_id):
+    column_to_section_map = {
+        'about_your_business':  'About your business',
+        'objectives':  'Business objectives',
+        'target_markets_research': 'Target markets research',
+        'adaptation_target_market':  'Adapting your product',
+        'marketing_approach': 'Marketing approach',
+        'direct_costs': 'Costs and pricing',
+        'overhead_costs': 'Costs and pricing',
+        'total_cost_and_price': 'Costs and pricing',
+        'funding_and_credit': 'Funding and credit',
+        'getting_paid': 'Getting paid',
+        'travel_business_policies': 'Travel plan',
+    }
+
+    query_template = """
+        SELECT
+            id as exportplan_id,
+            sso_id,
+            created,
+            modified,
+            '{section_name}' as section,
+            key as question
+        FROM
+        exportplan_companyexportplan,
+        jsonb_each_text(exportplan_companyexportplan.{section_column})
+    """
+
+    section_queries = 'UNION'.join(query_template.format(section_name=section_name,
+                                                            section_column=section_column)
+                                    for section_column, section_name
+                                    in column_to_section_map.items())
+
+    return f"""
+        {section_queries}
+        UNION
+        SELECT
+            exportplan_companyexportplan.id,
+            sso_id,
+            exportplan_companyexportplan.created,
+            exportplan_companyexportplan.modified,
+            'Business risk' as section,
+            'business_risk' as question
+        FROM
+            exportplan_companyexportplan
+        RIGHT JOIN
+            exportplan_businessrisks
+        ON
+            exportplan_companyexportplan.id = exportplan_businessrisks.companyexportplan_id
+        WHERE
+            (
+                (
+                    exportplan_id > {after_id}
+                    AND modified = '{after_ts}'::timestamptz
+                )
+                OR modified > '{after_ts}'::timestamptz
+            )
+        ORDER BY
+            modified ASC,
+            exportplan_id ASC;
+    """
+
+
 def dictfetchall(cursor):
     """Returns all rows from a cursor as a dict"""
     desc = cursor.description

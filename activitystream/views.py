@@ -16,7 +16,7 @@ from rest_framework.viewsets import ViewSet
 
 from activitystream.serializers import (
     ActivityStreamCompanySerializer,
-    ActivityStreamExportPlanSectionSerializer,
+    ActivityStreamExportPlanQuestionSerializer,
     ActivityStreamExportPlanSerializer,
 )
 from company.models import Company
@@ -288,20 +288,20 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
         )
 
 
-class ActivityStreamExportPlanSectionViewSet(BaseActivityStreamViewSet):
-    """View set to list export plan sections for the activity stream"""
+class ActivityStreamExportPlanQuestionViewSet(BaseActivityStreamViewSet):
+    """View set to list export plan questions for the activity stream"""
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
-        """A single page of export plan sections to be consumed by activity stream."""
+        """A single page of export plan questions to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
-        export_plan_sections = CompanyExportPlan.objects.get_sections(after_ts, after_id)[:MAX_PER_PAGE]
+        export_plan_questions = CompanyExportPlan.objects.get_questions(after_ts, after_id)[:MAX_PER_PAGE]
 
         return self._generate_response(
-            ActivityStreamExportPlanSectionSerializer(export_plan_sections, many=True).data,
+            ActivityStreamExportPlanQuestionSerializer(export_plan_questions, many=True).data,
             self._build_after(
-                request, export_plan_sections[-1]['exportplan_modified'], export_plan_sections[-1]['exportplan_id']
+                request, export_plan_questions[-1]['exportplan_modified'], export_plan_questions[-1]['exportplan_id']
             )
-            if export_plan_sections
+            if export_plan_questions
             else None,
         )

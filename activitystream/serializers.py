@@ -173,9 +173,9 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
         return object_list
 
 
-class ActivityStreamExportPlanSectionSerializer(serializers.ModelSerializer):
+class ActivityStreamExportPlanQuestionSerializer(serializers.ModelSerializer):
     """
-    Export plan section serializer for activity stream.
+    Export plan question serializer for activity stream.
 
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
@@ -185,29 +185,29 @@ class ActivityStreamExportPlanSectionSerializer(serializers.ModelSerializer):
         """
         Prefix field names to match activity stream format
         """
-        prefix = 'dit:directory:ExportPlanSection'
+        prefix = 'dit:directory:ExportPlanQuestion'
         exportplan_id = instance['exportplan_id']
         sso_id = instance['sso_id']
+        created = instance['created'].isoformat()
+        modified = instance['modified'].isoformat()
         section = instance['section']
-        exportplan_created = instance['exportplan_created'].isoformat()
-        exportplan_modified = instance['exportplan_modified'].isoformat()
-        questions_answered = instance['questions_answered']
+        question = instance['question']
 
         return {
-            'id': f'{prefix}:{exportplan_id}_{section}:Update',
+            'id': f'{prefix}:{exportplan_id}_{section}_{question}:Update',
             'published': exportplan_created,
             'generator': {
                 'type': 'Application',
                 'name': 'dit:directory',
             },
             'object': {
-                'id': f'{prefix}:{exportplan_id}_{section}',
+                'id': f'{prefix}:{exportplan_id}_{section}_{question}',
                 'type': prefix,
                 'exportplan_id': exportplan_id,
                 'sso_id': sso_id,
-                'created': exportplan_created,
-                'modified': exportplan_modified,
+                'created': created,
+                'modified':modified,
                 'section': section,
-                'questions_answered': questions_answered,
+                'question': question,
             },
         }

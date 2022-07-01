@@ -37,9 +37,9 @@ activity_stream_urls = [
         name='activity-stream-export-plans',
     ),
     url(
-        r'^export-plan-sections/$',
-        activitystream.views.ActivityStreamExportPlanSectionViewSet.as_view({'get': 'list'}),
-        name='activity-stream-export-plan-sections',
+        r'^export-plan-questions/$',
+        activitystream.views.ActivityStreamExportPlanQuestionsViewSet.as_view({'get': 'list'}),
+        name='activity-stream-export-plan-questions',
     ),
 ]
 

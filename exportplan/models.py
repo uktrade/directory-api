@@ -11,68 +11,11 @@ from exportplan import helpers
 
 
 class CompanyExportPlanQuerySet(models.QuerySet):
+
     @staticmethod
-    def get_sections(after_ts, after_id):
+    def get_questions(after_ts, after_id):
         with connection.cursor() as cursor:
-            cursor.execute(
-                f"""
-                SELECT
-                    exportplan_id,
-                    sso_id,
-                    exportplan_created,
-                    exportplan_modified,
-                    section,
-                    (
-                        SELECT
-                            COUNT(*)
-                        FROM
-                            jsonb_object_keys(section_obj)
-                    ) AS questions_answered
-                FROM
-                    (
-                        SELECT
-                            exportplan_companyexportplan.id AS exportplan_id,
-                            sso_id,
-                            exportplan_companyexportplan.created AS exportplan_created,
-                            exportplan_companyexportplan.modified AS exportplan_modified,
-                            unnest(
-                                ARRAY ['about_your_business', 'objectives',
-                                'target_markets_research', 'adaptation_target_market',
-                                'marketing_approach', 'total_cost_and_price',
-                                'funding_and_credit', 'getting_paid',
-                                'travel_business_policies', 'business_risks']
-                            ) AS section,
-                            unnest(
-                                ARRAY [about_your_business, objectives,
-                                target_markets_research, adaptation_target_market,
-                                marketing_approach, total_cost_and_price,
-                                funding_and_credit, getting_paid,
-                                travel_business_policies,
-                                CASE
-                                    WHEN exportplan_businessrisks.id IS NULL THEN '{{}}'::jsonb
-                                    ELSE '{{"key": "value"}}'::jsonb
-                                END]
-                            ) AS section_obj
-                        FROM
-                            exportplan_companyexportplan
-                        LEFT JOIN
-                            exportplan_businessrisks
-                        ON
-                            exportplan_companyexportplan.id = exportplan_businessrisks.companyexportplan_id
-                    ) sq
-                WHERE
-                    (
-                        (
-                            exportplan_id > {after_id}
-                            AND exportplan_modified = '{after_ts}'::timestamptz
-                        )
-                    OR exportplan_modified > '{after_ts}'::timestamptz
-                    )
-                ORDER BY
-                    exportplan_modified ASC,
-                    exportplan_id ASC;
-                """
-            )
+            cursor.execute(helpers.build_query())
             return helpers.dictfetchall(cursor)
 
 
