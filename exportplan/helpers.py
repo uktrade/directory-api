@@ -63,8 +63,7 @@ def build_query(after_ts, after_id):
         'travel_business_policies': 'Travel plan',
     }
 
-    query_template = """
-        SELECT
+    query_template = """SELECT
             id as exportplan_id,
             sso_id,
             created,
@@ -73,10 +72,9 @@ def build_query(after_ts, after_id):
             key as question
         FROM
         exportplan_companyexportplan,
-        jsonb_each_text(exportplan_companyexportplan.{section_column})
-    """
+        jsonb_each_text(exportplan_companyexportplan.{section_column})"""
 
-    section_queries = 'UNION'.join(
+    section_queries = '\nUNION\n'.join(
         query_template.format(section_name=section_name, section_column=section_column)
         for section_column, section_name in column_to_section_map.items()
     )

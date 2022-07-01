@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, PropertyMock
 import pytest
 
 from exportplan import helpers
-from exportplan.tests import factories
+from exportplan.tests import factories, snapshots
 
 
 def test_country_code_iso3_to_iso2():
@@ -111,3 +111,10 @@ def test_dictfetchall():
     ]
 
     assert helpers.dictfetchall(mock_cursor) == expected
+
+
+def test_build_query():
+    test_id = '123'
+    test_ts = "2022-07-01T15:19:11.031368"
+    query = helpers.build_query(test_id, test_ts)
+    assert query.strip() == snapshots.BUILD_QUERY_SNAPSHOT.strip()
