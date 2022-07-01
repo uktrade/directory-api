@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, PropertyMock
+
 import pytest
 
 from exportplan import helpers
@@ -91,3 +93,21 @@ def test_get_unique_exportplan_name_empty():
     assert helpers.get_unique_exportplan_name(ep_no_product) == 'Export plan'
     assert helpers.get_unique_exportplan_name(ep_no_country) == 'Export plan'
     assert helpers.get_unique_exportplan_name(ep_nothing) == 'Export plan'
+
+
+def test_dictfetchall():
+    rows = [('mock_row_content_1', 1), ('mock_row_content_2', 2), ('mock_row_content_3', 3)]
+    cursor_description = (('some_str', 0), ('some_num', 1005))
+
+    mock_cursor = MagicMock()
+    mock_description = PropertyMock(return_value=cursor_description)
+    mock_cursor.fetchall.return_value = rows
+    type(mock_cursor).description = mock_description
+
+    expected = [
+        {'some_num': 1, 'some_str': 'mock_row_content_1'},
+        {'some_num': 2, 'some_str': 'mock_row_content_2'},
+        {'some_num': 3, 'some_str': 'mock_row_content_3'},
+    ]
+
+    assert helpers.dictfetchall(mock_cursor) == expected
