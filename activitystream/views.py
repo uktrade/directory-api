@@ -133,7 +133,7 @@ class ActivityStreamHawkResponseMiddleware:
 
 
 class BaseActivityStreamViewSet(ViewSet):
-    # authentication_classes = (ActivityStreamAuthentication,)
+    authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
 
     @staticmethod
@@ -281,9 +281,9 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
                 Q(modified=after_ts, id__gt=after_id) | Q(modified__gt=after_ts),
             ).order_by('modified', 'id')[:MAX_PER_PAGE]
         )
-
+        data = ActivityStreamExportPlanSerializer(export_plans, many=True).data
         return self._generate_response(
-            ActivityStreamExportPlanSerializer(export_plans, many=True).data,
+            data[0] if data else [],
             self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
         )
 
@@ -291,7 +291,7 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
 class ActivityStreamExportPlanSectionViewSet(BaseActivityStreamViewSet):
     """View set to list export plan sections for the activity stream"""
 
-    # @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
         """A single page of export plan sections to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
