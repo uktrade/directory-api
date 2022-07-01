@@ -186,24 +186,27 @@ class ActivityStreamExportPlanSectionSerializer(serializers.ModelSerializer):
         Prefix field names to match activity stream format
         """
         prefix = 'dit:directory:ExportPlanSection'
-        id = instance['exportplan_id']
+        exportplan_id = instance['exportplan_id']
         sso_id = instance['sso_id']
         section = instance['section']
-        modified = instance['exportplan_modified']
+        exportplan_created = instance['exportplan_created'].isoformat()
+        exportplan_modified = instance['exportplan_modified'].isoformat()
         questions_answered = instance['questions_answered']
 
         return {
-            'id': f'{prefix}:{id}_{section}:Update',
-            'published': modified.isoformat(),
+            'id': f'{prefix}:{exportplan_id}_{section}:Update',
+            'published': exportplan_created,
             'generator': {
                 'type': 'Application',
                 'name': 'dit:directory',
             },
             'object': {
-                'id': f'{prefix}:{id}_{section}',
+                'id': f'{prefix}:{exportplan_id}_{section}',
                 'type': prefix,
+                'exportplan_id': exportplan_id,
                 'sso_id': sso_id,
-                'modified': modified,
+                'created': exportplan_created,
+                'modified': exportplan_modified,
                 'section': section,
                 'questions_answered': questions_answered,
             },

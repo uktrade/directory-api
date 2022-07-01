@@ -19,6 +19,7 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                 SELECT
                     exportplan_id,
                     sso_id,
+                    exportplan_created,
                     exportplan_modified,
                     section,
                     (
@@ -32,6 +33,7 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                         SELECT
                             exportplan_companyexportplan.id AS exportplan_id,
                             sso_id,
+                            exportplan_companyexportplan.created AS exportplan_created,
                             exportplan_companyexportplan.modified AS exportplan_modified,
                             unnest(
                                 ARRAY ['about_your_business', 'objectives',
@@ -62,12 +64,12 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                     (
                         (
                             exportplan_id > {after_id}
-                            AND modified = '{after_ts}'::timestamptz
+                            AND exportplan_modified = '{after_ts}'::timestamptz
                         )
-                    OR modified > '{after_ts}'::timestamptz
+                    OR exportplan_modified > '{after_ts}'::timestamptz
                     )
                 ORDER BY
-                    modified ASC,
+                    exportplan_modified ASC,
                     exportplan_id ASC;
                 """
             )

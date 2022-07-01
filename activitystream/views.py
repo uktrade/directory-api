@@ -13,7 +13,6 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework import generics
 
 from activitystream.serializers import (
     ActivityStreamCompanySerializer,
@@ -282,9 +281,9 @@ class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
                 Q(modified=after_ts, id__gt=after_id) | Q(modified__gt=after_ts),
             ).order_by('modified', 'id')[:MAX_PER_PAGE]
         )
-        data = ActivityStreamExportPlanSerializer(export_plans, many=True).data
+
         return self._generate_response(
-            data[0] if data else [],
+            ActivityStreamExportPlanSerializer(export_plans, many=True).data,
             self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
         )
 
@@ -297,10 +296,9 @@ class ActivityStreamExportPlanSectionViewSet(BaseActivityStreamViewSet):
         """A single page of export plan sections to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
         export_plan_sections = CompanyExportPlan.objects.get_sections(after_ts, after_id)[:MAX_PER_PAGE]
-        data = ActivityStreamExportPlanSectionSerializer(export_plan_sections, many=True).data
 
         return self._generate_response(
-            data[0] if data else [],
+            ActivityStreamExportPlanSectionSerializer(export_plan_sections, many=True).data,
             self._build_after(
                 request, export_plan_sections[-1]['exportplan_modified'], export_plan_sections[-1]['exportplan_id']
             )
