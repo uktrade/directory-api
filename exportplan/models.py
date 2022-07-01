@@ -48,7 +48,7 @@ class CompanyExportPlanQuerySet(models.QuerySet):
                                 travel_business_policies,
                                 CASE
                                     WHEN exportplan_businessrisks.id IS NULL THEN '{{}}'::jsonb
-                                    ELSE '{"key": "value"}'::jsonb
+                                    ELSE '{{"key": "value"}}'::jsonb
                                 END]
                             ) AS section_obj
                         FROM
