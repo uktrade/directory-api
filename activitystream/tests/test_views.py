@@ -29,7 +29,7 @@ def companies_url():
 
 @pytest.fixture
 def exportplan_url():
-    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plans')
+    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plan-data')
 
 
 @pytest.fixture

@@ -173,7 +173,7 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
         return object_list
 
 
-class ActivityStreamExportPlanQuestionSerializer(serializers.ModelSerializer):
+class ActivityStreamExportPlanDataSerializer(serializers.ModelSerializer):
     """
     Export plan question serializer for activity stream.
 
@@ -185,7 +185,7 @@ class ActivityStreamExportPlanQuestionSerializer(serializers.ModelSerializer):
         """
         Prefix field names to match activity stream format
         """
-        prefix = 'dit:directory:ExportPlanQuestion'
+        prefix = 'dit:directory:ExportPlanData'
         exportplan_id = instance['exportplan_id']
         sso_id = instance['sso_id']
         created = instance['created'].isoformat()
