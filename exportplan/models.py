@@ -11,11 +11,10 @@ from exportplan import helpers
 
 
 class CompanyExportPlanQuerySet(models.QuerySet):
-
     @staticmethod
     def get_questions(after_ts, after_id):
         with connection.cursor() as cursor:
-            cursor.execute(helpers.build_query())
+            cursor.execute(helpers.build_query(after_ts, after_id))
             return helpers.dictfetchall(cursor)
 
 

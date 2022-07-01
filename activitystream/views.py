@@ -300,7 +300,7 @@ class ActivityStreamExportPlanQuestionViewSet(BaseActivityStreamViewSet):
         return self._generate_response(
             ActivityStreamExportPlanQuestionSerializer(export_plan_questions, many=True).data,
             self._build_after(
-                request, export_plan_questions[-1]['exportplan_modified'], export_plan_questions[-1]['exportplan_id']
+                request, export_plan_questions[-1]['modified'], export_plan_questions[-1]['exportplan_id']
             )
             if export_plan_questions
             else None,

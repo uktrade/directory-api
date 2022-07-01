@@ -195,7 +195,7 @@ class ActivityStreamExportPlanQuestionSerializer(serializers.ModelSerializer):
 
         return {
             'id': f'{prefix}:{exportplan_id}_{section}_{question}:Update',
-            'published': exportplan_created,
+            'published': created,
             'generator': {
                 'type': 'Application',
                 'name': 'dit:directory',
@@ -206,7 +206,7 @@ class ActivityStreamExportPlanQuestionSerializer(serializers.ModelSerializer):
                 'exportplan_id': exportplan_id,
                 'sso_id': sso_id,
                 'created': created,
-                'modified':modified,
+                'modified': modified,
                 'section': section,
                 'question': question,
             },

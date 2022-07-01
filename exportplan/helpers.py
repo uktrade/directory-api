@@ -50,10 +50,10 @@ def get_unique_exportplan_name(ep_dict):
 
 def build_query(after_ts, after_id):
     column_to_section_map = {
-        'about_your_business':  'About your business',
-        'objectives':  'Business objectives',
+        'about_your_business': 'About your business',
+        'objectives': 'Business objectives',
         'target_markets_research': 'Target markets research',
-        'adaptation_target_market':  'Adapting your product',
+        'adaptation_target_market': 'Adapting your product',
         'marketing_approach': 'Marketing approach',
         'direct_costs': 'Costs and pricing',
         'overhead_costs': 'Costs and pricing',
@@ -76,10 +76,10 @@ def build_query(after_ts, after_id):
         jsonb_each_text(exportplan_companyexportplan.{section_column})
     """
 
-    section_queries = 'UNION'.join(query_template.format(section_name=section_name,
-                                                            section_column=section_column)
-                                    for section_column, section_name
-                                    in column_to_section_map.items())
+    section_queries = 'UNION'.join(
+        query_template.format(section_name=section_name, section_column=section_column)
+        for section_column, section_name in column_to_section_map.items()
+    )
 
     return f"""
         {section_queries}
@@ -100,10 +100,10 @@ def build_query(after_ts, after_id):
         WHERE
             (
                 (
-                    exportplan_id > {after_id}
-                    AND modified = '{after_ts}'::timestamptz
+                    exportplan_companyexportplan.id > {after_id}
+                    AND exportplan_companyexportplan.modified = '{after_ts}'::timestamptz
                 )
-                OR modified > '{after_ts}'::timestamptz
+                OR exportplan_companyexportplan.modified > '{after_ts}'::timestamptz
             )
         ORDER BY
             modified ASC,
