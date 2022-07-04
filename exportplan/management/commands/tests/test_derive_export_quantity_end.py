@@ -13,7 +13,7 @@ def empty_export_plan(total_cost_and_price):
         ui_options={},
         ui_progress={},
         objectives={},
-        marketing_approach=[],
+        marketing_approach={},
         about_your_business={},
         target_markets_research={},
         adaptation_target_market={},

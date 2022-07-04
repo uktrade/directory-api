@@ -29,7 +29,7 @@ def companies_url():
 
 @pytest.fixture
 def exportplan_url():
-    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plans')
+    return 'http://testserver' + reverse('activity-stream:activity-stream-export-plan-data')
 
 
 @pytest.fixture
@@ -390,131 +390,33 @@ def _expected_company_response(company):
     }
 
 
-def _expected_export_plan_response(export_plan):
+def _expected_export_plan_response(export_plan, data={}):
+    created = export_plan.created.isoformat()
     modified = export_plan.modified.isoformat()
-    exportplan_id = export_plan.id
-    return [
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'export_countries',
-                'dit:directory:ExportPlan:Question': 'country_name',
-                'dit:directory:ExportPlan:Response': 'China',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'export_countries',
-                'dit:directory:ExportPlan:Question': 'country_iso2_code',
-                'dit:directory:ExportPlan:Response': 'CN',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'export_commodity_codes',
-                'dit:directory:ExportPlan:Question': 'commodity_code',
-                'dit:directory:ExportPlan:Response': '101.2002.123',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'export_commodity_codes',
-                'dit:directory:ExportPlan:Question': 'commodity_name',
-                'dit:directory:ExportPlan:Response': 'gin',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'about_your_business',
-                'dit:directory:ExportPlan:Question': 'q_1',
-                'dit:directory:ExportPlan:Response': 'response 1',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'about_your_business',
-                'dit:directory:ExportPlan:Question': 'q_2',
-                'dit:directory:ExportPlan:Response': 'response 2',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'target_markets_research',
-                'dit:directory:ExportPlan:Question': 'q_1',
-                'dit:directory:ExportPlan:Response': 'response 3',
-            },
-        },
-        {
-            'id': f'dit:directory:ExportPlan:{exportplan_id}:Update',
-            'modified': modified,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
-            'object': {
-                'id': f'dit:directory:ExportPlan:{exportplan_id}',
-                'type': 'dit:directory:ExportPlan',
-                'dit:directory:ExportPlan:Section': 'target_markets_research',
-                'dit:directory:ExportPlan:Question': 'q_2',
-                'dit:directory:ExportPlan:Response': 'response 4',
-            },
-        },
-    ]
+    export_plan_id = export_plan.id
+    export_plan_data = []
+
+    for section, questions in data.items():
+        for question, _answer in questions.items():
+            record = {
+                'id': f'dit:directory:ExportPlanData:{export_plan_id}_{section}_{question}:Update',
+                'published': modified,
+                'generator': {'type': 'Application', 'name': 'dit:directory'},
+                'object': {
+                    'id': f'dit:directory:ExportPlanData:{export_plan_id}_{section}_{question}',
+                    'type': 'dit:directory:ExportPlanData',
+                    'exportplan_id': export_plan_id,
+                    'sso_id': export_plan.sso_id,
+                    'created': created,
+                    'modified': modified,
+                    'section': section,
+                    'question': question,
+                },
+            }
+
+            export_plan_data.append(record)
+
+    return sorted(export_plan_data, key=lambda d: d['id'])
 
 
 @pytest.mark.django_db
@@ -567,23 +469,32 @@ def test_activty_stream_company_viewset(api_client, companies_url):
 
 
 @pytest.mark.django_db
-@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
 def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
-
-    about_your_business = {"q_1": "response 1", "q_2": "response 2"}
-    target_markets_research = {"q_1": "response 3", "q_2": "response 4"}
+    data = {
+        'marketing_approach': {'Description': '', 'option': ''},
+        'about_your_business': {'Location': '', 'story': ''},
+        'business_objectives': {'rationale': ''},
+        'target_markets_research': {'demand': '', 'value': ''},
+        'adapting_your_product': {'labelling': '', 'size': ''},
+        'costs_and_pricing': {
+            'product_costs': '',
+            'labour_costs': '',
+            'product_adaption': '',
+            'other_overhead_costs': '',
+            'units_to_export_first_period': {},
+            'average_price_per_unit': '',
+        },
+        'funding_and_credit': {'override_estimated_total_cost': '', 'funding_amount_required': ''},
+        'getting_paid': {'payment_method': {}, 'incoterms': {}},
+        'travel_plan': {'travel_information': '', 'visa_information': {}},
+    }
 
     with freeze_time('2020-09-01 12:00:02'):
-        export_plan_1 = CompanyExportPlanFactory(
-            about_your_business=about_your_business, target_markets_research=target_markets_research
-        )
+        export_plan_1 = CompanyExportPlanFactory()
 
     with freeze_time('2020-11-01 12:00:02'):
-        export_plan_2 = CompanyExportPlanFactory(
-            about_your_business=about_your_business, target_markets_research=target_markets_research
-        )
+        export_plan_2 = CompanyExportPlanFactory()
 
-    # Page 1
     auth = _auth_sender(exportplan_url).request_header
     response = api_client.get(
         exportplan_url,
@@ -591,58 +502,11 @@ def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
         HTTP_AUTHORIZATION=auth,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
     )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert response_json['orderedItems'] == _expected_export_plan_response(export_plan_1)
-
-    # Page 2
-    auth = _auth_sender(response_json['next']).request_header
-    response = api_client.get(
-        response_json['next'],
-        content_type='',
-        HTTP_AUTHORIZATION=auth,
-        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    response_objs = response.json()['orderedItems']
+    expected_response_objs = _expected_export_plan_response(export_plan_1, data) + _expected_export_plan_response(
+        export_plan_2, data
     )
 
     assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert response_json['orderedItems'] == _expected_export_plan_response(export_plan_2)
-
-    # Page 3
-    auth = _auth_sender(response_json['next']).request_header
-    response = api_client.get(
-        response_json['next'],
-        content_type='',
-        HTTP_AUTHORIZATION=auth,
-        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert response_json['orderedItems'] == []
-
-
-@pytest.mark.django_db
-@mock.patch('activitystream.views.MAX_PER_PAGE', 1)
-def test_activty_stream_exportplan_viewset_empty_countries(api_client, exportplan_url):
-
-    about_your_business = {"q_1": "response 1", "q_2": "response 2"}
-    target_markets_research = {"q_1": "response 3", "q_2": "response 4"}
-
-    with freeze_time('2020-09-01 12:00:02'):
-        CompanyExportPlanFactory(
-            about_your_business=about_your_business,
-            target_markets_research=target_markets_research,
-            export_countries=[],
-        )
-
-    # Page 1
-    auth = _auth_sender(exportplan_url).request_header
-    response = api_client.get(
-        exportplan_url,
-        content_type='',
-        HTTP_AUTHORIZATION=auth,
-        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
-    )
-    assert response.status_code == status.HTTP_200_OK
-    response_json = response.json()
-    assert response_json['orderedItems'][0]['object']['dit:directory:ExportPlan:Response'] == []
+    assert len(response_objs) == len(expected_response_objs)
+    assert response_objs == expected_response_objs

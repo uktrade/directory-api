@@ -2,6 +2,7 @@
 
 ## Pre release
 ### Enhancements
+- GLS-25 - Export plan data pipeline
 
 ### Bugs fixed
 

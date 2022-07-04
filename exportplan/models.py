@@ -2,11 +2,20 @@ from directory_constants import choices
 from directory_validators.string import no_html
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import connection, models
 
 from company.models import Company
 from core.helpers import TimeStampedModel, path_and_rename_exportplan_pdf
 from core.storage import private_storage
+from exportplan import helpers
+
+
+class CompanyExportPlanQuerySet(models.QuerySet):
+    @staticmethod
+    def get_questions(after_ts, after_id):
+        with connection.cursor() as cursor:
+            cursor.execute(helpers.build_query(after_id, after_ts))
+            return helpers.dictfetchall(cursor)
 
 
 class CompanyExportPlan(TimeStampedModel):
@@ -40,6 +49,8 @@ class CompanyExportPlan(TimeStampedModel):
     getting_paid = JSONField(null=True, blank=True, default=dict)
     # Travel Business Policies
     travel_business_policies = JSONField(null=True, blank=True, default=dict)
+
+    objects = CompanyExportPlanQuerySet.as_manager()
 
 
 class CompanyObjectives(TimeStampedModel):

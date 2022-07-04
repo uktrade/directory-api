@@ -123,9 +123,9 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
         }
 
 
-class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
+class ActivityStreamExportPlanDataSerializer(serializers.ModelSerializer):
     """
-    Export plan  serializer for activity stream.
+    Export plan question serializer for activity stream.
 
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
@@ -135,39 +135,29 @@ class ActivityStreamExportPlanSerializer(serializers.ModelSerializer):
         """
         Prefix field names to match activity stream format
         """
-        prefix = 'dit:directory:ExportPlan'
-        reporting_keys = [
-            {'section': 'export_countries', 'id': 1},
-            {'section': 'export_commodity_codes', 'id': 2},
-            {'section': 'about_your_business', 'id': 3},
-            {'section': 'target_markets_research', 'id': 4},
-        ]
-        object_list = []
+        prefix = 'dit:directory:ExportPlanData'
+        exportplan_id = instance['exportplan_id']
+        sso_id = instance['sso_id']
+        created = instance['created'].isoformat()
+        modified = instance['modified'].isoformat()
+        section = instance['section']
+        question = instance['question']
 
-        for reporting_key in reporting_keys:
-            section_name = reporting_key['section']
-            section_value = getattr(instance, section_name)
-            section_value = section_value[0] if (isinstance(section_value, list) and section_value) else section_value
-
-            if not isinstance(section_value, dict):
-                section_value = {section_name: section_value}
-
-            for section_key, value in section_value.items():
-                object_list.append(
-                    {
-                        'id': f'{prefix}:{instance.id}:Update',
-                        'modified': instance.modified.isoformat(),
-                        'generator': {
-                            'type': 'Application',
-                            'name': 'dit:directory',
-                        },
-                        'object': {
-                            'id': f'{prefix}:{instance.id}',
-                            'type': prefix,
-                            f'{prefix}:Section': section_name,
-                            f'{prefix}:Question': section_key,
-                            f'{prefix}:Response': value,
-                        },
-                    }
-                )
-        return object_list
+        return {
+            'id': f'{prefix}:{exportplan_id}_{section}_{question}:Update',
+            'published': created,
+            'generator': {
+                'type': 'Application',
+                'name': 'dit:directory',
+            },
+            'object': {
+                'id': f'{prefix}:{exportplan_id}_{section}_{question}',
+                'type': prefix,
+                'exportplan_id': exportplan_id,
+                'sso_id': sso_id,
+                'created': created,
+                'modified': modified,
+                'section': section,
+                'question': question,
+            },
+        }
