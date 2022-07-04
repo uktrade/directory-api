@@ -115,6 +115,6 @@ def test_dictfetchall():
 
 def test_build_query():
     test_id = '123'
-    test_ts = "2022-07-01T15:19:11.031368"
+    test_ts = '2022-07-01T15:19:11.031368'
     query = helpers.build_query(test_id, test_ts)
     assert query.strip() == snapshots.BUILD_QUERY_SNAPSHOT.strip()

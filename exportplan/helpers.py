@@ -48,19 +48,19 @@ def get_unique_exportplan_name(ep_dict):
     return new_name
 
 
-def build_query(after_ts, after_id):
+def build_query(after_id, after_ts):
     column_to_section_map = {
-        'about_your_business': 'About your business',
-        'objectives': 'Business objectives',
-        'target_markets_research': 'Target markets research',
-        'adaptation_target_market': 'Adapting your product',
-        'marketing_approach': 'Marketing approach',
-        'direct_costs': 'Costs and pricing',
-        'overhead_costs': 'Costs and pricing',
-        'total_cost_and_price': 'Costs and pricing',
-        'funding_and_credit': 'Funding and credit',
-        'getting_paid': 'Getting paid',
-        'travel_business_policies': 'Travel plan',
+        'about_your_business': 'about_your_business',
+        'objectives': 'business_objectives',
+        'target_markets_research': 'target_markets_research',
+        'adaptation_target_market': 'adapting_your_product',
+        'marketing_approach': 'marketing_approach',
+        'direct_costs': 'costs_and_pricing',
+        'overhead_costs': 'costs_and_pricing',
+        'total_cost_and_price': 'costs_and_pricing',
+        'funding_and_credit': 'funding_and_credit',
+        'getting_paid': 'getting_paid',
+        'travel_business_policies': 'travel_plan',
     }
 
     query_template = """SELECT

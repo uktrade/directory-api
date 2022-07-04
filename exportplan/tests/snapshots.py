@@ -1,10 +1,10 @@
 BUILD_QUERY_SNAPSHOT = """
-SELECT
+        SELECT
             id as exportplan_id,
             sso_id,
             created,
             modified,
-            'About your business' as section,
+            'about_your_business' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -15,7 +15,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Business objectives' as section,
+            'business_objectives' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -26,7 +26,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Target markets research' as section,
+            'target_markets_research' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -37,7 +37,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Adapting your product' as section,
+            'adapting_your_product' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -48,7 +48,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Marketing approach' as section,
+            'marketing_approach' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -59,7 +59,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Costs and pricing' as section,
+            'costs_and_pricing' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -70,7 +70,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Costs and pricing' as section,
+            'costs_and_pricing' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -81,7 +81,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Costs and pricing' as section,
+            'costs_and_pricing' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -92,7 +92,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Funding and credit' as section,
+            'funding_and_credit' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -103,7 +103,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Getting paid' as section,
+            'getting_paid' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -114,7 +114,7 @@ SELECT
             sso_id,
             created,
             modified,
-            'Travel plan' as section,
+            'travel_plan' as section,
             key as question
         FROM
         exportplan_companyexportplan,
@@ -136,12 +136,12 @@ SELECT
         WHERE
             (
                 (
-                    exportplan_id > 2022-07-01T15:19:11.031368
-                    AND modified = '123'::timestamptz
+                    exportplan_companyexportplan.id > 123
+                    AND exportplan_companyexportplan.modified = '2022-07-01T15:19:11.031368'::timestamptz
                 )
-                OR modified > '123'::timestamptz
+                OR exportplan_companyexportplan.modified > '2022-07-01T15:19:11.031368'::timestamptz
             )
         ORDER BY
             modified ASC,
             exportplan_id ASC;
-    """
+"""
