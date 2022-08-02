@@ -1,4 +1,5 @@
 import re
+from itertools import cycle, islice
 from unittest import mock
 
 import pandas as pd
@@ -274,6 +275,21 @@ def trade_in_goods_by_quarter_raw_data():
     }
 
 
+@pytest.fixture()
+def world_economic_outlook_raw_data():
+    return {
+        'iso3': 'CHN CHN CHN CHN GBR GBR GBR GBR XXX XXX'.split(),
+        'subject_code': list(islice(cycle('NGDPDPC NGDP_RPCH'.split()), 10)),
+        'subject_descriptor': list(islice(cycle(['GDP, current prices', 'GDP, constant prices']), 10)),
+        'subject_notes': list(islice(cycle(['GDP is in U.S. dollars per person', 'Annual percentages of GDP']), 10)),
+        'units': list(islice(cycle(['USD', 'Percent']), 10)),
+        'scale': list(islice(cycle(['Units', '']), 10)),
+        'year': list(islice(cycle([2020, 2020, 2021, 2021]), 10)),
+        'value': [10525.001, 2.244, 12358.797, 8.080, 41127.443, -9.270, 47202.581, 7.441, 12345.001, 1.234],
+        'estimates_start_after': [2020, 2021, 2020, 2021, 2019, 2020, 2019, 2020, 2019, 2019],
+    }
+
+
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
@@ -320,3 +336,17 @@ def test_import_uk_trade_in_goods_data(read_sql_mock, trade_in_goods_by_quarter_
     management.call_command('import_uk_trade_in_goods_data')
 
     assert len(models.UKTradeInGoodsByCountry.objects.all()) == 6
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outlook_raw_data):
+    read_sql_mock.return_value = [pd.DataFrame(world_economic_outlook_raw_data)]
+
+    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 0
+
+    management.call_command('import_countries')
+    management.call_command('import_world_economic_outlook_data')
+
+    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 8

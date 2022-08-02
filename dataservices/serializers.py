@@ -236,3 +236,18 @@ class UKTradeHighlightsSerializer(serializers.Serializer):
     class Meta:
         model = models.UKTotalTradeByCountry
         fields = ['total_uk_exports', 'trading_position', 'percentage_of_uk_trade']
+
+
+class EconomicHighlightsSerializer(serializers.Serializer):
+    gdp_per_capita = serializers.SerializerMethodField()
+    economic_growth = serializers.SerializerMethodField()
+
+    def get_gdp_per_capita(self, obj):
+        return {'value': obj['gdp_per_capita'], 'year': obj['gdp_per_capita_year']}
+
+    def get_economic_growth(self, obj):
+        return {'value': obj['economic_growth'], 'year': obj['economic_growth_year']}
+
+    class Meta:
+        model = models.UKTotalTradeByCountry
+        fields = ['gdp_per_capita', 'economic_growth']

@@ -178,6 +178,11 @@ class MetadataMixin:
 
     limit = None
 
+    def get_country(self):
+        iso2 = self.request.query_params.get('iso2', '')
+
+        return get_object_or_404(models.Country, iso2__iexact=iso2)
+
     def get_reference_period(self):
         year, period = self.queryset.get_current_period().values()
 
@@ -187,9 +192,8 @@ class MetadataMixin:
             'year': year,
         }
 
-    def get_metadata(self):
-        iso2 = self.request.query_params.get('iso2', '')
-        country = get_object_or_404(models.Country, iso2__iexact=iso2)
+    def get_metadata(self, **kwargs):
+        country = self.get_country()
 
         metadata = {
             'country': {
@@ -215,11 +219,13 @@ class MetadataMixin:
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
-        metadata = self.get_metadata()
         data = res.data
 
         if isinstance(data, list):
             data = data[: self.limit]
+            metadata = self.get_metadata()
+        else:
+            metadata = self.get_metadata(**data)
 
         res.data = {
             'metadata': metadata,
@@ -311,3 +317,33 @@ class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
 
     def get_queryset(self):
         return super().get_queryset().highlights()
+
+
+class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
+    permission_classes = []
+    queryset = models.WorldEconomicOutlookByCountry.objects
+    serializer_class = serializers.EconomicHighlightsSerializer
+    filter_class = filters.EconomicHighlightsFilter
+    lookup_field = 'country__iso2'
+
+    def get_metadata(self, **kwargs):
+        country = self.get_country()
+        year = kwargs['gdp_per_capita']['year']
+        uk_data = {'gdp_per_capita': self.queryset.uk_stats(self.queryset.GDP_PER_CAPITA_USD_CODE, year)}
+        metadata = {
+            'country': {
+                'name': country.name,
+                'iso2': country.iso2,
+            },
+            'uk_data': uk_data,
+        }
+
+        return metadata
+
+    def dispatch(self, *args, **kwargs):
+        kwargs[self.lookup_field] = self.request.GET.get('iso2', '').upper()
+
+        return super().dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return super().get_queryset().stats()

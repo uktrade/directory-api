@@ -3,6 +3,7 @@
 ## Pre release
 ### Enhancements
 - GLS-25 - Export plan data pipeline
+- GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
 
 ### Bugs fixed
 
