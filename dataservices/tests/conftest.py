@@ -196,3 +196,20 @@ def trade_in_goods_records(countries):
                         imports=record['imports'],
                         exports=record['exports'],
                     )
+
+
+@pytest.fixture()
+def world_economic_outlook_records(countries):
+    for idx, (iso2, estimates_after) in enumerate({'GB': 2019, 'DE': 2020, 'CN': 2021}.items(), 1):
+        for code, descriptor in {'NGDPDPC': 'GDPPC, current prices', 'NGDP_RPCH': 'GDP, constant prices'}.items():
+            for year in range(2018, 2022):
+                models.WorldEconomicOutlookByCountry.objects.create(
+                    country=countries[iso2],
+                    subject_code=code,
+                    subject_descriptor=descriptor,
+                    units='',
+                    scale='',
+                    year=year,
+                    value=idx,
+                    estimates_start_after=estimates_after,
+                )

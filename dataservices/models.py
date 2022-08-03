@@ -347,3 +347,26 @@ class UKTotalTradeByCountry(models.Model):
 
     class Meta:
         verbose_name = "UK total trade by country"
+
+
+class WorldEconomicOutlookByCountry(models.Model):
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
+    )
+    subject_code = models.CharField(null=False, blank=False, max_length=20)
+    subject_descriptor = models.CharField(null=False, blank=False, max_length=100)
+    subject_notes = models.TextField(null=False, blank=False)
+    units = models.CharField(null=False, blank=False, max_length=60)
+    scale = models.CharField(null=True, blank=True, max_length=10)
+    year = models.PositiveSmallIntegerField(null=False, blank=False)
+    value = models.DecimalField(max_digits=18, decimal_places=3, null=True, blank=True)
+    estimates_start_after = models.PositiveSmallIntegerField(null=False, blank=True)
+
+    objects = managers.WorldEconomicOutlookDataManager()
+
+    class Meta:
+        verbose_name = "World economic outlook by country"
+
+    @property
+    def is_projection(self):
+        return self.estimates_start_after < self.year

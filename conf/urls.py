@@ -289,6 +289,11 @@ urlpatterns = [
         dataservices.views.UKTradeHighlightsView.as_view(),
         name='dataservices-trade-highlights',
     ),
+    url(
+        r'^dataservices/economic-highlights/$',
+        dataservices.views.EconomicHighlightsView.as_view(),
+        name='dataservices-economic-highlights',
+    ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     url(

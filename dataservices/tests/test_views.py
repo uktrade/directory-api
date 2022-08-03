@@ -531,11 +531,41 @@ def test_dataservices_trade_highlights_api(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_highlights_no_county_code(client):
+def test_dataservices_trade_highlights_api_no_county_code(client):
     country = factories.CountryFactory(iso2='XY')
     factories.UKTotalTradeByCountryFactory(country=country)
 
     response = client.get(reverse('dataservices-trade-highlights'))
+
+    assert response.status_code == 400
+
+    models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_economic_highlights_api(client, world_economic_outlook_records):
+    response = client.get(reverse('dataservices-economic-highlights'), data={'iso2': 'CN'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']['country'] == {'name': 'China', 'iso2': 'CN'}
+    assert api_data['metadata']['uk_data'] == {
+        'gdp_per_capita': {'year': mock.ANY, 'value': mock.ANY, 'is_projection': mock.ANY}
+    }
+    assert api_data['data'] == {
+        'economic_growth': {'value': mock.ANY, 'year': mock.ANY},
+        'gdp_per_capita': {'value': mock.ANY, 'year': mock.ANY},
+    }
+
+
+@pytest.mark.django_db
+def test_dataservices_economic_highlights_api_no_county_code(client):
+    country = factories.CountryFactory(iso2='XY')
+    factories.WorldEconomicOutlookByCountryFactory(country=country)
+
+    response = client.get(reverse('dataservices-economic-highlights'))
 
     assert response.status_code == 400
 
