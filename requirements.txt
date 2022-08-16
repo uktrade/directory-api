@@ -122,13 +122,15 @@ django-field-history==0.7.0
     # via -r requirements.in
 django-filter==21.1
     # via -r requirements.in
+django-flat-json-widget==0.2
+    # via -r requirements.in
 django-health-check==3.8.0
     # via directory-healthcheck
 django-import-export==2.0.2
     # via -r requirements.in
 django-ipware==2.1.0
     # via django-admin-ip-restrictor
-django_json_widget==1.0.1
+django-json-widget==1.0.1
     # via -r requirements.in
 django-redis==4.10.0
     # via -r requirements.in

@@ -7,6 +7,7 @@ from dataservices.tests.factories import (
     GDPPerCapitaFactory,
     IncomeFactory,
     InternetUsageFactory,
+    MetadataFactory,
     SuggestedCountriesFactory,
     WorldEconomicOutlookByCountryFactory,
 )
@@ -51,3 +52,10 @@ def test_world_economic_outlook_by_country_is_projection():
 
     projected = WorldEconomicOutlookByCountryFactory(year=2001, estimates_start_after=2000)
     assert projected.is_projection is True
+
+
+@pytest.mark.django_db
+def test_metadata_view_name():
+    metadata = MetadataFactory(view_name='MyView')
+
+    assert str(metadata) == 'MyView'

@@ -4,6 +4,7 @@
 ### Enhancements
 - GLS-25 - Export plan data pipeline
 - GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
+- GLS-320 - Last release date of datasets as metadata from Data Workspace
 
 ### Bugs fixed
 

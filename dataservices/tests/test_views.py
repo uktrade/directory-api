@@ -370,22 +370,22 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
 
 @pytest.mark.django_db
-def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_records):
+def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_records, metadata_last_release_records):
+    metadata = models.Metadata.objects.get(view_name='TopFiveGoodsExportsByCountryView')
+    metadata.data = metadata.data | {'label': 'ONS UK trade'}
+    metadata.save()
+
     response = client.get(reverse('dataservices-top-five-goods-by-country'), data={'iso2': 'DE'})
 
     assert response.status_code == 200
 
     api_data = json.loads(response.content)
 
-    assert api_data['metadata']['source'] == {
+    assert api_data['metadata'] == {
+        'country': {'iso2': 'DE', 'name': 'Germany'},
         'label': 'ONS UK trade',
-        'url': 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest',
-        'next_release': '13 June 2022',
-    }
-    assert api_data['metadata']['reference_period'] == {
-        'resolution': 'quarter',
-        'period': 4,
-        'year': 2021,
+        'last_release': mock.ANY,
+        'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 5
     assert api_data['data'][0] == {'label': 'first', 'value': 24000000}
@@ -399,23 +399,24 @@ def test_dataservices_top_five_goods_by_country_api_for_no_iso2(client, trade_in
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_in_services_by_country_api(client, trade_in_services_records):
+def test_dataservices_trade_in_services_by_country_api(
+    client, trade_in_services_records, metadata_last_release_records
+):
+    metadata = models.Metadata.objects.get(view_name='TopFiveServicesExportsByCountryView')
+    metadata.data = metadata.data | {'label': 'ONS UK trade'}
+    metadata.save()
+
     response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'DE'})
 
     assert response.status_code == 200
 
     api_data = json.loads(response.content)
 
-    assert api_data['metadata']['source'] == {
-        'label': 'ONS UK trade in services: service type by partner country',
-        'url': 'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
-        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted',
-        'next_release': 'To be announced',
-    }
-    assert api_data['metadata']['reference_period'] == {
-        'resolution': 'quarter',
-        'period': 4,
-        'year': 2021,
+    assert api_data['metadata'] == {
+        'country': {'iso2': 'DE', 'name': 'Germany'},
+        'label': 'ONS UK trade',
+        'last_release': mock.ANY,
+        'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 5
     assert api_data['data'][0] == {'label': 'first', 'value': 6000000}
@@ -429,8 +430,18 @@ def test_dataservices_trade_in_services_by_country_api_for_no_iso(client, trade_
 
 
 @pytest.mark.django_db
-def test_dataservices_market_trends_api(client):
+def test_dataservices_market_trends_api(client, metadata_last_release_records):
     country = factories.CountryFactory(iso2='XY')
+    metadata = models.Metadata.objects.get(view_name='UKMarketTrendsView')
+    metadata.data = metadata.data | {
+        'label': 'ONS UK total trade: all countries',
+        'notes': [
+            'Total trade is the sum of all exports and imports over the same time period.',
+            'Data includes goods and services combined.',
+        ],
+    }
+    metadata.save()
+
     for year in [2020, 2021]:
         for quarter in [1, 2, 3, 4]:
             factories.UKTotalTradeByCountryFactory.create(
@@ -443,13 +454,10 @@ def test_dataservices_market_trends_api(client):
 
     api_data = json.loads(response.content)
 
-    assert api_data['metadata']['source'] == {
+    assert api_data['metadata'] == {
+        'country': {'iso2': 'XY', 'name': mock.ANY},
         'label': 'ONS UK total trade: all countries',
-        'url': (
-            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
-            '/uktotaltradeallcountriesseasonallyadjusted'
-        ),
-        'next_release': 'To be announced',
+        'last_release': mock.ANY,
         'notes': [
             'Total trade is the sum of all exports and imports over the same time period.',
             'Data includes goods and services combined.',
@@ -497,7 +505,15 @@ def test_dataservices_market_trends_api_filter_by_year(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_highlights_api(client):
+def test_dataservices_trade_highlights_api(client, metadata_last_release_records):
+    metadata = models.Metadata.objects.get(view_name='UKTradeHighlightsView')
+    metadata.data = metadata.data | {
+        'label': 'ONS UK total trade: all countries',
+        'notes': [
+            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
+        ],
+    }
+    metadata.save()
     countries = [factories.CountryFactory(iso2='XY'), None]
     for country in countries:
         for year in [2020, 2021]:
@@ -513,16 +529,14 @@ def test_dataservices_trade_highlights_api(client):
 
     api_data = json.loads(response.content)
 
-    assert api_data['metadata']['source'] == {
+    assert api_data['metadata'] == {
+        'country': {'iso2': 'XY', 'name': mock.ANY},
         'label': 'ONS UK total trade: all countries',
-        'url': (
-            'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
-            '/uktotaltradeallcountriesseasonallyadjusted'
-        ),
-        'next_release': 'To be announced',
+        'last_release': mock.ANY,
         'notes': [
             'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
         ],
+        'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 3
     assert api_data['data']['total_uk_exports'] == 4000000
@@ -549,15 +563,14 @@ def test_dataservices_economic_highlights_api(client, world_economic_outlook_rec
     assert response.status_code == 200
 
     api_data = json.loads(response.content)
+    expected_stats_obj = {
+        'economic_growth': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
+        'gdp_per_capita': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
+    }
 
     assert api_data['metadata']['country'] == {'name': 'China', 'iso2': 'CN'}
-    assert api_data['metadata']['uk_data'] == {
-        'gdp_per_capita': {'year': mock.ANY, 'value': mock.ANY, 'is_projection': mock.ANY}
-    }
-    assert api_data['data'] == {
-        'economic_growth': {'value': mock.ANY, 'year': mock.ANY},
-        'gdp_per_capita': {'value': mock.ANY, 'year': mock.ANY},
-    }
+    assert api_data['metadata']['uk_data'] == expected_stats_obj
+    assert api_data['data'] == expected_stats_obj
 
 
 @pytest.mark.django_db

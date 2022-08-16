@@ -5,6 +5,7 @@ django-extensions==2.2.5
 django-field-history==0.7.0
 djangorestframework==3.11.2
 django-storages==1.8.0
+django-flat-json-widget==0.2
 django-filter>=2.4.0
 django-import-export==2.0.2
 kombu<6.0,>=5.2.3

@@ -159,3 +159,12 @@ class WorldEconomicOutlookByCountryFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.WorldEconomicOutlookByCountry
+
+
+class MetadataFactory(factory.django.DjangoModelFactory):
+    view_name = factory.fuzzy.FuzzyText(length=10)
+    description = factory.fuzzy.FuzzyText(length=100)
+    data = {'key': 'value'}
+
+    class Meta:
+        model = models.Metadata

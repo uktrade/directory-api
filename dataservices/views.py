@@ -169,63 +169,50 @@ class TradeBarriersView(generics.GenericAPIView):
 
 
 class MetadataMixin:
-    # TODO: These values will be handled by a metadata db-backed class
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK Trade'
-    METADATA_DATA_SOURCE_URL = 'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments'
-    METADATA_DATA_SOURCE_NEXT_RELEASE = None
     METADATA_DATA_SOURCE_NOTES = None
     METADATA_DATA_RESOLUTION = 'quarter'
 
     limit = None
+    reference_period = False
 
     def get_country(self):
         iso2 = self.request.query_params.get('iso2', '')
+        country = get_object_or_404(models.Country, iso2__iexact=iso2)
 
-        return get_object_or_404(models.Country, iso2__iexact=iso2)
+        return {'country': {'name': country.name, 'iso2': country.iso2}}
 
     def get_reference_period(self):
+        if not self.reference_period:
+            return {}
+
         year, period = self.queryset.get_current_period().values()
 
         return {
-            'resolution': self.METADATA_DATA_RESOLUTION,
-            'period': period,
-            'year': year,
+            'reference_period': {
+                'resolution': self.METADATA_DATA_RESOLUTION,
+                'period': period,
+                'year': year,
+            }
         }
 
-    def get_metadata(self, **kwargs):
+    def get_metadata(self):
         country = self.get_country()
+        reference_period = self.get_reference_period()
 
-        metadata = {
-            'country': {
-                'name': country.name,
-                'iso2': country.iso2,
-            },
-            'source': {
-                'label': self.METADATA_DATA_SOURCE_LABEL,
-                'url': self.METADATA_DATA_SOURCE_URL,
-            },
-        }
+        try:
+            metadata = models.Metadata.objects.get(view_name=self.__class__.__name__)
+        except models.Metadata.DoesNotExist:
+            return country | reference_period
 
-        if self.queryset.get_current_period:
-            metadata['reference_period'] = self.get_reference_period()
-
-        if self.METADATA_DATA_SOURCE_NEXT_RELEASE:
-            metadata['source']['next_release'] = self.METADATA_DATA_SOURCE_NEXT_RELEASE
-
-        if self.METADATA_DATA_SOURCE_NOTES:
-            metadata['source']['notes'] = self.METADATA_DATA_SOURCE_NOTES
-
-        return metadata
+        return metadata.data | country | reference_period
 
     def get(self, *args, **kwargs):
         res = super().get(*args, **kwargs)
         data = res.data
+        metadata = self.get_metadata()
 
         if isinstance(data, list):
             data = data[: self.limit]
-            metadata = self.get_metadata()
-        else:
-            metadata = self.get_metadata(**data)
 
         res.data = {
             'metadata': metadata,
@@ -236,48 +223,30 @@ class MetadataMixin:
 
 
 class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/bulletins/uktrade/latest'
-    )
-    METADATA_DATA_SOURCE_NEXT_RELEASE = '13 June 2022'
-
     permission_classes = []
     queryset = models.UKTradeInGoodsByCountry.objects
     serializer_class = serializers.UKTopFiveGoodsExportsSerializer
     filter_class = filters.UKTopFiveGoodsExportsFilter
     limit = 5
+    reference_period = True
 
     def get_queryset(self):
         return self.queryset.top_goods_exports()
 
 
 class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK trade in services: service type by partner country'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets'
-        '/uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
-    )
-    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
-
     permission_classes = []
     queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
     filter_class = filters.UKTopFiveServicesExportsFilter
     limit = 5
+    reference_period = True
 
     def get_queryset(self):
         return self.queryset.top_services_exports()
 
 
 class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/'
-        'economy/nationalaccounts/balanceofpayments/datasets/'
-        'uktotaltradeallcountriesseasonallyadjusted'
-    )
-    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
     METADATA_DATA_SOURCE_NOTES = [
         'Total trade is the sum of all exports and imports over the same time period.',
         'Data includes goods and services combined.',
@@ -293,12 +262,6 @@ class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
 
 
 class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
-    METADATA_DATA_SOURCE_LABEL = 'ONS UK total trade: all countries'
-    METADATA_DATA_SOURCE_URL = (
-        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets'
-        '/uktotaltradeallcountriesseasonallyadjusted'
-    )
-    METADATA_DATA_SOURCE_NEXT_RELEASE = 'To be announced'
     # NOTE: this note could be dynamic, as it depends on the reference period
     METADATA_DATA_SOURCE_NOTES = [
         'Data includes goods and services combined in the four quarters to the end of Q4 2021.'
@@ -309,6 +272,7 @@ class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     serializer_class = serializers.UKTradeHighlightsSerializer
     filter_class = filters.UKTradeHighlightsFilter
     lookup_field = 'country__iso2'
+    reference_period = True
 
     def dispatch(self, *args, **kwargs):
         kwargs[self.lookup_field] = self.request.GET.get('iso2', '').upper()
@@ -326,19 +290,39 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     filter_class = filters.EconomicHighlightsFilter
     lookup_field = 'country__iso2'
 
-    def get_metadata(self, **kwargs):
-        country = self.get_country()
-        year = kwargs['gdp_per_capita']['year']
-        uk_data = {'gdp_per_capita': self.queryset.uk_stats(self.queryset.GDP_PER_CAPITA_USD_CODE, year)}
-        metadata = {
-            'country': {
-                'name': country.name,
-                'iso2': country.iso2,
-            },
-            'uk_data': uk_data,
-        }
+    def get_uk_stats(self, gdp_year, economic_growth_year):
+        queryset = self.queryset.stats(gdp_year=gdp_year, economic_growth_year=economic_growth_year).filter(
+            country__iso2='GB'
+        )
+        serializer = self.get_serializer(queryset, many=True)
+        data = {}
 
-        return metadata
+        for obj in serializer.data:
+            data.update(obj)
+
+        return {'uk_data': data}
+
+    def get(self, *args, **kwargs):
+        res = super().get(*args, **kwargs)
+        data = res.data['data']
+        metadata = res.data['metadata']
+        uk_data = self.get_uk_stats(
+            gdp_year=data['gdp_per_capita']['year'], economic_growth_year=data['economic_growth']['year']
+        )
+
+        res.data['metadata'] = metadata | uk_data
+
+        return res
+
+    def retrieve(self, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        data = {}
+
+        for obj in serializer.data:
+            data.update(obj)
+
+        return Response(data)
 
     def dispatch(self, *args, **kwargs):
         kwargs[self.lookup_field] = self.request.GET.get('iso2', '').upper()

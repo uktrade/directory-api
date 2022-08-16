@@ -370,3 +370,16 @@ class WorldEconomicOutlookByCountry(models.Model):
     @property
     def is_projection(self):
         return self.estimates_start_after < self.year
+
+
+class Metadata(models.Model):
+    view_name = models.CharField(unique=True, null=False, blank=False, max_length=50)
+    description = models.CharField(null=False, blank=True, max_length=100, default='')
+    data = JSONField(null=False, blank=True, default=dict)
+
+    def __str__(self):
+        return self.view_name
+
+    class Meta:
+        verbose_name = 'Metadata'
+        verbose_name_plural = 'Metadata'
