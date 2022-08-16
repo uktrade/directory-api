@@ -1,5 +1,3 @@
-import random
-
 import pytest
 
 from dataservices import models
@@ -132,87 +130,27 @@ def test_uk_top_goods_with_no_records(countries):
 
 
 @pytest.mark.django_db
-def test_world_economic_outlook_manager_stats(world_economic_outlook_records):
-    economic_stats = models.WorldEconomicOutlookByCountry.objects.stats()
+def test_world_economic_outlook_manager_stats_latest_year(world_economic_outlook_records):
+    data_manager = models.WorldEconomicOutlookByCountry.objects
+    latest_years = data_manager.values_list('estimates_start_after', flat=True).distinct('country_id')
+    stats = data_manager.stats()
 
-    assert len(economic_stats) == 3  # there are 3 countries in the current dataset
-    assert list(random.choice(economic_stats).keys()) == [
-        'country',
-        'gdp_per_capita',
-        'gdp_per_capita_year',
-        'economic_growth',
-        'economic_growth_year',
-    ]
+    # There are 3 countries in the current dataset x 2 different metrics for the latest year of non-projected data
+    assert len(stats) == 6
+
+    for country_stats in stats:
+        assert country_stats.year == latest_years.get(country=country_stats.country)
 
 
 @pytest.mark.django_db
-def test_world_economic_outlook_manager_stats_yields_latest_actual_data(world_economic_outlook_records):
+def test_world_economic_outlook_manager_stats_specific_year(world_economic_outlook_records):
     data_manager = models.WorldEconomicOutlookByCountry.objects
-    economic_stats = data_manager.stats()
+    stats = data_manager.stats(gdp_year=2019, economic_growth_year=2020)
+    gdp_stats = stats.filter(subject_code=data_manager.GDP_PER_CAPITA_USD_CODE)
+    economic_growth_stats = stats.filter(subject_code=data_manager.ECONOMIC_GROWTH_CODE)
 
-    for country_stats in economic_stats:
-        latest_real_gdp_data_year = (
-            data_manager.filter(subject_code=data_manager.GDP_PER_CAPITA_USD_CODE)
-            .values_list('estimates_start_after', flat=True)
-            .distinct('country_id')
-            .get(country_id=country_stats['country'])
-        )
-        latest_real_economic_growth_data_year = (
-            data_manager.filter(subject_code=data_manager.ECONOMIC_GROWTH_CODE)
-            .values_list('estimates_start_after', flat=True)
-            .distinct('country_id')
-            .get(country_id=country_stats['country'])
-        )
+    for gdp_stat in gdp_stats:
+        assert gdp_stat.year == 2019
 
-        assert country_stats['gdp_per_capita_year'] == latest_real_gdp_data_year
-        assert country_stats['economic_growth_year'] == latest_real_economic_growth_data_year
-
-
-@pytest.mark.django_db
-def test_world_economic_outlook_manager_uk_stats_gdp_per_capita(world_economic_outlook_records):
-    data_manager = models.WorldEconomicOutlookByCountry.objects
-    gdp_code = data_manager.GDP_PER_CAPITA_USD_CODE
-    latest_real_gdp_uk_data_year = (
-        data_manager.filter(subject_code=gdp_code)
-        .values_list('estimates_start_after', flat=True)
-        .distinct('country_id')
-        .get(country__iso2='GB')
-    )
-    uk_stats_gdp_per_capita = data_manager.uk_stats(gdp_code, latest_real_gdp_uk_data_year)
-    uk_stats_keys_sorted = sorted([*uk_stats_gdp_per_capita])
-
-    assert len(uk_stats_keys_sorted) == len(set(uk_stats_keys_sorted))
-    assert uk_stats_keys_sorted == ['is_projection', 'value', 'year']
-
-    # Test for UK stats corresponding to the latest actual year
-    assert uk_stats_gdp_per_capita['is_projection'] is False
-
-    # Test for UK stats corresponding to a projected year
-    uk_stats_gdp_per_capita_projected = data_manager.uk_stats(gdp_code, latest_real_gdp_uk_data_year + 1)
-    assert uk_stats_gdp_per_capita_projected['is_projection'] is True
-
-
-@pytest.mark.django_db
-def test_world_economic_outlook_manager_uk_stats_economic_growth(world_economic_outlook_records):
-    data_manager = models.WorldEconomicOutlookByCountry.objects
-    economic_growth_code = data_manager.ECONOMIC_GROWTH_CODE
-    latest_real_economic_growth_uk_data_year = (
-        data_manager.filter(subject_code=economic_growth_code)
-        .values_list('estimates_start_after', flat=True)
-        .distinct('country_id')
-        .get(country__iso2='GB')
-    )
-    uk_stats_economic_growth = data_manager.uk_stats(economic_growth_code, latest_real_economic_growth_uk_data_year)
-    uk_stats_keys_sorted = sorted([*uk_stats_economic_growth])
-
-    assert len(uk_stats_keys_sorted) == len(set(uk_stats_keys_sorted))
-    assert uk_stats_keys_sorted == ['is_projection', 'value', 'year']
-
-    # Test for UK stats corresponding to the latest actual year
-    assert uk_stats_economic_growth['is_projection'] is False
-
-    # Test for UK stats corresponding to a projected year
-    uk_stats_economic_growth_projected = data_manager.uk_stats(
-        economic_growth_code, latest_real_economic_growth_uk_data_year + 1
-    )
-    assert uk_stats_economic_growth_projected['is_projection'] is True
+    for economic_growth_stat in economic_growth_stats:
+        assert economic_growth_stat.year == 2020

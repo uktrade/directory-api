@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import BooleanField, Case, ExpressionWrapper, F, FloatField, Q, Sum, When
+from django.db.models import ExpressionWrapper, F, FloatField, Q, Sum
 from django.db.models.expressions import Window
 from django.db.models.functions import Rank
 from django_cte import CTEManager, With
@@ -115,46 +115,29 @@ class WorldEconomicOutlookDataManager(models.Manager):
     GDP_PER_CAPITA_USD_CODE = 'NGDPDPC'
     ECONOMIC_GROWTH_CODE = 'NGDP_RPCH'
 
-    """
-    Private method that returns records filtered by the latest available year (non-projected).
-    """
-
     def _last_year(self):
+        """
+        Private method that returns records filtered by the latest available year (non-projected).
+        """
         return self.get_queryset().filter(year=F('estimates_start_after'))
 
-    """
-    The default queryset returns instances for gdp per capita and economic growth only.
-    """
-
     def get_queryset(self):
+        """
+        The default queryset returns instances for gdp per capita and economic growth only.
+        """
         return (
             super()
             .get_queryset()
             .filter(Q(subject_code=self.GDP_PER_CAPITA_USD_CODE) | (Q(subject_code=self.ECONOMIC_GROWTH_CODE)))
         )
 
-    def uk_stats(self, code, year):
-        uk_iso2_code = 'GB'
-
-        return (
-            self.get_queryset()
-            .values('year', 'value')
-            .annotate(
-                is_projection=Case(
-                    When(estimates_start_after__lt=year, then=True), default=False, output_field=BooleanField()
-                )
+    def stats(self, gdp_year=None, economic_growth_year=None):
+        if gdp_year and economic_growth_year:
+            queryset = self.get_queryset().filter(
+                Q(subject_code=self.GDP_PER_CAPITA_USD_CODE, year=gdp_year)
+                | Q(subject_code=self.ECONOMIC_GROWTH_CODE, year=economic_growth_year)
             )
-            .get(country__iso2=uk_iso2_code, subject_code=code, year=year)
-        )
+        else:
+            queryset = self._last_year()
 
-    def stats(self):
-        last_year_qs = self._last_year()
-
-        return last_year_qs.values('country').annotate(
-            gdp_per_capita=Sum(Case(When(subject_code=self.GDP_PER_CAPITA_USD_CODE, then=F('value')), default=None)),
-            gdp_per_capita_year=Sum(
-                Case(When(subject_code=self.GDP_PER_CAPITA_USD_CODE, then=F('year')), default=None)
-            ),
-            economic_growth=Sum(Case(When(subject_code=self.ECONOMIC_GROWTH_CODE, then=F('value')), default=None)),
-            economic_growth_year=Sum(Case(When(subject_code=self.ECONOMIC_GROWTH_CODE, then=F('year')), default=None)),
-        )
+        return queryset

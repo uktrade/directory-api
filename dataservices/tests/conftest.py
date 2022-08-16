@@ -213,3 +213,15 @@ def world_economic_outlook_records(countries):
                     value=idx,
                     estimates_start_after=estimates_after,
                 )
+
+
+@pytest.fixture()
+def metadata_last_release_records():
+    data = {
+        'TopFiveGoodsExportsByCountryView': '30 June 2020',
+        'TopFiveServicesExportsByCountryView': '30 June 2021',
+        'UKMarketTrendsView': '30 June 2022',
+        'UKTradeHighlightsView': '30 June 2022',
+    }
+    for view_name, last_release in data.items():
+        models.Metadata.objects.create(view_name=view_name, data={'last_release': last_release})

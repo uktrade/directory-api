@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.postgres import fields
 from django.db.models import TextField
 from django_json_widget.widgets import JSONEditorWidget
+from flat_json_widget.widgets import FlatJsonWidget
 from import_export import resources
 
 from dataservices import models
@@ -321,3 +322,12 @@ class PopulationDataAdmin(admin.ModelAdmin):
         'age_95_99',
         'age_100_plus',
     )
+
+
+@admin.register(models.Metadata)
+class MetadataAdmin(admin.ModelAdmin):
+    list_display = ['view_name']
+
+    formfield_overrides = {
+        models.JSONField: {'widget': FlatJsonWidget},
+    }

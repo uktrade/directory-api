@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'django_json_widget',
     'django_cleanup.apps.CleanupConfig',
     'import_export',
+    'flat_json_widget',
 ]
 
 MIDDLEWARE = [
