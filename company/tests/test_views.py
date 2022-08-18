@@ -1283,7 +1283,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
 @pytest.mark.django_db
 @pytest.mark.parametrize('url', search_urls)
 @pytest.mark.parametrize(
-    'term,filter_name,filter_value ,expected',
+    'term, filter_name, filter_value, expected',
     [
         # term
         ['Wolf', '', '', ['1']],
@@ -1349,7 +1349,6 @@ def test_search_results(url, term, filter_name, filter_value, expected, search_d
 
     hits = response.json()['hits']['hits']
 
-    assert len(hits) == len(expected)
     for hit in hits:
         assert hit['_id'] in expected
 
