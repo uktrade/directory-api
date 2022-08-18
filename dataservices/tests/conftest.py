@@ -86,30 +86,16 @@ def multi_country_data(countries):
 
 @pytest.fixture
 def age_group_data(countries):
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2019,
-        age_0_4=1,
-        gender='male',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2019,
-        age_0_4=2,
-        gender='female',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2020,
-        age_0_4=3,
-        gender='male',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2020,
-        age_0_4=4,
-        gender='female',
-    )
+    count = 0
+    for year in [2019, 2020]:
+        for gender in ['male', 'female']:
+            count += 1
+            models.PopulationData.objects.create(
+                country=countries['FR'],
+                year=year,
+                age_0_4=count,
+                gender=gender,
+            )
     yield
     models.PopulationData.objects.all().delete()
 

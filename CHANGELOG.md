@@ -7,6 +7,7 @@
 - GLS-320 - Last release date of datasets as metadata from Data Workspace
 
 ### Bugs fixed
+- GLS-159 - Fix flaky tests
 
 ## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.1...2.4.2)
