@@ -144,3 +144,27 @@ class GDPPerCapitaFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.GDPPerCapita
+
+
+class WorldEconomicOutlookByCountryFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    subject_code = factory.Iterator(['NGDPDPC', 'NGDP_RPCH'])
+    subject_descriptor = factory.Iterator(['GDPPC, current prices', 'GDP, constant prices'])
+    subject_notes = factory.fuzzy.FuzzyText(length=100)
+    units = factory.Iterator(['U.S. dollars', 'Percent change'])
+    scale = factory.fuzzy.FuzzyText(length=10)
+    year = factory.fuzzy.FuzzyInteger(1996, 2022)
+    value = factory.Iterator([99999.999, 10.050])
+    estimates_start_after = factory.fuzzy.FuzzyInteger(1996, 2022)
+
+    class Meta:
+        model = models.WorldEconomicOutlookByCountry
+
+
+class MetadataFactory(factory.django.DjangoModelFactory):
+    view_name = factory.fuzzy.FuzzyText(length=10)
+    description = factory.fuzzy.FuzzyText(length=100)
+    data = {'key': 'value'}
+
+    class Meta:
+        model = models.Metadata

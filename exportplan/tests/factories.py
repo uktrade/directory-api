@@ -15,7 +15,7 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
     ui_progress = {'target-market-research': {'is_complete': True}}
     sso_id = factory.Iterator(range(99999999))
     objectives = {'rationale': 'Gin has exceptional growth'}
-    marketing_approach = [{'Description': 'selling to retailers', 'option': 'shipping'}]
+    marketing_approach = {'Description': 'selling to retailers', 'option': 'shipping'}
     about_your_business = {'Location': 'London', 'story': 'new brand'}
     target_markets_research = {'demand': 'high', 'value': 'high'}
     adaptation_target_market = {'labelling': 'manual', 'size': '2l'}

@@ -7,7 +7,9 @@ from dataservices.tests.factories import (
     GDPPerCapitaFactory,
     IncomeFactory,
     InternetUsageFactory,
+    MetadataFactory,
     SuggestedCountriesFactory,
+    WorldEconomicOutlookByCountryFactory,
 )
 
 
@@ -38,3 +40,22 @@ def test_suggested_country_hs_code():
 def test_cia_factbook_country_name():
     country = CIAFactBookFactory()
     assert str(country) == country.country_name
+
+
+@pytest.mark.django_db
+def test_world_economic_outlook_by_country_is_projection():
+    non_projected = WorldEconomicOutlookByCountryFactory(year=1999, estimates_start_after=2000)
+    assert non_projected.is_projection is False
+
+    non_projected = WorldEconomicOutlookByCountryFactory(year=2000, estimates_start_after=2000)
+    assert non_projected.is_projection is False
+
+    projected = WorldEconomicOutlookByCountryFactory(year=2001, estimates_start_after=2000)
+    assert projected.is_projection is True
+
+
+@pytest.mark.django_db
+def test_metadata_view_name():
+    metadata = MetadataFactory(view_name='MyView')
+
+    assert str(metadata) == 'MyView'

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'django_json_widget',
     'django_cleanup.apps.CleanupConfig',
     'import_export',
+    'flat_json_widget',
 ]
 
 MIDDLEWARE = [
@@ -515,7 +516,7 @@ FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.bool('FEATURE_COMTRADE_HISTORICAL
 SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
 SIGAUTH_URL_NAMES_WHITELIST = [
     'activity-stream',
-    'activity-stream-export-plans',
+    'activity-stream-export-plan-data',
     'activity-stream-companies',
     'gecko-total-registered-suppliers',
     'health-check-database',

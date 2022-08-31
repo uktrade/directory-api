@@ -14,7 +14,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from activitystream.serializers import ActivityStreamCompanySerializer, ActivityStreamExportPlanSerializer
+from activitystream.serializers import ActivityStreamCompanySerializer, ActivityStreamExportPlanDataSerializer
 from company.models import Company
 from exportplan.models import CompanyExportPlan
 
@@ -264,21 +264,20 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
         )
 
 
-class ActivityStreamExportPlanViewSet(BaseActivityStreamViewSet):
-    """View set to list export plan for the activity stream"""
+class ActivityStreamExportPlanDataViewSet(BaseActivityStreamViewSet):
+    """View set to list export plan data for the activity stream"""
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     def list(self, request):
-        """A single page of companies to be consumed by activity stream."""
+        """A single page of export plan questions to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
+        export_plan_questions = CompanyExportPlan.objects.get_questions(after_ts, after_id)[:MAX_PER_PAGE]
 
-        export_plans = list(
-            CompanyExportPlan.objects.filter(
-                Q(modified=after_ts, id__gt=after_id) | Q(modified__gt=after_ts),
-            ).order_by('modified', 'id')[:MAX_PER_PAGE]
-        )
-        data = ActivityStreamExportPlanSerializer(export_plans, many=True).data
         return self._generate_response(
-            data[0] if data else [],
-            self._build_after(request, export_plans[-1].modified, export_plans[-1].id) if export_plans else None,
+            ActivityStreamExportPlanDataSerializer(export_plan_questions, many=True).data,
+            self._build_after(
+                request, export_plan_questions[-1]['modified'], export_plan_questions[-1]['exportplan_id']
+            )
+            if export_plan_questions
+            else None,
         )

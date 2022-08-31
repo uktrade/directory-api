@@ -109,3 +109,35 @@ class UKTtradeInGoodsDataManager(PeriodDataMixin, models.Manager):
             .annotate(label=F('commodity_name'), total_value=Sum('exports'))
             .order_by('-total_value')
         )
+
+
+class WorldEconomicOutlookDataManager(models.Manager):
+    GDP_PER_CAPITA_USD_CODE = 'NGDPDPC'
+    ECONOMIC_GROWTH_CODE = 'NGDP_RPCH'
+
+    def _last_year(self):
+        """
+        Private method that returns records filtered by the latest available year (non-projected).
+        """
+        return self.get_queryset().filter(year=F('estimates_start_after'))
+
+    def get_queryset(self):
+        """
+        The default queryset returns instances for gdp per capita and economic growth only.
+        """
+        return (
+            super()
+            .get_queryset()
+            .filter(Q(subject_code=self.GDP_PER_CAPITA_USD_CODE) | (Q(subject_code=self.ECONOMIC_GROWTH_CODE)))
+        )
+
+    def stats(self, gdp_year=None, economic_growth_year=None):
+        if gdp_year and economic_growth_year:
+            queryset = self.get_queryset().filter(
+                Q(subject_code=self.GDP_PER_CAPITA_USD_CODE, year=gdp_year)
+                | Q(subject_code=self.ECONOMIC_GROWTH_CODE, year=economic_growth_year)
+            )
+        else:
+            queryset = self._last_year()
+
+        return queryset
