@@ -2,10 +2,10 @@ version: 2
 
 jobs:
   test:
-    working_directory: /tmp/cci-test
+    working_directory: ~/directory-api
     docker:
-      - image: circleci/python:3.9.5
-      - image: circleci/postgres:10.11-alpine
+      - image: cimg/python:3.9.13
+      - image: cimg/postgres:10.18
         environment:
           POSTGRES_USER: debug
           POSTGRES_PASSWORD: debug
@@ -61,7 +61,7 @@ jobs:
           path: test-reports
   flake8:
     docker:
-      - image: circleci/python:3.6.6
+      - image: cimg/python:3.9.13
     steps:
       - checkout
       - setup_remote_docker:
@@ -75,7 +75,7 @@ jobs:
             flake8
   black:
     docker:
-      - image: circleci/python:3.6.6
+      - image: cimg/python:3.9.13
     steps:
       - checkout
       - setup_remote_docker:

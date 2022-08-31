@@ -33,8 +33,8 @@ activity_stream_urls = [
     ),
     url(
         r'^exportplan/$',
-        activitystream.views.ActivityStreamExportPlanViewSet.as_view({'get': 'list'}),
-        name='activity-stream-export-plans',
+        activitystream.views.ActivityStreamExportPlanDataViewSet.as_view({'get': 'list'}),
+        name='activity-stream-export-plan-data',
     ),
 ]
 
@@ -288,6 +288,11 @@ urlpatterns = [
         r'^dataservices/uk-trade-highlights/$',
         dataservices.views.UKTradeHighlightsView.as_view(),
         name='dataservices-trade-highlights',
+    ),
+    url(
+        r'^dataservices/economic-highlights/$',
+        dataservices.views.EconomicHighlightsView.as_view(),
+        name='dataservices-economic-highlights',
     ),
     url(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     url(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),

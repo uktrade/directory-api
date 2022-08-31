@@ -86,30 +86,16 @@ def multi_country_data(countries):
 
 @pytest.fixture
 def age_group_data(countries):
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2019,
-        age_0_4=1,
-        gender='male',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2019,
-        age_0_4=2,
-        gender='female',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2020,
-        age_0_4=3,
-        gender='male',
-    )
-    models.PopulationData.objects.create(
-        country=countries['FR'],
-        year=2020,
-        age_0_4=4,
-        gender='female',
-    )
+    count = 0
+    for year in [2019, 2020]:
+        for gender in ['male', 'female']:
+            count += 1
+            models.PopulationData.objects.create(
+                country=countries['FR'],
+                year=year,
+                age_0_4=count,
+                gender=gender,
+            )
     yield
     models.PopulationData.objects.all().delete()
 
@@ -196,3 +182,32 @@ def trade_in_goods_records(countries):
                         imports=record['imports'],
                         exports=record['exports'],
                     )
+
+
+@pytest.fixture()
+def world_economic_outlook_records(countries):
+    for idx, (iso2, estimates_after) in enumerate({'GB': 2019, 'DE': 2020, 'CN': 2021}.items(), 1):
+        for code, descriptor in {'NGDPDPC': 'GDPPC, current prices', 'NGDP_RPCH': 'GDP, constant prices'}.items():
+            for year in range(2018, 2022):
+                models.WorldEconomicOutlookByCountry.objects.create(
+                    country=countries[iso2],
+                    subject_code=code,
+                    subject_descriptor=descriptor,
+                    units='',
+                    scale='',
+                    year=year,
+                    value=idx,
+                    estimates_start_after=estimates_after,
+                )
+
+
+@pytest.fixture()
+def metadata_last_release_records():
+    data = {
+        'TopFiveGoodsExportsByCountryView': '30 June 2020',
+        'TopFiveServicesExportsByCountryView': '30 June 2021',
+        'UKMarketTrendsView': '30 June 2022',
+        'UKTradeHighlightsView': '30 June 2022',
+    }
+    for view_name, last_release in data.items():
+        models.Metadata.objects.create(view_name=view_name, data={'last_release': last_release})

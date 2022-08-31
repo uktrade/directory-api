@@ -1,7 +1,17 @@
 # Changelog
 
 ## Pre release
+### Enhancements
+- GLS-25 - Export plan data pipeline
+- GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
+- GLS-320 - Last release date of datasets as metadata from Data Workspace
+- GLS-403 - Upgrade to Python version 3.9.13
 
+### Bugs fixed
+- GLS-159 - Fix flaky tests
+
+## [2.4.2](https://github.com/uktrade/directory-api/releases/tag/2.4.2)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.1...2.4.2)
 ### Enhancements
 - GLS-173 - Add model + endpoint for handling UK total trade data by country
 - GLS-186 - Dataservices addition for market trends

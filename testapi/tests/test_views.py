@@ -376,8 +376,9 @@ def test_get_published_companies_check_response_contents(authed_client, authed_s
     company.refresh_from_db()
     url = reverse('published_companies')
     response = authed_client.get(url)
-    assert len(response.json()) == expected_number_of_results
-    found_company = response.json()[0]
+
+    assert len(response.data) == expected_number_of_results
+    found_company = response.data[0]
     assert len(found_company.keys()) == expected_number_of_keys
     assert found_company['name'] == name
     assert found_company['number'] == number
