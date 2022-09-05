@@ -2,6 +2,11 @@
 
 ## Pre release
 ### Enhancements
+### Bugs fixed
+
+## [2.5.0](https://github.com/uktrade/directory-api/releases/tag/2.5.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.2...2.5.0)
+### Enhancements
 - GLS-25 - Export plan data pipeline
 - GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
 - GLS-320 - Last release date of datasets as metadata from Data Workspace
