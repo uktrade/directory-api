@@ -6,6 +6,7 @@
 - GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
 - GLS-320 - Last release date of datasets as metadata from Data Workspace
 - GLS-379 - Update package to use Django 3.2
+- GLS-403 - Upgrade to Python version 3.9.13
 
 ### Bugs fixed
 - GLS-159 - Fix flaky tests

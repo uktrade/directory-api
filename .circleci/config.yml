@@ -2,10 +2,10 @@ version: 2
 
 jobs:
   test:
-    working_directory: /tmp/cci-test
+    working_directory: ~/directory-api
     docker:
-      - image: cimg/python:3.9
-      - image: cimg/postgres:10.17
+      - image: cimg/python:3.9.13
+      - image: cimg/postgres:10.18
         environment:
           POSTGRES_USER: debug
           POSTGRES_PASSWORD: debug
@@ -59,7 +59,7 @@ jobs:
           path: test-reports
   flake8:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.9.13
     steps:
       - checkout
       - setup_remote_docker:
@@ -71,7 +71,7 @@ jobs:
             flake8
   black:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.9.13
     steps:
       - checkout
       - setup_remote_docker:
