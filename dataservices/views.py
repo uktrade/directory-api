@@ -306,9 +306,12 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
         res = super().get(*args, **kwargs)
         data = res.data['data']
         metadata = res.data['metadata']
-        uk_data = self.get_uk_stats(
-            gdp_year=data['gdp_per_capita']['year'], economic_growth_year=data['economic_growth']['year']
-        )
+        uk_data = {}
+
+        if data:
+            uk_data = self.get_uk_stats(
+                gdp_year=data['gdp_per_capita']['year'], economic_growth_year=data['economic_growth']['year']
+            )
 
         res.data['metadata'] = metadata | uk_data
 
