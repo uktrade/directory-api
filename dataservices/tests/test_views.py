@@ -590,3 +590,20 @@ def test_dataservices_economic_highlights_api_no_county_code(client):
     assert response.status_code == 400
 
     models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_economic_highlights_api_no_data_found(client):
+    factories.CountryFactory(iso2='XY')
+    factories.WorldEconomicOutlookByCountryFactory()
+
+    response = client.get(reverse('dataservices-economic-highlights'), data={'iso2': 'XY'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']
+    assert not api_data['data']
+
+    models.Country.objects.all().delete()
