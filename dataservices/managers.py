@@ -65,9 +65,9 @@ class UKTtradeInServicesDataManager(models.Manager):
             period_type = 'quarter'
             period_list = []
             for quarter in [1, 2, 3, 4][current_quarter:]:
-                period_list.append(f'{period_type}/{current_year}-Q{quarter}')
-            for quarter in [1, 2, 3, 4][:current_quarter]:
                 period_list.append(f'{period_type}/{current_year - 1}-Q{quarter}')
+            for quarter in [1, 2, 3, 4][:current_quarter]:
+                period_list.append(f'{period_type}/{current_year}-Q{quarter}')
         else:
             period_type = 'year'
             period_list = [f'{period_type}/{current_year}']

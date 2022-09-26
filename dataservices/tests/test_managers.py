@@ -78,32 +78,14 @@ def test_uk_top_services_yearly_totals(countries, trade_in_services_records):
 
 @pytest.mark.django_db
 def test_uk_top_services_quarterly_totals(countries, trade_in_services_records):
-    records = [
-        {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
-        {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
-        {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
-        {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
-        {'code': '4', 'name': 'fourth', 'exports': 3, 'imports': 1},
-        {'code': '5', 'name': 'fifth', 'exports': 2, 'imports': 1},
-        {'code': '6', 'name': 'last', 'exports': 1, 'imports': 1},
-    ]
+    top_services_exports_cn = models.UKTradeInServicesByCountry.objects.top_services_exports().filter(
+        country__iso2='CN'
+    )
 
-    for iso2 in ['DE', 'FR', 'CN']:
-        for record in records:
-            models.UKTradeInServicesByCountry.objects.create(
-                country=countries[iso2],
-                period='quarter/2022-Q1',
-                period_type='quarter',
-                service_code=record['code'],
-                service_name=record['name'],
-                imports=record['imports'],
-                exports=record['exports'],
-            )
+    labels = ['first', 'second', 'third', 'fourth', 'fifth', 'last']
 
-    top_services_exports = models.UKTradeInServicesByCountry.objects.top_services_exports()
-
-    assert top_services_exports[0]['label'] == 'first'
-    assert top_services_exports[0]['total_value'] == 6
+    for idx, service in enumerate(top_services_exports_cn):
+        assert service['label'] == labels[idx]
 
 
 @pytest.mark.django_db
