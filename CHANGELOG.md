@@ -4,7 +4,7 @@
 ### Enhancements
 ### Bugs fixed
 - GLS-428 - Handle missing markets from the IMF dataset
-
+- GLS-425 - Fix trade in services queryset
 ## [2.5.0](https://github.com/uktrade/directory-api/releases/tag/2.5.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.2...2.5.0)
 ### Enhancements
