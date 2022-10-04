@@ -202,12 +202,20 @@ def world_economic_outlook_records(countries):
 
 
 @pytest.fixture()
-def metadata_last_release_records():
+def metadata_source_records():
     data = {
-        'TopFiveGoodsExportsByCountryView': '30 June 2020',
-        'TopFiveServicesExportsByCountryView': '30 June 2021',
-        'UKMarketTrendsView': '30 June 2022',
-        'UKTradeHighlightsView': '30 June 2022',
+        'TopFiveGoodsExportsByCountryView': {
+            'source': {'organisation': 'ONS', 'label': 'goods exports', 'last_release': '30 June 2020'}
+        },
+        'TopFiveServicesExportsByCountryView': {
+            'source': {'organisation': 'ONS', 'label': 'services exports', 'last_release': '30 June 2021'}
+        },
+        'UKMarketTrendsView': {
+            'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': '30 June 2022'}
+        },
+        'UKTradeHighlightsView': {
+            'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': '30 June 2022'}
+        },
     }
-    for view_name, last_release in data.items():
-        models.Metadata.objects.create(view_name=view_name, data={'last_release': last_release})
+    for view_name, metadata in data.items():
+        models.Metadata.objects.create(view_name=view_name, data=metadata)
