@@ -278,10 +278,13 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     lookup_field = 'country__iso2'
 
-    def get_uk_stats(self, gdp_year, economic_growth_year):
-        queryset = self.queryset.stats(gdp_year=gdp_year, economic_growth_year=economic_growth_year).filter(
-            country__iso2='GB'
-        )
+    def get_uk_stats(self, mkt_pos_year, gdp_per_capita_year, economic_growth_year):
+        queryset = self.queryset.stats(
+            mkt_pos_year=mkt_pos_year,
+            gdp_per_capita_year=gdp_per_capita_year,
+            economic_growth_year=economic_growth_year,
+        ).filter(country__iso2='GB')
+
         serializer = self.get_serializer(queryset, many=True)
         data = {k: v for element in serializer.data for k, v in element.items()}
 
@@ -294,7 +297,9 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
 
         if data:
             self.kwargs['extra_metadata'] = self.get_uk_stats(
-                gdp_year=data['gdp_per_capita']['year'], economic_growth_year=data['economic_growth']['year']
+                mkt_pos_year=data['market_position']['year'],
+                gdp_per_capita_year=data['gdp_per_capita']['year'],
+                economic_growth_year=data['economic_growth']['year'],
             )
 
         return Response(data)

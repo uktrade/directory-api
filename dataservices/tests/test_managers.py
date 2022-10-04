@@ -117,8 +117,8 @@ def test_world_economic_outlook_manager_stats_latest_year(world_economic_outlook
     latest_years = data_manager.values_list('estimates_start_after', flat=True).distinct('country_id')
     stats = data_manager.stats()
 
-    # There are 3 countries in the current dataset x 2 different metrics for the latest year of non-projected data
-    assert len(stats) == 6
+    # There are 3 countries in the current dataset x 3 different metrics for the latest year of non-projected data
+    assert len(stats) == 9
 
     for country_stats in stats:
         assert country_stats.year == latest_years.get(country=country_stats.country)
@@ -127,9 +127,13 @@ def test_world_economic_outlook_manager_stats_latest_year(world_economic_outlook
 @pytest.mark.django_db
 def test_world_economic_outlook_manager_stats_specific_year(world_economic_outlook_records):
     data_manager = models.WorldEconomicOutlookByCountry.objects
-    stats = data_manager.stats(gdp_year=2019, economic_growth_year=2020)
+    stats = data_manager.stats(mkt_pos_year=2019, gdp_per_capita_year=2019, economic_growth_year=2020)
+    market_position_stats = stats.filter(subject_code=data_manager.GDP_MARKET_POSITION_CODE)
     gdp_stats = stats.filter(subject_code=data_manager.GDP_PER_CAPITA_USD_CODE)
     economic_growth_stats = stats.filter(subject_code=data_manager.ECONOMIC_GROWTH_CODE)
+
+    for market_position_stat in market_position_stats:
+        assert market_position_stat.year == 2019
 
     for gdp_stat in gdp_stats:
         assert gdp_stat.year == 2019

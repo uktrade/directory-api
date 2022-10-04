@@ -236,6 +236,9 @@ class EconomicHighlightsSerializer(BaseDataMetadataSerializer):
         model = models.WorldEconomicOutlookByCountry
 
     def to_representation(self, instance):
+        if instance.subject_code == self.Meta.model.objects.GDP_MARKET_POSITION_CODE:
+            key = 'market_position'
+            instance.value = int(instance.value)
         if instance.subject_code == self.Meta.model.objects.GDP_PER_CAPITA_USD_CODE:
             key = 'gdp_per_capita'
         elif instance.subject_code == self.Meta.model.objects.ECONOMIC_GROWTH_CODE:

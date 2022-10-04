@@ -4,6 +4,7 @@
 
 ### Enhancements
 - GLS-458 - Return dataset source data as metadata in the response
+- GLS-452 - Return market size as ranking based on GDP
 
 ### Bugs fixed
 - GLS-428 - Handle missing markets from the IMF dataset
