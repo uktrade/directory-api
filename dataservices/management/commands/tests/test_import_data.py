@@ -369,11 +369,11 @@ def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outloo
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_metadata_last_release_data(read_sql_mock, metadata_last_release_raw_data):
+def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_data):
     read_sql_mock.return_value = pd.DataFrame(metadata_last_release_raw_data)
 
     assert len(models.Metadata.objects.all()) == 0
 
-    management.call_command('import_metadata_last_release_data')
+    management.call_command('import_metadata_source_data')
 
     assert len(models.Metadata.objects.all()) == 4
