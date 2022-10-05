@@ -377,6 +377,7 @@ class WorldEconomicOutlookByCountry(models.Model):
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
+    ons_iso_alpha_3_code = models.CharField(unique=False, null=False, blank=False, max_length=3)
     subject_code = models.CharField(null=False, blank=False, max_length=20)
     subject_descriptor = models.CharField(null=False, blank=False, max_length=100)
     subject_notes = models.TextField(null=False, blank=False)

@@ -533,6 +533,7 @@ def test_dataservices_economic_highlights_api(client, world_economic_outlook_rec
 
     api_data = json.loads(response.content)
     expected_stats_obj = {
+        'market_position': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
         'economic_growth': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
         'gdp_per_capita': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
     }
