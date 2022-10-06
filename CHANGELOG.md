@@ -1,10 +1,22 @@
 # Changelog
 
 ## Pre release
+
+### Enhancements
+- GLS-458 - Return dataset source data as metadata in the response
+- GLS-452 - Return market size as ranking based on GDP
+
+### Bugs fixed
+- GLS-428 - Handle missing markets from the IMF dataset
+- GLS-425 - Fix trade in services queryset
+
+## [2.5.0](https://github.com/uktrade/directory-api/releases/tag/2.5.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.4.2...2.5.0)
 ### Enhancements
 - GLS-25 - Export plan data pipeline
 - GLS-262 - IMF stats endpoint for Market Guides' 'at a glance' widget
 - GLS-320 - Last release date of datasets as metadata from Data Workspace
+- GLS-379 - Update package to use Django 3.2
 - GLS-403 - Upgrade to Python version 3.9.13
 
 ### Bugs fixed

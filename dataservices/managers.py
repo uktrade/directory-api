@@ -65,9 +65,9 @@ class UKTtradeInServicesDataManager(models.Manager):
             period_type = 'quarter'
             period_list = []
             for quarter in [1, 2, 3, 4][current_quarter:]:
-                period_list.append(f'{period_type}/{current_year}-Q{quarter}')
-            for quarter in [1, 2, 3, 4][:current_quarter]:
                 period_list.append(f'{period_type}/{current_year - 1}-Q{quarter}')
+            for quarter in [1, 2, 3, 4][:current_quarter]:
+                period_list.append(f'{period_type}/{current_year}-Q{quarter}')
         else:
             period_type = 'year'
             period_list = [f'{period_type}/{current_year}']
@@ -111,7 +111,8 @@ class UKTtradeInGoodsDataManager(PeriodDataMixin, models.Manager):
         )
 
 
-class WorldEconomicOutlookDataManager(models.Manager):
+class WorldEconomicOutlookDataManager(CTEManager):
+    GDP_MARKET_POSITION_CODE = 'MKT_POS'
     GDP_PER_CAPITA_USD_CODE = 'NGDPDPC'
     ECONOMIC_GROWTH_CODE = 'NGDP_RPCH'
 
@@ -128,13 +129,19 @@ class WorldEconomicOutlookDataManager(models.Manager):
         return (
             super()
             .get_queryset()
-            .filter(Q(subject_code=self.GDP_PER_CAPITA_USD_CODE) | (Q(subject_code=self.ECONOMIC_GROWTH_CODE)))
+            .exclude(ons_iso_alpha_3_code__regex=r'\d')  # We want individual countries only
+            .filter(
+                Q(subject_code=self.GDP_MARKET_POSITION_CODE)
+                | Q(subject_code=self.GDP_PER_CAPITA_USD_CODE)
+                | (Q(subject_code=self.ECONOMIC_GROWTH_CODE))
+            )
         )
 
-    def stats(self, gdp_year=None, economic_growth_year=None):
-        if gdp_year and economic_growth_year:
+    def stats(self, mkt_pos_year=None, gdp_per_capita_year=None, economic_growth_year=None):
+        if mkt_pos_year and gdp_per_capita_year and economic_growth_year:
             queryset = self.get_queryset().filter(
-                Q(subject_code=self.GDP_PER_CAPITA_USD_CODE, year=gdp_year)
+                Q(subject_code=self.GDP_MARKET_POSITION_CODE, year=mkt_pos_year)
+                | Q(subject_code=self.GDP_PER_CAPITA_USD_CODE, year=gdp_per_capita_year)
                 | Q(subject_code=self.ECONOMIC_GROWTH_CODE, year=economic_growth_year)
             )
         else:

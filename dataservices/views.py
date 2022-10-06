@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from dataservices import filters, helpers, models, serializers
+from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
@@ -169,7 +169,6 @@ class TradeBarriersView(generics.GenericAPIView):
 
 
 class MetadataMixin:
-    METADATA_DATA_SOURCE_NOTES = None
     METADATA_DATA_RESOLUTION = 'quarter'
 
     limit = None
@@ -177,6 +176,9 @@ class MetadataMixin:
 
     def get_country(self):
         iso2 = self.request.query_params.get('iso2', '')
+        if not iso2:
+            return {}
+
         country = get_object_or_404(models.Country, iso2__iexact=iso2)
 
         return {'country': {'name': country.name, 'iso2': country.iso2}}
@@ -206,20 +208,11 @@ class MetadataMixin:
 
         return metadata.data | country | reference_period
 
-    def get(self, *args, **kwargs):
-        res = super().get(*args, **kwargs)
-        data = res.data
-        metadata = self.get_metadata()
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['metadata'] = self.get_metadata()
 
-        if isinstance(data, list):
-            data = data[: self.limit]
-
-        res.data = {
-            'metadata': metadata,
-            'data': data,
-        }
-
-        return res
+        return context
 
 
 class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
@@ -227,6 +220,7 @@ class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
     queryset = models.UKTradeInGoodsByCountry.objects
     serializer_class = serializers.UKTopFiveGoodsExportsSerializer
     filter_class = filters.UKTopFiveGoodsExportsFilter
+    renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     limit = 5
     reference_period = True
 
@@ -239,6 +233,7 @@ class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
     queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
     filter_class = filters.UKTopFiveServicesExportsFilter
+    renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     limit = 5
     reference_period = True
 
@@ -247,30 +242,22 @@ class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
 
 
 class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
-    METADATA_DATA_SOURCE_NOTES = [
-        'Total trade is the sum of all exports and imports over the same time period.',
-        'Data includes goods and services combined.',
-    ]
-
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKMarketTrendsSerializer
     filter_class = filters.UKMarketTrendsFilter
+    renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
 
     def get_queryset(self):
         return self.queryset.market_trends()
 
 
 class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
-    # NOTE: this note could be dynamic, as it depends on the reference period
-    METADATA_DATA_SOURCE_NOTES = [
-        'Data includes goods and services combined in the four quarters to the end of Q4 2021.'
-    ]
-
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKTradeHighlightsSerializer
     filter_class = filters.UKTradeHighlightsFilter
+    renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     lookup_field = 'country__iso2'
     reference_period = True
 
@@ -288,39 +275,32 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     queryset = models.WorldEconomicOutlookByCountry.objects
     serializer_class = serializers.EconomicHighlightsSerializer
     filter_class = filters.EconomicHighlightsFilter
+    renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     lookup_field = 'country__iso2'
 
-    def get_uk_stats(self, gdp_year, economic_growth_year):
-        queryset = self.queryset.stats(gdp_year=gdp_year, economic_growth_year=economic_growth_year).filter(
-            country__iso2='GB'
-        )
-        serializer = self.get_serializer(queryset, many=True)
-        data = {}
+    def get_uk_stats(self, mkt_pos_year, gdp_per_capita_year, economic_growth_year):
+        queryset = self.queryset.stats(
+            mkt_pos_year=mkt_pos_year,
+            gdp_per_capita_year=gdp_per_capita_year,
+            economic_growth_year=economic_growth_year,
+        ).filter(country__iso2='GB')
 
-        for obj in serializer.data:
-            data.update(obj)
+        serializer = self.get_serializer(queryset, many=True)
+        data = {k: v for element in serializer.data for k, v in element.items()}
 
         return {'uk_data': data}
-
-    def get(self, *args, **kwargs):
-        res = super().get(*args, **kwargs)
-        data = res.data['data']
-        metadata = res.data['metadata']
-        uk_data = self.get_uk_stats(
-            gdp_year=data['gdp_per_capita']['year'], economic_growth_year=data['economic_growth']['year']
-        )
-
-        res.data['metadata'] = metadata | uk_data
-
-        return res
 
     def retrieve(self, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        data = {}
+        data = {k: v for element in serializer.data for k, v in element.items()}
 
-        for obj in serializer.data:
-            data.update(obj)
+        if data:
+            self.kwargs['extra_metadata'] = self.get_uk_stats(
+                mkt_pos_year=data['market_position']['year'],
+                gdp_per_capita_year=data['gdp_per_capita']['year'],
+                economic_growth_year=data['economic_growth']['year'],
+            )
 
         return Response(data)
 

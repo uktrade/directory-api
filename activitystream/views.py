@@ -117,6 +117,9 @@ class ActivityStreamHawkResponseMiddleware:
     of the request can authenticate the response
     """
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     def process_response(self, viewset, response):
         """Adds the Server-Authorization header to the response, so the originator
         of the request can authenticate the response

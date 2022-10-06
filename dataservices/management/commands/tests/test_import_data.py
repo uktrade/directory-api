@@ -279,7 +279,7 @@ def trade_in_goods_by_quarter_raw_data():
 @pytest.fixture()
 def world_economic_outlook_raw_data():
     return {
-        'iso3': 'CHN CHN CHN CHN GBR GBR GBR GBR XXX XXX'.split(),
+        'ons_iso_alpha_3_code': 'CHN CHN CHN CHN GBR GBR GBR GBR XXX XXX'.split(),
         'subject_code': list(islice(cycle('NGDPDPC NGDP_RPCH'.split()), 10)),
         'subject_descriptor': list(islice(cycle(['GDP, current prices', 'GDP, constant prices']), 10)),
         'subject_notes': list(islice(cycle(['GDP is in U.S. dollars per person', 'Annual percentages of GDP']), 10)),
@@ -363,17 +363,17 @@ def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outloo
     management.call_command('import_countries')
     management.call_command('import_world_economic_outlook_data')
 
-    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 8
+    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 10
 
 
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_metadata_last_release_data(read_sql_mock, metadata_last_release_raw_data):
+def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_data):
     read_sql_mock.return_value = pd.DataFrame(metadata_last_release_raw_data)
 
     assert len(models.Metadata.objects.all()) == 0
 
-    management.call_command('import_metadata_last_release_data')
+    management.call_command('import_metadata_source_data')
 
     assert len(models.Metadata.objects.all()) == 4
