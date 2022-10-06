@@ -2454,11 +2454,8 @@ def test_company_user_csv_dump(mocked_get_file_from_s3, authed_client):
     response = authed_client.get(reverse('supplier-csv-dump'), {'token': settings.CSV_DUMP_AUTH_TOKEN})
     assert response.status_code == status.HTTP_200_OK
     assert response.content == b'company_name\r\nacme\r\n'
-    assert response._headers['content-type'] == ('Content-Type', 'text/csv')
-    assert response._headers['content-disposition'] == (
-        'Content-Disposition',
-        'attachment; filename="{filename}"'.format(filename=settings.SUPPLIERS_CSV_FILE_NAME),
-    )
+    assert response.headers['content-type'] == 'text/csv'
+    assert response.headers['content-disposition'] == f'attachment; filename="{settings.SUPPLIERS_CSV_FILE_NAME}"'
 
 
 @pytest.mark.django_db

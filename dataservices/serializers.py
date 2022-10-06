@@ -174,7 +174,12 @@ class PopulationDataSerializer(serializers.ModelSerializer):
         }
 
 
-class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
+class BaseDataMetadataSerializer(serializers.Serializer):
+    def get_metadata(self):
+        return self.context.get('metadata', {}) | self.context.get('view').kwargs.get('extra_metadata', {})
+
+
+class UKTopFiveGoodsExportsSerializer(BaseDataMetadataSerializer):
     label = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()
 
@@ -184,12 +189,8 @@ class UKTopFiveGoodsExportsSerializer(serializers.ModelSerializer):
     def get_value(self, obj):
         return millions_to_currency_unit(obj['total_value'])
 
-    class Meta:
-        model = models.UKTradeInGoodsByCountry
-        fields = ['label', 'value']
 
-
-class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
+class UKTopFiveServicesExportSerializer(BaseDataMetadataSerializer):
     label = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()
 
@@ -199,14 +200,14 @@ class UKTopFiveServicesExportSerializer(serializers.ModelSerializer):
     def get_value(self, obj):
         return millions_to_currency_unit(obj['total_value'])
 
-    class Meta:
-        model = models.UKTradeInServicesByCountry
-        fields = ['label', 'value']
 
-
-class UKMarketTrendsSerializer(serializers.ModelSerializer):
+class UKMarketTrendsSerializer(BaseDataMetadataSerializer):
+    year = serializers.SerializerMethodField()
     imports = serializers.SerializerMethodField()
     exports = serializers.SerializerMethodField()
+
+    def get_year(self, obj):
+        return obj['year']
 
     def get_imports(self, obj):
         return millions_to_currency_unit(obj['imports'])
@@ -214,12 +215,8 @@ class UKMarketTrendsSerializer(serializers.ModelSerializer):
     def get_exports(self, obj):
         return millions_to_currency_unit(obj['exports'])
 
-    class Meta:
-        model = models.UKTotalTradeByCountry
-        exclude = ['id', 'country', 'ons_iso_alpha_2_code', 'quarter']
 
-
-class UKTradeHighlightsSerializer(serializers.Serializer):
+class UKTradeHighlightsSerializer(BaseDataMetadataSerializer):
     total_uk_exports = serializers.SerializerMethodField()
     trading_position = serializers.SerializerMethodField()
     percentage_of_uk_trade = serializers.SerializerMethodField()
@@ -233,16 +230,15 @@ class UKTradeHighlightsSerializer(serializers.Serializer):
     def get_percentage_of_uk_trade(self, obj):
         return obj['percentage_of_uk_trade']
 
-    class Meta:
-        model = models.UKTotalTradeByCountry
-        fields = ['total_uk_exports', 'trading_position', 'percentage_of_uk_trade']
 
-
-class EconomicHighlightsSerializer(serializers.Serializer):
+class EconomicHighlightsSerializer(BaseDataMetadataSerializer):
     class Meta:
         model = models.WorldEconomicOutlookByCountry
 
     def to_representation(self, instance):
+        if instance.subject_code == self.Meta.model.objects.GDP_MARKET_POSITION_CODE:
+            key = 'market_position'
+            instance.value = int(instance.value)
         if instance.subject_code == self.Meta.model.objects.GDP_PER_CAPITA_USD_CODE:
             key = 'gdp_per_capita'
         elif instance.subject_code == self.Meta.model.objects.ECONOMIC_GROWTH_CODE:

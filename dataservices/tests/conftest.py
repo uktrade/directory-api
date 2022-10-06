@@ -187,7 +187,11 @@ def trade_in_goods_records(countries):
 @pytest.fixture()
 def world_economic_outlook_records(countries):
     for idx, (iso2, estimates_after) in enumerate({'GB': 2019, 'DE': 2020, 'CN': 2021}.items(), 1):
-        for code, descriptor in {'NGDPDPC': 'GDPPC, current prices', 'NGDP_RPCH': 'GDP, constant prices'}.items():
+        for code, descriptor in {
+            'MKT_POS': 'Market size rankings',
+            'NGDPDPC': 'GDPPC, current prices',
+            'NGDP_RPCH': 'GDP, constant prices',
+        }.items():
             for year in range(2018, 2022):
                 models.WorldEconomicOutlookByCountry.objects.create(
                     country=countries[iso2],
@@ -202,12 +206,20 @@ def world_economic_outlook_records(countries):
 
 
 @pytest.fixture()
-def metadata_last_release_records():
+def metadata_source_records():
     data = {
-        'TopFiveGoodsExportsByCountryView': '30 June 2020',
-        'TopFiveServicesExportsByCountryView': '30 June 2021',
-        'UKMarketTrendsView': '30 June 2022',
-        'UKTradeHighlightsView': '30 June 2022',
+        'TopFiveGoodsExportsByCountryView': {
+            'source': {'organisation': 'ONS', 'label': 'goods exports', 'last_release': '30 June 2020'}
+        },
+        'TopFiveServicesExportsByCountryView': {
+            'source': {'organisation': 'ONS', 'label': 'services exports', 'last_release': '30 June 2021'}
+        },
+        'UKMarketTrendsView': {
+            'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': '30 June 2022'}
+        },
+        'UKTradeHighlightsView': {
+            'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': '30 June 2022'}
+        },
     }
-    for view_name, last_release in data.items():
-        models.Metadata.objects.create(view_name=view_name, data={'last_release': last_release})
+    for view_name, metadata in data.items():
+        models.Metadata.objects.create(view_name=view_name, data=metadata)

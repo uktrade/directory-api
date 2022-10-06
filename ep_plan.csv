@@ -1,10 +1,10 @@
 sso_id,export_countries,export_commodity_codes
-20,[{'country_iso2_code': 'CN'}],[{'commodity_code': '101.2002.123'}]
-19,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]","[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
-18,[],[]
-17,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
-16,[],"[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+19,[{'country_iso2_code': 'CN'}],[{'commodity_code': '101.2002.123'}]
+18,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]","[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+17,[],[]
+16,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
 15,[],"[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
-14,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
-13,[],[]
+14,[],"[{'commodity_code': '101.2002.123', 'commodity_name': 'gin'}]"
+13,"[{'country_name': 'China', 'country_iso2_code': 'CN'}]",[]
 12,[],[]
+11,[],[]

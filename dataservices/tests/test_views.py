@@ -377,11 +377,7 @@ def test_trading_trade_barrier_with_sectors(mock_api_client, client):
 
 
 @pytest.mark.django_db
-def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_records, metadata_last_release_records):
-    metadata = models.Metadata.objects.get(view_name='TopFiveGoodsExportsByCountryView')
-    metadata.data = metadata.data | {'label': 'ONS UK trade'}
-    metadata.save()
-
+def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_records, metadata_source_records):
     response = client.get(reverse('dataservices-top-five-goods-by-country'), data={'iso2': 'DE'})
 
     assert response.status_code == 200
@@ -390,8 +386,7 @@ def test_dataservices_top_five_goods_by_country_api(client, trade_in_goods_recor
 
     assert api_data['metadata'] == {
         'country': {'iso2': 'DE', 'name': 'Germany'},
-        'label': 'ONS UK trade',
-        'last_release': mock.ANY,
+        'source': {'organisation': 'ONS', 'label': 'goods exports', 'last_release': mock.ANY},
         'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 5
@@ -406,13 +401,7 @@ def test_dataservices_top_five_goods_by_country_api_for_no_iso2(client, trade_in
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_in_services_by_country_api(
-    client, trade_in_services_records, metadata_last_release_records
-):
-    metadata = models.Metadata.objects.get(view_name='TopFiveServicesExportsByCountryView')
-    metadata.data = metadata.data | {'label': 'ONS UK trade'}
-    metadata.save()
-
+def test_dataservices_trade_in_services_by_country_api(client, trade_in_services_records, metadata_source_records):
     response = client.get(reverse('dataservices-top-five-services-by-country'), data={'iso2': 'DE'})
 
     assert response.status_code == 200
@@ -421,8 +410,7 @@ def test_dataservices_trade_in_services_by_country_api(
 
     assert api_data['metadata'] == {
         'country': {'iso2': 'DE', 'name': 'Germany'},
-        'label': 'ONS UK trade',
-        'last_release': mock.ANY,
+        'source': {'organisation': 'ONS', 'label': 'services exports', 'last_release': mock.ANY},
         'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 5
@@ -437,17 +425,8 @@ def test_dataservices_trade_in_services_by_country_api_for_no_iso(client, trade_
 
 
 @pytest.mark.django_db
-def test_dataservices_market_trends_api(client, metadata_last_release_records):
+def test_dataservices_market_trends_api(client, metadata_source_records):
     country = factories.CountryFactory(iso2='XY')
-    metadata = models.Metadata.objects.get(view_name='UKMarketTrendsView')
-    metadata.data = metadata.data | {
-        'label': 'ONS UK total trade: all countries',
-        'notes': [
-            'Total trade is the sum of all exports and imports over the same time period.',
-            'Data includes goods and services combined.',
-        ],
-    }
-    metadata.save()
 
     for year in [2020, 2021]:
         for quarter in [1, 2, 3, 4]:
@@ -463,12 +442,7 @@ def test_dataservices_market_trends_api(client, metadata_last_release_records):
 
     assert api_data['metadata'] == {
         'country': {'iso2': 'XY', 'name': mock.ANY},
-        'label': 'ONS UK total trade: all countries',
-        'last_release': mock.ANY,
-        'notes': [
-            'Total trade is the sum of all exports and imports over the same time period.',
-            'Data includes goods and services combined.',
-        ],
+        'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': mock.ANY},
     }
     assert len(api_data['data']) == 2
 
@@ -512,15 +486,7 @@ def test_dataservices_market_trends_api_filter_by_year(client):
 
 
 @pytest.mark.django_db
-def test_dataservices_trade_highlights_api(client, metadata_last_release_records):
-    metadata = models.Metadata.objects.get(view_name='UKTradeHighlightsView')
-    metadata.data = metadata.data | {
-        'label': 'ONS UK total trade: all countries',
-        'notes': [
-            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
-        ],
-    }
-    metadata.save()
+def test_dataservices_trade_highlights_api(client, metadata_source_records):
     countries = [factories.CountryFactory(iso2='XY'), None]
     for country in countries:
         for year in [2020, 2021]:
@@ -538,11 +504,7 @@ def test_dataservices_trade_highlights_api(client, metadata_last_release_records
 
     assert api_data['metadata'] == {
         'country': {'iso2': 'XY', 'name': mock.ANY},
-        'label': 'ONS UK total trade: all countries',
-        'last_release': mock.ANY,
-        'notes': [
-            'Data includes goods and services combined in the four quarters to the end of Q4 2021.',
-        ],
+        'source': {'organisation': 'ONS', 'label': 'total exports', 'last_release': mock.ANY},
         'reference_period': {'period': mock.ANY, 'resolution': 'quarter', 'year': mock.ANY},
     }
     assert len(api_data['data']) == 3
@@ -571,6 +533,7 @@ def test_dataservices_economic_highlights_api(client, world_economic_outlook_rec
 
     api_data = json.loads(response.content)
     expected_stats_obj = {
+        'market_position': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
         'economic_growth': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
         'gdp_per_capita': {'value': mock.ANY, 'year': mock.ANY, 'is_projection': mock.ANY},
     }
@@ -590,3 +553,20 @@ def test_dataservices_economic_highlights_api_no_county_code(client):
     assert response.status_code == 400
 
     models.Country.objects.filter(iso2='XY').delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_economic_highlights_api_no_data_found(client):
+    factories.CountryFactory(iso2='XY')
+    factories.WorldEconomicOutlookByCountryFactory()
+
+    response = client.get(reverse('dataservices-economic-highlights'), data={'iso2': 'XY'})
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert api_data['metadata']
+    assert not api_data['data']
+
+    models.Country.objects.all().delete()

@@ -3,6 +3,7 @@ import sqlalchemy as sa
 from django.conf import settings
 from django.core.management import BaseCommand
 
+from dataservices import views
 from dataservices.models import Metadata
 
 
@@ -37,8 +38,14 @@ class Command(BaseCommand):
         for _idx, row in records.iterrows():
             if row.table_name in table_names_view_names.keys():
                 for view_name in table_names_view_names[row.table_name]:
+                    view = getattr(views, view_name)
+                    model = view.filter_class.Meta.model
                     instance, _created = Metadata.objects.get_or_create(view_name=view_name)
-                    instance.data['last_release'] = row.last_release.strftime('%Y-%m-%d')
+                    instance.data['source'] = {}
+                    instance.data['source']['organisation'] = model.METADATA_SOURCE_ORGANISATION
+                    instance.data['source']['label'] = model.METADATA_SOURCE_LABEL
+                    instance.data['source']['url'] = model.METADATA_SOURCE_URL
+                    instance.data['source']['last_release'] = row.last_release.isoformat()
                     instance.save()
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))

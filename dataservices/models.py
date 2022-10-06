@@ -300,6 +300,12 @@ class PopulationData(models.Model):
 
 
 class UKTradeInGoodsByCountry(models.Model):
+    METADATA_SOURCE_ORGANISATION = 'ONS'
+    METADATA_SOURCE_LABEL = 'Trade in goods: country-by-commodity exports'
+    METADATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktradecountrybycommodityexports'
+    )
+
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
@@ -317,6 +323,13 @@ class UKTradeInGoodsByCountry(models.Model):
 
 
 class UKTradeInServicesByCountry(models.Model):
+    METADATA_SOURCE_ORGANISATION = 'ONS'
+    METADATA_SOURCE_LABEL = 'UK trade in services: service type by partner country, non-seasonally adjusted'
+    METADATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/businessindustryandtrade/internationaltrade/datasets/'
+        'uktradeinservicesservicetypebypartnercountrynonseasonallyadjusted'
+    )
+
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
@@ -334,6 +347,13 @@ class UKTradeInServicesByCountry(models.Model):
 
 
 class UKTotalTradeByCountry(models.Model):
+    METADATA_SOURCE_ORGANISATION = 'ONS'
+    METADATA_SOURCE_LABEL = 'UK total trade: all countries, seasonally adjusted'
+    METADATA_SOURCE_URL = (
+        'https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/'
+        'uktotaltradeallcountriesseasonallyadjusted'
+    )
+
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
@@ -350,9 +370,14 @@ class UKTotalTradeByCountry(models.Model):
 
 
 class WorldEconomicOutlookByCountry(models.Model):
+    METADATA_SOURCE_ORGANISATION = 'IMF'
+    METADATA_SOURCE_LABEL = 'World Economic Outlook Database'
+    METADATA_SOURCE_URL = 'https://www.imf.org/en/Publications/WEO/weo-database/2022/April'
+
     country = models.ForeignKey(
         'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True
     )
+    ons_iso_alpha_3_code = models.CharField(unique=False, null=False, blank=False, max_length=3)
     subject_code = models.CharField(null=False, blank=False, max_length=20)
     subject_descriptor = models.CharField(null=False, blank=False, max_length=100)
     subject_notes = models.TextField(null=False, blank=False)
