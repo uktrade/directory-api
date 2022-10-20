@@ -168,3 +168,11 @@ class MetadataFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Metadata
+
+
+class UKFreeTradeAgreementFactory(factory.django.DjangoModelFactory):
+    country = factory.SubFactory(CountryFactory)
+    name = factory.fuzzy.FuzzyText(length=10)
+
+    class Meta:
+        model = models.UKFreeTradeAgreement

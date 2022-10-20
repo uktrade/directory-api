@@ -311,3 +311,15 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
 
     def get_queryset(self):
         return super().get_queryset().stats()
+
+
+class UKFreeTradeAgreementsView(generics.ListAPIView):
+    permission_classes = []
+    queryset = models.UKFreeTradeAgreement.objects
+    serializer_class = serializers.UKFreeTradeAgreementSerializer
+
+    def list(self, *args, **kwargs):
+        res = super().list(*args, **kwargs)
+        res.data = {'data': res.data}
+
+        return res

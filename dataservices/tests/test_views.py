@@ -570,3 +570,25 @@ def test_dataservices_economic_highlights_api_no_data_found(client):
     assert not api_data['data']
 
     models.Country.objects.all().delete()
+
+
+@pytest.mark.django_db
+def test_dataservices_uk_free_trade_agreements_api(client, uk_trade_agreements_records):
+    response = client.get(reverse('dataservices-trade-agreements'))
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data['data']) == 3
+
+
+@pytest.mark.django_db
+def test_dataservices_uk_free_trade_agreements_api_no_data(client):
+    response = client.get(reverse('dataservices-trade-agreements'))
+
+    assert response.status_code == 200
+
+    api_data = json.loads(response.content)
+
+    assert not api_data['data']
