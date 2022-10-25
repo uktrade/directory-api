@@ -3,9 +3,14 @@
 ## Pre release
 
 ### Enhancements
-- KLS-97 - Add model + endpoint for handling UK's FTAs
 
 ### Bugs fixed
+
+## [2.7.0](https://github.com/uktrade/directory-api/releases/tag/2.7.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.6.1...2.7.0)
+
+### Enhancements
+- KLS-97 - Add model + endpoint for handling UK's FTAs
 
 ## [2.6.1](https://github.com/uktrade/directory-api/releases/tag/2.6.1)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.6.0...2.6.1)
