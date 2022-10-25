@@ -3,6 +3,25 @@
 ## Pre release
 
 ### Enhancements
+
+### Bugs fixed
+
+## [2.7.0](https://github.com/uktrade/directory-api/releases/tag/2.7.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.6.1...2.7.0)
+
+### Enhancements
+- KLS-97 - Add model + endpoint for handling UK's FTAs
+
+## [2.6.1](https://github.com/uktrade/directory-api/releases/tag/2.6.1)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.6.0...2.6.1)
+
+### Bugs fixed
+- NOTICKET: Fix permission issue due to newer version of django
+
+## [2.6.0](https://github.com/uktrade/directory-api/releases/tag/2.6.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.5.0...2.6.0)
+
+### Enhancements
 - GLS-458 - Return dataset source data as metadata in the response
 - GLS-452 - Return market size as ranking based on GDP
 

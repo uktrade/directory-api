@@ -1,8 +1,11 @@
 import pytest
+from django.core.exceptions import ValidationError
 
+from dataservices import models
 from dataservices.tests.factories import (
     CIAFactBookFactory,
     ConsumerPriceIndexFactory,
+    CountryFactory,
     EaseOfDoingBusiness,
     GDPPerCapitaFactory,
     IncomeFactory,
@@ -59,3 +62,18 @@ def test_metadata_view_name():
     metadata = MetadataFactory(view_name='MyView')
 
     assert str(metadata) == 'MyView'
+
+
+@pytest.mark.django_db
+def test_uk_free_trade_agreement_no_name():
+    fta = models.UKFreeTradeAgreement()
+    with pytest.raises(ValidationError):
+        fta.clean_fields()
+
+    fta.country = CountryFactory()
+
+    assert fta.name == ''
+
+    fta.clean_fields()
+
+    assert fta.name == fta.country.name

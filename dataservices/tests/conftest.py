@@ -119,6 +119,8 @@ def total_trade_records(countries):
                     imports=idx + 1,
                     exports=idx + 1,
                 )
+    yield
+    models.UKTotalTradeByCountry.objects.all().delete()
 
 
 @pytest.fixture()
@@ -156,6 +158,8 @@ def trade_in_services_records(countries):
                     imports=record['imports'],
                     exports=record['exports'],
                 )
+    yield
+    models.UKTradeInServicesByCountry.objects.all().delete()
 
 
 @pytest.fixture()
@@ -182,6 +186,8 @@ def trade_in_goods_records(countries):
                         imports=record['imports'],
                         exports=record['exports'],
                     )
+    yield
+    models.UKTradeInGoodsByCountry.objects.all().delete()
 
 
 @pytest.fixture()
@@ -203,6 +209,8 @@ def world_economic_outlook_records(countries):
                     value=idx,
                     estimates_start_after=estimates_after,
                 )
+    yield
+    models.WorldEconomicOutlookByCountry.objects.all().delete()
 
 
 @pytest.fixture()
@@ -223,3 +231,19 @@ def metadata_source_records():
     }
     for view_name, metadata in data.items():
         models.Metadata.objects.create(view_name=view_name, data=metadata)
+    yield
+    models.Metadata.objects.all().delete()
+
+
+@pytest.fixture()
+def uk_trade_agreements_records(countries):
+    fta_records = [
+        ('IN', 'FTA with India'),
+        ('CN', 'FTA with China'),
+        ('CA', 'FTA with Canada'),
+    ]
+
+    for iso2, name in fta_records:
+        models.UKFreeTradeAgreement.objects.create(country=countries[iso2], name=name)
+    yield
+    models.UKFreeTradeAgreement.objects.all().delete()
