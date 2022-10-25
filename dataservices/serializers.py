@@ -245,3 +245,8 @@ class EconomicHighlightsSerializer(BaseDataMetadataSerializer):
             key = 'economic_growth'
 
         return {key: {'year': instance.year, 'value': instance.value, 'is_projection': instance.is_projection}}
+
+
+class UKFreeTradeAgreementSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        return instance.name

@@ -331,3 +331,13 @@ class MetadataAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.JSONField: {'widget': FlatJsonWidget},
     }
+
+
+@admin.register(models.UKFreeTradeAgreement)
+class UKFreetradeAgreementsAdmin(admin.ModelAdmin):
+    search_fields = (
+        'country__name',
+        'name',
+    )
+
+    list_display = ('country', 'name')

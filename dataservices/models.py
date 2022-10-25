@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -408,3 +409,23 @@ class Metadata(models.Model):
     class Meta:
         verbose_name = 'Metadata'
         verbose_name_plural = 'Metadata'
+
+
+class UKFreeTradeAgreement(models.Model):
+    country = models.ForeignKey(
+        'dataservices.Country', verbose_name=_('Countries'), on_delete=models.SET_NULL, null=True, blank=True
+    )
+    name = models.CharField(null=False, blank=True, max_length=100)
+
+    def clean_fields(self, *args, **kwargs):
+        if self.country:
+            self.name = self.name or self.country.name
+        elif not self.name:
+            raise ValidationError({'name': ['This field is required.']})
+
+        return super().clean_fields(*args, **kwargs)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'UK free trade aggreement'
+        verbose_name_plural = 'UK free trade aggreements'
