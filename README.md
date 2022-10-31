@@ -14,15 +14,37 @@
 
 ### Installing
 
-    $ git clone https://github.com/uktrade/directory-api
-    $ cd directory-api
-    $ virtualenv .venv -p Python3.9.2
-    $ source .venv/bin/activate
-    $ make install_requirements
+    1. $ git clone https://github.com/uktrade/directory-api
+    2. $ cd directory-api
+    3. $ virtualenv .venv -p Python3.9.13
+    4. $ source .venv/bin/activate
+    5. $ make install_requirements
+
+### Installing (Apple Silicon)
+
+    1. $ git clone https://github.com/uktrade/directory-api
+    2. $ cd directory-api
+    3. $ python3.9 -m venv .venv 
+    4. $ source .venv/bin/activate
+    5. $ make install_requirements
+
+<b>If you see the error: </b>
+
+`ld: warning: directory not found for option '-L/usr/local/opt/openssl/lib'
+ld: library not found for -lssl
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+error: command '/usr/bin/gcc' failed with exit code 1`
+
+<b>Try these additional steps between steps 4 and 5:</b>
+
+- $ brew install libpq --build-from-source
+- $ brew install openssl
+- $ export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib -L/opt/homebrew/opt/libpq/lib"
+- $ export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include -I/opt/homebrew/opt/libpq/include"
 
 ### Requirements
 
-* [Python 3.9](https://www.python.org/downloads/release/python-3913/)
+* [Python 3.9.13](https://www.python.org/downloads/release/python-3913/)
 * [Postgres](https://www.postgresql.org/)
 * [Redis](https://redis.io/)
 
