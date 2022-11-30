@@ -3,7 +3,7 @@
 ## Pre release
 
 ### Enhancements
-
+- KLS-237 - Patch pillow to v9.2.0
 ### Bugs fixed
 
 ## [2.7.0](https://github.com/uktrade/directory-api/releases/tag/2.7.0)

@@ -34,7 +34,7 @@ class APIClient:
         locations = list(filters.get("locations", {}).values())
         if len(locations):
             locations[0] = f"b.location = '{locations[0]}'"
-            location_query_str = reduce(lambda s, l: s + f" OR b.location = '{l}'", locations)
+            location_query_str = reduce(lambda s, loc: s + f" OR b.location = '{loc}'", locations)
             s3_filters.append(f"( {location_query_str} )")
 
         sectors = filters.get("sectors")
