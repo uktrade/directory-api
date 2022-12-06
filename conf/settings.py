@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'import_export',
     'flat_json_widget',
+    'survey.apps.SurveyConfig',
 ]
 
 MIDDLEWARE = [
