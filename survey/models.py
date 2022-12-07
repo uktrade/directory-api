@@ -17,7 +17,8 @@ QUESTION_TYPE_CHOICES = (
     ('RADIO', 'radio'),
     ('SELECT', 'select'),
     ('MULTI_SELECT', 'multi_select'),
-    ('TEXT', 'text'),
+    ('SHORT_TEXT', 'short_text'),
+    ('LONG_TEXT', 'long_text'),
 )
 
 

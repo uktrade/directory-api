@@ -18,7 +18,7 @@ class QuestionSerializer(ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'order', 'title', 'choices')
+        fields = ('id', 'order', 'title', 'type', 'add_other_option', 'choices')
         depth = 1
 
 

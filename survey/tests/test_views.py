@@ -33,9 +33,11 @@ def test_get_survey_success(api_client):
     assert data["name"] == survey.name
 
     assert len(data["questions"]) == 1
-    assert data["questions"][0]['id'] == question.id
-    assert data["questions"][0]['order'] == question.order
-    assert data["questions"][0]['title'] == question.title
+    assert data["questions"][0]["id"] == question.id
+    assert data["questions"][0]["order"] == question.order
+    assert data["questions"][0]["title"] == question.title
+    assert data["questions"][0]["type"] == question.type
+    assert data["questions"][0]["add_other_option"] == question.add_other_option
 
     assert len(data["questions"][0]["choices"]) == 1
     assert data["questions"][0]["choices"][0]["label"] == choice.label
