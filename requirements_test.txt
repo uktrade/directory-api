@@ -39,7 +39,7 @@ celery[redis]==5.2.3
     # via
     #   -r requirements.in
     #   django-celery-beat
-certifi==2021.10.8
+certifi==2022.12.7
     # via
     #   elasticsearch
     #   requests
