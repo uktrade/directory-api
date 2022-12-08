@@ -16,6 +16,7 @@ import exportplan.views
 import notifications.views
 import personalisation.views
 import testapi.views
+import survey.views
 
 admin.autodiscover()
 
@@ -332,6 +333,7 @@ urlpatterns = [
         enrolment.views.PreverifiedCompanyView.as_view(),
         name='enrolment-preverified',
     ),
+    url(r'^survey/(?P<pk>.*)', survey.views.SurveyDetailView.as_view(), name='retrieve-survey'),
 ]
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
