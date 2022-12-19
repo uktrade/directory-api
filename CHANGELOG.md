@@ -3,6 +3,7 @@
 ## Pre release
 ### Bugs fixed
 ### Enhancements
+- KLS-265 - Patch certify to 2022.12.17
 
 ## [2.8.0](https://github.com/uktrade/directory-api/releases/tag/2.8.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.7.0...2.8.0)
