@@ -1,11 +1,15 @@
 # Changelog
 
 ## Pre release
-
-### Enhancements
-- KLS-237 - Patch pillow to v9.2.0
-- KLS-245 - Create survey sub app and endpoint to retrieve a survey
 ### Bugs fixed
+### Enhancements
+- KLS-265 - Patch certify to 2022.12.17
+
+## [2.8.0](https://github.com/uktrade/directory-api/releases/tag/2.8.0)
+[Full Changelog](https://github.com/uktrade/directory-api/compare/2.7.0...2.8.0)
+### Enhancements
+- KLS-237 - Patch pillow to v9.3.0
+- KLS-245 - Create survey sub app and endpoint to retrieve a survey
 
 ## [2.7.0](https://github.com/uktrade/directory-api/releases/tag/2.7.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.6.1...2.7.0)
