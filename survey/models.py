@@ -44,14 +44,14 @@ class Question(TimeStampedModel):
 class Choice(TimeStampedModel):
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     label = models.CharField(
-        unique=True,
+        unique=False,
         blank=False,
         null=False,
         max_length=255,
         help_text='The text that will appear to users when the form is displayed',
     )
     value = models.CharField(
-        unique=True,
+        unique=False,
         blank=False,
         null=False,
         max_length=255,
@@ -62,6 +62,6 @@ class Choice(TimeStampedModel):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        help_text='''The question that the user will be shown next if they select thischoice,
+        help_text='''The question that the user will be shown next if they select this choice,
          if left blank they will be taken to the next question in order''',
     )
