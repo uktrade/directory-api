@@ -13,16 +13,20 @@ class Survey(TimeStampedModel):
         return self.name
 
 
-QUESTION_TYPE_CHOICES = (
-    ('RADIO', 'radio'),
-    ('SELECT', 'select'),
-    ('MULTI_SELECT', 'multi_select'),
-    ('SHORT_TEXT', 'short_text'),
-    ('LONG_TEXT', 'long_text'),
-)
-
-
 class Question(TimeStampedModel):
+    RADIO = 'radio'
+    SELECT = 'select'
+    MULTI_SELECT = 'multi_select'
+    SHORT_TEXT = 'short_text'
+    LONG_TEXT = 'long_text'
+    QUESTION_TYPE_CHOICES = (
+        (RADIO, 'Radio'),
+        (SELECT, 'Select'),
+        (MULTI_SELECT, 'Multi select'),
+        (SHORT_TEXT, 'Short text'),
+        (LONG_TEXT, 'Long text'),
+    )
+
     title = models.CharField(unique=True, blank=False, null=False, max_length=255)
     survey = models.ForeignKey(Survey, related_name='questions', on_delete=models.CASCADE)
     type = models.CharField(choices=QUESTION_TYPE_CHOICES, blank=False, null=False, max_length=255)
@@ -42,6 +46,12 @@ class Question(TimeStampedModel):
 
 
 class Choice(TimeStampedModel):
+
+    END = 'end'
+    JUMP = 'jump'
+    NO_ROUTING = None
+    ROUTING_CHOICES = ((END, 'Go to end'), (NO_ROUTING, 'None, go to next question'), (JUMP, 'Jump'))
+
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     label = models.CharField(
         unique=False,
@@ -65,3 +75,5 @@ class Choice(TimeStampedModel):
         help_text='''The question that the user will be shown next if they select this choice,
          if left blank they will be taken to the next question in order''',
     )
+
+    # additional_routing = models.CharField(blank=False, null=False, default=None, choices=ROUTING_CHOICES, max_length=4)
