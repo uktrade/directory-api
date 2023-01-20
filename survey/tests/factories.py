@@ -1,6 +1,6 @@
 import factory
 
-from survey.models import Choice, Question, QUESTION_TYPE_CHOICES, Survey
+from survey.models import Choice, Question, Survey
 
 
 class SurveyFactory(factory.django.DjangoModelFactory):
@@ -13,7 +13,7 @@ class SurveyFactory(factory.django.DjangoModelFactory):
 class QuestionFactory(factory.django.DjangoModelFactory):
     title = factory.fuzzy.FuzzyText(length=12)
     survey = factory.SubFactory(SurveyFactory)
-    type = factory.fuzzy.FuzzyChoice([i[0] for i in QUESTION_TYPE_CHOICES])
+    type = factory.fuzzy.FuzzyChoice([i[0] for i in Question.QUESTION_TYPE_CHOICES])
     order = factory.Sequence(lambda n: n)
 
     class Meta:
