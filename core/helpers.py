@@ -16,7 +16,7 @@ from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 from django.utils.deconstruct import deconstructible
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext as _
 from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from notifications_python_client.notifications import NotificationsAPIClient
 
