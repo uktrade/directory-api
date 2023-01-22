@@ -1,6 +1,6 @@
 import factory
 
-from survey.models import Choice, Question, QUESTION_TYPE_CHOICES, Survey
+from survey.models import QUESTION_TYPE_CHOICES, Choice, Question, Survey
 
 
 class SurveyFactory(factory.django.DjangoModelFactory):

@@ -15,8 +15,8 @@ import exporting.views
 import exportplan.views
 import notifications.views
 import personalisation.views
-import testapi.views
 import survey.views
+import testapi.views
 
 admin.autodiscover()
 
@@ -32,11 +32,11 @@ activity_stream_urls = [
         activitystream.views.ActivityStreamCompanyViewSet.as_view({'get': 'list'}),
         name='activity-stream-companies',
     ),
-    url(
-        r'^exportplan/$',
-        activitystream.views.ActivityStreamExportPlanDataViewSet.as_view({'get': 'list'}),
-        name='activity-stream-export-plan-data',
-    ),
+    # url(
+    #     r'^exportplan/$',
+    #     activitystream.views.ActivityStreamExportPlanDataViewSet.as_view({'get': 'list'}),
+    #     name='activity-stream-export-plan-data',
+    # ),
 ]
 
 
