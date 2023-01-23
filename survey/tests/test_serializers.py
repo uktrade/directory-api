@@ -2,21 +2,14 @@ import pytest
 
 from survey.models import Choice
 from survey.serializers import ChoiceSerializer
-from survey.tests.factories import ChoiceFactory, QuestionFactory
+from survey.tests.factories import ChoiceFactory
 
 
 @pytest.mark.django_db
 def test_get_jump_field():
-    question = QuestionFactory()
-    choice = ChoiceFactory(question=question, additional_routing=Choice.JUMP, question_to_jump_to=question)
+    for routing_choice in [Choice.JUMP, Choice.NO_ROUTING, Choice.END]:
+        choice = ChoiceFactory(additional_routing=routing_choice)
+        serializer = ChoiceSerializer(choice)
+        jump_value = choice.question_to_jump_to.id if choice.question_to_jump_to else routing_choice
 
-    data = {
-        "label": choice.label,
-        "value": choice.value,
-        "additional_routing": choice.additional_routing,
-        "question_to_jump_to": question.id,
-    }
-    serializer = ChoiceSerializer(data=data)
-    assert serializer.is_valid() is True
-    choice = serializer.save()
-    assert choice.jump == question.id
+        assert serializer.data['jump'] == jump_value

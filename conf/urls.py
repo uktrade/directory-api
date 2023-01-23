@@ -15,8 +15,8 @@ import exporting.views
 import exportplan.views
 import notifications.views
 import personalisation.views
-import testapi.views
 import survey.views
+import testapi.views
 
 admin.autodiscover()
 

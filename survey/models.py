@@ -79,7 +79,8 @@ class Choice(TimeStampedModel):
         default=NO_ROUTING,
         choices=ROUTING_CHOICES,
         max_length=4,
-        help_text='If a user selects this choice, is there any additional routing? Or do they go to the next question in order.',
+        help_text='''If a user selects this choice, is there any additional routing?
+        Or do they go to the next question in order.''',
     )
 
     question_to_jump_to = models.ForeignKey(
@@ -87,7 +88,7 @@ class Choice(TimeStampedModel):
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        help_text='''The question that the user will be shown next if they select this choice. 
+        help_text='''The question that the user will be shown next if they select this choice.
         This field is mandatory if additional routing is set to 'Jump to different question'.''',
     )
 

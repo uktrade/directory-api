@@ -22,7 +22,7 @@ def test_get_survey_not_found(api_client):
 def test_get_survey_success(api_client):
     survey = SurveyFactory.create()
     question = QuestionFactory.create(survey=survey)
-    choice = ChoiceFactory.create(question=question)
+    choice = ChoiceFactory.create(question=question, additional_routing='jump')
 
     url = reverse('retrieve-survey', kwargs={'pk': survey.id})
     response = api_client.get(url)
@@ -42,4 +42,4 @@ def test_get_survey_success(api_client):
     assert len(data["questions"][0]["choices"]) == 1
     assert data["questions"][0]["choices"][0]["label"] == choice.label
     assert data["questions"][0]["choices"][0]["value"] == choice.value
-    assert data["questions"][0]["choices"][0]["jump"] == choice.jump
+    assert data["questions"][0]["choices"][0]["jump"] == choice.question_to_jump_to.id
