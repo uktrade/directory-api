@@ -2,7 +2,17 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from survey.models import Choice
-from survey.tests.factories import ChoiceFactory
+from survey.tests.factories import ChoiceFactory, QuestionFactory, SurveyFactory
+
+
+@pytest.mark.parametrize(
+    'model_factory,attr_used_as_str',
+    ((SurveyFactory, 'name'), (QuestionFactory, 'title')),
+)
+@pytest.mark.django_db
+def test_model_to_string(model_factory, attr_used_as_str):
+    instance = model_factory()
+    assert str(instance) == getattr(instance, attr_used_as_str)
 
 
 @pytest.mark.django_db
