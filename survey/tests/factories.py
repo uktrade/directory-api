@@ -21,9 +21,14 @@ class QuestionFactory(factory.django.DjangoModelFactory):
 
 
 class ChoiceFactory(factory.django.DjangoModelFactory):
+    question = factory.SubFactory(QuestionFactory)
     label = factory.fuzzy.FuzzyText(length=12)
     value = factory.fuzzy.FuzzyText(length=12)
-    question = factory.SubFactory(QuestionFactory)
+    additional_routing = factory.fuzzy.FuzzyChoice([i[0] for i in Choice.ROUTING_CHOICES])
+
+    @factory.lazy_attribute
+    def question_to_jump_to(self):
+        return QuestionFactory() if self.additional_routing == Choice.JUMP else None
 
     class Meta:
         model = Choice

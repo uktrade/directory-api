@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.helpers import TimeStampedModel
@@ -50,7 +51,11 @@ class Choice(TimeStampedModel):
     END = 'end'
     JUMP = 'jump'
     NO_ROUTING = None
-    ROUTING_CHOICES = ((END, 'Go to end'), (NO_ROUTING, 'None, go to next question'), (JUMP, 'Jump'))
+    ROUTING_CHOICES = (
+        (END, 'Go to end'),
+        (NO_ROUTING, 'None, go to next question'),
+        (JUMP, 'Jump to a different question'),
+    )
 
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     label = models.CharField(
@@ -67,13 +72,28 @@ class Choice(TimeStampedModel):
         max_length=255,
         help_text='The value that the choice will be saved as if a user selects it',
     )
-    jump = models.ForeignKey(
+
+    additional_routing = models.CharField(
+        blank=True,
+        null=True,
+        default=NO_ROUTING,
+        choices=ROUTING_CHOICES,
+        max_length=4,
+        help_text='''If a user selects this choice, is there any additional routing?
+        Or do they go to the next question in order.''',
+    )
+
+    question_to_jump_to = models.ForeignKey(
         Question,
         blank=True,
         null=True,
         on_delete=models.CASCADE,
-        help_text='''The question that the user will be shown next if they select this choice,
-         if left blank they will be taken to the next question in order''',
+        help_text='''The question that the user will be shown next if they select this choice.
+        This field is mandatory if additional routing is set to 'Jump to different question'.''',
     )
 
-    # additional_routing = models.CharField(blank=False, null=False, default=None, choices=ROUTING_CHOICES, max_length=4)
+    def clean_fields(self, *args, **kwargs):
+        if self.additional_routing == self.JUMP:
+            if not self.question_to_jump_to:
+                raise ValidationError({'question_to_jump_to': ['This field is required.']})
+        return super().clean_fields(*args, **kwargs)
