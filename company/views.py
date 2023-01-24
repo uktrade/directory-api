@@ -131,7 +131,7 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
     )
     permission_classes = []
     pagination_class = pagination.CompanyPublicProfile
-    filter_class = filters.CompanyPublicProfileFilter
+    filterset_class = filters.CompanyPublicProfileFilter
     lookup_url_kwarg = 'companies_house_number'
     lookup_field = 'number'
 

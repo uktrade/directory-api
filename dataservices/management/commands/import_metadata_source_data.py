@@ -39,7 +39,7 @@ class Command(BaseCommand):
             if row.table_name in table_names_view_names.keys():
                 for view_name in table_names_view_names[row.table_name]:
                     view = getattr(views, view_name)
-                    model = view.filter_class.Meta.model
+                    model = view.filterset_class.Meta.model
                     instance, _created = Metadata.objects.get_or_create(view_name=view_name)
                     instance.data['source'] = {}
                     instance.data['source']['organisation'] = model.METADATA_SOURCE_ORGANISATION
