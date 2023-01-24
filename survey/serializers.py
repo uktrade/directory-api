@@ -1,9 +1,11 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from survey.models import Choice, Question, Survey
 
 
 class ChoiceSerializer(ModelSerializer):
+    jump = SerializerMethodField()
+
     class Meta:
         model = Choice
         fields = (
@@ -11,6 +13,12 @@ class ChoiceSerializer(ModelSerializer):
             'value',
             'jump',
         )
+
+    def get_jump(self, obj):
+        if obj.additional_routing == Choice.JUMP:
+            return obj.question_to_jump_to.id
+
+        return obj.additional_routing
 
 
 class QuestionSerializer(ModelSerializer):

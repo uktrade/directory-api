@@ -1,6 +1,6 @@
 import factory
 
-from survey.models import Choice, Question, QUESTION_TYPE_CHOICES, Survey
+from survey.models import Choice, Question, Survey
 
 
 class SurveyFactory(factory.django.DjangoModelFactory):
@@ -13,7 +13,7 @@ class SurveyFactory(factory.django.DjangoModelFactory):
 class QuestionFactory(factory.django.DjangoModelFactory):
     title = factory.fuzzy.FuzzyText(length=12)
     survey = factory.SubFactory(SurveyFactory)
-    type = factory.fuzzy.FuzzyChoice([i[0] for i in QUESTION_TYPE_CHOICES])
+    type = factory.fuzzy.FuzzyChoice([i[0] for i in Question.QUESTION_TYPE_CHOICES])
     order = factory.Sequence(lambda n: n)
 
     class Meta:
@@ -21,9 +21,14 @@ class QuestionFactory(factory.django.DjangoModelFactory):
 
 
 class ChoiceFactory(factory.django.DjangoModelFactory):
+    question = factory.SubFactory(QuestionFactory)
     label = factory.fuzzy.FuzzyText(length=12)
     value = factory.fuzzy.FuzzyText(length=12)
-    question = factory.SubFactory(QuestionFactory)
+    additional_routing = factory.fuzzy.FuzzyChoice([i[0] for i in Choice.ROUTING_CHOICES])
+
+    @factory.lazy_attribute
+    def question_to_jump_to(self):
+        return QuestionFactory() if self.additional_routing == Choice.JUMP else None
 
     class Meta:
         model = Choice
