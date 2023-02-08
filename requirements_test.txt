@@ -182,10 +182,12 @@ flake8==3.8.4
     # via -r requirements_test.in
 freezegun==0.3.12
     # via -r requirements_test.in
-future==0.18.2
+future==0.18.3
     # via
     #   arabic-reshaper
     #   django-json-widget
+greenlet==2.0.1
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
