@@ -760,7 +760,6 @@ def search_companies_ordering_data(settings):
 
 @pytest.fixture
 def search_companies_stopwords(settings):
-
     factories.CompanyFactory(
         name='mycompany ltd',
         description='',
@@ -1179,7 +1178,6 @@ search_urls = (
 @pytest.mark.parametrize('url', search_urls)
 @mock.patch('elasticsearch_dsl.response.Response.to_dict')
 def test_search(mock_get_search_results, url, api_client):
-
     mock_get_search_results.return_value = expected_value = {
         'hits': {
             'total': 2,
@@ -1386,7 +1384,6 @@ def test_search_results_stopwords(url, stop_term, search_companies_stopwords, ap
     ],
 )
 def test_search_term_expertise(url, term, expected, search_data, api_client):
-
     data = {
         'term': term,
         'page': '1',
@@ -1986,7 +1983,6 @@ def test_multi_user_account_management_views_forbidden(authed_client, authed_sup
 
 @pytest.mark.django_db
 def test_collaboration_request_create(authed_supplier, authed_client):
-
     url = reverse('collaborator-request')
     data = {
         'role': user_roles.ADMIN,
@@ -2369,7 +2365,6 @@ def test_external_company_user_details_get_no_supplier(authed_client, authed_sup
 
 @pytest.mark.django_db
 def test_external_company_user_sso_list(authed_client, authed_supplier):
-
     company_users = factories.CompanyUserFactory.create_batch(3)
     url = reverse('external-supplier-sso-list')
     response = authed_client.get(url)
@@ -2492,7 +2487,6 @@ def test_disconnect_company_user_multiple_admin(authed_supplier, authed_client, 
 
 @pytest.mark.django_db
 def test_company_user_retrieve_sso_id(client):
-
     company_user = factories.CompanyUserFactory()
 
     url = reverse('supplier-retrieve-sso-id', kwargs={'sso_id': company_user.sso_id})
@@ -2596,7 +2590,6 @@ def test_company_delete_endpoint_for_user_not_associated_with_company(authed_cli
 
 @pytest.mark.django_db
 def test_company_delete_endpoint_for_user_with_export_plan(authed_client):
-
     company = factories.CompanyFactory()
     company_export_plan = CompanyExportPlanFactory(company=company)
     company_user = factories.CompanyUserFactory(company=company)
@@ -2629,7 +2622,6 @@ def test_company_delete_endpoint_for_user_with_export_plan(authed_client):
 
 @pytest.mark.django_db
 def test_isd_company_delete_endpoint(authed_client):
-
     company = factories.CompanyFactory(is_published_investment_support_directory=True)
     company_user = factories.CompanyUserFactory(company=company)
     user_count = models.CompanyUser.objects.filter(sso_id=company_user.sso_id).count()

@@ -273,7 +273,6 @@ class EnrolCompanies(forms.Form):
 
 
 class UploadExpertise(forms.Form):
-
     MSG_PRODUCT_SERVICE_NOT_FOUND = 'Unable to find following products & services'
     MSG_COMPANY_NOT_FOUND = 'Company not found'
     MSG_COMPANY_TOO_MANY = 'More then one company returned'
@@ -289,7 +288,6 @@ class UploadExpertise(forms.Form):
 
     @transaction.atomic
     def clean_csv_file(self):
-
         self.update_errors = []
         self.updated_companies = []
 
@@ -349,7 +347,6 @@ class UploadExpertise(forms.Form):
         parsed_expertise = {}
         for e in expertise_list:
             for key, values in expertise_dict.items():
-
                 expertise_match = self.match_sequence(e, values)
                 if expertise_match is not None:
                     if parsed_expertise.get(key):

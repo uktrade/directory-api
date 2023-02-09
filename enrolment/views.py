@@ -13,7 +13,6 @@ from enrolment import models, serializers
 
 
 class EnrolmentCreateAPIView(APIView):
-
     http_method_names = ("post",)
     company_serializer_class = serializers.CompanyEnrolmentSerializer
     company_user_serializer_class = CompanyUserSerializer

@@ -23,7 +23,6 @@ class UserLocationAdmin(admin.ModelAdmin):
 
 @admin.register(models.CountryOfInterest)
 class CountryOfInterestAdmin(admin.ModelAdmin):
-
     search_fields = (
         'country',
         'sector',

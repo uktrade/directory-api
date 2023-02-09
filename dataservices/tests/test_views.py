@@ -106,7 +106,6 @@ def test_comtrade_data_by_country(api_client, comtrade_report_data):
 
 @pytest.mark.django_db
 def test_get_country_data_by_country_basic(api_client, multi_country_data):
-
     url = reverse('dataservices-country-data-by-country')
     response = api_client.get(
         url, data={'countries': ['NL'], 'fields': ['EaseOfDoingBusiness', 'CorruptionPerceptionsIndex', 'CIAFactbook']}
@@ -344,14 +343,12 @@ def test_trading_blocs_api(client):
 
 @pytest.mark.django_db
 def test_trading_blocs_api_with_no_iso2(client):
-
     response = client.get(reverse('dataservices-trading-blocs'))
     assert response.status_code == 500
 
 
 @pytest.mark.django_db
 def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_data, client):
-
     # Import country
     response = client.get(reverse('dataservices-trade-barriers'), data={'countries': ['CA']})
     assert response.status_code == 200
@@ -363,7 +360,6 @@ def test_trading_trade_barrier(trade_barrier_data_request_mock, trade_barrier_da
 @pytest.mark.django_db
 @mock.patch('dataservices.core.client_api.trade_barrier_data_gateway.barriers_list')
 def test_trading_trade_barrier_with_sectors(mock_api_client, client):
-
     # Import country
     mock_api_client.return_value = {}
     response = client.get(

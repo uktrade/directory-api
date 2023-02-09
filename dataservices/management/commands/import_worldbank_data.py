@@ -57,7 +57,6 @@ class Command(BaseCommand):
         )
 
     def load_worldbank_data(self, url, model_name):
-
         xml_data = from_url_get_xml(url)
         data_objects = []
         countries_not_found = []

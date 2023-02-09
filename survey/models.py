@@ -47,7 +47,6 @@ class Question(TimeStampedModel):
 
 
 class Choice(TimeStampedModel):
-
     END = 'end'
     JUMP = 'jump'
     NO_ROUTING = None

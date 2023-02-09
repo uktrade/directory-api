@@ -9,7 +9,6 @@ class CountryResource(resources.ModelResource):
     imported_rows_pk = []
 
     class Meta:
-
         model = Country
         skip_unchanged = True
         report_skipped = True

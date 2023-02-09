@@ -69,7 +69,6 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
 
 
 class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-
     permission_classes = [IsAuthenticatedSSO]
     lookup_field = 'pk'
 

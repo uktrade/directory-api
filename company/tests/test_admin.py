@@ -162,7 +162,6 @@ def test_companies_publish_form_handles_whitespace():
 
 @pytest.mark.django_db
 class DownloadCaseStudyCSVTestCase(TestCase):
-
     headers = (
         'company,created,description,id,image_one,image_one_caption,'
         'image_three,image_three_caption,image_two,image_two_caption,'
@@ -183,7 +182,6 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         self.freezer.stop()
 
     def test_download_csv_single_case_study(self):
-
         case_study = factories.CompanyCaseStudyFactory()
 
         data = {
@@ -256,7 +254,6 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert actual[3] == row_three
 
     def test_create_companies_form_success(self):
-
         file_path = os.path.join(settings.BASE_DIR, 'company/tests/fixtures/valid-companies-upload.csv')
 
         response = self.client.post(
@@ -447,7 +444,6 @@ class DownloadCaseStudyCSVTestCase(TestCase):
                 )
 
     def test_upload_expertise_companies_form_success(self):
-
         company_1 = factories.CompanyFactory(
             name='Test 1',
         )
@@ -516,7 +512,6 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         assert response.context_data['form'].errors == {'csv_file': ['[Row 3] {"name": ["This field is required."]}']}
 
     def test_create_companies_form_existing(self):
-
         company = factories.CompanyFactory(number=12355434)
         assert company.is_uk_isd_company is False
 
