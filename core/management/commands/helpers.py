@@ -4,7 +4,6 @@ from django.conf import settings
 
 
 class ExclusiveDistributedHandleMixin:
-
     help = (
         'Only one instance will run the migrations. All others will wait for '
         'the migrations to be completed...or fail resulting in deployment '

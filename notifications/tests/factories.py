@@ -17,7 +17,6 @@ class SupplierEmailNotificationFactory(factory.django.DjangoModelFactory):
 
 
 class AnonymousEmailNotificationFactory(factory.django.DjangoModelFactory):
-
     email = factory.Sequence(lambda n: '%d@example.com' % n)
     category = factory.fuzzy.FuzzyChoice(BUYER_CATEGORY_CHOICES)
 

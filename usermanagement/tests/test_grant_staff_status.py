@@ -17,6 +17,5 @@ def test_grant_staff_status():
 
 @pytest.mark.django_db
 def test_grant_staff_status_user_no_found():
-
     username = 'testuser@testuser.com'
     call_command('grant_staff_status', username)

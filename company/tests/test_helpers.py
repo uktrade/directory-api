@@ -106,7 +106,6 @@ def test_address_parser(raw_address, line_1, line_2, po_box, postal_code):
 
 @pytest.mark.django_db
 def test_extract_expertise_parser():
-
     company = factories.CompanyFactory(
         expertise_languages=['ab', 'aa', 'it', 'made-up'],
         expertise_industries=['ADVANCED_MANUFACTURING', 'AIRPORTS'],
@@ -218,7 +217,6 @@ def test_extract_recipient_address_gov_notify():
 @mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
 @mock.patch.object(forms_api_client, 'submit_generic')
 def test_send_request_identity_verification_message(mock_submit, mock_gov_email, settings):
-
     supplier = factories.CompanyUserFactory.create()
     company = supplier.company
 
@@ -268,7 +266,6 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
 @pytest.mark.django_db
 @mock.patch('directory_forms_api_client.actions.GovNotifyEmailAction')
 def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
-
     collaboration_invite = factories.CollaborationInviteFactory()
 
     assert mock_gov_notify_email_action.call_count == 1

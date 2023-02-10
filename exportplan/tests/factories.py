@@ -7,7 +7,6 @@ from exportplan import models
 
 
 class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
-
     company = factory.SubFactory(factories.CompanyFactory)
     export_countries = [{'country_name': 'China', 'country_iso2_code': 'CN'}]
     export_commodity_codes = [{'commodity_name': 'gin', 'commodity_code': '101.2002.123'}]
@@ -43,7 +42,6 @@ class CompanyExportPlanFactory(factory.django.DjangoModelFactory):
 
 
 class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
-
     description = 'export 5k cases of wine'
     planned_reviews = 'None planned'
     owner = None
@@ -58,7 +56,6 @@ class CompanyObjectivesFactory(factory.django.DjangoModelFactory):
 
 
 class RouteToMarketsFactory(factory.django.DjangoModelFactory):
-
     route = factory.fuzzy.FuzzyChoice([i[0] for i in choices.MARKET_ROUTE_CHOICES])
     promote = factory.fuzzy.FuzzyChoice([i[0] for i in choices.PRODUCT_PROMOTIONAL_CHOICES])
     market_promotional_channel = factory.fuzzy.FuzzyText(length=25)

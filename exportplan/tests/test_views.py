@@ -192,7 +192,6 @@ def test_export_plan_list_detail(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_export_plan_create(authed_client, authed_supplier):
-
     url = reverse('export-plan-create')
 
     data = {
@@ -359,7 +358,6 @@ def test_export_plan_model_create(model_class, property_name, create_data, authe
 )
 @pytest.mark.django_db
 def test_export_plan_model_retrieve(model_class, property_name, authed_client, export_plan):
-
     model_object = getattr(export_plan, property_name).all()[0]
 
     # lower model name is deliberate to test that it's not case sensitive
@@ -389,7 +387,6 @@ def test_export_plan_model_retrieve(model_class, property_name, authed_client, e
 )
 @pytest.mark.django_db
 def test_export_plan_model_update(model_class, property_name, data_update, authed_client, export_plan):
-
     attribute_updated = list(data_update.keys())[0]
     data_update['model_name'] = model_class.__name__
     model_object = getattr(export_plan, property_name).all()[0]
@@ -415,7 +412,6 @@ def test_export_plan_model_update(model_class, property_name, data_update, authe
 )
 @pytest.mark.django_db
 def test_export_plan_model_delete(model_class, property_name, authed_client, export_plan):
-
     model_object = getattr(export_plan, property_name).all()[0]
 
     # Upper model name is deliberate to test that it's not case sensitive

@@ -9,7 +9,6 @@ from notifications import models, notifications, serializers, tokens
 
 
 class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
-
     model = models.AnonymousUnsubscribe
     serializer_class = serializers.AnonymousUnsubscribeSerializer
     permission_classes = []

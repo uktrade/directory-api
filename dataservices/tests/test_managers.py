@@ -105,7 +105,6 @@ def test_uk_top_goods(countries, trade_in_goods_records):
 
 @pytest.mark.django_db
 def test_uk_top_goods_with_no_records(countries):
-
     top_goods_exports = models.UKTradeInGoodsByCountry.objects.top_goods_exports()
 
     assert len(top_goods_exports) == 0

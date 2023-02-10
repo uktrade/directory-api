@@ -5,7 +5,6 @@ from enrolment import models
 
 
 class PreVerifiedEnrolmentFactory(factory.django.DjangoModelFactory):
-
     company_number = factory.fuzzy.FuzzyText(length=8)
     email_address = factory.Sequence(lambda n: '%d@example.com' % n)
     is_active = True

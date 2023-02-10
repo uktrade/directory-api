@@ -28,7 +28,6 @@ class Country(TimeStampedModel):
 
 
 class EaseOfDoingBusiness(TimeStampedModel):
-
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
     value = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=15)
@@ -42,7 +41,6 @@ class EaseOfDoingBusiness(TimeStampedModel):
 
 
 class CorruptionPerceptionsIndex(TimeStampedModel):
-
     # Deprecated country_name - use country.name
     country_name = models.CharField(blank=False, null=False, max_length=255)
     # Deprecated country_name - use country.iso2/iso3
@@ -62,7 +60,6 @@ class CorruptionPerceptionsIndex(TimeStampedModel):
 
 
 class WorldEconomicOutlook(TimeStampedModel):
-
     # Deprecated country_name - use country.iso2/iso3
     country_code = models.CharField(unique=False, blank=False, null=False, max_length=50)
     # Deprecated country_name - use country.name
@@ -83,7 +80,6 @@ class WorldEconomicOutlook(TimeStampedModel):
 
 
 class CIAFactbook(TimeStampedModel):
-
     country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
     # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
