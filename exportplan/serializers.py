@@ -199,7 +199,6 @@ class CompanyExportPlanSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-
         # This will allow partial updating to json fields during a patch update. Json fields generally represent
         # a export plan page. we only want to update the field being sent else by nature we would wipe all the
         # other fields

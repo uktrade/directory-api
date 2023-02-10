@@ -38,7 +38,6 @@ def get_sector_label(sectors_value):
 
 
 class CompanyParser(directory_components.helpers.CompanyParser):
-
     INDUSTRIES = dict([*choices.SECTORS, *choices.INDUSTRIES])
 
     @property
@@ -52,7 +51,6 @@ class CompanyParser(directory_components.helpers.CompanyParser):
 
 
 class AddressParser:
-
     RE_PATTERN_POSTAL_CODE = r'([A-Z]{1,2}[0-9R][0-9A-Z]? ?[0-9][A-Z]{1,2})'
 
     def __init__(self, raw_address):
@@ -305,7 +303,6 @@ def send_user_collaboration_request_accepted_email(collaboration_request, form_u
 
 
 def send_admins_new_collaboration_request_email(collaboration_request, company_admins, form_url=None):
-
     request_details = {
         'company_name': collaboration_request.requestor.company.name,
         'email': collaboration_request.requestor.company_email,
@@ -390,7 +387,6 @@ def generate_company_users_csv(file_object, queryset):
     writer.writeheader()
 
     for company_user in company_users:
-
         sectors = company_user.get('company__sectors')
         if sectors:
             company_user['company__number_of_sectors'] = len(sectors)

@@ -13,7 +13,6 @@ PATTERN = f'{PREFIX}*'
 
 
 class Command(management.BaseCommand):
-
     help = """
     Migrate Elasticsearch indices with zero downtime - meaning that search will
     still work during the migration. The migration has four steps:

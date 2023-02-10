@@ -130,7 +130,6 @@ class CompaniesUploadExpertiseFormView(FormView):
         return kwargs
 
     def form_valid(self, form):
-
         return TemplateResponse(
             self.request,
             'admin/company/company_expertise_csv_upload_success.html',
@@ -268,7 +267,6 @@ class CompanyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(models.CompanyCaseStudy)
 class CompanyCaseStudyAdmin(admin.ModelAdmin):
-
     search_fields = (
         'company__name',
         'company__number',
@@ -323,7 +321,6 @@ class CollaborationRequestAdmin(admin.ModelAdmin):
 
 
 class ResendVerificationLetterFormView(SuccessMessageMixin, FormView):
-
     template_name = 'admin/company/confirm_send_verification_letter.html'
     form_class = ConfirmVerificationLetterForm
     success_url = reverse_lazy('admin:company_companyuser_changelist')
@@ -340,7 +337,6 @@ class ResendVerificationLetterFormView(SuccessMessageMixin, FormView):
 
 @admin.register(models.CompanyUser)
 class CompanyUserAdmin(admin.ModelAdmin):
-
     search_fields = (
         'sso_id',
         'name',

@@ -219,7 +219,6 @@ class CompanyUser(TimeStampedModel):
 
 
 class CollaborationInvite(TimeStampedModel):
-
     uuid = models.UUIDField(default=uuid.uuid4)
     collaborator_email = models.EmailField()
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.CASCADE)

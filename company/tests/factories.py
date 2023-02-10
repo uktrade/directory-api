@@ -20,7 +20,6 @@ fake.add_provider(factory.Faker('street_name'))
 
 
 class CompanyFactory(factory.django.DjangoModelFactory):
-
     number = factory.Iterator(company_house_number())
     name = factory.Faker('company')
     summary = factory.Faker('catch_phrase')
@@ -65,7 +64,6 @@ class CompanyFactory(factory.django.DjangoModelFactory):
 
 
 class CompanyCaseStudyFactory(factory.django.DjangoModelFactory):
-
     title = factory.fuzzy.FuzzyText(length=12)
     description = factory.fuzzy.FuzzyText(length=12)
     company = factory.SubFactory(CompanyFactory)
@@ -75,7 +73,6 @@ class CompanyCaseStudyFactory(factory.django.DjangoModelFactory):
 
 
 class CollaborationInviteFactory(factory.django.DjangoModelFactory):
-
     collaborator_email = factory.Sequence(lambda n: f'{n}@example.com')
     company = factory.SubFactory(CompanyFactory)
     company_user = factory.SubFactory('company.tests.factories.CompanyUserFactory')
@@ -88,7 +85,6 @@ class CollaborationInviteFactory(factory.django.DjangoModelFactory):
 
 
 class CollaborationRequestFactory(factory.django.DjangoModelFactory):
-
     requestor = factory.SubFactory('company.tests.factories.CompanyUserFactory')
     accepted = False
     accepted_date = None

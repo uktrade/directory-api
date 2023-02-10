@@ -13,7 +13,6 @@ class Command(BaseCommand):
         with open(
             'dataservices/resources/countries-and-territories-trading-blocs-25.0.csv', 'r', encoding='utf-8-sig'
         ) as f:
-
             data = tablib.import_set(f.read(), format='csv', headers=True)
             trading_blocs_data = []
 

@@ -11,7 +11,6 @@ class Command(BaseCommand):
     help = 'Import CorruptionPerceptionsIndex data from transparency.org/'
 
     def handle(self, *args, **options):
-
         key_mapping = {'CPI score': 'cpi_score', 'Rank': 'rank'}
 
         with open('dataservices/resources/corruption_perception_index.csv', 'r', encoding='utf-8-sig') as f:

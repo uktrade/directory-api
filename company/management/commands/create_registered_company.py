@@ -4,7 +4,6 @@ from company.models import Company
 
 
 class Command(BaseCommand):
-
     help = 'Used to create a company for integration tests.'
 
     def add_arguments(self, parser):

@@ -316,7 +316,6 @@ def test_set_companies_house_number():
 )
 @pytest.mark.django_db
 def test_set_non_companies_house_number(company_type, company_prefix, settings):
-
     company = factories.CompanyFactory(company_type=company_type)
 
     seed = settings.SOLE_TRADER_NUMBER_SEED + 1
@@ -359,7 +358,6 @@ def test_user_send_collaboration_request_email_on_decline(mock_send_email):
 @pytest.mark.django_db
 @mock.patch('company.helpers.send_admins_new_collaboration_request_email')
 def test_send_admins_new_collaboration_request_notification(mock_send_email):
-
     company = factories.CompanyFactory()
     factories.CompanyUserFactory(company=company, role=user_roles.ADMIN)
     factories.CompanyUserFactory(company=company, role=user_roles.ADMIN)

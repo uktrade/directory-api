@@ -18,7 +18,6 @@ from notifications import notifications
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
-
     serializer_class = serializers.CompanyNumberValidatorSerializer
     permission_classes = []
 
@@ -137,7 +136,6 @@ class CompanyPublicProfileViewSet(viewsets.ModelViewSet):
 
 
 class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
-
     read_serializer_class = serializers.CompanyCaseStudyWithCompanySerializer
     queryset = models.CompanyCaseStudy.objects.all()
     write_serializer_class = serializers.CompanyCaseStudySerializer
@@ -175,7 +173,6 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     renderer_classes = (JSONRenderer,)
 
     def post(self, request, *args, **kwargs):
-
         company = self.request.user.company
         serializer = self.serializer_class(data=request.data, context={'expected_code': company.verification_code})
         serializer.is_valid(raise_exception=True)
@@ -215,7 +212,6 @@ class RequestVerificationWithIdentificationView(views.APIView):
 
 
 class AbstractSearchAPIView(abc.ABC, views.APIView):
-
     permission_classes = []
     serializer_class = serializers.SearchSerializer
 
@@ -380,7 +376,6 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
 
 
 class CompanyUserUnsubscribeAPIView(views.APIView):
-
     http_method_names = ("post",)
 
     def post(self, request, *args, **kwargs):

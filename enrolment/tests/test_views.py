@@ -76,7 +76,6 @@ def test_enrolment_viewset_create(mock_send_registration_letter, settings):
 
 @pytest.mark.django_db
 def test_enrolment_viewset_create_optional_fields_unset():
-
     data = {
         'company_name': 'Example Corp.',
         'company_number': '07504387',

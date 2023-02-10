@@ -5,7 +5,6 @@ from core.helpers import TimeStampedModel
 
 
 class Buyer(TimeStampedModel):
-
     email = models.EmailField()
     name = models.CharField(max_length=255)
     sector = models.CharField(
