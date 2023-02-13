@@ -62,7 +62,6 @@ class CompanyCaseStudyWithCompanySerializer(CompanyCaseStudySerializer):
 
 
 class CompanySerializer(serializers.ModelSerializer):
-
     id = serializers.CharField(read_only=True)
     date_of_creation = serializers.DateField(required=False)
     sectors = serializers.JSONField(required=False)
@@ -156,7 +155,6 @@ class VerifyCompanyWithCodeSerializer(serializers.Serializer):
 
 
 class SearchSerializer(serializers.Serializer):
-
     OPTIONAL_FILTERS = [
         'term',
         'expertise_industries',
@@ -217,11 +215,9 @@ class RemoveCollaboratorsSerializer(serializers.Serializer):
 
 
 class CollaborationRequestSerializer(serializers.ModelSerializer):
-
     requestor_sso_id = serializers.IntegerField(source='requestor.sso_id', required=False, read_only=True)
 
     class Meta:
-
         model = models.CollaborationRequest
         fields = (
             'uuid',
@@ -285,7 +281,6 @@ class CollaborationInviteSerializer(serializers.ModelSerializer):
 
 
 class AddCollaboratorSerializer(serializers.ModelSerializer):
-
     company = serializers.SlugRelatedField(slug_field='number', queryset=models.Company.objects.all())
 
     class Meta:
@@ -315,7 +310,6 @@ class ChangeCollaboratorRoleSerializer(serializers.ModelSerializer):
 
 
 class ExternalCompanyUserSerializer(serializers.ModelSerializer):
-
     company_number = serializers.ReadOnlyField(source='company.number')
     company_name = serializers.ReadOnlyField(source='company.name')
     company_export_status = serializers.ReadOnlyField(source='company.export_status')

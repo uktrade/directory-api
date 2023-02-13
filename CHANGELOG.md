@@ -2,8 +2,13 @@
 
 ## Pre release
 ### Bugs fixed
+- KLS-348 - View attributes renamed to match filtersets
+
 ### Enhancements
 - KLS-265 - Patch certify to 2022.12.17
+- KLS-339 - Make label and value fields on Choice model not unique
+- KLS-290 - Add additional_routing logic to survey
+- Update black, blacken-docs and isort versions to latest
 
 ## [2.8.0](https://github.com/uktrade/directory-api/releases/tag/2.8.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.7.0...2.8.0)

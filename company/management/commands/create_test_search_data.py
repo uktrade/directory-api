@@ -4,7 +4,6 @@ from company.tests import factories
 
 
 class Command(BaseCommand):
-
     help = 'Create a companies and case studies to facilitate testing search.'
 
     def handle(self, *args, **options):

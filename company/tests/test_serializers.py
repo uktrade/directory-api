@@ -296,7 +296,6 @@ def test_company_search_serializer_empty_term_sector():
     ],
 )
 def test_company_search_serializer_optional_field(field, field_value):
-
     serializer = serializers.SearchSerializer(data={'page': 1, 'size': 10, field: field_value})
 
     assert serializer.is_valid() is True

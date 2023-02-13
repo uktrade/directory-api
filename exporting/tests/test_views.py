@@ -22,7 +22,6 @@ def office():
 @pytest.mark.django_db
 @mock.patch('exporting.helpers.postcode_to_region_id')
 def test_lookup_by_postcode_success(mock_postcode_to_region_id, api_client, office):
-
     mock_postcode_to_region_id.return_value = office.region_id
 
     url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})

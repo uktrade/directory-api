@@ -156,7 +156,6 @@ class TradeBarriersView(generics.GenericAPIView):
     permission_classes = []
 
     def get(self, *args, **kwargs):
-
         iso2_countries = self.request.query_params.getlist('countries')
         sectors = self.request.query_params.getlist('sectors')
         filters = {'locations': {}}
@@ -219,7 +218,7 @@ class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTradeInGoodsByCountry.objects
     serializer_class = serializers.UKTopFiveGoodsExportsSerializer
-    filter_class = filters.UKTopFiveGoodsExportsFilter
+    filterset_class = filters.UKTopFiveGoodsExportsFilter
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     limit = 5
     reference_period = True
@@ -232,7 +231,7 @@ class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTradeInServicesByCountry.objects
     serializer_class = serializers.UKTopFiveServicesExportSerializer
-    filter_class = filters.UKTopFiveServicesExportsFilter
+    filterset_class = filters.UKTopFiveServicesExportsFilter
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     limit = 5
     reference_period = True
@@ -245,7 +244,7 @@ class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKMarketTrendsSerializer
-    filter_class = filters.UKMarketTrendsFilter
+    filterset_class = filters.UKMarketTrendsFilter
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
 
     def get_queryset(self):
@@ -256,7 +255,7 @@ class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
     serializer_class = serializers.UKTradeHighlightsSerializer
-    filter_class = filters.UKTradeHighlightsFilter
+    filterset_class = filters.UKTradeHighlightsFilter
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     lookup_field = 'country__iso2'
     reference_period = True
@@ -274,7 +273,7 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     permission_classes = []
     queryset = models.WorldEconomicOutlookByCountry.objects
     serializer_class = serializers.EconomicHighlightsSerializer
-    filter_class = filters.EconomicHighlightsFilter
+    filterset_class = filters.EconomicHighlightsFilter
     renderer_classes = (renderers.CustomDataMetadataJSONRenderer,)
     lookup_field = 'country__iso2'
 

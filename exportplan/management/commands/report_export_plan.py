@@ -6,7 +6,6 @@ from exportplan.management.commands.report_helper import is_ep_plan_empty, set_u
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-
         empty_ep_counter = 0
         not_empty_ep_counter = 0
 

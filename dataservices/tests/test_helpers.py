@@ -176,5 +176,4 @@ def test_get_internet_usage_with_no_country():
     ],
 )
 def test_deep_extend(o1, o2, result):
-
     assert helpers.deep_extend(o1, o2) == result

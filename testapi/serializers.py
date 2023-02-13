@@ -91,7 +91,6 @@ class ISDCompanySerializer(ModelSerializer):
 
 
 class PublishedCompaniesSerializer(Serializer):
-
     name = CharField(read_only=True)
     number = CharField(read_only=True)
     sectors = ListField(read_only=True)

@@ -24,7 +24,6 @@ def user_location_data():
 
 @pytest.mark.django_db
 def test_user_location_create(user_location_data, authed_client, authed_supplier):
-
     url = reverse('personalisation-user-location-create')
 
     response = authed_client.post(url, user_location_data, format='json')
@@ -42,7 +41,6 @@ def test_user_location_create(user_location_data, authed_client, authed_supplier
 
 @pytest.mark.django_db
 def test_user_location_create_already_exists(user_location_data, authed_client):
-
     url = reverse('personalisation-user-location-create')
 
     response = authed_client.post(url, user_location_data, format='json')
@@ -148,7 +146,6 @@ def test_events_api(mock_search_with_activitystream, authed_client, settings):
 
 @pytest.mark.django_db
 def test_export_opportunities_api(authed_client, settings):
-
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
             'relevant_opportunities': [

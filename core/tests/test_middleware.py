@@ -32,7 +32,6 @@ def test_signature_check_middleware_admin(admin_client, settings):
 
 
 def test_signature_check_middleware_healthcheck(admin_client, settings):
-
     settings.MIDDLEWARE_CLASSES = SIGNATURE_CHECK_REQUIRED_MIDDLEWARE_CLASSES
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = True
     reload_urlconf()
