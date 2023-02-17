@@ -47,5 +47,5 @@ pandas==1.4.2
 sqlalchemy==1.4.36
 django-cte==1.2.0
 lxml==4.9.1
-oauthlib==3.2.1
+oauthlib==3.2.2
 pillow==9.3.0

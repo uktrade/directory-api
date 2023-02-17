@@ -163,6 +163,8 @@ future==0.18.3
     # via
     #   arabic-reshaper
     #   django-json-widget
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -195,7 +197,7 @@ notifications-python-client==6.3.0
     # via -r requirements.in
 numpy==1.24.0
     # via pandas
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements.in
     #   requests-oauthlib
