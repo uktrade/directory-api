@@ -55,6 +55,7 @@ class Choice(TimeStampedModel):
         (NO_ROUTING, 'None, go to next question'),
         (JUMP, 'Jump to a different question'),
     )
+    ADDITIONAL_ROUTING_ERROR = 'Multi-select questions cannot have more than one choice with additional routing.'
 
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     label = models.CharField(
