@@ -42,6 +42,10 @@ class Question(TimeStampedModel):
         help_text='The order in which the question appears in the survey.',
     )
 
+    @property
+    def choices_with_additional_routing(self):
+        return [c for c in self.choices.all() if c.additional_routing]
+
     def __str__(self):
         return self.title
 
@@ -93,7 +97,7 @@ class Choice(TimeStampedModel):
     )
 
     def clean_fields(self, *args, **kwargs):
+        super().clean_fields(*args, **kwargs)
         if self.additional_routing == self.JUMP:
             if not self.question_to_jump_to:
                 raise ValidationError({'question_to_jump_to': ['This field is required.']})
-        return super().clean_fields(*args, **kwargs)

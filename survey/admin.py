@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 from survey.models import Choice, Question, Survey
 
@@ -47,6 +49,19 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = (ChoiceInlineAdmin,)
 
 
+class ChoiceAdminForm(forms.ModelForm):
+    class Meta:
+        model = Choice
+        fields = '__all__'
+
+    def clean(self):
+        super(ChoiceAdminForm, self).clean()
+        question = self.cleaned_data['question']
+        if question.type == Question.MULTI_SELECT and self.cleaned_data['additional_routing']:
+            if len([c for c in question.choices_with_additional_routing if c != self.instance]):
+                raise ValidationError({'additional_routing': [Choice.ADDITIONAL_ROUTING_ERROR]})
+
+
 @admin.register(Choice)
 class ChoiceAdmin(admin.ModelAdmin):
     search_fields = (
@@ -57,3 +72,4 @@ class ChoiceAdmin(admin.ModelAdmin):
         'label',
         'question',
     )
+    form = ChoiceAdminForm

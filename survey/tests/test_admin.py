@@ -2,7 +2,7 @@ import pytest
 
 from django.forms.models import inlineformset_factory
 
-from survey.admin import ChoiceInlineFormset
+from survey.admin import ChoiceAdminForm, ChoiceInlineFormset
 from survey.models import Choice, Question
 from survey.tests.factories import ChoiceFactory, QuestionFactory
 
@@ -62,3 +62,27 @@ def test_choice_inline_form_validation(choice_2_additional_routing, expected_err
     assert formset.non_form_errors() == expected_errors
 
 
+@pytest.mark.parametrize(
+    'additional_routing,is_valid,', ((Choice.END, False), (Choice.JUMP, False), (Choice.NO_ROUTING, True))
+)
+@pytest.mark.django_db
+def test_choice_admin_form_validation(additional_routing, is_valid):
+    question = QuestionFactory(type=Question.MULTI_SELECT)
+    other_question = QuestionFactory()
+    ChoiceFactory(question=question, additional_routing=Choice.END)
+    data = {
+        'question': str(question.id),
+        'label': 'A choice',
+        'value': 'A choice',
+        'additional_routing': additional_routing,
+        'question_to_jump_to': '',
+    }
+
+    if additional_routing == Choice.JUMP:
+        data['question_to_jump_to'] = str(other_question.id)
+
+    form = ChoiceAdminForm(data)
+
+    assert form.is_valid() == is_valid
+    if not is_valid:
+        assert form.errors['additional_routing'][0] == Choice.ADDITIONAL_ROUTING_ERROR
