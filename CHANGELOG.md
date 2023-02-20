@@ -5,6 +5,7 @@
 - KLS-348 - View attributes renamed to match filtersets
 
 ### Enhancements
+- KLS-396 - Patch django to 3.2.18
 - KLS-265 - Patch certify to 2022.12.17
 - KLS-339 - Make label and value fields on Choice model not unique
 - KLS-290 - Add additional_routing logic to survey
