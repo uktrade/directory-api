@@ -99,3 +99,5 @@ staticfiles
 media
 conf/.env
 conf/env/secrets-do-not-commit
+
+.vscode/
