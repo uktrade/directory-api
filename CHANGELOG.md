@@ -6,6 +6,8 @@
 ### Enhancements
 - KLS-396 - Patch django to 3.2.18
 - KLS-385 - Add validation for additional routing on multi-select survey questions
+- KLS-415 - Patch cryptography to v39.0.1
+- KLS-420 - Patch oauthlib to v3.2.2
 
 ## [2.10.0](https://github.com/uktrade/directory-api/releases/tag/2.10.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.9.0...2.10.0)
