@@ -55,7 +55,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cryptography==3.3.2
+cryptography==39.0.1
     # via
     #   -r requirements.in
     #   pyhanko
@@ -163,6 +163,8 @@ future==0.18.3
     # via
     #   arabic-reshaper
     #   django-json-widget
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -195,7 +197,7 @@ notifications-python-client==6.3.0
     # via -r requirements.in
 numpy==1.24.0
     # via pandas
-oauthlib==3.2.1
+oauthlib==3.2.2
     # via
     #   -r requirements.in
     #   requests-oauthlib
@@ -271,7 +273,7 @@ reportlab==3.6.12
     # via
     #   svglib
     #   xhtml2pdf
-requests[security]==2.28.1
+requests[security]==2.28.2
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -292,7 +294,6 @@ sigauth==5.1.1
 six==1.16.0
     # via
     #   click-repl
-    #   cryptography
     #   django-extensions
     #   elasticsearch-dsl
     #   html5lib
