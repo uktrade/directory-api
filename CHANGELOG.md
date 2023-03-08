@@ -8,6 +8,7 @@
 - KLS-420 - Patch oauthlib to v3.2.2
 - KLS-454 - Allow multiple regions to relate to one Office object
 - KLS-505 - Patch sentry-sdk to 1.14.0
+- KLS-454 - Allow multiple regions to relate to one Office object and make address field optional
 
 ## [2.11.0](https://github.com/uktrade/directory-api/releases/tag/2.11.0)
 [Full Changelog](https://github.com/uktrade/directory-api/compare/2.10.0...2.11.0)
