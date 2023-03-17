@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from core.helpers import TimeStampedModel
@@ -8,7 +9,8 @@ class Office(TimeStampedModel):
         ordering = ['region_id']
 
     id = models.AutoField(auto_created=True, primary_key=True)
-    region_id = models.TextField()
+    region_id = models.TextField(blank=True, null=True)
+    region_ids = ArrayField(models.TextField(), null=True, help_text='Regions need to be separated by commas.')
     name = models.TextField()
     address_street = models.TextField()
     address_city = models.TextField()
