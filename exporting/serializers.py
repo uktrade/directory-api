@@ -11,6 +11,7 @@ class OfficeSerializer(serializers.ModelSerializer):
         fields = (
             'is_match',
             'region_id',
+            'region_ids',
             'name',
             'address_street',
             'address_city',
