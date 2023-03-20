@@ -27,12 +27,14 @@ class OfficeAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
         'region_id',
+        'region_ids',
         'email',
         'website',
     )
     list_display = (
-        'region_id',
         'name',
+        'region_id',
+        'region_ids',
         'email',
         'phone',
         'website',

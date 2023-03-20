@@ -1,5 +1,5 @@
 import requests.exceptions
-from django.db.models import BooleanField, Case, Value, When
+from django.db.models import BooleanField, Case, Q, Value, When
 from rest_framework.generics import ListAPIView
 
 from exporting import helpers, models, serializers
@@ -18,7 +18,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
         return models.Office.objects.annotate(
             is_match=Case(
                 When(
-                    region_id=region_id,
+                    Q(region_id=region_id) | Q(region_ids__contains=[region_id]),
                     then=Value(True),
                 ),
                 default=Value(False),
