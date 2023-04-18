@@ -15,6 +15,8 @@ asn1crypto==1.5.1
     #   oscrypto
     #   pyhanko
     #   pyhanko-certvalidator
+async-timeout==4.0.2
+    # via redis
 attrs==21.4.0
     # via
     #   jsonschema
@@ -78,9 +80,7 @@ dataclasses==0.06
 defusedxml==0.7.1
     # via odfpy
 deprecated==1.2.13
-    # via
-    #   -r requirements.in
-    #   redis
+    # via -r requirements.in
 diff-match-patch==20200713
     # via django-import-export
 directory-client-core==7.1.0
@@ -186,6 +186,8 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.31
     # via -r requirements_test.in
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -243,7 +245,6 @@ packaging==23.0
     #   black
     #   pytest
     #   pytest-sugar
-    #   redis
 pandas==1.4.2
     # via -r requirements.in
 pathspec==0.9.0
@@ -332,7 +333,7 @@ pyyaml==5.4
     #   tablib
 qrcode==7.3.1
     # via pyhanko
-redis==4.1.2
+redis==4.4.4
     # via
     #   celery
     #   django-redis
