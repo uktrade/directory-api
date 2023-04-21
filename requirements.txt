@@ -305,7 +305,7 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 sqlalchemy==1.4.36
     # via -r requirements.in
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via django
 svglib==1.4.1
     # via xhtml2pdf
