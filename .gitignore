@@ -95,6 +95,7 @@ Temporary Items
 
 # Dynamically created
 .venv
+venv
 staticfiles
 media
 conf/.env
