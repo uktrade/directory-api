@@ -319,7 +319,14 @@ def test_import_uk_total_trade_data(read_sql_mock):
     assert len(models.UKTotalTradeByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
+
+    # Dry run
     management.call_command('import_uk_total_trade_data')
+
+    assert len(models.UKTotalTradeByCountry.objects.all()) == 0
+
+    # Write option
+    management.call_command('import_uk_total_trade_data', '--write')
 
     assert len(models.UKTotalTradeByCountry.objects.all()) == 7
 
@@ -333,7 +340,14 @@ def test_import_uk_trade_in_services_data(read_sql_mock, trade_in_services_raw_d
     assert len(models.UKTradeInServicesByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
+
+    # Dry run
     management.call_command('import_uk_trade_in_services_data')
+
+    assert len(models.UKTradeInServicesByCountry.objects.all()) == 0
+
+    # Write option
+    management.call_command('import_uk_trade_in_services_data', '--write')
 
     assert len(models.UKTradeInServicesByCountry.objects.all()) == 6
 
@@ -347,7 +361,14 @@ def test_import_uk_trade_in_goods_data(read_sql_mock, trade_in_goods_by_quarter_
     assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
+
+    # Dry run
     management.call_command('import_uk_trade_in_goods_data')
+
+    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
+
+    # Write option
+    management.call_command('import_uk_trade_in_goods_data', '--write')
 
     assert len(models.UKTradeInGoodsByCountry.objects.all()) == 6
 
@@ -377,3 +398,39 @@ def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_da
     management.call_command('import_metadata_source_data')
 
     assert len(models.Metadata.objects.all()) == 4
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
+def test_import_market_guides_data(mock_call_command):
+    command_list = [
+        'import_uk_total_trade_data',
+        'import_uk_trade_in_goods_data',
+        'import_uk_trade_in_services_data',
+    ]
+
+    management.call_command('import_market_guides_data', '--write')
+
+    assert mock_call_command.call_count == 3
+
+    for idx, command in enumerate(command_list):
+        assert command in str(mock_call_command.call_args_list[idx])
+        assert 'write=True' in str(mock_call_command.call_args_list[idx])
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
+def test_import_market_guides_data_dry_run(mock_call_command):
+    command_list = [
+        'import_uk_total_trade_data',
+        'import_uk_trade_in_goods_data',
+        'import_uk_trade_in_services_data',
+    ]
+
+    management.call_command('import_market_guides_data')
+
+    assert mock_call_command.call_count == 3
+
+    for idx, command in enumerate(command_list):
+        assert command in str(mock_call_command.call_args_list[idx])
+        assert 'write=False' in str(mock_call_command.call_args_list[idx])

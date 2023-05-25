@@ -6,8 +6,8 @@ class Command(BaseCommand):
 
     command_list = [
         'import_uk_total_trade_data',
-        # 'import_uk_trade_in_goods_data',
-        # 'import_uk_trade_in_services_data',
+        'import_uk_trade_in_goods_data',
+        'import_uk_trade_in_services_data',
     ]
 
     def add_arguments(self, parser):
