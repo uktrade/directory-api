@@ -1,5 +1,4 @@
 import directory_validators.string
-from django.db.models import NullBooleanField
 from directory_constants import choices, user_roles
 from django.conf import settings
 from django.http import QueryDict
@@ -177,7 +176,7 @@ class SearchSerializer(serializers.Serializer):
     expertise_countries = serializers.MultipleChoiceField(choices=choices.COUNTRY_CHOICES, required=False)
     expertise_languages = serializers.MultipleChoiceField(choices=choices.EXPERTISE_LANGUAGES, required=False)
     expertise_products_services_labels = serializers.ListField(required=False)
-    is_showcase_company = NullBooleanField()
+    is_showcase_company = serializers.BooleanField(required=False)
 
     def validate(self, attrs):
         is_term_present = attrs.get('term') is not None

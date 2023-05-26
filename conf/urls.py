@@ -55,7 +55,9 @@ urlpatterns = [
         company.views.CompanyUserSSOListAPIView.as_view(),
         name='external-supplier-sso-list',
     ),
-    re_path(r'^external/supplier/$', company.views.CompanyUserRetrieveAPIView.as_view(), name='external-supplier-details'),
+    re_path(
+        r'^external/supplier/$', company.views.CompanyUserRetrieveAPIView.as_view(), name='external-supplier-details'
+    ),
     re_path(
         r'^supplier/gecko/total-registered/$',
         company.views.GeckoTotalRegisteredCompanyUser.as_view(),
@@ -147,7 +149,9 @@ urlpatterns = [
         name='change-collaborator-role',
     ),
     re_path(r'^supplier/$', company.views.CompanyUserRetrieveUpdateAPIView.as_view(), name='supplier'),
-    re_path(r'^supplier/unsubscribe/$', company.views.CompanyUserUnsubscribeAPIView.as_view(), name='unsubscribe-supplier'),
+    re_path(
+        r'^supplier/unsubscribe/$', company.views.CompanyUserUnsubscribeAPIView.as_view(), name='unsubscribe-supplier'
+    ),
     re_path(
         r'^public/case-study/(?P<pk>.*)/$',
         company.views.PublicCaseStudyViewSet.as_view({'get': 'retrieve'}),
@@ -338,12 +342,16 @@ urlpatterns = [
 
 if settings.STORAGE_CLASS_NAME == 'local-storage':
     urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.MEDIA_ROOT}, name='media'),
+        re_path(
+            r'^media/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.MEDIA_ROOT}, name='media'
+        ),
     ]
 elif settings.STORAGE_CLASS_NAME == 'default':
     urlpatterns += [
         re_path(r'buyer/csv-dump/$', buyer.views.BuyerCSVDownloadAPIView.as_view(), name='buyer-csv-dump'),
-        re_path(r'supplier/csv-dump/$', company.views.CompanyUserCSVDownloadAPIView.as_view(), name='supplier-csv-dump'),
+        re_path(
+            r'supplier/csv-dump/$', company.views.CompanyUserCSVDownloadAPIView.as_view(), name='supplier-csv-dump'
+        ),
     ]
 
 

@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext as _
@@ -83,7 +82,7 @@ class CIAFactbook(TimeStampedModel):
     country_key = models.CharField(unique=True, blank=False, null=False, max_length=50)
     # Deprecated country_name - use country.name
     country_name = models.CharField(unique=True, blank=False, null=False, max_length=255)
-    factbook_data = JSONField(null=True, blank=True, default=dict)
+    factbook_data = models.JSONField(null=True, blank=True, default=dict)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -397,7 +396,7 @@ class WorldEconomicOutlookByCountry(models.Model):
 class Metadata(models.Model):
     view_name = models.CharField(unique=True, null=False, blank=False, max_length=50)
     description = models.CharField(null=False, blank=True, max_length=100, default='')
-    data = JSONField(null=False, blank=True, default=dict)
+    data = models.JSONField(null=False, blank=True, default=dict)
 
     def __str__(self):
         return self.view_name
