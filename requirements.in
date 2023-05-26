@@ -25,9 +25,9 @@ sigauth==5.2.0
 django-staff-sso-client==4.2.0
 directory-validators==9.3.0
 directory-constants==23.1.0
-directory-sso-api-client==7.2.1
-directory-healthcheck==3.1.0
-directory-forms-api-client==7.2.0
+directory-sso-api-client>=7.2.1
+directory-healthcheck==3.1.1
+directory-forms-api-client>=7.2.0
 cryptography==39.0.1
 directory-components==39.1.0
 urllib3>=1.24.2<2.0.0
