@@ -114,6 +114,7 @@ django==4.1.9
     #   directory-healthcheck
     #   directory-validators
     #   django-celery-beat
+    #   django-extensions
     #   django-filter
     #   django-health-check
     #   django-import-export
@@ -130,7 +131,7 @@ django-cte==1.2.0
     # via -r requirements.in
 django-environ==0.4.5
     # via -r requirements.in
-django-extensions==2.2.5
+django-extensions==3.2.1
     # via -r requirements.in
 django-field-history==0.8.0
     # via -r requirements.in
@@ -140,7 +141,7 @@ django-flat-json-widget==0.2
     # via -r requirements.in
 django-health-check==3.17.0
     # via directory-healthcheck
-django-import-export==2.0.2
+django-import-export==3.2.0
     # via -r requirements.in
 django-json-widget==1.0.1
     # via -r requirements.in
@@ -182,6 +183,8 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.31
     # via -r requirements_test.in
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -364,7 +367,6 @@ sigauth==5.2.0
 six==1.16.0
     # via
     #   click-repl
-    #   django-extensions
     #   elasticsearch-dsl
     #   freezegun
     #   html5lib
@@ -386,7 +388,7 @@ sqlparse==0.4.4
     #   django
 svglib==1.2.1
     # via xhtml2pdf
-tablib[html,ods,xls,xlsx,yaml]==3.2.0
+tablib[html,ods,xls,xlsx,yaml]==3.4.0
     # via django-import-export
 termcolor==1.1.0
     # via pytest-sugar

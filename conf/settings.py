@@ -71,7 +71,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'core.middleware.SignatureCheckMiddleware',
+    # 'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
