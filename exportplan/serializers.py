@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from rest_framework import serializers
 
 from exportplan import helpers, models

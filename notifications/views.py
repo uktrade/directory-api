@@ -1,6 +1,6 @@
 from django.db.utils import IntegrityError
 from django.http import QueryDict
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -44,7 +44,7 @@ class AnonymousUnsubscribeCreateAPIView(CreateAPIView):
             return None
 
         try:
-            uid = force_text(urlsafe_base64_decode(uidb64))
+            uid = force_str(urlsafe_base64_decode(uidb64))
             notification = models.AnonymousEmailNotification.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, models.AnonymousEmailNotification.DoesNotExist):
             notification = None

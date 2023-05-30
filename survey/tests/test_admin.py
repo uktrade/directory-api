@@ -1,5 +1,4 @@
 import pytest
-
 from django.forms.models import inlineformset_factory
 
 from survey.admin import ChoiceAdminForm, ChoiceInlineFormset

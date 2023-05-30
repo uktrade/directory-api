@@ -1,6 +1,5 @@
 from directory_constants import choices
 from directory_validators.string import no_html
-from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import connection, models
 
@@ -25,29 +24,29 @@ class CompanyExportPlan(TimeStampedModel):
         Company, related_name='company_export_plans', on_delete=models.CASCADE, blank=True, null=True
     )
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', default=None, unique=False)
-    export_countries = JSONField(blank=True, default=list)
-    export_commodity_codes = JSONField(blank=True, default=list)
-    ui_options = JSONField(null=True, blank=True, default=dict)
-    ui_progress = JSONField(null=True, blank=True, default=dict)
-    about_your_business = JSONField(null=True, blank=True, default=dict)
+    export_countries = models.JSONField(blank=True, default=list)
+    export_commodity_codes = models.JSONField(blank=True, default=list)
+    ui_options = models.JSONField(null=True, blank=True, default=dict)
+    ui_progress = models.JSONField(null=True, blank=True, default=dict)
+    about_your_business = models.JSONField(null=True, blank=True, default=dict)
     # business objectives
-    objectives = JSONField(null=True, blank=True, default=dict)
+    objectives = models.JSONField(null=True, blank=True, default=dict)
     # Target Markets Research
-    target_markets_research = JSONField(null=True, blank=True, default=dict)
+    target_markets_research = models.JSONField(null=True, blank=True, default=dict)
     # adaptation for your target target
-    adaptation_target_market = JSONField(null=True, blank=True, default=dict)
+    adaptation_target_market = models.JSONField(null=True, blank=True, default=dict)
     # Marketing Approach
-    marketing_approach = JSONField(null=True, blank=True, default=dict)
+    marketing_approach = models.JSONField(null=True, blank=True, default=dict)
     # Cost and Pricing
-    direct_costs = JSONField(null=True, blank=True, default=dict)
-    overhead_costs = JSONField(null=True, blank=True, default=dict)
-    total_cost_and_price = JSONField(null=True, blank=True, default=dict)
+    direct_costs = models.JSONField(null=True, blank=True, default=dict)
+    overhead_costs = models.JSONField(null=True, blank=True, default=dict)
+    total_cost_and_price = models.JSONField(null=True, blank=True, default=dict)
     # Funding and Credit
-    funding_and_credit = JSONField(null=True, blank=True, default=dict)
+    funding_and_credit = models.JSONField(null=True, blank=True, default=dict)
     # Getting paid
-    getting_paid = JSONField(null=True, blank=True, default=dict)
+    getting_paid = models.JSONField(null=True, blank=True, default=dict)
     # Travel Business Policies
-    travel_business_policies = JSONField(null=True, blank=True, default=dict)
+    travel_business_policies = models.JSONField(null=True, blank=True, default=dict)
 
     objects = CompanyExportPlanQuerySet.as_manager()
 

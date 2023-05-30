@@ -1,12 +1,11 @@
 from datetime import timedelta
 
 from django import forms
-from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy
+from django.urls import re_path, reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView
 from import_export.admin import ExportActionMixin
@@ -241,22 +240,22 @@ class CompanyAdmin(ExportActionMixin, admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         additional_urls = [
-            url(
+            re_path(
                 r'^publish/$',
                 self.admin_site.admin_view(PublishByCompanyHouseNumberView.as_view()),
                 name="company_company_publish",
             ),
-            url(
+            re_path(
                 r'^create-many/$',
                 self.admin_site.admin_view(CompaniesCreateFormView.as_view()),
                 name="company_company_enrol",
             ),
-            url(
+            re_path(
                 r'^expertise-upload/$',
                 self.admin_site.admin_view(CompaniesUploadExpertiseFormView.as_view()),
                 name="upload_company_expertise",
             ),
-            url(
+            re_path(
                 r'^duplicates/$',
                 self.admin_site.admin_view(DuplicateCompaniesView.as_view()),
                 name="duplicate_companies",
@@ -394,7 +393,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         additional_urls = [
-            url(
+            re_path(
                 r'^admin/company/resend-verification-letter/$',
                 self.admin_site.admin_view(ResendVerificationLetterFormView.as_view()),
                 name='resend_verification_letter',

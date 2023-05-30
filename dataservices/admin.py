@@ -329,7 +329,7 @@ class MetadataAdmin(admin.ModelAdmin):
     list_display = ['view_name']
 
     formfield_overrides = {
-        models.JSONField: {'widget': FlatJsonWidget},
+        fields.JSONField: {'widget': FlatJsonWidget},
     }
 
 
