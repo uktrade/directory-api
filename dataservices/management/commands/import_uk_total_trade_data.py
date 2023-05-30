@@ -1,15 +1,14 @@
 import pandas as pd
 import sqlalchemy as sa
-from django.conf import settings
-from django.core.management import BaseCommand
 
 from dataservices.models import Country, UKTotalTradeByCountry
 
+from .helpers import MarketGuidesDataIngestionCommand
 
-class Command(BaseCommand):
+
+class Command(MarketGuidesDataIngestionCommand):
     help = 'Import ONS UK total trade data by country from Data Workspace'
 
-    engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
     sql = '''
         SELECT
             ons_iso_alpha_2_code,
@@ -37,7 +36,7 @@ class Command(BaseCommand):
             period;
     '''
 
-    def handle(self, *args, **options):
+    def load_data(self):
         data = []
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
@@ -62,7 +61,5 @@ class Command(BaseCommand):
                         exports=exports,
                     )
                 )
-        UKTotalTradeByCountry.objects.all().delete()
-        UKTotalTradeByCountry.objects.bulk_create(data)
 
-        self.stdout.write(self.style.SUCCESS('All done, bye!'))
+        return data
