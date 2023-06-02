@@ -1,15 +1,14 @@
 import pandas as pd
 import sqlalchemy as sa
-from django.conf import settings
-from django.core.management import BaseCommand
 
 from dataservices.models import Country, UKTradeInServicesByCountry
 
+from .helpers import MarketGuidesDataIngestionCommand
 
-class Command(BaseCommand):
+
+class Command(MarketGuidesDataIngestionCommand):
     help = 'Import ONS UK trade in services data by country from Data Workspace'
 
-    engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
     sql = '''
         SELECT
             iso2,
@@ -44,7 +43,7 @@ class Command(BaseCommand):
             service_name;
     '''
 
-    def handle(self, *args, **options):
+    def load_data(self):
         data = []
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
@@ -70,7 +69,4 @@ class Command(BaseCommand):
                     ),
                 )
 
-        UKTradeInServicesByCountry.objects.all().delete()
-        UKTradeInServicesByCountry.objects.bulk_create(data)
-
-        self.stdout.write(self.style.SUCCESS('All done, bye!'))
+        return data

@@ -3,7 +3,6 @@ import uuid
 from directory_constants import choices, company_types, user_roles
 from directory_validators.string import no_html
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -22,14 +21,14 @@ class Company(TimeStampedModel):
     summary = models.CharField(max_length=250, blank=True, default='', validators=[no_html])
     description = models.TextField(blank=True, default='', validators=[no_html])
     employees = models.CharField(max_length=20, choices=choices.EMPLOYEES, blank=True, default='')
-    export_destinations = JSONField(blank=True, default=list)
+    export_destinations = models.JSONField(blank=True, default=list)
     export_destinations_other = models.CharField(max_length=1000, blank=True, default='', validators=[no_html])
-    expertise_industries = JSONField(blank=True, default=list)
-    expertise_regions = JSONField(blank=True, default=list)
-    expertise_countries = JSONField(blank=True, default=list)
-    expertise_languages = JSONField(blank=True, default=list)
-    expertise_products_services = JSONField(blank=True, default=dict)
-    has_exported_before = models.NullBooleanField()
+    expertise_industries = models.JSONField(blank=True, default=list)
+    expertise_regions = models.JSONField(blank=True, default=list)
+    expertise_countries = models.JSONField(blank=True, default=list)
+    expertise_languages = models.JSONField(blank=True, default=list)
+    expertise_products_services = models.JSONField(blank=True, default=dict)
+    has_exported_before = models.BooleanField(null=True)
     is_exporting_goods = models.BooleanField(default=False)
     is_exporting_services = models.BooleanField(default=False)
     keywords = models.TextField(blank=True, default='', validators=[no_html])
@@ -46,8 +45,8 @@ class Company(TimeStampedModel):
         null=True,
         blank=True,
     )
-    sectors = JSONField(blank=True, default=list)
-    hs_codes = JSONField(blank=True, default=list)
+    sectors = models.JSONField(blank=True, default=list)
+    hs_codes = models.JSONField(blank=True, default=list)
     website = models.URLField(max_length=255, blank=True, default='')
     date_of_creation = models.DateField(blank=True, null=True)
     is_published_investment_support_directory = models.BooleanField(
@@ -103,7 +102,7 @@ class Company(TimeStampedModel):
         ]
     )
     companies_house_company_status = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
-    companies_house_sic_codes = JSONField(blank=True, default=list)
+    companies_house_sic_codes = models.JSONField(blank=True, default=list)
 
     class Meta:
         verbose_name_plural = 'companies'

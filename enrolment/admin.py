@@ -1,9 +1,8 @@
 import csv
 
-from django.conf.urls import url
 from django.contrib import admin
 from django.http import HttpResponse
-from django.urls import reverse_lazy
+from django.urls import re_path, reverse_lazy
 from django.views.generic import FormView, View
 
 from core.helpers import build_preverified_url
@@ -60,12 +59,12 @@ class PreVerifiedEnrolmentAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super(PreVerifiedEnrolmentAdmin, self).get_urls()
         additional_urls = [
-            url(
+            re_path(
                 r'^pre-verify-companies/$',
                 self.admin_site.admin_view(GeneratePreVerifiedCompaniesFormView.as_view()),
                 name="pre-verify-companies",
             ),
-            url(
+            re_path(
                 r'^example-template/$',
                 self.admin_site.admin_view(DownloadPreVerifiedTemplate.as_view()),
                 name="example-template",

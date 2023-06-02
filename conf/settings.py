@@ -73,7 +73,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
-    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,6 +143,8 @@ USE_TZ = True
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
+# Django>=3.2
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Static files served with Whitenoise and AWS Cloudfront
 # http://whitenoise.evans.io/en/stable/django.html#instructions-for-amazon-cloudfront
@@ -153,7 +154,7 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedManifestStaticFilesStorage')
+STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -528,12 +529,6 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 ]
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
-
-RESTRICT_ADMIN = env.bool('IP_RESTRICTOR_RESTRICT_IPS', False)
-ALLOWED_ADMIN_IPS = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IPS', default=[])
-ALLOWED_ADMIN_IP_RANGES = env.list('IP_RESTRICTOR_ALLOWED_ADMIN_IP_RANGES', default=[])
-RESTRICTED_APP_NAMES = env.list('IP_RESTRICTOR_RESTRICTED_APP_NAMES', default=['admin'])
-TRUST_PRIVATE_IP = True
 
 SOLE_TRADER_NUMBER_SEED = env.int('SOLE_TRADER_NUMBER_SEED')
 
