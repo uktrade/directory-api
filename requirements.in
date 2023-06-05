@@ -49,3 +49,4 @@ lxml==4.9.1
 oauthlib==3.2.2
 pillow==9.3.0
 sqlparse==0.4.4
+drf-spectacular==0.26.1

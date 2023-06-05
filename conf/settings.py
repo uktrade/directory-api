@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'import_export',
     'flat_json_widget',
     'survey.apps.SurveyConfig',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -196,8 +197,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('core.authentication.SessionAuthenticationSSO',),
     'DEFAULT_PERMISSION_CLASSES': ('core.permissions.IsAuthenticatedSSO',),
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+FEATURE_OPENAPI_ENABLED = env.bool("FEATURE_OPENAPI_ENABLED", False)
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Directory API',
+    'DESCRIPTION': 'Directory API service - the Department for Business and Trade (DBT)',
+    'VERSION': os.environ.get('GIT_TAG', 'dev'),
+}
 
 # Sentry
 if env.str('SENTRY_DSN', ''):
@@ -526,6 +534,9 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'health-check-single-sign-on',
     'health-check-elastic-search',
     'health-check-ping',
+    'schema',
+    'swagger-ui',
+    'redoc',
 ]
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
