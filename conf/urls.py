@@ -1,7 +1,6 @@
 import directory_healthcheck.views
 import django
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import re_path, reverse_lazy
@@ -375,10 +374,6 @@ if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
 if settings.FEATURE_OPENAPI_ENABLED:
     urlpatterns += [
         re_path('openapi/', SpectacularAPIView.as_view(), name='schema'),
-        re_path(
-            'openapi/ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'
-        ),
-        re_path(
-            'openapi/ui/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'
-        ),
+        re_path('openapi/ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        re_path('openapi/ui/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     ]
