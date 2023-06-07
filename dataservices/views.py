@@ -4,6 +4,9 @@ from django.apps import apps
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.serializers import IntegerField, CharField
+
+from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
 
 from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api
@@ -239,7 +242,20 @@ class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
     def get_queryset(self):
         return self.queryset.top_services_exports()
 
-
+@extend_schema(
+    responses={
+        200: inline_serializer(
+            name='UKMarketTrends200Response',
+            fields={
+                'country': CharField(),
+                'year': IntegerField(default=2023),
+                'imports': IntegerField(default=999),
+                'exports': IntegerField(default=999)
+            }
+        ),
+    },
+    description='UK Market Trends',
+)
 class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
@@ -250,7 +266,11 @@ class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
     def get_queryset(self):
         return self.queryset.market_trends()
 
-
+@extend_schema(
+    responses=serializers.UKTradeHighlightsSerializer,
+    description='UK Trade Highlights',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
@@ -311,7 +331,20 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     def get_queryset(self):
         return super().get_queryset().stats()
 
-
+@extend_schema(
+    responses={
+        200: inline_serializer(
+            name='UKFreeTradeAgreements200Response',
+            fields={
+                'country': CharField(),
+                'year': IntegerField(default=2023),
+                'imports': IntegerField(default=999),
+                'exports': IntegerField(default=999)
+            }
+        ),
+    },
+    description='UK Market Trends',
+)
 class UKFreeTradeAgreementsView(generics.ListAPIView):
     permission_classes = []
     queryset = models.UKFreeTradeAgreement.objects

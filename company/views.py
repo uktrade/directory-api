@@ -1,5 +1,4 @@
 import abc
-
 from directory_constants import user_roles
 from django.conf import settings
 from django.db.models import BooleanField, Case, Count, Q, Value, When
@@ -10,17 +9,29 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
+
 from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
+from rest_framework.serializers import ListField, IntegerField, CharField, JSONField
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
 from notifications import notifications
 
 
+
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
     serializer_class = serializers.CompanyNumberValidatorSerializer
     permission_classes = []
 
+    @extend_schema(
+        responses={
+            200: serializers.CompanyNumberValidatorSerializer,
+            400: OpenApiResponse(description='Bad request'),
+        },
+        parameters=[OpenApiParameter(name='number', description='Company Number', required=True, type=str)],
+    )
     def get(self, request, *args, **kwargs):
         validator = self.get_serializer(data=request.GET)
         validator.is_valid(raise_exception=True)
@@ -34,6 +45,17 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
     permission_classes = [permissions.ValidateDeleteRequest]
 
     @csrf_exempt
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                name='CompanyDestroyResponse',
+                fields={
+                    'deleted_company': CharField(default='TESCO'),
+                    'deleted_company_user': CharField(default='JOHN DOE'),
+                }
+            )
+        }
+    )
     def delete(self, request, *args, **kwargs):
         """
         delete endpoint will take sso_id (user_id) as kwargs to delete company
@@ -172,6 +194,17 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer,)
 
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                name='GeckoTotalRegisteredCompanyUserResponse',
+                fields={
+                    'status_code': IntegerField(default=status.HTTP_200_OK),
+                    'detail': CharField(default='Company verified with code'),
+                }
+            )
+        }
+    )
     def post(self, request, *args, **kwargs):
         company = self.request.user.company
         serializer = self.serializer_class(data=request.data, context={'expected_code': company.verification_code})
@@ -195,6 +228,12 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
 
     serializer_class = serializers.VerifyCompanyWithCompaniesHouseSerializer
 
+    @extend_schema(
+        responses={
+            200: None,
+            400: OpenApiResponse(description='Bad Request'),
+        },
+    )
     def post(self, request, *args, **kwargs):
         company = self.request.user.company
         serializer = self.serializer_class(data=request.data, context={'company_number': company.number})
@@ -259,6 +298,12 @@ class RemoveCollaboratorsView(views.APIView):
     def get_queryset(self):
         return self.request.user.company.company_users.exclude(pk=self.request.user.company_user.pk)
 
+    @extend_schema(
+        responses={
+            200: None,
+            400: OpenApiResponse(description='Bad request'),
+        },
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -337,6 +382,12 @@ class CompanyUserRetrieveAPIView(views.APIView):
         authentication.SessionAuthenticationSSO,
     ]
 
+    @extend_schema(
+        responses={
+            201: OpenApiResponse(serializers.ExternalCompanyUserSerializer),
+            404: OpenApiResponse(description='Not Found'),
+        },
+    )
     def get(self, request):
         if not self.request.user.company_user:
             raise Http404()
@@ -349,6 +400,16 @@ class CompanyUserSSOListAPIView(generics.ListAPIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(
+        responses=OpenApiTypes.OBJECT,
+        examples=[
+            OpenApiExample(
+                'GET Request 200 Example',
+                value={'data': [9999, 8888]},
+                response_only=True,
+            ),
+        ]
+    )
     def get(self, request):
         # normally DRF loops over the queryset and calls the serializer on each
         # supplier- which is much less performant than calling `values_list`
@@ -371,6 +432,16 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
     renderer_classes = (JSONRenderer,)
     http_method_names = ("get",)
 
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                name='GeckoTotalRegisteredCompanyUserResponse',
+                fields={
+                    'item': JSONField(default=[{'value': 'Company User Count', 'text': 'Total registered company users'}])
+                }
+            )
+        }
+    )
     def get(self, request, format=None):
         return Response(gecko.total_registered_company_users())
 
@@ -378,6 +449,17 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
 class CompanyUserUnsubscribeAPIView(views.APIView):
     http_method_names = ("post",)
 
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                name='CompanyUserUnsubscribeResponse',
+                fields={
+                    'status_code': IntegerField(default=status.HTTP_200_OK),
+                    'detail': CharField(default='CompanyUser unsubscribed'),
+                }
+            )
+        }
+    )
     def post(self, request, *args, **kwargs):
         """Unsubscribes supplier from notifications"""
         company_user = self.request.user.company_user
@@ -404,6 +486,13 @@ class CollaboratorDisconnectView(views.APIView):
     def get_object(self):
         return self.request.user.company_user
 
+    @extend_schema(
+        responses={
+            200: None,
+            400: OpenApiResponse(description='Bad request'),
+        },
+        parameters=[OpenApiParameter(name='number', description='Company Number', required=True, type=str)],
+    )
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()
         helpers.validate_other_admins_connected_to_company(company=supplier.company, sso_ids=[supplier.sso_id])

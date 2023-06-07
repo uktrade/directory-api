@@ -4,7 +4,9 @@ from datetime import datetime
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.utils.crypto import constant_time_compare
+from drf_spectacular.types import OpenApiTypes
 from django.utils.decorators import decorator_from_middleware
 from field_history.models import FieldHistory
 from mohawk import Receiver
@@ -182,6 +184,22 @@ class ActivityStreamViewSet(BaseActivityStreamViewSet):
         ]
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    @extend_schema(
+        responses=OpenApiTypes.OBJECT,
+        examples=[
+            OpenApiExample(
+                'GET Request 200 Example',
+                value={
+                    '@context': 'list',
+                    'type': 'Collection',
+                    'orderedItems': 'list',
+                    'next_page': 'url'
+                },
+                response_only=True,
+            ),
+        ],
+        parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
+    )
     def list(self, request):
         """A single page of activities
         The last page is the page without a 'next' key. A page can be empty,
@@ -253,6 +271,11 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
     """View set to list companies for the activity stream"""
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    @extend_schema(
+            responses=ActivityStreamCompanySerializer,
+            description='Companies to be consumed by Activity stream.',
+            parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
+    )
     def list(self, request):
         """A single page of companies to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
@@ -271,6 +294,11 @@ class ActivityStreamExportPlanDataViewSet(BaseActivityStreamViewSet):
     """View set to list export plan data for the activity stream"""
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
+    @extend_schema(
+            responses=ActivityStreamExportPlanDataSerializer,
+            description='Export plan question for Activity stream.',
+            parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
+    )
     def list(self, request):
         """A single page of export plan questions to be consumed by activity stream."""
         after_ts, after_id = self._parse_after(request)
