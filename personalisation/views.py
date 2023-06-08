@@ -1,4 +1,3 @@
-import http
 import logging
 
 from django.db.models import Count
@@ -31,12 +30,10 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedSSO]
     queryset = models.UserLocation.objects.all()
 
-    
     def perform_create(self, serializer):
         serializer.validated_data['sso_id'] = self.request.user.id
         serializer.save()
 
-    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -60,7 +57,7 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
 
 
 class EventsView(generics.GenericAPIView):
-    """Events API - finds events near given geo-coordinates"""
+    '''Events API - finds events near given geo-coordinates'''
 
     permission_classes = []
 
@@ -72,7 +69,6 @@ class EventsView(generics.GenericAPIView):
             # CENTRE OF LONDON
             return [51.507351, -0.127758]
 
-    
     def get_search_terms(self):
         company = self.request.user.company
         parser = CompanyParser(
@@ -83,16 +79,14 @@ class EventsView(generics.GenericAPIView):
         )
         return [item for item in parser.expertise_labels_for_search if item]
 
-
     @extend_schema(
         responses={
             200: inline_serializer(
                 name='Events200Response',
                 fields={
-                    'results': CharField(default='Events Data'),
-                }
+                    'results': CharField(default='<Events Data>'),
+                },
             ),
-
         },
     )
     def get(self, *args, **kwargs):
@@ -111,21 +105,21 @@ class ExportOpportunitiesView(generics.GenericAPIView):
             403: inline_serializer(
                 name='ExportOpportunities403Response',
                 fields={
-                    'results': CharField(default='Oppotunities Data'),
-                }
+                    'results': CharField(default='<Oppotunities Data>'),
+                },
             ),
             200: inline_serializer(
                 name='ExportOpportunities200Response',
                 fields={
-                    'results': CharField(default='Oppotunities Data'),
-                }
+                    'results': CharField(default='<Oppotunities Data>'),
+                },
             ),
             500: inline_serializer(
                 name='ExportOpportunities500Response',
                 fields={
                     'error_message': CharField(default='Connection to Export Opportunities failed'),
-                }
-            )
+                },
+            ),
         },
         parameters=[OpenApiParameter(name='s', description='Search Term', required=True, type=str)],
     )

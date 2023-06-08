@@ -13,12 +13,11 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRespon
 from drf_spectacular.types import OpenApiTypes
 
 from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
-from rest_framework.serializers import ListField, IntegerField, CharField, JSONField
+from rest_framework.serializers import IntegerField, CharField, JSONField
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView
 from notifications import notifications
-
 
 
 class CompanyNumberValidatorAPIView(generics.GenericAPIView):
@@ -52,19 +51,19 @@ class CompanyDestroyAPIView(generics.DestroyAPIView):
                 fields={
                     'deleted_company': CharField(default='TESCO'),
                     'deleted_company_user': CharField(default='JOHN DOE'),
-                }
+                },
             )
         }
     )
     def delete(self, request, *args, **kwargs):
-        """
+        '''
         delete endpoint will take sso_id (user_id) as kwargs to delete company
            > IF user is only user for associated company
              then we delete user and company
            > IF multiple users associated for a company and requested user is admin
              then we re-assign admin role to other users
              and delete user only, no company get deleted in this case.
-        """
+        '''
         sso_id = kwargs['sso_id']
         deleted_company, deleted_company_user = 0, 0
         try:
@@ -184,24 +183,24 @@ class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VerifyCompanyWithCodeAPIView(views.APIView):
-    """
+    '''
     Confirms CompanyUser's relationship with Company by providing proof of
     access to the Company's physical address.
 
-    """
+    '''
 
-    http_method_names = ("post",)
+    http_method_names = ('post',)
     serializer_class = serializers.VerifyCompanyWithCodeSerializer
     renderer_classes = (JSONRenderer,)
 
     @extend_schema(
         responses={
             200: inline_serializer(
-                name='GeckoTotalRegisteredCompanyUserResponse',
+                name='VerifyCompanyWithCodeResponse',
                 fields={
                     'status_code': IntegerField(default=status.HTTP_200_OK),
                     'detail': CharField(default='Company verified with code'),
-                }
+                },
             )
         }
     )
@@ -214,17 +213,17 @@ class VerifyCompanyWithCodeAPIView(views.APIView):
         company.save()
 
         return Response(
-            data={"status_code": status.HTTP_200_OK, "detail": "Company verified with code"},
+            data={'status_code': status.HTTP_200_OK, 'detail': 'Company verified with code'},
             status=status.HTTP_200_OK,
         )
 
 
 class VerifyCompanyWithCompaniesHouseView(views.APIView):
-    """
+    '''
     Confirms CompanyUser's relationship with Company by providing proof of
     being able to login to the Company's Companies House profile.
 
-    """
+    '''
 
     serializer_class = serializers.VerifyCompanyWithCompaniesHouseSerializer
 
@@ -270,8 +269,8 @@ class AbstractSearchAPIView(abc.ABC, views.APIView):
             .filter('term', **self.elasticsearch_filter)
             .query(query)
             .sort(
-                {"_score": {"order": "desc"}},
-                {"ordering_name": {"order": "asc"}},
+                {'_score': {'order': 'desc'}},
+                {'ordering_name': {'order': 'asc'}},
             )
             .highlight_options(require_field_match=False)
             .highlight('summary', 'description')
@@ -283,10 +282,22 @@ class AbstractSearchAPIView(abc.ABC, views.APIView):
         return Response(data=search_object.execute().to_dict())
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='page', description='Page', required=True, type=int),
+        OpenApiParameter(name='size', description='Size', required=True, type=int),
+    ]
+)
 class FindASupplierSearchAPIView(AbstractSearchAPIView):
     elasticsearch_filter = {'is_published_find_a_supplier': True}
 
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='page', description='Page', required=True, type=int),
+        OpenApiParameter(name='size', description='Size', required=True, type=int),
+    ]
+)
 class InvestmentSupportDirectorySearchAPIView(AbstractSearchAPIView):
     elasticsearch_filter = {'is_published_investment_support_directory': True}
 
@@ -408,7 +419,7 @@ class CompanyUserSSOListAPIView(generics.ListAPIView):
                 value={'data': [9999, 8888]},
                 response_only=True,
             ),
-        ]
+        ],
     )
     def get(self, request):
         # normally DRF loops over the queryset and calls the serializer on each
@@ -426,48 +437,47 @@ class CompanyUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         return self.request.user.company_user
 
 
+@extend_schema(
+    methods=['GET'],
+    responses={
+        200: inline_serializer(
+            name='GeckoTotalRegisteredCompanyUserResponse',
+            fields={
+                'item': JSONField(default=[{'value': '<Company User Count>', 'text': 'Total registered company users'}])
+            },
+        )
+    },
+)
 class GeckoTotalRegisteredCompanyUser(views.APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (authentication.GeckoBasicAuthentication,)
     renderer_classes = (JSONRenderer,)
-    http_method_names = ("get",)
+    http_method_names = ('get',)
 
-    @extend_schema(
-        responses={
-            200: inline_serializer(
-                name='GeckoTotalRegisteredCompanyUserResponse',
-                fields={
-                    'item': JSONField(default=[{'value': 'Company User Count', 'text': 'Total registered company users'}])
-                }
-            )
-        }
-    )
     def get(self, request, format=None):
         return Response(gecko.total_registered_company_users())
 
 
+@extend_schema(
+    methods=['POST'],
+    responses={
+        200: inline_serializer(
+            name='CompanyUserUnsubscribeResponse',
+            fields={'detail': CharField(default='CompanyUser unsubscribed')},
+        )
+    },
+)
 class CompanyUserUnsubscribeAPIView(views.APIView):
-    http_method_names = ("post",)
+    http_method_names = ('post',)
 
-    @extend_schema(
-        responses={
-            200: inline_serializer(
-                name='CompanyUserUnsubscribeResponse',
-                fields={
-                    'status_code': IntegerField(default=status.HTTP_200_OK),
-                    'detail': CharField(default='CompanyUser unsubscribed'),
-                }
-            )
-        }
-    )
     def post(self, request, *args, **kwargs):
-        """Unsubscribes supplier from notifications"""
+        '''Unsubscribes supplier from notifications'''
         company_user = self.request.user.company_user
         company_user.unsubscribed = True
         company_user.save()
         notifications.company_user_unsubscribed(company_user=company_user)
         return Response(
-            data={"status_code": status.HTTP_200_OK, "detail": "CompanyUser unsubscribed"},
+            data={'status_code': status.HTTP_200_OK, 'detail': 'CompanyUser unsubscribed'},
             status=status.HTTP_200_OK,
         )
 
@@ -491,7 +501,6 @@ class CollaboratorDisconnectView(views.APIView):
             200: None,
             400: OpenApiResponse(description='Bad request'),
         },
-        parameters=[OpenApiParameter(name='number', description='Company Number', required=True, type=str)],
     )
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()

@@ -20,10 +20,10 @@ class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView)
 
 
 @extend_schema(
-        responses={
-            200: OpenApiResponse(serializers.ExportPlanListSerializer),
-            404: OpenApiResponse(description='Not Found'),
-        },
+    responses={
+        200: OpenApiResponse(serializers.ExportPlanListSerializer),
+        404: OpenApiResponse(description='Not Found'),
+    },
 )
 class ExportPlanListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticatedSSO]
@@ -67,32 +67,32 @@ model_name_map = {
 }
 
 FUNDING_CREDIT_OPTIONS_EXAMPLE = OpenApiExample(
-    "Model Name fundingcreditoptions",
-    description="Funding Credit Options Example",
+    'Model Name fundingcreditoptions',
+    description='Funding Credit Options Example',
     value={'pk': 'integer', 'amount': 'float', 'funding_option': 'string', 'companyexportplan': 'Company Export Plan'},
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200'],
 )
-        
+
 BUSINESS_TRIPS_EXAMPLE = OpenApiExample(
-    "Model Name businesstrips",
-    description="Business Trips Example",
+    'Model Name businesstrips',
+    description='Business Trips Example',
     value={'pk': 'integer', 'note': 'text', 'companyexportplan': 'Company Export Plan'},
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200'],
 )
 
 TARGET_MARKET_DOCUMENTS_EXAMPLE = OpenApiExample(
-    "Model Name targetmarketdocuments",
-    description="Target Market Documents Example",
+    'Model Name targetmarketdocuments',
+    description='Target Market Documents Example',
     value={'document_name': 'text', 'note': 'text', 'companyexportplan': 'Company Export Plan', 'pk': 'integer'},
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200'],
 )
-        
+
 COMPANY_OBJECTIVES_EXAMPLE = OpenApiExample(
-    "Model Name companyobjectives",
-    description="Company Objectives Example",
+    'Model Name companyobjectives',
+    description='Company Objectives Example',
     value={
         'description': 'text',
         'planned_reviews': 'text',
@@ -105,26 +105,26 @@ COMPANY_OBJECTIVES_EXAMPLE = OpenApiExample(
         'pk': 'integer',
     },
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200'],
 )
-        
+
 ROUTE_TO_MARKET_EXAMPLE = OpenApiExample(
-    "Model Name routetomarkets",
-    description="Route to Markets Example",
+    'Model Name routetomarkets',
+    description='Route to Markets Example',
     value={
-        'route': 'string', 
-        'promote': 'string', 
+        'route': 'string',
+        'promote': 'string',
         'market_promotional_channel': 'text',
-        'companyexportplan': 'Company Export Plan', 
-        'pk': 'integer'
+        'companyexportplan': 'Company Export Plan',
+        'pk': 'integer',
     },
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200'],
 )
- 
+
 BUSINESS_RISKS_EXAMPLE = OpenApiExample(
-    "Model Name businessrisks",
-    description="Business Risks Example",
+    'Model Name businessrisks',
+    description='Business Risks Example',
     value={
         'pk': 'integer',
         'risk': 'text',
@@ -134,17 +134,12 @@ BUSINESS_RISKS_EXAMPLE = OpenApiExample(
         'companyexportplan': 'Company Export Plan',
     },
     response_only=True,
-    status_codes=["200"],
+    status_codes=['200', '201'],
 )
 
+
 @extend_schema(
-    methods=['POST'],
-    responses={
-        201: OpenApiResponse(description='Created'),
-    },
-)
-@extend_schema(
-    methods=['GET'],
+    methods=['GET', 'POST'],
     responses=OpenApiTypes.OBJECT,
     examples=[
         FUNDING_CREDIT_OPTIONS_EXAMPLE,
@@ -155,7 +150,7 @@ BUSINESS_RISKS_EXAMPLE = OpenApiExample(
         COMPANY_OBJECTIVES_EXAMPLE,
     ],
     parameters=[OpenApiParameter(name='model_name', description='Model Name', required=True, type=str)],
-)   
+)
 class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedSSO]
 
@@ -169,19 +164,12 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
 @extend_schema(
     methods=['DELETE'],
     responses={
-        204: OpenApiResponse(description='Deleted'),
+        204: None,
         404: OpenApiResponse(description='Not Found'),
     },
 )
 @extend_schema(
-    methods=['PATCH', 'PUT'],
-    responses={
-        200: OpenApiResponse(description='Updated'),
-        404: OpenApiResponse(description='Not Found'),
-    },
-)
-@extend_schema(
-    methods=['GET'],
+    methods=['GET', 'PUT', 'PATCH'],
     responses=OpenApiTypes.OBJECT,
     examples=[
         FUNDING_CREDIT_OPTIONS_EXAMPLE,
@@ -191,8 +179,7 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
         ROUTE_TO_MARKET_EXAMPLE,
         COMPANY_OBJECTIVES_EXAMPLE,
     ],
-    parameters=[OpenApiParameter(name='model_name', description='Model Name', required=True, type=str)],
-)   
+)
 class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedSSO]
     lookup_field = 'pk'
@@ -214,7 +201,6 @@ class ExportPlanModelObjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDest
             model_name = model_name_map[self.request.data['model_name'].lower()]
         model = getattr(model_classes, model_name)
         return model.objects.all()
-    
 
 
 class ExportPlanUploadFile(generics.CreateAPIView):

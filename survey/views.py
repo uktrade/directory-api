@@ -8,6 +8,7 @@ class SurveyDetailView(RetrieveAPIView):
     """
     Get Survey by Id
     """
+
     permission_classes = []
     queryset = Survey.objects
     serializer_class = SurveySerializer

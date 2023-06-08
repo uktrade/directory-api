@@ -190,12 +190,38 @@ class ActivityStreamViewSet(BaseActivityStreamViewSet):
             OpenApiExample(
                 'GET Request 200 Example',
                 value={
-                    '@context': 'list',
+                    '@context': [
+                        'https://www.w3.org/ns/activitystreams',
+                        {
+                            'dit': 'https://www.trade.gov.uk/ns/activitystreams/v1',
+                        },
+                    ],
                     'type': 'Collection',
-                    'orderedItems': 'list',
-                    'next_page': 'url'
+                    'orderedItems': [
+                        {
+                            'id': 'string',
+                            'type': 'Create',
+                            'published': "datetime",
+                            'generator': {
+                                'type': 'Application',
+                                'name': 'dit:directory',
+                            },
+                            'object': {
+                                'type': ['Document', 'dit:directory:CompanyVerification'],
+                                'id': 'string',
+                                'attributedTo': {
+                                    'type': ['Organization', 'dit:Company'],
+                                    'id': 'string',
+                                    'dit:companiesHouseNumber': 'string',
+                                    'name': 'string',
+                                },
+                            },
+                        }
+                    ],
+                    'next_page': 'url',
                 },
                 response_only=True,
+                status_codes=[200],
             ),
         ],
         parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
@@ -272,9 +298,9 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     @extend_schema(
-            responses=ActivityStreamCompanySerializer,
-            description='Companies to be consumed by Activity stream.',
-            parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
+        responses=ActivityStreamCompanySerializer,
+        description='Companies to be consumed by Activity stream.',
+        parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
     )
     def list(self, request):
         """A single page of companies to be consumed by activity stream."""
@@ -295,9 +321,9 @@ class ActivityStreamExportPlanDataViewSet(BaseActivityStreamViewSet):
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     @extend_schema(
-            responses=ActivityStreamExportPlanDataSerializer,
-            description='Export plan question for Activity stream.',
-            parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
+        responses=ActivityStreamExportPlanDataSerializer,
+        description='Export plan question for Activity stream.',
+        parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
     )
     def list(self, request):
         """A single page of export plan questions to be consumed by activity stream."""

@@ -22,13 +22,12 @@ class EnrolmentCreateAPIView(APIView):
 
     @transaction.atomic
     @extend_schema(
-            request=serializers.CompanyEnrolmentSerializer,
-            responses={
-                201: OpenApiResponse(response=serializers.CompanyEnrolmentSerializer,
-                                    description='Created'),
-                400: OpenApiResponse(description='Bad request (something invalid)'),
-            },
-            description='Company Enrolment',
+        request=serializers.CompanyEnrolmentSerializer,
+        responses={
+            201: OpenApiResponse(response=serializers.CompanyEnrolmentSerializer, description='Created'),
+            400: OpenApiResponse(description='Bad request (something invalid)'),
+        },
+        description='Company Enrolment',
     )
     def post(self, request, *args, **kwargs):
         company_serializer = self.company_serializer_class(data=request.data)

@@ -38,21 +38,15 @@ class BuyerTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     lookup_field = 'email'
     http_method_names = ('delete', 'get')
 
-    def get(self, request, **kwargs):
-        """
-            Get list of Buyers
-        """
-        return super().get(request, **kwargs)
-
     @extend_schema(
         responses={
-            204: OpenApiResponse(response=CompanySerializer, description='Deleted'),
+            204: None,
             404: OpenApiResponse(description='Not Found'),
         },
     )
     def delete(self, request, **kwargs):
         """
-            Delete Test Buyers
+        Delete Test Buyers
         """
         test_buyers = get_list_or_404(
             Buyer,
@@ -82,7 +76,7 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
         },
     )
     def get(self, request, *args, **kwargs):
-        ch_id_or_name = kwargs['ch_id_or_name'] 
+        ch_id_or_name = kwargs['ch_id_or_name']
         company = self.get_company(ch_id_or_name)
         signer = Signer()
         response_data = {
@@ -157,8 +151,9 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
 
 class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
     """
-        Create Companies
+    Create Companies
     """
+
     serializer_class = ISDCompanySerializer
 
 
