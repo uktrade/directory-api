@@ -243,6 +243,11 @@ class VerifyCompanyWithCompaniesHouseView(views.APIView):
         return Response()
 
 
+@extend_schema(
+    methods=['POST'],
+    request=None,
+    responses=None,
+)
 class RequestVerificationWithIdentificationView(views.APIView):
     def post(self, request, *args, **kwargs):
         helpers.send_request_identity_verification_message(self.request.user.company_user)
@@ -460,6 +465,7 @@ class GeckoTotalRegisteredCompanyUser(views.APIView):
 
 @extend_schema(
     methods=['POST'],
+    request=None,
     responses={
         200: inline_serializer(
             name='CompanyUserUnsubscribeResponse',
@@ -490,18 +496,18 @@ class CompanyCollboratorsListView(generics.ListAPIView):
         return models.CompanyUser.objects.filter(company_id=self.request.user.company.id)
 
 
+@extend_schema(
+    methods=['POST'],
+    request=None,
+    responses=serializers.CollaborationDisconnectSerializer,
+)
 class CollaboratorDisconnectView(views.APIView):
+    serializer_class = serializers.CollaborationDisconnectSerializer
     permission_classes = [IsAuthenticatedSSO]
 
     def get_object(self):
         return self.request.user.company_user
 
-    @extend_schema(
-        responses={
-            200: None,
-            400: OpenApiResponse(description='Bad request'),
-        },
-    )
     def post(self, request, *args, **kwargs):
         supplier = self.get_object()
         helpers.validate_other_admins_connected_to_company(company=supplier.company, sso_ids=[supplier.sso_id])

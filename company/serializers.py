@@ -357,3 +357,9 @@ class CompanyUserSerializer(serializers.ModelSerializer):
             'company': {'required': False},
             'role': {'read_only': True},
         }
+
+
+class CollaborationDisconnectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollaborationInvite
+        fields = ('company_user',)
