@@ -5,8 +5,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, inline_serializer
 from drf_spectacular.types import OpenApiTypes
+
+from rest_framework.serializers import CharField
 
 
 from dataservices import filters, helpers, models, renderers, serializers
@@ -195,32 +197,30 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
     examples=[
         OpenApiExample(
             'GET Request 200 Example',
-            value={
-                'data': [
-                    {
-                        'country': 'string',
-                        'religions': {
-                            'date': 'integer',
-                            'note': 'string',
-                            'religion': [{'name': 'string', 'note': 'string'}],
-                        },
-                        'languages': {
-                            'note': 'string',
-                            'language': [
-                                {'   name': 'string', 'note': 'string', 'percent': 'integer'},
-                                {'name': 'string', 'note': 'string'},
-                            ],
-                        },
-                        'rule_of_law': {
-                            'year': 'integer',
-                            'country_name': 'string',
-                            'iso2': 'string',
-                            'rank': 'integer',
-                            'score': 'double',
-                        },
-                    }
-                ]
-            },
+            value=[
+                {
+                    'country': 'string',
+                    'religions': {
+                        'date': 'integer',
+                        'note': 'string',
+                        'religion': [{'name': 'string', 'note': 'string'}],
+                    },
+                    'languages': {
+                        'note': 'string',
+                        'language': [
+                            {'   name': 'string', 'note': 'string', 'percent': 'integer'},
+                            {'name': 'string', 'note': 'string'},
+                        ],
+                    },
+                    'rule_of_law': {
+                        'year': 'integer',
+                        'country_name': 'string',
+                        'iso2': 'string',
+                        'rank': 'integer',
+                        'score': 'double',
+                    },
+                }
+            ],
             response_only=True,
             status_codes=[200],
         ),
@@ -266,24 +266,21 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
 
 
 @extend_schema(
-    responses=OpenApiTypes.OBJECT,
-    examples=[
-        OpenApiExample(
-            'GET Request 200 Example',
-            value={
-                'data': [
-                    {
-                        'hs_code': 'string',
-                        'country__name': 'string',
-                        'country__iso2': 'string',
-                        'country__region': 'string',
-                    }
-                ]
+    responses={
+        200: inline_serializer(
+            name='SuggestedCountries200Response',
+            fields={
+                'hs_code': CharField(),
+                'country__name': CharField(),
+                'country__iso2': CharField(),
+                'country__region': CharField(),
             },
-            response_only=True,
-            status_codes=[200],
         ),
-    ],
+        500: inline_serializer(
+            name='SuggestedCountries500Response',
+            fields={'error_message': CharField(default='hs_code missing in request params')},
+        ),
+    },
     description='Suggested Countries',
     parameters=[OpenApiParameter(name='hs_code', description='hs_code', required=True, type=str)],
 )
@@ -332,40 +329,38 @@ class TradingBlocsView(generics.ListAPIView):
         OpenApiExample(
             'GET Request 200 Example',
             value={
-                'data': {
-                    '<iso2>': {
-                        'barriers': [
-                            {
-                                'id': 'string',
-                                'title': 'string',
-                                'summary': 'string',
-                                'is_resolved': 'boolean',
-                                'status_date': 'date',
-                                'country': {
-                                    'name': 'string',
-                                    'trading_bloc': {
-                                        'code': 'string',
-                                        'name': 'string',
-                                        'short_name': 'string',
-                                        'overseas_regions': [{'name': 'string', 'id': 'guid'}],
-                                    },
-                                },
-                                'caused_by_trading_bloc': 'boolean',
+                '<iso2>': {
+                    'barriers': [
+                        {
+                            'id': 'string',
+                            'title': 'string',
+                            'summary': 'string',
+                            'is_resolved': 'boolean',
+                            'status_date': 'date',
+                            'country': {
+                                'name': 'string',
                                 'trading_bloc': {
                                     'code': 'string',
                                     'name': 'string',
                                     'short_name': 'string',
                                     'overseas_regions': [{'name': 'string', 'id': 'guid'}],
                                 },
-                                'location': 'string',
-                                'sectors': [{'name': 'string'}],
-                                'categories': [{}],
-                                'last_published_on': 'datetime',
-                                'reported_on': 'datetime',
-                            }
-                        ],
-                        'count': 'integer',
-                    }
+                            },
+                            'caused_by_trading_bloc': 'boolean',
+                            'trading_bloc': {
+                                'code': 'string',
+                                'name': 'string',
+                                'short_name': 'string',
+                                'overseas_regions': [{'name': 'string', 'id': 'guid'}],
+                            },
+                            'location': 'string',
+                            'sectors': [{'name': 'string'}],
+                            'categories': [{}],
+                            'last_published_on': 'datetime',
+                            'reported_on': 'datetime',
+                        }
+                    ],
+                    'count': 'integer',
                 }
             },
             response_only=True,
@@ -729,7 +724,19 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
 @extend_schema(
     responses=OpenApiTypes.OBJECT,
     examples=[
-        OpenApiExample('GET Request 200 Example', value={'data': 'list'}, response_only=True, status_codes=[200]),
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'data': [
+                    'Australia',
+                    'Japan Comprehensive Economic Partnership Agreement',
+                    'New Zealand',
+                    'Singapore Digital Economy Agreement',
+                ]
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
     ],
     description='UK Free Trade Agreements',
 )

@@ -421,7 +421,7 @@ class CompanyUserSSOListAPIView(generics.ListAPIView):
         examples=[
             OpenApiExample(
                 'GET Request 200 Example',
-                value={'data': [9999, 8888]},
+                value={888, 999},
                 response_only=True,
             ),
         ],

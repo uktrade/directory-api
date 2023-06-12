@@ -6,10 +6,25 @@ from core.permissions import IsAuthenticatedSSO
 from exportplan import models, serializers
 from exportplan.models import CompanyExportPlan
 
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiResponse,
+    OpenApiParameter,
+    OpenApiExample,
+    PolymorphicProxySerializer,
+)
 from drf_spectacular.types import OpenApiTypes
 
 from .permissions import IsExportPlanOwner
+
+from .serializers import (
+    BusinessRisksSerializer,
+    BusinessTripsSerializer,
+    FundingCreditOptionsSerializer,
+    TargetMarketDocumentsSerializer,
+    RouteToMarketsSerializer,
+    CompanyObjectivesSerializer,
+)
 
 
 class CompanyExportPlanRetrieveUpdateView(generics.RetrieveUpdateDestroyAPIView):
@@ -140,6 +155,18 @@ BUSINESS_RISKS_EXAMPLE = OpenApiExample(
 
 @extend_schema(
     methods=['GET', 'POST'],
+    request=PolymorphicProxySerializer(
+        component_name='ExportPlanModelObjectListCreate',
+        serializers=[
+            BusinessRisksSerializer,
+            FundingCreditOptionsSerializer,
+            BusinessTripsSerializer,
+            TargetMarketDocumentsSerializer,
+            RouteToMarketsSerializer,
+            CompanyObjectivesSerializer,
+        ],
+        resource_type_field_name=None,
+    ),
     responses=OpenApiTypes.OBJECT,
     examples=[
         FUNDING_CREDIT_OPTIONS_EXAMPLE,
@@ -170,6 +197,18 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
 )
 @extend_schema(
     methods=['GET', 'PUT', 'PATCH'],
+    request=PolymorphicProxySerializer(
+        component_name='ExportPlanModelObjectRetrieveUpdateDestroy',
+        serializers=[
+            FundingCreditOptionsSerializer,
+            BusinessRisksSerializer,
+            BusinessTripsSerializer,
+            TargetMarketDocumentsSerializer,
+            RouteToMarketsSerializer,
+            CompanyObjectivesSerializer,
+        ],
+        resource_type_field_name=None,
+    ),
     responses=OpenApiTypes.OBJECT,
     examples=[
         FUNDING_CREDIT_OPTIONS_EXAMPLE,
