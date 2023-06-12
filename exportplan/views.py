@@ -156,7 +156,7 @@ BUSINESS_RISKS_EXAMPLE = OpenApiExample(
 @extend_schema(
     methods=['GET', 'POST'],
     request=PolymorphicProxySerializer(
-        component_name='ExportPlanModelObjectListCreate',
+        component_name='Model',
         serializers=[
             BusinessRisksSerializer,
             FundingCreditOptionsSerializer,
@@ -165,7 +165,7 @@ BUSINESS_RISKS_EXAMPLE = OpenApiExample(
             RouteToMarketsSerializer,
             CompanyObjectivesSerializer,
         ],
-        resource_type_field_name=None,
+        resource_type_field_name='pk',
     ),
     responses=OpenApiTypes.OBJECT,
     examples=[
@@ -198,7 +198,7 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
 @extend_schema(
     methods=['GET', 'PUT', 'PATCH'],
     request=PolymorphicProxySerializer(
-        component_name='ExportPlanModelObjectRetrieveUpdateDestroy',
+        component_name='Model',
         serializers=[
             FundingCreditOptionsSerializer,
             BusinessRisksSerializer,
@@ -207,7 +207,7 @@ class ExportPlanModelObjectListCreateAPIView(generics.ListCreateAPIView):
             RouteToMarketsSerializer,
             CompanyObjectivesSerializer,
         ],
-        resource_type_field_name=None,
+        resource_type_field_name='pk',
     ),
     responses=OpenApiTypes.OBJECT,
     examples=[
