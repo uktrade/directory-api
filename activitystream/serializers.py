@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from company.models import Company, CompanyUser
+from exportplan.models import CompanyExportPlan
 
 
 class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
@@ -130,6 +131,10 @@ class ActivityStreamExportPlanDataSerializer(serializers.ModelSerializer):
     - Adds extra response fields required by activity stream.
     - Adds the required prefix to field names
     """
+
+    class Meta:
+        model = CompanyExportPlan
+        fields = '__all__'
 
     def to_representation(self, instance):
         """

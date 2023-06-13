@@ -3,8 +3,10 @@ import django
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
-from django.urls import re_path, reverse_lazy
+from django.urls import re_path, reverse_lazy, path
 from django.views.generic import RedirectView
+
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 import activitystream.views
 import buyer.views
@@ -368,3 +370,10 @@ if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     ]
 
     urlpatterns = [re_path('^', include(authbroker_urls))] + urlpatterns
+
+if settings.FEATURE_OPENAPI_ENABLED:
+    urlpatterns += [
+        path('openapi/', SpectacularAPIView.as_view(), name='schema'),
+        path('openapi/ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        path('openapi/ui/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    ]

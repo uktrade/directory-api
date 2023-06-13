@@ -122,6 +122,7 @@ django==4.1.9
     #   django-staff-sso-client
     #   django-storages
     #   djangorestframework
+    #   drf-spectacular
     #   sigauth
 django-celery-beat==2.5.0
     # via -r requirements.in
@@ -156,9 +157,12 @@ django-timezone-field==5.0
 djangorestframework==3.14.0
     # via
     #   -r requirements.in
+    #   drf-spectacular
     #   sigauth
 docopt==0.6.2
     # via notifications-python-client
+drf-spectacular==0.26.1
+    # via -r requirements.in
 elasticsearch==7.13.4
     # via
     #   -r requirements.in
@@ -183,12 +187,12 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.31
     # via -r requirements_test.in
-greenlet==2.0.2
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
     # via requests
+inflection==0.5.1
+    # via drf-spectacular
 iniconfig==1.1.1
     # via pytest
 iso3166==1.0.1
@@ -200,7 +204,9 @@ jmespath==0.10.0
     #   boto3
     #   botocore
 jsonschema==3.2.0
-    # via directory-components
+    # via
+    #   directory-components
+    #   drf-spectacular
 kombu==5.2.3
     # via
     #   -r requirements.in
@@ -326,6 +332,7 @@ pytz-deprecation-shim==0.1.0.post0
 pyyaml==5.4
     # via
     #   -r requirements.in
+    #   drf-spectacular
     #   pyhanko
     #   tablib
 qrcode==7.3.1
@@ -413,6 +420,8 @@ tzdata==2022.1
     # via django-celery-beat
 tzlocal==4.2
     # via pyhanko
+uritemplate==4.1.1
+    # via drf-spectacular
 uritools==4.0.0
     # via pyhanko-certvalidator
 urllib3==1.26.15
