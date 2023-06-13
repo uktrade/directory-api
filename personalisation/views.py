@@ -4,14 +4,27 @@ from django.db.models import Count
 from requests.exceptions import HTTPError
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.serializers import CharField
 
 from company.helpers import CompanyParser
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter, inline_serializer
+
+
 logger = logging.getLogger(__name__)
 
 
+@extend_schema(
+    methods=['POST', 'GET'],
+    request=serializers.UserLocationSerializer,
+    responses={
+        200: serializers.UserLocationSerializer,
+        201: serializers.UserLocationSerializer,
+        400: OpenApiResponse(description='Bad Request'),
+    },
+)
 class UserLocationCreateAPIView(generics.ListCreateAPIView):
     serializer_class = serializers.UserLocationSerializer
     permission_classes = [IsAuthenticatedSSO]
@@ -44,7 +57,7 @@ class UserLocationCreateAPIView(generics.ListCreateAPIView):
 
 
 class EventsView(generics.GenericAPIView):
-    """Events API - finds events near given geo-coordinates"""
+    '''Events API - finds events near given geo-coordinates'''
 
     permission_classes = []
 
@@ -66,6 +79,16 @@ class EventsView(generics.GenericAPIView):
         )
         return [item for item in parser.expertise_labels_for_search if item]
 
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                name='Events200Response',
+                fields={
+                    'results': CharField(default='<Events Data>'),
+                },
+            ),
+        },
+    )
     def get(self, *args, **kwargs):
         lat, lon = self.get_location()
         query = helpers.build_query(lat=lat, lon=lon, terms=self.get_search_terms())
@@ -77,6 +100,29 @@ class EventsView(generics.GenericAPIView):
 class ExportOpportunitiesView(generics.GenericAPIView):
     permission_classes = []
 
+    @extend_schema(
+        responses={
+            403: inline_serializer(
+                name='ExportOpportunities403Response',
+                fields={
+                    'results': CharField(default='<Oppotunities Data>'),
+                },
+            ),
+            200: inline_serializer(
+                name='ExportOpportunities200Response',
+                fields={
+                    'results': CharField(default='<Oppotunities Data>'),
+                },
+            ),
+            500: inline_serializer(
+                name='ExportOpportunities500Response',
+                fields={
+                    'error_message': CharField(default='Connection to Export Opportunities failed'),
+                },
+            ),
+        },
+        parameters=[OpenApiParameter(name='s', description='Search Term', required=True, type=str)],
+    )
     def get(self, *args, **kwargs):
         try:
             opportunities = helpers.get_opportunities(
@@ -92,6 +138,11 @@ class ExportOpportunitiesView(generics.GenericAPIView):
             return Response(status=500, data={'error_message': 'Connection to Export Opportunities failed'})
 
 
+@extend_schema(
+    responses=serializers.CountryOfInterestSerializer,
+    description='Recommended Countries List.',
+    parameters=[OpenApiParameter(name='sector', description='Sector', required=True, type=str)],
+)
 class RecommendedCountriesView(generics.ListAPIView):
     serializer_class = serializers.CountryOfInterestSerializer
     permission_classes = []

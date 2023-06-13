@@ -12,6 +12,7 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from buyer.models import Buyer
 from buyer.serializers import BuyerSerializer
@@ -37,7 +38,16 @@ class BuyerTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView):
     lookup_field = 'email'
     http_method_names = ('delete', 'get')
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: OpenApiResponse(description='Not Found'),
+        },
+    )
     def delete(self, request, **kwargs):
+        """
+        Delete Test Buyers
+        """
         test_buyers = get_list_or_404(
             Buyer,
             email__regex=r'^test\+(.*)@directory\.uktrade\.digital',
@@ -59,6 +69,12 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
         except Http404:
             return get_object_or_404(Company, name=ch_id_or_name)
 
+    @extend_schema(
+        responses={
+            200: CompanySerializer,
+            404: OpenApiResponse(description='Not Found'),
+        },
+    )
     def get(self, request, *args, **kwargs):
         ch_id_or_name = kwargs['ch_id_or_name']
         company = self.get_company(ch_id_or_name)
@@ -78,11 +94,24 @@ class CompanyTestAPIView(TestAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPI
         }
         return Response(response_data)
 
+    @extend_schema(
+        responses={
+            204: None,
+            404: OpenApiResponse(description='Not Found'),
+        },
+    )
     def delete(self, request, *args, **kwargs):
         ch_id_or_name = kwargs['ch_id_or_name']
         self.get_company(ch_id_or_name).delete()
         return Response(status=204)
 
+    @extend_schema(
+        request=CompanySerializer,
+        responses={
+            201: OpenApiResponse(response=CompanySerializer, description='Updated'),
+            400: OpenApiResponse(description='Bad request'),
+        },
+    )
     def patch(self, request, *args, **kwargs):
         ch_id_or_name = kwargs['ch_id_or_name']
         company = self.get_company(ch_id_or_name)
@@ -121,6 +150,10 @@ class UnpublishedCompaniesTestAPIView(TestAPIView, RetrieveAPIView):
 
 
 class ISDCompanyTestAPIView(TestAPIView, CreateAPIView):
+    """
+    Create Companies
+    """
+
     serializer_class = ISDCompanySerializer
 
 

@@ -6,6 +6,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+
 from company.models import Company
 from company.serializers import CompanyUserSerializer
 from company.signals import send_company_registration_letter
@@ -19,6 +21,14 @@ class EnrolmentCreateAPIView(APIView):
     permission_classes = []
 
     @transaction.atomic
+    @extend_schema(
+        request=serializers.CompanyEnrolmentSerializer,
+        responses={
+            201: OpenApiResponse(response=serializers.CompanyEnrolmentSerializer, description='Created'),
+            400: OpenApiResponse(description='Bad request (something invalid)'),
+        },
+        description='Company Enrolment',
+    )
     def post(self, request, *args, **kwargs):
         company_serializer = self.company_serializer_class(data=request.data)
         company_serializer.is_valid(raise_exception=True)

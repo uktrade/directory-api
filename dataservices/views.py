@@ -5,6 +5,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+
+from rest_framework.serializers import CharField
+
+
 from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api
 from dataservices.helpers import (
@@ -16,6 +22,44 @@ from dataservices.models import Country, RuleOfLaw
 from dataservices.serializers import RuleOfLawSerializer
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                '<iso2>': [
+                    {
+                        'year': 'integer',
+                        'classification': 'string',
+                        'uk_or_world': 'string',
+                        'commodity_code': 'string',
+                        'trade_value': 'double',
+                    },
+                    {
+                        'year': 'integer',
+                        'classification': 'string',
+                        'uk_or_world': 'string',
+                        'commodity_code': 'string',
+                        'trade_value': 'double',
+                    },
+                ]
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Last Year Import Data By Country',
+    parameters=[
+        OpenApiParameter(name='commodity_code', description='Commodity Code', required=True, type=str),
+        OpenApiParameter(
+            name='countries',
+            description='Countries',
+            required=True,
+            type={'type': 'array', 'items': {'type': 'string'}},
+        ),
+    ],
+)
 class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
     permission_classes = []
 
@@ -27,6 +71,50 @@ class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=comtrade_response)
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                '<data_key1>': {
+                    '<field1>': [
+                        {'value': 'double', 'year': 'integer'},
+                        {'value': 'double', 'year': 'integer'},
+                    ],
+                    '<field2>': [
+                        {'urban_rural': 'string', 'value': 'integer', 'year': 'integer'},
+                        {'urban_rural': 'string', 'value': 'integer', 'year': 'integer'},
+                    ],
+                },
+                '<data_key2>': {
+                    '<field1>': [
+                        {'value': 'double', 'year': 'integer'},
+                        {'value': 'double', 'year': 'integer'},
+                    ],
+                    '<field2>': [
+                        {'urban_rural': 'string', 'value': 'double', 'year': 'integer'},
+                        {'urban_rural': 'string', 'value': 'double', 'year': 'integer'},
+                    ],
+                },
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Country Data',
+    parameters=[
+        OpenApiParameter(
+            name='countries',
+            description='Country ISO2',
+            required=True,
+            type={'type': 'array', 'items': {'type': 'string'}},
+        ),
+        OpenApiParameter(
+            name='fields', description='Fields', required=True, type={'type': 'array', 'items': {'type': 'string'}}
+        ),
+    ],
+)
 class RetrieveDataByCountryView(generics.GenericAPIView):
     permission_classes = []
 
@@ -63,6 +151,22 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=out)
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={'cia_factbook_data': {'key': 'string|list'}},
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Cia Factbookl Data',
+    parameters=[
+        OpenApiParameter(name='country', description='Country', required=True, type=str),
+        OpenApiParameter(name='data_key', description='Data Key', required=False, type=str),
+    ],
+)
 class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
     permission_classes = []
 
@@ -88,6 +192,49 @@ class RetrieveCiaFactbooklDataView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data={'cia_factbook_data': cia_factbook_data})
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    'country': 'string',
+                    'religions': {
+                        'date': 'integer',
+                        'note': 'string',
+                        'religion': [{'name': 'string', 'note': 'string'}],
+                    },
+                    'languages': {
+                        'note': 'string',
+                        'language': [
+                            {'   name': 'string', 'note': 'string', 'percent': 'integer'},
+                            {'name': 'string', 'note': 'string'},
+                        ],
+                    },
+                    'rule_of_law': {
+                        'year': 'integer',
+                        'country_name': 'string',
+                        'iso2': 'string',
+                        'rank': 'integer',
+                        'score': 'double',
+                    },
+                }
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Society Data By Country',
+    parameters=[
+        OpenApiParameter(
+            name='countries',
+            description='Countries',
+            required=True,
+            type={'type': 'array', 'items': {'type': 'string'}},
+        ),
+    ],
+)
 class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
     permission_classes = []
 
@@ -118,6 +265,25 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK, data=data_set)
 
 
+@extend_schema(
+    responses={
+        200: inline_serializer(
+            name='SuggestedCountries200Response',
+            fields={
+                'hs_code': CharField(),
+                'country__name': CharField(),
+                'country__iso2': CharField(),
+                'country__region': CharField(),
+            },
+        ),
+        500: inline_serializer(
+            name='SuggestedCountries500Response',
+            fields={'error_message': CharField(default='hs_code missing in request params')},
+        ),
+    },
+    description='Suggested Countries',
+    parameters=[OpenApiParameter(name='hs_code', description='hs_code', required=True, type=str)],
+)
 class SuggestedCountriesView(generics.ListAPIView):
     serializer_class = serializers.SuggestedCountrySerializer
     permission_classes = []
@@ -137,6 +303,11 @@ class SuggestedCountriesView(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
 
+@extend_schema(
+    responses=serializers.TradingBlocsSerializer,
+    description='Trading Blocs',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class TradingBlocsView(generics.ListAPIView):
     serializer_class = serializers.TradingBlocsSerializer
     permission_classes = []
@@ -152,6 +323,63 @@ class TradingBlocsView(generics.ListAPIView):
         return super().get(*args, **kwargs)
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                '<iso2>': {
+                    'barriers': [
+                        {
+                            'id': 'string',
+                            'title': 'string',
+                            'summary': 'string',
+                            'is_resolved': 'boolean',
+                            'status_date': 'date',
+                            'country': {
+                                'name': 'string',
+                                'trading_bloc': {
+                                    'code': 'string',
+                                    'name': 'string',
+                                    'short_name': 'string',
+                                    'overseas_regions': [{'name': 'string', 'id': 'guid'}],
+                                },
+                            },
+                            'caused_by_trading_bloc': 'boolean',
+                            'trading_bloc': {
+                                'code': 'string',
+                                'name': 'string',
+                                'short_name': 'string',
+                                'overseas_regions': [{'name': 'string', 'id': 'guid'}],
+                            },
+                            'location': 'string',
+                            'sectors': [{'name': 'string'}],
+                            'categories': [{}],
+                            'last_published_on': 'datetime',
+                            'reported_on': 'datetime',
+                        }
+                    ],
+                    'count': 'integer',
+                }
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Trading Barriers',
+    parameters=[
+        OpenApiParameter(
+            name='countries',
+            description='Country ISO2',
+            required=True,
+            type={'type': 'array', 'items': {'type': 'string'}},
+        ),
+        OpenApiParameter(
+            name='sectors', description='Sectors', required=True, type={'type': 'array', 'items': {'type': 'string'}}
+        ),
+    ],
+)
 class TradeBarriersView(generics.GenericAPIView):
     permission_classes = []
 
@@ -214,6 +442,37 @@ class MetadataMixin:
         return context
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'metadata': {
+                    'source': {
+                        'url': 'string',
+                        'label': 'string',
+                        'last_release': 'date time',
+                        'organisation': 'string',
+                    },
+                    'country': {'name': 'string', 'iso2': 'string'},
+                    'reference_period': {'resolution': 'string', 'period': 'integer', 'year': 'integer'},
+                },
+                'data': [
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                ],
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Top Five Goods Exports By Country',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTradeInGoodsByCountry.objects
@@ -227,6 +486,37 @@ class TopFiveGoodsExportsByCountryView(MetadataMixin, generics.ListAPIView):
         return self.queryset.top_goods_exports()
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'metadata': {
+                    'source': {
+                        'url': 'string',
+                        'label': 'string',
+                        'last_release': 'date time',
+                        'organisation': 'string',
+                    },
+                    'country': {'name': 'string', 'iso2': 'string'},
+                    'reference_period': {'resolution': 'string', 'period': 'integer', 'year': 'integer'},
+                },
+                'data': [
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                    {'label': 'string', 'value': 'integer'},
+                ],
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Top Five Services Exports By Country',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTradeInServicesByCountry.objects
@@ -240,6 +530,49 @@ class TopFiveServicesExportsByCountryView(MetadataMixin, generics.ListAPIView):
         return self.queryset.top_services_exports()
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'metadata': {
+                    'source': {
+                        'url': 'string',
+                        'label': 'string',
+                        'last_release': 'date time',
+                        'organisation': 'string',
+                    },
+                    'country': {'name': 'string', 'iso2': 'string'},
+                },
+                'data': [
+                    {
+                        'year': 'integer',
+                        'imports': 'integer',
+                        'exports': 'integer',
+                    },
+                    {
+                        'year': 'integer',
+                        'imports': 'integer',
+                        'exports': 'integer',
+                    },
+                    {
+                        'year': 'integer',
+                        'imports': 'integer',
+                        'exports': 'integer',
+                    },
+                ],
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='UK Market Trends',
+    parameters=[
+        OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str),
+        OpenApiParameter(name='from_year', description='From Year', required=False, type=int),
+    ],
+)
 class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
@@ -251,6 +584,33 @@ class UKMarketTrendsView(MetadataMixin, generics.ListAPIView):
         return self.queryset.market_trends()
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'metadata': {
+                    'source': {
+                        'url': 'string',
+                        'label': 'string',
+                        'last_release': 'datetime',
+                        'organisation': 'string',
+                    },
+                    'country': {'name': 'string', 'iso2': 'string'},
+                    'reference_period': {'resolution': 'string', 'period': 'integer', 'year': 'integer'},
+                },
+                'data': {
+                    'total_uk_exports': 'integer',
+                    'trading_position': 'integer',
+                    'percentage_of_uk_trade': 'double',
+                },
+            },
+        )
+    ],
+    description='UK Trade Highlights',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     permission_classes = []
     queryset = models.UKTotalTradeByCountry.objects
@@ -269,6 +629,55 @@ class UKTradeHighlightsView(MetadataMixin, generics.RetrieveAPIView):
         return super().get_queryset().highlights()
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'metadata': {
+                    'source': {
+                        'url': 'string',
+                        'label': 'string',
+                        'last_release': 'datetime',
+                        'organisation': 'string',
+                    },
+                    'country': {'name': 'string', 'iso2': 'string'},
+                    'uk_data': {
+                        'gdp_per_capita': {'year': 'integer', 'value': 'integer', 'is_projection': 'boolean'},
+                        'market_position': {
+                            'year': 'integer',
+                            'value': 'integer',
+                            'is_projection': 'boolean',
+                        },
+                        'economic_growth': {
+                            'year': 'integer',
+                            'value': 'float',
+                            'is_projection': 'boolean',
+                        },
+                    },
+                },
+                'data': {
+                    'gdp_per_capita': {'year': 'integer', 'value': 'integer', 'is_projection': 'boolean'},
+                    'market_position': {
+                        'year': 'integer',
+                        'value': 'integer',
+                        'is_projection': 'boolean',
+                    },
+                    'economic_growth': {
+                        'year': 'integer',
+                        'value': 'float',
+                        'is_projection': 'boolean',
+                    },
+                },
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Economic Highlights',
+    parameters=[OpenApiParameter(name='iso2', description='Country ISO2', required=True, type=str)],
+)
 class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
     permission_classes = []
     queryset = models.WorldEconomicOutlookByCountry.objects
@@ -312,6 +721,25 @@ class EconomicHighlightsView(MetadataMixin, generics.RetrieveAPIView):
         return super().get_queryset().stats()
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'data': [
+                    'Australia',
+                    'Japan Comprehensive Economic Partnership Agreement',
+                    'New Zealand',
+                    'Singapore Digital Economy Agreement',
+                ]
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='UK Free Trade Agreements',
+)
 class UKFreeTradeAgreementsView(generics.ListAPIView):
     permission_classes = []
     queryset = models.UKFreeTradeAgreement.objects
