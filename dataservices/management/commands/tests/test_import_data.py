@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 from itertools import cycle, islice
 from unittest import mock
@@ -467,3 +468,24 @@ def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected,
     view_mock.return_value = view_date
     actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_sa')
     assert actual == expected
+
+
+@pytest.mark.django_db
+def test_helper_get_view_metadata():
+    models.Metadata.objects.create(
+        view_name='UKMarketTrendsView',
+        description='',
+        data=json.loads(
+            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktotaltradeallcountriesseasonallyadjusted", "label": "UK total trade: all countries, seasonally adjusted", "last_release": "2022-07-27T00:00:00", "organisation": "ONS"}}'
+        ),
+    )
+    models.Metadata.objects.create(
+        view_name='TopFiveGoodsExportsByCountryView',
+        description='',
+        data=json.loads(
+            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktradecountrybycommodityexports", "label": "Trade in goods: country-by-commodity exports", "last_release": "2022-09-12T00:00:00", "organisation": "ONS"}}'
+        ),
+    )
+    result = MarketGuidesDataIngestionCommand().get_view_metadata('UKMarketTrendsView')
+    assert isinstance(result, str)
+    assert result == '2022-07-27T00:00:00'
