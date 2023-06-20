@@ -476,14 +476,18 @@ def test_helper_get_view_metadata():
         view_name='UKMarketTrendsView',
         description='',
         data=json.loads(
-            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktotaltradeallcountriesseasonallyadjusted", "label": "UK total trade: all countries, seasonally adjusted", "last_release": "2022-07-27T00:00:00", "organisation": "ONS"}}'
+            '{"source": {"url": \"https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets\
+                /uktotaltradeallcountriesseasonallyadjusted", "label": "UK total trade: all countries, seasonally \
+                    adjusted", "last_release": "2022-07-27T00:00:00", "organisation": "ONS"}}'
         ),
     )
     models.Metadata.objects.create(
         view_name='TopFiveGoodsExportsByCountryView',
         description='',
         data=json.loads(
-            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets/uktradecountrybycommodityexports", "label": "Trade in goods: country-by-commodity exports", "last_release": "2022-09-12T00:00:00", "organisation": "ONS"}}'
+            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets\
+                /uktradecountrybycommodityexports", "label": "Trade in goods: country-by-commodity exports", \
+                    "last_release": "2022-09-12T00:00:00", "organisation": "ONS"}}'
         ),
     )
     result = MarketGuidesDataIngestionCommand().get_view_metadata('UKMarketTrendsView')
