@@ -444,20 +444,21 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
 @pytest.fixture()
 def workspace_data():
     return {
-        'table_name': 'dataflow.metadata',
+        'schemas': 'dataflow.metadata',
         'table_name': [
             'trade__uk_goods_sa',
-            ],
+        ],
         'source_data_modified_utc': [
             datetime.datetime(2023, 6, 10),
         ],
-        'dataflow_swapped_tables_utc': [
-            datetime.datetime(2023, 6, 10)
-        ],
+        'dataflow_swapped_tables_utc': [datetime.datetime(2023, 6, 10)],
     }
 
 
-@pytest.mark.parametrize('view_date, expected', [('2023-04-27T00:00:00', True), ('2023-06-10T00:00:00', False), ('2023-07-01T00:00:00', False)])
+@pytest.mark.parametrize(
+    'view_date, expected',
+    [('2023-04-27T00:00:00', True), ('2023-06-10T00:00:00', False), ('2023-07-01T00:00:00', False)],
+)
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_dataflow_metadata')
 def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected, workspace_data):

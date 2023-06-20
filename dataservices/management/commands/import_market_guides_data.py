@@ -1,5 +1,6 @@
 from django.core.management import BaseCommand, call_command
-from .helpers import MarketGuidesDataIngestionCommand
+
+from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
 
 
 class Command(BaseCommand):

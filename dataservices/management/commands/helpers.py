@@ -1,13 +1,14 @@
 import io
+from datetime import datetime
 from zipfile import ZipFile
 
+import pandas as pd
 import requests
 import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
-import pandas as pd
-from datetime import datetime
+
 from dataservices.models import Metadata
 
 
@@ -71,7 +72,8 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         return False
 
     def get_dataflow_metadata(self, table_name):
-        sql = sa.text('''
+        sql = sa.text(
+            '''
             SELECT
                 source_data_modified_utc,
                 dataflow_swapped_tables_utc
@@ -82,13 +84,14 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
             ORDER BY
                 source_data_modified_utc DESC
             LIMIT 1;
-        ''')
+        '''
+        )
         return pd.read_sql(sql, self.engine, params={'table_name': table_name})
-    
+
     def get_view_metadata(self, view_name):
         try:
             view_data = Metadata.objects.get(view_name=view_name)
-        except:
+        except ValueError:
             self.stdout.write(self.style.NOTICE(f'No data found for view {view_name}'))
         else:
             return view_data.data['source']['last_release']
