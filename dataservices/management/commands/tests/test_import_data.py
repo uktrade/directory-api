@@ -1,16 +1,20 @@
 import datetime
+import json
 import re
 from itertools import cycle, islice
 from unittest import mock
 
 import pandas as pd
 import pytest
+import sqlalchemy
 from django.core import management
 from django.test import override_settings
 from import_export import results
+from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
 
 from conf import settings
 from dataservices import models
+from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
 
 
 @pytest.mark.django_db
@@ -401,13 +405,15 @@ def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_da
 
 
 @pytest.mark.django_db
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
-def test_import_market_guides_data(mock_call_command):
+def test_import_market_guides_data(mock_call_command, mock_should_run):
     command_list = [
         'import_uk_total_trade_data',
         'import_uk_trade_in_goods_data',
         'import_uk_trade_in_services_data',
     ]
+    mock_should_run.return_value = True
 
     management.call_command('import_market_guides_data', '--write')
 
@@ -419,13 +425,15 @@ def test_import_market_guides_data(mock_call_command):
 
 
 @pytest.mark.django_db
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
-def test_import_market_guides_data_dry_run(mock_call_command):
+def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
     command_list = [
         'import_uk_total_trade_data',
         'import_uk_trade_in_goods_data',
         'import_uk_trade_in_services_data',
     ]
+    mock_should_run.return_value = True
 
     management.call_command('import_market_guides_data')
 
@@ -434,3 +442,100 @@ def test_import_market_guides_data_dry_run(mock_call_command):
     for idx, command in enumerate(command_list):
         assert command in str(mock_call_command.call_args_list[idx])
         assert 'write=False' in str(mock_call_command.call_args_list[idx])
+
+
+@pytest.fixture()
+def workspace_data():
+    return {
+        'schemas': 'dataflow.metadata',
+        'table_name': [
+            'trade__uk_goods_sa',
+        ],
+        'source_data_modified_utc': [
+            datetime.datetime(2023, 6, 10),
+        ],
+        'dataflow_swapped_tables_utc': [datetime.datetime(2023, 6, 10)],
+    }
+
+
+@pytest.mark.parametrize(
+    'view_date, expected',
+    [('2023-04-27T00:00:00', True), ('2023-06-10T00:00:00', False), ('2023-07-01T00:00:00', False)],
+)
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_dataflow_metadata')
+def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected, workspace_data):
+    m = MarketGuidesDataIngestionCommand()
+    dataflow_mock.return_value = pd.DataFrame(workspace_data)
+    view_mock.return_value = view_date
+    actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_sa')
+    assert actual == expected
+
+
+@pytest.mark.django_db
+def test_helper_get_view_metadata():
+    result_none = MarketGuidesDataIngestionCommand().get_view_metadata('')
+    assert result_none is None
+    models.Metadata.objects.create(
+        view_name='UKMarketTrendsView',
+        description='',
+        data=json.loads(
+            '{"source": {"url": \"https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets\
+                /uktotaltradeallcountriesseasonallyadjusted", "label": "UK total trade: all countries, seasonally \
+                    adjusted", "last_release": "2022-07-27T00:00:00", "organisation": "ONS"}}'
+        ),
+    )
+    models.Metadata.objects.create(
+        view_name='TopFiveGoodsExportsByCountryView',
+        description='',
+        data=json.loads(
+            '{"source": {"url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/datasets\
+                /uktradecountrybycommodityexports", "label": "Trade in goods: country-by-commodity exports", \
+                    "last_release": "2022-09-12T00:00:00", "organisation": "ONS"}}'
+        ),
+    )
+    result = MarketGuidesDataIngestionCommand().get_view_metadata('UKMarketTrendsView')
+    assert isinstance(result, str)
+    assert result == '2022-07-27T00:00:00'
+
+
+@override_settings(DATA_WORKSPACE_DATASETS_URL='sqlite://')
+@pytest.mark.django_db
+def test_helper_get_dataflow_metadata():
+    m = MarketGuidesDataIngestionCommand()
+    m.engine = sqlalchemy.create_engine('sqlite://')
+    m.engine.execute('ATTACH DATABASE ":memory:" AS dataflow')
+    meta = MetaData(schema='dataflow', quote_schema=True)
+    tbl = Table(
+        'metadata',
+        meta,
+        Column('table_name', String),
+        Column('source_data_modified_utc', TIMESTAMP),
+        Column('dataflow_swapped_tables_utc', TIMESTAMP),
+    )
+    meta.create_all(m.engine)
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_goods_sa',
+            source_data_modified_utc=datetime.date(2023, 1, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 1, 1),
+        )
+    )
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_goods_sa',
+            source_data_modified_utc=datetime.date(2023, 4, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 4, 1),
+        )
+    )
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_services_nsa',
+            source_data_modified_utc=datetime.date(2023, 6, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 6, 1),
+        )
+    )
+    result = m.get_dataflow_metadata('trade__uk_goods_sa')
+    expected = '2023-04-01 00:00:00.000000'
+    assert result.loc[:, 'dataflow_swapped_tables_utc'][0] == expected
+    assert result.loc[:, 'source_data_modified_utc'][0] == expected

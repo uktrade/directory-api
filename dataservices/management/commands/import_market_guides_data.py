@@ -1,14 +1,25 @@
 from django.core.management import BaseCommand, call_command
 
+from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
+
 
 class Command(BaseCommand):
     help = 'Import all of ONS datasets'
 
-    command_list = [
-        'import_uk_total_trade_data',
-        'import_uk_trade_in_goods_data',
-        'import_uk_trade_in_services_data',
-    ]
+    command_table_view = {
+        'import_uk_total_trade_data': {
+            'table_name': 'trade__uk_totals_sa',
+            'view_name': 'UKMarketTrendsView',
+        },
+        'import_uk_trade_in_goods_data': {
+            'table_name': 'trade__uk_goods_nsa',
+            'view_name': 'TopFiveGoodsExportsByCountryView',
+        },
+        'import_uk_trade_in_services_data': {
+            'table_name': 'trade__uk_services_nsa',
+            'view_name': 'TopFiveServicesExportsByCountryView',
+        },
+    }
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -18,8 +29,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        for command in self.command_list:
-            self.stdout.write(self.style.NOTICE(f'Running {command}'))
-            call_command(command, **options)
+        for k, v in self.command_table_view.items():
+            if MarketGuidesDataIngestionCommand().should_ingestion_run(v['view_name'], v['table_name']):
+                self.stdout.write(self.style.NOTICE(f'Running {k}'))
+                call_command(k, **options)
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
