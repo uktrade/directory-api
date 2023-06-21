@@ -6,9 +6,11 @@ from unittest import mock
 
 import pandas as pd
 import pytest
+import sqlalchemy
 from django.core import management
 from django.test import override_settings
 from import_export import results
+from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
 
 from conf import settings
 from dataservices import models
@@ -495,3 +497,45 @@ def test_helper_get_view_metadata():
     result = MarketGuidesDataIngestionCommand().get_view_metadata('UKMarketTrendsView')
     assert isinstance(result, str)
     assert result == '2022-07-27T00:00:00'
+
+
+@override_settings(DATA_WORKSPACE_DATASETS_URL='sqlite://')
+@pytest.mark.django_db
+def test_helper_get_dataflow_metadata():
+    m = MarketGuidesDataIngestionCommand()
+    m.engine = sqlalchemy.create_engine('sqlite://')
+    m.engine.execute('ATTACH DATABASE ":memory:" AS dataflow')
+    meta = MetaData(schema='dataflow', quote_schema=True)
+    tbl = Table(
+        'metadata',
+        meta,
+        Column('table_name', String),
+        Column('source_data_modified_utc', TIMESTAMP),
+        Column('dataflow_swapped_tables_utc', TIMESTAMP),
+    )
+    meta.create_all(m.engine)
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_goods_sa',
+            source_data_modified_utc=datetime.date(2023, 1, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 1, 1),
+        )
+    )
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_goods_sa',
+            source_data_modified_utc=datetime.date(2023, 4, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 4, 1),
+        )
+    )
+    m.engine.execute(
+        tbl.insert().values(
+            table_name='trade__uk_services_nsa',
+            source_data_modified_utc=datetime.date(2023, 6, 1),
+            dataflow_swapped_tables_utc=datetime.date(2023, 6, 1),
+        )
+    )
+    result = m.get_dataflow_metadata('trade__uk_goods_sa')
+    expected = '2023-04-01 00:00:00.000000'
+    assert result.loc[:, 'dataflow_swapped_tables_utc'][0] == expected
+    assert result.loc[:, 'source_data_modified_utc'][0] == expected
