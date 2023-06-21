@@ -472,6 +472,8 @@ def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected,
 
 @pytest.mark.django_db
 def test_helper_get_view_metadata():
+    result_none = MarketGuidesDataIngestionCommand().get_view_metadata('')
+    assert result_none is None
     models.Metadata.objects.create(
         view_name='UKMarketTrendsView',
         description='',

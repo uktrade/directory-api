@@ -91,7 +91,8 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
     def get_view_metadata(self, view_name):
         try:
             view_data = Metadata.objects.get(view_name=view_name)
-        except ValueError:
+        except (Metadata.DoesNotExist, ValueError):
             self.stdout.write(self.style.NOTICE(f'No data found for view {view_name}'))
+            return None
         else:
             return view_data.data['source']['last_release']
