@@ -21,6 +21,7 @@ _Tick or delete as appropriate:_
 - [ ] Upgraded any vulnerable dependencies.
 - [ ] I have updated security dependencies
 - [ ] Python requirements have been re-compiled.
+- [ ] I have checked that my PR is using the latest package versions of: sigauth, django-staff-sso-client, directory-validators, directory-constants, directory-sso-api-client, directory-healthcheck, directory-forms-api-client, directory-components
 
 ### Merging
 
