@@ -3,9 +3,8 @@ import django
 from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
-from django.urls import re_path, reverse_lazy, path
+from django.urls import path, re_path, reverse_lazy
 from django.views.generic import RedirectView
-
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 import activitystream.views

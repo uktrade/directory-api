@@ -1,6 +1,7 @@
 import logging
 
 from django.db.models import Count
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema, inline_serializer
 from requests.exceptions import HTTPError
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -9,9 +10,6 @@ from rest_framework.serializers import CharField
 from company.helpers import CompanyParser
 from core.permissions import IsAuthenticatedSSO
 from personalisation import helpers, models, serializers
-
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter, inline_serializer
-
 
 logger = logging.getLogger(__name__)
 

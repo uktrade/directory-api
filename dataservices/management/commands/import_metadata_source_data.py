@@ -26,6 +26,14 @@ class Command(BaseCommand):
             x.r <= 1;
     '''
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--table',
+            action='store',
+            help='Specify a table to update',
+            default=None,
+        )
+
     def handle(self, *args, **options):
         table_names_view_names = {
             'trade__uk_goods_nsa': ['TopFiveGoodsExportsByCountryView'],
@@ -34,6 +42,8 @@ class Command(BaseCommand):
             'world_economic_outlook__by_country': ['EconomicHighlightsView'],
         }
         records = pd.read_sql(sa.text(self.sql), self.engine)
+
+        table_names_view_names = self.filter_tables(options, table_names_view_names)
 
         for _idx, row in records.iterrows():
             if row.table_name in table_names_view_names.keys():
@@ -49,3 +59,12 @@ class Command(BaseCommand):
                     instance.save()
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
+
+    def filter_tables(self, options, table_names_view_names):
+        if options['table'] is not None:
+            filtered = {}
+            for t, v in table_names_view_names.items():
+                if t == options['table']:
+                    filtered.update({t: v})
+            return filtered
+        return table_names_view_names

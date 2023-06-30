@@ -33,5 +33,6 @@ class Command(BaseCommand):
             if MarketGuidesDataIngestionCommand().should_ingestion_run(v['view_name'], v['table_name']):
                 self.stdout.write(self.style.NOTICE(f'Running {k}'))
                 call_command(k, **options)
+                call_command('import_metadata_source_data', table=v['table_name'])
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
