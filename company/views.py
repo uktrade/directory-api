@@ -1,19 +1,19 @@
 import abc
+
 from directory_constants import user_roles
 from django.conf import settings
 from django.db.models import BooleanField, Case, Count, Q, Value, When
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import generics, status, views, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer, OpenApiExample
-from drf_spectacular.types import OpenApiTypes
+from rest_framework.serializers import CharField, IntegerField, JSONField
 
 from company import documents, filters, gecko, helpers, models, pagination, permissions, serializers
-from rest_framework.serializers import IntegerField, CharField, JSONField
 from core import authentication
 from core.permissions import IsAuthenticatedSSO
 from core.views import CSVDumpAPIView

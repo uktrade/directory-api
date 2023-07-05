@@ -3,6 +3,7 @@ from django.core.signing import Signer
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_list_or_404
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -12,7 +13,6 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from buyer.models import Buyer
 from buyer.serializers import BuyerSerializer
