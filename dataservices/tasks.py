@@ -1,4 +1,5 @@
 import requests
+from django.core.management import call_command
 from django.db import transaction
 
 from conf.celery import app
@@ -18,3 +19,8 @@ def load_cia_factbook_data_from_url(url):
         country_name = data['countries'][country]['data']['name']
         country_data = data['countries'][country]['data']
         CIAFactbook(country_key=country, country_name=country_name, factbook_data=country_data).save()
+
+
+@app.task()
+def run_market_guides_ingest():
+    call_command('import_market_guides_data')
