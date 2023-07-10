@@ -23,4 +23,4 @@ def load_cia_factbook_data_from_url(url):
 
 @app.task()
 def run_market_guides_ingest():
-    call_command('import_market_guides_data')
+    call_command('import_market_guides_data', '--write')
