@@ -169,6 +169,12 @@ class CompanyCaseStudy(TimeStampedModel):
     testimonial_company = models.CharField(max_length=255, blank=True, default='', validators=[no_html])
     company = models.ForeignKey(Company, related_name='supplier_case_studies', on_delete=models.CASCADE)
     slug = models.SlugField()
+    is_published_case_study = models.BooleanField(
+        default=True,
+        help_text=(
+            'Case studies that are published will be visible to all users'
+        ),
+    )
 
     class Meta:
         verbose_name_plural = 'company case studies'
