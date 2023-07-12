@@ -473,6 +473,7 @@ if ELASTICSEARCH_PROVIDER == 'govuk-paas':
         alias='default',
         hosts=[services[ELASTICSEARCH_INSTANCE_NAME]['credentials']['uri']],
         connection_class=RequestsHttpConnection,
+        http_compress=True,
     )
 elif ELASTICSEARCH_PROVIDER == 'localhost':
     connections.create_connection(
@@ -481,6 +482,7 @@ elif ELASTICSEARCH_PROVIDER == 'localhost':
         use_ssl=False,
         verify_certs=False,
         connection_class=RequestsHttpConnection,
+        http_compress=True,
     )
 else:
     raise NotImplementedError()
