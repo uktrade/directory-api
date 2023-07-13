@@ -44,7 +44,7 @@ class Command(MarketGuidesDataIngestionCommand):
 
     def load_data(self):
         data = []
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=10000)
+        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
