@@ -4,10 +4,10 @@ from datetime import datetime
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.utils.crypto import constant_time_compare
-from drf_spectacular.types import OpenApiTypes
 from django.utils.decorators import decorator_from_middleware
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from field_history.models import FieldHistory
 from mohawk import Receiver
 from mohawk.exc import HawkFail

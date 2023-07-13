@@ -15,6 +15,7 @@ from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
 from conf import settings
 from dataservices import models
 from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
+from dataservices.management.commands.import_metadata_source_data import Command
 
 
 @pytest.mark.django_db
@@ -404,6 +405,23 @@ def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_da
     assert len(models.Metadata.objects.all()) == 4
 
 
+def test_import_metadata_source_data_filter_tables():
+    table_names_view_names = {
+        't1': ['v1'],
+        't2': ['v2'],
+    }
+    cmd = Command()
+    options_none = {'table': None}
+    skipped_none = cmd.filter_tables(options_none, table_names_view_names)
+    assert skipped_none == table_names_view_names
+    options_skip = {'table': 't9'}
+    skipped = cmd.filter_tables(options_skip, table_names_view_names)
+    assert len(skipped) == 0
+    options_add = {'table': 't1'}
+    added = cmd.filter_tables(options_add, table_names_view_names)
+    assert len(added) == 1
+
+
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
@@ -417,11 +435,11 @@ def test_import_market_guides_data(mock_call_command, mock_should_run):
 
     management.call_command('import_market_guides_data', '--write')
 
-    assert mock_call_command.call_count == 3
+    assert mock_call_command.call_count == 6
 
-    for idx, command in enumerate(command_list):
-        assert command in str(mock_call_command.call_args_list[idx])
-        assert 'write=True' in str(mock_call_command.call_args_list[idx])
+    for command in command_list:
+        assert command in str(mock_call_command.call_args_list)
+        assert 'write=True' in str(mock_call_command.call_args_list)
 
 
 @pytest.mark.django_db
@@ -437,11 +455,11 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
 
     management.call_command('import_market_guides_data')
 
-    assert mock_call_command.call_count == 3
+    assert mock_call_command.call_count == 6
 
-    for idx, command in enumerate(command_list):
-        assert command in str(mock_call_command.call_args_list[idx])
-        assert 'write=False' in str(mock_call_command.call_args_list[idx])
+    for command in command_list:
+        assert command in str(mock_call_command.call_args_list)
+        assert 'write=False' in str(mock_call_command.call_args_list)
 
 
 @pytest.fixture()

@@ -2,14 +2,11 @@ import json
 
 from django.apps import apps
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
 from rest_framework import generics, status
 from rest_framework.response import Response
-
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, inline_serializer
-from drf_spectacular.types import OpenApiTypes
-
 from rest_framework.serializers import CharField
-
 
 from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api

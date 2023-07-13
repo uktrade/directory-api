@@ -1,5 +1,6 @@
 from django.conf import settings
 from rest_framework.generics import CreateAPIView
+
 from buyer import serializers
 from core.views import CSVDumpAPIView
 

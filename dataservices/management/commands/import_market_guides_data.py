@@ -29,9 +29,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        for k, v in self.command_table_view.items():
-            if MarketGuidesDataIngestionCommand().should_ingestion_run(v['view_name'], v['table_name']):
-                self.stdout.write(self.style.NOTICE(f'Running {k}'))
-                call_command(k, **options)
+        for command_name, table_view_names in self.command_table_view.items():
+            if MarketGuidesDataIngestionCommand().should_ingestion_run(
+                table_view_names['view_name'], table_view_names['table_name']
+            ):
+                self.stdout.write(self.style.NOTICE(f'Running {command_name}'))
+                call_command(command_name, **options)
+                call_command('import_metadata_source_data', table=table_view_names['table_name'])
 
         self.stdout.write(self.style.SUCCESS('All done, bye!'))
