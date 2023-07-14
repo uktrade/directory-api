@@ -1,4 +1,5 @@
 import re
+from unittest import mock
 
 import pytest
 
@@ -34,3 +35,10 @@ def test_load_cia_factbook_data_from_url(cia_factbook_request_mock, cia_factbook
     world = CIAFactbook.objects.get(country_key='world')
     assert world.country_name == cia_factbook_data['countries']['world']['data']['name']
     assert world.factbook_data == cia_factbook_data['countries']['world']['data']
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_market_guides_ingest(mock_call_command):
+    tasks.run_market_guides_ingest()
+    assert mock_call_command.call_count == 1
