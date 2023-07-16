@@ -171,9 +171,7 @@ class CompanyCaseStudy(TimeStampedModel):
     slug = models.SlugField()
     is_published_case_study = models.BooleanField(
         default=True,
-        help_text=(
-            'Case studies that are published will be visible to all users'
-        ),
+        help_text=('Case studies that are published will be visible to all users'),
     )
 
     class Meta:

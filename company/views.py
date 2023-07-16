@@ -176,7 +176,7 @@ class CompanyCaseStudyViewSet(viewsets.ModelViewSet):
 class PublicCaseStudyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.CompanyCaseStudy.objects.filter(
         Q(company__is_published_find_a_supplier=True) | Q(company__is_published_investment_support_directory=True),
-        is_published_case_study=True
+        is_published_case_study=True,
     )
     lookup_field = 'pk'
     permission_classes = []
