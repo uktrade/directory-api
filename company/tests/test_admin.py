@@ -165,7 +165,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
     headers = (
         'company,created,description,id,image_one,image_one_caption,'
         'image_three,image_three_caption,image_two,image_two_caption,'
-        'keywords,modified,sector,short_summary,slug,testimonial,'
+        'is_published_case_study,keywords,modified,sector,short_summary,slug,testimonial,'
         'testimonial_company,testimonial_job_title,testimonial_name,'
         'title,video_one,website'
     )
@@ -191,7 +191,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         response = self.client.post(reverse('admin:company_companycasestudy_changelist'), data, follow=True)
 
         row_one = (
-            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,True,,'
             '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_study.company_id,
@@ -214,7 +214,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         response = self.client.post(reverse('admin:company_companycasestudy_changelist'), data, follow=True)
 
         row_one = (
-            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,True,,'
             '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[2].company_id,
@@ -225,7 +225,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         )
 
         row_two = (
-            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,True,,'
             '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[1].company_id,
@@ -236,7 +236,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
         )
 
         row_three = (
-            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,,'
+            '{company_id},2012-01-14 12:00:00+00:00,{description},{id},,,,,,,True,,'
             '2012-01-14 12:00:00+00:00,,,{slug},,,,,{title},,'
         ).format(
             company_id=case_studies[0].company_id,
