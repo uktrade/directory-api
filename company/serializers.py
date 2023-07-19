@@ -46,6 +46,7 @@ class CompanyCaseStudySerializer(serializers.ModelSerializer):
             'title',
             'video_one',
             'website',
+            'is_published_case_study',
         )
         read_only_fields = ('slug',)
 
