@@ -45,7 +45,7 @@ def test_error_import_data_sets_error():
 @pytest.mark.parametrize(
     'model_name, management_cmd, object_count',
     (
-        (models.Country, 'import_countries', 195),
+        (models.Country, 'import_countries', 196),
         (models.RuleOfLaw, 'import_rank_of_law_data', 131),
         (models.Currency, 'import_currency_data', 269),
         (models.TradingBlocs, 'import_trading_blocs', 356),
