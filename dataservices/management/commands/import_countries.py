@@ -51,6 +51,8 @@ class Command(BaseCommand):
             for item in data:
                 if item[2] == 'Country':
                     dataset.append((item[1], item[3], item[4], item[5], item[6]))
+                elif item[1] == 'Hong Kong':
+                    dataset.append((item[1], item[3], item[4], item[5], item[6]))
             country_resource = CountryResource()
             report = country_resource.import_data(dataset)
             [
