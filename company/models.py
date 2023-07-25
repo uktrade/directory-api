@@ -189,7 +189,7 @@ class CompanyUser(TimeStampedModel):
     sso_id = models.PositiveIntegerField(verbose_name='sso user.sso_id', unique=True)
     # Deprecated, Name field should be used from SSO.UserProfile.FirstName + LastName
     name = models.CharField(verbose_name='name', max_length=255, blank=True, null=True, default='')
-    company = models.ForeignKey(Company, related_name='company_users', null=True, blank=True, on_delete=models.SET_NULL)
+    company = models.ForeignKey(Company, related_name='company_users', null=True, blank=True, on_delete=models.CASCADE)
     # Deprecated, Email field should be used from SSO.User.Email
     company_email = models.EmailField('company email', unique=True)
     is_active = models.BooleanField(
