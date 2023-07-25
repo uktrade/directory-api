@@ -85,27 +85,27 @@ deprecated==1.2.13
     # via -r requirements.in
 diff-match-patch==20200713
     # via django-import-export
-directory-client-core==7.2.2
+directory-client-core==7.2.5
     # via
     #   directory-forms-api-client
     #   directory-sso-api-client
 directory-components==39.1.0
     # via -r requirements.in
-directory-constants==23.1.0
+directory-constants==23.1.1
     # via
     #   -r requirements.in
     #   directory-components
-directory-forms-api-client==7.2.0
+directory-forms-api-client==7.2.2
     # via -r requirements.in
-directory-healthcheck==3.1.1
+directory-healthcheck==3.1.2
     # via -r requirements.in
-directory-sso-api-client==7.2.1
+directory-sso-api-client==7.2.3
     # via -r requirements.in
 directory-validators==9.3.0
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
-django==4.1.9
+django==4.1.10
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -329,7 +329,7 @@ pytz==2021.3
     #   pyhanko
 pytz-deprecation-shim==0.1.0.post0
     # via tzlocal
-pyyaml==5.4
+pyyaml==6.0
     # via
     #   -r requirements.in
     #   drf-spectacular
