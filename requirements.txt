@@ -33,7 +33,7 @@ celery[redis]==5.2.7
     # via
     #   -r requirements.in
     #   django-celery-beat
-certifi==2022.12.7
+certifi==2023.7.22
     # via
     #   elasticsearch
     #   requests
@@ -164,6 +164,8 @@ future==0.18.3
     # via
     #   arabic-reshaper
     #   django-json-widget
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
