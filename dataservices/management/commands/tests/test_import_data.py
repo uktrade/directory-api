@@ -462,6 +462,33 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
         assert 'write=False' in str(mock_call_command.call_args_list)
 
 
+@pytest.mark.django_db
+@mock.patch('notifications_python_client.notifications.NotificationsAPIClient.send_email_notification')
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
+@mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
+def test_import_market_guides_data_error(mock_call_command, mock_should_run, mock_error_email):
+    mock_should_run.return_value = True
+    mock_call_command.side_effect = Exception('oops')
+    mock_error_email.return_value = True  # avoids the error email failing due to no email address
+
+    management.call_command('import_market_guides_data')
+
+    assert mock_call_command.call_count == 3
+    assert 'oops' in str(mock_call_command.side_effect)
+
+
+@pytest.mark.django_db
+@mock.patch('notifications_python_client.notifications.NotificationsAPIClient.send_email_notification')
+@mock.patch('django.db.models.base.Model.save')
+def test_import_market_guides_metadata_error(mock_model_save, mock_error_email):
+    mock_model_save.side_effect = Exception('nope')
+    mock_error_email.return_value = True  # avoids the error email failing due to no email address
+
+    management.call_command('import_metadata_source_data')
+
+    assert 'nope' in str(mock_model_save.side_effect)
+
+
 @pytest.fixture()
 def workspace_data():
     return {

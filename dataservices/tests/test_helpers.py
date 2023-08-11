@@ -1,8 +1,11 @@
 import re
+from unittest import mock
 
 import pytest
+from django.conf import settings
 
 from dataservices import helpers, models
+from dataservices.management.commands import helpers as dmch
 from dataservices.tests import factories, utils
 
 
@@ -177,3 +180,19 @@ def test_get_internet_usage_with_no_country():
 )
 def test_deep_extend(o1, o2, result):
     assert helpers.deep_extend(o1, o2) == result
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.management.commands.helpers.notifications_client')
+def test_notify_error_message(mock_notify):
+    dmch.send_ingest_error_notify_email('TestView', Exception('lol'))
+    mock_notify.call_args = mock.call(
+        email_address='a@b.com',
+        template_id=settings.GOVNOTIFY_ERROR_MESSAGE_TEMPLATE_ID,
+        personalisation={
+            'area_of_error': 'view name',
+            'error_type': 'type error details',
+            'error_details': 'all error details',
+        },
+    )
+    assert mock_notify.call_count == 1

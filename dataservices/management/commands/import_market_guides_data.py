@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand, call_command
 
-from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
+from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand, send_ingest_error_notify_email
 
 
 class Command(BaseCommand):
@@ -34,7 +34,15 @@ class Command(BaseCommand):
                 table_view_names['view_name'], table_view_names['table_name']
             ):
                 self.stdout.write(self.style.NOTICE(f'Running {command_name}'))
-                call_command(command_name, **options)
-                call_command('import_metadata_source_data', table=table_view_names['table_name'])
+                try:
+                    call_command(command_name, **options)
+                    call_command('import_metadata_source_data', table=table_view_names['table_name'])
+                    self.stdout.write(self.style.SUCCESS(f'Finished import for {table_view_names["view_name"]}'))
+                except Exception as e:
+                    self.stderr.write(self.style.ERROR(f'Failed import for {table_view_names["view_name"]}'))
+                    self.stderr.write(self.style.ERROR(e))
+                    send_ingest_error_notify_email(table_view_names['view_name'], e)
+            else:
+                self.stdout.write(self.style.NOTICE(f'{table_view_names["view_name"]} does not need updating'))
 
-        self.stdout.write(self.style.SUCCESS('All done, bye!'))
+        self.stdout.write(self.style.SUCCESS('Finished Market Guides import!'))
