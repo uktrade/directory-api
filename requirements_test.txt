@@ -78,7 +78,7 @@ cryptography==41.0.3
     #   pyhanko-certvalidator
 cssselect2==0.5.0
     # via svglib
-dataclasses==0.06
+dataclasses==0.6
     # via -r requirements_test.in
 defusedxml==0.7.1
     # via odfpy
@@ -186,7 +186,7 @@ future==0.18.3
     #   django-json-widget
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.31
+gitpython==3.1.32
     # via -r requirements_test.in
 html5lib==1.1
     # via xhtml2pdf
@@ -418,7 +418,9 @@ tqdm==4.63.0
 typing-extensions==4.0.1
     # via black
 tzdata==2022.1
-    # via django-celery-beat
+    # via
+    #   django-celery-beat
+    #   pytz-deprecation-shim
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
