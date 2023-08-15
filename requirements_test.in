@@ -7,7 +7,7 @@ pytest-sugar==0.9.2
 requests_mock==1.6.0
 freezegun==0.3.12
 pytest-codecov
-GitPython
+GitPython==3.1.32
 
 # Pinned because pre-commit features specific versions
 black==23.1.0
