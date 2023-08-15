@@ -325,7 +325,9 @@ tinycss2==1.2.1
 tqdm==4.64.1
     # via pypdf3
 tzdata==2022.7
-    # via django-celery-beat
+    # via
+    #   django-celery-beat
+    #   pytz-deprecation-shim
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
