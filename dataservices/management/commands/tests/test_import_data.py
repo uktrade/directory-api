@@ -431,10 +431,12 @@ def test_import_market_guides_data(mock_call_command, mock_should_run):
         'import_uk_trade_in_goods_data',
         'import_uk_trade_in_services_data',
     ]
-    mock_should_run.return_value = True
-
+    mock_should_run.return_value = False
     management.call_command('import_market_guides_data', '--write')
+    assert mock_call_command.call_count == 0
 
+    mock_should_run.return_value = True
+    management.call_command('import_market_guides_data', '--write')
     assert mock_call_command.call_count == 6
 
     for command in command_list:
@@ -463,30 +465,42 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
 
 
 @pytest.mark.django_db
-@mock.patch('notifications_python_client.notifications.NotificationsAPIClient.send_email_notification')
+@mock.patch('dataservices.management.commands.helpers.notifications_client')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
 def test_import_market_guides_data_error(mock_call_command, mock_should_run, mock_error_email):
     mock_should_run.return_value = True
     mock_call_command.side_effect = Exception('oops')
-    mock_error_email.return_value = True  # avoids the error email failing due to no email address
+    mock_error_email.return_value = mock.Mock()
 
     management.call_command('import_market_guides_data')
 
+    mock_email_string = str(mock_error_email.mock_calls)
     assert mock_call_command.call_count == 3
     assert 'oops' in str(mock_call_command.side_effect)
+    assert mock_error_email.call_count == 3
+    assert 'area_of_error' in mock_email_string
+    assert 'error_type' in mock_email_string
+    assert 'error_details' in mock_email_string
 
 
 @pytest.mark.django_db
-@mock.patch('notifications_python_client.notifications.NotificationsAPIClient.send_email_notification')
-@mock.patch('django.db.models.base.Model.save')
-def test_import_market_guides_metadata_error(mock_model_save, mock_error_email):
+@mock.patch('dataservices.management.commands.helpers.notifications_client')
+@mock.patch('dataservices.management.commands.import_metadata_source_data.getattr')
+@mock.patch('pandas.read_sql')
+def test_import_market_guides_metadata_error(mock_read_sql, mock_model_save, mock_error_email, workspace_data):
+    mock_read_sql.return_value = pd.DataFrame(workspace_data)
     mock_model_save.side_effect = Exception('nope')
-    mock_error_email.return_value = True  # avoids the error email failing due to no email address
+    mock_error_email.return_value = mock.Mock()
 
     management.call_command('import_metadata_source_data')
 
+    mock_email_string = str(mock_error_email.mock_calls)
     assert 'nope' in str(mock_model_save.side_effect)
+    assert mock_error_email.call_count == 1
+    assert 'area_of_error' in mock_email_string
+    assert 'error_type' in mock_email_string
+    assert 'error_details' in mock_email_string
 
 
 @pytest.fixture()
@@ -494,7 +508,7 @@ def workspace_data():
     return {
         'schemas': 'dataflow.metadata',
         'table_name': [
-            'trade__uk_goods_sa',
+            'trade__uk_goods_nsa',
         ],
         'source_data_modified_utc': [
             datetime.datetime(2023, 6, 10),
@@ -513,7 +527,7 @@ def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected,
     m = MarketGuidesDataIngestionCommand()
     dataflow_mock.return_value = pd.DataFrame(workspace_data)
     view_mock.return_value = view_date
-    actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_sa')
+    actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_nsa')
     assert actual == expected
 
 
@@ -561,14 +575,14 @@ def test_helper_get_dataflow_metadata():
     meta.create_all(m.engine)
     m.engine.execute(
         tbl.insert().values(
-            table_name='trade__uk_goods_sa',
+            table_name='trade__uk_goods_nsa',
             source_data_modified_utc=datetime.date(2023, 1, 1),
             dataflow_swapped_tables_utc=datetime.date(2023, 1, 1),
         )
     )
     m.engine.execute(
         tbl.insert().values(
-            table_name='trade__uk_goods_sa',
+            table_name='trade__uk_goods_nsa',
             source_data_modified_utc=datetime.date(2023, 4, 1),
             dataflow_swapped_tables_utc=datetime.date(2023, 4, 1),
         )
@@ -580,7 +594,7 @@ def test_helper_get_dataflow_metadata():
             dataflow_swapped_tables_utc=datetime.date(2023, 6, 1),
         )
     )
-    result = m.get_dataflow_metadata('trade__uk_goods_sa')
+    result = m.get_dataflow_metadata('trade__uk_goods_nsa')
     expected = '2023-04-01 00:00:00.000000'
     assert result.loc[:, 'dataflow_swapped_tables_utc'][0] == expected
     assert result.loc[:, 'source_data_modified_utc'][0] == expected
