@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 from dataservices import views
+from dataservices.management.commands.helpers import send_ingest_error_notify_email
 from dataservices.models import Metadata
 
 
@@ -48,17 +49,21 @@ class Command(BaseCommand):
         for _idx, row in records.iterrows():
             if row.table_name in table_names_view_names.keys():
                 for view_name in table_names_view_names[row.table_name]:
-                    view = getattr(views, view_name)
-                    model = view.filterset_class.Meta.model
-                    instance, _created = Metadata.objects.get_or_create(view_name=view_name)
-                    instance.data['source'] = {}
-                    instance.data['source']['organisation'] = model.METADATA_SOURCE_ORGANISATION
-                    instance.data['source']['label'] = model.METADATA_SOURCE_LABEL
-                    instance.data['source']['url'] = model.METADATA_SOURCE_URL
-                    instance.data['source']['last_release'] = row.last_release.isoformat()
-                    instance.save()
-
-        self.stdout.write(self.style.SUCCESS('All done, bye!'))
+                    try:
+                        view = getattr(views, view_name)
+                        model = view.filterset_class.Meta.model
+                        instance, _created = Metadata.objects.get_or_create(view_name=view_name)
+                        instance.data['source'] = {}
+                        instance.data['source']['organisation'] = model.METADATA_SOURCE_ORGANISATION
+                        instance.data['source']['label'] = model.METADATA_SOURCE_LABEL
+                        instance.data['source']['url'] = model.METADATA_SOURCE_URL
+                        instance.data['source']['last_release'] = row.last_release.isoformat()
+                        instance.save()
+                        self.stdout.write(self.style.SUCCESS(f'Successfully updated metadata for {instance.view_name}'))
+                    except Exception as e:
+                        self.stderr.write(self.style.ERROR(f'Error updating metadata for {view_name}'))
+                        self.stderr.write(self.style.ERROR(e))
+                        send_ingest_error_notify_email(view_name, e)
 
     def filter_tables(self, options, table_names_view_names):
         if options['table'] is not None:

@@ -9,6 +9,7 @@ import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
 
+from core.helpers import notifications_client
 from dataservices.models import Metadata
 
 
@@ -28,6 +29,20 @@ def from_url_get_xml(url):
         with myzip.open(filename) as myfile:
             xml = myfile.read()
     return xmltodict.parse(xml)
+
+
+def send_ingest_error_notify_email(view_name, error_details):
+    all_error_details = '\n'.join(error_details.args)
+
+    notifications_client().send_email_notification(
+        email_address=settings.GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL,
+        template_id=settings.GOVNOTIFY_ERROR_MESSAGE_TEMPLATE_ID,
+        personalisation={
+            'area_of_error': f'Market Guides ingest view {view_name}',
+            'error_type': f'{type(error_details)}',
+            'error_details': f'{all_error_details}',
+        },
+    )
 
 
 class MarketGuidesDataIngestionCommand(BaseCommand):
