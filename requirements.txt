@@ -165,6 +165,8 @@ future==0.18.3
     # via
     #   arabic-reshaper
     #   django-json-widget
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -274,7 +276,7 @@ redis==4.4.4
     # via
     #   celery
     #   django-redis
-reportlab==3.6.12
+reportlab==3.6.13
     # via
     #   svglib
     #   xhtml2pdf
