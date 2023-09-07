@@ -321,6 +321,10 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
 
 
 class ActivityStreamExportPlanView(ListAPIView):
+    """
+    Concrete view for listing a CompanyExportPlan queryset.
+    """
+
     authentication_classes = (ActivityStreamAuthentication,)
     permission_classes = ()
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
@@ -331,7 +335,7 @@ class ActivityStreamExportPlanView(ListAPIView):
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     @extend_schema(
-        responses=serializer_class,
+        responses=ActivityStreamCompanyExportPlanSerializer,
         description='Export plans for Activity stream.',
         parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
     )

@@ -215,11 +215,11 @@ class ActivityStreamCompanyExportPlanSerializer(serializers.ModelSerializer):
                 'type': prefix,
                 'created': instance.created.isoformat(),
                 'modified': instance.modified.isoformat(),
-                'answers_count': instance.answers_count,
-                'sso_id': instance.sso_id,
-                'company_id': instance.company_id,
-                'export_countries': instance.export_countries,
-                'export_commodity_codes': instance.export_commodity_codes,
+                'answersCount': instance.answers_count,
+                'ssoId': instance.sso_id,
+                'companyId': instance.company_id,
+                'exportCountries': instance.export_countries,
+                'exportCommodityCodes': instance.export_commodity_codes,
             }
-            | sections,
+            | sections,  # here we merge the sections object comprising questions answered only
         }
