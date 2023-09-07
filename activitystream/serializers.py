@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from company.models import Company, CompanyUser
-from exportplan.models import CompanyExportPlan
+from exportplan import models
 
 
 class ActivityStreamCompanyUserSerializer(serializers.ModelSerializer):
@@ -124,45 +124,102 @@ class ActivityStreamCompanySerializer(serializers.ModelSerializer):
         }
 
 
-class ActivityStreamExportPlanDataSerializer(serializers.ModelSerializer):
-    """
-    Export plan question serializer for activity stream.
+class ActivityStreamCompanyObjectivesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyObjectives
+        exclude = ['id', 'companyexportplan']
 
-    - Adds extra response fields required by activity stream.
-    - Adds the required prefix to field names
-    """
+
+class ActivityStreamRouteToMarketsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RouteToMarkets
+        exclude = ['id', 'companyexportplan']
+
+
+class ActivityStreamTargetMarketDocumentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TargetMarketDocuments
+        exclude = ['id', 'companyexportplan']
+
+
+class ActivityStreamFundingCreditOptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FundingCreditOptions
+        exclude = ['id', 'companyexportplan']
+
+
+class ActivityStreamBusinessTripsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BusinessTrips
+        exclude = ['id', 'companyexportplan']
+
+
+class ActivityStreamBusinessRisksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BusinessRisks
+        exclude = ['id', 'companyexportplan']
+
+
+class ActivityStreamCompanyExportPlanSerializer(serializers.ModelSerializer):
+    company_objectives = ActivityStreamCompanyObjectivesSerializer(many=True, read_only=True)
+    target_market_documents = ActivityStreamTargetMarketDocumentsSerializer(many=True, read_only=True)
+    route_to_markets = ActivityStreamRouteToMarketsSerializer(many=True, read_only=True)
+    funding_credit_options = ActivityStreamFundingCreditOptionsSerializer(many=True, read_only=True)
+    business_trips = ActivityStreamBusinessTripsSerializer(many=True, read_only=True)
+    business_risks = ActivityStreamBusinessRisksSerializer(many=True, read_only=True)
 
     class Meta:
-        model = CompanyExportPlan
-        fields = '__all__'
+        SECTION_MAPPING = {
+            'about_your_business': 'sectionAboutYourBusiness',
+            'objectives': 'sectionBusinessObjectives',
+            'company_objectives': 'sectionBusinessObjectives',
+            'target_markets_research': 'sectionTargetMarketsResearch',
+            'adaptation_target_market': 'sectionAdaptationTargetMarket',
+            'target_market_documents': 'sectionAdaptationTargetMarket',
+            'marketing_approach': 'sectionMarketingApproach',
+            'route_to_markets': 'sectionMarketingApproach',
+            'direct_costs': 'sectionCostsAndPricing',
+            'overhead_costs': 'sectionCostsAndPricing',
+            'total_cost_and_price': 'sectionCostsAndPricing',
+            'funding_and_credit': 'sectionFundingAndCredit',
+            'funding_credit_options': 'sectionFundingAndCredit',
+            'getting_paid': 'sectionGettingPaid',
+            'travel_business_policies': 'sectionTravelPlan',
+            'business_trips': 'sectionTravelPlan',
+            'business_risks': 'sectionBusinessRisks',
+        }
+
+        model = models.CompanyExportPlan
+        fields = list(SECTION_MAPPING.keys())
 
     def to_representation(self, instance):
         """
         Prefix field names to match activity stream format
         """
-        prefix = 'dit:directory:ExportPlanData'
-        exportplan_id = instance['exportplan_id']
-        sso_id = instance['sso_id']
-        created = instance['created'].isoformat()
-        modified = instance['modified'].isoformat()
-        section = instance['section']
-        question = instance['question']
+        prefix = 'dit:directory:exportPlan'
+        operation = 'Update'
+        serialised_obj = super().to_representation(instance)
+
+        # Leave keys with no values out of the payload
+        sections = {}
+        for field, section in self.Meta.SECTION_MAPPING.items():
+            value = serialised_obj.get(field)
+            if value:
+                sections.setdefault(section, {})[field] = value
 
         return {
-            'id': f'{prefix}:{exportplan_id}_{section}_{question}:Update',
-            'published': created,
-            'generator': {
-                'type': 'Application',
-                'name': 'dit:directory',
-            },
+            'id': f'{prefix}:{instance.id}:{operation}',
+            'published': instance.modified.isoformat(),
             'object': {
-                'id': f'{prefix}:{exportplan_id}_{section}_{question}',
+                'id': f'{prefix}:{instance.id}',
                 'type': prefix,
-                'exportplan_id': exportplan_id,
-                'sso_id': sso_id,
-                'created': created,
-                'modified': modified,
-                'section': section,
-                'question': question,
-            },
+                'created': instance.created.isoformat(),
+                'modified': instance.modified.isoformat(),
+                'answers_count': instance.answers_count,
+                'sso_id': instance.sso_id,
+                'company_id': instance.company_id,
+                'export_countries': instance.export_countries,
+                'export_commodity_codes': instance.export_commodity_codes,
+            }
+            | sections,
         }

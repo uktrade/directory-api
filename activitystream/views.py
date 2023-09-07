@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+import django_filters.rest_framework
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -13,10 +14,13 @@ from mohawk import Receiver
 from mohawk.exc import HawkFail
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from activitystream.serializers import ActivityStreamCompanySerializer, ActivityStreamExportPlanDataSerializer
+from activitystream.filters import ActivityStreamCompanyExportPlanFilter
+from activitystream.pagination import ActivityStreamCompanyExportPlanPagination
+from activitystream.serializers import ActivityStreamCompanyExportPlanSerializer, ActivityStreamCompanySerializer
 from company.models import Company
 from exportplan.models import CompanyExportPlan
 
@@ -316,25 +320,20 @@ class ActivityStreamCompanyViewSet(BaseActivityStreamViewSet):
         )
 
 
-class ActivityStreamExportPlanDataViewSet(BaseActivityStreamViewSet):
-    """View set to list export plan data for the activity stream"""
+class ActivityStreamExportPlanView(ListAPIView):
+    authentication_classes = (ActivityStreamAuthentication,)
+    permission_classes = ()
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    queryset = CompanyExportPlan.objects.all()
+    serializer_class = ActivityStreamCompanyExportPlanSerializer
+    filterset_class = ActivityStreamCompanyExportPlanFilter
+    pagination_class = ActivityStreamCompanyExportPlanPagination
 
     @decorator_from_middleware(ActivityStreamHawkResponseMiddleware)
     @extend_schema(
-        responses=ActivityStreamExportPlanDataSerializer,
-        description='Export plan question for Activity stream.',
+        responses=serializer_class,
+        description='Export plans for Activity stream.',
         parameters=[OpenApiParameter(name='after', description='After Timestamp String', required=True, type=str)],
     )
-    def list(self, request):
-        """A single page of export plan questions to be consumed by activity stream."""
-        after_ts, after_id = self._parse_after(request)
-        export_plan_questions = CompanyExportPlan.objects.get_questions(after_ts, after_id)[:MAX_PER_PAGE]
-
-        return self._generate_response(
-            ActivityStreamExportPlanDataSerializer(export_plan_questions, many=True).data,
-            self._build_after(
-                request, export_plan_questions[-1]['modified'], export_plan_questions[-1]['exportplan_id']
-            )
-            if export_plan_questions
-            else None,
-        )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

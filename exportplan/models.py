@@ -18,6 +18,26 @@ class CompanyExportPlanQuerySet(models.QuerySet):
 
 
 class CompanyExportPlan(TimeStampedModel):
+    SECTIONS = [
+        'about_your_business',
+        'objectives',
+        'target_markets_research',
+        'adaptation_target_market',
+        'marketing_approach',
+        'total_cost_and_price',
+        'funding_and_credit',
+        'getting_paid',
+        'travel_business_policies',
+    ]
+    RELATED_OBJECTS = [
+        'company_objectives',
+        'route_to_markets',
+        'target_market_documents',
+        'funding_credit_options',
+        'business_trips',
+        'business_risks',
+    ]
+
     # General fields
     name = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
@@ -49,6 +69,24 @@ class CompanyExportPlan(TimeStampedModel):
     travel_business_policies = models.JSONField(null=True, blank=True, default=dict)
 
     objects = CompanyExportPlanQuerySet.as_manager()
+
+    @property
+    def answers_count(self):
+        count = 0
+
+        for section in self.SECTIONS:
+            count += len(getattr(self, section))
+
+        for related_object in self.RELATED_OBJECTS:
+            if getattr(self, related_object).exists():
+                count += 1
+
+        return count
+
+    class Meta:
+        ordering = ['-modified']
+        verbose_name = 'Export Plan'
+        verbose_name_plural = 'Export Plans'
 
 
 class CompanyObjectives(TimeStampedModel):

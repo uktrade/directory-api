@@ -390,33 +390,39 @@ def _expected_company_response(company):
     }
 
 
-def _expected_export_plan_response(export_plan, data={}):
+def _expected_export_plan_response(export_plan):
     created = export_plan.created.isoformat()
     modified = export_plan.modified.isoformat()
     export_plan_id = export_plan.id
-    export_plan_data = []
 
-    for section, questions in data.items():
-        for question, _answer in questions.items():
-            record = {
-                'id': f'dit:directory:ExportPlanData:{export_plan_id}_{section}_{question}:Update',
-                'published': modified,
-                'generator': {'type': 'Application', 'name': 'dit:directory'},
-                'object': {
-                    'id': f'dit:directory:ExportPlanData:{export_plan_id}_{section}_{question}',
-                    'type': 'dit:directory:ExportPlanData',
-                    'exportplan_id': export_plan_id,
-                    'sso_id': export_plan.sso_id,
-                    'created': created,
-                    'modified': modified,
-                    'section': section,
-                    'question': question,
-                },
-            }
-
-            export_plan_data.append(record)
-
-    return sorted(export_plan_data, key=lambda d: d['id'])
+    return {
+        'id': f'dit:directory:exportPlan:{export_plan_id}:Update',
+        'published': modified,
+        'object': {
+            'id': f'dit:directory:exportPlan:{export_plan_id}',
+            'type': 'dit:directory:exportPlan',
+            'created': created,
+            'modified': modified,
+            'answers_count': export_plan.answers_count,
+            'sso_id': export_plan.sso_id,
+            'company_id': export_plan.company.id,
+            'export_countries': export_plan.export_countries,
+            'export_commodity_codes': export_plan.export_commodity_codes,
+            'sectionAboutYourBusiness': {'about_your_business': export_plan.about_your_business},
+            'sectionBusinessObjectives': {'objectives': export_plan.objectives},
+            'sectionTargetMarketsResearch': {'target_markets_research': export_plan.target_markets_research},
+            'sectionAdaptationTargetMarket': {'adaptation_target_market': export_plan.adaptation_target_market},
+            'sectionMarketingApproach': {'marketing_approach': export_plan.marketing_approach},
+            'sectionCostsAndPricing': {
+                'direct_costs': export_plan.direct_costs,
+                'overhead_costs': export_plan.overhead_costs,
+                'total_cost_and_price': export_plan.total_cost_and_price,
+            },
+            'sectionFundingAndCredit': {'funding_and_credit': export_plan.funding_and_credit},
+            'sectionGettingPaid': {'getting_paid': export_plan.getting_paid},
+            'sectionTravelPlan': {'travel_business_policies': export_plan.travel_business_policies},
+        },
+    }
 
 
 @pytest.mark.django_db
@@ -469,32 +475,15 @@ def test_activty_stream_company_viewset(api_client, companies_url):
 
 
 @pytest.mark.django_db
-def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
-    data = {
-        'marketing_approach': {'Description': '', 'option': ''},
-        'about_your_business': {'Location': '', 'story': ''},
-        'business_objectives': {'rationale': ''},
-        'target_markets_research': {'demand': '', 'value': ''},
-        'adapting_your_product': {'labelling': '', 'size': ''},
-        'costs_and_pricing': {
-            'product_costs': '',
-            'labour_costs': '',
-            'product_adaption': '',
-            'other_overhead_costs': '',
-            'units_to_export_first_period': {},
-            'average_price_per_unit': '',
-        },
-        'funding_and_credit': {'override_estimated_total_cost': '', 'funding_amount_required': ''},
-        'getting_paid': {'payment_method': {}, 'incoterms': {}},
-        'travel_plan': {'travel_information': '', 'visa_information': {}},
-    }
-
+@mock.patch('activitystream.pagination.ActivityStreamCompanyExportPlanPagination.page_size', 1)
+def test_activty_stream_exportplan_view(api_client, exportplan_url):
     with freeze_time('2020-09-01 12:00:02'):
         export_plan_1 = CompanyExportPlanFactory()
 
     with freeze_time('2020-11-01 12:00:02'):
         export_plan_2 = CompanyExportPlanFactory()
 
+    # Page 1
     auth = _auth_sender(exportplan_url).request_header
     response = api_client.get(
         exportplan_url,
@@ -502,11 +491,19 @@ def test_activty_stream_exportplan_viewset(api_client, exportplan_url):
         HTTP_AUTHORIZATION=auth,
         HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
     )
-    response_objs = response.json()['orderedItems']
-    expected_response_objs = _expected_export_plan_response(export_plan_1, data) + _expected_export_plan_response(
-        export_plan_2, data
-    )
-
     assert response.status_code == status.HTTP_200_OK
-    assert len(response_objs) == len(expected_response_objs)
-    assert response_objs == expected_response_objs
+    response_json = response.json()
+    assert response_json['orderedItems'] == [_expected_export_plan_response(export_plan_2)]
+
+    # Page 2
+    auth = _auth_sender(response_json['next']).request_header
+    response = api_client.get(
+        response_json['next'],
+        content_type='',
+        HTTP_AUTHORIZATION=auth,
+        HTTP_X_FORWARDED_FOR='1.2.3.4, 123.123.123.123',
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response_json = response.json()
+    assert response_json['orderedItems'] == [_expected_export_plan_response(export_plan_1)]
+    assert 'next' not in response_json
