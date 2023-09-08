@@ -35,7 +35,7 @@ activity_stream_urls = [
     ),
     re_path(
         r'^exportplan/$',
-        activitystream.views.ActivityStreamExportPlanDataViewSet.as_view({'get': 'list'}),
+        activitystream.views.ActivityStreamExportPlanView.as_view(),
         name='activity-stream-export-plan-data',
     ),
 ]

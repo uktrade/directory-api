@@ -1,23 +1,34 @@
 from directory_constants import choices
 from directory_validators.string import no_html
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import connection, models
+from django.db import models
 
 from company.models import Company
 from core.helpers import TimeStampedModel, path_and_rename_exportplan_pdf
 from core.storage import private_storage
-from exportplan import helpers
-
-
-class CompanyExportPlanQuerySet(models.QuerySet):
-    @staticmethod
-    def get_questions(after_ts, after_id):
-        with connection.cursor() as cursor:
-            cursor.execute(helpers.build_query(after_id, after_ts))
-            return helpers.dictfetchall(cursor)
 
 
 class CompanyExportPlan(TimeStampedModel):
+    SECTIONS = [
+        'about_your_business',
+        'objectives',
+        'target_markets_research',
+        'adaptation_target_market',
+        'marketing_approach',
+        'total_cost_and_price',
+        'funding_and_credit',
+        'getting_paid',
+        'travel_business_policies',
+    ]
+    RELATED_OBJECTS = [
+        'company_objectives',
+        'route_to_markets',
+        'target_market_documents',
+        'funding_credit_options',
+        'business_trips',
+        'business_risks',
+    ]
+
     # General fields
     name = models.TextField(null=True, blank=True)
     company = models.ForeignKey(
@@ -48,7 +59,23 @@ class CompanyExportPlan(TimeStampedModel):
     # Travel Business Policies
     travel_business_policies = models.JSONField(null=True, blank=True, default=dict)
 
-    objects = CompanyExportPlanQuerySet.as_manager()
+    @property
+    def answers_count(self):
+        count = 0
+
+        for section in self.SECTIONS:
+            count += len(getattr(self, section))
+
+        for related_object in self.RELATED_OBJECTS:
+            if getattr(self, related_object).exists():
+                count += 1
+
+        return count
+
+    class Meta:
+        ordering = ['-modified']
+        verbose_name = 'Export Plan'
+        verbose_name_plural = 'Export Plans'
 
 
 class CompanyObjectives(TimeStampedModel):
