@@ -6,7 +6,7 @@
 #
 amqp==5.1.1
     # via kombu
-arabic-reshaper==2.1.4
+arabic-reshaper==3.0.0
     # via xhtml2pdf
 asgiref==3.5.2
     # via django
@@ -162,11 +162,7 @@ factory-boy==2.12.0
 faker==15.3.4
     # via factory-boy
 future==0.18.3
-    # via
-    #   arabic-reshaper
-    #   django-json-widget
-greenlet==2.0.2
-    # via sqlalchemy
+    # via django-json-widget
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -239,7 +235,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.in
     #   notifications-python-client
-pypdf3==1.0.6
+pypdf==3.16.0
     # via xhtml2pdf
 pyrsistent==0.19.2
     # via jsonschema
@@ -324,8 +320,8 @@ tinycss2==1.2.1
     # via
     #   cssselect2
     #   svglib
-tqdm==4.64.1
-    # via pypdf3
+typing-extensions==4.7.1
+    # via pypdf
 tzdata==2022.7
     # via
     #   django-celery-beat
@@ -364,7 +360,7 @@ whitenoise==6.4.0
     # via -r requirements.in
 wrapt==1.14.1
     # via deprecated
-xhtml2pdf==0.2.8
+xhtml2pdf==0.2.11
     # via -r requirements.in
 xlrd==2.0.1
     # via tablib
