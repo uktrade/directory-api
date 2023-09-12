@@ -8,6 +8,8 @@ import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
+from datetime import datetime, timedelta
+from sys import stdout
 
 from core.helpers import notifications_client
 from dataservices.models import Metadata
@@ -44,6 +46,32 @@ def send_ingest_error_notify_email(view_name, error_details):
         },
     )
 
+def send_review_request_message(view_name):
+
+    instance, _created = Metadata.objects.get_or_create(view_name=view_name)
+    last_release = datetime.strptime(instance.data['source']['last_release'], '%Y-%m-%dT%H:%M:%S')
+    
+    try:
+        last_notification_sent = datetime.strptime(instance.data['review_process']['notification_sent'],  '%Y-%m-%dT%H:%M:%S')
+    except KeyError as e:
+        instance.data['review_process'] = {
+            'notification_sent': None
+        }
+        last_notification_sent = None
+
+    if last_notification_sent is None or (((last_notification_sent - last_release).days) < 0):
+        notifications_client().send_email_notification(
+            email_address=settings.GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL,
+            template_id=settings.GOVNOTIFY_GREAT_MARKETGUIDES_REVIEW_REQUEST_TEMPLATE_ID,
+            personalisation={
+                'view_name': view_name,
+                'review_url': 'https://great.staging.uktrade.digital/markets/',
+                'release_date': (last_release + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS)).strftime('%d/%m/%Y'),
+            },
+        )
+        stdout.write(f"Sent review request notification for {view_name}")
+        instance.data['review_process']['notification_sent'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        instance.save()
 
 class MarketGuidesDataIngestionCommand(BaseCommand):
     engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
@@ -75,6 +103,9 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
 
     def should_ingestion_run(self, view_name, table_name):
+
+        # in here we will check the environment. if == prod then check that the release date is >= 10 days and that data hasn't already beeen imported
+
         dataflow_metadata = self.get_dataflow_metadata(table_name)
         swapped_date = dataflow_metadata.loc[:, 'dataflow_swapped_tables_utc'][0].to_pydatetime().date()
         great_metadata = self.get_view_metadata(view_name)
