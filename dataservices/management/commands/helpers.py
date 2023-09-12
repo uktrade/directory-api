@@ -53,7 +53,7 @@ def send_review_request_message(view_name):
     
     try:
         last_notification_sent = datetime.strptime(instance.data['review_process']['notification_sent'],  '%Y-%m-%dT%H:%M:%S')
-    except KeyError as e:
+    except KeyError:
         instance.data['review_process'] = {
             'notification_sent': None
         }
@@ -104,8 +104,6 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
 
     def should_ingestion_run(self, view_name, table_name):
 
-        # in here we will check the environment. if == prod then check that the release date is >= 10 days and that data hasn't already beeen imported
-
         dataflow_metadata = self.get_dataflow_metadata(table_name)
         swapped_date = dataflow_metadata.loc[:, 'dataflow_swapped_tables_utc'][0].to_pydatetime().date()
         great_metadata = self.get_view_metadata(view_name)
@@ -113,7 +111,9 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         if great_metadata is not None:
             great_metadata_date = datetime.strptime(great_metadata, '%Y-%m-%dT%H:%M:%S').date()
             if swapped_date > great_metadata_date:
-                return True
+                if settings.APP_ENVIRONMENT != 'prod' or (settings.APP_ENVIRONMENT == 'prod' and datetime.now().date() >= (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))):
+                    self.stdout.write(self.style.SUCCESS(f'Importing {view_name} data into {settings.APP_ENVIRONMENT} env.'))
+                    return True             
 
         return False
 
