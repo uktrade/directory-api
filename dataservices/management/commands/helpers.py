@@ -59,7 +59,7 @@ def send_review_request_message(view_name):
         }
         last_notification_sent = None
 
-    if last_notification_sent is None or (((last_notification_sent - last_release).days) < 0):
+    if last_notification_sent is None or (((last_notification_sent.timestamp() - last_release.timestamp())) < 0):
         notifications_client().send_email_notification(
             email_address=settings.GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL,
             template_id=settings.GOVNOTIFY_GREAT_MARKETGUIDES_REVIEW_REQUEST_TEMPLATE_ID,
@@ -111,7 +111,7 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         if great_metadata is not None:
             great_metadata_date = datetime.strptime(great_metadata, '%Y-%m-%dT%H:%M:%S').date()
             if swapped_date > great_metadata_date:
-                if settings.APP_ENVIRONMENT != 'prod' or (settings.APP_ENVIRONMENT == 'prod' and datetime.now().date() >= (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))):
+                if settings.APP_ENVIRONMENT != 'prod' or (settings.APP_ENVIRONMENT == 'prod' and datetime.now().date() > (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))):
                     self.stdout.write(self.style.SUCCESS(f'Importing {view_name} data into {settings.APP_ENVIRONMENT} env.'))
                     return True             
 
