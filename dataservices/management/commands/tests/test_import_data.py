@@ -1,6 +1,6 @@
-import datetime
 import json
 import re
+from datetime import datetime, date, timedelta
 from itertools import cycle, islice
 from unittest import mock
 
@@ -9,10 +9,9 @@ import pytest
 import sqlalchemy
 from django.core import management
 from django.test import override_settings
+from freezegun import freeze_time
 from import_export import results
 from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
-from freezegun import freeze_time
-from datetime import datetime, timedelta
 
 from conf import settings
 from dataservices import models
@@ -504,6 +503,7 @@ def test_import_market_guides_metadata_error(mock_read_sql, mock_model_save, moc
     assert 'error_type' in mock_email_string
     assert 'error_details' in mock_email_string
 
+
 @freeze_time('2023-09-13T15:21:10')
 @pytest.fixture()
 def workspace_data():
@@ -522,11 +522,13 @@ def workspace_data():
 @freeze_time('2023-09-13T15:21:10')
 @pytest.mark.parametrize(
     'env, view_date, swap_date, expected',
-    [('staging', datetime.now(), datetime.now() + timedelta(days=1), True), 
-     ('staging', datetime.now(), datetime.now() - timedelta(days=1), False), 
-     ('staging', datetime.now(), datetime.now() - timedelta(weeks=1), False), 
-     ('prod', datetime.now() - timedelta(days=8), datetime.now() - timedelta(days=9), False),
-     ('prod', datetime.now() - timedelta(days=12), datetime.now() - timedelta(days=11), True)],
+    [
+        ('staging', datetime.now(), datetime.now() + timedelta(days=1), True),
+        ('staging', datetime.now(), datetime.now() - timedelta(days=1), False),
+        ('staging', datetime.now(), datetime.now() - timedelta(weeks=1), False),
+        ('prod', datetime.now() - timedelta(days=8), datetime.now() - timedelta(days=9), False),
+        ('prod', datetime.now() - timedelta(days=12), datetime.now() - timedelta(days=11), True),
+    ],
 )
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_dataflow_metadata')
@@ -534,7 +536,7 @@ def test_helper_should_ingest_run(dataflow_mock, view_mock, env, view_date, swap
     with override_settings(APP_ENVIRONMENT=env):
         m = MarketGuidesDataIngestionCommand()
         dataflow_mock.return_value = pd.DataFrame(workspace_data)
-        dataflow_mock.return_value.loc[:, 'dataflow_swapped_tables_utc'][0]=swap_date.strftime('%Y-%m-%dT%H:%M:%S')
+        dataflow_mock.return_value.loc[:, 'dataflow_swapped_tables_utc'][0] = swap_date.strftime('%Y-%m-%dT%H:%M:%S')
         view_mock.return_value = view_date.strftime('%Y-%m-%dT%H:%M:%S')
         actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_nsa')
         assert actual == expected
@@ -585,22 +587,22 @@ def test_helper_get_dataflow_metadata():
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_goods_nsa',
-            source_data_modified_utc=datetime.date(2023, 1, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 1, 1),
+            source_data_modified_utc=date(2023, 1, 1),
+            dataflow_swapped_tables_utc=date(2023, 1, 1),
         )
     )
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_goods_nsa',
-            source_data_modified_utc=datetime.date(2023, 4, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 4, 1),
+            source_data_modified_utc=date(2023, 4, 1),
+            dataflow_swapped_tables_utc=date(2023, 4, 1),
         )
     )
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_services_nsa',
-            source_data_modified_utc=datetime.date(2023, 6, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 6, 1),
+            source_data_modified_utc=date(2023, 6, 1),
+            dataflow_swapped_tables_utc=date(2023, 6, 1),
         )
     )
     result = m.get_dataflow_metadata('trade__uk_goods_nsa')

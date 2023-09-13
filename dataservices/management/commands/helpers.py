@@ -1,5 +1,6 @@
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
+from sys import stdout
 from zipfile import ZipFile
 
 import pandas as pd
@@ -8,8 +9,6 @@ import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
-from datetime import datetime, timedelta
-from sys import stdout
 
 from core.helpers import notifications_client
 from dataservices.models import Metadata
@@ -46,17 +45,17 @@ def send_ingest_error_notify_email(view_name, error_details):
         },
     )
 
-def send_review_request_message(view_name):
 
+def send_review_request_message(view_name):
     instance, _created = Metadata.objects.get_or_create(view_name=view_name)
     last_release = datetime.strptime(instance.data['source']['last_release'], '%Y-%m-%dT%H:%M:%S')
-    
+
     try:
-        last_notification_sent = datetime.strptime(instance.data['review_process']['notification_sent'],  '%Y-%m-%dT%H:%M:%S')
+        last_notification_sent = datetime.strptime(
+            instance.data['review_process']['notification_sent'], '%Y-%m-%dT%H:%M:%S'
+        )
     except KeyError:
-        instance.data['review_process'] = {
-            'notification_sent': None
-        }
+        instance.data['review_process'] = {'notification_sent': None}
         last_notification_sent = None
 
     if last_notification_sent is None or (((last_notification_sent.timestamp() - last_release.timestamp())) < 0):
@@ -66,12 +65,15 @@ def send_review_request_message(view_name):
             personalisation={
                 'view_name': view_name,
                 'review_url': 'https://great.staging.uktrade.digital/markets/',
-                'release_date': (last_release + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS)).strftime('%d/%m/%Y'),
+                'release_date': (
+                    last_release + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS)
+                ).strftime('%d/%m/%Y'),
             },
         )
         stdout.write(f"Sent review request notification for {view_name}")
         instance.data['review_process']['notification_sent'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         instance.save()
+
 
 class MarketGuidesDataIngestionCommand(BaseCommand):
     engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
@@ -103,7 +105,6 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
 
     def should_ingestion_run(self, view_name, table_name):
-
         dataflow_metadata = self.get_dataflow_metadata(table_name)
         swapped_date = dataflow_metadata.loc[:, 'dataflow_swapped_tables_utc'][0].to_pydatetime().date()
         great_metadata = self.get_view_metadata(view_name)
@@ -111,9 +112,15 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         if great_metadata is not None:
             great_metadata_date = datetime.strptime(great_metadata, '%Y-%m-%dT%H:%M:%S').date()
             if swapped_date > great_metadata_date:
-                if settings.APP_ENVIRONMENT != 'prod' or (settings.APP_ENVIRONMENT == 'prod' and datetime.now().date() > (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))):
-                    self.stdout.write(self.style.SUCCESS(f'Importing {view_name} data into {settings.APP_ENVIRONMENT} env.'))
-                    return True             
+                if settings.APP_ENVIRONMENT != 'prod' or (
+                    settings.APP_ENVIRONMENT == 'prod'
+                    and datetime.now().date()
+                    > (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))
+                ):
+                    self.stdout.write(
+                        self.style.SUCCESS(f'Importing {view_name} data into {settings.APP_ENVIRONMENT} env.')
+                    )
+                    return True
 
         return False
 

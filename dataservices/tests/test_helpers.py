@@ -1,11 +1,10 @@
 import re
+from datetime import datetime, timedelta
 from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.test import override_settings
 from freezegun import freeze_time
-from datetime import datetime, timedelta
 
 from dataservices import helpers, models
 from dataservices.management.commands import helpers as dmch
@@ -200,6 +199,7 @@ def test_notify_error_message(mock_notify):
     )
     assert mock_notify.call_count == 1
 
+
 @freeze_time('2023-09-13T15:21:10')
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.notifications_client')
@@ -207,13 +207,21 @@ def test_notify_error_message(mock_notify):
     "last_release, notification_sent, result",
     [
         (datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), None, 1),
-        (datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%dT%H:%M:%S'), 1),
-        (datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), (datetime.now() + timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S'), 0)
+        (
+            datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+            (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%dT%H:%M:%S'),
+            1,
+        ),
+        (
+            datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+            (datetime.now() + timedelta(minutes=1)).strftime('%Y-%m-%dT%H:%M:%S'),
+            0,
+        ),
     ],
 )
 def test_send_review_request_message(mock_notify, last_release, notification_sent, result):
-    data={'source':{'last_release':last_release}}
-    data['review_process'] = {} if notification_sent is None else {'notification_sent':notification_sent}
+    data = {'source': {'last_release': last_release}}
+    data['review_process'] = {} if notification_sent is None else {'notification_sent': notification_sent}
     factories.MetadataFactory(view_name='TestView', data=data)
     dmch.send_review_request_message('TestView')
     mock_notify.call_args = mock.call(
