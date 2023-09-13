@@ -1,6 +1,6 @@
 import json
 import re
-from datetime import datetime, date, timedelta
+from datetime import date, datetime
 from itertools import cycle, islice
 from unittest import mock
 
@@ -302,10 +302,10 @@ def metadata_last_release_raw_data():
     return {
         'table_name': 'trade__uk_goods_nsa trade__uk_services_nsa trade__uk_totals_sa xxx'.split(),
         'last_release': [
-            datetime.date(2018, 12, 30),
-            datetime.date(2019, 12, 30),
-            datetime.date(2020, 12, 30),
-            datetime.date(2021, 12, 30),
+            date(2018, 12, 30),
+            date(2019, 12, 30),
+            date(2020, 12, 30),
+            date(2021, 12, 30),
         ],
     }
 
@@ -424,25 +424,35 @@ def test_import_metadata_source_data_filter_tables():
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    'env, review_requested_x_times',
+    [('dev', 0), ('staging', 3), ('uat', 0), ('prod', 0)],
+)
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
-def test_import_market_guides_data(mock_call_command, mock_should_run):
-    command_list = [
-        'import_uk_total_trade_data',
-        'import_uk_trade_in_goods_data',
-        'import_uk_trade_in_services_data',
-    ]
-    mock_should_run.return_value = False
-    management.call_command('import_market_guides_data', '--write')
-    assert mock_call_command.call_count == 0
+@mock.patch('dataservices.management.commands.helpers.send_review_request_message')
+def test_import_market_guides_data(
+    mock_call_command, mock_should_run, mock_send_review_request, env, review_requested_x_times
+):
+    with override_settings(APP_ENVIRONMENT=env):
+        command_list = [
+            'import_uk_total_trade_data',
+            'import_uk_trade_in_goods_data',
+            'import_uk_trade_in_services_data',
+        ]
+        mock_should_run.return_value = False
+        management.call_command('import_market_guides_data', '--write')
+        assert mock_call_command.call_count == 0
 
-    mock_should_run.return_value = True
-    management.call_command('import_market_guides_data', '--write')
-    assert mock_call_command.call_count == 6
+        mock_should_run.return_value = True
+        management.call_command('import_market_guides_data', '--write')
+        assert mock_call_command.call_count == 6
 
-    for command in command_list:
-        assert command in str(mock_call_command.call_args_list)
-        assert 'write=True' in str(mock_call_command.call_args_list)
+        assert mock_send_review_request.call_count == review_requested_x_times
+
+        for command in command_list:
+            assert command in str(mock_call_command.call_args_list)
+            assert 'write=True' in str(mock_call_command.call_args_list)
 
 
 @pytest.mark.django_db
@@ -504,7 +514,6 @@ def test_import_market_guides_metadata_error(mock_read_sql, mock_model_save, moc
     assert 'error_details' in mock_email_string
 
 
-@freeze_time('2023-09-13T15:21:10')
 @pytest.fixture()
 def workspace_data():
     return {
@@ -513,30 +522,29 @@ def workspace_data():
             'trade__uk_goods_nsa',
         ],
         'source_data_modified_utc': [
-            datetime.now(),
+            datetime(2023, 9, 3),
         ],
-        'dataflow_swapped_tables_utc': [datetime.now()],
+        'dataflow_swapped_tables_utc': [datetime(2023, 9, 3)],
     }
 
 
-@freeze_time('2023-09-13T15:21:10')
 @pytest.mark.parametrize(
     'env, view_date, swap_date, expected',
     [
-        ('staging', datetime.now(), datetime.now() + timedelta(days=1), True),
-        ('staging', datetime.now(), datetime.now() - timedelta(days=1), False),
-        ('staging', datetime.now(), datetime.now() - timedelta(weeks=1), False),
-        ('prod', datetime.now() - timedelta(days=8), datetime.now() - timedelta(days=9), False),
-        ('prod', datetime.now() - timedelta(days=12), datetime.now() - timedelta(days=11), True),
+        ('staging', datetime(2023, 9, 12), datetime(2023, 9, 13), True),
+        ('staging', datetime(2023, 9, 14), datetime(2023, 9, 13), False),
+        ('prod', datetime(2023, 9, 6), datetime(2023, 9, 6), False),
+        ('prod', datetime(2023, 9, 1), datetime(2023, 9, 2), True),
     ],
 )
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_dataflow_metadata')
+@freeze_time('2023-09-14T15:21:10')
 def test_helper_should_ingest_run(dataflow_mock, view_mock, env, view_date, swap_date, expected, workspace_data):
     with override_settings(APP_ENVIRONMENT=env):
         m = MarketGuidesDataIngestionCommand()
+        workspace_data['dataflow_swapped_tables_utc'] = swap_date
         dataflow_mock.return_value = pd.DataFrame(workspace_data)
-        dataflow_mock.return_value.loc[:, 'dataflow_swapped_tables_utc'][0] = swap_date.strftime('%Y-%m-%dT%H:%M:%S')
         view_mock.return_value = view_date.strftime('%Y-%m-%dT%H:%M:%S')
         actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_nsa')
         assert actual == expected
