@@ -6,7 +6,7 @@
 #
 amqp==5.0.9
     # via kombu
-arabic-reshaper==2.1.3
+arabic-reshaper==3.0.0
     # via xhtml2pdf
 asgiref==3.5.2
     # via django
@@ -181,13 +181,13 @@ flake8==3.8.4
 freezegun==0.3.12
     # via -r requirements_test.in
 future==0.18.3
-    # via
-    #   arabic-reshaper
-    #   django-json-widget
+    # via django-json-widget
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.32
+gitpython==3.1.35
     # via -r requirements_test.in
+greenlet==2.0.2
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -287,7 +287,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.in
     #   notifications-python-client
-pypdf3==1.0.6
+pypdf==3.16.0
     # via xhtml2pdf
 pyrsistent==0.18.1
     # via jsonschema
@@ -342,7 +342,7 @@ redis==4.4.4
     # via
     #   celery
     #   django-redis
-reportlab==3.6.8
+reportlab==3.6.13
     # via
     #   svglib
     #   xhtml2pdf
@@ -413,10 +413,10 @@ tomli==1.2.3
     #   black
     #   coverage
     #   pytest
-tqdm==4.63.0
-    # via pypdf3
 typing-extensions==4.0.1
-    # via black
+    # via
+    #   black
+    #   pypdf
 tzdata==2022.1
     # via
     #   django-celery-beat
@@ -455,7 +455,7 @@ whitenoise==6.4.0
     # via -r requirements.in
 wrapt==1.13.3
     # via deprecated
-xhtml2pdf==0.2.8
+xhtml2pdf==0.2.11
     # via -r requirements.in
 xlrd==2.0.1
     # via tablib
