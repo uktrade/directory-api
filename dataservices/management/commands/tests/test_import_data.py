@@ -428,11 +428,11 @@ def test_import_metadata_source_data_filter_tables():
     'env, review_requested_x_times',
     [('dev', 0), ('staging', 3), ('uat', 0), ('prod', 0)],
 )
-@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
-@mock.patch('dataservices.management.commands.helpers.send_review_request_message')
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
+@mock.patch('dataservices.management.commands.import_market_guides_data.send_review_request_message')
 def test_import_market_guides_data(
-    mock_call_command, mock_should_run, mock_send_review_request, env, review_requested_x_times
+    mock_send_review_request, mock_should_run, mock_call_command, env, review_requested_x_times
 ):
     with override_settings(APP_ENVIRONMENT=env):
         command_list = [
@@ -447,7 +447,6 @@ def test_import_market_guides_data(
         mock_should_run.return_value = True
         management.call_command('import_market_guides_data', '--write')
         assert mock_call_command.call_count == 6
-
         assert mock_send_review_request.call_count == review_requested_x_times
 
         for command in command_list:
