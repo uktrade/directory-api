@@ -207,6 +207,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': os.environ.get('GIT_TAG', 'dev'),
 }
 
+APP_ENVIRONMENT = env.str('APP_ENVIRONMENT', 'dev')
+SENTRY_ENVIRONMENT = env.str('SENTRY_ENVIRONMENT', APP_ENVIRONMENT)
 # Sentry
 if env.str('SENTRY_DSN', ''):
     sentry_sdk.init(
@@ -602,5 +604,3 @@ WORLD_BANK_API_URI = env.str('WORLD_BANK_API_URI', 'https://api.worldbank.org/v2
 
 # Data Workspace
 DATA_WORKSPACE_DATASETS_URL = env.str('DATA_WORKSPACE_DATASETS_URL', 'postgresql://')
-
-APP_ENVIRONMENT = env.str('APP_ENVIRONMENT', 'dev')

@@ -112,8 +112,8 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
         if great_metadata is not None:
             great_metadata_date = datetime.strptime(great_metadata, '%Y-%m-%dT%H:%M:%S').date()
             if swapped_date > great_metadata_date:
-                if settings.APP_ENVIRONMENT != 'prod' or (
-                    settings.APP_ENVIRONMENT == 'prod'
+                if settings.APP_ENVIRONMENT != 'production' or (
+                    settings.APP_ENVIRONMENT == 'production'
                     and datetime.now().date()
                     > (swapped_date + timedelta(days=settings.GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS))
                 ):
