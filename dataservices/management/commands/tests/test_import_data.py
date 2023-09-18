@@ -426,7 +426,7 @@ def test_import_metadata_source_data_filter_tables():
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'env, review_requested_x_times',
-    [('dev', 0), ('staging', 3), ('uat', 0), ('prod', 0)],
+    [('dev', 0), ('staging', 3), ('uat', 0), ('production', 0)],
 )
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
@@ -532,8 +532,8 @@ def workspace_data():
     [
         ('staging', datetime(2023, 9, 12), datetime(2023, 9, 13), True),
         ('staging', datetime(2023, 9, 14), datetime(2023, 9, 13), False),
-        ('prod', datetime(2023, 9, 6), datetime(2023, 9, 6), False),
-        ('prod', datetime(2023, 9, 1), datetime(2023, 9, 2), True),
+        ('production', datetime(2023, 9, 6), datetime(2023, 9, 6), False),
+        ('production', datetime(2023, 9, 1), datetime(2023, 9, 2), True),
     ],
 )
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
