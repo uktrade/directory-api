@@ -1,6 +1,6 @@
-import datetime
 import json
 import re
+from datetime import date, datetime
 from itertools import cycle, islice
 from unittest import mock
 
@@ -9,6 +9,7 @@ import pytest
 import sqlalchemy
 from django.core import management
 from django.test import override_settings
+from freezegun import freeze_time
 from import_export import results
 from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
 
@@ -301,10 +302,10 @@ def metadata_last_release_raw_data():
     return {
         'table_name': 'trade__uk_goods_nsa trade__uk_services_nsa trade__uk_totals_sa xxx'.split(),
         'last_release': [
-            datetime.date(2018, 12, 30),
-            datetime.date(2019, 12, 30),
-            datetime.date(2020, 12, 30),
-            datetime.date(2021, 12, 30),
+            date(2018, 12, 30),
+            date(2019, 12, 30),
+            date(2020, 12, 30),
+            date(2021, 12, 30),
         ],
     }
 
@@ -423,25 +424,34 @@ def test_import_metadata_source_data_filter_tables():
 
 
 @pytest.mark.django_db
-@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
+@pytest.mark.parametrize(
+    'env, review_requested_x_times',
+    [('dev', 0), ('staging', 3), ('uat', 0), ('production', 0)],
+)
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
-def test_import_market_guides_data(mock_call_command, mock_should_run):
-    command_list = [
-        'import_uk_total_trade_data',
-        'import_uk_trade_in_goods_data',
-        'import_uk_trade_in_services_data',
-    ]
-    mock_should_run.return_value = False
-    management.call_command('import_market_guides_data', '--write')
-    assert mock_call_command.call_count == 0
+@mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
+@mock.patch('dataservices.management.commands.import_market_guides_data.send_review_request_message')
+def test_import_market_guides_data(
+    mock_send_review_request, mock_should_run, mock_call_command, env, review_requested_x_times
+):
+    with override_settings(APP_ENVIRONMENT=env):
+        command_list = [
+            'import_uk_total_trade_data',
+            'import_uk_trade_in_goods_data',
+            'import_uk_trade_in_services_data',
+        ]
+        mock_should_run.return_value = False
+        management.call_command('import_market_guides_data', '--write')
+        assert mock_call_command.call_count == 0
 
-    mock_should_run.return_value = True
-    management.call_command('import_market_guides_data', '--write')
-    assert mock_call_command.call_count == 6
+        mock_should_run.return_value = True
+        management.call_command('import_market_guides_data', '--write')
+        assert mock_call_command.call_count == 6
+        assert mock_send_review_request.call_count == review_requested_x_times
 
-    for command in command_list:
-        assert command in str(mock_call_command.call_args_list)
-        assert 'write=True' in str(mock_call_command.call_args_list)
+        for command in command_list:
+            assert command in str(mock_call_command.call_args_list)
+            assert 'write=True' in str(mock_call_command.call_args_list)
 
 
 @pytest.mark.django_db
@@ -511,24 +521,32 @@ def workspace_data():
             'trade__uk_goods_nsa',
         ],
         'source_data_modified_utc': [
-            datetime.datetime(2023, 6, 10),
+            datetime(2023, 9, 3),
         ],
-        'dataflow_swapped_tables_utc': [datetime.datetime(2023, 6, 10)],
+        'dataflow_swapped_tables_utc': [datetime(2023, 9, 3)],
     }
 
 
 @pytest.mark.parametrize(
-    'view_date, expected',
-    [('2023-04-27T00:00:00', True), ('2023-06-10T00:00:00', False), ('2023-07-01T00:00:00', False)],
+    'env, view_date, swap_date, expected',
+    [
+        ('staging', datetime(2023, 9, 12), datetime(2023, 9, 13), True),
+        ('staging', datetime(2023, 9, 14), datetime(2023, 9, 13), False),
+        ('production', datetime(2023, 9, 6), datetime(2023, 9, 6), False),
+        ('production', datetime(2023, 9, 1), datetime(2023, 9, 2), True),
+    ],
 )
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_view_metadata')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.get_dataflow_metadata')
-def test_helper_should_ingest_run(dataflow_mock, view_mock, view_date, expected, workspace_data):
-    m = MarketGuidesDataIngestionCommand()
-    dataflow_mock.return_value = pd.DataFrame(workspace_data)
-    view_mock.return_value = view_date
-    actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_nsa')
-    assert actual == expected
+@freeze_time('2023-09-14T15:21:10')
+def test_helper_should_ingest_run(dataflow_mock, view_mock, env, view_date, swap_date, expected, workspace_data):
+    with override_settings(APP_ENVIRONMENT=env):
+        m = MarketGuidesDataIngestionCommand()
+        workspace_data['dataflow_swapped_tables_utc'] = swap_date
+        dataflow_mock.return_value = pd.DataFrame(workspace_data)
+        view_mock.return_value = view_date.strftime('%Y-%m-%dT%H:%M:%S')
+        actual = m.should_ingestion_run('UKMarketTrendsView', 'trade__uk_goods_nsa')
+        assert actual == expected
 
 
 @pytest.mark.django_db
@@ -576,22 +594,22 @@ def test_helper_get_dataflow_metadata():
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_goods_nsa',
-            source_data_modified_utc=datetime.date(2023, 1, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 1, 1),
+            source_data_modified_utc=date(2023, 1, 1),
+            dataflow_swapped_tables_utc=date(2023, 1, 1),
         )
     )
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_goods_nsa',
-            source_data_modified_utc=datetime.date(2023, 4, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 4, 1),
+            source_data_modified_utc=date(2023, 4, 1),
+            dataflow_swapped_tables_utc=date(2023, 4, 1),
         )
     )
     m.engine.execute(
         tbl.insert().values(
             table_name='trade__uk_services_nsa',
-            source_data_modified_utc=datetime.date(2023, 6, 1),
-            dataflow_swapped_tables_utc=datetime.date(2023, 6, 1),
+            source_data_modified_utc=date(2023, 6, 1),
+            dataflow_swapped_tables_utc=date(2023, 6, 1),
         )
     )
     result = m.get_dataflow_metadata('trade__uk_goods_nsa')

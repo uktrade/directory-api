@@ -1,6 +1,11 @@
+from django.conf import settings
 from django.core.management import BaseCommand, call_command
 
-from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand, send_ingest_error_notify_email
+from dataservices.management.commands.helpers import (
+    MarketGuidesDataIngestionCommand,
+    send_ingest_error_notify_email,
+    send_review_request_message,
+)
 
 
 class Command(BaseCommand):
@@ -37,6 +42,10 @@ class Command(BaseCommand):
                 try:
                     call_command(command_name, **options)
                     call_command('import_metadata_source_data', table=table_view_names['table_name'])
+
+                    if settings.APP_ENVIRONMENT == 'staging':
+                        send_review_request_message(table_view_names['view_name'])
+
                     self.stdout.write(self.style.SUCCESS(f'Finished import for {table_view_names["view_name"]}'))
                 except Exception as e:
                     self.stderr.write(self.style.ERROR(f'Failed import for {table_view_names["view_name"]}'))
