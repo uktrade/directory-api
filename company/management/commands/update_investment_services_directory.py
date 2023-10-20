@@ -71,7 +71,7 @@ class Command(BaseCommand):
             ##Commit change
             # company.save()
 
-        print(f'>>> Companies being deleted: {companies.count()}')
+        print(f'>>> Companies being removed from directory: {companies.count()}')
         print(f'>>> Companies updated: {companies_updated}')
         print(f'>>> Companies not found: {companies_not_found}')
         if companies_not_found:
