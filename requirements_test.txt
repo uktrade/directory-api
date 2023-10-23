@@ -186,8 +186,6 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.35
     # via -r requirements_test.in
-greenlet==2.0.2
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -427,7 +425,7 @@ uritemplate==4.1.1
     # via drf-spectacular
 uritools==4.0.0
     # via pyhanko-certvalidator
-urllib3==1.26.15
+urllib3==1.26.18
     # via
     #   -r requirements.in
     #   botocore
