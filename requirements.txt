@@ -58,7 +58,7 @@ click-repl==0.2.0
     # via celery
 cron-descriptor==1.4.0
     # via django-celery-beat
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   -r requirements.in
     #   pyhanko
@@ -323,9 +323,7 @@ tinycss2==1.2.1
 typing-extensions==4.7.1
     # via pypdf
 tzdata==2022.7
-    # via
-    #   django-celery-beat
-    #   pytz-deprecation-shim
+    # via django-celery-beat
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
