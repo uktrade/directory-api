@@ -71,14 +71,14 @@ coverage[toml]==6.3
     #   pytest-cov
 cron-descriptor==1.4.0
     # via django-celery-beat
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   -r requirements.in
     #   pyhanko
     #   pyhanko-certvalidator
 cssselect2==0.5.0
     # via svglib
-dataclasses==0.6
+dataclasses==0.06
     # via -r requirements_test.in
 defusedxml==0.7.1
     # via odfpy
@@ -184,7 +184,7 @@ future==0.18.3
     # via django-json-widget
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.35
+gitpython==3.1.37
     # via -r requirements_test.in
 html5lib==1.1
     # via xhtml2pdf
@@ -416,9 +416,7 @@ typing-extensions==4.0.1
     #   black
     #   pypdf
 tzdata==2022.1
-    # via
-    #   django-celery-beat
-    #   pytz-deprecation-shim
+    # via django-celery-beat
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
