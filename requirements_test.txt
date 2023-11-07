@@ -40,6 +40,7 @@ botocore==1.27.96
 celery[redis]==5.2.3
     # via
     #   -r requirements.in
+    #   celery
     #   django-celery-beat
 certifi==2023.7.22
     # via
@@ -67,6 +68,7 @@ click-repl==0.2.0
     # via celery
 coverage[toml]==6.3
     # via
+    #   coverage
     #   pytest-codecov
     #   pytest-cov
 cron-descriptor==1.4.0
@@ -78,7 +80,7 @@ cryptography==41.0.4
     #   pyhanko-certvalidator
 cssselect2==0.5.0
     # via svglib
-dataclasses==0.06
+dataclasses==0.6
     # via -r requirements_test.in
 defusedxml==0.7.1
     # via odfpy
@@ -186,6 +188,8 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.37
     # via -r requirements_test.in
+greenlet==3.0.1
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -285,7 +289,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.in
     #   notifications-python-client
-pypdf==3.16.0
+pypdf==3.17.0
     # via xhtml2pdf
 pyrsistent==0.18.1
     # via jsonschema
@@ -352,6 +356,7 @@ requests[security]==2.31.0
     #   pyhanko
     #   pyhanko-certvalidator
     #   pytest-codecov
+    #   requests
     #   requests-mock
     #   requests-oauthlib
 requests-mock==1.6.0
@@ -395,7 +400,9 @@ sqlparse==0.4.4
 svglib==1.2.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.4.0
-    # via django-import-export
+    # via
+    #   django-import-export
+    #   tablib
 termcolor==1.1.0
     # via pytest-sugar
 text-unidecode==1.3
@@ -416,7 +423,9 @@ typing-extensions==4.0.1
     #   black
     #   pypdf
 tzdata==2022.1
-    # via django-celery-beat
+    # via
+    #   django-celery-beat
+    #   pytz-deprecation-shim
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
