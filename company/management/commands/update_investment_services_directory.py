@@ -1,12 +1,15 @@
 """
 Management utility to update Investment Services Directory.
 """
+import ast
 import csv
+from datetime import datetime
 
+import requests
 from django.core.management.base import BaseCommand, CommandError
-from django.db import DEFAULT_DB_ALIAS
 
-from company.models import Company
+from company.models import Company, CompanyCaseStudy, CompanyUser
+from core.helpers import get_companies_house_profile
 
 
 class Command(BaseCommand):
@@ -23,58 +26,220 @@ class Command(BaseCommand):
         except IndexError:
             raise CommandError(f"Please provide the source_file path (csv only): '{source_file}'")
 
-    def handle(self, *args, **options):
-        source_file = input("Path to CSV file:")
+    def is_update(self, name: str) -> bool:
+        if "update" in name:
+            return True
+        return False
 
-        source_file = self.validate_source_file(source_file)
+    def model(self, name: str):
+        if "company_" in name:
+            return Company
+        elif "casestudy_" in name:
+            return CompanyCaseStudy
+        return CompanyUser
 
-        companies = Company.objects.all()
-        investment_companies = companies.filter(is_published_investment_support_directory=True)
+    def get_app_number(self, row: dict) -> str:
+        return row['app_number']
 
-        print(f'>>> Companies in DB: {companies.count()}')
-        print(f'>>> Investment companies before updates: {investment_companies.count()}')
+    def clean_values(self, row: dict) -> dict:
+        for key, value in row.items():
+            if type(value) == str:
+                # convert bool
+                if value == "TRUE":
+                    row[key] = True
+                elif value == "FALSE":
+                    row[key] = False
+                # strip and truncate to 1000 (max field length)
+                else:
+                    striped_value = value.strip()
+                    truncated_value = (striped_value[:1000]) if len(striped_value) > 1000 else striped_value
+                    row[key] = truncated_value
+        return row
 
-        company_ids = []
-        company_ids_not_found = []
-        companies_updated = 0
-        companies_not_found = 0
-
+    def removed_unwanted_data_columns(self, row: dict) -> dict:
         try:
-            with open(source_file, "r", encoding='utf-8') as csv_file:
-                csv_reader = csv.DictReader(csv_file)
-                line_count = 0
-                for row in csv_reader:
-                    if line_count == 0:
-                        line_count += 1
-                    try:
-                        # for key, value in row.items():
-                        #     key[value] = value.strip()
-                        striped_id = row['number'].strip()
-                        investment_company = companies.filter(number=striped_id)
-                        if investment_company.exists():
-                            # This will update the object
-                            # investment_company.update(**row)
+            row.pop("app_number")
+        except KeyError:
+            pass
+        try:
+            row.pop("??")
+        except KeyError:
+            pass
+        return row
 
-                            company_ids.append(striped_id)
-                            companies_updated += 1
-                        else:
-                            company_ids_not_found.append(striped_id)
-                            companies_not_found += 1
-                    except KeyError:
-                        pass
-        except FileNotFoundError:
-            raise CommandError(f"No such file or directory: '{source_file}'")
+    def adjust_field_types(self, row: dict) -> dict:
+        json_fields = [
+            "expertise_products_services",
+        ]
+        lists = ["expertise_industries", "expertise_regions", "expertise_languages"]
+        for key, value in row.items():
+            if key in json_fields:
+                test = ast.literal_eval(value)
+                row[key] = test
+            if key in lists:
+                row[key] = [v.strip() for v in ast.literal_eval(value)]
+        return row
 
-        companies = companies.exclude(number__in=company_ids + company_ids_not_found)
-        for company in companies:
-            company.is_published_investment_support_directory = False
-            ##Commit change
-            # company.save()
+    def fetch_companies_house_data(self, row: dict) -> dict:
+        number = row["number"]
+        try:
+            profile = get_companies_house_profile(number)
+            if profile.get('date_of_creation'):
+                row["date_of_creation"] = datetime.strptime(profile['date_of_creation'], '%Y-%m-%d').date()
+            if profile.get('registered_office_address'):
+                address = profile['registered_office_address']
+                row["address_line_1"] = address.get('address_line_1', '')
+                row["address_line_2"] = address.get('address_line_2', '')
+                row["locality"] = address.get('locality', '')
+                row["po_box"] = address.get('po_box', '')
+                row["postal_code"] = address.get('postal_code', '')
+            if profile.get('sic_codes'):
+                row["companies_house_sic_codes"] = profile.get('sic_codes', [])
+            if profile.get('company_status'):
+                row["companies_house_company_status"] = profile.get('company_status', '')
+        except requests.exceptions.HTTPError:
+            pass
+        return row
 
-        print(f'>>> Companies being removed from directory: {companies.count()}')
-        print(f'>>> Companies updated: {companies_updated}')
-        print(f'>>> Companies not found: {companies_not_found}')
-        if companies_not_found:
-            print('>>> Companies not found:')
-            print(company_ids_not_found)
-        return ">>> Finished"
+    def handle(self, *args, **options):
+        # Company supplied data
+        source_files = {
+            "company_update": "investment_supplier_data/company_update_dev.csv",
+            "companycasestudy_update": "investment_supplier_data/companycasestudy_update_dev.csv",
+            "companyuser_update": "investment_supplier_data/companyuser_update_dev.csv",
+            "company_add": "investment_supplier_data/company_add_dev.csv",
+            "companycasestudy_add": "investment_supplier_data/companycasestudy_add_dev.csv",
+            "companyuser_add": "investment_supplier_data/companyuser_add_dev.csv",
+            #These are the production files
+            # "company_update": "investment_supplier_data/company_update.csv",
+            # "companyuser_update": "investment_supplier_data/companyuser_update.csv",
+            # "companycasestudy_update": "investment_supplier_data/companycasestudy_update.csv",
+            # "company_add": "investment_supplier_data/company_add.csv",
+            # "companyuser_add": "investment_supplier_data/companyuser_add.csv",
+            # "companycasestudy_add": "investment_supplier_data/companycasestudy_add.csv",
+        }
+
+        # Validate each source file
+        for key, source_file in source_files.items():
+            self.validate_source_file(source_file)
+
+        # Deactivate all case studies
+        for company in Company.objects.filter(is_published_investment_support_directory=True):
+            company.supplier_case_studies.all().update(is_published_case_study=False)
+
+        # Variables to help process data in loop
+        company_ids = []
+        processed_companies = {}
+
+        for key, source_file in source_files.items():
+            _model = self.model(key)
+            _is_update = self.is_update(key)
+            try:
+                with open(source_file, "r", encoding='utf-8') as csv_file:
+                    csv_reader = csv.DictReader(
+                        csv_file, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True
+                    )
+                    line_count = 0
+                    for origin_row in csv_reader:
+                        if line_count == 0:
+                            line_count += 1
+                        cleaned_row_values = self.clean_values(origin_row)
+                        app_id = self.get_app_number(cleaned_row_values)
+                        cleaned_row = self.removed_unwanted_data_columns(cleaned_row_values)
+
+                        try:
+                            # Update Company Data
+                            if _is_update and _model == Company:
+                                id = cleaned_row['id']
+                                investment_company = Company.objects.filter(id=id)
+                                if investment_company.exists():
+                                    # This will update the object
+                                    address_added = self.fetch_companies_house_data(cleaned_row)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company.update(**adjust_types)
+                                    investment_company = investment_company.first()
+                                    processed_companies[app_id] = {
+                                        "company_obj": investment_company,
+                                        "name": investment_company.name,
+                                        "url": investment_company.public_profile_url,
+                                        "email": investment_company.email_address,
+                                    }
+                                    company_ids.append(id)
+
+                            # Create new Company
+                            if not _is_update and _model == Company:
+                                # Sanity check - does the company exist?
+                                number = cleaned_row['number']
+                                investment_company = Company.objects.filter(number=number)
+                                if investment_company.exists():
+                                    # This will update the object
+                                    address_added = self.fetch_companies_house_data(cleaned_row)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company.update(**adjust_types)
+                                    investment_company = investment_company.first()
+                                    processed_companies[app_id] = {
+                                        "company_obj": investment_company,
+                                        "name": investment_company.name,
+                                        "url": investment_company.public_profile_url,
+                                        "email": investment_company.email_address,
+                                    }
+                                    company_ids.append(investment_company.id)
+                                else:
+                                    address_added = self.fetch_companies_house_data(cleaned_row)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company = Company.objects.create(**address_added)
+                                    processed_companies[app_id] = {
+                                        "company_obj": investment_company,
+                                        "name": investment_company.name,
+                                        "url": investment_company.public_profile_url,
+                                        "email": investment_company.email_address,
+                                    }
+                                    company_ids.append(investment_company.id)
+
+                            # Create new CompanyCaseStudy
+                            if _is_update and _model == CompanyCaseStudy:
+                                cleaned_row.update({"title": f"A Case Study By {processed_companies[app_id]['name']}"})
+                                CompanyCaseStudy.objects.create(**cleaned_row)
+
+                            # Create new CompanyCaseStudy for new Company
+                            if not _is_update and _model == CompanyCaseStudy:
+                                cleaned_row.update(
+                                    {
+                                        "title": f"A Case Study By {processed_companies[app_id]['name']}",
+                                        "company_id": processed_companies[app_id]["company_obj"].id,
+                                    }
+                                )
+                                CompanyCaseStudy.objects.create(**cleaned_row)
+
+                            # Update CompanyUser
+                            if _is_update and _model == CompanyUser:
+                                company_id = cleaned_row['company_id']
+                                company_email = cleaned_row['company_email']
+                                user = CompanyUser.objects.filter(company_id=company_id, company_email=company_email)
+                                if user.exists():
+                                    user.update(**cleaned_row)
+                                    company = user.first().company
+                                    company.mobile_number = cleaned_row["mobile_number"]
+                                    company.save()
+
+                            # Create CompanyUser
+                            if not _is_update and _model == CompanyUser:
+                                pass
+
+                        except KeyError:
+                            pass
+            except FileNotFoundError:
+                raise CommandError(f"No such file or directory: '{source_file}'")
+
+        # Remove all other companies from directory
+        Company.objects.exclude(id__in=company_ids).update(is_published_investment_support_directory=False)
+
+        # Add processed companies to directory
+        Company.objects.filter(id__in=company_ids).update(is_published_investment_support_directory=True)
+
+        # Remove company objects from dict
+        for key, value in processed_companies.items():
+            value.pop("company_obj")
+
+        print(processed_companies)
+        return ">>>Finished"

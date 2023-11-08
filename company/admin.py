@@ -346,12 +346,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
         'company__number',
         'company__website',
     )
-    list_display = (
-        'name',
-        'company_email',
-        'company',
-        'company_type',
-    )
+    list_display = ('name', 'company_email', 'company', 'company_type', 'mobile_number')
     readonly_fields = (
         'company_type',
         'created',
