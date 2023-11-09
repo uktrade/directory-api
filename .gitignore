@@ -103,3 +103,6 @@ conf/.env
 conf/env/secrets-do-not-commit
 
 .vscode/
+
+#Docker config file
+Dockerfile.dev
