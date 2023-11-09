@@ -106,5 +106,3 @@ conf/env/secrets-do-not-commit
 
 #Docker config file
 Dockerfile.dev
-
-investment_supplier_data/

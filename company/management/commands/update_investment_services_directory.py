@@ -77,7 +77,10 @@ class Command(BaseCommand):
                 test = ast.literal_eval(value)
                 row[key] = test
             if key in lists:
-                row[key] = [v.strip() for v in ast.literal_eval(value)]
+                try:
+                    row[key] = [v.strip() for v in ast.literal_eval(value)]
+                except SyntaxError:
+                    pass
         return row
 
     def fetch_companies_house_data(self, row: dict) -> dict:
@@ -99,24 +102,19 @@ class Command(BaseCommand):
                 row["companies_house_company_status"] = profile.get('company_status', '')
         except requests.exceptions.HTTPError:
             pass
+        if "UNKNOWN" in number:
+            row["number"] = None
         return row
 
     def handle(self, *args, **options):
         # Company supplied data
         source_files = {
-            "company_update": "investment_supplier_data/company_update_dev.csv",
-            "companycasestudy_update": "investment_supplier_data/companycasestudy_update_dev.csv",
-            "companyuser_update": "investment_supplier_data/companyuser_update_dev.csv",
-            "company_add": "investment_supplier_data/company_add_dev.csv",
-            "companycasestudy_add": "investment_supplier_data/companycasestudy_add_dev.csv",
-            "companyuser_add": "investment_supplier_data/companyuser_add_dev.csv",
-            #These are the production files
-            # "company_update": "investment_supplier_data/company_update.csv",
-            # "companyuser_update": "investment_supplier_data/companyuser_update.csv",
-            # "companycasestudy_update": "investment_supplier_data/companycasestudy_update.csv",
-            # "company_add": "investment_supplier_data/company_add.csv",
-            # "companyuser_add": "investment_supplier_data/companyuser_add.csv",
-            # "companycasestudy_add": "investment_supplier_data/companycasestudy_add.csv",
+            "company_update": "investment_supplier_data/company_update.csv",
+            "companycasestudy_update": "investment_supplier_data/companycasestudy_update.csv",
+            "companyuser_update": "investment_supplier_data/companyuser_update.csv",
+            "company_add": "investment_supplier_data/company_add.csv",
+            "companycasestudy_add": "investment_supplier_data/companycasestudy_add.csv",
+            "companyuser_add": "investment_supplier_data/companyuser_add.csv",
         }
 
         # Validate each source file
@@ -165,6 +163,18 @@ class Command(BaseCommand):
                                         "email": investment_company.email_address,
                                     }
                                     company_ids.append(id)
+                                else:
+                                    # This will create a new object
+                                    address_added = self.fetch_companies_house_data(cleaned_row)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company = Company.objects.create(**address_added)
+                                    processed_companies[app_id] = {
+                                        "company_obj": investment_company,
+                                        "name": investment_company.name,
+                                        "url": investment_company.public_profile_url,
+                                        "email": investment_company.email_address,
+                                    }
+                                    company_ids.append(investment_company.id)
 
                             # Create new Company
                             if not _is_update and _model == Company:
@@ -185,6 +195,7 @@ class Command(BaseCommand):
                                     }
                                     company_ids.append(investment_company.id)
                                 else:
+                                    # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
                                     adjust_types = self.adjust_field_types(address_added)
                                     investment_company = Company.objects.create(**address_added)
