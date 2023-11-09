@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
     def clean_values(self, row: dict) -> dict:
         for key, value in row.items():
-            if type(value) == str:
+            if type(value) is str:
                 # convert bool
                 if value == "TRUE":
                     row[key] = True
