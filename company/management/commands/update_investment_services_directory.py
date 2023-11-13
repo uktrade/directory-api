@@ -18,7 +18,7 @@ class Command(BaseCommand):
     stealth_options = ("stdin",)
 
     def add_arguments(self, parser):
-        parser.add_argument('env', type=int)
+        parser.add_argument('env', type=str)
 
     def validate_source_file(self, source_file):
         try:
