@@ -170,15 +170,18 @@ class Command(BaseCommand):
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(switch_envs)
                                     adjust_types = self.adjust_field_types(address_added)
-                                    investment_company.update(**adjust_types)
-                                    investment_company = investment_company.first()
-                                    processed_companies[app_id] = {
-                                        "company_obj": investment_company,
-                                        "name": investment_company.name,
-                                        "url": investment_company.public_profile_url,
-                                        "email": investment_company.email_address,
-                                    }
-                                    company_ids.append(id)
+                                    try:
+                                        investment_company.update(**adjust_types)
+                                        investment_company = investment_company.first()
+                                        processed_companies[app_id] = {
+                                            "company_obj": investment_company,
+                                            "name": investment_company.name,
+                                            "url": investment_company.public_profile_url,
+                                            "email": investment_company.email_address,
+                                        }
+                                        company_ids.append(id)
+                                    except:
+                                        pass
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
@@ -201,15 +204,18 @@ class Command(BaseCommand):
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
                                     adjust_types = self.adjust_field_types(address_added)
-                                    investment_company.update(**adjust_types)
-                                    investment_company = investment_company.first()
-                                    processed_companies[app_id] = {
-                                        "company_obj": investment_company,
-                                        "name": investment_company.name,
-                                        "url": investment_company.public_profile_url,
-                                        "email": investment_company.email_address,
-                                    }
-                                    company_ids.append(investment_company.id)
+                                    try:
+                                        investment_company.update(**adjust_types)
+                                        investment_company = investment_company.first()
+                                        processed_companies[app_id] = {
+                                            "company_obj": investment_company,
+                                            "name": investment_company.name,
+                                            "url": investment_company.public_profile_url,
+                                            "email": investment_company.email_address,
+                                        }
+                                        company_ids.append(investment_company.id)
+                                    except:
+                                        pass
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
@@ -249,10 +255,13 @@ class Command(BaseCommand):
                                 company_email = cleaned_row['company_email']
                                 user = CompanyUser.objects.filter(company_id=company_id, company_email=company_email)
                                 if user.exists():
-                                    user.update(**cleaned_row)
-                                    company = user.first().company
-                                    company.mobile_number = cleaned_row["mobile_number"]
-                                    company.save()
+                                    try:
+                                        user.update(**cleaned_row)
+                                        company = user.first().company
+                                        company.mobile_number = cleaned_row["mobile_number"]
+                                        company.save()
+                                    except:
+                                        pass
 
                             # Create CompanyUser
                             if not _is_update and _model == CompanyUser:
