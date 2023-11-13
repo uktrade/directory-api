@@ -167,7 +167,7 @@ class Command(BaseCommand):
                                 id = switch_envs['id']
                                 investment_company = Company.objects.filter(id=id)
                                 if investment_company.exists():
-                                    # This will update the object
+                                    # This will update the object 
                                     address_added = self.fetch_companies_house_data(switch_envs)
                                     adjust_types = self.adjust_field_types(address_added)
                                     investment_company.update(**adjust_types)
