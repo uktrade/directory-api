@@ -157,7 +157,8 @@ class Command(BaseCommand):
                             line_count += 1
                         cleaned_row_values = self.clean_values(origin_row)
                         app_id = self.get_app_number(cleaned_row_values)
-                        cleaned_row = self.removed_unwanted_data_columns(cleaned_row_values)
+                        switch_envs = self.switch_env(cleaned_row_values, env)
+                        cleaned_row = self.removed_unwanted_data_columns(switch_envs)
 
                         try:
                             # Update Company Data
@@ -167,8 +168,7 @@ class Command(BaseCommand):
                                 if investment_company.exists():
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added, env)
-                                    adjust_types = self.adjust_field_types(switch_envs)
+                                    adjust_types = self.adjust_field_types(address_added)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
                                     processed_companies[app_id] = {
@@ -181,9 +181,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added, env)
-                                    adjust_types = self.adjust_field_types(switch_envs)
-                                    investment_company = Company.objects.create(**address_added)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company = Company.objects.create(**adjust_types)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
                                         "name": investment_company.name,
@@ -200,8 +199,7 @@ class Command(BaseCommand):
                                 if investment_company.exists():
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added, env)
-                                    adjust_types = self.adjust_field_types(switch_envs)
+                                    adjust_types = self.adjust_field_types(address_added)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
                                     processed_companies[app_id] = {
@@ -214,9 +212,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added, env)
-                                    adjust_types = self.adjust_field_types(switch_envs)
-                                    investment_company = Company.objects.create(**address_added)
+                                    adjust_types = self.adjust_field_types(address_added)
+                                    investment_company = Company.objects.create(**adjust_types)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
                                         "name": investment_company.name,
@@ -228,8 +225,7 @@ class Command(BaseCommand):
                             # Create new CompanyCaseStudy
                             if _is_update and _model == CompanyCaseStudy:
                                 cleaned_row.update({"title": f"A Case Study By {processed_companies[app_id]['name']}"})
-                                switch_envs = self.switch_env(cleaned_row, env)
-                                CompanyCaseStudy.objects.create(**switch_envs)
+                                CompanyCaseStudy.objects.create(**cleaned_row)
 
                             # Create new CompanyCaseStudy for new Company
                             if not _is_update and _model == CompanyCaseStudy:
@@ -243,14 +239,13 @@ class Command(BaseCommand):
 
                             # Update CompanyUser
                             if _is_update and _model == CompanyUser:
-                                switch_envs = self.switch_env(cleaned_row, env)
-                                company_id = switch_envs['company_id']
-                                company_email = switch_envs['company_email']
+                                company_id = cleaned_row['company_id']
+                                company_email = cleaned_row['company_email']
                                 user = CompanyUser.objects.filter(company_id=company_id, company_email=company_email)
                                 if user.exists():
-                                    user.update(**switch_envs)
+                                    user.update(**cleaned_row)
                                     company = user.first().company
-                                    company.mobile_number = switch_envs["mobile_number"]
+                                    company.mobile_number = cleaned_row["mobile_number"]
                                     company.save()
 
                             # Create CompanyUser
