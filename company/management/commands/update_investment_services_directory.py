@@ -186,14 +186,17 @@ class Command(BaseCommand):
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
                                     adjust_types = self.adjust_field_types(address_added)
-                                    investment_company = Company.objects.create(**adjust_types)
-                                    processed_companies[app_id] = {
-                                        "company_obj": investment_company,
-                                        "name": investment_company.name,
-                                        "url": investment_company.public_profile_url,
-                                        "email": investment_company.email_address,
-                                    }
-                                    company_ids.append(investment_company.id)
+                                    try:
+                                        investment_company = Company.objects.create(**adjust_types)
+                                        processed_companies[app_id] = {
+                                            "company_obj": investment_company,
+                                            "name": investment_company.name,
+                                            "url": investment_company.public_profile_url,
+                                            "email": investment_company.email_address,
+                                        }
+                                        company_ids.append(investment_company.id)
+                                    except:
+                                        pass
 
                             # Create new Company
                             if not _is_update and _model == Company:
@@ -220,14 +223,17 @@ class Command(BaseCommand):
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
                                     adjust_types = self.adjust_field_types(address_added)
-                                    investment_company = Company.objects.create(**adjust_types)
-                                    processed_companies[app_id] = {
-                                        "company_obj": investment_company,
-                                        "name": investment_company.name,
-                                        "url": investment_company.public_profile_url,
-                                        "email": investment_company.email_address,
-                                    }
-                                    company_ids.append(investment_company.id)
+                                    try:
+                                        investment_company = Company.objects.create(**adjust_types)
+                                        processed_companies[app_id] = {
+                                            "company_obj": investment_company,
+                                            "name": investment_company.name,
+                                            "url": investment_company.public_profile_url,
+                                            "email": investment_company.email_address,
+                                        }
+                                        company_ids.append(investment_company.id)
+                                    except:
+                                        pass
 
                             # Create new CompanyCaseStudy
                             if _is_update and _model == CompanyCaseStudy:
