@@ -15,6 +15,7 @@ omit =
     # importing following two take longer and timesout
     dataservices/management/commands/import_country_commodity_export_data.py
     dataservices/management/commands/import_uktradeinservice.py
+    company/management/commands/update_investment_services_directory.py
 
 [report]
 exclude_lines =
