@@ -7,9 +7,10 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand, CommandError
-from investment_supplier_data.stage_ids import stage_ids
+
 from company.models import Company, CompanyCaseStudy, CompanyUser
 from core.helpers import get_companies_house_profile
+from investment_supplier_data.stage_ids import stage_ids
 
 
 class Command(BaseCommand):
@@ -28,7 +29,6 @@ class Command(BaseCommand):
             return source_file
         except IndexError:
             raise CommandError(f"Please provide the source_file path (csv only): '{source_file}'")
-        
 
     def is_update(self, name: str) -> bool:
         if "update" in name:
@@ -119,10 +119,9 @@ class Command(BaseCommand):
         return row
 
     def handle(self, *args, **options):
-
         given_env = options.get("env", None)
         env = 'stage' if given_env else 'prod'
-        
+
         # Company supplied data
         source_files = {
             "company_update": "investment_supplier_data/company_update.csv",
@@ -159,12 +158,12 @@ class Command(BaseCommand):
                             line_count += 1
                         cleaned_row_values = self.clean_values(origin_row)
                         app_id = self.get_app_number(cleaned_row_values)
-                        cleaned_row = self.removed_unwanted_data_columns(switch_envs)
+                        cleaned_row = self.removed_unwanted_data_columns(cleaned_row_values)
 
                         try:
                             # Update Company Data
                             if _is_update and _model == Company:
-                                switch_envs = self.switch_env(adjust_types, env)
+                                switch_envs = self.switch_env(cleaned_row, env)
                                 id = switch_envs['id']
                                 investment_company = Company.objects.filter(id=id)
                                 if investment_company.exists():
@@ -226,10 +225,12 @@ class Command(BaseCommand):
 
                             # Create new CompanyCaseStudy
                             if _is_update and _model == CompanyCaseStudy:
-                                cleaned_row.update({
-                                    "title": f"A Case Study By {processed_companies[app_id]['name']}",
-                                    "company_id": processed_companies[app_id]["company_obj"].id
-                                    })
+                                cleaned_row.update(
+                                    {
+                                        "title": f"A Case Study By {processed_companies[app_id]['name']}",
+                                        "company_id": processed_companies[app_id]["company_obj"].id,
+                                    }
+                                )
                                 CompanyCaseStudy.objects.create(**cleaned_row)
 
                             # Create new CompanyCaseStudy for new Company
