@@ -45,7 +45,7 @@ class Command(BaseCommand):
     def switch_env(self, row: dict, env: str) -> dict:
         if env == 'stage':
             try:
-                row["company_id"] = stage_ids[row['company_id']]
+                row["id"] = stage_ids[row['number']]
             except KeyError:
                 pass
         return row
@@ -159,17 +159,17 @@ class Command(BaseCommand):
                             line_count += 1
                         cleaned_row_values = self.clean_values(origin_row)
                         app_id = self.get_app_number(cleaned_row_values)
-                        switch_envs = self.switch_env(cleaned_row_values, env)
                         cleaned_row = self.removed_unwanted_data_columns(switch_envs)
 
                         try:
                             # Update Company Data
                             if _is_update and _model == Company:
-                                id = cleaned_row['id']
+                                switch_envs = self.switch_env(adjust_types, env)
+                                id = switch_envs['id']
                                 investment_company = Company.objects.filter(id=id)
                                 if investment_company.exists():
                                     # This will update the object
-                                    address_added = self.fetch_companies_house_data(cleaned_row)
+                                    address_added = self.fetch_companies_house_data(switch_envs)
                                     adjust_types = self.adjust_field_types(address_added)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
@@ -226,7 +226,10 @@ class Command(BaseCommand):
 
                             # Create new CompanyCaseStudy
                             if _is_update and _model == CompanyCaseStudy:
-                                cleaned_row.update({"title": f"A Case Study By {processed_companies[app_id]['name']}"})
+                                cleaned_row.update({
+                                    "title": f"A Case Study By {processed_companies[app_id]['name']}",
+                                    "company_id": processed_companies[app_id]["company_obj"].id
+                                    })
                                 CompanyCaseStudy.objects.create(**cleaned_row)
 
                             # Create new CompanyCaseStudy for new Company
@@ -241,7 +244,7 @@ class Command(BaseCommand):
 
                             # Update CompanyUser
                             if _is_update and _model == CompanyUser:
-                                company_id = cleaned_row['company_id']
+                                company_id = processed_companies[app_id]["company_obj"].id
                                 company_email = cleaned_row['company_email']
                                 user = CompanyUser.objects.filter(company_id=company_id, company_email=company_email)
                                 if user.exists():
