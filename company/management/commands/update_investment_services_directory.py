@@ -43,9 +43,11 @@ class Command(BaseCommand):
         return CompanyUser
 
     def switch_env(self, row: dict, env: str) -> dict:
-        if env == 'prod':
-            return row
-        row["company_id"] = stage_ids[row['company_id']]
+        if env == 'stage':
+            try:
+                row["company_id"] = stage_ids[row['company_id']]
+            except KeyError:
+                pass
         return row
 
     def get_app_number(self, row: dict) -> str:
