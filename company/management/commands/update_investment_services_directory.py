@@ -7,7 +7,7 @@ from datetime import datetime
 
 import requests
 from django.core.management.base import BaseCommand, CommandError
-
+from investment_supplier_data.stage_ids import stage_ids
 from company.models import Company, CompanyCaseStudy, CompanyUser
 from core.helpers import get_companies_house_profile
 
@@ -17,6 +17,9 @@ class Command(BaseCommand):
     requires_migrations_checks = True
     stealth_options = ("stdin",)
 
+    def add_arguments(self, parser):
+        parser.add_argument('env', type=int)
+
     def validate_source_file(self, source_file):
         try:
             source_file_type = source_file.split(".")[-1]
@@ -25,6 +28,7 @@ class Command(BaseCommand):
             return source_file
         except IndexError:
             raise CommandError(f"Please provide the source_file path (csv only): '{source_file}'")
+        
 
     def is_update(self, name: str) -> bool:
         if "update" in name:
@@ -37,6 +41,12 @@ class Command(BaseCommand):
         elif "casestudy_" in name:
             return CompanyCaseStudy
         return CompanyUser
+
+    def switch_env(self, row: dict, env: str) -> dict:
+        if env == 'prod':
+            return row
+        row["company_id"] = stage_ids[row['company_id']]
+        return row
 
     def get_app_number(self, row: dict) -> str:
         return row['app_number']
@@ -107,6 +117,10 @@ class Command(BaseCommand):
         return row
 
     def handle(self, *args, **options):
+
+        given_env = options.get("env", None)
+        env = 'stage' if given_env else 'prod'
+        
         # Company supplied data
         source_files = {
             "company_update": "investment_supplier_data/company_update.csv",
@@ -153,7 +167,8 @@ class Command(BaseCommand):
                                 if investment_company.exists():
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    adjust_types = self.adjust_field_types(address_added)
+                                    switch_envs = self.switch_env(address_added, env)
+                                    adjust_types = self.adjust_field_types(switch_envs)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
                                     processed_companies[app_id] = {
@@ -166,7 +181,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    adjust_types = self.adjust_field_types(address_added)
+                                    switch_envs = self.switch_env(address_added)
+                                    adjust_types = self.adjust_field_types(switch_envs, env)
                                     investment_company = Company.objects.create(**address_added)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
@@ -184,7 +200,8 @@ class Command(BaseCommand):
                                 if investment_company.exists():
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    adjust_types = self.adjust_field_types(address_added)
+                                    switch_envs = self.switch_env(address_added)
+                                    adjust_types = self.adjust_field_types(switch_envs, env)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
                                     processed_companies[app_id] = {
@@ -197,7 +214,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    adjust_types = self.adjust_field_types(address_added)
+                                    switch_envs = self.switch_env(address_added)
+                                    adjust_types = self.adjust_field_types(switch_envs, env)
                                     investment_company = Company.objects.create(**address_added)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
@@ -210,7 +228,8 @@ class Command(BaseCommand):
                             # Create new CompanyCaseStudy
                             if _is_update and _model == CompanyCaseStudy:
                                 cleaned_row.update({"title": f"A Case Study By {processed_companies[app_id]['name']}"})
-                                CompanyCaseStudy.objects.create(**cleaned_row)
+                                switch_envs = self.switch_env(cleaned_row, env)
+                                CompanyCaseStudy.objects.create(**switch_envs)
 
                             # Create new CompanyCaseStudy for new Company
                             if not _is_update and _model == CompanyCaseStudy:
@@ -224,13 +243,14 @@ class Command(BaseCommand):
 
                             # Update CompanyUser
                             if _is_update and _model == CompanyUser:
-                                company_id = cleaned_row['company_id']
-                                company_email = cleaned_row['company_email']
+                                switch_envs = self.switch_env(cleaned_row, env)
+                                company_id = switch_envs['company_id']
+                                company_email = switch_envs['company_email']
                                 user = CompanyUser.objects.filter(company_id=company_id, company_email=company_email)
                                 if user.exists():
-                                    user.update(**cleaned_row)
+                                    user.update(**switch_envs)
                                     company = user.first().company
-                                    company.mobile_number = cleaned_row["mobile_number"]
+                                    company.mobile_number = switch_envs["mobile_number"]
                                     company.save()
 
                             # Create CompanyUser
