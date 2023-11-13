@@ -181,8 +181,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added)
-                                    adjust_types = self.adjust_field_types(switch_envs, env)
+                                    switch_envs = self.switch_env(address_added, env)
+                                    adjust_types = self.adjust_field_types(switch_envs)
                                     investment_company = Company.objects.create(**address_added)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
@@ -200,8 +200,8 @@ class Command(BaseCommand):
                                 if investment_company.exists():
                                     # This will update the object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added)
-                                    adjust_types = self.adjust_field_types(switch_envs, env)
+                                    switch_envs = self.switch_env(address_added, env)
+                                    adjust_types = self.adjust_field_types(switch_envs)
                                     investment_company.update(**adjust_types)
                                     investment_company = investment_company.first()
                                     processed_companies[app_id] = {
@@ -214,8 +214,8 @@ class Command(BaseCommand):
                                 else:
                                     # This will create a new object
                                     address_added = self.fetch_companies_house_data(cleaned_row)
-                                    switch_envs = self.switch_env(address_added)
-                                    adjust_types = self.adjust_field_types(switch_envs, env)
+                                    switch_envs = self.switch_env(address_added, env)
+                                    adjust_types = self.adjust_field_types(switch_envs)
                                     investment_company = Company.objects.create(**address_added)
                                     processed_companies[app_id] = {
                                         "company_obj": investment_company,
