@@ -1,6 +1,7 @@
 import re
 
 import requests
+from requests.exceptions import RequestException
 
 
 def postcode_to_region_id(postcode):
@@ -16,4 +17,8 @@ def postcode_to_region_id(postcode):
     response.raise_for_status()
     parsed = response.json()['result']
     region_id = parsed['region'] or parsed['european_electoral_region']
-    return re.sub(r'\s+', '_', region_id.lower())
+
+    try:
+        return re.sub(r'\s+', '_', region_id.lower())
+    except (AttributeError, RequestException):
+        return None

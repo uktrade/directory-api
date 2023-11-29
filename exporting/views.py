@@ -1,4 +1,3 @@
-import requests.exceptions
 from django.db.models import BooleanField, Case, Q, Value, When
 from rest_framework.generics import ListAPIView
 
@@ -10,11 +9,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
     permission_classes = []
 
     def get_queryset(self):
-        try:
-            region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
-        except requests.exceptions.RequestException:
-            region_id = None
-
+        region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
         return models.Office.objects.annotate(
             is_match=Case(
                 When(
