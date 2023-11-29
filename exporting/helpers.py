@@ -11,7 +11,6 @@ def postcode_to_region_id(postcode):
                                                 be raised during the request.
         requests.exceptions.HTTPError -- This concrete exception may be raised
                                          if the response is not OK (2xx)
-
     """
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}/', timeout=10)
     response.raise_for_status()
