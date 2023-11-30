@@ -163,6 +163,8 @@ faker==15.3.4
     # via factory-boy
 future==0.18.3
     # via django-json-widget
+greenlet==3.0.1
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -325,7 +327,9 @@ tinycss2==1.2.1
 typing-extensions==4.7.1
     # via pypdf
 tzdata==2022.7
-    # via django-celery-beat
+    # via
+    #   django-celery-beat
+    #   pytz-deprecation-shim
 tzlocal==4.2
     # via pyhanko
 uritemplate==4.1.1
