@@ -12,7 +12,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
     def get_queryset(self):
         try:
             region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
-        except requests.exceptions.RequestException:
+        except (AttributeError, requests.exceptions.RequestException):
             region_id = None
 
         return models.Office.objects.annotate(
