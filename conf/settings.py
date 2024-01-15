@@ -155,7 +155,7 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
+#STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -307,6 +307,9 @@ STORAGES = {
         "OPTIONS": {
         },
     },
+    "staticfiles": {
+        "BACKEND": env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage'),
+    }
 }
 
 
