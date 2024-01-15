@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/directory-api
     docker:
       - image: cimg/python:3.9.13
-      - image: cimg/postgres:11.20
+      - image: cimg/postgres:12.8
         environment:
           POSTGRES_USER: debug
           POSTGRES_PASSWORD: debug
