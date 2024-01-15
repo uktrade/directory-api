@@ -295,12 +295,21 @@ GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS = env.int('GREAT_MARKETGUIDES_REVIEW_PERIO
 
 # Public storage for company profile logo
 STORAGE_CLASSES = {
-    'default': 'storages.backends.s3boto3.S3Boto3Storage',
+    'default': 'storages.backends.s3.S3Storage',
     'local-storage': 'django.core.files.storage.FileSystemStorage',
     'private': 'core.storage_classes.PrivateMediaStorage',
 }
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
-DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
+
+STORAGES = {
+    "default": {
+        "BACKEND": STORAGE_CLASSES[STORAGE_CLASS_NAME],
+        "OPTIONS": {
+        },
+    },
+}
+
+
 # Used for private non public media
 PRIVATE_STORAGE_CLASS_NAME = env.str('PRIVATE_STORAGE_CLASS_NAME', 'private')
 PRIVATE_FILE_STORAGE = STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME]
