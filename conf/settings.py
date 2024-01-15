@@ -304,12 +304,11 @@ STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
 STORAGES = {
     "default": {
         "BACKEND": STORAGE_CLASSES[STORAGE_CLASS_NAME],
-        "OPTIONS": {
-        },
+        "OPTIONS": {},
     },
     "staticfiles": {
         "BACKEND": env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage'),
-    }
+    },
 }
 
 
