@@ -137,7 +137,7 @@ django-redis==5.2.0
     # via -r requirements.in
 django-staff-sso-client==4.2.0
     # via -r requirements.in
-django-storages==1.13.2
+django-storages==1.14.2
     # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat
