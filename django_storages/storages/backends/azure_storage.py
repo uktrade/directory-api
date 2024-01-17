@@ -15,12 +15,12 @@ from django.core.files.base import File
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from storages.base import BaseStorage
-from storages.utils import clean_name
-from storages.utils import get_available_overwrite_name
-from storages.utils import safe_join
-from storages.utils import setting
-from storages.utils import to_bytes
+from django_storages.storages.base import BaseStorage
+from django_storages.storages.utils import clean_name
+from django_storages.storages.utils import get_available_overwrite_name
+from django_storages.storages.utils import safe_join
+from django_storages.storages.utils import setting
+from django_storages.storages.utils import to_bytes
 
 
 @deconstructible

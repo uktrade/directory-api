@@ -10,14 +10,14 @@ from django.core.files.base import File
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from storages.base import BaseStorage
-from storages.compress import CompressedFileMixin
-from storages.utils import check_location
-from storages.utils import clean_name
-from storages.utils import get_available_overwrite_name
-from storages.utils import safe_join
-from storages.utils import setting
-from storages.utils import to_bytes
+from django_storages.storages.base import BaseStorage
+from django_storages.storages.compress import CompressedFileMixin
+from django_storages.storages.utils import check_location
+from django_storages.storages.utils import clean_name
+from django_storages.storages.utils import get_available_overwrite_name
+from django_storages.storages.utils import safe_join
+from django_storages.storages.utils import setting
+from django_storages.storages.utils import to_bytes
 
 try:
     from google.cloud.exceptions import NotFound

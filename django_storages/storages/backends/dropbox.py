@@ -18,7 +18,7 @@ from dropbox.files import FolderMetadata
 from dropbox.files import UploadSessionCursor
 from dropbox.files import WriteMode
 
-from storages.base import BaseStorage
+from django_storages.storages.base import BaseStorage
 from storages.utils import get_available_overwrite_name
 from storages.utils import setting
 

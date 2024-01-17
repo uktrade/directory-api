@@ -18,18 +18,18 @@ from django.utils.deconstruct import deconstructible
 from django.utils.encoding import filepath_to_uri
 from django.utils.timezone import make_naive
 
-from storages.base import BaseStorage
-from storages.compress import CompressedFileMixin
-from storages.compress import CompressStorageMixin
-from storages.utils import ReadBytesWrapper
-from storages.utils import check_location
-from storages.utils import clean_name
-from storages.utils import get_available_overwrite_name
-from storages.utils import is_seekable
-from storages.utils import lookup_env
-from storages.utils import safe_join
-from storages.utils import setting
-from storages.utils import to_bytes
+from django_storages.storages.base import BaseStorage
+from django_storages.storages.compress import CompressedFileMixin
+from django_storages.storages.compress import CompressStorageMixin
+from django_storages.storages.utils import ReadBytesWrapper
+from django_storages.storages.utils import check_location
+from django_storages.storages.utils import clean_name
+from django_storages.storages.utils import get_available_overwrite_name
+from django_storages.storages.utils import is_seekable
+from django_storages.storages.utils import lookup_env
+from django_storages.storages.utils import safe_join
+from django_storages.storages.utils import setting
+from django_storages.storages.utils import to_bytes
 
 try:
     import boto3.session

@@ -16,9 +16,9 @@ from django.core.files.base import File
 from django.utils.deconstruct import deconstructible
 from paramiko.util import ClosingContextManager
 
-from storages.base import BaseStorage
-from storages.utils import is_seekable
-from storages.utils import setting
+from django_storages.storages.base import BaseStorage
+from django_storages.storages.utils import is_seekable
+from django_storages.storages.utils import setting
 
 
 @deconstructible
