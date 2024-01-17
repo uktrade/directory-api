@@ -19,8 +19,8 @@ from dropbox.files import UploadSessionCursor
 from dropbox.files import WriteMode
 
 from django_storages.storages.base import BaseStorage
-from storages.utils import get_available_overwrite_name
-from storages.utils import setting
+from django_storages.storages.utils import get_available_overwrite_name
+from django_storages.storages.utils import setting
 
 _DEFAULT_TIMEOUT = 100
 _DEFAULT_MODE = "add"

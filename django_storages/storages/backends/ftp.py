@@ -27,7 +27,7 @@ from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
-from storages.utils import setting
+from django_storages.storages.utils import setting
 
 
 class FTPStorageException(Exception):

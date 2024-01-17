@@ -10,7 +10,7 @@ from django.core.files.base import File
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
-from storages.utils import clean_name
+from django_storages.storages.utils import clean_name
 
 try:
     from libcloud.storage.providers import get_driver
