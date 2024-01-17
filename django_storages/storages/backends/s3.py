@@ -302,6 +302,7 @@ class S3Storage(CompressStorageMixin, BaseStorage):
     config = None
 
     def __init__(self, **settings):
+        logger.exception('S3Storage::__init__ invoked')
         omitted = object()
         if not hasattr(self, "cloudfront_signer"):
             self.cloudfront_signer = settings.pop("cloudfront_signer", omitted)
@@ -355,6 +356,7 @@ class S3Storage(CompressStorageMixin, BaseStorage):
         return _cloud_front_signer_from_pem(key_id, key)
 
     def get_default_settings(self):
+        logger.exception('S3Storage::get_default_settings invoked')
         return {
             "access_key": setting(
                 "AWS_S3_ACCESS_KEY_ID",
@@ -485,6 +487,7 @@ class S3Storage(CompressStorageMixin, BaseStorage):
         return f
 
     def _save(self, name, content):
+        logger.exception('S3Storage::_save invoked')
         cleaned_name = clean_name(name)
         name = self._normalize_name(cleaned_name)
         params = self._get_write_parameters(name, content)
