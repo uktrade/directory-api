@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 import os
 import posixpath
@@ -41,6 +42,7 @@ try:
 except ImportError as e:
     raise ImproperlyConfigured("Could not load Boto3's S3 bindings. %s" % e)
 
+logger = logging.getLogger(__name__)
 
 # NOTE: these are defined as functions so both can be tested
 def _use_cryptography_signer():
@@ -509,6 +511,8 @@ class S3Storage(CompressStorageMixin, BaseStorage):
         content.close = lambda: None
         try:
             obj.upload_fileobj(content, ExtraArgs=params, Config=self.transfer_config)
+        except Exception as e:
+            logger.exception(e)
         finally:
             content.close = original_close
         return cleaned_name
