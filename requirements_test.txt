@@ -8,7 +8,7 @@ amqp==5.0.9
     # via kombu
 arabic-reshaper==3.0.0
     # via xhtml2pdf
-asgiref==3.5.2
+asgiref==3.7.2
     # via django
 asn1crypto==1.5.1
     # via
@@ -40,7 +40,6 @@ botocore==1.27.96
 celery[redis]==5.2.3
     # via
     #   -r requirements.in
-    #   celery
     #   django-celery-beat
 certifi==2023.7.22
     # via
@@ -68,7 +67,6 @@ click-repl==0.2.0
     # via celery
 coverage[toml]==6.3
     # via
-    #   coverage
     #   pytest-codecov
     #   pytest-cov
 cron-descriptor==1.4.0
@@ -100,7 +98,7 @@ directory-constants==23.1.1
     #   directory-components
 directory-forms-api-client==7.2.2
     # via -r requirements.in
-directory-healthcheck==3.1.2
+directory-healthcheck==3.2
     # via -r requirements.in
 directory-sso-api-client==7.2.3
     # via -r requirements.in
@@ -108,7 +106,7 @@ directory-validators==9.3.0
     # via -r requirements.in
 dj-database-url==0.5.0
     # via -r requirements.in
-django==4.1.13
+django==4.2
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -153,7 +151,7 @@ django-redis==5.2.0
     # via -r requirements.in
 django-staff-sso-client==4.2.0
     # via -r requirements.in
-django-storages==1.13.2
+django-storages==1.14.2
     # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat
@@ -186,10 +184,8 @@ future==0.18.3
     # via django-json-widget
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.37
+gitpython==3.1.41
     # via -r requirements_test.in
-greenlet==3.0.1
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -358,7 +354,6 @@ requests[security]==2.31.0
     #   pyhanko
     #   pyhanko-certvalidator
     #   pytest-codecov
-    #   requests
     #   requests-mock
     #   requests-oauthlib
 requests-mock==1.6.0
@@ -402,9 +397,7 @@ sqlparse==0.4.4
 svglib==1.2.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.4.0
-    # via
-    #   django-import-export
-    #   tablib
+    # via django-import-export
 termcolor==1.1.0
     # via pytest-sugar
 text-unidecode==1.3
@@ -422,6 +415,7 @@ tomli==1.2.3
     #   pytest
 typing-extensions==4.0.1
     # via
+    #   asgiref
     #   black
     #   pypdf
 tzdata==2022.1
