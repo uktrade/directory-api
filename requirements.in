@@ -4,7 +4,6 @@ django-environ==0.4.5
 django-extensions==3.2.1
 django-field-history==0.8.0
 djangorestframework==3.14.*
-django-storages==1.14.2
 django-flat-json-widget==0.2
 django-filter==22.*
 django-import-export==3.2.0
@@ -52,3 +51,9 @@ sqlparse==0.4.4
 drf-spectacular==0.26.1
 certifi==2023.07.22
 pypdf==3.17.0
+paramiko
+dropbox
+google
+moto
+azure-storage-blob
+boto3

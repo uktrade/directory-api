@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django_storages',
     'rest_framework',
     'django_extensions',
     'django_celery_beat',
@@ -295,7 +296,7 @@ GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS = env.int('GREAT_MARKETGUIDES_REVIEW_PERIO
 
 # Public storage for company profile logo
 STORAGE_CLASSES = {
-    'default': 'storages.backends.s3boto3.S3Boto3Storage',
+    'default': 'django_storages.storages.backends.s3boto3S3Boto3Storage',
     'local-storage': 'django.core.files.storage.FileSystemStorage',
     'private': 'core.storage_classes.PrivateMediaStorage',
 }
@@ -310,7 +311,7 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
 AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
 # Needed for new AWS regions
-# https://github.com/jschneier/django-storages/issues/203
+# https://github.com/jschneier/django_storages/issues/203
 AWS_S3_SIGNATURE_VERSION = env.str('AWS_S3_SIGNATURE_VERSION', 's3v4')
 AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
 S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)

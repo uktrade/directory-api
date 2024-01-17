@@ -21,8 +21,16 @@ attrs==21.4.0
     # via
     #   jsonschema
     #   pytest
+azure-core==1.26.3
+    # via azure-storage-blob
+azure-storage-blob==12.16.0
+    # via -r requirements.in
+bcrypt==4.1.2
+    # via paramiko
 beautifulsoup4==4.10.0
-    # via directory-components
+    # via
+    #   directory-components
+    #   google
 billiard==3.6.4.0
     # via celery
 black==23.1.0
@@ -32,10 +40,13 @@ black==23.1.0
 blacken-docs==1.13.0
     # via -r requirements_test.in
 boto3==1.24.96
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   moto
 botocore==1.27.96
     # via
     #   boto3
+    #   moto
     #   s3transfer
 celery[redis]==5.2.3
     # via
@@ -48,7 +59,9 @@ certifi==2023.7.22
     #   requests
     #   sentry-sdk
 cffi==1.15.0
-    # via cryptography
+    # via
+    #   cryptography
+    #   pynacl
 charset-normalizer==3.0.1
     # via requests
 click==8.0.3
@@ -74,6 +87,9 @@ cron-descriptor==1.4.0
 cryptography==41.0.6
     # via
     #   -r requirements.in
+    #   azure-storage-blob
+    #   moto
+    #   paramiko
     #   pyhanko
     #   pyhanko-certvalidator
 cssselect2==0.5.0
@@ -121,7 +137,6 @@ django==4.2
     #   django-import-export
     #   django-redis
     #   django-staff-sso-client
-    #   django-storages
     #   djangorestframework
     #   drf-spectacular
     #   sigauth
@@ -151,8 +166,6 @@ django-redis==5.2.0
     # via -r requirements.in
 django-staff-sso-client==4.2.0
     # via -r requirements.in
-django-storages==1.14.2
-    # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat
 djangorestframework==3.14.0
@@ -163,6 +176,8 @@ djangorestframework==3.14.0
 docopt==0.6.2
     # via notifications-python-client
 drf-spectacular==0.26.1
+    # via -r requirements.in
+dropbox==11.36.2
     # via -r requirements.in
 elasticsearch==7.13.4
     # via
@@ -186,6 +201,8 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.41
     # via -r requirements_test.in
+google==3.0.0
+    # via -r requirements.in
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -196,8 +213,12 @@ iniconfig==1.1.1
     # via pytest
 iso3166==1.0.1
     # via -r requirements.in
+isodate==0.6.1
+    # via azure-storage-blob
 isort==5.12.0
     # via -r requirements_test.in
+jinja2==3.1.3
+    # via moto
 jmespath==0.10.0
     # via
     #   boto3
@@ -218,12 +239,18 @@ markdown2==2.4.0
     # via -r requirements.in
 markuppy==1.14
     # via tablib
+markupsafe==2.1.3
+    # via
+    #   jinja2
+    #   werkzeug
 mccabe==0.6.1
     # via flake8
 mohawk==0.3.4
     # via sigauth
 monotonic==1.6
     # via directory-client-core
+moto==4.2.13
+    # via -r requirements.in
 mypy-extensions==0.4.3
     # via black
 notifications-python-client==6.3.0
@@ -249,6 +276,8 @@ packaging==23.0
     #   pytest-sugar
 pandas==1.4.2
     # via -r requirements.in
+paramiko==3.4.0
+    # via -r requirements.in
 pathspec==0.9.0
     # via black
 pillow==10.0.1
@@ -261,6 +290,8 @@ platformdirs==2.4.1
     # via black
 pluggy==0.13.1
     # via pytest
+ply==3.11
+    # via stone
 pre-commit-hooks==3.3.0
     # via -r requirements_test.in
 prompt-toolkit==3.0.26
@@ -285,6 +316,8 @@ pyjwt==2.4.0
     # via
     #   -r requirements.in
     #   notifications-python-client
+pynacl==1.5.0
+    # via paramiko
 pypdf==3.17.0
     # via
     #   -r requirements.in
@@ -318,6 +351,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
     #   faker
     #   freezegun
+    #   moto
     #   pandas
     #   python-crontab
 pytz==2021.3
@@ -335,6 +369,7 @@ pyyaml==6.0
     #   -r requirements.in
     #   drf-spectacular
     #   pyhanko
+    #   responses
     #   tablib
 qrcode==7.3.1
     # via pyhanko
@@ -349,17 +384,23 @@ reportlab==3.6.13
 requests[security]==2.31.0
     # via
     #   -r requirements.in
+    #   azure-core
     #   directory-client-core
+    #   dropbox
+    #   moto
     #   notifications-python-client
     #   pyhanko
     #   pyhanko-certvalidator
     #   pytest-codecov
     #   requests-mock
     #   requests-oauthlib
+    #   responses
 requests-mock==1.6.0
     # via -r requirements_test.in
 requests-oauthlib==1.3.0
     # via django-staff-sso-client
+responses==0.24.1
+    # via moto
 ruamel-yaml==0.17.21
     # via pre-commit-hooks
 ruamel-yaml-clib==0.2.7
@@ -374,15 +415,19 @@ sigauth==5.2.0
     #   directory-client-core
 six==1.16.0
     # via
+    #   azure-core
     #   click-repl
+    #   dropbox
     #   elasticsearch-dsl
     #   freezegun
     #   html5lib
+    #   isodate
     #   jsonschema
     #   mohawk
     #   python-bidi
     #   python-dateutil
     #   requests-mock
+    #   stone
     #   w3lib
 smmap==5.0.0
     # via gitdb
@@ -394,6 +439,8 @@ sqlparse==0.4.4
     # via
     #   -r requirements.in
     #   django
+stone==3.3.1
+    # via dropbox
 svglib==1.2.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.4.0
@@ -416,6 +463,8 @@ tomli==1.2.3
 typing-extensions==4.0.1
     # via
     #   asgiref
+    #   azure-core
+    #   azure-storage-blob
     #   black
     #   pypdf
 tzdata==2022.1
@@ -435,6 +484,7 @@ urllib3==1.26.18
     #   directory-validators
     #   elasticsearch
     #   requests
+    #   responses
     #   sentry-sdk
 vine==5.0.0
     # via
@@ -452,6 +502,8 @@ webencodings==0.5.1
     #   cssselect2
     #   html5lib
     #   tinycss2
+werkzeug==3.0.1
+    # via moto
 whitenoise==6.4.0
     # via -r requirements.in
 wrapt==1.13.3
@@ -463,7 +515,9 @@ xlrd==2.0.1
 xlwt==1.3.0
     # via tablib
 xmltodict==0.12.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   moto
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
