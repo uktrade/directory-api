@@ -155,7 +155,7 @@ if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
 STATIC_HOST = env.str('STATIC_HOST', '')
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
+# STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -300,10 +300,23 @@ STORAGE_CLASSES = {
     'private': 'core.storage_classes.PrivateMediaStorage',
 }
 STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
-DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
+# DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 # Used for private non public media
 PRIVATE_STORAGE_CLASS_NAME = env.str('PRIVATE_STORAGE_CLASS_NAME', 'private')
-PRIVATE_FILE_STORAGE = STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME]
+# PRIVATE_FILE_STORAGE = STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME]
+
+STORAGES = {
+    'default': {
+        'BACKEND': STORAGE_CLASSES[STORAGE_CLASS_NAME],
+    },
+    'private': {
+        'BACKEND': STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME],
+    },
+    'staticfiles': {
+        'BACKEND': env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage'),
+    }
+}
+
 LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_FILE_OVERWRITE = False
