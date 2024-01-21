@@ -24,7 +24,9 @@ beautifulsoup4==4.11.1
 billiard==3.6.4.0
     # via celery
 boto3==1.24.96
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-storages
 botocore==1.27.96
     # via
     #   boto3
@@ -136,7 +138,7 @@ django-redis==5.2.0
     # via -r requirements.in
 django-staff-sso-client==4.2.1
     # via -r requirements.in
-django-storages==1.14.2
+django-storages[boto3]==1.13.2
     # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat

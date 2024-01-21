@@ -32,7 +32,9 @@ black==23.1.0
 blacken-docs==1.13.0
     # via -r requirements_test.in
 boto3==1.24.96
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-storages
 botocore==1.27.96
     # via
     #   boto3
@@ -151,7 +153,7 @@ django-redis==5.2.0
     # via -r requirements.in
 django-staff-sso-client==4.2.1
     # via -r requirements.in
-django-storages==1.14.2
+django-storages[boto3]==1.13.2
     # via -r requirements.in
 django-timezone-field==5.0
     # via django-celery-beat
