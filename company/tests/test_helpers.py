@@ -249,10 +249,12 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
             'form_url': 'request-identity-verification',
             'sender': {},
             'spam_control': {},
-            'subject': helpers.REQUEST_IDENTITY_VERIFICATION_SUBJECT,
             'full_name': supplier.name,
             'email_address': supplier.company_email,
+            'subject': helpers.REQUEST_IDENTITY_VERIFICATION_SUBJECT,
             'service_name': settings.DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME,
+            'sort_fields_alphabetically': True,
+          
         },
     }
 
