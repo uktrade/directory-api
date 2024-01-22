@@ -34,6 +34,7 @@ botocore==1.27.96
 celery[redis]==5.2.7
     # via
     #   -r requirements.in
+    #   celery
     #   django-celery-beat
 certifi==2023.7.22
     # via
@@ -139,7 +140,9 @@ django-redis==5.2.0
 django-staff-sso-client==4.2.1
     # via -r requirements.in
 django-storages[boto3]==1.13.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-storages
 django-timezone-field==5.0
     # via django-celery-beat
 djangorestframework==3.14.0
@@ -165,6 +168,8 @@ faker==15.3.4
     # via factory-boy
 future==0.18.3
     # via django-json-widget
+greenlet==3.0.3
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.4
@@ -215,7 +220,7 @@ oscrypto==1.3.0
     # via pyhanko-certvalidator
 pandas==1.4.2
     # via -r requirements.in
-pillow==10.0.1
+pillow==10.2.0
     # via
     #   -r requirements.in
     #   directory-validators
@@ -287,6 +292,7 @@ requests[security]==2.31.0
     #   notifications-python-client
     #   pyhanko
     #   pyhanko-certvalidator
+    #   requests
     #   requests-oauthlib
 requests-oauthlib==1.3.1
     # via django-staff-sso-client
@@ -319,7 +325,9 @@ sqlparse==0.4.4
 svglib==1.4.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.4.0
-    # via django-import-export
+    # via
+    #   django-import-export
+    #   tablib
 tinycss2==1.2.1
     # via
     #   cssselect2

@@ -42,6 +42,7 @@ botocore==1.27.96
 celery[redis]==5.2.3
     # via
     #   -r requirements.in
+    #   celery
     #   django-celery-beat
 certifi==2023.7.22
     # via
@@ -69,6 +70,7 @@ click-repl==0.2.0
     # via celery
 coverage[toml]==6.3
     # via
+    #   coverage
     #   pytest-codecov
     #   pytest-cov
 cron-descriptor==1.4.0
@@ -154,7 +156,9 @@ django-redis==5.2.0
 django-staff-sso-client==4.2.1
     # via -r requirements.in
 django-storages[boto3]==1.13.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-storages
 django-timezone-field==5.0
     # via django-celery-beat
 djangorestframework==3.14.0
@@ -188,6 +192,8 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.41
     # via -r requirements_test.in
+greenlet==3.0.3
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==2.10
@@ -253,7 +259,7 @@ pandas==1.4.2
     # via -r requirements.in
 pathspec==0.9.0
     # via black
-pillow==10.0.1
+pillow==10.2.0
     # via
     #   -r requirements.in
     #   directory-validators
@@ -356,6 +362,7 @@ requests[security]==2.31.0
     #   pyhanko
     #   pyhanko-certvalidator
     #   pytest-codecov
+    #   requests
     #   requests-mock
     #   requests-oauthlib
 requests-mock==1.6.0
@@ -399,7 +406,9 @@ sqlparse==0.4.4
 svglib==1.2.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.4.0
-    # via django-import-export
+    # via
+    #   django-import-export
+    #   tablib
 termcolor==1.1.0
     # via pytest-sugar
 text-unidecode==1.3
