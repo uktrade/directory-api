@@ -39,7 +39,7 @@ lxml==4.9.1
 markdown2==2.4.0
 oauthlib==3.2.2
 pandas==1.4.2
-pillow==10.0.1
+pillow==10.2.0
 psycopg2-binary==2.9.*
 pyjwt==2.4.0
 pypdf==3.17.0
