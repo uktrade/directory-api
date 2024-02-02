@@ -52,6 +52,7 @@ class CountryFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Country
+        django_get_or_create = ('name', 'iso1', 'iso2', 'iso3')
 
 
 class UKTradeInGoodsByCountryFactory(factory.django.DjangoModelFactory):
