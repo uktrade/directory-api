@@ -108,7 +108,6 @@ def test_empty_object_returned_with_authentication(api_client, activities_url):
         content=response.content,
         content_type=response['Content-Type'],
     )
-    
     with pytest.raises(mohawk.exc.BadHeaderValue):
         sender.accept_response(
             response_header=response['Server-Authorization'] + 'incorrect',
