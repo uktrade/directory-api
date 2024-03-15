@@ -1,7 +1,5 @@
 import pandas as pd
 import sqlalchemy as sa
-from django.conf import settings
-from django.core.management import BaseCommand
 
 from dataservices.models import Country, WorldEconomicOutlookByCountry
 
