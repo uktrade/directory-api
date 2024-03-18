@@ -56,7 +56,6 @@ class Command(BaseCommand):
                     self.stderr.write(self.style.ERROR(e))
                     send_ingest_error_notify_email(table_view_names['view_name'], e)
             else:
-                print("test")
                 self.stdout.write(self.style.NOTICE(f'{table_view_names["view_name"]} does not need updating'))
 
         self.stdout.write(self.style.SUCCESS('Finished Market Guides import!'))
