@@ -388,7 +388,14 @@ def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outloo
     assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 0
 
     management.call_command('import_countries')
+
+    # Dry run
     management.call_command('import_world_economic_outlook_data')
+
+    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 0
+
+    # Write option
+    management.call_command('import_world_economic_outlook_data', '--write')
 
     assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 10
 
@@ -426,7 +433,7 @@ def test_import_metadata_source_data_filter_tables():
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'env, review_requested_x_times',
-    [('dev', 0), ('staging', 3), ('uat', 0), ('production', 0)],
+    [('dev', 0), ('staging', 4), ('uat', 0), ('production', 0)],
 )
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
@@ -439,6 +446,7 @@ def test_import_market_guides_data(
             'import_uk_total_trade_data',
             'import_uk_trade_in_goods_data',
             'import_uk_trade_in_services_data',
+            'import_world_economic_outlook_data',
         ]
         mock_should_run.return_value = False
         management.call_command('import_market_guides_data', '--write')
@@ -446,7 +454,7 @@ def test_import_market_guides_data(
 
         mock_should_run.return_value = True
         management.call_command('import_market_guides_data', '--write')
-        assert mock_call_command.call_count == 6
+        assert mock_call_command.call_count == 8
         assert mock_send_review_request.call_count == review_requested_x_times
 
         for command in command_list:
@@ -462,12 +470,13 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
         'import_uk_total_trade_data',
         'import_uk_trade_in_goods_data',
         'import_uk_trade_in_services_data',
+        'import_world_economic_outlook_data',
     ]
     mock_should_run.return_value = True
 
     management.call_command('import_market_guides_data')
 
-    assert mock_call_command.call_count == 6
+    assert mock_call_command.call_count == 8
 
     for command in command_list:
         assert command in str(mock_call_command.call_args_list)
@@ -486,9 +495,9 @@ def test_import_market_guides_data_error(mock_call_command, mock_should_run, moc
     management.call_command('import_market_guides_data')
 
     mock_email_string = str(mock_error_email.mock_calls)
-    assert mock_call_command.call_count == 3
+    assert mock_call_command.call_count == 4
     assert 'oops' in str(mock_call_command.side_effect)
-    assert mock_error_email.call_count == 3
+    assert mock_error_email.call_count == 4
     assert 'area_of_error' in mock_email_string
     assert 'error_type' in mock_email_string
     assert 'error_details' in mock_email_string

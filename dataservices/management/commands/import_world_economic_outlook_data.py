@@ -1,15 +1,14 @@
 import pandas as pd
 import sqlalchemy as sa
-from django.conf import settings
-from django.core.management import BaseCommand
 
 from dataservices.models import Country, WorldEconomicOutlookByCountry
 
+from .helpers import MarketGuidesDataIngestionCommand
 
-class Command(BaseCommand):
+
+class Command(MarketGuidesDataIngestionCommand):
     help = 'Import IMF world economic outlook data by country from Data Workspace'
 
-    engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
     sql = '''
         SELECT
             iso AS ons_iso_alpha_3_code,
@@ -38,7 +37,14 @@ class Command(BaseCommand):
             AND NULLIF(TRIM(x.value), '') IS NOT NULL;
     '''
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--write',
+            action='store_true',
+            help='Store dataset records',
+        )
+
+    def load_data(self):
         data = []
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=10000)
 
@@ -64,7 +70,4 @@ class Command(BaseCommand):
                     )
                 )
 
-        WorldEconomicOutlookByCountry.objects.all().delete()
-        WorldEconomicOutlookByCountry.objects.bulk_create(data)
-
-        self.stdout.write(self.style.SUCCESS('All done, bye!'))
+        return data
