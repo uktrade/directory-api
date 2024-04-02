@@ -92,7 +92,7 @@ directory-validators==9.3.3
     # via -r requirements.in
 dj-database-url==2.1.0
     # via -r requirements.in
-django==4.2.10
+django==4.2.11
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -170,8 +170,6 @@ faker==22.6.0
     # via factory-boy
 future==0.18.3
     # via django-json-widget
-greenlet==3.0.3
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.6

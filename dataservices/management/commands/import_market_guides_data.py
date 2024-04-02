@@ -24,6 +24,10 @@ class Command(BaseCommand):
             'table_name': 'trade__uk_services_nsa',
             'view_name': 'TopFiveServicesExportsByCountryView',
         },
+        'import_world_economic_outlook_data': {
+            'table_name': 'world_economic_outlook__by_country',
+            'view_name': 'EconomicHighlightsView',
+        },
     }
 
     def add_arguments(self, parser):
