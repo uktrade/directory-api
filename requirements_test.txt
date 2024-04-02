@@ -25,7 +25,7 @@ beautifulsoup4==4.12.3
     # via directory-components
 billiard==4.2.0
     # via celery
-black==24.1.1
+black==24.3.0
     # via
     #   -r requirements_test.in
     #   blacken-docs
@@ -193,8 +193,6 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.41
     # via -r requirements_test.in
-greenlet==3.0.3
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.6

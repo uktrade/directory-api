@@ -10,7 +10,7 @@ pytest-codecov
 GitPython==3.1.41
 
 # Pinned because pre-commit features specific versions
-black==24.1.1
+black==24.3.0
 # Pinned pin dataclasses as 0.08 specified by black doesn't exist
 dataclasses==0.06
 blacken-docs==1.13.0
