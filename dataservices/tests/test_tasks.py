@@ -24,7 +24,7 @@ def cia_factbook_data(requests_mocker):
 
 @pytest.fixture()
 def cia_factbook_request_mock(requests_mocker, cia_factbook_data):
-    return requests_mocker.get(re.compile('https://raw.githubusercontent.com/.*'), json=cia_factbook_data)
+    return requests_mocker.get(re.compile(r'https://raw\.githubusercontent\.com/.*'), json=cia_factbook_data)
 
 
 @pytest.mark.django_db
