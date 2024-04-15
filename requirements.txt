@@ -170,12 +170,12 @@ faker==22.6.0
     # via factory-boy
 future==0.18.3
     # via django-json-widget
-greenlet==3.0.3
-    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
-idna==3.6
-    # via requests
+idna==3.7
+    # via
+    #   -r requirements.in
+    #   requests
 inflection==0.5.1
     # via drf-spectacular
 iso3166==1.0.1
