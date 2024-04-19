@@ -424,3 +424,22 @@ class UKFreeTradeAgreement(models.Model):
         ordering = ['name']
         verbose_name = 'UK free trade aggreement'
         verbose_name_plural = 'UK free trade aggreements'
+
+
+class EYBBusinessClusterInformation(models.Model):
+    geo_description = models.CharField()
+    geo_code = models.CharField()
+    sic_code = models.CharField()
+    sic_description = models.CharField()
+    total_business_count = models.IntegerField(null=True, blank=True)
+    business_count_release_year = models.SmallIntegerField(null=True, blank=True)
+    total_employee_count = models.IntegerField(null=True, blank=True)
+    employee_count_release_year = models.SmallIntegerField(null=True, blank=True)
+    dbt_full_sector_name = models.CharField(null=True, blank=True)
+    dbt_sector_name = models.CharField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-business_count_release_year', '-employee_count_release_year']
+        verbose_name = (
+            'Business Cluster Information for a geographic/standard industrial classification code combination'
+        )
