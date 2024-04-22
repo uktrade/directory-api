@@ -170,6 +170,8 @@ faker==22.6.0
     # via factory-boy
 future==0.18.3
     # via django-json-widget
+greenlet==3.0.3
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
 idna==3.7
@@ -316,7 +318,7 @@ soupsieve==2.5
     # via beautifulsoup4
 sqlalchemy==1.4.36
     # via -r requirements.in
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements.in
     #   django
