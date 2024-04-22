@@ -32,7 +32,7 @@ def pytest_runtest_setup(item):
     companies_house_adapter = requests_mock.Adapter()
     companies_house_adapter.register_uri(
         'GET',
-        re.compile('https://api\.companieshouse\.gov\.uk/company/.*'),
+        re.compile('https://api\.companieshouse\.gov\.uk/company/.*'),  # noqa
         json=company_profile,
         status_code=http.client.OK,
     )
