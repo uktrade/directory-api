@@ -74,13 +74,16 @@ def comtrade_data_with_various_year_data():
 @pytest.fixture()
 def comtrade_data_with_various_data_request_mock(comtrade_data_with_various_year_data, requests_mocker):
     return requests_mocker.get(
-        re.compile('https://comtrade\.un\.org/.*'), json=comtrade_data_with_various_year_data
-    )  # noqa
+        re.compile('https://comtrade\.un\.org/.*'), # noqa
+        json=comtrade_data_with_various_year_data
+    )
 
 
 @pytest.fixture()
 def comtrade_data_with_a_year_data_request_mock(comtrade_data_with_a_year_data, requests_mocker):
-    return requests_mocker.get(re.compile('https://comtrade\.un\.org/.*'), json=comtrade_data_with_a_year_data)  # noqa
+    return requests_mocker.get(
+        re.compile('https://comtrade\.un\.org/.*'), # noqa
+        json=comtrade_data_with_a_year_data)
 
 
 @pytest.mark.django_db
