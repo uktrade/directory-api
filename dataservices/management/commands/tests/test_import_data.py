@@ -4,6 +4,7 @@ from datetime import date, datetime
 from itertools import cycle, islice
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 import pytest
 import sqlalchemy
@@ -625,3 +626,41 @@ def test_helper_get_dataflow_metadata():
     expected = '2023-04-01 00:00:00.000000'
     assert result.loc[:, 'dataflow_swapped_tables_utc'][0] == expected
     assert result.loc[:, 'source_data_modified_utc'][0] == expected
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_eyb_business_cluster_information(read_sql_mock):
+    data = {
+        'geo_code': ['E92000001', 'N92000002', 'E12000003'],
+        'geo_description': ['England', 'Northern Ireland', 'Yorkshire and The Humber'],
+        'sic_code': ['42', '01110', '10130'],
+        'sic_description': [
+            'Civil Engineering',
+            'Growing of cereals (except rice), leguminous crops and oil seeds',
+            'Production of meat and poultry meat products',
+        ],
+        'total_business_count': [19070, 170, 55],
+        'business_count_release_year': [2023, 2023, 2023],
+        'total_employee_count': [159000, np.nan, 8000],
+        'employee_count_release_year': [2022, np.nan, 2022],
+        'dbt_full_sector_name': [
+            None,
+            'Agriculture, horticulture, fisheries and pets : Arable crops',
+            'Food and drink : Meat products',
+        ],
+        'dbt_sector_name': [None, 'Agriculture, horticulture, fisheries and pets', 'Food and drink'],
+    }
+
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.EYBBusinessClusterInformation.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_eyb_business_cluster_information')
+    assert len(models.EYBBusinessClusterInformation.objects.all()) == 0
+
+    # write
+    management.call_command('import_eyb_business_cluster_information', '--write')
+    assert len(models.EYBBusinessClusterInformation.objects.all()) == 3
