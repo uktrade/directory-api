@@ -5,6 +5,7 @@ from unittest import mock
 import pytest
 from django.core import management
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIClient
 
 from conf import settings
@@ -588,3 +589,45 @@ def test_dataservices_uk_free_trade_agreements_api_no_data(client):
     api_data = json.loads(response.content)
 
     assert not api_data['data']
+
+
+@pytest.mark.parametrize(
+    "query_params, expected_length",
+    [
+        ('?sic_code=95110', 2),
+        ('?sic_code=95110&geo_code=E92000001', 1),
+        ('?sic_code=94990', 1),
+        ('?sic_code=L', 1),
+        ('?sic_code=82', 1),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_business_cluster_information_api(
+    client, business_cluster_information_data, query_params, expected_length
+):
+    response = client.get(f"{reverse('dataservices-business-cluster-information')}{query_params}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == expected_length
+
+
+@pytest.mark.django_db
+def test_dataservices_business_cluster_information_api_no_data(client):
+    response = client.get(f"{reverse('dataservices-business-cluster-information')}?sic_code=1234")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == 0
+
+
+@pytest.mark.django_db
+def test_dataservices_business_cluster_information_api_missing_query_param(client):
+    # sic_code is required, geo_code is optional so below request should fail
+    response = client.get(f"{reverse('dataservices-business-cluster-information')}?geo_code=1234")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
