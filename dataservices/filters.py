@@ -42,3 +42,12 @@ class EconomicHighlightsFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.WorldEconomicOutlookByCountry
         fields = ['iso2']
+
+class BusinessClusterInformationFilter(django_filters.rest_framework.FilterSet):
+    sic_code = django_filters.CharFilter(field_name='sic_code', lookup_expr='iexact', required=True)
+    geo_code = django_filters.CharFilter(field_name='geo_code', lookup_expr='iexact')
+
+    class Meta:
+        model = models.EYBBusinessClusterInformation
+        fields = ['sic_code', 'geo_code']
+

@@ -247,3 +247,5 @@ def uk_trade_agreements_records(countries):
         models.UKFreeTradeAgreement.objects.create(country=countries[iso2], name=name)
     yield
     models.UKFreeTradeAgreement.objects.all().delete()
+
+    
