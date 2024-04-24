@@ -554,6 +554,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'redoc',
     'dataservices-economic-highlights',
     'dataservices-country-data-by-country',
+    'dataservices-markets',
     'cia-factbook-data',
     'activity-stream',
     'activity-stream-companies',
