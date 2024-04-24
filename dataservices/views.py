@@ -747,14 +747,15 @@ class UKFreeTradeAgreementsView(generics.ListAPIView):
         res.data = {'data': res.data}
 
         return res
-    
+
+
 @extend_schema(
     responses=OpenApiTypes.OBJECT,
     examples=[
         OpenApiExample(
             'GET Request 200 Example',
             value=[
-                { 
+                {
                     'geo_description': 'England',
                     'geo_code': 'E92000001',
                     'sic_code': '95110',
@@ -764,7 +765,7 @@ class UKFreeTradeAgreementsView(generics.ListAPIView):
                     'total_employee_count': 31000,
                     'employee_count_release_year': 2023,
                     'dbt_full_sector_name': 'Technology and smart cities : Hardware',
-                    'dbt_sector_name': 'Technology and smart cities'
+                    'dbt_sector_name': 'Technology and smart cities',
                 }
             ],
             response_only=True,
@@ -772,7 +773,10 @@ class UKFreeTradeAgreementsView(generics.ListAPIView):
         ),
     ],
     description='Business Cluster Information',
-    parameters=[OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str), OpenApiParameter(name='geo_code', description='Geographic code', required=False, type=str)]
+    parameters=[
+        OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str),
+        OpenApiParameter(name='geo_code', description='Geographic code', required=False, type=str),
+    ],
 )
 class BusinessClusterInformationView(generics.ListAPIView):
     permission_classes = []
