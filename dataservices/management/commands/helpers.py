@@ -75,7 +75,7 @@ def send_review_request_message(view_name):
         instance.save()
 
 
-class MarketGuidesDataIngestionCommand(BaseCommand):
+class BaseDataWorkspaceIngestionCommand(BaseCommand):
     engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
 
     def add_arguments(self, parser):
@@ -103,6 +103,9 @@ class MarketGuidesDataIngestionCommand(BaseCommand):
             model.objects.bulk_create(data)
 
         self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+
+
+class MarketGuidesDataIngestionCommand(BaseDataWorkspaceIngestionCommand):
 
     def should_ingestion_run(self, view_name, table_name):
         dataflow_metadata = self.get_dataflow_metadata(table_name)

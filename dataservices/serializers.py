@@ -250,3 +250,21 @@ class EconomicHighlightsSerializer(BaseDataMetadataSerializer):
 class UKFreeTradeAgreementSerializer(serializers.Serializer):
     def to_representation(self, instance):
         return instance.name
+
+
+class BusinessClusterInformationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.EYBBusinessClusterInformation
+        fields = [
+            'sic_code',
+            'sic_description',
+            'geo_code',
+            'geo_description',
+            'total_business_count',
+            'business_count_release_year',
+            'total_employee_count',
+            'employee_count_release_year',
+            'dbt_full_sector_name',
+            'dbt_sector_name',
+        ]
