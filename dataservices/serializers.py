@@ -268,3 +268,22 @@ class BusinessClusterInformationSerializer(serializers.ModelSerializer):
             'dbt_full_sector_name',
             'dbt_sector_name',
         ]
+
+
+class BusinessClusterInformationSerializerAggregated(serializers.ModelSerializer):
+    """
+    Serializer for aggregated data, e.g. summation of total business count across
+    a DBT Sector which covers multiple sic codes.
+    """
+
+    class Meta:
+        model = models.EYBBusinessClusterInformation
+        fields = [
+            'geo_code',
+            'geo_description',
+            'total_business_count',
+            'business_count_release_year',
+            'total_employee_count',
+            'employee_count_release_year',
+            'dbt_sector_name',
+        ]
