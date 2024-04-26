@@ -776,7 +776,7 @@ class UKFreeTradeAgreementsView(generics.ListAPIView):
     description='Business Cluster Information by SIC code',
     parameters=[
         OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str),
-        OpenApiParameter(name='geo_code', description='Geographic code', required=False, type=str),
+        OpenApiParameter(name='geo_code', description='Comma separated geographic codes', required=False, type=str),
     ],
 )
 class BusinessClusterInformationBySicView(generics.ListAPIView):
@@ -795,13 +795,10 @@ class BusinessClusterInformationBySicView(generics.ListAPIView):
                 {
                     'geo_description': 'England',
                     'geo_code': 'E92000001',
-                    'sic_code': '95110',
-                    'sic_description': 'Repair of computers and peripheral equipment',
                     'total_business_count': 4020,
                     'business_count_release_year': 2023,
                     'total_employee_count': 31000,
                     'employee_count_release_year': 2023,
-                    'dbt_full_sector_name': 'Technology and smart cities : Hardware',
                     'dbt_sector_name': 'Technology and smart cities',
                 }
             ],
@@ -812,13 +809,13 @@ class BusinessClusterInformationBySicView(generics.ListAPIView):
     description='Business Cluster Information by DBT Sector',
     parameters=[
         OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str),
-        OpenApiParameter(name='geo_code', description='Geographic code', required=False, type=str),
+        OpenApiParameter(name='geo_code', description='Comma separated geographic codes', required=False, type=str),
     ],
 )
 class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
-    # view that aggregates data across a DBT Sector (which spans multiple sic codes)
+    # view that aggregates data across a geographic region / DBT Sector (which spans multiple sic codes)
     permission_classes = []
-    serializer_class = serializers.BusinessClusterInformationSerializerAggregated
+    serializer_class = serializers.BusinessClusterInformationAggregatedDataSerializer
     queryset = (
         models.EYBBusinessClusterInformation.objects.values(
             'geo_code',

@@ -46,7 +46,7 @@ class EconomicHighlightsFilter(django_filters.rest_framework.FilterSet):
 
 class BusinessClusterInformationBySicFilter(django_filters.rest_framework.FilterSet):
     sic_code = django_filters.CharFilter(field_name='sic_code', lookup_expr='iexact', required=True)
-    geo_code = django_filters.CharFilter(field_name='geo_code', lookup_expr='iexact')
+    geo_code = django_filters.BaseInFilter(field_name='geo_code', lookup_expr='in')
 
     class Meta:
         model = models.EYBBusinessClusterInformation
@@ -55,7 +55,7 @@ class BusinessClusterInformationBySicFilter(django_filters.rest_framework.Filter
 
 class BusinessClusterInformationByDBTSectorFilter(django_filters.rest_framework.FilterSet):
     dbt_sector_name = django_filters.CharFilter(field_name='dbt_sector_name', lookup_expr='iexact', required=True)
-    geo_code = django_filters.CharFilter(field_name='geo_code', lookup_expr='iexact')
+    geo_code = django_filters.BaseInFilter(field_name='geo_code', lookup_expr='in')
 
     class Meta:
         model = models.EYBBusinessClusterInformation
