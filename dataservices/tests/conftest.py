@@ -247,3 +247,74 @@ def uk_trade_agreements_records(countries):
         models.UKFreeTradeAgreement.objects.create(country=countries[iso2], name=name)
     yield
     models.UKFreeTradeAgreement.objects.all().delete()
+
+
+@pytest.fixture()
+def business_cluster_information_data():
+    records = [
+        {
+            'geo_description': 'England',
+            'geo_code': 'E92000001',
+            'sic_code': '95110',
+            'sic_description': 'Repair of computers and peripheral equipment',
+            'total_business_count': 4020,
+            'business_count_release_year': 2023,
+            'total_employee_count': 31000,
+            'employee_count_release_year': 2023,
+            'dbt_full_sector_name': 'Technology and smart cities : Hardware',
+            'dbt_sector_name': 'Technology and smart cities',
+        },
+        {
+            'geo_description': 'Northern Ireland',
+            'geo_code': 'N92000002',
+            'sic_code': '95110',
+            'sic_description': 'Repair of computers and peripheral equipment',
+            'total_business_count': 55,
+            'business_count_release_year': 2023,
+            'total_employee_count': None,
+            'employee_count_release_year': None,
+            'dbt_full_sector_name': 'Technology and smart cities : Hardware',
+            'dbt_sector_name': 'Technology and smart cities',
+        },
+        {
+            'geo_description': 'England',
+            'geo_code': 'E92000001',
+            'sic_code': '94990',
+            'sic_description': 'Activities of other membership organisations nec',
+            'total_business_count': 5700,
+            'business_count_release_year': 2023,
+            'total_employee_count': 99000,
+            'employee_count_release_year': 2023,
+            'dbt_full_sector_name': 'Financial and professional services',
+            'dbt_sector_name': 'Financial and professional services',
+        },
+        {
+            'geo_description': 'Yorkshire and The Humber',
+            'geo_code': 'E12000003',
+            'sic_code': 'L',
+            'sic_description': 'Real estate activities',
+            'total_business_count': 7625,
+            'business_count_release_year': 2022,
+            'total_employee_count': 33000,
+            'employee_count_release_year': 2021,
+            'dbt_full_sector_name': None,
+            'dbt_sector_name': None,
+        },
+        {
+            'geo_description': 'London',
+            'geo_code': 'E12000007',
+            'sic_code': '82',
+            'sic_description': 'Office administrative, office support and other business support activities',
+            'total_business_count': 26110,
+            'business_count_release_year': 2023,
+            'total_employee_count': 147000,
+            'employee_count_release_year': 2023,
+            'dbt_full_sector_name': None,
+            'dbt_sector_name': None,
+        },
+    ]
+
+    for record in records:
+        models.EYBBusinessClusterInformation.objects.create(**record)
+    yield
+    models.EYBBusinessClusterInformation.objects.all().delete()

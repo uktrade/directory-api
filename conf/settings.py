@@ -570,6 +570,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-trade-agreements',
     'dataservices-market-trends',
     'dataservices-trade-highlights',
+    'dataservices-business-cluster-information',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',
