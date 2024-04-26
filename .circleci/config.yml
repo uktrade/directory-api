@@ -10,7 +10,7 @@ jobs:
           POSTGRES_USER: debug
           POSTGRES_PASSWORD: debug
           POSTGRES_DB: directory_api_debug
-      - image: cimg/redis:7.2
+      - image: cimg/redis:7.2.4
       - image: opensearchproject/opensearch:1.2.2
         ports: ["9200:9200"]
         environment:
