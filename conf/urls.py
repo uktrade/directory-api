@@ -261,6 +261,11 @@ urlpatterns = [
         name='dataservices-country-data-by-country',
     ),
     re_path(
+        r'^dataservices/markets/$',
+        dataservices.views.RetrieveMarketsView.as_view(),
+        name='dataservices-markets',
+    ),
+    re_path(
         r'^dataservices/lastyearimportdatabycountry/$',
         dataservices.views.RetrieveLastYearImportDataByCountryView.as_view(),
         name='last-year-import-data-by-country',
