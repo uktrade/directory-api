@@ -42,3 +42,10 @@ def test_load_cia_factbook_data_from_url(cia_factbook_request_mock, cia_factbook
 def test_run_market_guides_ingest(mock_call_command):
     tasks.run_market_guides_ingest()
     assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_markets_countries_territories_ingest(mock_call_command):
+    tasks.run_markets_countries_territories_ingest()
+    assert mock_call_command.call_count == 1

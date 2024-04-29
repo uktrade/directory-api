@@ -1,6 +1,7 @@
 import json
 
 from django.apps import apps
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
@@ -146,6 +147,53 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
                 pass
 
         return Response(status=status.HTTP_200_OK, data=out)
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                "data": [
+                    {
+                        "reference_id": "string",
+                        "name": "string",
+                        "type": "string",
+                        "iso1_code": "string",
+                        "iso2_code": "string",
+                        "iso3_code": "string",
+                        "overseas_region_overseas_region_name": "string",
+                        "start_date": "date",
+                        "end_date": "date",
+                        "region": "string",
+                    }
+                ]
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Markets',
+)
+class RetrieveMarketsView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        markets_data = models.Market.objects.values(
+            'reference_id',
+            'name',
+            'type',
+            'iso1_code',
+            'iso2_code',
+            'iso3_code',
+            'overseas_region_overseas_region_name',
+            'start_date',
+            'end_date',
+            'enabled',
+        )
+
+        return Response(status=status.HTTP_200_OK, data=markets_data)
 
 
 @extend_schema(
@@ -772,14 +820,62 @@ class UKFreeTradeAgreementsView(generics.ListAPIView):
             status_codes=[200],
         ),
     ],
-    description='Business Cluster Information',
+    description='Business Cluster Information by SIC code',
     parameters=[
         OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str),
-        OpenApiParameter(name='geo_code', description='Geographic code', required=False, type=str),
+        OpenApiParameter(name='geo_code', description='Comma separated geographic codes', required=False, type=str),
     ],
 )
-class BusinessClusterInformationView(generics.ListAPIView):
+class BusinessClusterInformationBySicView(generics.ListAPIView):
     permission_classes = []
-    queryset = models.EYBBusinessClusterInformation.objects
     serializer_class = serializers.BusinessClusterInformationSerializer
-    filterset_class = filters.BusinessClusterInformationFilter
+    queryset = models.EYBBusinessClusterInformation.objects
+    filterset_class = filters.BusinessClusterInformationBySicFilter
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    'geo_description': 'England',
+                    'geo_code': 'E92000001',
+                    'total_business_count': 4020,
+                    'business_count_release_year': 2023,
+                    'total_employee_count': 31000,
+                    'employee_count_release_year': 2023,
+                    'dbt_sector_name': 'Technology and smart cities',
+                }
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Business Cluster Information by DBT Sector',
+    parameters=[
+        OpenApiParameter(name='sic_code', description='SIC code', required=True, type=str),
+        OpenApiParameter(name='geo_code', description='Comma separated geographic codes', required=False, type=str),
+    ],
+)
+class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
+    # view that aggregates data across a geographic region / DBT Sector (which spans multiple sic codes)
+    permission_classes = []
+    serializer_class = serializers.BusinessClusterInformationAggregatedDataSerializer
+    queryset = (
+        models.EYBBusinessClusterInformation.objects.values(
+            'geo_code',
+            'geo_description',
+            'dbt_sector_name',
+            'business_count_release_year',
+            'employee_count_release_year',
+            'dbt_sector_name',
+        )
+        .annotate(
+            total_business_count=Sum('total_business_count'),
+            total_employee_count=Sum('total_employee_count'),
+        )
+        .order_by()
+    )
+    filterset_class = filters.BusinessClusterInformationByDBTSectorFilter

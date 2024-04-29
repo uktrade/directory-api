@@ -261,6 +261,11 @@ urlpatterns = [
         name='dataservices-country-data-by-country',
     ),
     re_path(
+        r'^dataservices/markets/$',
+        dataservices.views.RetrieveMarketsView.as_view(),
+        name='dataservices-markets',
+    ),
+    re_path(
         r'^dataservices/lastyearimportdatabycountry/$',
         dataservices.views.RetrieveLastYearImportDataByCountryView.as_view(),
         name='last-year-import-data-by-country',
@@ -306,9 +311,14 @@ urlpatterns = [
         name='dataservices-trade-agreements',
     ),
     re_path(
-        r'^dataservices/business-cluster-information/$',
-        dataservices.views.BusinessClusterInformationView.as_view(),
-        name='dataservices-business-cluster-information',
+        r'^dataservices/business-cluster-information-by-sic/$',
+        dataservices.views.BusinessClusterInformationBySicView.as_view(),
+        name='dataservices-business-cluster-information-by-sic',
+    ),
+    re_path(
+        r'^dataservices/business-cluster-information-by-dbt-sector/$',
+        dataservices.views.BusinessClusterInformationByDBTSectorView.as_view(),
+        name='dataservices-business-cluster-information-by-dbt-sector',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
