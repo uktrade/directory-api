@@ -168,6 +168,30 @@ class ConsumerPriceIndexAdmin(admin.ModelAdmin):
     get_iso3.short_description = 'iso3'
 
 
+@admin.register(models.Market)
+class MarketAdmin(admin.ModelAdmin):
+    list_display = (
+        'reference_id',
+        'name',
+        'type',
+        'iso1_code',
+        'iso2_code',
+        'iso3_code',
+        'overseas_region_overseas_region_name',
+        'start_date',
+        'end_date',
+        'enabled',
+    )
+
+    search_fields = (
+        'name',
+        'type',
+        'iso2_code',
+        'iso3_code',
+        'overseas_region_overseas_region_name',
+    )
+
+
 @admin.register(models.Country)
 class CountryAdmin(admin.ModelAdmin):
     resource_class = CountryResource

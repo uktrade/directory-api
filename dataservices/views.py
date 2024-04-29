@@ -154,6 +154,53 @@ class RetrieveDataByCountryView(generics.GenericAPIView):
     examples=[
         OpenApiExample(
             'GET Request 200 Example',
+            value={
+                "data": [
+                    {
+                        "reference_id": "string",
+                        "name": "string",
+                        "type": "string",
+                        "iso1_code": "string",
+                        "iso2_code": "string",
+                        "iso3_code": "string",
+                        "overseas_region_overseas_region_name": "string",
+                        "start_date": "date",
+                        "end_date": "date",
+                        "region": "string",
+                    }
+                ]
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Markets',
+)
+class RetrieveMarketsView(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        markets_data = models.Market.objects.values(
+            'reference_id',
+            'name',
+            'type',
+            'iso1_code',
+            'iso2_code',
+            'iso3_code',
+            'overseas_region_overseas_region_name',
+            'start_date',
+            'end_date',
+            'enabled',
+        )
+
+        return Response(status=status.HTTP_200_OK, data=markets_data)
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
             value={'cia_factbook_data': {'key': 'string|list'}},
             response_only=True,
             status_codes=[200],
