@@ -6,6 +6,39 @@ from core.helpers import TimeStampedModel
 from dataservices import managers
 
 
+class Market(models.Model):
+    """
+    Model to hold all markets
+    """
+
+    id = models.AutoField(auto_created=True, primary_key=True)
+    reference_id = models.CharField(blank=False, unique=True)
+    name = models.CharField(blank=False, unique=True)
+    type = models.CharField(
+        blank=False,
+        choices=[
+            ('Country', 'Country'),
+            ('Territory', 'Territory'),
+        ],
+    )
+    iso1_code = models.CharField(null=True, blank=True, unique=True)
+    iso2_code = models.CharField(null=True, blank=True, unique=True)
+    iso3_code = models.CharField(null=True, blank=True, unique=True)
+    overseas_region_overseas_region_name = models.CharField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    # Deprecated region - use overseas_region_overseas_region_name
+    region = models.CharField(null=True, blank=True)
+    enabled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Market | Data Workspace'
+        verbose_name_plural = 'Markets | Data Workspace'
+
+
 class Country(TimeStampedModel):
     """
     Model to hold all countries

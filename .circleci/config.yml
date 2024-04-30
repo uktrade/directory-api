@@ -5,12 +5,12 @@ jobs:
     working_directory: ~/directory-api
     docker:
       - image: cimg/python:3.9.13
-      - image: cimg/postgres:12.8
+      - image: cimg/postgres:16.2
         environment:
           POSTGRES_USER: debug
           POSTGRES_PASSWORD: debug
           POSTGRES_DB: directory_api_debug
-      - image: cimg/redis:5.0
+      - image: cimg/redis:7.2.4
       - image: opensearchproject/opensearch:1.2.2
         ports: ["9200:9200"]
         environment:

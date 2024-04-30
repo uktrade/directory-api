@@ -17,7 +17,8 @@ from sqlalchemy import TIMESTAMP, Column, MetaData, String, Table
 from conf import settings
 from dataservices import models
 from dataservices.management.commands.helpers import MarketGuidesDataIngestionCommand
-from dataservices.management.commands.import_metadata_source_data import Command
+from dataservices.management.commands.import_markets_countries_territories import Command as command_imct
+from dataservices.management.commands.import_metadata_source_data import Command as command_imsd
 
 
 @pytest.mark.django_db
@@ -419,7 +420,7 @@ def test_import_metadata_source_data_filter_tables():
         't1': ['v1'],
         't2': ['v2'],
     }
-    cmd = Command()
+    cmd = command_imsd()
     options_none = {'table': None}
     skipped_none = cmd.filter_tables(options_none, table_names_view_names)
     assert skipped_none == table_names_view_names
@@ -664,3 +665,38 @@ def test_import_eyb_business_cluster_information(read_sql_mock):
     # write
     management.call_command('import_eyb_business_cluster_information', '--write')
     assert len(models.EYBBusinessClusterInformation.objects.all()) == 3
+
+
+@pytest.mark.django_db
+def test_import_markets_countries_territories(capsys):
+    management.call_command('import_markets_countries_territories', '--write')
+    assert models.Market.objects.count() == 269
+    # correct types and enabled status
+    territory = models.Market.objects.get(name='Akrotiri')
+    assert territory.type == 'Territory'
+    assert territory.enabled is False
+    country = models.Market.objects.get(name='Albania')
+    assert country.type == 'Country'
+    assert country.enabled is True
+    # altered enabled status
+    country.enabled = False
+    territory.enabled = True
+    country.save()
+    territory.save()
+    command_imct().check_non_default_enabled()
+    captured = capsys.readouterr()
+    assert captured.out == (
+        'These markets do not have the default enabled status, they will require this change to be done manually!\n'
+        'Finished importing markets!\n'
+        'These markets do not have the default enabled status, they will require this change to be done manually!\n'
+        'Albania - Change to DISABLED\n'
+        'Akrotiri - Change to ENABLED\n'
+    )
+
+
+@pytest.mark.django_db
+def test_import_markets_countries_territories_no_arg(capfd):
+    management.call_command('import_markets_countries_territories')
+    captured = capfd.readouterr()
+    assert models.Market.objects.count() == 0
+    assert captured.err == 'Must provide the --write argument. This is destructive for existing data.\n'
