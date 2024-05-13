@@ -1,10 +1,12 @@
 import os
+from typing import Any, Dict
 
 import directory_healthcheck.backends
 import dj_database_url
 import environ
 import sentry_sdk
 from django.urls import reverse_lazy
+from django_log_formatter_asim import ASIMFormatter
 from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -217,7 +219,7 @@ if env.str('SENTRY_DSN', ''):
 
 
 if DEBUG:
-    LOGGING = {
+    LOGGING: Dict[str, Any] = {
         'version': 1,
         'disable_existing_loggers': False,
         'filters': {'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'}},
@@ -260,7 +262,46 @@ if DEBUG:
             },
         },
     }
-
+else:
+    LOGGING: Dict[str, Any] = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+            'asim_formatter': {
+                '()': ASIMFormatter,
+            },
+            'simple': {
+                'style': '{',
+                'format': '{asctime} {levelname} {message}',
+            },
+        },
+        'handlers': {
+            'asim': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'asim_formatter',
+            },
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['asim'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'sentry_sdk': {
+                'handlers': ['asim'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+        },
+    }
 
 # CH
 COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
