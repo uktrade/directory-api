@@ -299,11 +299,9 @@ else:
                 'handlers': ['asim'],
                 'level': 'ERROR',
                 'propagate': False,
-            },         
+            },
         },
     }
-
-
 
 # CH
 COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
