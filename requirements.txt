@@ -41,8 +41,6 @@ certifi==2023.7.22
     #   sentry-sdk
 cffi==1.16.0
     # via cryptography
-cfgv==3.4.0
-    # via pre-commit
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
@@ -90,10 +88,8 @@ directory-healthcheck==3.5
     # via -r requirements.in
 directory-sso-api-client==7.2.7
     # via -r requirements.in
-directory-validators==9.3.4
+directory-validators==9.3.3
     # via -r requirements.in
-distlib==0.3.8
-    # via virtualenv
 dj-database-url==2.1.0
     # via -r requirements.in
 django==4.2.11
@@ -110,7 +106,6 @@ django==4.2.11
     #   django-filter
     #   django-health-check
     #   django-import-export
-    #   django-log-formatter-asim
     #   django-redis
     #   django-staff-sso-client
     #   django-storages
@@ -141,8 +136,6 @@ django-health-check==3.18.1
 django-import-export==3.3.6
     # via -r requirements.in
 django-json-widget==1.1.1
-    # via -r requirements.in
-django-log-formatter-asim==0.0.4
     # via -r requirements.in
 django-redis==5.4.0
     # via -r requirements.in
@@ -175,14 +168,12 @@ factory-boy==2.12.0
     # via -r requirements.in
 faker==22.6.0
     # via factory-boy
-filelock==3.14.0
-    # via virtualenv
 future==0.18.3
     # via django-json-widget
+greenlet==3.0.3
+    # via sqlalchemy
 html5lib==1.1
     # via xhtml2pdf
-identify==2.5.36
-    # via pre-commit
 idna==3.7
     # via
     #   -r requirements.in
@@ -215,8 +206,6 @@ mohawk==1.1.0
     # via sigauth
 monotonic==1.6
     # via directory-client-core
-nodeenv==1.8.0
-    # via pre-commit
 notifications-python-client==9.0.0
     # via -r requirements.in
 numpy==1.26.3
@@ -241,10 +230,6 @@ pillow==10.3.0
     #   directory-validators
     #   reportlab
     #   xhtml2pdf
-platformdirs==4.2.1
-    # via virtualenv
-pre-commit==3.7.1
-    # via django-log-formatter-asim
 prompt-toolkit==3.0.43
     # via click-repl
 psycopg2-binary==2.9.9
@@ -290,7 +275,6 @@ pyyaml==6.0
     # via
     #   -r requirements.in
     #   drf-spectacular
-    #   pre-commit
     #   pyhanko
     #   tablib
 qrcode==7.4.2
@@ -376,8 +360,6 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.1
-    # via pre-commit
 w3lib==1.22.0
     # via directory-client-core
 waitress==2.1.2
