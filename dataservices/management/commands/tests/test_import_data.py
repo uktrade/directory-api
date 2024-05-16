@@ -666,6 +666,31 @@ def test_import_eyb_business_cluster_information(read_sql_mock):
     management.call_command('import_eyb_business_cluster_information', '--write')
     assert len(models.EYBBusinessClusterInformation.objects.all()) == 3
 
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_eyb_rent_data(read_sql_mock):
+    data = {
+        'geo_description': ['Yorkshire and The Humber', 'North West', 'Northern Ireland'],
+        'vertical': ['Industrial', ' Industrial', 'Office'],
+        'sub_vertical': ['Large Warehouses', 'Small Warehouses', 'Work office'],
+        'gbp_per_square_foot_per_month': [0.708, 1.2, None],
+        'square_feet': [340000, 5000, 16671],
+        'gbp_per_month': [332031.25, 9402.34, None],
+        'dataworkspace_ingestion_year': [2023, 2023, 2023],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_eyb_rent_data')
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 0
+
+    # write
+    management.call_command('import_eyb_rent_data', '--write')
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 3
+
 
 @pytest.mark.django_db
 def test_import_markets_countries_territories(capsys):
