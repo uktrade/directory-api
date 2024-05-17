@@ -477,12 +477,21 @@ class EYBBusinessClusterInformation(models.Model):
             'Business Cluster Information for a geographic/standard industrial classification code combination'
         )
 
-class EYBCommercialPropertyRent(models.Model):
-   geo_description = models.CharField()
-   vertical = models.CharField()
-   sub_vertical = models.CharField()
-   gbp_per_square_foot_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
-   square_feet = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
-   gbp_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
-   dataworkspace_ingestion_year = models.SmallIntegerField(null=True, blank=True)
 
+class EYBCommercialPropertyRent(models.Model):
+    geo_description = models.CharField()
+    vertical = models.CharField()
+    sub_vertical = models.CharField()
+    gbp_per_square_foot_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    square_feet = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    gbp_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    dataworkspace_ingestion_year = models.SmallIntegerField(null=True, blank=True)
+
+
+class EYBSalaryData(models.Model):
+    geo_description = models.CharField()
+    vertical = models.CharField()
+    professional_level = models.CharField()
+    median_salary = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    mean_salary = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    dataworkspace_ingestion_year = models.SmallIntegerField(null=True, blank=True)

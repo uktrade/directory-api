@@ -666,6 +666,7 @@ def test_import_eyb_business_cluster_information(read_sql_mock):
     management.call_command('import_eyb_business_cluster_information', '--write')
     assert len(models.EYBBusinessClusterInformation.objects.all()) == 3
 
+
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
@@ -690,6 +691,31 @@ def test_import_eyb_rent_data(read_sql_mock):
     # write
     management.call_command('import_eyb_rent_data', '--write')
     assert len(models.EYBCommercialPropertyRent.objects.all()) == 3
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_eyb_salary_data(read_sql_mock):
+    data = {
+        'geo_description': ['East', 'North West', 'Northern Ireland'],
+        'vertical': ['Food and drink', 'Technology and Smart Cities', 'Creative Industries'],
+        'professional_level': ['Directory/executive', 'Entry-level', 'Middle/Senior Management'],
+        'median_salary': [38058, 32149, 35172],
+        'mean_salary': [40189, 32276, 38777],
+        'dataworkspace_ingestion_year': [2023, 2023, 2023],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.EYBSalaryData.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_eyb_salary_data')
+    assert len(models.EYBSalaryData.objects.all()) == 0
+
+    # write
+    management.call_command('import_eyb_salary_data', '--write')
+    assert len(models.EYBSalaryData.objects.all()) == 3
 
 
 @pytest.mark.django_db
