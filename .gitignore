@@ -106,3 +106,6 @@ conf/env/secrets-do-not-commit
 
 #Docker config file
 Dockerfile.dev 
+
+# pii
+.pii-secret-hook/*
