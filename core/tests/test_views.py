@@ -45,7 +45,7 @@ def test_pingdom_database_healthcheck_ok():
     client = APIClient()
     url = reverse('pingdom')
     response = client.get(
-       url,
+        url,
     )
     assert response.status_code == 200
 
