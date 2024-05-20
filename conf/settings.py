@@ -590,6 +590,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'health-check-single-sign-on',
     'health-check-elastic-search',
     'health-check-ping',
+    'pingdom',
     'schema',
     'swagger-ui',
     'redoc',
