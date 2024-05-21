@@ -1,8 +1,13 @@
 import sys
 from importlib import import_module, reload
+from unittest import mock
 
+import pytest
 from django.conf import settings
 from django.urls import clear_url_caches, reverse
+from rest_framework.test import APIClient
+
+from core.pingdom.services import DatabaseHealthCheck
 
 
 def reload_urlconf():
@@ -33,3 +38,28 @@ def test_force_staff_sso(client):
 
     settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED = False
     reload_urlconf()
+
+
+@pytest.mark.django_db
+def test_pingdom_database_healthcheck_ok():
+    client = APIClient()
+    url = reverse('pingdom')
+    response = client.get(
+        url,
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@mock.patch.object(DatabaseHealthCheck, 'check')
+def test_pingdom_database_healthcheck_false(mock_database_check):
+    client = APIClient()
+    mock_database_check.return_value = (
+        False,
+        'Database Error',
+    )
+    url = reverse('pingdom')
+    response = client.get(
+        url,
+    )
+    assert response.status_code == 500
