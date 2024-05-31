@@ -16,8 +16,8 @@ class Command(BaseDataWorkspaceIngestionCommand):
             statista.gbp_per_square_foot_per_month,
             statista.square_feet,
             statista.gbp_per_month,
-            EXTRACT(year from created) as dataworkspace_ingestion_year
-        FROM statista.commercial_property_rent_2022 statista
+            statista.release_year
+        FROM statista.commercial_property_rent statista
     '''
 
     def load_data(self):
@@ -36,7 +36,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                         ),
                         square_feet=row.square_feet if row.square_feet > 0 else None,
                         gbp_per_month=row.gbp_per_month if row.gbp_per_month > 0 else None,
-                        dataworkspace_ingestion_year=row.dataworkspace_ingestion_year,
+                        dataset_year=row.release_year,
                     )
                 )
 

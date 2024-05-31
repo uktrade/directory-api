@@ -701,8 +701,8 @@ def test_import_eyb_salary_data(read_sql_mock):
         'geo_description': ['East', 'North West', 'Northern Ireland'],
         'vertical': ['Food and drink', 'Technology and Smart Cities', 'Creative Industries'],
         'professional_level': ['Directory/executive', 'Entry-level', 'Middle/Senior Management'],
-        'median_salary': [38058, 32149, 35172],
-        'mean_salary': [40189, 32276, 38777],
+        'median_salary': ['x', 32149, 35172],
+        'mean_salary': [40189, '', 38777],
         'dataworkspace_ingestion_year': [2023, 2023, 2023],
     }
     read_sql_mock.return_value = [pd.DataFrame(data)]

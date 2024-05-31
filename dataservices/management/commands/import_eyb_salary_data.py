@@ -15,8 +15,8 @@ class Command(BaseDataWorkspaceIngestionCommand):
             statista.professional_level,
             statista.median_salary,
             statista.mean_salary,
-            EXTRACT(year from created) as dataworkspace_ingestion_year
-        FROM statista.average_annual_salary_uk
+            statista.year
+        FROM statista.average_annual_salary_uk statista
     '''
 
     def load_data(self):
@@ -24,15 +24,23 @@ class Command(BaseDataWorkspaceIngestionCommand):
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
         for chunk in chunks:
+
+            # in the source data some of the salary columns contain 'x', ':' and so on. Also represented as strings
+            chunk = chunk.replace(
+                to_replace={'mean_salary': r'[^0-9.]', 'median_salary': r'[^0-9.]'}, value='0', regex=True
+            )
+            chunk = chunk.fillna(value='0')
+            chunk = chunk.astype({'mean_salary': 'int32', 'median_salary': 'int32'})
+
             for _idx, row in chunk.iterrows():
                 data.append(
                     EYBSalaryData(
                         geo_description=row.geo_description,
                         vertical=row.vertical,
                         professional_level=row.professional_level,
-                        median_salary=row.median_salary if row.median_salary > 0 else None,
-                        mean_salary=row.mean_salary if row.mean_salary > 0 else None,
-                        dataworkspace_ingestion_year=row.dataworkspace_ingestion_year,
+                        median_salary=int(row.median_salary),
+                        mean_salary=int(row.mean_salary),
+                        dataset_year=row.year,
                     )
                 )
 

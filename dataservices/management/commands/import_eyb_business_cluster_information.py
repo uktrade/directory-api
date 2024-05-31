@@ -28,7 +28,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 scmds."DIT sector" as dbt_sector_name,
                 -- necessary because sic codes are stored as integer in source table meaning leading 0 was dropped
                 substring(((scmds."SIC code" + 100000)::varchar) from 2 for 5) as five_digit_sic
-            from public.sic_codes_mapped_dit_sectors scmds
+            from public.ref_sic_codes_dit_sector_mapping scmds
         ) AS sector_mapping
         ON nubec.sic_code = sector_mapping.five_digit_sic
         WHERE nubec.geo_code <> 'K02000001'
