@@ -701,6 +701,12 @@ def test_import_eyb_salary_data(read_sql_mock):
         'geo_description': ['East', 'North West', 'Northern Ireland'],
         'vertical': ['Food and drink', 'Technology and Smart Cities', 'Creative Industries'],
         'professional_level': ['Directory/executive', 'Entry-level', 'Middle/Senior Management'],
+        'occupation': [
+            'Restaurant and catering establishment managers and proprietors',
+            'IT user support technicians',
+            'Public relations professionals',
+        ],
+        'code': [1222, 3132, 2493],
         'median_salary': ['x', 32149, 35172],
         'mean_salary': [40189, ' ', 38777],
         'year': [2023, 2023, 2023],
