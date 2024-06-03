@@ -492,6 +492,8 @@ class EYBSalaryData(models.Model):
     geo_description = models.CharField()
     vertical = models.CharField()
     professional_level = models.CharField()
+    occupation = models.CharField(null=True, blank=True)
+    soc_code = models.IntegerField(null=True, blank=True)
     median_salary = models.IntegerField(null=True, blank=True)
     mean_salary = models.IntegerField(null=True, blank=True)
     dataset_year = models.SmallIntegerField(null=True, blank=True)

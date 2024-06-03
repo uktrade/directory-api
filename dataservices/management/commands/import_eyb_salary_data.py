@@ -7,12 +7,14 @@ from .helpers import BaseDataWorkspaceIngestionCommand
 
 
 class Command(BaseDataWorkspaceIngestionCommand):
-    help = 'Import Statista commercial rent data from Data Workspace'
+    help = 'Import Statista salary data from Data Workspace'
     sql = '''
         SELECT
             statista.region as geo_description,
             statista.vertical,
             statista.professional_level,
+            statista.occupation,
+            statista.code,
             statista.median_salary,
             statista.mean_salary,
             statista.year
@@ -38,6 +40,8 @@ class Command(BaseDataWorkspaceIngestionCommand):
                         geo_description=row.geo_description,
                         vertical=row.vertical,
                         professional_level=row.professional_level,
+                        occupation=row.occupation,
+                        soc_code=row.code,
                         median_salary=row.median_salary,
                         mean_salary=row.mean_salary,
                         dataset_year=row.year,
