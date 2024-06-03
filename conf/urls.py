@@ -18,6 +18,7 @@ import notifications.views
 import personalisation.views
 import survey.views
 import testapi.views
+from core.views import PingDomView
 
 admin.autodiscover()
 
@@ -43,6 +44,7 @@ activity_stream_urls = [
 
 urlpatterns = [
     re_path(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
+    path('pingdom/ping.xml', PingDomView.as_view(), name='pingdom'),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     re_path(r'^enrolment/$', enrolment.views.EnrolmentCreateAPIView.as_view(), name='enrolment'),
