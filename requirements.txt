@@ -19,6 +19,11 @@ async-timeout==4.0.3
     # via redis
 attrs==23.2.0
     # via jsonschema
+backoff==2.2.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 beautifulsoup4==4.12.3
     # via directory-components
 billiard==4.2.0
@@ -32,6 +37,7 @@ botocore==1.27.96
 celery[redis]==5.3.6
     # via
     #   -r requirements.in
+    #   dbt-copilot-python
     #   django-celery-beat
 certifi==2023.7.22
     # via
@@ -67,10 +73,16 @@ cryptography==42.0.4
     #   pyhanko-certvalidator
 cssselect2==0.7.0
     # via svglib
+dbt-copilot-python==0.2.0
+    # via -r requirements.in
 defusedxml==0.7.1
     # via odfpy
 deprecated==1.2.14
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   opentelemetry-api
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
 diff-match-patch==20230430
     # via django-import-export
 directory-client-core==7.2.13
@@ -179,6 +191,12 @@ filelock==3.14.0
     # via virtualenv
 future==0.18.3
     # via django-json-widget
+googleapis-common-protos==1.63.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+grpcio==1.64.0
+    # via opentelemetry-exporter-otlp-proto-grpc
 html5lib==1.1
     # via xhtml2pdf
 identify==2.5.36
@@ -187,6 +205,8 @@ idna==3.7
     # via
     #   -r requirements.in
     #   requests
+importlib-metadata==6.11.0
+    # via opentelemetry-api
 inflection==0.5.1
     # via drf-spectacular
 iso3166==1.0.1
@@ -231,6 +251,54 @@ olefile==0.47
     # via directory-validators
 openpyxl==3.1.2
     # via tablib
+opentelemetry-api==1.22.0
+    # via
+    #   opentelemetry-distro
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-wsgi
+    #   opentelemetry-propagator-aws-xray
+    #   opentelemetry-sdk
+opentelemetry-distro==0.43b0
+    # via dbt-copilot-python
+opentelemetry-exporter-otlp==1.22.0
+    # via dbt-copilot-python
+opentelemetry-exporter-otlp-proto-common==1.22.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-grpc==1.22.0
+    # via opentelemetry-exporter-otlp
+opentelemetry-exporter-otlp-proto-http==1.22.0
+    # via opentelemetry-exporter-otlp
+opentelemetry-instrumentation==0.43b0
+    # via
+    #   opentelemetry-distro
+    #   opentelemetry-instrumentation-wsgi
+opentelemetry-instrumentation-wsgi==0.43b0
+    # via dbt-copilot-python
+opentelemetry-propagator-aws-xray==1.0.1
+    # via dbt-copilot-python
+opentelemetry-proto==1.22.0
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-sdk==1.22.0
+    # via
+    #   opentelemetry-distro
+    #   opentelemetry-exporter-otlp-proto-grpc
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-sdk-extension-aws
+opentelemetry-sdk-extension-aws==2.0.1
+    # via dbt-copilot-python
+opentelemetry-semantic-conventions==0.43b0
+    # via
+    #   opentelemetry-instrumentation-wsgi
+    #   opentelemetry-sdk
+opentelemetry-util-http==0.43b0
+    # via opentelemetry-instrumentation-wsgi
 oscrypto==1.3.0
     # via pyhanko-certvalidator
 pandas==1.4.2
@@ -247,6 +315,10 @@ pre-commit==3.7.1
     # via django-log-formatter-asim
 prompt-toolkit==3.0.43
     # via click-repl
+protobuf==4.25.3
+    # via
+    #   googleapis-common-protos
+    #   opentelemetry-proto
 psycopg2-binary==2.9.9
     # via -r requirements.in
 pycparser==2.21
@@ -306,8 +378,10 @@ reportlab==3.6.13
 requests[security]==2.31.0
     # via
     #   -r requirements.in
+    #   dbt-copilot-python
     #   directory-client-core
     #   notifications-python-client
+    #   opentelemetry-exporter-otlp-proto-http
     #   pyhanko
     #   pyhanko-certvalidator
     #   requests-oauthlib
@@ -351,6 +425,7 @@ typing-extensions==4.9.0
     #   asgiref
     #   dj-database-url
     #   kombu
+    #   opentelemetry-sdk
     #   pypdf
     #   qrcode
 tzdata==2023.4
@@ -392,7 +467,9 @@ webencodings==0.5.1
 whitenoise==6.4.0
     # via -r requirements.in
 wrapt==1.16.0
-    # via deprecated
+    # via
+    #   deprecated
+    #   opentelemetry-instrumentation
 xhtml2pdf==0.2.11
     # via -r requirements.in
 xlrd==2.0.1
@@ -401,6 +478,8 @@ xlwt==1.3.0
     # via tablib
 xmltodict==0.12.0
     # via -r requirements.in
+zipp==3.19.1
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
