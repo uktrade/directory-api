@@ -38,8 +38,8 @@ class Command(BaseDataWorkspaceIngestionCommand):
                         geo_description=row.geo_description,
                         vertical=row.vertical,
                         professional_level=row.professional_level,
-                        median_salary=int(row.median_salary),
-                        mean_salary=int(row.mean_salary),
+                        median_salary=row.median_salary,
+                        mean_salary=row.mean_salary,
                         dataset_year=row.year,
                     )
                 )
