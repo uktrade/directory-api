@@ -3,7 +3,6 @@ import pandas as pd
 import sqlalchemy as sa
 
 from django.conf import settings
-from django.core.management import BaseCommand
 from django.db import connection
 
 from core.helpers import get_s3_file_stream
@@ -21,7 +20,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 partner_country_code ,
                 classification,
                 commodity_code,
-                fob_trade_value_in_usd 
+                fob_trade_value_in_usd
             FROM un.comtrade__goods_annual_filtered
             WHERE period IN ('2023', '2022', '2021', '2020')
             ORDER BY
