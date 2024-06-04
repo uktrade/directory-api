@@ -37,10 +37,10 @@ class Command(BaseDataWorkspaceIngestionCommand):
             for _idx, row in chunk.iterrows():
                 data.append(
                     EYBSalaryData(
-                        geo_description=row.geo_description,
-                        vertical=row.vertical,
-                        professional_level=row.professional_level,
-                        occupation=row.occupation,
+                        geo_description=row.geo_description.strip(),
+                        vertical=row.vertical.strip(),
+                        professional_level=row.professional_level.strip(),
+                        occupation=row.occupation.strip(),
                         soc_code=row.code,
                         median_salary=row.median_salary,
                         mean_salary=row.mean_salary,

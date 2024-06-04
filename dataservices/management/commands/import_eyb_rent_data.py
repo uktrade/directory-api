@@ -28,9 +28,9 @@ class Command(BaseDataWorkspaceIngestionCommand):
             for _idx, row in chunk.iterrows():
                 data.append(
                     EYBCommercialPropertyRent(
-                        geo_description=row.geo_description,
-                        vertical=row.vertical,
-                        sub_vertical=row.sub_vertical,
+                        geo_description=row.geo_description.strip(),
+                        vertical=row.vertical.strip(),
+                        sub_vertical=row.sub_vertical.strip(),
                         gbp_per_square_foot_per_month=(
                             row.gbp_per_square_foot_per_month if row.gbp_per_month > 0 else None
                         ),
