@@ -1,15 +1,65 @@
 import csv
+import pandas as pd
+import sqlalchemy as sa
 
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import connection
 
 from core.helpers import get_s3_file_stream
+from dataservices.management.commands.helpers import BaseDataWorkspaceIngestionCommand
 from dataservices.models import ComtradeReport
 
 
-class Command(BaseCommand):
+class Command(BaseDataWorkspaceIngestionCommand):
     help = 'Import Comtrade data'
+    sql = '''
+            SELECT
+                year,
+                reporter_country_code ,
+                trade_flow_code ,
+                partner_country_code ,
+                classification,
+                commodity_code,
+                fob_trade_value_in_usd 
+            FROM un.comtrade__goods_annual_filtered
+            WHERE period IN ('2023', '2022', '2021', '2020')
+            ORDER BY
+                year,
+                reporter_country_code,
+                trade_flow_code,
+                partner_country_code,
+                classification,
+                commodity_code,
+                fob_trade_value_in_usd
+        '''
+
+    def load_data(self):
+        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
+
+        for chunk in chunks:
+            for _idx, row in chunk.iterrows():
+                reporter_iso3 = row.reporter_country_code
+                partner_iso3 = row.partner_country_code
+                flow = row.trade_flow_code
+                uk_or_world = None
+                country_iso3 = None
+                if reporter_iso3 == 826 and flow == 'X':
+                    uk_or_world = 'GBR'
+                    country_iso3 = partner_iso3
+                if partner_iso3 == 0 and flow == 'M':
+                    uk_or_world = 'WLD'
+                    country_iso3 = reporter_iso3
+                if country_iso3 and uk_or_world:
+                    report = ComtradeReport(
+                        country_iso3=country_iso3,
+                        year=row.year,
+                        classification=row.classification,
+                        commodity_code=row.commodity_code,
+                        trade_value=float(row.fob_trade_value_in_usd or '0'),
+                        uk_or_world=uk_or_world,
+                    )
+                    report.save()
 
     def add_arguments(self, parser):
         # Positional arguments
@@ -19,6 +69,12 @@ class Command(BaseCommand):
             '--wipe',
             action='store_true',
             help='Wipe table only',
+        )
+
+        parser.add_argument(
+            '--load_data',
+            action='store_true',
+            help='load data from workspace',
         )
 
         parser.add_argument(
@@ -140,6 +196,8 @@ class Command(BaseCommand):
             self.unlink_countries()
         elif filenames and options['raw']:
             self.load_raw_files(filenames)
+        elif options['load_data']:
+            self.load_data()
         else:
             self.populate_db_from_s3(filenames and filenames[0], test=options['test'])
 
