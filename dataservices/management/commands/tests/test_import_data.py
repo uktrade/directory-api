@@ -668,6 +668,63 @@ def test_import_eyb_business_cluster_information(read_sql_mock):
 
 
 @pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_eyb_rent_data(read_sql_mock):
+    data = {
+        'geo_description': ['Yorkshire and The Humber', 'North West', 'Northern Ireland'],
+        'vertical': ['Industrial', ' Industrial', 'Office'],
+        'sub_vertical': ['Large Warehouses', 'Small Warehouses', 'Work office'],
+        'gbp_per_square_foot_per_month': [0.708, 1.2, None],
+        'square_feet': [340000, 5000, 16671],
+        'gbp_per_month': [332031.25, 9402.34, None],
+        'release_year': [2023, 2023, 2023],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_eyb_rent_data')
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 0
+
+    # write
+    management.call_command('import_eyb_rent_data', '--write')
+    assert len(models.EYBCommercialPropertyRent.objects.all()) == 3
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_eyb_salary_data(read_sql_mock):
+    data = {
+        'geo_description': ['East', 'North West', 'Northern Ireland'],
+        'vertical': ['Food and drink', 'Technology and Smart Cities', 'Creative Industries'],
+        'professional_level': ['Directory/executive', 'Entry-level', 'Middle/Senior Management'],
+        'occupation': [
+            'Restaurant and catering establishment managers and proprietors',
+            'IT user support technicians',
+            'Public relations professionals',
+        ],
+        'code': [1222, 3132, 2493],
+        'median_salary': ['x', 32149, 35172],
+        'mean_salary': [40189, ' ', 38777],
+        'year': [2023, 2023, 2023],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.EYBSalaryData.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_eyb_salary_data')
+    assert len(models.EYBSalaryData.objects.all()) == 0
+
+    # write
+    management.call_command('import_eyb_salary_data', '--write')
+    assert len(models.EYBSalaryData.objects.all()) == 3
+
+
+@pytest.mark.django_db
 def test_import_markets_countries_territories(capsys):
     management.call_command('import_markets_countries_territories', '--write')
     assert models.Market.objects.count() == 269

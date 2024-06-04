@@ -476,3 +476,24 @@ class EYBBusinessClusterInformation(models.Model):
         verbose_name = (
             'Business Cluster Information for a geographic/standard industrial classification code combination'
         )
+
+
+class EYBCommercialPropertyRent(models.Model):
+    geo_description = models.CharField()
+    vertical = models.CharField()
+    sub_vertical = models.CharField()
+    gbp_per_square_foot_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    square_feet = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    gbp_per_month = models.DecimalField(null=True, blank=True, decimal_places=3, max_digits=10)
+    dataset_year = models.SmallIntegerField(null=True, blank=True)
+
+
+class EYBSalaryData(models.Model):
+    geo_description = models.CharField()
+    vertical = models.CharField()
+    professional_level = models.CharField()
+    occupation = models.CharField(null=True, blank=True)
+    soc_code = models.IntegerField(null=True, blank=True)
+    median_salary = models.IntegerField(null=True, blank=True)
+    mean_salary = models.IntegerField(null=True, blank=True)
+    dataset_year = models.SmallIntegerField(null=True, blank=True)

@@ -4,6 +4,7 @@ import os
 from ssl import CERT_NONE
 
 from celery import Celery
+from dbt_copilot_python.celery_health_check import healthcheck
 from django.conf import settings
 
 # set the default Django settings module for the 'celery' program.
@@ -24,6 +25,9 @@ if settings.FEATURE_REDIS_USE_SSL:
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+# Set up healthcheck.
+app = healthcheck.setup(app)
 
 
 @app.task(bind=True)
