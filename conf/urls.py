@@ -322,6 +322,11 @@ urlpatterns = [
         dataservices.views.BusinessClusterInformationByDBTSectorView.as_view(),
         name='dataservices-business-cluster-information-by-dbt-sector',
     ),
+    re_path(
+        r'^dataservices/eyb-salary-data/$',
+        dataservices.views.EYBSalaryDataView.as_view(),
+        name='dataservices-eyb-salary-data'
+    ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     re_path(

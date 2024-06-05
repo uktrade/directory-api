@@ -659,3 +659,55 @@ def test_dataservices_business_cluster_information_api_missing_query_param(clien
     response = client.get(url)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+@pytest.mark.parametrize(
+    "url, expected_length, expected_median_salary",
+    [
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Entry-level", 1, 20078.733),
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Director\/Executive", 1, 41134.5),
+    ]
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_salary_data_api(client, eyb_salary_data, url, expected_length, expected_median_salary):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == expected_length
+    assert api_data[0]['median_salary'] == expected_median_salary
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=abcd"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_salary_data_api_no_data(client, url):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == 0
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=Consumer+and+Retail&professional_level=Entry-level"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_business_cluster_information_api_missing_query_param(client, url):
+    # geo_description is required, vertical and professional level are optional
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+

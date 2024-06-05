@@ -1,7 +1,7 @@
 import json
 
 from django.apps import apps
-from django.db.models import Sum
+from django.db.models import Sum, Avg, Max
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
@@ -879,3 +879,49 @@ class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
         .order_by()
     )
     filterset_class = filters.BusinessClusterInformationByDBTSectorFilter
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[{"geo_description":"East Midlands","vertical":"Finance and Professional Services","professional_level":"Director/Executive","median_salary":48028,"dataset_year":2022},{"geo_description":"East Midlands","vertical":"Finance and Professional Services","professional_level":"Entry-level","median_salary":23678,"dataset_year":2022},{"geo_description":"East Midlands","vertical":"Finance and Professional Services","professional_level":"Middle/Senior Management","median_salary":33343,"dataset_year":2022}],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Median salary data by region and optionally, vertical and profession level',
+    parameters=[
+        OpenApiParameter(name='geo_description', description='Geographic Region', required=True, type=str, examples=[OpenApiExample('East Midlands',value='East Midlands')]),
+        OpenApiParameter(name='vertical', description='Industry', required=False, type=str, examples=[OpenApiExample('Finance and Professional Services',value='Finance and Professional Services')]),
+        OpenApiParameter(name='professional_level', description='Professional level', required=False, type=str, examples=[OpenApiExample('Middle/Senior Management',value='Middle/Senior Management')])
+    ],
+)
+class EYBSalaryDataView(generics.ListAPIView):
+    permission_classes=[]
+    serializer_class=serializers.EYBSalaryDataSerializer
+    filterset_class = filters.EYBSalaryFilter
+
+    def get_queryset(self):
+        
+
+        queryset=(
+            models.EYBSalaryData.objects.values(
+                'geo_description',
+                'vertical',
+                'professional_level',
+            )
+            .filter(
+                median_salary__gt=0
+            )
+            .annotate(
+                median_salary=Avg('median_salary'),
+                dataset_year=Max('dataset_year'),
+            )
+            .order_by()
+        )
+
+        return queryset
+
+    
+
