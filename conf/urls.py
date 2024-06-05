@@ -325,7 +325,12 @@ urlpatterns = [
     re_path(
         r'^dataservices/eyb-salary-data/$',
         dataservices.views.EYBSalaryDataView.as_view(),
-        name='dataservices-eyb-salary-data'
+        name='dataservices-eyb-salary-data',
+    ),
+    re_path(
+        r'^dataservices/eyb-commercial-rent-data/$',
+        dataservices.views.EYBRentDataView.as_view(),
+        name='dataservices-eyb-commercial-rent-data',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),

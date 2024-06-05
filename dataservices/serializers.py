@@ -277,14 +277,16 @@ class BusinessClusterInformationAggregatedDataSerializer(serializers.ModelSerial
             'dbt_sector_name',
         ]
 
+
 class EYBSalaryDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.EYBSalaryData
-        fields = [
-            'geo_description',
-            'vertical',
-            'professional_level',
-            'median_salary',
-            'dataset_year'
-        ]
+        fields = ['geo_description', 'vertical', 'professional_level', 'median_salary', 'dataset_year']
+
+
+class EYBCommercialRentDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.EYBCommercialPropertyRent
+        fields = '__all__'
