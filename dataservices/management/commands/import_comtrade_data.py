@@ -59,6 +59,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                         uk_or_world=uk_or_world,
                     )
                     report.save()
+            self.link_countries()
 
     def add_arguments(self, parser):
         # Positional arguments
