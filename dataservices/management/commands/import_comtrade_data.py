@@ -15,19 +15,18 @@ class Command(BaseDataWorkspaceIngestionCommand):
     sql = '''
             SELECT
                 year,
-                reporter_country_code ,
+                reporter_country_iso3 ,
                 trade_flow_code ,
-                partner_country_code ,
+                partner_country_iso3 ,
                 classification,
                 commodity_code,
                 fob_trade_value_in_usd
-            FROM un.comtrade__goods_annual_filtered
-            WHERE period IN ('2023', '2022', '2021', '2020')
+            FROM un.great_comtrade__goods_annual_raw
             ORDER BY
                 year,
-                reporter_country_code,
+                reporter_country_iso3,
                 trade_flow_code,
-                partner_country_code,
+                partner_country_iso3,
                 classification,
                 commodity_code,
                 fob_trade_value_in_usd
@@ -38,17 +37,15 @@ class Command(BaseDataWorkspaceIngestionCommand):
 
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
-                reporter_iso3 = row.reporter_country_code
-                partner_iso3 = row.partner_country_code
                 flow = row.trade_flow_code
                 uk_or_world = None
                 country_iso3 = None
-                if reporter_iso3 == 826 and flow == 'X':
-                    uk_or_world = 'GBR'
-                    country_iso3 = partner_iso3
-                if partner_iso3 == 0 and flow == 'M':
+                if row.reporter_country_iso3 == 'GBR' and flow == 'X':
+                    uk_or_world = row.reporter_country_iso3
+                    country_iso3 = row.partner_country_iso3
+                if row.partner_country_iso3 == 'W00' and flow == 'M':
                     uk_or_world = 'WLD'
-                    country_iso3 = reporter_iso3
+                    country_iso3 = row.reporter_country_iso3
                 if country_iso3 and uk_or_world:
                     report = ComtradeReport(
                         country_iso3=country_iso3,
