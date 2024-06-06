@@ -324,6 +324,7 @@ def business_cluster_information_data():
 def eyb_salary_data():
     records = [
         {
+            "id": 25550,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -334,6 +335,7 @@ def eyb_salary_data():
             "soc_code": 7132,
         },
         {
+            "id": 27355,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -344,6 +346,7 @@ def eyb_salary_data():
             "soc_code": 7132,
         },
         {
+            "id": 24107,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -354,6 +357,7 @@ def eyb_salary_data():
             "soc_code": 7132,
         },
         {
+            "id": 27297,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -364,6 +368,7 @@ def eyb_salary_data():
             "soc_code": 7130,
         },
         {
+            "id": 25548,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -374,6 +379,7 @@ def eyb_salary_data():
             "soc_code": 7129,
         },
         {
+            "id": 25546,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -384,6 +390,7 @@ def eyb_salary_data():
             "soc_code": 7124,
         },
         {
+            "id": 24100,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -394,6 +401,7 @@ def eyb_salary_data():
             "soc_code": 7122,
         },
         {
+            "id": 24098,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -415,6 +423,7 @@ def eyb_salary_data():
             "soc_code": 7114,
         },
         {
+            "id": 24097,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -425,6 +434,7 @@ def eyb_salary_data():
             "soc_code": 7114,
         },
         {
+            "id": 24095,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -435,6 +445,7 @@ def eyb_salary_data():
             "soc_code": 7112,
         },
         {
+            "id": 27343,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -445,6 +456,7 @@ def eyb_salary_data():
             "soc_code": 7111,
         },
         {
+            "id": 24094,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -455,6 +467,7 @@ def eyb_salary_data():
             "soc_code": 7111,
         },
         {
+            "id": 27295,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -465,6 +478,7 @@ def eyb_salary_data():
             "soc_code": 7110,
         },
         {
+            "id": 25508,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
             "professional_level": "Entry-level",
@@ -475,9 +489,10 @@ def eyb_salary_data():
             "soc_code": 3553,
         },
         {
+            "id": 25448,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Middle\/Senior Management",
+            "professional_level": "Middle/Senior Management",
             "median_salary": 13857,
             "mean_salary": 16662,
             "dataset_year": 2022,
@@ -485,9 +500,10 @@ def eyb_salary_data():
             "soc_code": 1253,
         },
         {
+            "id": 24003,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Middle\/Senior Management",
+            "professional_level": "Middle/Senior Management",
             "median_salary": 25001,
             "mean_salary": 23550,
             "dataset_year": 2021,
@@ -495,9 +511,10 @@ def eyb_salary_data():
             "soc_code": 1253,
         },
         {
+            "id": 27241,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Director\/Executive",
+            "professional_level": "Director/Executive",
             "median_salary": 34503,
             "mean_salary": 45565,
             "dataset_year": 2023,
@@ -505,9 +522,10 @@ def eyb_salary_data():
             "soc_code": 1150,
         },
         {
+            "id": 23998,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Director\/Executive",
+            "professional_level": "Director/Executive",
             "median_salary": 31613,
             "mean_salary": 41707,
             "dataset_year": 2021,
@@ -515,9 +533,10 @@ def eyb_salary_data():
             "soc_code": 1150,
         },
         {
+            "id": 27340,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Director\/Executive",
+            "professional_level": "Director/Executive",
             "median_salary": 31594,
             "mean_salary": 36704,
             "dataset_year": 2023,
@@ -525,9 +544,10 @@ def eyb_salary_data():
             "soc_code": 1150,
         },
         {
+            "id": 25443,
             "geo_description": "London",
             "vertical": "Consumer and Retail",
-            "professional_level": "Director\/Executive",
+            "professional_level": "Director/Executive",
             "median_salary": 29753,
             "mean_salary": 31626,
             "dataset_year": 2022,
@@ -541,59 +561,58 @@ def eyb_salary_data():
     yield
     models.EYBSalaryData.objects.all().delete()
 
-    @pytest.fixture
-    def eyb_rent_data():
-        records = [
-            [
-                {
-                    "geo_description": "London",
-                    "vertical": "Industrial",
-                    "sub_vertical": "Large Warehouses",
-                    "gbp_per_square_foot_per_month": "2.292",
-                    "square_feet": "340000.000",
-                    "gbp_per_month": "779166.667",
-                    "dataset_year": 2023,
-                },
-                {
-                    "geo_description": "London",
-                    "vertical": "Industrial",
-                    "sub_vertical": "Small Warehouses",
-                    "gbp_per_square_foot_per_month": "1.863",
-                    "square_feet": "5000.000",
-                    "gbp_per_month": "9317.130",
-                    "dataset_year": 2023,
-                },
-                {
-                    "geo_description": "London",
-                    "vertical": "Retail",
-                    "sub_vertical": "High Street Retail",
-                    "gbp_per_square_foot_per_month": "74.722",
-                    "square_feet": "2195.000",
-                    "gbp_per_month": "164015.278",
-                    "dataset_year": 2023,
-                },
-                {
-                    "geo_description": "London",
-                    "vertical": "Retail",
-                    "sub_vertical": "Prime shopping centre",
-                    "gbp_per_square_foot_per_month": "14.443",
-                    "square_feet": "2195.000",
-                    "gbp_per_month": "31702.791",
-                    "dataset_year": 2023,
-                },
-                {
-                    "geo_description": "London",
-                    "vertical": "Office",
-                    "sub_vertical": "Work Office",
-                    "gbp_per_square_foot_per_month": "8.684",
-                    "square_feet": "16671.000",
-                    "gbp_per_month": "144770.269",
-                    "dataset_year": 2023,
-                },
-            ]
-        ]
 
-        for record in records:
-            models.EYBCommercialPropertyRent.objects.create(**record)
-        yield
-        models.EYBCommercialPropertyRent.objects.all().delete()
+@pytest.fixture
+def eyb_rent_data():
+    records = [
+        {
+            "geo_description": "London",
+            "vertical": "Industrial",
+            "sub_vertical": "Large Warehouses",
+            "gbp_per_square_foot_per_month": "2.292",
+            "square_feet": "340000.000",
+            "gbp_per_month": "779166.667",
+            "dataset_year": 2023,
+        },
+        {
+            "geo_description": "London",
+            "vertical": "Industrial",
+            "sub_vertical": "Small Warehouses",
+            "gbp_per_square_foot_per_month": "1.863",
+            "square_feet": "5000.000",
+            "gbp_per_month": "9317.130",
+            "dataset_year": 2023,
+        },
+        {
+            "geo_description": "London",
+            "vertical": "Retail",
+            "sub_vertical": "High Street Retail",
+            "gbp_per_square_foot_per_month": "74.722",
+            "square_feet": "2195.000",
+            "gbp_per_month": "164015.278",
+            "dataset_year": 2023,
+        },
+        {
+            "geo_description": "London",
+            "vertical": "Retail",
+            "sub_vertical": "Prime shopping centre",
+            "gbp_per_square_foot_per_month": "14.443",
+            "square_feet": "2195.000",
+            "gbp_per_month": "31702.791",
+            "dataset_year": 2023,
+        },
+        {
+            "geo_description": "London",
+            "vertical": "Office",
+            "sub_vertical": "Work Office",
+            "gbp_per_square_foot_per_month": "8.684",
+            "square_feet": "16671.000",
+            "gbp_per_month": "144770.269",
+            "dataset_year": 2023,
+        },
+    ]
+
+    for record in records:
+        models.EYBCommercialPropertyRent.objects.create(**record)
+    yield
+    models.EYBCommercialPropertyRent.objects.all().delete()

@@ -665,14 +665,19 @@ def test_dataservices_business_cluster_information_api_missing_query_param(clien
     "url, expected_length, expected_median_salary",
     [
         (
-            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Entry-level",
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Entry-level",  # noqa:E501
             1,
-            20078.733,
+            20494,
         ),
         (
-            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Director\/Executive",
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Middle/Senior+Management",  # noqa:E501
             1,
-            41134.5,
+            13857,
+        ),
+        (
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Director/Executive",  # noqa:E501
+            1,
+            31594,
         ),
     ],
 )
@@ -714,7 +719,7 @@ def test_dataservices_eyb_salary_data_api_no_data(client, url):
     ],
 )
 @pytest.mark.django_db
-def test_dataservices_business_cluster_information_api_missing_query_param(client, url):
+def test_dataservices_eyb_salary_data_api_missing_query_param(client, url):
     # geo_description is required, vertical and professional level are optional
     response = client.get(url)
 
@@ -727,7 +732,7 @@ def test_dataservices_business_cluster_information_api_missing_query_param(clien
         (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London", 5),
         (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=Industrial", 2),
         (
-            f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=Industrial&sub_vertical=Small+Warehouses",
+            f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=Industrial&sub_vertical=Small+Warehouses",  # noqa:E501
             1,
         ),
     ],
@@ -769,7 +774,7 @@ def test_dataservices_eyb_commercial_rent_api_no_data(client, url):
     ],
 )
 @pytest.mark.django_db
-def test_dataservices_business_cluster_information_api_missing_query_param(client, url):
+def test_dataservices_eyb_commercial_rent_api_missing_query_param(client, url):
     # geo_description is required, vertical and sub vertical are optional
     response = client.get(url)
 

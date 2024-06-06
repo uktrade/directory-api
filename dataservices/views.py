@@ -944,6 +944,21 @@ class EYBSalaryDataView(generics.ListAPIView):
     filterset_class = filters.EYBSalaryFilter
 
     def get_queryset(self):
+        """
+        The salary data for geo_description/vertical/soc_code combinations contains different dataset years. Each
+        combination should only be considered once when taking the average median value for a set of data at a given
+        professional level, e.g. Entry-level. The below approach accomodates this by only selecting the latest data
+        for each combination and is in line with the performance consideraions mentioned here
+        https://docs.djangoproject.com/en/5.0/ref/models/querysets/#in
+        """
+
+        latest_data_for_each_soc_code_ids = (
+            models.EYBSalaryData.objects.values('geo_description', 'vertical', 'soc_code')
+            .filter(median_salary__gt=0)
+            .annotate(dataset_year=Max('dataset_year'), id=Max('id'))
+            .order_by()
+            .values_list('id', flat=True)
+        )
 
         queryset = (
             models.EYBSalaryData.objects.values(
@@ -951,11 +966,8 @@ class EYBSalaryDataView(generics.ListAPIView):
                 'vertical',
                 'professional_level',
             )
-            .filter(median_salary__gt=0)
-            .annotate(
-                median_salary=Avg('median_salary'),
-                dataset_year=Max('dataset_year'),
-            )
+            .filter(id__in=list(latest_data_for_each_soc_code_ids))
+            .annotate(median_salary=Avg('median_salary'), dataset_year=Max('dataset_year'))
             .order_by()
         )
 
