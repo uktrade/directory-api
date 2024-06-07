@@ -614,6 +614,8 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-trade-highlights',
     'dataservices-business-cluster-information-by-sic',
     'dataservices-business-cluster-information-by-dbt-sector',
+    'dataservices-eyb-salary-data',
+    'dataservices-eyb-commercial-rent-data',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',

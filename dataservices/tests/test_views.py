@@ -1,5 +1,6 @@
 import json
 import re
+from collections import Counter
 from unittest import mock
 
 import pytest
@@ -656,6 +657,140 @@ def test_dataservices_business_cluster_information_api_no_data(client, url):
 @pytest.mark.django_db
 def test_dataservices_business_cluster_information_api_missing_query_param(client, url):
     # sic_code is required, geo_code is optional so below request should fail
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.parametrize(
+    "url, expected_length, expected_median_salary",
+    [
+        (
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Entry-level",  # noqa:E501
+            1,
+            20494,
+        ),
+        (
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Middle/Senior+Management",  # noqa:E501
+            1,
+            13857,
+        ),
+        (
+            f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=Consumer+and+Retail&professional_level=Director/Executive",  # noqa:E501
+            1,
+            31594,
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_salary_data_api(client, eyb_salary_data, url, expected_length, expected_median_salary):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == expected_length
+    assert api_data[0]['median_salary'] == expected_median_salary
+
+    # ensure fields we are expecting in the front-end are present
+    expected_fields = Counter(['geo_description', 'vertical', 'professional_level', 'median_salary', 'dataset_year'])
+
+    for salary_result in api_data:
+        result_fields = Counter(salary_result.keys())
+        assert result_fields == expected_fields
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=abcd"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_salary_data_api_no_data(client, url):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == 0
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=Consumer+and+Retail&professional_level=Entry-level"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_salary_data_api_missing_query_param(client, url):
+    # geo_description is required, vertical and professional level are optional
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.parametrize(
+    "url, expected_length",
+    [
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London", 5),
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=Industrial", 2),
+        (
+            f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=Industrial&sub_vertical=Small+Warehouses",  # noqa:E501
+            1,
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_commercial_rent_data_api(client, eyb_rent_data, url, expected_length):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == expected_length
+
+    # ensure fields we are expecting in the front-end are present
+    expected_fields = Counter([field.name for field in models.EYBCommercialPropertyRent._meta.get_fields()])
+
+    for rent_result in api_data:
+        result_fields = Counter(rent_result.keys())
+        assert result_fields == expected_fields
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=abcd"),
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?geo_description=London&vertical=abcd"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_commercial_rent_api_no_data(client, url):
+    response = client.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == 0
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?vertical=abcd"),
+        (f"{reverse('dataservices-eyb-commercial-rent-data')}?vertical=Industrial&sub_vertical=Large+Warehouses"),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_eyb_commercial_rent_api_missing_query_param(client, url):
+    # geo_description is required, vertical and sub vertical are optional
     response = client.get(url)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST

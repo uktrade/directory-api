@@ -1,7 +1,7 @@
 import json
 
 from django.apps import apps
-from django.db.models import Sum
+from django.db.models import Avg, Max, Sum
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
@@ -879,3 +879,184 @@ class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
         .order_by()
     )
     filterset_class = filters.BusinessClusterInformationByDBTSectorFilter
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    "geo_description": "East Midlands",
+                    "vertical": "Finance and Professional Services",
+                    "professional_level": "Director/Executive",
+                    "median_salary": 48028,
+                    "dataset_year": 2022,
+                },
+                {
+                    "geo_description": "East Midlands",
+                    "vertical": "Finance and Professional Services",
+                    "professional_level": "Entry-level",
+                    "median_salary": 23678,
+                    "dataset_year": 2022,
+                },
+                {
+                    "geo_description": "East Midlands",
+                    "vertical": "Finance and Professional Services",
+                    "professional_level": "Middle/Senior Management",
+                    "median_salary": 33343,
+                    "dataset_year": 2022,
+                },
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Median salary data by region and optionally, vertical and profession level',
+    parameters=[
+        OpenApiParameter(
+            name='geo_description',
+            description='Geographic Region',
+            required=True,
+            type=str,
+            examples=[OpenApiExample('East Midlands', value='East Midlands')],
+        ),
+        OpenApiParameter(
+            name='vertical',
+            description='Industry',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('Finance and Professional Services', value='Finance and Professional Services')],
+        ),
+        OpenApiParameter(
+            name='professional_level',
+            description='Professional level',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('Middle/Senior Management', value='Middle/Senior Management')],
+        ),
+    ],
+)
+class EYBSalaryDataView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.EYBSalaryDataSerializer
+    filterset_class = filters.EYBSalaryFilter
+
+    def get_queryset(self):
+        """
+        The salary data for geo_description/vertical/soc_code combinations contains different dataset years. Each
+        combination should only be considered once when taking the average median value for a set of data at a given
+        professional level, e.g. Entry-level. The below approach accomodates this by only selecting the latest data
+        for each combination and is in line with the performance consideraions mentioned here
+        https://docs.djangoproject.com/en/5.0/ref/models/querysets/#in
+        """
+
+        latest_data_for_each_soc_code_ids = (
+            models.EYBSalaryData.objects.values('geo_description', 'vertical', 'soc_code')
+            .filter(median_salary__gt=0)
+            .annotate(dataset_year=Max('dataset_year'), id=Max('id'))
+            .order_by()
+            .values_list('id', flat=True)
+        )
+
+        queryset = (
+            models.EYBSalaryData.objects.values(
+                'geo_description',
+                'vertical',
+                'professional_level',
+            )
+            .filter(id__in=list(latest_data_for_each_soc_code_ids))
+            .annotate(median_salary=Avg('median_salary'), dataset_year=Max('dataset_year'))
+            .order_by()
+        )
+
+        return queryset
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    "geo_description": "London",
+                    "vertical": "Industrial",
+                    "sub_vertical": "Large Warehouses",
+                    "gbp_per_square_foot_per_month": "2.292",
+                    "square_feet": "340000.000",
+                    "gbp_per_month": "779166.667",
+                    "dataset_year": 2023,
+                },
+                {
+                    "geo_description": "London",
+                    "vertical": "Industrial",
+                    "sub_vertical": "Small Warehouses",
+                    "gbp_per_square_foot_per_month": "1.863",
+                    "square_feet": "5000.000",
+                    "gbp_per_month": "9317.130",
+                    "dataset_year": 2023,
+                },
+                {
+                    "geo_description": "London",
+                    "vertical": "Retail",
+                    "sub_vertical": "High Street Retail",
+                    "gbp_per_square_foot_per_month": "74.722",
+                    "square_feet": "2195.000",
+                    "gbp_per_month": "164015.278",
+                    "dataset_year": 2023,
+                },
+                {
+                    "geo_description": "London",
+                    "vertical": "Retail",
+                    "sub_vertical": "Prime shopping centre",
+                    "gbp_per_square_foot_per_month": "14.443",
+                    "square_feet": "2195.000",
+                    "gbp_per_month": "31702.791",
+                    "dataset_year": 2023,
+                },
+                {
+                    "geo_description": "London",
+                    "vertical": "Office",
+                    "sub_vertical": "Work Office",
+                    "gbp_per_square_foot_per_month": "8.684",
+                    "square_feet": "16671.000",
+                    "gbp_per_month": "144770.269",
+                    "dataset_year": 2023,
+                },
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Median salary data by region and optionally, vertical and profession level',
+    parameters=[
+        OpenApiParameter(
+            name='geo_description',
+            description='Geographic Region',
+            required=True,
+            type=str,
+            examples=[OpenApiExample('London', value='London')],
+        ),
+        OpenApiParameter(
+            name='vertical',
+            description='Property type',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('Industrial', value='Industrial')],
+        ),
+        OpenApiParameter(
+            name='sub_vertical',
+            description='Sub-category within vertical',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('Large Warehouse', value='Large Warehouse')],
+        ),
+    ],
+)
+class EYBRentDataView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.EYBCommercialRentDataSerializer
+    filterset_class = filters.EYBCommercialRentDataFilter
+    queryset = models.EYBCommercialPropertyRent.objects.all()
