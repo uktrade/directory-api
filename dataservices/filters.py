@@ -77,6 +77,6 @@ class EYBCommercialRentDataFilter(django_filters.rest_framework.FilterSet):
     vertical = django_filters.CharFilter(field_name='vertical', lookup_expr='iexact')
     sub_vertical = django_filters.CharFilter(field_name='sub_vertical', lookup_expr='iexact')
 
-    class MEta:
+    class Meta:
         model = models.EYBCommercialPropertyRent
         fields = ['geo_description', 'vertical', 'sub_vertical']
