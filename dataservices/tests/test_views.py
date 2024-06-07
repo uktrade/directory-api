@@ -1,5 +1,6 @@
 import json
 import re
+from collections import Counter
 from unittest import mock
 
 import pytest
@@ -692,6 +693,13 @@ def test_dataservices_eyb_salary_data_api(client, eyb_salary_data, url, expected
     assert len(api_data) == expected_length
     assert api_data[0]['median_salary'] == expected_median_salary
 
+    # ensure fields we are expecting in the front-end are present
+    expected_fields = Counter(['geo_description', 'vertical', 'professional_level', 'median_salary', 'dataset_year'])
+
+    for salary_result in api_data:
+        result_fields = Counter(salary_result.keys())
+        assert result_fields == expected_fields
+
 
 @pytest.mark.parametrize(
     "url",
@@ -746,6 +754,13 @@ def test_dataservices_eyb_commercial_rent_data_api(client, eyb_rent_data, url, e
     api_data = json.loads(response.content)
 
     assert len(api_data) == expected_length
+
+    # ensure fields we are expecting in the front-end are present
+    expected_fields = Counter([field.name for field in models.EYBCommercialPropertyRent._meta.get_fields()])
+
+    for rent_result in api_data:
+        result_fields = Counter(rent_result.keys())
+        assert result_fields == expected_fields
 
 
 @pytest.mark.parametrize(
