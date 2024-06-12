@@ -12,7 +12,9 @@ from dataservices.models import ComtradeReport
 
 class Command(BaseDataWorkspaceIngestionCommand):
     help = 'Import Comtrade data'
-    sql = '''
+
+    def load_data(self, period):
+        sql = '''
             SELECT
                 year,
                 reporter_country_iso3 ,
@@ -22,6 +24,11 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 commodity_code,
                 fob_trade_value_in_usd
             FROM un.great_comtrade__goods_annual_raw
+            WHERE period = :period
+            AND (
+                (reporter_country_iso3 = 'GBR' AND trade_flow_code = 'X')
+                OR (partner_country_iso3 = 'W00' AND trade_flow_code = 'M')
+            )
             ORDER BY
                 year,
                 reporter_country_iso3,
@@ -31,9 +38,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 commodity_code,
                 fob_trade_value_in_usd
         '''
-
-    def load_data(self):
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
+        chunks = pd.read_sql(sa.text(sql), self.engine, params={'period': period}, chunksize=5000)
 
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
@@ -46,13 +51,17 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 if row.partner_country_iso3 == 'W00' and flow == 'M':
                     uk_or_world = 'WLD'
                     country_iso3 = row.reporter_country_iso3
+
+                trade_value = row.fob_trade_value_in_usd
+                if pd.isna(trade_value):
+                    trade_value = 0.0
                 if country_iso3 and uk_or_world:
                     report = ComtradeReport(
                         country_iso3=country_iso3,
                         year=row.year,
                         classification=row.classification,
                         commodity_code=row.commodity_code,
-                        trade_value=float(row.fob_trade_value_in_usd or '0'),
+                        trade_value=float(trade_value),
                         uk_or_world=uk_or_world,
                     )
                     report.save()
@@ -61,7 +70,11 @@ class Command(BaseDataWorkspaceIngestionCommand):
     def add_arguments(self, parser):
         # Positional arguments
         parser.add_argument('filenames', nargs='*', type=str)
-
+        parser.add_argument(
+            '--period',
+            type=str,
+            help='The period to filter the Comtrade data by',
+        )
         parser.add_argument(
             '--wipe',
             action='store_true',
@@ -185,6 +198,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
 
     def handle(self, *args, **options):
         filenames = options['filenames']
+        period = options.get('period')
         if options['wipe']:
             ComtradeReport.objects.all().delete()
         elif options['link_countries']:
@@ -194,7 +208,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
         elif filenames and options['raw']:
             self.load_raw_files(filenames)
         elif options['load_data']:
-            self.load_data()
+            self.load_data(period)
         else:
             self.populate_db_from_s3(filenames and filenames[0], test=options['test'])
 
