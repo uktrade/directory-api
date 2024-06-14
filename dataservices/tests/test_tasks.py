@@ -49,3 +49,11 @@ def test_run_market_guides_ingest(mock_call_command):
 def test_run_markets_countries_territories_ingest(mock_call_command):
     tasks.run_markets_countries_territories_ingest()
     assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_comtrade_data_ingest(mock_call_command):
+    period = '2023'
+    tasks.run_comtrade_data_ingest(period)
+    assert mock_call_command.call_count == 1
