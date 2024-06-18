@@ -195,6 +195,8 @@ googleapis-common-protos==1.63.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
+greenlet==3.0.3
+    # via sqlalchemy
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
 html5lib==1.1
@@ -438,7 +440,7 @@ uritemplate==4.1.1
     # via drf-spectacular
 uritools==4.0.2
     # via pyhanko-certvalidator
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   -r requirements.in
     #   botocore
