@@ -31,7 +31,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 OR (partner_country_iso3 = 'W00' AND trade_flow_code = 'M')
             )
             AND  commodity_code <> 'TOTAL'
-            AND fob_trade_value_in_usd IS NOT NULL 
+            AND fob_trade_value_in_usd IS NOT NULL
             ORDER BY
                 year,
                 reporter_country_iso3,
