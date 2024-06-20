@@ -122,31 +122,30 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 file_reader = csv.DictReader(f)
                 for row in file_reader:
                     read = read + 1
-                    if row.get('Is Leaf Code') == '1':
-                        reporter_iso3 = row.get('Reporter ISO')
-                        partner_iso3 = row.get('Partner ISO')
-                        flow = row.get('Trade Flow')
-                        uk_or_world = None
-                        country_iso3 = None
-                        if reporter_iso3 == 'GBR' and flow == 'Export':
-                            uk_or_world = reporter_iso3
-                            country_iso3 = partner_iso3
-                        if partner_iso3 == 'WLD' and flow == 'Import':
-                            uk_or_world = partner_iso3
-                            country_iso3 = reporter_iso3
-                        if country_iso3 and uk_or_world:
-                            written = written + 1
-                            report = ComtradeReport(
-                                country_iso3=country_iso3,
-                                year=row.get('Year'),
-                                classification=row.get('Classification'),
-                                commodity_code=row.get('Commodity Code'),
-                                trade_value=float(row.get('Trade Value (US$)') or '0'),
-                                uk_or_world=uk_or_world,
-                            )
-                            report.save()
-                            if written % 100 == 0:
-                                print(f'{read} read, {written} written', end='\r', flush=True)
+                    reporter_iso3 = row.get('Reporter ISO')
+                    partner_iso3 = row.get('Partner ISO')
+                    flow = row.get('Trade Flow')
+                    uk_or_world = None
+                    country_iso3 = None
+                    if reporter_iso3 == 'GBR' and flow == 'Export':
+                        uk_or_world = reporter_iso3
+                        country_iso3 = partner_iso3
+                    if partner_iso3 == 'WLD' and flow == 'Import':
+                        uk_or_world = partner_iso3
+                        country_iso3 = reporter_iso3
+                    if country_iso3 and uk_or_world:
+                        written = written + 1
+                        report = ComtradeReport(
+                            country_iso3=country_iso3,
+                            year=row.get('Year'),
+                            classification=row.get('Classification'),
+                            commodity_code=row.get('Commodity Code'),
+                            trade_value=float(row.get('Trade Value (US$)') or '0'),
+                            uk_or_world=uk_or_world,
+                        )
+                        report.save()
+                        if written % 100 == 0:
+                            print(f'{read} read, {written} written', end='\r', flush=True)
                 self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
     def link_countries(self):
@@ -200,7 +199,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
         filenames = options['filenames']
         period = options.get('period')
         if options['wipe']:
-            ComtradeReport.objects.all().delete()
+            ComtradeReport.objects.filter(year=period).delete()
         elif options['link_countries']:
             self.link_countries()
         elif options['unlink_countries']:
