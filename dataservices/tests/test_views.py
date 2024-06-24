@@ -704,8 +704,8 @@ def test_dataservices_eyb_salary_data_api(client, eyb_salary_data, url, expected
 @pytest.mark.parametrize(
     "url",
     [
-        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=abcd"),
-        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&vertical=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=abcd"),
+        (f"{reverse('dataservices-eyb-salary-data')}?vertical=abcd&geo_description=London"),
     ],
 )
 @pytest.mark.django_db
@@ -722,8 +722,8 @@ def test_dataservices_eyb_salary_data_api_no_data(client, url):
 @pytest.mark.parametrize(
     "url",
     [
-        (f"{reverse('dataservices-eyb-salary-data')}?vertical=abcd"),
-        (f"{reverse('dataservices-eyb-salary-data')}?vertical=Consumer+and+Retail&professional_level=Entry-level"),
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London"),
+        (f"{reverse('dataservices-eyb-salary-data')}?geo_description=London&professional_level=Entry-level"),
     ],
 )
 @pytest.mark.django_db
