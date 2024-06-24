@@ -1,7 +1,7 @@
 import csv
+
 import pandas as pd
 import sqlalchemy as sa
-
 from django.conf import settings
 from django.db import connection
 

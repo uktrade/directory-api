@@ -63,13 +63,13 @@ class BusinessClusterInformationByDBTSectorFilter(django_filters.rest_framework.
 
 
 class EYBSalaryFilter(django_filters.rest_framework.FilterSet):
-    geo_description = django_filters.CharFilter(field_name='geo_description', lookup_expr='iexact', required=True)
-    vertical = django_filters.CharFilter(field_name='vertical', lookup_expr='iexact')
+    vertical = django_filters.CharFilter(field_name='vertical', lookup_expr='iexact', required=True)
     professional_level = django_filters.CharFilter(field_name='professional_level', lookup_expr='iexact')
+    geo_description = django_filters.CharFilter(field_name='geo_description', lookup_expr='iexact')
 
     class Meta:
         model = models.EYBSalaryData
-        fields = ['geo_description', 'vertical', 'professional_level']
+        fields = ['vertical', 'professional_level', 'geo_description']
 
 
 class EYBCommercialRentDataFilter(django_filters.rest_framework.FilterSet):
