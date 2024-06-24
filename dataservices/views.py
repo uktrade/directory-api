@@ -913,15 +913,8 @@ class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
             status_codes=[200],
         ),
     ],
-    description='Median salary data by region and optionally, vertical and profession level',
+    description='Median salary data by vertical and optionally, professional level and geographic region',
     parameters=[
-        OpenApiParameter(
-            name='geo_description',
-            description='Geographic Region',
-            required=True,
-            type=str,
-            examples=[OpenApiExample('East Midlands', value='East Midlands')],
-        ),
         OpenApiParameter(
             name='vertical',
             description='Industry',
@@ -932,9 +925,16 @@ class BusinessClusterInformationByDBTSectorView(generics.ListAPIView):
         OpenApiParameter(
             name='professional_level',
             description='Professional level',
-            required=False,
+            required=True,
             type=str,
             examples=[OpenApiExample('Middle/Senior Management', value='Middle/Senior Management')],
+        ),
+        OpenApiParameter(
+            name='geo_description',
+            description='Geographic Region',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('East Midlands', value='East Midlands')],
         ),
     ],
 )

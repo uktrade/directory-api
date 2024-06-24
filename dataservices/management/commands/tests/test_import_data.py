@@ -134,7 +134,7 @@ def test_import_raw_comtrade():
     assert data.first().uk_or_world == 'WLD'
     assert data[1].uk_or_world == 'GBR'
 
-    management.call_command('import_comtrade_data', '--wipe')
+    management.call_command('import_comtrade_data', '--wipe', '--period=2019')
     assert len(models.ComtradeReport.objects.all()) == 0
 
 
