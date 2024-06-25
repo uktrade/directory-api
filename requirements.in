@@ -51,7 +51,7 @@ sentry-sdk==1.29.2
 sigauth==5.2.7
 sqlalchemy==1.4.36
 sqlparse==0.5.0
-urllib3==1.26.18
+urllib3==1.26.19
 urllib3>=1.26.5
 waitress==2.1.2
 whitenoise==6.4.0
