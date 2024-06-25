@@ -76,7 +76,6 @@ class Command(BaseDataWorkspaceIngestionCommand):
         prefix = 'Created'
         if data:
             model = data[0].__class__
-            model.objects.all().delete()
             model.objects.bulk_create(data)
 
         self.link_countries()
