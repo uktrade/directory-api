@@ -69,19 +69,11 @@ class Command(BaseDataWorkspaceIngestionCommand):
                     )
                     data.append(report)
 
-        prefix = 'Would create'
-        count = len(data)
-        self.stdout.write(f'{prefix} {count} comtrade data records')
-
-        prefix = 'Created'
-        if data:
-            model = data[0].__class__
-            model.objects.bulk_create(data)
-
-        self.link_countries()
+        return data
 
     def add_arguments(self, parser):
         # Positional arguments
+        super().add_arguments(parser)
         parser.add_argument('filenames', nargs='*', type=str)
         parser.add_argument(
             '--period',
@@ -220,7 +212,16 @@ class Command(BaseDataWorkspaceIngestionCommand):
         elif filenames and options['raw']:
             self.load_raw_files(filenames)
         elif options['load_data']:
-            self.load_data(period)
+            data = self.load_data(period)
+            prefix = 'Would create'
+            count = len(data)
+            if options['write']:
+                prefix = 'Created'
+                model = data[0].__class__
+                model.objects.filter(year=period).delete()
+                model.objects.bulk_create(data)
+            self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+            self.link_countries()
         else:
             self.populate_db_from_s3(filenames and filenames[0], test=options['test'])
 

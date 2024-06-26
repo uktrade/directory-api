@@ -775,7 +775,7 @@ def test_comtrade_load_data(read_sql_mock):
     read_sql_mock.return_value = [pd.DataFrame(data)]
     assert len(models.ComtradeReport.objects.all()) == 0
 
-    management.call_command('import_comtrade_data', '--load_data', '--period=2023')
+    management.call_command('import_comtrade_data', '--load_data', '--period=2023', '--write')
 
     data_gbr_fra = models.ComtradeReport.objects.filter(country_iso3='FRA', year='2023', commodity_code='010649')
     data_gbr_usa = models.ComtradeReport.objects.filter(country_iso3='USA', year='2022', commodity_code='010649')
