@@ -33,4 +33,4 @@ def run_markets_countries_territories_ingest():
 
 @app.task()
 def run_comtrade_data_ingest(period):
-    call_command('import_comtrade_data', '--period', period, '--load_data')
+    call_command('import_comtrade_data', '--period', period, '--load_data', '--write')

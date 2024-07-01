@@ -16,19 +16,22 @@ class Command(BaseDataWorkspaceIngestionCommand):
     def load_data(self, period):
         sql = '''
             SELECT
-                year,
-                reporter_country_iso3 ,
-                trade_flow_code ,
-                partner_country_iso3 ,
-                classification,
-                commodity_code,
-                fob_trade_value_in_usd
+                DISTINCT
+                    year,
+                    reporter_country_iso3 ,
+                    trade_flow_code ,
+                    partner_country_iso3 ,
+                    classification,
+                    commodity_code,
+                    fob_trade_value_in_usd
             FROM un.great_comtrade__goods_annual_raw
             WHERE period = :period
             AND (
                 (reporter_country_iso3 = 'GBR' AND trade_flow_code = 'X')
                 OR (partner_country_iso3 = 'W00' AND trade_flow_code = 'M')
             )
+            AND  commodity_code <> 'TOTAL'
+            AND fob_trade_value_in_usd IS NOT NULL
             ORDER BY
                 year,
                 reporter_country_iso3,
@@ -39,7 +42,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 fob_trade_value_in_usd
         '''
         chunks = pd.read_sql(sa.text(sql), self.engine, params={'period': period}, chunksize=5000)
-
+        data = []
         for chunk in chunks:
             for _idx, row in chunk.iterrows():
                 flow = row.trade_flow_code
@@ -64,11 +67,13 @@ class Command(BaseDataWorkspaceIngestionCommand):
                         trade_value=float(trade_value),
                         uk_or_world=uk_or_world,
                     )
-                    report.save()
-            self.link_countries()
+                    data.append(report)
+
+        return data
 
     def add_arguments(self, parser):
         # Positional arguments
+        super().add_arguments(parser)
         parser.add_argument('filenames', nargs='*', type=str)
         parser.add_argument(
             '--period',
@@ -207,7 +212,16 @@ class Command(BaseDataWorkspaceIngestionCommand):
         elif filenames and options['raw']:
             self.load_raw_files(filenames)
         elif options['load_data']:
-            self.load_data(period)
+            data = self.load_data(period)
+            prefix = 'Would create'
+            count = len(data)
+            if options['write']:
+                prefix = 'Created'
+                model = data[0].__class__
+                model.objects.filter(year=period).delete()
+                model.objects.bulk_create(data)
+            self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+            self.link_countries()
         else:
             self.populate_db_from_s3(filenames and filenames[0], test=options['test'])
 
