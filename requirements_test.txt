@@ -181,7 +181,7 @@ django-timezone-field==6.1.0
     # via
     #   -r requirements.in
     #   django-celery-beat
-djangorestframework==3.14.0
+djangorestframework==3.15.2
     # via
     #   -r requirements.in
     #   drf-spectacular
@@ -218,6 +218,8 @@ googleapis-common-protos==1.63.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
+greenlet==3.0.3
+    # via sqlalchemy
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
 html5lib==1.1
@@ -424,7 +426,6 @@ python-dateutil==2.8.2
 pytz==2023.3
     # via
     #   directory-validators
-    #   djangorestframework
     #   pandas
 pyyaml==6.0
     # via
