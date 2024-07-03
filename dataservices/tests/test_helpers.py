@@ -236,3 +236,19 @@ def test_send_review_request_message(mock_notify, last_release, notification_sen
         },
     )
     assert mock_notify.call_count == result
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'statista_vertical_name, expected_vertical_name',
+    [
+        ('Technology & Smart Cities', 'Technology and Smart Cities'),
+        ('Pharmaceuticals and Biotech', 'Pharmaceuticals and biotechnology'),
+        ('Manufacture of medical and dental instruments and supplies', 'Medical devices and equipment'),
+        ('Automovie', 'Automotive'),
+        ('Food and Drink', 'Food and Drink'),
+        ('Space', 'Space'),
+    ],
+)
+def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
+    assert dmch.align_vertical_names(statista_vertical_name) == expected_vertical_name

@@ -3,7 +3,7 @@ import sqlalchemy as sa
 
 from dataservices.models import EYBSalaryData
 
-from .helpers import BaseDataWorkspaceIngestionCommand
+from .helpers import BaseDataWorkspaceIngestionCommand, align_vertical_names
 
 
 class Command(BaseDataWorkspaceIngestionCommand):
@@ -38,7 +38,7 @@ class Command(BaseDataWorkspaceIngestionCommand):
                 data.append(
                     EYBSalaryData(
                         geo_description=row.geo_description.strip(),
-                        vertical=row.vertical.strip(),
+                        vertical=align_vertical_names(row.vertical.strip()),
                         professional_level=row.professional_level.strip(),
                         occupation=row.occupation.strip(),
                         soc_code=row.code,
