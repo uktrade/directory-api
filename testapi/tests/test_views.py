@@ -45,7 +45,7 @@ def test_get_buyer_by_email_not_found(authed_client):
     url = reverse('buyer_by_email', kwargs={'email': 'doesnotexist@email.com'})
     response = authed_client.get(url)
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()['detail'] == 'Not found.'
+    assert response.json()['detail'] == 'No Buyer matches the given query.'
 
 
 @pytest.mark.parametrize(
