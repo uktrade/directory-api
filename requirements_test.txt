@@ -47,7 +47,7 @@ celery[redis]==5.3.6
     #   -r requirements.in
     #   dbt-copilot-python
     #   django-celery-beat
-certifi==2023.7.22
+certifi==2024.7.4
     # via
     #   -r requirements.in
     #   elasticsearch
