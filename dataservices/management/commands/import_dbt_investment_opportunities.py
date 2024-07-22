@@ -5,6 +5,7 @@ from dataservices.models import DBTInvestmentOpportunity
 
 from .helpers import BaseDataWorkspaceIngestionCommand
 
+
 class Command(BaseDataWorkspaceIngestionCommand):
     help = 'Import DBT investment opportunities data from Data Workspace'
     sql = '''
@@ -35,17 +36,17 @@ class Command(BaseDataWorkspaceIngestionCommand):
             for _idx, row in chunk.iterrows():
                 data.append(
                     DBTInvestmentOpportunity(
-                        opportunity_title = row.opportunity_title,
-                        description = row.description,
-                        nomination_round = row.nomination_round,
-                        launched = row.launched,
-                        opportunity_type = row.opportunity_type,
-                        location = row.location,
-                        sub_sector = row.sub_sector,
-                        levelling_up = row.levelling_up,
-                        net_zero = row.net_zero,
-                        science_technology_superpower = row.science_technology_superpower,
-                        sector_cluster = row.sector_cluster,
+                        opportunity_title=row.opportunity_title,
+                        description=row.description,
+                        nomination_round=row.nomination_round,
+                        launched=row.launched,
+                        opportunity_type=row.opportunity_type,
+                        location=row.location,
+                        sub_sector=row.sub_sector,
+                        levelling_up=row.levelling_up,
+                        net_zero=row.net_zero,
+                        science_technology_superpower=row.science_technology_superpower,
+                        sector_cluster=row.sector_cluster,
                     )
                 )
 

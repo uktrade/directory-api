@@ -5,6 +5,7 @@ from dataservices.models import SectorGVAValueBand
 
 from .helpers import BaseDataWorkspaceIngestionCommand
 
+
 class Command(BaseDataWorkspaceIngestionCommand):
     help = 'Import sector GVA value bands data from Data Workspace'
     sql = '''
@@ -36,16 +37,16 @@ class Command(BaseDataWorkspaceIngestionCommand):
             for _idx, row in chunk.iterrows():
                 data.append(
                     SectorGVAValueBand(
-                        full_sector_name = row.full_sector_name,
-                        value_band_a_minimum = row.value_band_a_minimum,
-                        value_band_b_minimum = row.value_band_b_minimum,
-                        value_band_c_minimum = row.value_band_c_minimum,
-                        value_band_d_minimum = row.value_band_d_minimum,
-                        value_band_e_minimum = row.value_band_e_minimum,
-                        start_date = row.start_date,
-                        end_date = row.end_date,
-                        sector_classification_value_band = row.sector_classification_value_band,
-                        sector_classification_gva_multiplier = row.sector_classification_gva_multiplier
+                        full_sector_name=row.full_sector_name,
+                        value_band_a_minimum=row.value_band_a_minimum,
+                        value_band_b_minimum=row.value_band_b_minimum,
+                        value_band_c_minimum=row.value_band_c_minimum,
+                        value_band_d_minimum=row.value_band_d_minimum,
+                        value_band_e_minimum=row.value_band_e_minimum,
+                        start_date=row.start_date,
+                        end_date=row.end_date,
+                        sector_classification_value_band=row.sector_classification_value_band,
+                        sector_classification_gva_multiplier=row.sector_classification_gva_multiplier,
                     )
                 )
 

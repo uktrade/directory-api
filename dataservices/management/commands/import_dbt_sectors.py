@@ -33,12 +33,12 @@ class Command(BaseDataWorkspaceIngestionCommand):
             for _idx, row in chunk.iterrows():
                 data.append(
                     DBTSector(
-                        sector_id = row.field_01,
-                        full_sector_name = row.full_sector_name,
-                        sector_cluster_name = row.sector_cluster__april_2023,
-                        sector_name = row.field_04,
-                        sub_sector_name = row.field_05,
-                        sub_sub_sector_name = row.field_02
+                        sector_id=row.field_01,
+                        full_sector_name=row.full_sector_name,
+                        sector_cluster_name=row.sector_cluster__april_2023,
+                        sector_name=row.field_04,
+                        sub_sector_name=row.field_05,
+                        sub_sub_sector_name=row.field_02,
                     )
                 )
 
