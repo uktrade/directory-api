@@ -504,8 +504,8 @@ class DBTSector(models.Model):
     full_sector_name = models.CharField()
     sector_cluster_name = models.CharField()
     sector_name = models.CharField()
-    sub_sector_name = models.CharField()
-    sub_sub_sector_name = models.CharField()
+    sub_sector_name = models.CharField(null=True, blank=True)
+    sub_sub_sector_name = models.CharField(null=True, blank=True)
 
 
 class SectorGVAValueBand(models.Model):
