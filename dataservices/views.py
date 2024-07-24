@@ -1060,3 +1060,22 @@ class EYBRentDataView(generics.ListAPIView):
     serializer_class = serializers.EYBCommercialRentDataSerializer
     filterset_class = filters.EYBCommercialRentDataFilter
     queryset = models.EYBCommercialPropertyRent.objects.all()
+
+
+class DBTSectorsView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.DBTSectorSerializer
+    queryset = models.DBTSector.objects.all()
+
+
+class SectorGVAValueBandView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.SectorGVAValueBandSerializer
+    filterset_class = filters.SectorGVAValueBandFilter
+    queryset = models.SectorGVAValueBand.objects.all()
+
+
+class DBTInvestmentOpportunityView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.DBTInvestmentOpportunitySerializer
+    queryset = models.SectorGVAValueBand.objects.all()

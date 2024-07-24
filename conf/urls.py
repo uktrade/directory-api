@@ -332,6 +332,21 @@ urlpatterns = [
         dataservices.views.EYBRentDataView.as_view(),
         name='dataservices-eyb-commercial-rent-data',
     ),
+    re_path(
+        r'^dataservices/dbt-sector/$',
+        dataservices.views.DBTSectorsView.as_view(),
+        name='dataservices-dbt-sector',
+    ),
+    re_path(
+        r'^dataservices/sector-gva-value-band/$',
+        dataservices.views.SectorGVAValueBandView.as_view(),
+        name='dataservices-sector-gva-value-band',
+    ),
+    re_path(
+        r'^dataservices/dbt-investment-opportunity/$',
+        dataservices.views.DBTInvestmentOpportunityView.as_view(),
+        name='dataservices-dbt-investment-opportunity',
+    ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
     re_path(
