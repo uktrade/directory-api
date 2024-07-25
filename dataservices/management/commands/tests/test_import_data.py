@@ -798,3 +798,99 @@ def test_comtrade_load_data(read_sql_mock):
     assert data_chn_wld.first().commodity_code == '010649'
     assert data_chn_wld.first().trade_value == 4520000
     assert data_chn_wld.first().uk_or_world == 'WLD'
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_dbt_sectors(read_sql_mock):
+    data = {
+        'id': [1],
+        'updated_date': [''],
+        'field_01': ['SL0001'],
+        'field_03': [''],
+        'full_sector_name': ['Advanced engineering'],
+        'field_04': ['Advanced engineering'],
+        'field_05': [''],
+        'field_02': [''],
+        'field_06': [''],
+        'field_07': [''],
+        'sector_cluster__april_2023': ['Sustainability and Infrastructure'],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.DBTSector.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_dbt_sectors')
+    assert len(models.DBTSector.objects.all()) == 0
+
+    # write
+    management.call_command('import_dbt_sectors', '--write')
+    assert len(models.DBTSector.objects.all()) == 1
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_sectors_gva_value_bands(read_sql_mock):
+    data = {
+        'id': [1],
+        'updated_date': [''],
+        'full_sector_name': ['Advanced engineering'],
+        'gva_grouping': [''],
+        'gva_multiplier': ['Advanced engineering'],
+        'value_band_a_minimum': [5700000],
+        'value_band_b_minimum': [2600000],
+        'value_band_c_minimum': [848513],
+        'value_band_d_minimum': [260000],
+        'value_band_e_minimum': [10000],
+        'sector_classification_value_band': ['Capital intensive'],
+        'sector_classification_gva_multiplier': ['Capital intensive'],
+        'start_date': ['2022-04-01'],
+        'end_date': ['2025-03-31'],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.SectorGVAValueBand.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_sectors_gva_value_bands')
+    assert len(models.SectorGVAValueBand.objects.all()) == 0
+
+    # write
+    management.call_command('import_sectors_gva_value_bands', '--write')
+    assert len(models.SectorGVAValueBand.objects.all()) == 1
+
+
+@pytest.mark.django_db
+@mock.patch('pandas.read_sql')
+@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
+def test_import_dbt_investment_opportunities(read_sql_mock):
+    data = {
+        'id': [1],
+        'updated_date': [''],
+        'investment_opportunity_code': ['INVESTMENT_OPPORTUNITY_001'],
+        'opportunity_title': ['Precision Agriculture'],
+        'description': ['An opportunity to meet the demand for new food production systems to support changing'],
+        'nomination_round': [1],
+        'launched': [True],
+        'opportunity_type': ['High potential opportunity'],
+        'location': ['North East'],
+        'sub_sector': ['Food and Drink'],
+        'levelling_up': [True],
+        'net_zero': [True],
+        'science_technology_superpower': [False],
+        'sector_cluster': ['Agriculture, Food & Drink'],
+    }
+    read_sql_mock.return_value = [pd.DataFrame(data)]
+
+    assert len(models.DBTInvestmentOpportunity.objects.all()) == 0
+
+    # dry run
+    management.call_command('import_dbt_investment_opportunities')
+    assert len(models.DBTInvestmentOpportunity.objects.all()) == 0
+
+    # write
+    management.call_command('import_dbt_investment_opportunities', '--write')
+    assert len(models.DBTInvestmentOpportunity.objects.all()) == 1
