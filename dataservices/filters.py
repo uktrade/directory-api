@@ -80,3 +80,11 @@ class EYBCommercialRentDataFilter(django_filters.rest_framework.FilterSet):
     class Meta:
         model = models.EYBCommercialPropertyRent
         fields = ['geo_description', 'vertical', 'sub_vertical']
+
+
+class SectorGVAValueBandFilter(django_filters.rest_framework.FilterSet):
+    full_sector_name = django_filters.CharFilter(field_name='full_sector_name', lookup_expr='iexact', required=True)
+
+    class Meta:
+        model = models.SectorGVAValueBand
+        fields = ['full_sector_name']

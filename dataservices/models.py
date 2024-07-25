@@ -497,3 +497,39 @@ class EYBSalaryData(models.Model):
     median_salary = models.IntegerField(null=True, blank=True)
     mean_salary = models.IntegerField(null=True, blank=True)
     dataset_year = models.SmallIntegerField(null=True, blank=True)
+
+
+class DBTSector(models.Model):
+    sector_id = models.CharField()
+    full_sector_name = models.CharField()
+    sector_cluster_name = models.CharField()
+    sector_name = models.CharField()
+    sub_sector_name = models.CharField(null=True, blank=True)
+    sub_sub_sector_name = models.CharField(null=True, blank=True)
+
+
+class SectorGVAValueBand(models.Model):
+    full_sector_name = models.CharField()
+    value_band_a_minimum = models.IntegerField()
+    value_band_b_minimum = models.IntegerField()
+    value_band_c_minimum = models.IntegerField()
+    value_band_d_minimum = models.IntegerField()
+    value_band_e_minimum = models.IntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    sector_classification_value_band = models.CharField()
+    sector_classification_gva_multiplier = models.CharField()
+
+
+class DBTInvestmentOpportunity(models.Model):
+    opportunity_title = models.CharField()
+    description = models.CharField()
+    nomination_round = models.FloatField()
+    launched = models.BooleanField()
+    opportunity_type = models.CharField()
+    location = models.CharField()
+    sub_sector = models.CharField()
+    levelling_up = models.BooleanField()
+    net_zero = models.BooleanField()
+    science_technology_superpower = models.BooleanField()
+    sector_cluster = models.CharField()
