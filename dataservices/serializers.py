@@ -290,3 +290,24 @@ class EYBCommercialRentDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EYBCommercialPropertyRent
         fields = '__all__'
+
+
+class DBTSectorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DBTSector
+        fields = '__all__'
+
+
+class SectorGVAValueBandSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.SectorGVAValueBand
+        fields = '__all__'
+
+
+class DBTInvestmentOpportunitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DBTInvestmentOpportunity
+        fields = '__all__'
