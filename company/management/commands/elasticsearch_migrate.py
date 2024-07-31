@@ -7,7 +7,7 @@ from elasticsearch_dsl.connections import connections
 
 from company import documents, models
 
-ALIAS = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
+ALIAS = settings.OPENSEARCH_COMPANY_INDEX_ALIAS
 PREFIX = 'companies-'
 PATTERN = f'{PREFIX}*'
 
@@ -61,7 +61,7 @@ class Command(management.BaseCommand):
         self.client.indices.update_aliases(body={'actions': actions})
 
     def handle(self, *args, **options):
-        if settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX:
+        if settings.FEATURE_FLAG_OPENSEARCH_REBUILD_INDEX:
             self.create_index_template()
             self.client.indices.create(self.new_index_name)
             self.populate_new_indices()

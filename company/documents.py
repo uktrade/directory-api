@@ -104,7 +104,7 @@ class CompanyDocument(Document):
         dynamic = MetaField('strict')
 
     class Index:
-        name = settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS
+        name = settings.OPENSEARCH_COMPANY_INDEX_ALIAS
 
 
 def get_absolute_url(url):
@@ -113,7 +113,7 @@ def get_absolute_url(url):
     return url
 
 
-def company_model_to_document(company, index=settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS):
+def company_model_to_document(company, index=settings.OPENSEARCH_COMPANY_INDEX_ALIAS):
     # getattr is used on the company to allow this functionton be used in
     # migrations (historic models wont have all the fields listed below).
     company_fields = {

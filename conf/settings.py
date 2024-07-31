@@ -3,21 +3,19 @@ from typing import Any, Dict
 
 import directory_healthcheck.backends
 import dj_database_url
-import environ
 import sentry_sdk
 from django.urls import reverse_lazy
 from django_log_formatter_asim import ASIMFormatter
-from elasticsearch import RequestsHttpConnection
 from elasticsearch_dsl.connections import connections
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 import healthcheck.backends
+from conf.env import env
 
 from .utils import strip_password_data
 
-env = environ.Env()
 for env_file in env.list('ENV_FILES', default=[]):
     env.read_env(f'conf/env/{env_file}')
 
@@ -29,12 +27,12 @@ BASE_DIR = os.path.dirname(PROJECT_ROOT)
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', False)
+DEBUG = env.debug
 
 # As app is running behind a host-based router supplied by Heroku or other
 # PaaS, we can open ALLOWED_HOSTS
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = env.allowed_hosts
+SAFELIST_HOSTS = env.safelist_hosts
 
 # Application definition
 
@@ -111,14 +109,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'conf.wsgi.application'
 
-
-VCAP_SERVICES = env.json('VCAP_SERVICES', {})
-VCAP_APPLICATION = env.json('VCAP_APPLICATION', {})
-
-if 'redis' in VCAP_SERVICES:
-    REDIS_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
-else:
-    REDIS_URL = env.str('REDIS_URL', '')
+REDIS_URL = env.redis_url
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -140,7 +131,7 @@ CACHES = {
 
 LANGUAGE_CODE = 'en-gb'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env.time_zone
 
 USE_I18N = True
 
@@ -178,8 +169,18 @@ for static_dir in STATICFILES_DIRS:
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
 
+# Feature flags
+FEATURE_SKIP_MIGRATE = env.feature_skip_migrate
+FEATURE_REDIS_USE_SSL = env.feature_redis_use_ssl
+FEATURE_TEST_API_ENABLED = env.feature_test_api_enabled
+FEATURE_FLAG_OPENSEARCH_REBUILD_INDEX = env.feature_flag_opensearch_rebuild_index
+FEATURE_VERIFICATION_LETTERS_ENABLED = env.feature_verification_letters_enabled
+FEATURE_REGISTRATION_LETTERS_ENABLED = env.feature_registration_letters_enabled
+FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.feature_comtrade_historical_data_enabled
+FEATURE_OPENAPI_ENABLED = env.feature_openapi_enabled
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.enforce_staff_sso_enabled
+
 # SSO config
-FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.bool('FEATURE_ENFORCE_STAFF_SSO_ENABLED', False)
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     AUTHENTICATION_BACKENDS = [
         'django.contrib.auth.backends.ModelBackend',
@@ -189,13 +190,13 @@ if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     LOGIN_URL = reverse_lazy('authbroker_client:login')
     LOGIN_REDIRECT_URL = reverse_lazy('admin:index')
 
-    # authbroker config
-AUTHBROKER_URL = env.str('STAFF_SSO_AUTHBROKER_URL')
-AUTHBROKER_CLIENT_ID = env.str('AUTHBROKER_CLIENT_ID')
-AUTHBROKER_CLIENT_SECRET = env.str('AUTHBROKER_CLIENT_SECRET')
+# Staff SSO authbroker config
+AUTHBROKER_URL = env.authbroker_url
+AUTHBROKER_CLIENT_ID = env.authbroker_client_id
+AUTHBROKER_CLIENT_SECRET = env.authbroker_client_secret
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str('SECRET_KEY')
+SECRET_KEY = env.secret_key
 
 # DRF
 REST_FRAMEWORK = {
@@ -206,24 +207,24 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-FEATURE_OPENAPI_ENABLED = env.bool("FEATURE_OPENAPI_ENABLED", False)
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Directory API',
     'DESCRIPTION': 'Directory API service - the Department for Business and Trade (DBT)',
     'VERSION': os.environ.get('GIT_TAG', 'dev'),
 }
 
-APP_ENVIRONMENT = env.str('APP_ENVIRONMENT', 'dev')
-SENTRY_ENVIRONMENT = env.str('SENTRY_ENVIRONMENT', APP_ENVIRONMENT)
+APP_ENVIRONMENT = env.app_environment
+
 # Sentry
-if env.str('SENTRY_DSN', ''):
+SENTRY_DSN = env.sentry_dsn
+if SENTRY_DSN:
     sentry_sdk.init(
-        dsn=env.str('SENTRY_DSN'),
-        environment=env.str('SENTRY_ENVIRONMENT'),
+        dsn=env.sentry_dsn,
+        environment=env.sentry_environment,
         integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
         before_send=strip_password_data,
-        enable_tracing=env.bool('SENTRY_ENABLE_TRACING', False),
-        traces_sample_rate=env.float('SENTRY_TRACES_SAMPLE_RATE', 1.0),
+        enable_tracing=env.sentry_enable_tracing,
+        traces_sample_rate=env.sentry_traces_sample_rate,
     )
 
 
@@ -312,35 +313,30 @@ else:
         },
     }
 
-# CH
-COMPANIES_HOUSE_API_KEY = env.str('COMPANIES_HOUSE_API_KEY', '')
-COMPANIES_HOUSE_URL = env.str('COMPANIES_HOUSE_URL', 'https://account.companieshouse.gov.uk')
-COMPANIES_HOUSE_API_URL = env.str('COMPANIES_HOUSE_API_URL', 'https://api.companieshouse.gov.uk')
-
+# Companies House
+COMPANIES_HOUSE_URL = env.companies_house_url
+COMPANIES_HOUSE_API_URL = env.companies_house_api_url
+COMPANIES_HOUSE_API_KEY = env.companies_house_api_key
 
 # Email
 EMAIL_BACKED_CLASSES = {
     'default': 'django.core.mail.backends.smtp.EmailBackend',
     'console': 'django.core.mail.backends.console.EmailBackend',
 }
-EMAIL_BACKED_CLASS_NAME = env.str('EMAIL_BACKEND_CLASS_NAME', 'default')
-EMAIL_BACKEND = EMAIL_BACKED_CLASSES[EMAIL_BACKED_CLASS_NAME]
-EMAIL_HOST = env.str('EMAIL_HOST', '')
-EMAIL_PORT = env.str('EMAIL_PORT', '')
-EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', '')
-FAS_FROM_EMAIL = env.str('FAS_FROM_EMAIL', '')
-FAB_FROM_EMAIL = env.str('FAB_FROM_EMAIL', '')
-OWNERSHIP_INVITE_SUBJECT = env.str(
-    'OWNERSHIP_INVITE_SUBJECT', 'Confirm ownership of {company_name}’s Find a buyer profile'
-)
-COLLABORATOR_INVITE_SUBJECT = env.str(
-    'COLLABORATOR_INVITE_SUBJECT', 'Confirm you’ve been added to {company_name}’s Find a buyer profile'
-)
-GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL = env.str('GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL')
-GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS = env.int('GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS', 10)
+EMAIL_BACKED_CLASS_NAME = env.email_backend_class_name
+EMAIL_BACKEND = EMAIL_BACKED_CLASSES[EMAIL_BACKED_CLASS_NAME]
+EMAIL_HOST = env.email_host
+EMAIL_PORT = env.email_port
+EMAIL_HOST_USER = env.email_host_user
+EMAIL_HOST_PASSWORD = env.email_host_password
+DEFAULT_FROM_EMAIL = env.default_from_email
+FAS_FROM_EMAIL = env.fas_from_email
+FAB_FROM_EMAIL = env.fab_from_email
+OWNERSHIP_INVITE_SUBJECT = env.ownership_invite_subject
+COLLABORATOR_INVITE_SUBJECT = env.collaborator_invite_subject
+GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL = env.great_marketguides_teams_channel_email
+GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS = env.great_marketguides_review_period_days
 
 
 # Public storage for company profile logo
@@ -349,149 +345,107 @@ STORAGE_CLASSES = {
     'local-storage': 'django.core.files.storage.FileSystemStorage',
     'private': 'core.storage_classes.PrivateMediaStorage',
 }
-STORAGE_CLASS_NAME = env.str('STORAGE_CLASS_NAME', 'default')
+STORAGE_CLASS_NAME = env.storage_class_name
 DEFAULT_FILE_STORAGE = STORAGE_CLASSES[STORAGE_CLASS_NAME]
 # Used for private non public media
-PRIVATE_STORAGE_CLASS_NAME = env.str('PRIVATE_STORAGE_CLASS_NAME', 'private')
+PRIVATE_STORAGE_CLASS_NAME = env.private_storage_class_name
 PRIVATE_FILE_STORAGE = STORAGE_CLASSES[PRIVATE_STORAGE_CLASS_NAME]
-LOCAL_STORAGE_DOMAIN = env.str('LOCAL_STORAGE_DOMAIN', '')
+LOCAL_STORAGE_DOMAIN = env.local_storage_domain
+
+# AWS S3
 AWS_AUTO_CREATE_BUCKET = True
 AWS_S3_FILE_OVERWRITE = False
-AWS_S3_CUSTOM_DOMAIN = env.str('AWS_S3_CUSTOM_DOMAIN', '')
-AWS_S3_URL_PROTOCOL = env.str('AWS_S3_URL_PROTOCOL', 'https:')
-# Needed for new AWS regions
-# https://github.com/jschneier/django-storages/issues/203
-AWS_S3_SIGNATURE_VERSION = env.str('AWS_S3_SIGNATURE_VERSION', 's3v4')
-AWS_QUERYSTRING_AUTH = env.bool('AWS_QUERYSTRING_AUTH', False)
-S3_USE_SIGV4 = env.bool('S3_USE_SIGV4', True)
-AWS_S3_HOST = env.str('AWS_S3_HOST', 's3.eu-west-1.amazonaws.com')
-
-AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', '')
-AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', '')
-AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', '')
-AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', '')
+AWS_S3_CUSTOM_DOMAIN = env.aws_s3_custom_domain
+AWS_S3_URL_PROTOCOL = env.aws_s3_url_protocol
+AWS_S3_SIGNATURE_VERSION = env.aws_s3_signature_version
+AWS_QUERYSTRING_AUTH = env.aws_querystring_auth
+S3_USE_SIGV4 = env.s3_use_sigv4
+AWS_S3_HOST = env.aws_s3_host
+AWS_ACCESS_KEY_ID = env.aws_access_key_id
+AWS_SECRET_ACCESS_KEY = env.aws_secret_access_key
+AWS_STORAGE_BUCKET_NAME = env.aws_storage_bucket_name
+AWS_S3_REGION_NAME = env.aws_s3_region_name
 AWS_S3_ENCRYPTION = True
 AWS_DEFAULT_ACL = None
 
 # Setting up the the datascience s3 bucket
-AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.str('AWS_ACCESS_KEY_ID_DATA_SCIENCE', '')
-AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.str('AWS_SECRET_ACCESS_KEY_DATA_SCIENCE', '')
-AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.str('AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE', '')
-AWS_S3_REGION_NAME_DATA_SCIENCE = env.str('AWS_S3_REGION_NAME_DATA_SCIENCE', '')
+AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.aws_access_key_id_data_science
+AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.aws_secret_access_key_data_science
+AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.aws_storage_bucket_name_data_science
+AWS_S3_REGION_NAME_DATA_SCIENCE = env.aws_s3_region_name_data_science
 
 # Setting for email buckets which holds images
-AWS_ACCESS_KEY_ID_EMAIL = env.str('AWS_ACCESS_KEY_ID_EMAIL', '')
-AWS_SECRET_ACCESS_KEY_EMAIL = env.str('AWS_SECRET_ACCESS_KEY_EMAIL', '')
-AWS_STORAGE_BUCKET_NAME_EMAIL = env.str('AWS_STORAGE_BUCKET_NAME_EMAIL', '')
+AWS_ACCESS_KEY_ID_EMAIL = env.aws_access_key_id_email
+AWS_SECRET_ACCESS_KEY_EMAIL = env.aws_secret_access_key_email
+AWS_STORAGE_BUCKET_NAME_EMAIL = env.aws_storage_bucket_name_email
 
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_DOMAIN = env.str('SESSION_COOKIE_DOMAIN', 'great.gov.uk')
+SESSION_COOKIE_DOMAIN = env.session_cookie_domain
 SESSION_COOKIE_NAME = 'directory_api_admin_session_id'
-SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', True)
+SESSION_COOKIE_SECURE = env.session_cookie_secure
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', True)
+CSRF_COOKIE_SECURE = env.csrf_cookie_secure
 
 # directory forms api client
-DIRECTORY_FORMS_API_BASE_URL = env.str('DIRECTORY_FORMS_API_BASE_URL')
-DIRECTORY_FORMS_API_API_KEY = env.str('DIRECTORY_FORMS_API_API_KEY')
-DIRECTORY_FORMS_API_SENDER_ID = env.str('DIRECTORY_FORMS_API_SENDER_ID')
-DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.int('DIRECTORY_API_FORMS_DEFAULT_TIMEOUT', 5)
-DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.str('DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME', 'api')
+DIRECTORY_FORMS_API_BASE_URL = env.directory_forms_api_base_url
+DIRECTORY_FORMS_API_API_KEY = env.directory_forms_api_api_key
+DIRECTORY_FORMS_API_SENDER_ID = env.directory_forms_api_sender_id
+DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.directory_api_forms_default_timeout
+DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.directory_forms_api_zendesk_sevice_name
 
 # Gov notification settings
-GOV_NOTIFY_API_KEY = env.str('GOV_NOTIFY_API_KEY')
-GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID', '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
-)
+GOV_NOTIFY_API_KEY = env.gov_notify_api_key
+GOVNOTIFY_VERIFICATION_LETTER_TEMPLATE_ID = env.govnotify_verification_letter_template_id
 
 # Registration letters template id
-GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID', '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
+GOVNOTIFY_REGISTRATION_LETTER_TEMPLATE_ID = env.govnotify_registration_letter_template_id
+GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.govnotify_new_user_invite_template_id
+GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID = (
+    env.govnotify_new_user_invite_other_company_member_template_id
 )
-GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID', 'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.govnotify_new_user_alert_template_id
+GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.gov_notify_non_ch_verification_request_template_id
+GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID = env.gov_notify_user_request_declined_template_id
+GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID = env.gov_notify_user_request_accepted_template_id
+GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID = env.gov_notify_admin_new_collaboration_request_template_id
+GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID = env.govnotify_new_companies_in_sector_template_id
+GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID = env.govnotify_anonymous_subscriber_unsubscribed_template_id
+GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID = env.govnotify_verification_code_not_given_template_id
+GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID = (
+    env.govnotify_verification_code_not_given_2nd_email_template_id
 )
-GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID', 'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
-)
-GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_USER_ALERT_TEMPLATE_ID', '439a8415-52d8-4975-b230-15cd34305bb5'
-)
-GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID', 'a63f948f-978e-4554-86da-c525bfabbaff'
-)
-GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID', '3be3c49f-a5ad-4e37-b864-cc0a3833705b'
-)
-GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_USER_REQUEST_ACCEPTED_TEMPLATE_ID', '7f4f0e9c-2a04-4c3c-bd85-ef80f495b6f5'
-)
-GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID = env.str(
-    'GOV_NOTIFY_ADMIN_NEW_COLLABORATION_REQUEST_TEMPLATE_ID', '240cfe51-a5fc-4826-a716-84ebaa429315'
-)
-GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID', '0c7aed18-00af-47a7-b2ec-6d61bb951e59'
-)
-GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_ANONYMOUS_SUBSCRIBER_UNSUBSCRIBED_TEMPLATE_ID', '6211a6ba-3c77-4071-82fa-3378e3680865'
-)
-GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID', 'e7ceea1d-ac39-4ec1-b8b5-9291d37885e5'
-)
-GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID', '83731316-f0a4-44a2-91f0-faa7006b144c'
-)
-GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID', '7c1a769f-85a4-4dba-8e09-335c6666923e'
-)
-GOVNOTIFY_ACCOUNT_COLLABORATOR_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID', 'eecd214c-8072-4d16-87ea-4283d5925f16'
-)
+GOVNOTIFY_ACCOUNT_OWNERSHIP_TRANSFER_TEMPLATE_ID = env.govnotify_account_ownership_transfer_template_id
+GOVNOTIFY_ACCOUNT_COLLABORATOR_TEMPLATE_ID = env.govnotify_account_collaborator_template_id
 
-GOVNOTIFY_GREAT_MARKETGUIDES_REVIEW_REQUEST_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_GREAT_MARKETGUIDES_REVIEW_REQUEST_TEMPLATE_ID', '2c49305b-6632-44fa-8d7d-830086363258'
-)
+GOVNOTIFY_GREAT_MARKETGUIDES_REVIEW_REQUEST_TEMPLATE_ID = env.govnotify_great_marketguides_review_request_template_id
 
 # Duplicate companies notification
 
-GOVNOTIFY_DUPLICATE_COMPANIES = env.str('GOVNOTIFY_DUPLICATE_COMPANIES', '9d93b6c9-ff75-4797-b841-2f7a6c78a277')
-GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL = env.str('GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL')
+GOVNOTIFY_DUPLICATE_COMPANIES = env.govnotify_duplicate_companies
+GOVNOTIFY_DUPLICATE_COMPANIES_EMAIL = env.govnotify_duplicate_companies_email
 
 # Error message notification
-GOVNOTIFY_ERROR_MESSAGE_TEMPLATE_ID = env.str(
-    'GOVNOTIFY_ERROR_MESSAGE_TEMPLATE_ID', '1657d3ab-bf49-455f-9e42-e26b8752009e'
-)
+GOVNOTIFY_ERROR_MESSAGE_TEMPLATE_ID = env.govnotify_error_message_template_id
 
-GECKO_API_KEY = env.str('GECKO_API_KEY', '')
+GECKO_API_KEY = env.gecko_api_key
 # At present geckoboard's api assumes the password will always be X
-GECKO_API_PASS = env.str('GECKO_API_PASS', 'X')
+GECKO_API_PASS = env.gecko_api_pass
 
 ALLOWED_IMAGE_FORMATS = ('PNG', 'JPG', 'JPEG')
 
 # Automated email settings
-VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.str(
-    'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
-    'Please verify your company’s Find a buyer profile',
-)
-VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = env.str(
-    'VERIFICATION_CODE_NOT_GIVEN_SUBJECT',
-    VERIFICATION_CODE_NOT_GIVEN_SUBJECT,
-)
-VERIFICATION_CODE_NOT_GIVEN_DAYS = env.int('VERIFICATION_CODE_NOT_GIVEN_DAYS', 8)
-VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.int('VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL', 16)
-VERIFICATION_CODE_URL = env.str('VERIFICATION_CODE_URL', 'http://great.gov.uk/verify')
-NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.int('NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS', 7)
-NEW_COMPANIES_IN_SECTOR_SUBJECT = env.str(
-    'NEW_COMPANIES_IN_SECTOR_SUBJECT', 'Find a supplier service - New UK companies in your industry now available'
-)
-NEW_COMPANIES_IN_SECTOR_UTM = env.str(
-    'NEW_COMPANIES_IN_SECTOR_UTM',
-    'utm_source=system%20emails&utm_campaign=Companies%20in%20a%20sector&utm_medium=email',
-)
-ZENDESK_URL = env.str('ZENDESK_URL', 'https://contact-us.export.great.gov.uk/feedback/directory/')
-UNSUBSCRIBED_SUBJECT = env.str('UNSUBSCRIBED_SUBJECT', 'Find a buyer service - unsubscribed from marketing emails')
+VERIFICATION_CODE_NOT_GIVEN_SUBJECT = env.verification_code_not_given_subject
+VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL = env.verification_code_not_given_subject
+VERIFICATION_CODE_NOT_GIVEN_DAYS = env.verification_code_not_given_days
+VERIFICATION_CODE_NOT_GIVEN_DAYS_2ND_EMAIL = env.verification_code_not_given_days_2nd_email
+VERIFICATION_CODE_URL = env.verification_code_url
+NEW_COMPANIES_IN_SECTOR_FREQUENCY_DAYS = env.new_companies_in_sector_frequency_days
+NEW_COMPANIES_IN_SECTOR_SUBJECT = env.new_companies_in_sector_subject
+NEW_COMPANIES_IN_SECTOR_UTM = env.new_companies_in_sector_utm
+ZENDESK_URL = env.zendesk_url
+UNSUBSCRIBED_SUBJECT = env.unsubscribed_subject
 
 # Celery
 # is in api/celery.py
@@ -499,7 +453,7 @@ CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_TASK_ALWAYS_EAGER = env.bool('CELERY_TASK_ALWAYS_EAGER', False)
+CELERY_TASK_ALWAYS_EAGER = env.celery_task_always_eager
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_POOL_LIMIT = None
@@ -508,65 +462,43 @@ CELERY_BROKER_POOL_LIMIT = None
 DIRECTORY_SSO_API_CLIENT_DEFAULT_TIMEOUT = 15
 
 # SSO API Client
-DIRECTORY_SSO_API_CLIENT_BASE_URL = env.str('SSO_API_CLIENT_BASE_URL', '')
-DIRECTORY_SSO_API_CLIENT_API_KEY = env.str('SSO_SIGNATURE_SECRET', '')
-DIRECTORY_SSO_API_CLIENT_SENDER_ID = env.str('DIRECTORY_SSO_API_CLIENT_SENDER_ID', 'directory')
-DIRECTORY_SSO_API_SECRET = env.str('SSO_API_SECRET', '')
+DIRECTORY_SSO_API_CLIENT_BASE_URL = env.directory_sso_api_client_base_url
+DIRECTORY_SSO_API_CLIENT_API_KEY = env.directory_sso_api_client_api_key
+DIRECTORY_SSO_API_SECRET = env.directory_sso_api_secret
+DIRECTORY_SSO_API_CLIENT_SENDER_ID = env.directory_sso_api_client_sender_id
 
 # FAS
-FAS_COMPANY_LIST_URL = env.str('FAS_COMPANY_LIST_URL', '')
-FAS_COMPANY_PROFILE_URL = env.str('FAS_COMPANY_PROFILE_URL', '')
-FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str('FAS_NOTIFICATIONS_UNSUBSCRIBE_URL', '')
+FAS_COMPANY_LIST_URL = env.fas_company_list_url
+FAS_COMPANY_PROFILE_URL = env.fas_company_profile_url
+FAS_NOTIFICATIONS_UNSUBSCRIBE_URL = env.fas_notifications_unsubscribe_url
 
 # FAB
-FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = env.str('FAB_NOTIFICATIONS_UNSUBSCRIBE_URL', '')
+FAB_NOTIFICATIONS_UNSUBSCRIBE_URL = env.fab_notifications_unsubscribe_url
 
 # DIRECTORY URLS
-DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.str('DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC', '')
+DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.directory_constants_url_great_domestic
 
-# aws, localhost, or govuk-paas
-ELASTICSEARCH_PROVIDER = env.str('ELASTICSEARCH_PROVIDER', 'aws').lower()
 
-if ELASTICSEARCH_PROVIDER == 'govuk-paas':
-    services = {item['instance_name']: item for item in VCAP_SERVICES['opensearch']}
-    ELASTICSEARCH_INSTANCE_NAME = env.str(
-        'ELASTICSEARCH_INSTANCE_NAME', VCAP_SERVICES['opensearch'][0]['instance_name']
-    )
-    connections.create_connection(
-        alias='default',
-        hosts=[services[ELASTICSEARCH_INSTANCE_NAME]['credentials']['uri']],
-        connection_class=RequestsHttpConnection,
-        http_compress=True,
-    )
-elif ELASTICSEARCH_PROVIDER == 'localhost':
-    connections.create_connection(
-        alias='default',
-        hosts=[env.str('ELASTICSEARCH_URL', 'localhost:9200')],
-        use_ssl=False,
-        verify_certs=False,
-        connection_class=RequestsHttpConnection,
-        http_compress=True,
-    )
-else:
-    raise NotImplementedError()
+# Opensearch
+OPENSEARCH_COMPANY_INDEX_ALIAS = env.opensearch_company_index_alias
 
-ELASTICSEARCH_COMPANY_INDEX_ALIAS = env.str('ELASTICSEARCH_COMPANY_INDEX_ALIAS', 'companies-alias')
+connections.create_connection(env.opensearch_config)
 
 # Activity Stream
 
 # Incoming
-ACTIVITY_STREAM_INCOMING_ACCESS_KEY = env.str('ACTIVITY_STREAM_INCOMING_ACCESS_KEY', '')
-ACTIVITY_STREAM_INCOMING_SECRET_KEY = env.str('ACTIVITY_STREAM_INCOMING_SECRET_KEY', '')
-ACTIVITY_STREAM_INCOMING_IP_WHITELIST = env.list('ACTIVITY_STREAM_INCOMING_IP_WHITELIST')
+ACTIVITY_STREAM_INCOMING_ACCESS_KEY = env.activity_stream_incoming_access_key
+ACTIVITY_STREAM_INCOMING_SECRET_KEY = env.activity_stream_incoming_secret_key
+ACTIVITY_STREAM_INCOMING_IP_WHITELIST = env.activity_stream_incoming_ip_whitelist
 
 # Outoing
-ACTIVITY_STREAM_OUTGOING_ACCESS_KEY = env.str('ACTIVITY_STREAM_OUTGOING_ACCESS_KEY')
-ACTIVITY_STREAM_OUTGOING_SECRET_KEY = env.str('ACTIVITY_STREAM_OUTGOING_SECRET_KEY')
-ACTIVITY_STREAM_OUTGOING_URL = env.str('ACTIVITY_STREAM_OUTGOING_URL')
-ACTIVITY_STREAM_OUTGOING_IP_WHITELIST = env.str('ACTIVITY_STREAM_OUTGOING_IP_WHITELIST')
+ACTIVITY_STREAM_OUTGOING_ACCESS_KEY = env.activity_stream_outgoing_access_key
+ACTIVITY_STREAM_OUTGOING_SECRET_KEY = env.activity_stream_outgoing_secret_key
+ACTIVITY_STREAM_OUTGOING_URL = env.activity_stream_outgoing_url
+ACTIVITY_STREAM_OUTGOING_IP_WHITELIST = env.activity_stream_outgoing_ip_whitelist
 
 # Healthcheck
-DIRECTORY_HEALTHCHECK_TOKEN = env.str('HEALTH_CHECK_TOKEN')
+DIRECTORY_HEALTHCHECK_TOKEN = env.health_check_token
 DIRECTORY_HEALTHCHECK_BACKENDS = [
     directory_healthcheck.backends.SingleSignOnBackend,
     healthcheck.backends.ElasticSearchCheckBackend,
@@ -575,20 +507,12 @@ DIRECTORY_HEALTHCHECK_BACKENDS = [
     # INSTALLED_APPS's health_check.db and health_check.cache
 ]
 
-CSV_DUMP_AUTH_TOKEN = env.str('CSV_DUMP_AUTH_TOKEN')
+CSV_DUMP_AUTH_TOKEN = env.csv_dump_auth_token
 BUYERS_CSV_FILE_NAME = 'find-a-buyer-buyers.csv'
 SUPPLIERS_CSV_FILE_NAME = 'find-a-buyer-suppliers.csv'
 
-FEATURE_SKIP_MIGRATE = env.bool('FEATURE_SKIP_MIGRATE', False)
-FEATURE_REDIS_USE_SSL = env.bool('FEATURE_REDIS_USE_SSL', False)
-FEATURE_TEST_API_ENABLED = env.bool('FEATURE_TEST_API_ENABLED', False)
-FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = env.bool('FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX', True)
-FEATURE_VERIFICATION_LETTERS_ENABLED = env.bool('FEATURE_VERIFICATION_LETTERS_ENABLED', False)
-FEATURE_REGISTRATION_LETTERS_ENABLED = env.bool('FEATURE_REGISTRATION_LETTERS_ENABLED', False)
-FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.bool('FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED', False)
-
 # directory-signature-auth
-SIGNATURE_SECRET = env.str('SIGNATURE_SECRET')
+SIGNATURE_SECRET = env.signature_secret
 SIGAUTH_URL_NAMES_WHITELIST = [
     'activity-stream',
     'activity-stream-export-plan-data',
@@ -646,20 +570,18 @@ SIGAUTH_URL_NAMES_WHITELIST = [
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
 
-SOLE_TRADER_NUMBER_SEED = env.int('SOLE_TRADER_NUMBER_SEED')
+SOLE_TRADER_NUMBER_SEED = env.sole_trader_number_seed
 
-EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME', '')
-EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD = env.str('EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD', '')
-EXPORTING_OPPORTUNITIES_API_BASE_URL = env.str('EXPORTING_OPPORTUNITIES_API_BASE_URL')
-EXPORTING_OPPORTUNITIES_API_SECRET = env.str('EXPORTING_OPPORTUNITIES_API_SECRET')
+EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_USERNAME = env.exporting_opportunities_api_basic_auth_username
+EXPORTING_OPPORTUNITIES_API_BASIC_AUTH_PASSWORD = env.exporting_opportunities_api_basic_auth_password
+EXPORTING_OPPORTUNITIES_API_BASE_URL = env.exporting_opportunities_api_base_url
+EXPORTING_OPPORTUNITIES_API_SECRET = env.exporting_opportunities_api_secret
 
-COMTRADE_DATA_FILE_NAME = env.str('COMTRADE_DATA_FILE_NAME', default='comtrade-import-data.csv')
+COMTRADE_DATA_FILE_NAME = env.comtrade_data_file_name
 
-TRADE_BARRIER_API_URI = env.str(
-    'TRADE_BARRIER_API_URI', 'https://data.api.trade.gov.uk/v1/datasets/market-barriers/versions/'
-)
+TRADE_BARRIER_API_URI = env.trade_barrier_api_uri
 
-WORLD_BANK_API_URI = env.str('WORLD_BANK_API_URI', 'https://api.worldbank.org/v2/en/indicator/')
+WORLD_BANK_API_URI = env.world_bank_api_uri
 
 # Data Workspace
-DATA_WORKSPACE_DATASETS_URL = env.str('DATA_WORKSPACE_DATASETS_URL', 'postgresql://')
+DATA_WORKSPACE_DATASETS_URL = env.data_workspace_datasets_url

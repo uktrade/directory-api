@@ -6,6 +6,8 @@
 #
 amqp==5.2.0
     # via kombu
+annotated-types==0.7.0
+    # via pydantic
 arabic-reshaper==3.0.0
     # via xhtml2pdf
 asgiref==3.7.2
@@ -37,6 +39,7 @@ botocore==1.27.96
 celery[redis]==5.3.6
     # via
     #   -r requirements.in
+    #   celery
     #   dbt-copilot-python
     #   django-celery-beat
 certifi==2024.7.4
@@ -73,7 +76,7 @@ cryptography==42.0.4
     #   pyhanko-certvalidator
 cssselect2==0.7.0
     # via svglib
-dbt-copilot-python==0.2.0
+dbt-copilot-python==0.2.1
     # via -r requirements.in
 defusedxml==0.7.1
     # via odfpy
@@ -323,6 +326,14 @@ psycopg2-binary==2.9.9
     # via -r requirements.in
 pycparser==2.21
     # via cffi
+pydantic==2.7.3
+    # via
+    #   -r requirements.in
+    #   pydantic-settings
+pydantic-core==2.18.4
+    # via pydantic
+pydantic-settings==2.3.1
+    # via -r requirements.in
 pyhanko==0.21.0
     # via xhtml2pdf
 pyhanko-certvalidator==0.26.3
@@ -353,6 +364,8 @@ python-dateutil==2.8.2
     #   faker
     #   pandas
     #   python-crontab
+python-dotenv==1.0.1
+    # via pydantic-settings
 pytz==2023.3
     # via
     #   directory-validators
@@ -383,6 +396,7 @@ requests[security]==2.32.3
     #   opentelemetry-exporter-otlp-proto-http
     #   pyhanko
     #   pyhanko-certvalidator
+    #   requests
     #   requests-oauthlib
 requests-oauthlib==1.3.1
     # via django-staff-sso-client
@@ -414,7 +428,9 @@ sqlparse==0.5.0
 svglib==1.5.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.5.0
-    # via django-import-export
+    # via
+    #   django-import-export
+    #   tablib
 tinycss2==1.2.1
     # via
     #   cssselect2
@@ -425,6 +441,8 @@ typing-extensions==4.9.0
     #   dj-database-url
     #   kombu
     #   opentelemetry-sdk
+    #   pydantic
+    #   pydantic-core
     #   pypdf
     #   qrcode
 tzdata==2023.4
