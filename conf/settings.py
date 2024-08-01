@@ -16,8 +16,6 @@ from conf.env import env
 
 from .utils import strip_password_data
 
-for env_file in env.list('ENV_FILES', default=[]):
-    env.read_env(f'conf/env/{env_file}')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -150,9 +148,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 if not os.path.exists(STATIC_ROOT):
     os.makedirs(STATIC_ROOT)
-STATIC_HOST = env.str('STATIC_HOST', '')
+STATIC_HOST = env.static_host
 STATIC_URL = STATIC_HOST + '/api-static/'
-STATICFILES_STORAGE = env.str('STATICFILES_STORAGE', 'whitenoise.storage.CompressedStaticFilesStorage')
+STATICFILES_STORAGE = env.staticfiles_storage
 
 # S3 storage does not use these settings, needed only for dev local storage
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -392,7 +390,7 @@ CSRF_COOKIE_SECURE = env.csrf_cookie_secure
 DIRECTORY_FORMS_API_BASE_URL = env.directory_forms_api_base_url
 DIRECTORY_FORMS_API_API_KEY = env.directory_forms_api_api_key
 DIRECTORY_FORMS_API_SENDER_ID = env.directory_forms_api_sender_id
-DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.directory_api_forms_default_timeout
+DIRECTORY_FORMS_API_DEFAULT_TIMEOUT = env.directory_forms_api_default_timeout
 DIRECTORY_FORMS_API_ZENDESK_SEVICE_NAME = env.directory_forms_api_zendesk_sevice_name
 
 # Gov notification settings
@@ -482,7 +480,7 @@ DIRECTORY_CONSTANTS_URL_GREAT_DOMESTIC = env.directory_constants_url_great_domes
 # Opensearch
 OPENSEARCH_COMPANY_INDEX_ALIAS = env.opensearch_company_index_alias
 
-connections.create_connection(env.opensearch_config)
+connections.create_connection(**env.opensearch_config)
 
 # Activity Stream
 

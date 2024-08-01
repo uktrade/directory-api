@@ -20,7 +20,7 @@ class BaseSettings(PydanticBaseSettings):
 
     # Start of Environment Variables
     debug: bool = False
-    app_environment: str
+    app_environment: str = 'dev'
     secret_key: str
     allowed_hosts: list[str] = ['*']
     safelist_hosts: list[str] = []
@@ -32,6 +32,9 @@ class BaseSettings(PydanticBaseSettings):
     storage_class_name: str = 'default'
     private_storage_class_name: str = 'private'
     local_storage_domain: str = ''
+
+    static_host: str = ''
+    staticfiles_storage: str = 'whitenoise.storage.CompressedStaticFilesStorage'
 
     opensearch_company_index_alias: str = 'companies-alias'
 
@@ -60,7 +63,7 @@ class BaseSettings(PydanticBaseSettings):
 
     # Sentry
     sentry_dsn: str = ''
-    sentry_environment: str
+    sentry_environment: str = 'dev'
     sentry_enable_tracing: bool = False
     sentry_traces_sample_rate: float = 1.0
 
@@ -81,10 +84,6 @@ class BaseSettings(PydanticBaseSettings):
     directory_sso_api_secret: str = ''
     directory_sso_api_client_sender_id: str = 'directory'
 
-    # Google tag manager
-    google_tag_manager_id: str
-    google_tag_manager_env: str = ''
-
     # directory forms api client
     directory_forms_api_base_url: str
     directory_forms_api_api_key: str
@@ -93,7 +92,7 @@ class BaseSettings(PydanticBaseSettings):
     directory_forms_api_zendesk_sevice_name: str = 'api'
 
     # Email
-    email_backed_class_name: str = 'default'
+    email_backend_class_name: str = 'default'
     email_host: str = ''
     email_port: str = ''
     email_host_user: str = ''
@@ -182,7 +181,7 @@ class BaseSettings(PydanticBaseSettings):
     # Incoming
     activity_stream_incoming_access_key: str = ''
     activity_stream_incoming_secret_key: str = ''
-    activity_stream_incoming_ip_whitelist: list
+    activity_stream_incoming_ip_whitelist: str
 
     # Outoing
     activity_stream_outgoing_access_key: str
@@ -265,7 +264,7 @@ class DBTPlatformEnvironment(BaseSettings):
         if self.build_step:
             return {
                 "alias": 'default',
-                "hosts": [env.str(self.opensearch_url, 'localhost:9200')],
+                "hosts": [self.opensearch_url, 'localhost:9200'],
                 "use_ssl": False,
                 "verify_certs": False,
                 "connection_class": RequestsHttpConnection,
@@ -274,7 +273,7 @@ class DBTPlatformEnvironment(BaseSettings):
 
         return {
             "alias": 'default',
-            "hosts": [env.str(self.opensearch_url)],
+            "hosts": [self.opensearch_url],
             "connection_class": RequestsHttpConnection,
             "http_compress": True,
         }
@@ -355,42 +354,18 @@ class GovPaasEnvironment(BaseSettings):
             "http_compress": True,
         }
 
-
-if is_copilot():
-    if 'BUILD_STEP' in os.environ:
-        # When building use the fake settings in circleci env file
-        env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(secret_key='FAKE_SECRET_KEY')
-    else:
-        # When deployed read values from DBT Platform environment
-        env = DBTPlatformEnvironment()
-else:
-    # Gov PaaS environment
-    env = GovPaasEnvironment()
-
-
-def get_env():
-    """
-    Factory to determine which environmental class (and associated settings) gets created.
-    """
-
-    # Local
-    if os.getenv('APP_ENVIRONMENT') is 'local':
-        env: DBTPlatformEnvironment = DBTPlatformEnvironment() # TODO: Local Var configuration
-
-    # Circle CI
-    elif 'BUILD_STEP' in os.environ:
-        # When building use the fake settings in circleci env file
-        env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(secret_key='FAKE_SECRET_KEY')
-
-    # DBT Platforms (i.e. AWS)
-    elif is_copilot():
-        env: DBTPlatformEnvironment = DBTPlatformEnvironment()
-
-    # Gov PaaS (legacy)
-    elif not is_copilot and os.getenv('APP_ENVIRONMENT') in ['prod', 'staging', 'dev']:
-        env: GovPaasEnvironment = GovPaasEnvironment()
-
-    else:
-        raise Exception('No configuration environment can be determined')
-
-    return env
+env_files = ['conf/env/' + filename for filename in os.getenv('ENV_FILES', '').split(',')]
+env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(
+    _env_file=env_files, _env_file_encoding='utf-8'
+)
+# if is_copilot():
+#     if 'BUILD_STEP' in os.environ:
+#         env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(
+#             _env_file=env_files, _env_file_encoding='utf-8'
+#         )
+#     else:
+#         # When deployed read values from DBT Platform environment
+#         env = DBTPlatformEnvironment()
+# else:
+#     # Gov PaaS environment
+#     env = GovPaasEnvironment()
