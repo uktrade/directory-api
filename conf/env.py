@@ -366,3 +366,31 @@ if is_copilot():
 else:
     # Gov PaaS environment
     env = GovPaasEnvironment()
+
+
+def get_env():
+    """
+    Factory to determine which environmental class (and associated settings) gets created.
+    """
+
+    # Local
+    if os.getenv('APP_ENVIRONMENT') is 'local':
+        env: DBTPlatformEnvironment = DBTPlatformEnvironment() # TODO: Local Var configuration
+
+    # Circle CI
+    elif 'BUILD_STEP' in os.environ:
+        # When building use the fake settings in circleci env file
+        env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(secret_key='FAKE_SECRET_KEY')
+
+    # DBT Platforms (i.e. AWS)
+    elif is_copilot():
+        env: DBTPlatformEnvironment = DBTPlatformEnvironment()
+
+    # Gov PaaS (legacy)
+    elif not is_copilot and os.getenv('APP_ENVIRONMENT') in ['prod', 'staging', 'dev']:
+        env: GovPaasEnvironment = GovPaasEnvironment()
+
+    else:
+        raise Exception('No configuration environment can be determined')
+
+    return env
