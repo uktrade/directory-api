@@ -431,3 +431,4 @@ def get_env():
         raise Exception('No configuration environment can be determined')
 
     return env
+
