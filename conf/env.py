@@ -1,5 +1,5 @@
 import os
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import setup_allowed_hosts
@@ -8,6 +8,8 @@ from elasticsearch import RequestsHttpConnection
 from pydantic import BaseModel, ConfigDict, computed_field
 from pydantic_settings import BaseSettings as PydanticBaseSettings
 from pydantic_settings import SettingsConfigDict
+
+from conf.helpers import get_env_files, is_circleci, is_local
 
 
 class BaseSettings(PydanticBaseSettings):
@@ -20,11 +22,7 @@ class BaseSettings(PydanticBaseSettings):
 
     # Start of Environment Variables
     debug: bool = False
-<<<<<<< HEAD
-    app_environment: str
-=======
     app_environment: str = 'dev'
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
     secret_key: str
     allowed_hosts: list[str] = ['*']
     safelist_hosts: list[str] = []
@@ -37,12 +35,9 @@ class BaseSettings(PydanticBaseSettings):
     private_storage_class_name: str = 'private'
     local_storage_domain: str = ''
 
-<<<<<<< HEAD
-=======
     static_host: str = ''
     staticfiles_storage: str = 'whitenoise.storage.CompressedStaticFilesStorage'
 
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
     opensearch_company_index_alias: str = 'companies-alias'
 
     # AWS
@@ -70,11 +65,7 @@ class BaseSettings(PydanticBaseSettings):
 
     # Sentry
     sentry_dsn: str = ''
-<<<<<<< HEAD
-    sentry_environment: str
-=======
     sentry_environment: str = 'dev'
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
     sentry_enable_tracing: bool = False
     sentry_traces_sample_rate: float = 1.0
 
@@ -95,13 +86,6 @@ class BaseSettings(PydanticBaseSettings):
     directory_sso_api_secret: str = ''
     directory_sso_api_client_sender_id: str = 'directory'
 
-<<<<<<< HEAD
-    # Google tag manager
-    google_tag_manager_id: str
-    google_tag_manager_env: str = ''
-
-=======
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
     # directory forms api client
     directory_forms_api_base_url: str
     directory_forms_api_api_key: str
@@ -110,11 +94,7 @@ class BaseSettings(PydanticBaseSettings):
     directory_forms_api_zendesk_sevice_name: str = 'api'
 
     # Email
-<<<<<<< HEAD
-    email_backed_class_name: str = 'default'
-=======
     email_backend_class_name: str = 'default'
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
     email_host: str = ''
     email_port: str = ''
     email_host_user: str = ''
@@ -203,11 +183,7 @@ class BaseSettings(PydanticBaseSettings):
     # Incoming
     activity_stream_incoming_access_key: str = ''
     activity_stream_incoming_secret_key: str = ''
-<<<<<<< HEAD
-    activity_stream_incoming_ip_whitelist: list
-=======
     activity_stream_incoming_ip_whitelist: str
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
 
     # Outoing
     activity_stream_outgoing_access_key: str
@@ -255,14 +231,14 @@ class DBTPlatformEnvironment(BaseSettings):
     e.g. DBTPlatformEnvironment.app_environment loads and validates the APP_ENVIRONMENT environment variable.
     """
 
-    build_step: bool = False
+    circleci: bool = False
     celery_broker_url: str = ''
     opensearch_url: str
 
     @computed_field(return_type=list[str])
     @property
     def allowed_hosts_list(self):
-        if self.build_step:
+        if self.circleci or is_local():
             return self.allowed_hosts
 
         # Makes an external network request so only call when running on DBT Platform
@@ -271,30 +247,26 @@ class DBTPlatformEnvironment(BaseSettings):
     @computed_field(return_type=str)
     @property
     def database_url(self):
-        if self.build_step:
-            return 'postgres://'
+        if self.circleci or is_local():
+            return os.getenv('DATABASE_URL')
 
         return database_url_from_env('DATABASE_CREDENTIALS')
 
     @computed_field(return_type=str)
     @property
     def redis_url(self):
-        if self.build_step:
-            return 'rediss://'
+        if self.circleci or is_local():
+            return os.getenv('REDIS_URL')
 
         return self.celery_broker_url
 
     @computed_field(return_type=dict)
     @property
     def opensearch_config(self):
-        if self.build_step:
+        if self.circleci or is_local():
             return {
                 "alias": 'default',
-<<<<<<< HEAD
-                "hosts": [env.str(self.opensearch_url, 'localhost:9200')],
-=======
                 "hosts": [self.opensearch_url, 'localhost:9200'],
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
                 "use_ssl": False,
                 "verify_certs": False,
                 "connection_class": RequestsHttpConnection,
@@ -303,11 +275,7 @@ class DBTPlatformEnvironment(BaseSettings):
 
         return {
             "alias": 'default',
-<<<<<<< HEAD
-            "hosts": [env.str(self.opensearch_url)],
-=======
             "hosts": [self.opensearch_url],
->>>>>>> origin/GREATUK-1023-implement-the-platform-environment-reader
             "connection_class": RequestsHttpConnection,
             "http_compress": True,
         }
@@ -388,47 +356,12 @@ class GovPaasEnvironment(BaseSettings):
             "http_compress": True,
         }
 
-env_files = ['conf/env/' + filename for filename in os.getenv('ENV_FILES', '').split(',')]
-env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(
-    _env_file=env_files, _env_file_encoding='utf-8'
-)
-# if is_copilot():
-#     if 'BUILD_STEP' in os.environ:
-#         env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(
-#             _env_file=env_files, _env_file_encoding='utf-8'
-#         )
-#     else:
-#         # When deployed read values from DBT Platform environment
-#         env = DBTPlatformEnvironment()
-# else:
-#     # Gov PaaS environment
-#     env = GovPaasEnvironment()
 
-
-def get_env():
-    """
-    Factory to determine which environmental class (and associated settings) gets created.
-    """
-
-    # Local
-    if os.getenv('APP_ENVIRONMENT') is 'local':
-        env: DBTPlatformEnvironment = DBTPlatformEnvironment() # TODO: Local Var configuration
-
-    # Circle CI
-    elif 'BUILD_STEP' in os.environ:
-        # When building use the fake settings in circleci env file
-        env: Union[DBTPlatformEnvironment, GovPaasEnvironment] = DBTPlatformEnvironment(secret_key='FAKE_SECRET_KEY')
-
-    # DBT Platforms (i.e. AWS)
-    elif is_copilot():
-        env: DBTPlatformEnvironment = DBTPlatformEnvironment()
-
-    # Gov PaaS (legacy)
-    elif not is_copilot and os.getenv('APP_ENVIRONMENT') in ['prod', 'staging', 'dev']:
-        env: GovPaasEnvironment = GovPaasEnvironment()
-
-    else:
-        raise Exception('No configuration environment can be determined')
-
-    return env
-
+if is_local() or is_circleci():
+    env = DBTPlatformEnvironment(_env_file=get_env_files(), _env_file_encoding='utf-8')
+elif is_copilot():
+    # When deployed read values from DBT Platform environment
+    env = DBTPlatformEnvironment()
+else:
+    # When deployed read values from Gov PaaS environment
+    env = GovPaasEnvironment()

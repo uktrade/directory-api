@@ -16,7 +16,6 @@ from conf.env import env
 
 from .utils import strip_password_data
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_ROOT)
@@ -110,7 +109,7 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 REDIS_URL = env.redis_url
 
 # Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {'default': dj_database_url.config()}
 
 # Caches
