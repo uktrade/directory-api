@@ -26,7 +26,6 @@ class Command(BaseDataWorkspaceIngestionCommand):
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
         for chunk in chunks:
-
             # in the source data some of the salary columns contain 'x', ':' and so on. Also represented as strings
             chunk = chunk.replace(
                 to_replace={'mean_salary': r'[^0-9.]', 'median_salary': r'[^0-9.]'}, value='0', regex=True

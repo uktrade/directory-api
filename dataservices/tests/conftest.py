@@ -616,3 +616,53 @@ def eyb_rent_data():
         models.EYBCommercialPropertyRent.objects.create(**record)
     yield
     models.EYBCommercialPropertyRent.objects.all().delete()
+
+
+@pytest.fixture
+def gva_bandings():
+    records = [
+        {
+            "id": 1,
+            "full_sector_name": "Aerospace",
+            "value_band_a_minimum": 10000,
+            "value_band_b_minimum": 1000,
+            "value_band_c_minimum": 100,
+            "value_band_d_minimum": 10,
+            "value_band_e_minimum": 1,
+            "start_date": "2020-04-01",
+            "end_date": "2021-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
+        {
+            "id": 2,
+            "full_sector_name": "Aerospace",
+            "value_band_a_minimum": 20000,
+            "value_band_b_minimum": 2000,
+            "value_band_c_minimum": 200,
+            "value_band_d_minimum": 20,
+            "value_band_e_minimum": 2,
+            "start_date": "2024-04-01",
+            "end_date": "2025-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
+        {
+            "id": 3,
+            "full_sector_name": "Aerospace",
+            "value_band_a_minimum": 30000,
+            "value_band_b_minimum": 3000,
+            "value_band_c_minimum": 300,
+            "value_band_d_minimum": 30,
+            "value_band_e_minimum": 3,
+            "start_date": "2022-04-01",
+            "end_date": "2023-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
+    ]
+
+    for record in records:
+        models.SectorGVAValueBand.objects.create(**record)
+    yield
+    models.EYBCommercialPropertyRent.objects.all().delete()

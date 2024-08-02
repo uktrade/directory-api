@@ -29,7 +29,6 @@ class Command(BaseDataWorkspaceIngestionCommand):
         chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
 
         for chunk in chunks:
-
             for _idx, row in chunk.iterrows():
                 data.append(
                     DBTSector(
