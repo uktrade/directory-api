@@ -1074,20 +1074,20 @@ class DBTSectorsView(generics.ListAPIView):
         OpenApiExample(
             'GET Request 200 Example',
             value=[
-                    {
-                        "id" : 1,
-                        "full_sector_name" : "Aerospace",
-                        "value_band_a_minimum" : 10000,
-                        "value_band_b_minimum" : 1000,
-                        "value_band_c_minimum" : 100,
-                        "value_band_d_minimum" : 10,
-                        "value_band_e_minimum" : 1,
-                        "start_date" : "2024-04-01",
-                        "end_date" : "2026-03-31",
-                        "sector_classification_value_band" : "classification band",
-                        "sector_classification_gva_multiplier" : "classification band"
-                    }
-                ],
+                {
+                    "id": 1,
+                    "full_sector_name": "Aerospace",
+                    "value_band_a_minimum": 10000,
+                    "value_band_b_minimum": 1000,
+                    "value_band_c_minimum": 100,
+                    "value_band_d_minimum": 10,
+                    "value_band_e_minimum": 1,
+                    "start_date": "2024-04-01",
+                    "end_date": "2026-03-31",
+                    "sector_classification_value_band": "classification band",
+                    "sector_classification_gva_multiplier": "classification band",
+                }
+            ],
             response_only=True,
             status_codes=[200],
         ),
@@ -1106,11 +1106,13 @@ class DBTSectorsView(generics.ListAPIView):
 class SectorGVAValueBandView(generics.ListAPIView):
     permission_classes = []
     serializer_class = serializers.SectorGVAValueBandSerializer
-    
+
     def get_queryset(self):
         full_sector_name = self.request.query_params.get('full_sector_name', '')
         # return the most recent GVA banding for the sector
-        return models.SectorGVAValueBand.objects.filter(full_sector_name__iexact=full_sector_name).order_by('-start_date')[:1]
+        return models.SectorGVAValueBand.objects.filter(full_sector_name__iexact=full_sector_name).order_by(
+            '-start_date'
+        )[:1]
 
 
 class DBTInvestmentOpportunityView(generics.ListAPIView):

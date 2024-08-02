@@ -795,6 +795,7 @@ def test_dataservices_eyb_commercial_rent_api_missing_query_param(client, url):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
+
 @pytest.mark.django_db
 def test_dataservices_sector_gva_bandings_view(gva_bandings, client):
     response = client.get(f"{reverse('dataservices-sector-gva-value-band')}?full_sector_name=aerospace")
