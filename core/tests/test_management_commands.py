@@ -42,10 +42,7 @@ def test_mask_data(new_companies, new_suppliers):
 
 @pytest.mark.django_db
 @mock.patch.object(migrate.Command, 'handle')
-@mock.patch.object(distributed_migrate.Command, 'is_first_instance')
-def test_distributed_migration_first(mock_is_first_instance, mock_handle):
-    mock_is_first_instance.return_value = True
-
+def test_distributed_migration_first(mock_handle):
     call_command('distributed_migrate')
 
     assert mock_handle.call_count == 1
@@ -55,9 +52,7 @@ def test_distributed_migration_first(mock_is_first_instance, mock_handle):
 @mock.patch('time.sleep', mock.Mock)
 @mock.patch.object(migrate.Command, 'handle')
 @mock.patch.object(distributed_migrate.Command, 'is_migration_pending')
-@mock.patch.object(distributed_migrate.Command, 'is_first_instance')
-def test_distributed_migration_second(mock_is_first_instance, mock_is_migration_pending, mock_handle):
-    mock_is_first_instance.return_value = False
+def test_distributed_migration_second(mock_is_migration_pending, mock_handle):
     mock_is_migration_pending.side_effect = (
         True,
         False,
@@ -65,4 +60,4 @@ def test_distributed_migration_second(mock_is_first_instance, mock_is_migration_
 
     call_command('distributed_migrate')
 
-    assert mock_handle.call_count == 0
+    assert mock_handle.call_count == 1

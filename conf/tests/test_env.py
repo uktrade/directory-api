@@ -55,7 +55,7 @@ def vcap_services():
                     'tls_enabled': True,
                     'uri': 'rediss://examplepassword@example.com:6379',
                 },
-                'instance_guid': '5678',
+                'instance_guid': '4567',
                 'instance_name': 'great-cms-redis-small',
                 'label': 'redis',
                 'name': 'great-cms-redis-small-ha-6',
@@ -63,6 +63,28 @@ def vcap_services():
                 'provider': None,
                 'syslog_drain_url': None,
                 'tags': ['elasticache', 'redis'],
+                'volume_mounts': [],
+            }
+        ],
+        'opensearch': [
+            {
+                'binding_guid': '789',
+                'binding_name': None,
+                'credentials': {
+                    'hostname': 'example.com',
+                    'password': 'examplepassword',
+                    'port': 19676,
+                    'uri': 'https://exampleuser:examplepassword@example.com:19676',
+                    'username': 'exampleuser',
+                },
+                'instance_guid': '7890',
+                'instance_name': 'directory-api-opensearch',
+                'label': 'opensearch',
+                'name': 'directory-api-opensearch',
+                'plan': 'medium-ha-1',
+                'provider': None,
+                'syslog_drain_url': None,
+                'tags': [],
                 'volume_mounts': [],
             }
         ],
@@ -103,12 +125,14 @@ def database_credentials():
 
 
 def test_gov_paas_environment(vcap_application, vcap_services, environment):
-    os.environ.pop('CIRCLECI')
+    os.environ.pop('CIRCLECI', None)
     os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['VCAP_SERVICES'] = vcap_services
     os.environ['VCAP_APPLICATION'] = vcap_application
 
     reload(environment_reader)
+
+    os.environ['CIRCLECI'] = 'true'
 
     assert isinstance(environment_reader.env, environment_reader.GovPaasEnvironment)
     assert environment_reader.env.app_environment == 'local'
@@ -119,29 +143,34 @@ def test_gov_paas_environment(vcap_application, vcap_services, environment):
 
 
 def test_dbt_platform_environment(database_credentials, environment):
-    os.environ.pop('CIRCLECI')
+    os.environ.pop('CIRCLECI', None)
     os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['COPILOT_ENVIRONMENT_NAME'] = 'test'
     os.environ['DATABASE_CREDENTIALS'] = database_credentials
     os.environ['CELERY_BROKER_URL'] = 'rediss://examplepassword@example.com:6379'
+    os.environ['OPENSEARCH_URL'] = 'https://exampleuser:examplepassword@example.com:19676'
 
     reload(environment_reader)
+
+    os.environ['CIRCLECI'] = 'true'
 
     assert isinstance(environment_reader.env, environment_reader.DBTPlatformEnvironment)
     assert environment_reader.env.app_environment == 'local'
     assert environment_reader.env.secret_key == 'debug'
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
+    assert environment_reader.env.opensearch_url == 'https://exampleuser:examplepassword@example.com:19676'
 
 
 def test_ci_environment():
     os.environ['DATABASE_URL'] = 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     os.environ['REDIS_URL'] = 'rediss://examplepassword@example.com:6379'
+    os.environ['OPENSEARCH_URL'] = 'https://exampleuser:examplepassword@example.com:19676'
 
     reload(environment_reader)
 
     assert isinstance(environment_reader.env, environment_reader.CIEnvironment)
-    assert environment_reader.env.app_environment == 'dev'
+    assert environment_reader.env.app_environment == 'local'
     assert environment_reader.env.secret_key == 'debug'
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
