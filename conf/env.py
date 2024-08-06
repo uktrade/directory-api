@@ -3,7 +3,7 @@ from typing import Any, Optional
 from dbt_copilot_python.database import database_url_from_env
 from dbt_copilot_python.network import setup_allowed_hosts
 from dbt_copilot_python.utility import is_copilot
-from elasticsearch import RequestsHttpConnection
+from opensearchpy import RequestsHttpConnection
 from pydantic import BaseModel, ConfigDict, computed_field
 from pydantic_settings import BaseSettings as PydanticBaseSettings
 from pydantic_settings import SettingsConfigDict
@@ -283,6 +283,7 @@ class GovPaasEnvironment(BaseSettings):
 
         postgres: list[dict[str, Any]]
         redis: list[dict[str, Any]]
+        opensearch: list[dict[str, Any]]
 
     class VCAPApplication(BaseModel):
         """Config of the Gov PaaS application"""
@@ -332,7 +333,7 @@ class GovPaasEnvironment(BaseSettings):
         if self.vcap_services:
             return self.vcap_services.opensearch[0]['credentials']['uri']
 
-        return ''
+        return 'https://'
 
     @computed_field(return_type=dict)
     @property

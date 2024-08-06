@@ -1,7 +1,7 @@
 import datetime
 from unittest import mock
 
-import elasticsearch
+import opensearchpy
 import pytest
 from directory_constants import company_types, user_roles
 from django.utils import timezone
@@ -140,7 +140,7 @@ def test_delete_company_from_elasticsearch():
 
     company.delete()
 
-    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+    with pytest.raises(opensearchpy.exceptions.NotFoundError):
         documents.CompanyDocument.get(id=company_pk)
 
 
@@ -152,7 +152,7 @@ def test_delete_unpublished_isd_company_from_elasticsearch():
 
     company.delete()
 
-    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+    with pytest.raises(opensearchpy.exceptions.NotFoundError):
         documents.CompanyDocument.get(id=company_pk)
 
 
@@ -167,7 +167,7 @@ def test_delete_unpublish_isd_company_from_elasticsearch():
     company.is_published_find_a_supplier = False
     company.save()
 
-    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+    with pytest.raises(opensearchpy.exceptions.NotFoundError):
         documents.CompanyDocument.get(id=company_pk)
 
 
@@ -179,7 +179,7 @@ def test_delete_unpublished_fab_company_from_elasticsearch():
 
     company.delete()
 
-    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+    with pytest.raises(opensearchpy.exceptions.NotFoundError):
         documents.CompanyDocument.get(id=company_pk)
 
 
@@ -194,7 +194,7 @@ def test_delete_unpublish_fab_company_from_elasticsearch():
     company.is_published_find_a_supplier = False
     company.save()
 
-    with pytest.raises(elasticsearch.exceptions.NotFoundError):
+    with pytest.raises(opensearchpy.exceptions.NotFoundError):
         documents.CompanyDocument.get(id=company_pk)
 
 

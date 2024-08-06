@@ -6,7 +6,7 @@ import dj_database_url
 import sentry_sdk
 from django.urls import reverse_lazy
 from django_log_formatter_asim import ASIMFormatter
-from elasticsearch_dsl.connections import connections
+from opensearch_dsl.connections import connections
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration

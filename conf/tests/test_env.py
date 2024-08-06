@@ -1,9 +1,11 @@
 import json
 import os
 from importlib import reload
+from unittest import mock
 
 import environ
 import pytest
+from opensearchpy import RequestsHttpConnection
 
 # from config.env import DBTPlatformEnvironment, GovPaasEnvironment, env
 from conf import env as environment_reader
@@ -140,8 +142,23 @@ def test_gov_paas_environment(vcap_application, vcap_services, environment):
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
     assert environment_reader.env.vcap_application.name == 'great-cms'
+    assert environment_reader.env.allowed_hosts_list == ['*']
+    assert environment_reader.env.opensearch_url == 'https://exampleuser:examplepassword@example.com:19676'
+    assert environment_reader.env.opensearch_config == {
+        'alias': 'default',
+        'connection_class': RequestsHttpConnection,
+        'hosts': ['https://exampleuser:examplepassword@example.com:19676'],
+        'http_compress': True,
+    }
+
+    environment_reader.env.vcap_services = None
+
+    assert environment_reader.env.database_url == 'postgres://'
+    assert environment_reader.env.redis_url == 'rediss://'
+    assert environment_reader.env.opensearch_url == 'https://'
 
 
+@mock.patch('dbt_copilot_python.network.setup_allowed_hosts', mock.Mock(return_value=['*']))
 def test_dbt_platform_environment(database_credentials, environment):
     os.environ.pop('CIRCLECI', None)
     os.environ['APP_ENVIRONMENT'] = 'local'
@@ -160,6 +177,13 @@ def test_dbt_platform_environment(database_credentials, environment):
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
     assert environment_reader.env.opensearch_url == 'https://exampleuser:examplepassword@example.com:19676'
+    assert environment_reader.env.allowed_hosts_list == ['*']
+    assert environment_reader.env.opensearch_config == {
+        'alias': 'default',
+        'connection_class': RequestsHttpConnection,
+        'hosts': ['https://exampleuser:examplepassword@example.com:19676'],
+        'http_compress': True,
+    }
 
 
 def test_ci_environment():

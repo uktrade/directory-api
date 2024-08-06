@@ -11,8 +11,8 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
-from elasticsearch_dsl import Index
-from elasticsearch_dsl.connections import connections
+from opensearch_dsl import Index
+from opensearch_dsl.connections import connections
 from freezegun import freeze_time
 from PIL import Image
 from rest_framework import status
@@ -1176,7 +1176,7 @@ search_urls = (
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-@mock.patch('elasticsearch_dsl.response.Response.to_dict')
+@mock.patch('opensearch_dsl.response.Response.to_dict')
 def test_search(mock_get_search_results, url, api_client):
     mock_get_search_results.return_value = expected_value = {
         'hits': {

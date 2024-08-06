@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
 from django.conf import settings
-from elasticsearch_dsl import Document, InnerDoc, MetaField, analysis, field
+from opensearch_dsl import Document, InnerDoc, MetaField, analysis, field
 
 from company import helpers, search_filters, serializers
 
