@@ -106,7 +106,6 @@ class BaseDataWorkspaceIngestionCommand(BaseCommand):
 
 
 class MarketGuidesDataIngestionCommand(BaseDataWorkspaceIngestionCommand):
-
     def should_ingestion_run(self, view_name, table_name):
         dataflow_metadata = self.get_dataflow_metadata(table_name)
         swapped_date = dataflow_metadata.loc[:, 'dataflow_swapped_tables_utc'][0].to_pydatetime().date()
