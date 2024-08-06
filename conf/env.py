@@ -1,4 +1,3 @@
-import os
 from typing import Any, Optional
 
 from dbt_copilot_python.database import database_url_from_env
@@ -215,25 +214,10 @@ class BaseSettings(PydanticBaseSettings):
 
     data_workspace_datasets_url: str = 'postgresql://'
 
-    @property
-    def database_url(self):
-        raise NotImplementedError
-
-    @property
-    def redis_url(self):
-        raise NotImplementedError
-
 
 class CIEnvironment(BaseSettings):
-    @computed_field(return_type=str)
-    @property
-    def database_url(self):
-        return os.getenv('DATABASE_URL')
-
-    @computed_field(return_type=str)
-    @property
-    def redis_url(self):
-        return os.getenv('REDIS_URL')
+    database_url: str
+    redis_url: str
 
     @computed_field(return_type=dict)
     @property

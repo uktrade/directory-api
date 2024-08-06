@@ -103,6 +103,7 @@ def database_credentials():
 
 
 def test_gov_paas_environment(vcap_application, vcap_services, environment):
+    os.environ.pop('CIRCLECI')
     os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['VCAP_SERVICES'] = vcap_services
     os.environ['VCAP_APPLICATION'] = vcap_application
@@ -118,6 +119,7 @@ def test_gov_paas_environment(vcap_application, vcap_services, environment):
 
 
 def test_dbt_platform_environment(database_credentials, environment):
+    os.environ.pop('CIRCLECI')
     os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['COPILOT_ENVIRONMENT_NAME'] = 'test'
     os.environ['DATABASE_CREDENTIALS'] = database_credentials
