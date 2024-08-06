@@ -224,6 +224,30 @@ class BaseSettings(PydanticBaseSettings):
         raise NotImplementedError
 
 
+class CIEnvironment(BaseSettings):
+    @computed_field(return_type=str)
+    @property
+    def database_url(self):
+        return os.getenv('DATABASE_URL')
+
+    @computed_field(return_type=str)
+    @property
+    def redis_url(self):
+        return os.getenv('REDIS_URL')
+
+    @computed_field(return_type=dict)
+    @property
+    def opensearch_config(self):
+        return {
+            "alias": 'default',
+            "hosts": ['localhost:9200'],
+            "use_ssl": False,
+            "verify_certs": False,
+            "connection_class": RequestsHttpConnection,
+            "http_compress": True,
+        }
+
+
 class DBTPlatformEnvironment(BaseSettings):
     """Class holding all listed environment variables on DBT Platform.
 
@@ -231,48 +255,28 @@ class DBTPlatformEnvironment(BaseSettings):
     e.g. DBTPlatformEnvironment.app_environment loads and validates the APP_ENVIRONMENT environment variable.
     """
 
-    circleci: bool = False
     celery_broker_url: str = ''
     opensearch_url: str
 
     @computed_field(return_type=list[str])
     @property
     def allowed_hosts_list(self):
-        if self.circleci or is_local():
-            return self.allowed_hosts
-
         # Makes an external network request so only call when running on DBT Platform
         return setup_allowed_hosts(self.allowed_hosts)
 
     @computed_field(return_type=str)
     @property
     def database_url(self):
-        if self.circleci or is_local():
-            return os.getenv('DATABASE_URL')
-
         return database_url_from_env('DATABASE_CREDENTIALS')
 
     @computed_field(return_type=str)
     @property
     def redis_url(self):
-        if self.circleci or is_local():
-            return os.getenv('REDIS_URL')
-
         return self.celery_broker_url
 
     @computed_field(return_type=dict)
     @property
     def opensearch_config(self):
-        if self.circleci or is_local():
-            return {
-                "alias": 'default',
-                "hosts": [self.opensearch_url, 'localhost:9200'],
-                "use_ssl": False,
-                "verify_certs": False,
-                "connection_class": RequestsHttpConnection,
-                "http_compress": True,
-            }
-
         return {
             "alias": 'default',
             "hosts": [self.opensearch_url],
@@ -358,7 +362,7 @@ class GovPaasEnvironment(BaseSettings):
 
 
 if is_local() or is_circleci():
-    env = DBTPlatformEnvironment(_env_file=get_env_files(), _env_file_encoding='utf-8')
+    env = CIEnvironment(_env_file=get_env_files(), _env_file_encoding='utf-8')
 elif is_copilot():
     # When deployed read values from DBT Platform environment
     env = DBTPlatformEnvironment()

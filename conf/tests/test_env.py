@@ -2,10 +2,18 @@ import json
 import os
 from importlib import reload
 
+import environ
 import pytest
 
 # from config.env import DBTPlatformEnvironment, GovPaasEnvironment, env
 from conf import env as environment_reader
+
+
+@pytest.fixture
+def environment():
+    env = environ.Env()
+    for env_file in env.list('ENV_FILES', default=[]):
+        env.read_env(f'conf/env/{env_file}')
 
 
 @pytest.fixture
@@ -94,7 +102,8 @@ def database_credentials():
     return json.dumps(data)
 
 
-def test_gov_paas_environment(vcap_application, vcap_services):
+def test_gov_paas_environment(vcap_application, vcap_services, environment):
+    os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['VCAP_SERVICES'] = vcap_services
     os.environ['VCAP_APPLICATION'] = vcap_application
 
@@ -108,18 +117,29 @@ def test_gov_paas_environment(vcap_application, vcap_services):
     assert environment_reader.env.vcap_application.name == 'great-cms'
 
 
-def test_dbt_platform_environment(database_credentials):
+def test_dbt_platform_environment(database_credentials, environment):
+    os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['COPILOT_ENVIRONMENT_NAME'] = 'test'
     os.environ['DATABASE_CREDENTIALS'] = database_credentials
     os.environ['CELERY_BROKER_URL'] = 'rediss://examplepassword@example.com:6379'
-
-    # To remain testable on CircleCI
-    os.environ.pop('BUILD_STEP', None)
 
     reload(environment_reader)
 
     assert isinstance(environment_reader.env, environment_reader.DBTPlatformEnvironment)
     assert environment_reader.env.app_environment == 'local'
+    assert environment_reader.env.secret_key == 'debug'
+    assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
+    assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
+
+
+def test_ci_environment():
+    os.environ['DATABASE_URL'] = 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
+    os.environ['REDIS_URL'] = 'rediss://examplepassword@example.com:6379'
+
+    reload(environment_reader)
+
+    assert isinstance(environment_reader.env, environment_reader.CIEnvironment)
+    assert environment_reader.env.app_environment == 'dev'
     assert environment_reader.env.secret_key == 'debug'
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
