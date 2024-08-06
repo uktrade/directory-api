@@ -35,7 +35,6 @@ class PingDomView(TemplateView):
 
     @method_decorator(never_cache)
     def get(self, *args, **kwargs):
-
         checked = {}
         for service in health_check_services:
             checked[service.name] = service().check()

@@ -253,7 +253,6 @@ class UKFreeTradeAgreementSerializer(serializers.Serializer):
 
 
 class BusinessClusterInformationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.EYBBusinessClusterInformation
         fields = '__all__'
@@ -279,35 +278,30 @@ class BusinessClusterInformationAggregatedDataSerializer(serializers.ModelSerial
 
 
 class EYBSalaryDataSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.EYBSalaryData
         fields = ['geo_description', 'vertical', 'professional_level', 'median_salary', 'dataset_year']
 
 
 class EYBCommercialRentDataSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.EYBCommercialPropertyRent
         fields = '__all__'
 
 
 class DBTSectorSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.DBTSector
         fields = '__all__'
 
 
 class SectorGVAValueBandSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.SectorGVAValueBand
         fields = '__all__'
 
 
 class DBTInvestmentOpportunitySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.DBTInvestmentOpportunity
         fields = '__all__'
