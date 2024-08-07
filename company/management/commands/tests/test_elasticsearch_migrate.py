@@ -8,7 +8,7 @@ from company.tests import factories
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 def test_elasticsearch_migrate_turned_on(settings):
-    settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = True
+    settings.FEATURE_FLAG_OPENSEARCH_REBUILD_INDEX = True
 
     published_company = factories.CompanyFactory(is_published_find_a_supplier=True)
     unpublished_company = factories.CompanyFactory(is_published_find_a_supplier=False)
@@ -26,7 +26,7 @@ def test_elasticsearch_migrate_turned_on(settings):
 @pytest.mark.django_db
 @pytest.mark.rebuild_elasticsearch
 def test_elasticsearch_migrate_turned_off(settings):
-    settings.FEATURE_FLAG_ELASTICSEARCH_REBUILD_INDEX = False
+    settings.FEATURE_FLAG_OPENSEARCH_REBUILD_INDEX = False
 
     published_company = factories.CompanyFactory(is_published_find_a_supplier=True)
     published_investment_support_directory = factories.CompanyFactory(is_published_investment_support_directory=True)
