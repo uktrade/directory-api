@@ -1,4 +1,4 @@
-from elasticsearch_dsl.connections import connections
+from opensearch_dsl.connections import connections
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
 

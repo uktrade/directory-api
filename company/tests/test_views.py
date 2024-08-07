@@ -11,8 +11,8 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
-from elasticsearch_dsl import Index
-from elasticsearch_dsl.connections import connections
+from opensearch_dsl import Index
+from opensearch_dsl.connections import connections
 from freezegun import freeze_time
 from PIL import Image
 from rest_framework import status
@@ -533,7 +533,7 @@ def search_data(settings):
         title='Thick case study',
         description='We determined lead sinks in water.',
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -562,7 +562,7 @@ def search_companies_highlighting_data(settings):
         sectors=[sectors.AEROSPACE],
         id=2,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -591,7 +591,7 @@ def search_highlighting_data(settings):
         keywords='Ants, Tongue, Anteater',
         id=2,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -695,7 +695,7 @@ def search_data_and_or(settings):
         is_published_find_a_supplier=False,  # not published
         id=9,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -755,7 +755,7 @@ def search_companies_ordering_data(settings):
     factories.CompanyCaseStudyFactory(company=wolf_three)
     factories.CompanyCaseStudyFactory(company=grapeshot_company, title='cannons', description='guns')
     factories.CompanyCaseStudyFactory(company=grapeshot_company, title='cannons', description='naval guns')
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -812,7 +812,7 @@ def search_companies_stopwords(settings):
         id=4,
     )
 
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
 
 @pytest.fixture
@@ -1176,7 +1176,7 @@ search_urls = (
 
 @pytest.mark.rebuild_elasticsearch
 @pytest.mark.parametrize('url', search_urls)
-@mock.patch('elasticsearch_dsl.response.Response.to_dict')
+@mock.patch('opensearch_dsl.response.Response.to_dict')
 def test_search(mock_get_search_results, url, api_client):
     mock_get_search_results.return_value = expected_value = {
         'hits': {
@@ -1526,7 +1526,7 @@ def test_search_filter_and_or_single(url, api_client, settings):
         ],
         id=1,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
     data = {
         'expertise_regions': ['NORTH_EAST'],
@@ -1584,7 +1584,7 @@ def test_search_filter_partial_match(url, api_client, settings):
         ],
         id=1,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
     data = {
         'expertise_regions': ['NORTH_EAST'],
@@ -1629,7 +1629,7 @@ def test_search_order_sibling_filters(url, api_client, settings):
         expertise_regions=['NORTH_WEST'],
         id=3,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
     data = {
         'expertise_regions': ['NORTH_WEST', 'NORTH_EAST'],
@@ -1669,7 +1669,7 @@ def test_search_order_search_term(url, api_client, settings):
         summary='Energy and wind',
         id=3,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
 
     data = {
         'term': 'wind energy',
@@ -1722,7 +1722,7 @@ def test_search_order_case_study(url, api_client, settings):
         company=company_three,
         title='Energy and wind',
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
     data = {
         'term': 'wind energy',
         'page': '1',
@@ -1760,7 +1760,7 @@ def test_search_american_english_full_words(url, api_client, settings):
         summary='Colourful gremlins',
         id=3,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
     data = {
         'term': 'colorful draft',
         'page': '1',
@@ -1791,7 +1791,7 @@ def test_search_american_english_synonyms(url, api_client, settings):
         summary='Colourful gremlins',
         id=3,
     )
-    Index(settings.ELASTICSEARCH_COMPANY_INDEX_ALIAS).refresh()
+    Index(settings.OPENSEARCH_COMPANY_INDEX_ALIAS).refresh()
     data = {
         'term': 'car hood',
         'page': '1',

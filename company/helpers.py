@@ -12,8 +12,8 @@ from directory_forms_api_client import actions
 from django.conf import settings
 from django.db.models import BooleanField, Case, Count, Value, When
 from django.utils import timezone
-from elasticsearch_dsl import Q
-from elasticsearch_dsl.query import SF, ConstantScore
+from opensearch_dsl import Q
+from opensearch_dsl.query import SF, ConstantScore
 from rest_framework.serializers import ValidationError
 
 from company import models
