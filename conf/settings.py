@@ -175,7 +175,7 @@ FEATURE_VERIFICATION_LETTERS_ENABLED = env.feature_verification_letters_enabled
 FEATURE_REGISTRATION_LETTERS_ENABLED = env.feature_registration_letters_enabled
 FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.feature_comtrade_historical_data_enabled
 FEATURE_OPENAPI_ENABLED = env.feature_openapi_enabled
-FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.enforce_staff_sso_enabled
+FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.feature_enforce_staff_sso_enabled
 
 # SSO config
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
