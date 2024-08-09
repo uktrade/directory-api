@@ -1,6 +1,6 @@
-from opensearch_dsl.connections import connections
 from health_check.backends import BaseHealthCheckBackend
 from health_check.exceptions import ServiceUnavailable
+from opensearch_dsl.connections import connections
 
 
 class ElasticSearchCheckBackend(BaseHealthCheckBackend):

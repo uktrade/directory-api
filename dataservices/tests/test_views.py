@@ -807,3 +807,43 @@ def test_dataservices_sector_gva_bandings_view(gva_bandings, client):
     assert len(api_data) == 1
     # id:2 is the most recent record
     assert api_data[0]['id'] == 2
+
+
+@pytest.mark.django_db
+def test_dataservices_all_sectors_gva_bandings_view(gva_bandings, client):
+    response = client.get(f"{reverse('dataservices-all-sectors-gva-value-bands')}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert list(api_data.keys()) == ['Aerospace', 'Technology and smart cities : Software : Blockchain']
+
+    # only the GVA with the most recent start date is returned for each sector
+    assert api_data['Aerospace'] == {
+        'id': 2,
+        'full_sector_name': 'Aerospace',
+        'value_band_a_minimum': 20000,
+        'value_band_b_minimum': 2000,
+        'value_band_c_minimum': 200,
+        'value_band_d_minimum': 20,
+        'value_band_e_minimum': 2,
+        'start_date': '2024-04-01',
+        'end_date': '2025-03-31',
+        'sector_classification_value_band': 'classification band',
+        'sector_classification_gva_multiplier': 'classification band',
+    }
+
+    assert api_data['Technology and smart cities : Software : Blockchain'] == {
+        'id': 6,
+        'full_sector_name': 'Technology and smart cities : Software : Blockchain',
+        'value_band_a_minimum': 60000,
+        'value_band_b_minimum': 6000,
+        'value_band_c_minimum': 600,
+        'value_band_d_minimum': 60,
+        'value_band_e_minimum': 6,
+        'start_date': '2023-04-01',
+        'end_date': '2025-03-31',
+        'sector_classification_value_band': 'classification band',
+        'sector_classification_gva_multiplier': 'classification band',
+    }

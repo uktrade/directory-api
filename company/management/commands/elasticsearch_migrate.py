@@ -2,8 +2,8 @@ from django.conf import settings
 from django.core import management
 from django.db.models import Q
 from django.utils.crypto import get_random_string
-from opensearchpy.helpers import bulk
 from opensearch_dsl.connections import connections
+from opensearchpy.helpers import bulk
 
 from company import documents, models
 
