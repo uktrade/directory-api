@@ -72,8 +72,6 @@ class BaseSettings(PydanticBaseSettings):
     session_cookie_secure: bool = True
     csrf_cookie_secure: bool = True
 
-    enforce_staff_sso_enabled: bool = False
-
     # authbroker config
     authbroker_url: str
     authbroker_client_id: str
