@@ -300,7 +300,6 @@ class SectorGVAValueBandSerializer(serializers.ModelSerializer):
         model = models.SectorGVAValueBand
         fields = '__all__'
 
-
 class DBTInvestmentOpportunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DBTInvestmentOpportunity
