@@ -1115,6 +1115,61 @@ class SectorGVAValueBandView(generics.ListAPIView):
         )[:1]
 
 
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                'Aerospace : Aircraft design': {
+                    "id": 1,
+                    "full_sector_name": "Aerospace : Aircraft design",
+                    "value_band_a_minimum": 10000,
+                    "value_band_b_minimum": 1000,
+                    "value_band_c_minimum": 100,
+                    "value_band_d_minimum": 10,
+                    "value_band_e_minimum": 1,
+                    "start_date": "2024-04-01",
+                    "end_date": "2026-03-31",
+                    "sector_classification_value_band": "classification band",
+                    "sector_classification_gva_multiplier": "classification band",
+                },
+                'Aerospace : Component manufacturing': {
+                    "id": 2,
+                    "full_sector_name": "Aerospace : Component manufacturing",
+                    "value_band_a_minimum": 20000,
+                    "value_band_b_minimum": 2000,
+                    "value_band_c_minimum": 200,
+                    "value_band_d_minimum": 20,
+                    "value_band_e_minimum": 2,
+                    "start_date": "2024-04-01",
+                    "end_date": "2026-03-31",
+                    "sector_classification_value_band": "classification band",
+                    "sector_classification_gva_multiplier": "classification band",
+                },
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Gross Value Add classifications for all sectors',
+)
+class AllSectorsGVAValueBandsView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.SectorGVAValueBandSerializer
+    # each full sector name may have multiple rows with different start dates, choose the latest
+    queryset = (
+        models.SectorGVAValueBand.objects.all().order_by('full_sector_name', '-start_date').distinct('full_sector_name')
+    )
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        # shape the result set so that the consumer can access relevant GVA data by using user's sector as
+        # dictionary key as opposed to looping through an array to find GVA
+        response.data = {row['full_sector_name']: {**row} for row in response.data}
+        return response
+
+
 class DBTInvestmentOpportunityView(generics.ListAPIView):
     permission_classes = []
     serializer_class = serializers.DBTInvestmentOpportunitySerializer

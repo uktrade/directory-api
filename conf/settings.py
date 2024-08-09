@@ -548,6 +548,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-eyb-commercial-rent-data',
     'dataservices-dbt-sector',
     'dataservices-sector-gva-value-band',
+    'dataservices-all-sectors-gva-value-bands',
     'dataservices-dbt-investment-opportunity',
     'enrolment-preverified',
     'enrolment-claim-preverified',

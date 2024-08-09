@@ -343,6 +343,11 @@ urlpatterns = [
         name='dataservices-sector-gva-value-band',
     ),
     re_path(
+        r'^dataservices/all-sectors-gva-value-bands/$',
+        dataservices.views.AllSectorsGVAValueBandsView.as_view(),
+        name='dataservices-all-sectors-gva-value-bands',
+    ),
+    re_path(
         r'^dataservices/dbt-investment-opportunity/$',
         dataservices.views.DBTInvestmentOpportunityView.as_view(),
         name='dataservices-dbt-investment-opportunity',
