@@ -660,9 +660,48 @@ def gva_bandings():
             "sector_classification_value_band": "classification band",
             "sector_classification_gva_multiplier": "classification band",
         },
+        {
+            "id": 4,
+            "full_sector_name": "Technology and smart cities : Software : Blockchain",
+            "value_band_a_minimum": 40000,
+            "value_band_b_minimum": 4000,
+            "value_band_c_minimum": 400,
+            "value_band_d_minimum": 40,
+            "value_band_e_minimum": 4,
+            "start_date": "2020-04-01",
+            "end_date": "2021-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
+        {
+            "id": 5,
+            "full_sector_name": "Technology and smart cities : Software : Blockchain",
+            "value_band_a_minimum": 50000,
+            "value_band_b_minimum": 5000,
+            "value_band_c_minimum": 500,
+            "value_band_d_minimum": 50,
+            "value_band_e_minimum": 5,
+            "start_date": "2021-04-01",
+            "end_date": "2022-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
+        {
+            "id": 6,
+            "full_sector_name": "Technology and smart cities : Software : Blockchain",
+            "value_band_a_minimum": 60000,
+            "value_band_b_minimum": 6000,
+            "value_band_c_minimum": 600,
+            "value_band_d_minimum": 60,
+            "value_band_e_minimum": 6,
+            "start_date": "2023-04-01",
+            "end_date": "2025-03-31",
+            "sector_classification_value_band": "classification band",
+            "sector_classification_gva_multiplier": "classification band",
+        },
     ]
 
     for record in records:
         models.SectorGVAValueBand.objects.create(**record)
     yield
-    models.EYBCommercialPropertyRent.objects.all().delete()
+    models.SectorGVAValueBand.objects.all().delete()

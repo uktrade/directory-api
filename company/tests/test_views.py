@@ -11,9 +11,9 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
+from freezegun import freeze_time
 from opensearch_dsl import Index
 from opensearch_dsl.connections import connections
-from freezegun import freeze_time
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
