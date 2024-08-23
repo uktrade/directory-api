@@ -583,3 +583,10 @@ WORLD_BANK_API_URI = env.world_bank_api_uri
 
 # Data Workspace
 DATA_WORKSPACE_DATASETS_URL = env.data_workspace_datasets_url
+
+# the data services s3 buckets
+AWS_ACCESS_KEY_ID_DATA_SERVICES = env.aws_access_key_id_data_services
+AWS_SECRET_ACCESS_KEY_DATA_SERVICES = env.aws_secret_access_key_data_services
+AWS_STORAGE_BUCKET_NAME_DATA_SERVICES = env.aws_storage_bucket_name_data_services
+
+FEATURE_USE_POSTCODES_FROM_S3 = env.feature_use_postcodes_from_s3

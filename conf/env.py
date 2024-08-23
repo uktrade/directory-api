@@ -144,6 +144,7 @@ class BaseSettings(PydanticBaseSettings):
     feature_comtrade_historical_data_enabled: bool = False
     feature_openapi_enabled: bool = False
     feature_enforce_staff_sso_enabled: bool = False
+    feature_use_postcodes_from_s3: bool = False
 
     health_check_token: str
 
@@ -211,6 +212,10 @@ class BaseSettings(PydanticBaseSettings):
     comtrade_data_file_name: str = 'comtrade-import-data.csv'
 
     data_workspace_datasets_url: str = 'postgresql://'
+
+    aws_access_key_id_data_services: str = ""
+    aws_secret_access_key_data_services: str = ""
+    aws_storage_bucket_name_data_services: str = ""
 
 
 class CIEnvironment(BaseSettings):
