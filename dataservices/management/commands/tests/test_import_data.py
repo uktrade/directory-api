@@ -894,3 +894,56 @@ def test_import_dbt_investment_opportunities(read_sql_mock):
     # write
     management.call_command('import_dbt_investment_opportunities', '--write')
     assert len(models.DBTInvestmentOpportunity.objects.all()) == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'model_name, management_cmd, object_count',
+    ((models.Postcode, 'import_postcodes_from_s3', 2),),
+)
+@mock.patch('dataservices.management.commands.helpers.get_s3_data_iterator')
+@override_settings(FEATURE_USE_POSTCODES_FROM_S3=True)
+def test_import_postcodes_data_set(mock_get_s3_data_iterator, model_name, management_cmd, object_count):
+    test_resp_iter = [
+        {
+            'IsTruncated': False,
+            'Name': 'test-bucket',
+            'MaxKeys': 1000,
+            'Prefix': 'test-prefix',
+            'Contents': [
+                {
+                    'Key': 'test1.txt',
+                    'ETag': '"abc123"',
+                    'StorageClass': 'STANDARD',
+                    'LastModified': datetime(2024, 1, 20, 22, 9),
+                    'Owner': {'ID': 'abc123', 'DisplayName': 'myname'},
+                    'Size': 14814,
+                }
+            ],
+            'EncodingType': 'url',
+            'ResponseMetadata': {'RequestId': 'abc123', 'HTTPStatusCode': 200, 'HostId': 'abc123'},
+            'Marker': '',
+        },
+        {
+            'IsTruncated': False,
+            'Name': 'test-bucket',
+            'MaxKeys': 1000,
+            'Prefix': 'test-prefix',
+            'Contents': [
+                {
+                    'Key': 'test2.txt',
+                    'ETag': '"abc123"',
+                    'StorageClass': 'STANDARD',
+                    'LastModified': datetime(2024, 1, 21, 22, 9),
+                    'Owner': {'ID': 'abc123', 'DisplayName': 'myname'},
+                    'Size': 14814,
+                }
+            ],
+            'EncodingType': 'url',
+            'ResponseMetadata': {'RequestId': 'abc123', 'HTTPStatusCode': 200, 'HostId': 'abc123'},
+            'Marker': '',
+        },
+    ]
+    mock_get_s3_data_iterator.return_value = mock.MagicMock(return_value=test_resp_iter)
+    management.call_command(management_cmd)
+    assert model_name.objects.count() == object_count

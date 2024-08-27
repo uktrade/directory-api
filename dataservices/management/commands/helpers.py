@@ -1,8 +1,11 @@
+import gzip
 import io
+import json
 from datetime import datetime, timedelta
 from sys import stdout
 from zipfile import ZipFile
 
+import boto3
 import pandas as pd
 import requests
 import sqlalchemy as sa
@@ -165,3 +168,41 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     }
 
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
+
+
+def unzip_s3_gzip_file(file_body):
+    with gzip.GzipFile(fileobj=file_body) as gzipfile:
+        postcodes_jsonl = gzipfile.read()
+        return postcodes_jsonl
+
+
+def read_jsonl_lines(jsonl_file):
+    return [json.loads(jline) for jline in jsonl_file.splitlines()]
+
+
+def get_class(class_name):
+    parts = class_name.split('.')
+    module = '.'.join(parts[:-1])
+    m = __import__(module)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+    return m
+
+
+def save_s3_data_to_database(data, fields, class_name_str):
+    for item in data.items():
+        record = get_class(class_name_str)
+        for field in fields:
+            record[field] = item[field]
+        record.save()
+
+
+def get_s3_data_iterator(prefix):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    paginator = s3.get_paginator("list_objects")
+    return paginator.paginate(Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix)
