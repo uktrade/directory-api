@@ -20,6 +20,7 @@ class S3DownloadMixin:
         get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))  # noqa
 
         page_iterator = get_s3_data_iterator(prefix)
+
         for page in page_iterator:
             if "Contents" in page:
                 last_added = [obj['Key'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]

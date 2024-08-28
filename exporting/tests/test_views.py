@@ -163,7 +163,6 @@ def test_lookup_by_postcode_use_database_success(mock_region_from_database, api_
 
     assert response.status_code == 200
 
-    breakpoint()
     matched_office = list(filter(lambda x: x['is_match'] is True, response.json()))
 
     assert len(matched_office) == 1
