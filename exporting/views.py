@@ -1,7 +1,11 @@
+import re
+
 import requests.exceptions
+from django.conf import settings
 from django.db.models import BooleanField, Case, Q, Value, When
 from rest_framework.generics import ListAPIView
 
+from dataservices.models import Postcode
 from exporting import helpers, models, serializers
 
 
@@ -10,10 +14,14 @@ class RetrieveOfficesByPostCode(ListAPIView):
     permission_classes = []
 
     def get_queryset(self):
-        try:
-            region_id = helpers.postcode_to_region_id(self.kwargs['postcode'])
-        except (AttributeError, requests.exceptions.RequestException):
-            region_id = None
+
+        post_code = self.kwargs['postcode']
+
+        breakpoint()
+        if settings.FEATURE_USE_POSTCODES_FROM_S3:
+            region_id = self.region_from_database(post_code)
+        else:
+            region_id = self.region_from_api(post_code)
 
         return models.Office.objects.annotate(
             is_match=Case(
@@ -25,3 +33,18 @@ class RetrieveOfficesByPostCode(ListAPIView):
                 output_field=BooleanField(),
             )
         ).order_by('order')
+
+    def region_from_api(self, postcode):
+        try:
+            region_id = helpers.postcode_to_region_id(postcode)
+        except (AttributeError, requests.exceptions.RequestException):
+            region_id = None
+        return region_id
+
+    def region_from_database(self, postcode):
+        pc = Postcode.objects.filter(post_code=postcode).first()
+        if pc:
+            region_id = pc.region or pc.european_electoral_region
+            return re.sub(r'\s+', '_', region_id.lower())
+        else:
+            return None

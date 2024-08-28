@@ -902,7 +902,7 @@ def test_import_dbt_investment_opportunities(read_sql_mock):
     ((models.Postcode, 'import_postcodes_from_s3', 2),),
 )
 @mock.patch('dataservices.management.commands.helpers.get_s3_data_iterator')
-@override_settings(FEATURE_USE_POSTCODES_FROM_S3=True)
+@override_settings(FEATURE_USE_POSTCODES_FROM_S3=False)
 def test_import_postcodes_data_set(mock_get_s3_data_iterator, model_name, management_cmd, object_count):
     test_resp_iter = [
         {
@@ -944,6 +944,6 @@ def test_import_postcodes_data_set(mock_get_s3_data_iterator, model_name, manage
             'Marker': '',
         },
     ]
-    mock_get_s3_data_iterator.return_value = mock.MagicMock(return_value=test_resp_iter)
+    mock_get_s3_data_iterator.return_value.paginate.return_value = mock.MagicMock(return_value=test_resp_iter)
     management.call_command(management_cmd)
     assert model_name.objects.count() == object_count

@@ -14,7 +14,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 from core.helpers import notifications_client
-from dataservices.models import Metadata
+from dataservices.models import Metadata, Postcode
 
 
 def flatten_ordered_dict(d):
@@ -180,21 +180,9 @@ def read_jsonl_lines(jsonl_file):
     return [json.loads(jline) for jline in jsonl_file.splitlines()]
 
 
-def get_class(class_name):
-    parts = class_name.split('.')
-    module = '.'.join(parts[:-1])
-    m = __import__(module)
-    for comp in parts[1:]:
-        m = getattr(m, comp)
-    return m
-
-
-def save_s3_data_to_database(data, fields, class_name_str):
-    for item in data.items():
-        record = get_class(class_name_str)
-        for field in fields:
-            record[field] = item[field]
-        record.save()
+def save_s3_data_to_database(data, func):
+    Postcode.objects.all().delete()
+    func(data)
 
 
 def get_s3_data_iterator(prefix):
@@ -206,3 +194,30 @@ def get_s3_data_iterator(prefix):
     )
     paginator = s3.get_paginator("list_objects")
     return paginator.paginate(Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix)
+
+
+def get_s3_file(key):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    response = s3.get_object(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
+        Key=key,
+    )
+    return response
+
+
+def save_postcode_data(data):
+    bulk_list = list()
+    for postcode in data:
+        bulk_list.append(
+            Postcode(
+                post_code=postcode['pcd'],
+                region=postcode['rgn'],
+                european_electoral_region=postcode['rgn'],
+            )
+        )
+    Postcode.objects.bulk_create(bulk_list)
