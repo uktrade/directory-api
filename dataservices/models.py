@@ -538,7 +538,11 @@ class DBTInvestmentOpportunity(models.Model):
 class Postcode(TimeStampedModel):
     class Meta:
         indexes = [
-            models.Index(fields=['post_code',]),
+            models.Index(
+                fields=[
+                    'post_code',
+                ]
+            ),
         ]
         ordering = ['post_code', 'region', 'european_electoral_region']
 
