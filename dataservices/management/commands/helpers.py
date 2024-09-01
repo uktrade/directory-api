@@ -209,7 +209,6 @@ def get_s3_file(key):
 @transaction.atomic
 def save_postcode_data(data):
     Postcode.objects.all().delete()
-    breakpoint()
     for postcode in data:
         Postcode(
             post_code=postcode['pcd'],
