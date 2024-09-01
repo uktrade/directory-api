@@ -12,6 +12,7 @@ import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db import transaction
 
 from core.helpers import notifications_client
 from dataservices.models import Metadata, Postcode
@@ -172,17 +173,12 @@ def align_vertical_names(statista_vertical_name: str) -> str:
 
 def unzip_s3_gzip_file(file_body):
     with gzip.GzipFile(fileobj=file_body) as gzipfile:
-        postcodes_jsonl = gzipfile.read()
-        return postcodes_jsonl
+        jsonl_file = gzipfile.read()
+        return jsonl_file
 
 
 def read_jsonl_lines(jsonl_file):
     return [json.loads(jline) for jline in jsonl_file.splitlines()]
-
-
-def save_s3_data_to_database(data, func):
-    Postcode.objects.all().delete()
-    func(data)
 
 
 def get_s3_data_iterator(prefix):
@@ -210,14 +206,13 @@ def get_s3_file(key):
     return response
 
 
+@transaction.atomic
 def save_postcode_data(data):
-    bulk_list = list()
+    Postcode.objects.all().delete()
+    breakpoint()
     for postcode in data:
-        bulk_list.append(
-            Postcode(
-                post_code=postcode['pcd'],
-                region=postcode['rgn'],
-                european_electoral_region=postcode['rgn'],
-            )
-        )
-    Postcode.objects.bulk_create(bulk_list)
+        Postcode(
+            post_code=postcode['pcd'],
+            region=postcode['rgn'],
+            european_electoral_region=postcode['rgn'],
+        ).save()

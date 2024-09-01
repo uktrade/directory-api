@@ -2,7 +2,6 @@ from dataservices.management.commands.helpers import (
     get_s3_data_iterator,
     get_s3_file,
     read_jsonl_lines,
-    save_s3_data_to_database,
     unzip_s3_gzip_file,
 )
 
@@ -14,6 +13,9 @@ class S3DownloadMixin:
         Download latest data file from s3
         unzip downloaded data file
         store latest data in the database
+        params:
+            prefix: str - Bucket Path on the Dataservices s3 bucket.
+            save_func: method - Method that saves the <data> param to the database.
         """
         assert all([prefix, save_func])
 
@@ -33,4 +35,4 @@ class S3DownloadMixin:
                             if result_jsonl:
                                 results = read_jsonl_lines(result_jsonl)
                                 if results:
-                                    save_s3_data_to_database(results, save_func)
+                                    save_func(results)
