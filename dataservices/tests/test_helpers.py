@@ -4,8 +4,8 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from botocore.stub import Stubber
 from botocore.paginate import Paginator
+from botocore.stub import Stubber
 from django.conf import settings
 from freezegun import freeze_time
 
@@ -281,7 +281,7 @@ def test_get_s3_file(mock_boto_client, s3_client, get_s3_file_data):
     stubber.add_response(
         method='get_object',
         service_response=get_s3_file_data,
-        expected_params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, 'Key': key}
+        expected_params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, 'Key': key},
     )
 
     response = dmch.get_s3_file(key=key)
