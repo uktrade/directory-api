@@ -266,7 +266,6 @@ def test_get_s3_paginator(mock_paginate, get_s3_data_transfer_data):
     mock_paginate.return_value = get_s3_data_transfer_data
     prefix = settings.POSTCODE_FROM_S3_PREFIX
     stubber.activate()
-    response = dmch.get_s3_paginator(prefix)
 
     with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
         response = dmch.get_s3_paginator(prefix=prefix)
