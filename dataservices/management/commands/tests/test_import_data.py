@@ -936,7 +936,7 @@ def test_import_postcodes_data_set_from_s3(mock_get_s3_data_transfer, mock_get_s
         },
         'AcceptRanges': 'bytes',
         'LastModified': datetime(2024, 8, 28, 8, 27, 43),
-        'ContentLength': 104182994,
+        'ContentLength': 2,
         'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
         'ContentType': 'binary/octet-stream',
         'ServerSideEncryption': 'AES256',
@@ -967,7 +967,7 @@ def test_import_postcodes_data_set_from_s3(mock_get_s3_data_transfer, mock_get_s
                     'Key': 'data-flow/exports/staging/postcode_directory__latest/20240818T000000.jsonl.gz',
                     'LastModified': datetime(2024, 8, 28, 8, 27, 43),
                     'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
-                    'Size': 104182994,
+                    'Size': 2,
                     'StorageClass': 'STANDARD',
                     'Owner': {'ID': '3f810126f6b9e06a7bd7ee566fc58a4b80bec947dab08ea4bcaee9f0b26e9380'},
                 }

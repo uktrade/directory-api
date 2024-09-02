@@ -22,17 +22,23 @@ class S3DownloadMixin:
         get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))  # noqa
 
         page_iterator = get_s3_data_iterator(prefix)
-
+        breakpoint()
+        last_added = None
         for page in page_iterator:
             if "Contents" in page:
-                last_added = [obj['Key'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]
-                if last_added:
-                    s3_file = get_s3_file(last_added)
-                    if s3_file:
-                        body = s3_file.get('Body', None)
-                        if body:
-                            result_jsonl = unzip_s3_gzip_file(body)
-                            if result_jsonl:
-                                results = read_jsonl_lines(result_jsonl)
-                                if results:
-                                    save_func(results)
+                last_added_for_page = [obj['Key'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]
+                if not last_added:
+                    last_added = last_added_for_page
+                elif last_added_for_page['LastModified'] > last_added['LastModified']:
+                    last_added = last_added_for_page
+
+        if last_added:
+            s3_file = get_s3_file(last_added)
+            if s3_file:
+                body = s3_file.get('Body', None)
+                if body:
+                    result_jsonl = unzip_s3_gzip_file(body)
+                    if result_jsonl:
+                        results = read_jsonl_lines(result_jsonl)
+                        if results:
+                            save_func(results)
