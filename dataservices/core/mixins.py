@@ -26,7 +26,9 @@ class S3DownloadMixin:
         for page in page_iterator:
             if "Contents" in page:
                 this_page = [obj['Key'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]
-                this_modified_date = [obj['LastModified'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]
+                this_modified_date = [obj['LastModified'] for obj in sorted(page["Contents"], key=get_last_modified)][
+                    -1
+                ]
                 if not last_modified:
                     last_added = this_page
                 elif this_modified_date > last_modified:

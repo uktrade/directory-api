@@ -1009,7 +1009,7 @@ def test_import_postcodes_data_set_from_s3(mock_get_s3_data_transfer, mock_get_s
             'Prefix': 'data-flow/exports/staging/postcode_directory__latest',
             'MaxKeys': 1000,
             'EncodingType': 'url',
-        }
+        },
     ]
 
     management.call_command('import_postcodes_from_s3')
