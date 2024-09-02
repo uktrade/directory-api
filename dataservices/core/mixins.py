@@ -22,7 +22,6 @@ class S3DownloadMixin:
         get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))  # noqa
 
         page_iterator = get_s3_data_iterator(prefix)
-        breakpoint()
         last_added = None
         for page in page_iterator:
             if "Contents" in page:
