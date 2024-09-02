@@ -1,8 +1,11 @@
 import re
 from datetime import datetime, timedelta
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
+from botocore.stub import Stubber
+from botocore.paginate import Paginator
 from django.conf import settings
 from freezegun import freeze_time
 
@@ -252,3 +255,36 @@ def test_send_review_request_message(mock_notify, last_release, notification_sen
 )
 def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
     assert dmch.align_vertical_names(statista_vertical_name) == expected_vertical_name
+
+
+@pytest.mark.django_db
+@patch.object(Paginator, 'paginate')
+@mock.patch('boto3.client')
+def test_get_s3_paginator(mock_boto_client, mock_paginate, s3_client, get_s3_data_transfer_data):
+    mock_boto_client.return_value = s3_client
+    mock_paginate.return_value = get_s3_data_transfer_data
+    prefix = settings.POSTCODE_FROM_S3_PREFIX
+    response = dmch.get_s3_paginator(prefix)
+
+    assert mock_boto_client.call_count == 1
+    assert mock_paginate.call_count == 1
+    assert response == get_s3_data_transfer_data
+
+
+@pytest.mark.django_db
+@mock.patch('boto3.client')
+def test_get_s3_file(mock_boto_client, s3_client, get_s3_file_data):
+    stubber = Stubber(s3_client)
+    stubber.activate()
+    key = 'testfile_jsonl.zx'
+    mock_boto_client.return_value = s3_client
+    stubber.add_response(
+        method='get_object',
+        service_response=get_s3_file_data,
+        expected_params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, 'Key': key}
+    )
+
+    response = dmch.get_s3_file(key=key)
+
+    assert mock_boto_client.call_count == 1
+    assert response == get_s3_file_data

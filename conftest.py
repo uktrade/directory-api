@@ -1,12 +1,19 @@
+import gzip
 import http
+import io
+import json
 import logging
 import re
+from datetime import datetime
 from unittest import mock
 from urllib.parse import urljoin
 
+import boto3
 import pytest
 import requests_mock
+from botocore.response import StreamingBody
 from django import db
+from django.conf import settings
 from django.core.management import call_command
 from django.db.migrations.executor import MigrationExecutor
 from rest_framework.test import APIClient
@@ -215,3 +222,128 @@ def migration(transactional_db):
 
     yield Migrator()
     call_command('migrate')
+
+
+@pytest.fixture
+def s3_client():
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    yield s3
+
+
+@pytest.fixture
+def get_s3_file_data():
+    body_json = {
+        'pcd': 'N17 9SJ',
+        'rgn': 'London',
+    }
+
+    body_encoded = json.dumps(body_json).encode()
+    gzipped_body = gzip.compress(body_encoded)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    data = {
+        'ResponseMetadata': {
+            'RequestId': '84F2PA3B0RC5J6WX',
+            'HostId': 'MJ7MDrEA/CRqVwA3DlKCCjKxXKDk31ZozEsxTJM4MzwOeleZOeI9d5/p/TT/yFLZiUn2GiIixJE=',
+            'HTTPStatusCode': 200,
+            'HTTPHeaders': {
+                'x-amz-id-2': 'MJ7MDrEA/CRqVwA3DlKCCjKxXKDk31ZozEsxTJM4MZOeI9d5/p/TT/yFLZiUn2GiIixJE=',
+                'x-amz-request-id': '84F2PA3B0RC5J6WX',
+                'date': 'Wed, 28 Aug 2024 14:42:25 GMT',
+                'last-modified': 'Wed, 28 Aug 2024 08:27:43 GMT',
+                'etag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
+                'x-amz-server-side-encryption': 'AES256',
+                'accept-ranges': 'bytes',
+                'content-type': 'binary/octet-stream',
+                'server': 'AmazonS3',
+                'content-length': '104182994',
+            },
+            'RetryAttempts': 0,
+        },
+        'AcceptRanges': 'bytes',
+        'LastModified': datetime(2024, 8, 28, 8, 27, 43),
+        'ContentLength': 2,
+        'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
+        'ContentType': 'binary/octet-stream',
+        'ServerSideEncryption': 'AES256',
+        'Metadata': {},
+        'Body': body,
+    }
+    yield data
+
+
+@pytest.fixture
+def get_s3_data_transfer_data():
+    data = [
+        {
+            'ResponseMetadata': {
+                'RequestId': 'E6VQET72ZW9TWAEA',
+                'HostId': 'bGXaG1MHY2XchguWpfrHTlL+Y1VjERk3t735RcWKuh2Lq7Ybm3xz1FdXzz5U16a76mQcqAukg==',
+                'HTTPStatusCode': 200,
+                'HTTPHeaders': {
+                    'x-amz-id-2': 'bGXaG1MHY2XchguWpfrnoS6oWApoeTfnHTlL+g==',
+                    'x-amz-request-id': 'E6VQET72ZW9TWAEA',
+                    'date': 'Wed, 28 Aug 2024 14:26:58 GMT',
+                    'x-amz-bucket-region': 'eu-west-2',
+                    'content-type': 'application/xml',
+                    'transfer-encoding': 'chunked',
+                    'server': 'AmazonS3',
+                },
+                'RetryAttempts': 0,
+            },
+            'IsTruncated': False,
+            'Marker': '',
+            'Contents': [
+                {
+                    'Key': 'data-flow/exports/staging/postcode_directory__latest/20240818T000000.jsonl.gz',
+                    'LastModified': datetime(2024, 8, 28, 8, 27, 43),
+                    'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
+                    'Size': 2,
+                    'StorageClass': 'STANDARD',
+                    'Owner': {'ID': '3f810126f6b9e06a7bd7ee566fc58a4b80bec947dab08ea4bcaee9f0b26e9380'},
+                },
+            ],
+            'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
+            'Prefix': 'data-flow/exports/staging/postcode_directory__latest',
+            'MaxKeys': 1000,
+            'EncodingType': 'url',
+        },
+        {
+            'ResponseMetadata': {
+                'RequestId': 'E6VQET72ZW9TWAEA',
+                'HostId': 'bGXaG1MHY2XchguWpfrHTlL+Y1VjERk3t735RcWKuh2Lq7Ybm3xz1FdXzz5U16a76mQcqAukg==',
+                'HTTPStatusCode': 200,
+                'HTTPHeaders': {
+                    'x-amz-id-2': 'bGXaG1MHY2XchguWpfrnoS6oWApoeTfnHTlL+g==',
+                    'x-amz-request-id': 'E6VQET72ZW9TWAEA',
+                    'date': 'Wed, 28 Aug 2024 14:26:58 GMT',
+                    'x-amz-bucket-region': 'eu-west-2',
+                    'content-type': 'application/xml',
+                    'transfer-encoding': 'chunked',
+                    'server': 'AmazonS3',
+                },
+                'RetryAttempts': 0,
+            },
+            'IsTruncated': False,
+            'Marker': '',
+            'Contents': [
+                {
+                    'Key': 'data-flow/exports/staging/postcode_directory__latest/20240818T000000.jsonl.gz',
+                    'LastModified': datetime(2024, 8, 29, 8, 27, 43),
+                    'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
+                    'Size': 2,
+                    'StorageClass': 'STANDARD',
+                    'Owner': {'ID': '3f810126f6b9e06a7bd7ee566fc58a4b80bec947dab08ea4bcaee9f0b26e9380'},
+                }
+            ],
+            'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
+            'Prefix': 'data-flow/exports/staging/postcode_directory__latest',
+            'MaxKeys': 1000,
+            'EncodingType': 'url',
+        },
+    ]
+    yield data

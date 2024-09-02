@@ -181,15 +181,16 @@ def read_jsonl_lines(jsonl_file):
     return [json.loads(jline) for jline in jsonl_file.splitlines()]
 
 
-def get_s3_data_iterator(prefix):
+def get_s3_paginator(prefix):
     s3 = boto3.client(
         's3',
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
         region_name=settings.AWS_S3_REGION_NAME,
     )
-    paginator = s3.get_paginator("list_objects")
-    return paginator.paginate(Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix)
+    return s3.get_paginator('list_objects').paginate(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
+    )
 
 
 def get_s3_file(key):

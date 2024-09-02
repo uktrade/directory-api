@@ -1,5 +1,5 @@
 from dataservices.management.commands.helpers import (
-    get_s3_data_iterator,
+    get_s3_paginator,
     get_s3_file,
     read_jsonl_lines,
     unzip_s3_gzip_file,
@@ -21,7 +21,7 @@ class S3DownloadMixin:
 
         get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))  # noqa
 
-        page_iterator = get_s3_data_iterator(prefix)
+        page_iterator = get_s3_paginator(prefix)
         last_modified = None
         for page in page_iterator:
             if "Contents" in page:
