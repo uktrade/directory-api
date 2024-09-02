@@ -21,6 +21,11 @@ def office():
     return factories.OfficeFactory.create()
 
 
+@pytest.fixture
+def postcode():
+    return factories.PostcodeFactory.create()
+
+
 @pytest.mark.django_db
 @override_settings(FEATURE_USE_POSTCODES_FROM_S3=False)
 @mock.patch('exporting.helpers.postcode_to_region_id')
@@ -154,11 +159,15 @@ def test_lookup_by_postcode_use_api_attribute_error(mock_postcode_to_region_id, 
 
 @pytest.mark.django_db
 @override_settings(FEATURE_USE_POSTCODES_FROM_S3=True)
-@mock.patch.object(RetrieveOfficesByPostCode, 'region_from_database')
-def test_lookup_by_postcode_use_database_success(mock_region_from_database, api_client, office):
-    mock_region_from_database.return_value = office.region_id
-    url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})
+def test_lookup_by_postcode_use_database_success(api_client, office, postcode):
+    post_code = 'ABC 123'
+    postcode.region = 'London'
+    postcode.post_code = post_code
+    postcode.save()
+    office.region_id = 'london'
+    office.save()
 
+    url = reverse('offices-by-postcode', kwargs={'postcode': post_code})
     response = api_client.get(url)
 
     assert response.status_code == 200
@@ -187,6 +196,26 @@ def test_lookup_by_postcode_use_database_success(mock_region_from_database, api_
 
     total_offices = Office.objects.all().count()
     assert len(other_offices) == total_offices - 1
+
+
+@pytest.mark.django_db
+@override_settings(FEATURE_USE_POSTCODES_FROM_S3=True)
+def test_lookup_by_postcode_use_database_failure(api_client, office, postcode):
+    post_code = 'ABC 123'
+    postcode.region = 'London'
+    postcode.post_code = 'N17 9SJ'
+    postcode.save()
+    office.region_id = 'london'
+    office.save()
+
+    url = reverse('offices-by-postcode', kwargs={'postcode': post_code})
+    response = api_client.get(url)
+
+    assert response.status_code == 200
+
+    matched_office = list(filter(lambda x: x['is_match'] is True, response.json()))
+
+    assert len(matched_office) == 0
 
 
 @pytest.mark.django_db

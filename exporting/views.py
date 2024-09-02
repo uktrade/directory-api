@@ -21,7 +21,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
             region_id = self.region_from_database(post_code)
         else:
             region_id = self.region_from_api(post_code)
-
+        breakpoint()
         return models.Office.objects.annotate(
             is_match=Case(
                 When(
@@ -41,6 +41,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
         return region_id
 
     def region_from_database(self, postcode):
+        breakpoint()
         pc = Postcode.objects.filter(post_code=postcode).first()
         if pc:
             region_id = pc.region or pc.european_electoral_region
