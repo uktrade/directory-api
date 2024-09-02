@@ -16,7 +16,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
     def get_queryset(self):
 
         post_code = self.kwargs['postcode']
-       
+
         if settings.FEATURE_USE_POSTCODES_FROM_S3:
             region_id = self.region_from_database(post_code)
         else:
