@@ -8,12 +8,10 @@ from datetime import datetime
 from unittest import mock
 from urllib.parse import urljoin
 
-import boto3
 import pytest
 import requests_mock
 from botocore.response import StreamingBody
 from django import db
-from django.conf import settings
 from django.core.management import call_command
 from django.db.migrations.executor import MigrationExecutor
 from rest_framework.test import APIClient
@@ -222,17 +220,6 @@ def migration(transactional_db):
 
     yield Migrator()
     call_command('migrate')
-
-
-@pytest.fixture
-def s3_client():
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-        region_name=settings.AWS_S3_REGION_NAME,
-    )
-    yield s3
 
 
 @pytest.fixture

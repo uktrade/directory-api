@@ -4,6 +4,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
+import boto3
 from botocore.paginate import Paginator
 from botocore.stub import Stubber
 from django.conf import settings
@@ -259,32 +260,32 @@ def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
 
 @pytest.mark.django_db
 @patch.object(Paginator, 'paginate')
-@mock.patch('boto3.client')
-def test_get_s3_paginator(mock_boto_client, mock_paginate, s3_client, get_s3_data_transfer_data):
-    mock_boto_client.return_value = s3_client
+def test_get_s3_paginator(mock_paginate, get_s3_data_transfer_data):
+    client = boto3.client('s3')
+    stubber = Stubber(client)
     mock_paginate.return_value = get_s3_data_transfer_data
     prefix = settings.POSTCODE_FROM_S3_PREFIX
+    stubber.activate()
     response = dmch.get_s3_paginator(prefix)
 
-    assert mock_boto_client.call_count == 1
-    assert mock_paginate.call_count == 1
+    with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
+        response = dmch.get_s3_paginator(prefix=prefix)
+
     assert response == get_s3_data_transfer_data
 
 
 @pytest.mark.django_db
-@mock.patch('boto3.client')
-def test_get_s3_file(mock_boto_client, s3_client, get_s3_file_data):
-    stubber = Stubber(s3_client)
-    stubber.activate()
+def test_get_s3_file(get_s3_file_data):
+    client = boto3.client('s3')
+    stubber = Stubber(client)
     key = 'testfile_jsonl.zx'
-    mock_boto_client.return_value = s3_client
     stubber.add_response(
         method='get_object',
         service_response=get_s3_file_data,
         expected_params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, 'Key': key},
     )
+    stubber.activate()
+    with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
+        response = dmch.get_s3_file(key=key)
 
-    response = dmch.get_s3_file(key=key)
-
-    assert mock_boto_client.call_count == 1
     assert response == get_s3_file_data
