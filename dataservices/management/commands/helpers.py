@@ -220,36 +220,6 @@ def get_s3_file(key):
     return response
 
 
-def dicts_to_batch_data(table, iter_of_dicts, mapping=None, value_mapping=None):
-    iter_of_dicts = {'pcd': 'n17 9sj', 'rgn': 'London'}
-    mapping = {
-        'pcd': 'post_code',
-        'rgn': 'region',
-        'rgn': 'european_electoral_region',
-    }
-    mapping = mapping or {}
-    value_mapping = value_mapping or {}
-
-    iter_of_dicts_by_column_names = (
-        {
-            mapping.get(key, key): value_mapping.get(mapping.get(key, key), lambda v: v)(value)
-            for key, value in d.items()
-        }
-        for d in iter_of_dicts
-    )
-
-    return (
-        (
-            table,
-            tuple(
-                d.get(column_name) if column.nullable else d[column_name]
-                for column_name, column in table.columns.items()
-            ),
-        )
-        for d in iter_of_dicts_by_column_names
-    )
-
-
 def save_postcode_data(data):
 
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
@@ -285,7 +255,7 @@ def save_postcode_data(data):
                             uuid.uuid4(),
                             postcode['pcd'],
                             postcode['rgn'],
-                            postcode['rgn'], # noqa F601
+                            postcode['rgn'],  # noqa F601
                             datetime.now(),  # noqa F601
                             datetime.now(),
                         ),
