@@ -111,6 +111,8 @@ REDIS_URL = env.redis_url
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {'default': dj_database_url.config(default=env.database_url)}
+DATABASE_URL = env.database_url.replace('postgres', 'postgresql')
+
 
 # Caches
 CACHES = {

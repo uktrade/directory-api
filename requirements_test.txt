@@ -345,6 +345,10 @@ pandas==1.4.2
     # via -r requirements.in
 pathspec==0.12.1
     # via black
+pg-bulk-ingest==0.0.54
+    # via -r requirements.in
+pg-force-execute==0.0.11
+    # via pg-bulk-ingest
 pillow==10.3.0
     # via
     #   -r requirements.in
@@ -503,7 +507,10 @@ smmap==5.0.1
 soupsieve==2.5
     # via beautifulsoup4
 sqlalchemy==1.4.36
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   pg-bulk-ingest
+    #   pg-force-execute
 sqlparse==0.5.0
     # via
     #   -r requirements.in
@@ -518,6 +525,8 @@ tinycss2==1.2.1
     # via
     #   cssselect2
     #   svglib
+to-file-like-obj==0.0.7
+    # via pg-bulk-ingest
 toml==0.10.2
     # via pre-commit-hooks
 tomli==2.0.1

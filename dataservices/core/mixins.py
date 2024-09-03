@@ -1,12 +1,8 @@
 import io
 
-from dataservices.management.commands.helpers import (
-    get_s3_file,
-    get_s3_paginator,
-    read_jsonl_lines,
-    to_file_like_obj,
-    unzip_s3_gzip_file,
-)
+from pg_bulk_ingest import to_file_like_obj
+
+from dataservices.management.commands.helpers import get_s3_file, get_s3_paginator, read_jsonl_lines, unzip_s3_gzip_file
 
 
 class S3DownloadMixin:

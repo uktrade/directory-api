@@ -1,5 +1,6 @@
 import io
 import json
+import uuid
 import zlib
 from datetime import datetime, timedelta
 from sys import stdout
@@ -12,10 +13,10 @@ import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
-from django.db import transaction
+from pg_bulk_ingest import Delete, HighWatermark, Upsert, ingest
 
 from core.helpers import notifications_client
-from dataservices.models import Metadata, Postcode
+from dataservices.models import Metadata
 
 
 def flatten_ordered_dict(d):
@@ -189,37 +190,6 @@ def unzip_s3_gzip_file(file_body):
         yield uncompressed_chunk
 
 
-def to_file_like_obj(iterable, base=bytes):
-    chunk = base()
-    offset = 0
-    it = iter(iterable)
-
-    def up_to_iter(size):
-        nonlocal chunk, offset
-
-        while size:
-            if offset == len(chunk):
-                try:
-                    chunk = next(it)
-                except StopIteration:
-                    break
-                else:
-                    offset = 0
-            to_yield = min(size, len(chunk) - offset)
-            offset = offset + to_yield
-            size -= to_yield
-            yield chunk[offset - to_yield : offset]  # noqa E203
-
-    class FileLikeObj(io.IOBase):
-        def readable(self):
-            return True
-
-        def read(self, size=-1):
-            return base().join(up_to_iter(float('inf') if size is None or size < 0 else size))
-
-    return FileLikeObj()
-
-
 def read_jsonl_lines(text_lines):
     return [json.loads(jline) for jline in text_lines]
 
@@ -250,12 +220,86 @@ def get_s3_file(key):
     return response
 
 
-@transaction.atomic
+def dicts_to_batch_data(table, iter_of_dicts, mapping=None, value_mapping=None):
+    iter_of_dicts = {'pcd': 'n17 9sj', 'rgn': 'London'}
+    mapping = {
+        'pcd': 'post_code',
+        'rgn': 'region',
+        'rgn': 'european_electoral_region',
+    }
+    mapping = mapping or {}
+    value_mapping = value_mapping or {}
+
+    iter_of_dicts_by_column_names = (
+        {
+            mapping.get(key, key): value_mapping.get(mapping.get(key, key), lambda v: v)(value)
+            for key, value in d.items()
+        }
+        for d in iter_of_dicts
+    )
+
+    return (
+        (
+            table,
+            tuple(
+                d.get(column_name) if column.nullable else d[column_name]
+                for column_name, column in table.columns.items()
+            ),
+        )
+        for d in iter_of_dicts_by_column_names
+    )
+
+
 def save_postcode_data(data):
-    Postcode.objects.all().delete()
-    for postcode in data:
-        Postcode(
-            post_code=postcode['pcd'],
-            region=postcode['rgn'],
-            european_electoral_region=postcode['rgn'],
-        ).save()
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    postcode_table = sa.Table(
+        "dataservices_postcode",
+        metadata,
+        sa.Column("id", sa.VARCHAR(255), primary_key=True),
+        sa.Column("post_code", sa.TEXT, nullable=False),
+        sa.Column("region", sa.TEXT, nullable=True),
+        sa.Column("european_electoral_region", sa.TEXT, nullable=True),
+        sa.Column("created", sa.TIMESTAMP, nullable=True),
+        sa.Column("modified", sa.TIMESTAMP, nullable=True),
+        sa.Index(None, "post_code"),
+        schema="public",
+    )
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+
+        for postcode in data:
+            yield (
+                None,
+                None,
+                (
+                    (
+                        postcode_table,
+                        (
+                            uuid.uuid4(),
+                            postcode['pcd'],
+                            postcode['rgn'],
+                            postcode['rgn'],
+                            datetime.now(),
+                            datetime.now(),
+                        ),
+                    ),
+                ),
+            )
+
+    with engine.connect() as conn:
+        ingest(
+            conn=conn,
+            metadata=metadata,
+            batches=batches,
+            on_before_visible=on_before_visible,
+            high_watermark=HighWatermark.LATEST,
+            upsert=Upsert.OFF,
+            delete=Delete.BEFORE_FIRST_BATCH,
+        )
