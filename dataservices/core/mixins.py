@@ -42,7 +42,6 @@ class S3DownloadMixin:
             s3_file = get_s3_file(last_added)
             if s3_file:
                 body = s3_file.get('Body', None)
-                breakpoint()
                 if body:
                     chunks = unzip_s3_gzip_file(body)
                     text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
