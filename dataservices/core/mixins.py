@@ -1,7 +1,10 @@
+import io
+
 from dataservices.management.commands.helpers import (
-    get_s3_paginator,
     get_s3_file,
+    get_s3_paginator,
     read_jsonl_lines,
+    to_file_like_obj,
     unzip_s3_gzip_file,
 )
 
@@ -39,9 +42,11 @@ class S3DownloadMixin:
             s3_file = get_s3_file(last_added)
             if s3_file:
                 body = s3_file.get('Body', None)
+                breakpoint()
                 if body:
-                    result_jsonl = unzip_s3_gzip_file(body)
-                    if result_jsonl:
-                        results = read_jsonl_lines(result_jsonl)
+                    chunks = unzip_s3_gzip_file(body)
+                    text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
+                    if text_lines:
+                        results = read_jsonl_lines(text_lines)
                         if results:
                             save_func(results)

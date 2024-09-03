@@ -1,6 +1,6 @@
-import gzip
 import io
 import json
+import zlib
 from datetime import datetime, timedelta
 from sys import stdout
 from zipfile import ZipFile
@@ -172,13 +172,56 @@ def align_vertical_names(statista_vertical_name: str) -> str:
 
 
 def unzip_s3_gzip_file(file_body):
-    with gzip.GzipFile(fileobj=file_body) as gzipfile:
-        jsonl_file = gzipfile.read()
-        return jsonl_file
+    dobj = zlib.decompressobj(32 + zlib.MAX_WBITS)
+    for chunk in file_body:
+        uncompressed_chunk = dobj.decompress(chunk)
+        if uncompressed_chunk:
+            yield uncompressed_chunk
+        elif dobj.eof:
+            unused = dobj.unused_data
+            dobj = zlib.decompressobj(32 + zlib.MAX_WBITS)
+            uncompressed_chunk = dobj.decompress(unused)
+            if uncompressed_chunk:
+                yield uncompressed_chunk
+
+    uncompressed_chunk = dobj.flush()
+    if uncompressed_chunk:
+        yield uncompressed_chunk
 
 
-def read_jsonl_lines(jsonl_file):
-    return [json.loads(jline) for jline in jsonl_file.splitlines()]
+def to_file_like_obj(iterable, base=bytes):
+    chunk = base()
+    offset = 0
+    it = iter(iterable)
+
+    def up_to_iter(size):
+        nonlocal chunk, offset
+
+        while size:
+            if offset == len(chunk):
+                try:
+                    chunk = next(it)
+                except StopIteration:
+                    break
+                else:
+                    offset = 0
+            to_yield = min(size, len(chunk) - offset)
+            offset = offset + to_yield
+            size -= to_yield
+            yield chunk[offset - to_yield : offset]  # noqa E203
+
+    class FileLikeObj(io.IOBase):
+        def readable(self):
+            return True
+
+        def read(self, size=-1):
+            return base().join(up_to_iter(float('inf') if size is None or size < 0 else size))
+
+    return FileLikeObj()
+
+
+def read_jsonl_lines(text_lines):
+    return [json.loads(jline) for jline in text_lines]
 
 
 def get_s3_paginator(prefix):
