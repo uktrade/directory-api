@@ -18,23 +18,17 @@ class S3DownloadMixin:
         """
         assert all([prefix, save_func])
 
-        get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))  # noqa
-
         page_iterator = get_s3_paginator(prefix)
-        last_modified = None
+        files = []
         for page in page_iterator:
             if "Contents" in page:
-                this_page = [obj['Key'] for obj in sorted(page["Contents"], key=get_last_modified)][-1]
-                this_modified_date = [obj['LastModified'] for obj in sorted(page["Contents"], key=get_last_modified)][
-                    -1
-                ]
-                if not last_modified:
-                    last_added = this_page
-                elif this_modified_date > last_modified:
-                    last_added = this_page
-                last_modified = this_modified_date
+                for obj in page['Contents']:
+                    this_page = obj['Key']
+                    this_last_modified_date = obj['LastModified']
+                    files.append((this_page, this_last_modified_date))
 
-        if last_added:
+        if files:
+            last_added = sorted(files, key=lambda x: x[1])[-1][0]
             s3_file = get_s3_file(last_added)
             if s3_file:
                 body = s3_file.get('Body', None)

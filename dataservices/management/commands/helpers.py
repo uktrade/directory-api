@@ -243,25 +243,26 @@ def save_postcode_data(data):
         pass
 
     def batches(_):
-
-        for postcode in data:
-            yield (
-                None,
-                None,
+        table_data = (
+            (
+                postcode_table,
                 (
-                    (
-                        postcode_table,
-                        (
-                            uuid.uuid4(),
-                            postcode['pcd'],
-                            postcode['rgn'],
-                            postcode['rgn'],  # noqa F601
-                            datetime.now(),  # noqa F601
-                            datetime.now(),
-                        ),
-                    ),
+                    uuid.uuid4(),
+                    postcode['pcd'],
+                    postcode['rgn'],
+                    postcode['rgn'],  # noqa F601
+                    datetime.now(),  # noqa F601
+                    datetime.now(),
                 ),
             )
+            for postcode in data
+        )
+
+        yield (
+            None,
+            None,
+            table_data,
+        )
 
     with engine.connect() as conn:
         ingest(
