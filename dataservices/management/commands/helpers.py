@@ -220,13 +220,12 @@ def get_s3_file(key):
     return response
 
 
-def save_postcode_data(data):
+def get_postgres_engine():
+    return sa.create_engine(settings.DATABASE_URL, future=True)
 
-    engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
-    metadata = sa.MetaData()
-
-    postcode_table = sa.Table(
+def get_postgres_table(metadata):
+    return sa.Table(
         "dataservices_postcode",
         metadata,
         sa.Column("id", sa.VARCHAR(255), primary_key=True),
@@ -238,6 +237,28 @@ def save_postcode_data(data):
         sa.Index(None, "post_code"),
         schema="public",
     )
+
+
+def ingest_data(engine, metadata, on_before_visible, batches):
+    with engine.connect() as conn:
+        ingest(
+            conn=conn,
+            metadata=metadata,
+            batches=batches,
+            on_before_visible=on_before_visible,
+            high_watermark=HighWatermark.LATEST,
+            upsert=Upsert.OFF,
+            delete=Delete.BEFORE_FIRST_BATCH,
+        )
+
+
+def save_postcode_data(data):
+
+    engine = get_postgres_engine()
+
+    metadata = sa.MetaData()
+
+    postcode_table = get_postgres_table(metadata)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
@@ -264,13 +285,4 @@ def save_postcode_data(data):
             table_data,
         )
 
-    with engine.connect() as conn:
-        ingest(
-            conn=conn,
-            metadata=metadata,
-            batches=batches,
-            on_before_visible=on_before_visible,
-            high_watermark=HighWatermark.LATEST,
-            upsert=Upsert.OFF,
-            delete=Delete.BEFORE_FIRST_BATCH,
-        )
+    ingest_data(engine, metadata, on_before_visible, batches)
