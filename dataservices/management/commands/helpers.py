@@ -285,8 +285,8 @@ def save_postcode_data(data):
                             uuid.uuid4(),
                             postcode['pcd'],
                             postcode['rgn'],
-                            postcode['rgn'],
-                            datetime.now(),
+                            postcode['rgn'], # noqa F601
+                            datetime.now(),  # noqa F601
                             datetime.now(),
                         ),
                     ),
