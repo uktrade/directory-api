@@ -30,6 +30,7 @@ class S3DownloadMixin:
 
         if files:
             last_added = sorted(files, key=lambda x: x[1])[-1][0]
+            breakpoint()
             s3_file = get_s3_file(last_added)
             if s3_file:
                 body = s3_file.get('Body', None)

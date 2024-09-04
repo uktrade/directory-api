@@ -1,20 +1,22 @@
+import gzip
 import io
 import json
-import gzip
 import re
+import zlib
 from datetime import datetime, timedelta
 from unittest import mock
 from unittest.mock import patch
-import zlib
 
 import boto3
+import pg_bulk_ingest
 import pytest
-from botocore.response import StreamingBody
 from botocore.paginate import Paginator
+from botocore.response import StreamingBody
 from botocore.stub import Stubber
 from django.conf import settings
 from django.test import override_settings
 from freezegun import freeze_time
+from sqlalchemy.future.engine import Engine
 
 from dataservices import helpers, models
 from dataservices.management.commands import helpers as dmch
@@ -321,26 +323,26 @@ def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
     assert val is not None
 
 
-# @pytest.mark.django_db
-# @mock.patch.object(zlib, 'decompressobj')
-# def test_unzip_s3_gzip_file_eof(mock_decompressobj):
-#     mock_decompressobj.decompress.return_value = None
-#     mock_decompressobj.eof = True
-#     body_json = {
-#         'pcd': 'N17 9SJ',
-#         'rgn': 'London',
-#     }
-#     body_encoded = json.dumps(body_json).encode()
-#     gzipped_body = gzip.compress(body_encoded)
-#     body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
-#     file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
-#     val = next(file)
-#     assert val is not None
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_eof(mock_decompressobj):
+    mock_decompressobj.decompress.return_value = {}
+    mock_decompressobj.eof = True
+    body_bytes = bytearray([1] * (32 + zlib.MAX_WBITS + 1))
+    gzipped_body = gzip.compress(body_bytes)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
+    val = next(file)
+    assert val is not None
 
 
 @pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
-@mock.patch('dataservices.management.commands.helpers.ingest_data')
-def test_save_postcode_data(mock_ingest_data, postcode_data):
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
     dmch.save_postcode_data(data=postcode_data)
-    assert mock_ingest_data.call_count == 1
+    assert mock_ingest.call_count == 1
