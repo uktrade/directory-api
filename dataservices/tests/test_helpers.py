@@ -1,3 +1,6 @@
+import io
+import json
+import gzip
 import re
 from datetime import datetime, timedelta
 from unittest import mock
@@ -6,6 +9,7 @@ import zlib
 
 import boto3
 import pytest
+from botocore.response import StreamingBody
 from botocore.paginate import Paginator
 from botocore.stub import Stubber
 from django.conf import settings
@@ -294,15 +298,35 @@ def test_get_s3_file(get_s3_file_data):
 
 @pytest.mark.django_db
 @mock.patch.object(zlib, 'decompressobj')
-def test_unzip_s3_gzip_file_eof(mock_decompressobj):
+def test_unzip_s3_gzip_file_flush_has_value(mock_decompressobj):
     mock_decompressobj.flush.return_value = 'Not Null'
     file = dmch.unzip_s3_gzip_file(file_body=b'', max_bytes=(32 + zlib.MAX_WBITS))
     val = next(file)
     assert val is not None
 
 
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
+    mock_decompressobj.decompress.return_value = postcode_data
+    mock_decompressobj.eof.return_value = True
+    body_json = {
+        'pcd': 'N17 9SJ',
+        'rgn': 'London',
+    }
+    body_encoded = json.dumps(body_json).encode()
+    gzipped_body = gzip.compress(body_encoded)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
+
+
 # @pytest.mark.django_db
-# def test_unzip_s3_gzip_file_eof():
+# @mock.patch.object(zlib, 'decompressobj')
+# def test_unzip_s3_gzip_file_eof(mock_decompressobj):
+#     mock_decompressobj.decompress.return_value = None
+#     mock_decompressobj.eof.return_value = True
 #     body_json = {
 #         'pcd': 'N17 9SJ',
 #         'rgn': 'London',
@@ -311,9 +335,8 @@ def test_unzip_s3_gzip_file_eof(mock_decompressobj):
 #     gzipped_body = gzip.compress(body_encoded)
 #     body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
 #     file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
-#     next(file)
-#     with pytest.raises(StopIteration):
-#         next(file)
+#     val = next(file)
+#     assert val is not None
 
 
 @pytest.mark.django_db
