@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timedelta
 from unittest import mock
 from unittest.mock import patch
+import zlib
 
 import boto3
 import pytest
@@ -291,11 +292,13 @@ def test_get_s3_file(get_s3_file_data):
     assert response == get_s3_file_data
 
 
-# @pytest.mark.django_db
-# def test_unzip_s3_gzip_file_no_body():
-#     file = dmch.unzip_s3_gzip_file(file_body=b'1234567891011', max_bytes=10)
-#     with pytest.raises(StopIteration):
-#         next(file)
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_eof(mock_decompressobj):
+    mock_decompressobj.flush.return_value = 'Not Null'
+    file = dmch.unzip_s3_gzip_file(file_body=b'', max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
 
 
 # @pytest.mark.django_db
