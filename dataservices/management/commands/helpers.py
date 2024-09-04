@@ -246,9 +246,9 @@ def ingest_data(engine, metadata, on_before_visible, batches):
             metadata=metadata,
             batches=batches,
             on_before_visible=on_before_visible,
-            high_watermark= pg_bulk_ingest.HighWatermark.LATEST,
+            high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
             upsert=pg_bulk_ingest.Upsert.OFF,
-            delete= pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
         )
 
 
@@ -284,5 +284,4 @@ def save_postcode_data(data):
             table_data,
         )
 
-    
     ingest_data(engine, metadata, on_before_visible, batches)
