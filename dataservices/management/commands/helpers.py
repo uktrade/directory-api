@@ -179,6 +179,7 @@ def unzip_s3_gzip_file(file_body):
         if uncompressed_chunk:
             yield uncompressed_chunk
         elif dobj.eof:
+            breakpoint()
             unused = dobj.unused_data
             dobj = zlib.decompressobj(32 + zlib.MAX_WBITS)
             uncompressed_chunk = dobj.decompress(unused)

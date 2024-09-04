@@ -1,3 +1,6 @@
+import gzip
+import io
+import json
 import re
 from datetime import datetime, timedelta
 from unittest import mock
@@ -6,6 +9,7 @@ from unittest.mock import patch
 import boto3
 import pytest
 from botocore.paginate import Paginator
+from botocore.response import StreamingBody
 from botocore.stub import Stubber
 from django.conf import settings
 from freezegun import freeze_time
@@ -298,14 +302,12 @@ def test_unzip_s3_gzip_file_no_body():
 
 
 @pytest.mark.django_db
-@mock.patch('zlib.decompressobj')
-def test_unzip_s3_gzip_file_eof(mock_decompress):
-    # body_json = None
-    # body_encoded = json.dumps(body_json).encode()
-    # gzipped_body = gzip.compress(body_encoded)
-    # body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
-    # file = dmch.unzip_s3_gzip_file(file_body=b'')
-
-    # iter = next(file)
-    # assert iter is not None
-    pass
+def test_unzip_s3_gzip_file_eof():
+    body_tuple = None
+    body_encoded = json.dumps(body_tuple).encode()
+    gzipped_body = gzip.compress(body_encoded)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    file = dmch.unzip_s3_gzip_file(file_body=body)
+    next(file)
+    with pytest.raises(StopIteration):
+        next(file)
