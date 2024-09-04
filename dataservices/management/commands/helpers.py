@@ -8,12 +8,12 @@ from zipfile import ZipFile
 
 import boto3
 import pandas as pd
-import pg_bulk_ingest
 import requests
 import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
+import pg_bulk_ingest
 
 from core.helpers import notifications_client
 from dataservices.models import Metadata
@@ -179,7 +179,6 @@ def unzip_s3_gzip_file(file_body, max_bytes):
         if uncompressed_chunk:
             yield uncompressed_chunk
         elif dobj.eof:
-            breakpoint()
             unused = dobj.unused_data
             dobj = zlib.decompressobj(max_bytes)
             uncompressed_chunk = dobj.decompress(unused)
@@ -241,16 +240,15 @@ def get_postgres_table(metadata):
 
 
 def ingest_data(engine, metadata, on_before_visible, batches):
-    breakpoint()
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
             conn=conn,
             metadata=metadata,
             batches=batches,
             on_before_visible=on_before_visible,
-            high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
+            high_watermark= pg_bulk_ingest.HighWatermark.LATEST,
             upsert=pg_bulk_ingest.Upsert.OFF,
-            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+            delete= pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
         )
 
 
@@ -286,4 +284,5 @@ def save_postcode_data(data):
             table_data,
         )
 
+    
     ingest_data(engine, metadata, on_before_visible, batches)
