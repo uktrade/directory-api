@@ -334,3 +334,17 @@ def get_s3_data_transfer_data():
         },
     ]
     yield data
+
+
+@pytest.fixture
+def postcode_data():
+    yield [
+        {
+            'pcd': 'N17 9SJ',
+            'rgn': 'London',
+        },
+        {
+            'pcd': 'N18 8UH',
+            'rgn': 'London',
+        },
+    ]
