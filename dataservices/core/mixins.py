@@ -1,4 +1,5 @@
 import io
+import zlib
 
 from pg_bulk_ingest import to_file_like_obj
 
@@ -33,7 +34,7 @@ class S3DownloadMixin:
             if s3_file:
                 body = s3_file.get('Body', None)
                 if body:
-                    chunks = unzip_s3_gzip_file(body)
+                    chunks = unzip_s3_gzip_file(body, (32 + zlib.MAX_WBITS))
                     text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
                     if text_lines:
                         results = read_jsonl_lines(text_lines)

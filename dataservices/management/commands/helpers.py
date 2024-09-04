@@ -172,15 +172,15 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
-def unzip_s3_gzip_file(file_body):
-    dobj = zlib.decompressobj(32 + zlib.MAX_WBITS)
+def unzip_s3_gzip_file(file_body, max_bytes):
+    dobj = zlib.decompressobj(max_bytes)
     for chunk in file_body:
         uncompressed_chunk = dobj.decompress(chunk)
         if uncompressed_chunk:
             yield uncompressed_chunk
         elif dobj.eof:
             unused = dobj.unused_data
-            dobj = zlib.decompressobj(32 + zlib.MAX_WBITS)
+            dobj = zlib.decompressobj(max_bytes)
             uncompressed_chunk = dobj.decompress(unused)
             if uncompressed_chunk:
                 yield uncompressed_chunk
@@ -239,13 +239,12 @@ def get_postgres_table(metadata):
     )
 
 
-def ingest_data(engine, metadata, on_before_visible, batches):
-    breakpoint()
+def ingest_data(engine, metadata, on_before_visible, batch):
     with engine.connect() as conn:
         ingest(
             conn=conn,
             metadata=metadata,
-            batches=batches,
+            batches=batch,
             on_before_visible=on_before_visible,
             high_watermark=HighWatermark.LATEST,
             upsert=Upsert.OFF,
@@ -286,4 +285,5 @@ def save_postcode_data(data):
             table_data,
         )
 
-    ingest_data(engine, metadata, on_before_visible, batches)
+    batch = batches(None)
+    ingest_data(engine, metadata, on_before_visible, batch)

@@ -286,7 +286,7 @@ def get_s3_data_transfer_data():
             'Marker': '',
             'Contents': [
                 {
-                    'Key': 'data-flow/exports/staging/postcode_directory__latest/20240818T000000.jsonl.gz',
+                    'Key': '20240818T000000.jsonl.gz',
                     'LastModified': datetime(2024, 8, 28, 8, 27, 43),
                     'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
                     'Size': 2,
@@ -295,7 +295,7 @@ def get_s3_data_transfer_data():
                 },
             ],
             'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
-            'Prefix': 'data-flow/exports/staging/postcode_directory__latest',
+            'Prefix': 'data-flow/exports/staging/ExportPostcodeDirectory',
             'MaxKeys': 1000,
             'EncodingType': 'url',
         },
@@ -319,7 +319,7 @@ def get_s3_data_transfer_data():
             'Marker': '',
             'Contents': [
                 {
-                    'Key': 'data-flow/exports/staging/postcode_directory__latest/20240818T000000.jsonl.gz',
+                    'Key': '20240818T000000.jsonl.gz',
                     'LastModified': datetime(2024, 8, 29, 8, 27, 43),
                     'ETag': '"3146b7a34b9f97ee85cbf81c725e8862-2"',
                     'Size': 2,
@@ -328,7 +328,7 @@ def get_s3_data_transfer_data():
                 }
             ],
             'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
-            'Prefix': 'data-flow/exports/staging/postcode_directory__latest',
+            'Prefix': 'data-flow/exports/staging/ExportPostcodeDirectory',
             'MaxKeys': 1000,
             'EncodingType': 'url',
         },
