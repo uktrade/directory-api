@@ -173,7 +173,6 @@ def align_vertical_names(statista_vertical_name: str) -> str:
 
 
 def unzip_s3_gzip_file(file_body, max_bytes):
-    breakpoint()
     dobj = zlib.decompressobj(max_bytes)
     for chunk in file_body:
         uncompressed_chunk = dobj.decompress(chunk)

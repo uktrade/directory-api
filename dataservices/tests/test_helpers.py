@@ -309,7 +309,6 @@ def test_unzip_s3_gzip_file_flush_has_value(mock_decompressobj):
 @mock.patch.object(zlib, 'decompressobj')
 def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
     mock_decompressobj.decompress.return_value = postcode_data
-    mock_decompressobj.eof.return_value = True
     body_json = {
         'pcd': 'N17 9SJ',
         'rgn': 'London',
@@ -326,7 +325,7 @@ def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
 # @mock.patch.object(zlib, 'decompressobj')
 # def test_unzip_s3_gzip_file_eof(mock_decompressobj):
 #     mock_decompressobj.decompress.return_value = None
-#     mock_decompressobj.eof.return_value = True
+#     mock_decompressobj.eof = True
 #     body_json = {
 #         'pcd': 'N17 9SJ',
 #         'rgn': 'London',
