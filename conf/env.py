@@ -216,7 +216,7 @@ class BaseSettings(PydanticBaseSettings):
     aws_access_key_id_data_services: str = ""
     aws_secret_access_key_data_services: str = ""
     aws_storage_bucket_name_data_services: str = ""
-    postcode_from_s3_prefix: str = 'data-flow/exports/staging/postcode_directory__latest'
+    postcode_from_s3_prefix: str = 'data-flow/exports/staging/ExportPostcodeDirectory'
 
 
 class CIEnvironment(BaseSettings):
