@@ -113,7 +113,6 @@ REDIS_URL = env.redis_url
 DATABASES = {'default': dj_database_url.config(default=env.database_url)}
 DATABASE_URL = env.database_url.replace('postgres', 'postgresql')
 
-
 # Caches
 CACHES = {
     'default': {

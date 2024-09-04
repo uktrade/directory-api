@@ -12,6 +12,7 @@ from botocore.paginate import Paginator
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
 from django.conf import settings
+from django.test import override_settings
 from freezegun import freeze_time
 
 from dataservices import helpers, models
@@ -314,8 +315,8 @@ def test_unzip_s3_gzip_file_eof():
 
 
 @pytest.mark.django_db
-@mock.patch('dataservices.management.commands.helpers.get_postgres_engine')
+@override_settings(DATABASE_URL='postgresql://')
 @mock.patch('dataservices.management.commands.helpers.ingest_data')
-def test_save_postcode_data(mock_ingest_data, mock_get_postgres_engine, postcode_data):
+def test_save_postcode_data(mock_ingest_data, postcode_data):
     dmch.save_postcode_data(data=postcode_data)
     assert mock_ingest_data.call_count == 1

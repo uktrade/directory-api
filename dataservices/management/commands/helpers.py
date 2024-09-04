@@ -240,6 +240,7 @@ def get_postgres_table(metadata):
 
 
 def ingest_data(engine, metadata, on_before_visible, batches):
+    breakpoint()
     with engine.connect() as conn:
         ingest(
             conn=conn,
