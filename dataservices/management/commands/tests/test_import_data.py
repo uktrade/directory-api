@@ -898,15 +898,14 @@ def test_import_dbt_investment_opportunities(read_sql_mock):
 
 @pytest.mark.django_db
 @override_settings(FEATURE_USE_POSTCODES_FROM_S3=True)
-@mock.patch('pg_bulk_ingest.ingest')
+@mock.patch('dataservices.management.commands.helpers.save_postcode_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
 @mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
 def test_import_postcodes_data_set_from_s3(
-    mock_get_s3_paginator, mock_get_s3_file, mock_pg_bulk_ingest, get_s3_file_data, get_s3_data_transfer_data
+    mock_get_s3_paginator, mock_get_s3_file, mock_save_postcode_data, get_s3_file_data, get_s3_data_transfer_data
 ):
 
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-
     management.call_command('import_postcodes_from_s3')
-    assert mock_pg_bulk_ingest.call_count == 1
+    assert mock_save_postcode_data.call_count == 1
