@@ -1,3 +1,5 @@
+import uuid
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext as _
@@ -533,3 +535,20 @@ class DBTInvestmentOpportunity(models.Model):
     net_zero = models.BooleanField()
     science_technology_superpower = models.BooleanField()
     sector_cluster = models.CharField()
+
+
+class Postcode(TimeStampedModel):
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=[
+                    'post_code',
+                ]
+            ),
+        ]
+        ordering = ['post_code', 'region', 'european_electoral_region']
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    post_code = models.TextField(blank=False, null=False)
+    region = models.TextField(blank=True, null=True)
+    european_electoral_region = models.TextField(blank=True, null=True)

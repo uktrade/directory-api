@@ -1,9 +1,14 @@
 import io
+import json
+import uuid
+import zlib
 from datetime import datetime, timedelta
 from sys import stdout
 from zipfile import ZipFile
 
+import boto3
 import pandas as pd
+import pg_bulk_ingest
 import requests
 import sqlalchemy as sa
 import xmltodict
@@ -165,3 +170,122 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     }
 
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
+
+
+def unzip_s3_gzip_file(file_body, max_bytes):
+    dobj = zlib.decompressobj(max_bytes)
+    for chunk in file_body:
+        uncompressed_chunk = dobj.decompress(chunk)
+        if uncompressed_chunk:
+            yield uncompressed_chunk
+        elif dobj.eof:
+            unused = dobj.unused_data
+            dobj = zlib.decompressobj(max_bytes)
+            uncompressed_chunk = dobj.decompress(unused)
+            if uncompressed_chunk:
+                yield uncompressed_chunk
+
+    uncompressed_chunk = dobj.flush()
+    if uncompressed_chunk:
+        yield uncompressed_chunk
+
+
+def read_jsonl_lines(text_lines):
+    return [json.loads(jline) for jline in text_lines]
+
+
+def get_s3_paginator(prefix):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    return s3.get_paginator('list_objects').paginate(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
+    )
+
+
+def get_s3_file(key):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    response = s3.get_object(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
+        Key=key,
+    )
+    return response
+
+
+def get_postgres_engine():
+    return sa.create_engine(settings.DATABASE_URL, future=True)
+
+
+def get_postgres_table(metadata):
+    return sa.Table(
+        "dataservices_postcode",
+        metadata,
+        sa.Column("id", sa.VARCHAR(255), primary_key=True),
+        sa.Column("post_code", sa.TEXT, nullable=False),
+        sa.Column("region", sa.TEXT, nullable=True),
+        sa.Column("european_electoral_region", sa.TEXT, nullable=True),
+        sa.Column("created", sa.TIMESTAMP, nullable=True),
+        sa.Column("modified", sa.TIMESTAMP, nullable=True),
+        sa.Index(None, "post_code"),
+        schema="public",
+    )
+
+
+def ingest_data(engine, metadata, on_before_visible, batches):
+    with engine.connect() as conn:
+        pg_bulk_ingest.ingest(
+            conn=conn,
+            metadata=metadata,
+            batches=batches,
+            on_before_visible=on_before_visible,
+            high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
+            upsert=pg_bulk_ingest.Upsert.OFF,
+            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+        )
+
+
+def get_table_batch(data, postcode_table):
+    table_data = (
+        (
+            postcode_table,
+            (
+                uuid.uuid4(),
+                postcode['pcd'],
+                postcode['rgn'],
+                postcode['rgn'],  # noqa F601
+                datetime.now(),  # noqa F601
+                datetime.now(),
+            ),
+        )
+        for postcode in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def save_postcode_data(data):
+    engine = get_postgres_engine()
+
+    metadata = sa.MetaData()
+
+    postcode_table = get_postgres_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_table_batch(data, postcode_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
