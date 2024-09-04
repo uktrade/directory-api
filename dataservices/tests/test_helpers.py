@@ -10,6 +10,7 @@ from unittest.mock import patch
 import boto3
 import pg_bulk_ingest
 import pytest
+import sqlalchemy as sa
 from botocore.paginate import Paginator
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
@@ -300,7 +301,7 @@ def test_get_s3_file(get_s3_file_data):
 
 @pytest.mark.django_db
 @mock.patch.object(zlib, 'decompressobj')
-def test_unzip_s3_gzip_file_flush_has_value(mock_decompressobj):
+def test_unzip_s3_gzip_file_flush(mock_decompressobj):
     mock_decompressobj.flush.return_value = 'Not Null'
     file = dmch.unzip_s3_gzip_file(file_body=b'', max_bytes=(32 + zlib.MAX_WBITS))
     val = next(file)
@@ -326,8 +327,7 @@ def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
 @pytest.mark.django_db
 @mock.patch.object(zlib, 'decompressobj')
 def test_unzip_s3_gzip_file_eof(mock_decompressobj):
-    mock_decompressobj.decompress.return_value = {}
-    mock_decompressobj.eof = True
+    mock_decompressobj.decompress.return_value = mock.Mock(return_value=EOFError)
     body_bytes = bytearray([1] * (32 + zlib.MAX_WBITS + 1))
     gzipped_body = gzip.compress(body_bytes)
     body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
@@ -346,3 +346,10 @@ def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
     dmch.save_postcode_data(data=postcode_data)
     assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_table_batch(postcode_data):
+    metadata = sa.MetaData()
+    ret = dmch.get_table_batch(postcode_data, dmch.get_postgres_table(metadata))
+    assert next(ret[2]) is not None

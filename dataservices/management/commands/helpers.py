@@ -8,12 +8,12 @@ from zipfile import ZipFile
 
 import boto3
 import pandas as pd
+import pg_bulk_ingest
 import requests
 import sqlalchemy as sa
 import xmltodict
 from django.conf import settings
 from django.core.management import BaseCommand
-import pg_bulk_ingest
 
 from core.helpers import notifications_client
 from dataservices.models import Metadata
@@ -252,6 +252,29 @@ def ingest_data(engine, metadata, on_before_visible, batches):
         )
 
 
+def get_table_batch(data, postcode_table):
+    table_data = (
+        (
+            postcode_table,
+            (
+                uuid.uuid4(),
+                postcode['pcd'],
+                postcode['rgn'],
+                postcode['rgn'],  # noqa F601
+                datetime.now(),  # noqa F601
+                datetime.now(),
+            ),
+        )
+        for postcode in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
 def save_postcode_data(data):
     engine = get_postgres_engine()
 
@@ -263,25 +286,6 @@ def save_postcode_data(data):
         pass
 
     def batches(_):
-        table_data = (
-            (
-                postcode_table,
-                (
-                    uuid.uuid4(),
-                    postcode['pcd'],
-                    postcode['rgn'],
-                    postcode['rgn'],  # noqa F601
-                    datetime.now(),  # noqa F601
-                    datetime.now(),
-                ),
-            )
-            for postcode in data
-        )
-
-        yield (
-            None,
-            None,
-            table_data,
-        )
+        yield get_table_batch(data, postcode_table)
 
     ingest_data(engine, metadata, on_before_visible, batches)
