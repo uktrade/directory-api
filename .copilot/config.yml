@@ -1,4 +1,4 @@
-repository: directory-api
+repository: great-data-api
 builder:
   name: paketobuildpacks/builder-jammy-full
   version: 0.3.339
