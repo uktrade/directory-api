@@ -433,35 +433,26 @@ def test_import_metadata_source_data_filter_tables():
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'env, review_requested_x_times',
-    [('dev', 0), ('staging', 4), ('uat', 0), ('production', 0)],
-)
 @mock.patch('dataservices.management.commands.import_market_guides_data.call_command')
 @mock.patch('dataservices.management.commands.helpers.MarketGuidesDataIngestionCommand.should_ingestion_run')
-@mock.patch('dataservices.management.commands.import_market_guides_data.send_review_request_message')
-def test_import_market_guides_data(
-    mock_send_review_request, mock_should_run, mock_call_command, env, review_requested_x_times
-):
-    with override_settings(APP_ENVIRONMENT=env):
-        command_list = [
-            'import_uk_total_trade_data',
-            'import_uk_trade_in_goods_data',
-            'import_uk_trade_in_services_data',
-            'import_world_economic_outlook_data',
-        ]
-        mock_should_run.return_value = False
-        management.call_command('import_market_guides_data', '--write')
-        assert mock_call_command.call_count == 0
+def test_import_market_guides_data(mock_should_run, mock_call_command):
+    command_list = [
+        'import_uk_total_trade_data',
+        'import_uk_trade_in_goods_data',
+        'import_uk_trade_in_services_data',
+        'import_world_economic_outlook_data',
+    ]
+    mock_should_run.return_value = False
+    management.call_command('import_market_guides_data', '--write')
+    assert mock_call_command.call_count == 0
 
-        mock_should_run.return_value = True
-        management.call_command('import_market_guides_data', '--write')
-        assert mock_call_command.call_count == 8
-        assert mock_send_review_request.call_count == review_requested_x_times
+    mock_should_run.return_value = True
+    management.call_command('import_market_guides_data', '--write')
+    assert mock_call_command.call_count == 8
 
-        for command in command_list:
-            assert command in str(mock_call_command.call_args_list)
-            assert 'write=True' in str(mock_call_command.call_args_list)
+    for command in command_list:
+        assert command in str(mock_call_command.call_args_list)
+        assert 'write=True' in str(mock_call_command.call_args_list)
 
 
 @pytest.mark.django_db
@@ -478,7 +469,7 @@ def test_import_market_guides_data_dry_run(mock_call_command, mock_should_run):
 
     management.call_command('import_market_guides_data')
 
-    assert mock_call_command.call_count == 8
+    assert mock_call_command.call_count == 4
 
     for command in command_list:
         assert command in str(mock_call_command.call_args_list)

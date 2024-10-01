@@ -333,8 +333,6 @@ FAB_FROM_EMAIL = env.fab_from_email
 OWNERSHIP_INVITE_SUBJECT = env.ownership_invite_subject
 COLLABORATOR_INVITE_SUBJECT = env.collaborator_invite_subject
 GREAT_MARKETGUIDES_TEAMS_CHANNEL_EMAIL = env.great_marketguides_teams_channel_email
-GREAT_MARKETGUIDES_REVIEW_PERIOD_DAYS = env.great_marketguides_review_period_days
-
 
 # Public storage for company profile logo
 STORAGE_CLASSES = {
