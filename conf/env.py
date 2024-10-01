@@ -102,7 +102,6 @@ class BaseSettings(PydanticBaseSettings):
     ownership_invite_subject: str = 'Confirm ownership of {company_name}’s Find a buyer profile'
     collaborator_invite_subject: str = 'Confirm you’ve been added to {company_name}’s Find a buyer profile'
     great_marketguides_teams_channel_email: str
-    great_marketguides_review_period_days: int = 10
 
     # Automated email settings
     verification_code_not_given_subject: str = 'Please verify your company’s Find a buyer profile'
