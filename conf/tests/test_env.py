@@ -198,3 +198,12 @@ def test_ci_environment():
     assert environment_reader.env.secret_key == 'debug'
     assert environment_reader.env.database_url == 'postgres://exampleuser:examplepassword@example.com:5432/exampledb'
     assert environment_reader.env.redis_url == 'rediss://examplepassword@example.com:6379'
+
+
+def test_local_docker_ci_environment():
+    os.environ['IS_DOCKER'] = 'true'
+
+    reload(environment_reader)
+
+    assert isinstance(environment_reader.env, environment_reader.CIEnvironment)
+    assert environment_reader.env.opensearch_config['hosts'] == 'docker-opensearch:9200'
