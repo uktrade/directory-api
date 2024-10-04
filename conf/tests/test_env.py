@@ -206,4 +206,4 @@ def test_local_docker_ci_environment():
     reload(environment_reader)
 
     assert isinstance(environment_reader.env, environment_reader.CIEnvironment)
-    assert environment_reader.env.opensearch_config['hosts'] == 'docker-opensearch:9200'
+    assert environment_reader.env.opensearch_config['hosts'] == ['docker-opensearch:9200']
