@@ -1,6 +1,9 @@
 import os
 
 
+def is_local_docker():
+    return os.getenv('IS_DOCKER') is True
+
 def is_local():
     return os.getenv('APP_ENVIRONMENT') is None
 

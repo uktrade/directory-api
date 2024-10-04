@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, computed_field
 from pydantic_settings import BaseSettings as PydanticBaseSettings
 from pydantic_settings import SettingsConfigDict
 
-from conf.helpers import get_env_files, is_circleci, is_local
+from conf.helpers import get_env_files, is_circleci, is_local, is_local_docker
 
 
 class BaseSettings(PydanticBaseSettings):
@@ -219,9 +219,15 @@ class CIEnvironment(BaseSettings):
     @computed_field(return_type=dict)
     @property
     def opensearch_config(self):
+
+        hosts = []
+        if is_local_docker():
+            hosts.append('docker-opensearch:9200')
+        else:
+            hosts.append('localhost:9200')
         return {
             "alias": 'default',
-            "hosts": ['localhost:9200'],
+            "hosts": hosts,
             "use_ssl": False,
             "verify_certs": False,
             "connection_class": RequestsHttpConnection,
