@@ -210,7 +210,7 @@ def test_notify_error_message(mock_notify):
         ('Automovie', 'Automotive'),
         ('Food and Drink', 'Food and Drink'),
         ('Space', 'Space'),
-        ('Finance and Professional Services', 'Financial and professional services')
+        ('Finance and Professional Services', 'Financial and professional services'),
     ],
 )
 def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
