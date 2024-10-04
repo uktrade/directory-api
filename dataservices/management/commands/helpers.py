@@ -127,7 +127,7 @@ def align_vertical_names(statista_vertical_name: str) -> str:
         'Pharmaceuticals and Biotech': 'Pharmaceuticals and biotechnology',
         'Manufacture of medical and dental instruments and supplies': 'Medical devices and equipment',
         'Automovie': 'Automotive',
-        'Finance and Professional Services': 'Financial and professional services'
+        'Finance and Professional Services': 'Financial and professional services',
     }
 
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
