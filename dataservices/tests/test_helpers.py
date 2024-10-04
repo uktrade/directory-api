@@ -204,12 +204,13 @@ def test_notify_error_message(mock_notify):
 @pytest.mark.parametrize(
     'statista_vertical_name, expected_vertical_name',
     [
-        ('Technology & Smart Cities', 'Technology and Smart Cities'),
+        ('Technology & Smart Cities', 'Technology and smart cities'),
         ('Pharmaceuticals and Biotech', 'Pharmaceuticals and biotechnology'),
         ('Manufacture of medical and dental instruments and supplies', 'Medical devices and equipment'),
         ('Automovie', 'Automotive'),
         ('Food and Drink', 'Food and Drink'),
         ('Space', 'Space'),
+        ('Finance and Professional Services', 'Financial and professional services')
     ],
 )
 def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
