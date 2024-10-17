@@ -125,7 +125,7 @@ distlib==0.3.8
     # via virtualenv
 dj-database-url==2.1.0
     # via -r requirements.in
-django==4.2.15
+django==4.2.16
     # via
     #   -r requirements.in
     #   directory-client-core
@@ -484,7 +484,7 @@ s3transfer==0.6.2
     # via boto3
 sentry-sdk==1.29.2
     # via -r requirements.in
-sigauth==5.2.7
+sigauth==5.3.0
     # via
     #   -r requirements.in
     #   directory-client-core
