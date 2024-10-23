@@ -30,12 +30,20 @@ def notifications_client():
 MESSAGE_AUTH_FAILED = 'Auth failed with Companies House'
 
 
+def _get_s3_client_kwargs():
+    kwargs = {}
+    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SCIENCE') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SCIENCE'):
+        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE
+        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+
+    return kwargs
+
+
 def upload_file_object_to_s3(file_object, bucket, key):
     s3 = boto3.client(
         's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
         region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
     )
     s3.put_object(
         Bucket=bucket,
@@ -47,9 +55,8 @@ def upload_file_object_to_s3(file_object, bucket, key):
 def get_file_from_s3(bucket, key):
     s3 = boto3.client(
         's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE,
         region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
     )
     file_object = s3.get_object(Bucket=bucket, Key=key)
     return file_object
