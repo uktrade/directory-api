@@ -357,16 +357,16 @@ AWS_S3_SIGNATURE_VERSION = env.aws_s3_signature_version
 AWS_QUERYSTRING_AUTH = env.aws_querystring_auth
 S3_USE_SIGV4 = env.s3_use_sigv4
 AWS_S3_HOST = env.aws_s3_host
-AWS_ACCESS_KEY_ID = env.aws_access_key_id
-AWS_SECRET_ACCESS_KEY = env.aws_secret_access_key
 AWS_STORAGE_BUCKET_NAME = env.aws_storage_bucket_name
 AWS_S3_REGION_NAME = env.aws_s3_region_name
 AWS_S3_ENCRYPTION = True
 AWS_DEFAULT_ACL = None
 
-# Setting up the the datascience s3 bucket
+# Setting up the s3 buckets
 if not is_copilot():
     # DBT platform uses AWS IAM roles to implicitly access resources. Hence this is only required in Gov UK PaaS
+    AWS_ACCESS_KEY_ID = env.aws_access_key_id
+    AWS_SECRET_ACCESS_KEY = env.aws_secret_access_key
     AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.aws_access_key_id_data_science
     AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.aws_secret_access_key_data_science
 
