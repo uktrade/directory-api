@@ -885,3 +885,18 @@ def test_import_dbt_investment_opportunities(read_sql_mock):
     # write
     management.call_command('import_dbt_investment_opportunities', '--write')
     assert len(models.DBTInvestmentOpportunity.objects.all()) == 1
+
+
+@pytest.mark.django_db
+def test_import_countries_territories_regions():
+    management.call_command('import_countries_territories_regions_dw', '--write')
+    assert models.CountryTerritoryRegion.objects.all().count() == 269
+
+
+@mock.patch(
+    'dataservices.management.commands.import_countries_territories_regions_dw.Command.DEFAULT_FILENAME', new='abc.csv'
+)
+def test_import_countries_territories_regions_errors(capsys):
+    management.call_command('import_countries_territories_regions_dw', '--write')
+    captured = capsys.readouterr()
+    assert captured[1] == "[Errno 2] No such file or directory: 'abc.csv'\n"

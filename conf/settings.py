@@ -552,6 +552,8 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-sector-gva-value-band',
     'dataservices-all-sectors-gva-value-bands',
     'dataservices-dbt-investment-opportunity',
+    'dataservices-countries-territories-regions',
+    'dataservices-country-territory-region',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',
