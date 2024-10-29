@@ -847,3 +847,37 @@ def test_dataservices_all_sectors_gva_bandings_view(gva_bandings, client):
         'sector_classification_value_band': 'classification band',
         'sector_classification_gva_multiplier': 'classification band',
     }
+
+
+@pytest.mark.django_db
+def test_dataservices_countries_territories_regions(countries_territories_regions, client):
+    response = client.get(f"{reverse('dataservices-countries-territories-regions')}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert len(api_data) == 3
+
+    assert api_data[0]['id'] == 1
+    assert api_data[1]['id'] == 2
+    assert api_data[2]['id'] == 3
+
+
+@pytest.mark.parametrize(
+    "iso2_code, expected_id",
+    [
+        ('FR', 1),
+        ('SA', 2),
+        ('NZ', 3),
+    ],
+)
+@pytest.mark.django_db
+def test_dataservices_country_territory_region(iso2_code, expected_id, countries_territories_regions, client):
+    response = client.get(f"{reverse('dataservices-country-territory-region', kwargs={'iso2_code':iso2_code})}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert api_data['id'] == expected_id

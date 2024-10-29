@@ -59,6 +59,37 @@ class Country(TimeStampedModel):
         verbose_name_plural = 'Countries | DIT DATA'
 
 
+class CountryTerritoryRegion(TimeStampedModel):
+    """
+    Model to store data from the Countries, Territories and Regions dataset on DW
+    """
+
+    id = models.AutoField(auto_created=True, primary_key=True)
+    reference_id = models.CharField(blank=False, unique=True)
+    name = models.CharField(blank=False, unique=True)
+    type = models.CharField(
+        blank=False,
+        choices=[
+            ('Country', 'Country'),
+            ('Territory', 'Territory'),
+            ('Region', 'Region'),
+        ],
+    )
+    iso1_code = models.CharField(null=True, blank=True, unique=False)
+    iso2_code = models.CharField(null=True, blank=True, unique=True)
+    iso3_code = models.CharField(null=True, blank=True, unique=True)
+    overseas_region = models.CharField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Country, territory or region | Data Workspace'
+        verbose_name_plural = 'Countries, territories or regions | Data Workspace'
+
+
 class EaseOfDoingBusiness(TimeStampedModel):
     year = models.IntegerField(null=True, blank=True)
     country = models.ForeignKey('dataservices.Country', on_delete=models.SET_NULL, null=True)
