@@ -705,3 +705,56 @@ def gva_bandings():
         models.SectorGVAValueBand.objects.create(**record)
     yield
     models.SectorGVAValueBand.objects.all().delete()
+
+
+@pytest.fixture
+def countries_territories_regions():
+    records = [
+        {
+            "id": 1,
+            "created": "2024-10-28T10:41:50.386827Z",
+            "modified": "2024-10-28T10:41:50.386829Z",
+            "reference_id": "CTHMTC00086",
+            "name": "France",
+            "type": "Country",
+            "iso1_code": "250",
+            "iso2_code": "FR",
+            "iso3_code": "FRA",
+            "overseas_region": "Europe",
+            "start_date": None,
+            "end_date": None,
+        },
+        {
+            "id": 2,
+            "created": "2024-10-28T10:41:50.388641Z",
+            "modified": "2024-10-28T10:41:50.388644Z",
+            "reference_id": "CTHMTC00212",
+            "name": "Saudi Arabia",
+            "type": "Country",
+            "iso1_code": "682",
+            "iso2_code": "SA",
+            "iso3_code": "SAU",
+            "overseas_region": "Middle East, Afghanistan and Pakistan",
+            "start_date": None,
+            "end_date": None,
+        },
+        {
+            "id": 3,
+            "created": "2024-10-28T10:41:50.387952Z",
+            "modified": "2024-10-28T10:41:50.387955Z",
+            "reference_id": "CTHMTC00174",
+            "name": "New Zealand",
+            "type": "Country",
+            "iso1_code": "554",
+            "iso2_code": "NZ",
+            "iso3_code": "NZL",
+            "overseas_region": "Asia Pacific",
+            "start_date": None,
+            "end_date": None,
+        },
+    ]
+
+    for record in records:
+        models.CountryTerritoryRegion.objects.create(**record)
+    yield
+    models.CountryTerritoryRegion.objects.all().delete()
