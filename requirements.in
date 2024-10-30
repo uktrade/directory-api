@@ -52,7 +52,7 @@ sigauth==5.3.0
 sqlalchemy==1.4.36
 sqlparse==0.5.0
 urllib3==1.26.19
-waitress==2.1.2
+waitress==3.0.1
 whitenoise==6.4.0
 xhtml2pdf==0.2.11
 xmltodict==0.12.0
