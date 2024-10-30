@@ -4,6 +4,7 @@ from typing import Any, Dict
 import directory_healthcheck.backends
 import dj_database_url
 import sentry_sdk
+from dbt_copilot_python.utility import is_copilot
 from django.urls import reverse_lazy
 from django_log_formatter_asim import ASIMFormatter
 from opensearch_dsl.connections import connections
@@ -364,8 +365,11 @@ AWS_S3_ENCRYPTION = True
 AWS_DEFAULT_ACL = None
 
 # Setting up the the datascience s3 bucket
-AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.aws_access_key_id_data_science
-AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.aws_secret_access_key_data_science
+if not is_copilot():
+    # DBT platform uses AWS IAM roles to implicitly access resources. Hence this is only required in Gov UK PaaS
+    AWS_ACCESS_KEY_ID_DATA_SCIENCE = env.aws_access_key_id_data_science
+    AWS_SECRET_ACCESS_KEY_DATA_SCIENCE = env.aws_secret_access_key_data_science
+
 AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.aws_storage_bucket_name_data_science
 AWS_S3_REGION_NAME_DATA_SCIENCE = env.aws_s3_region_name_data_science
 
@@ -548,6 +552,8 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-sector-gva-value-band',
     'dataservices-all-sectors-gva-value-bands',
     'dataservices-dbt-investment-opportunity',
+    'dataservices-countries-territories-regions',
+    'dataservices-country-territory-region',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',

@@ -305,3 +305,10 @@ class DBTInvestmentOpportunitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.DBTInvestmentOpportunity
         fields = '__all__'
+
+
+class CountriesTerritoriesRegionsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.CountryTerritoryRegion
+        fields = '__all__'

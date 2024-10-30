@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path, reverse_lazy
+from django.views.decorators.cache import cache_page
 from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -351,6 +352,16 @@ urlpatterns = [
         r'^dataservices/dbt-investment-opportunity/$',
         dataservices.views.DBTInvestmentOpportunityView.as_view(),
         name='dataservices-dbt-investment-opportunity',
+    ),
+    re_path(
+        r'^dataservices/countries-territories-regions/$',
+        cache_page(60 * 60)(dataservices.views.CountriesTerritoriesRegionsView.as_view()),
+        name='dataservices-countries-territories-regions',
+    ),
+    path(
+        'dataservices/country-territory-region/<str:iso2_code>',
+        cache_page(60 * 60)(dataservices.views.CountryTerritoryRegionView.as_view()),
+        name='dataservices-country-territory-region',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),
