@@ -373,11 +373,6 @@ if not is_copilot():
 AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.aws_storage_bucket_name_data_science
 AWS_S3_REGION_NAME_DATA_SCIENCE = env.aws_s3_region_name_data_science
 
-# Setting for email buckets which holds images
-AWS_ACCESS_KEY_ID_EMAIL = env.aws_access_key_id_email
-AWS_SECRET_ACCESS_KEY_EMAIL = env.aws_secret_access_key_email
-AWS_STORAGE_BUCKET_NAME_EMAIL = env.aws_storage_bucket_name_email
-
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
