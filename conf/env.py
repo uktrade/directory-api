@@ -57,11 +57,6 @@ class BaseSettings(PydanticBaseSettings):
     aws_storage_bucket_name_data_science: str = ''
     aws_s3_region_name_data_science: str = ''
 
-    # Setting for email buckets which holds images
-    aws_access_key_id_email: str = ''
-    aws_secret_access_key_email: str = ''
-    aws_storage_bucket_name_email: str = ''
-
     # Sentry
     sentry_dsn: str = ''
     sentry_environment: str = 'dev'
