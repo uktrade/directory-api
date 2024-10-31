@@ -216,6 +216,8 @@ googleapis-common-protos==1.63.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
+greenlet==3.1.1
+    # via sqlalchemy
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
 html5lib==1.1
@@ -563,7 +565,7 @@ virtualenv==20.26.1
     # via pre-commit
 w3lib==1.22.0
     # via directory-client-core
-waitress==2.1.2
+waitress==3.0.1
     # via -r requirements.in
 wcwidth==0.2.13
     # via prompt-toolkit
