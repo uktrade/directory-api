@@ -10,6 +10,7 @@ omit =
     conf/wsgi.py
     conf/settings.py
     conf/celery.py
+    core/signals.py
     *__init__*
     notifications/tasks.py
     # importing following two take longer and timesout

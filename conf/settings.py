@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'clearcache',
     'django.contrib.admin',
     'rest_framework',
     'django_extensions',
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -82,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'conf.urls'
@@ -123,6 +126,8 @@ CACHES = {
         },
     }
 }
+
+CACHE_MIDDLEWARE_SECONDS = 60 * 30  # 30 minutes
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -563,9 +568,35 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'buyer_by_email',
     'delete_test_buyers',
     'company-disconnect-supplier',
+    'clearcache_admin',
 ]
+
+SIGAUTH_NAMESPACE_WHITELIST = [
+    'admin',
+]
+
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
+
+if DEBUG:
+    # Whitelist debug_toolbar urls
+    SIGAUTH_NAMESPACE_WHITELIST += ['djdt']
+
+    # Allows developers to access a DEBUG only view called CacheView.
+    SIGAUTH_URL_NAMES_WHITELIST += [
+        'company-cache',
+    ]
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+    INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
+    if env.is_docker:
+        import socket
+
+        hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+        INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + INTERNAL_IPS
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+        }
 
 SOLE_TRADER_NUMBER_SEED = env.sole_trader_number_seed
 

@@ -10,6 +10,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 import activitystream.views
 import buyer.views
+import company.temp_api_views
 import company.views
 import dataservices.views
 import enrolment.views
@@ -46,6 +47,7 @@ activity_stream_urls = [
 urlpatterns = [
     re_path(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
     path('pingdom/ping.xml', PingDomView.as_view(), name='pingdom'),
+    path('admin/clearcache/', include('clearcache.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     re_path(r'^enrolment/$', enrolment.views.EnrolmentCreateAPIView.as_view(), name='enrolment'),
@@ -427,6 +429,14 @@ if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     ]
 
     urlpatterns = [re_path('^', include(authbroker_urls))] + urlpatterns
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns = [
+        re_path(r'^company/cache/$', company.temp_api_views.CacheView.as_view(), name='company-cache'),
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
 
 if settings.FEATURE_OPENAPI_ENABLED:
     urlpatterns += [
