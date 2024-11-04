@@ -431,11 +431,9 @@ if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     urlpatterns = [re_path('^', include(authbroker_urls))] + urlpatterns
 
 if settings.DEBUG:
-    import debug_toolbar
 
     urlpatterns = [
         re_path(r'^company/cache/$', company.temp_api_views.CacheView.as_view(), name='company-cache'),
-        path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
 
 if settings.FEATURE_OPENAPI_ENABLED:

@@ -8,7 +8,6 @@ requests_mock==1.6.0
 freezegun==0.3.12
 pytest-codecov
 GitPython==3.1.41
-django-debug-toolbar==3.2.4
 
 # Pinned because pre-commit features specific versions
 black==24.3.0
