@@ -1,7 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
 
 from company.models import Company
 from company.serializers import CompanySerializer
