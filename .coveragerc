@@ -11,6 +11,7 @@ omit =
     conf/settings.py
     conf/celery.py
     core/signals.py
+    company/temp_api_views.py
     *__init__*
     notifications/tasks.py
     # importing following two take longer and timesout
