@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 import sqlalchemy
 from django.core import management
+from django.core.cache import cache
 from django.test import override_settings
 from freezegun import freeze_time
 from import_export import results
@@ -62,6 +63,7 @@ def test_import_countries_data_sets(model_name, management_cmd, object_count):
 @pytest.mark.django_db
 def test_import_country_data_crud():
     from dataservices.tests import factories
+    cache.clear()
 
     old_country = factories.CountryFactory(is_active=True)
     change_country = factories.CountryFactory(name='Ital', iso2='IT')
