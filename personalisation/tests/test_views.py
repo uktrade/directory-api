@@ -119,6 +119,7 @@ def test_events_api(mock_search_with_activitystream, authed_client, settings):
     assert response.status_code == 200
     assert response.data == {'results': [document]}
 
+    cache.clear()
     """ What if there are no results? """
     mock_search_with_activitystream.return_value = create_response(
         {
@@ -133,6 +134,7 @@ def test_events_api(mock_search_with_activitystream, authed_client, settings):
     assert response.status_code == 200
     assert response.data == {'results': []}
 
+    cache.clear()
     '''What if ActivitySteam sends an error?'''
     mock_search_with_activitystream.return_value = create_response('[service overloaded]', status_code=500)
 

@@ -63,6 +63,7 @@ def test_import_countries_data_sets(model_name, management_cmd, object_count):
 @pytest.mark.django_db
 def test_import_country_data_crud():
     from dataservices.tests import factories
+
     cache.clear()
 
     old_country = factories.CountryFactory(is_active=True)
