@@ -178,7 +178,7 @@ def test_export_opportunities_api(authed_client, settings):
         }
 
     # Test failure to connect to ExOps
-
+    cache.clear()
     with patch('personalisation.helpers.ExportingIsGreatClient.get_opportunities') as get_opportunities:
         get_opportunities.return_value = create_response(
             json_body={'error': 'unauthorized'},
