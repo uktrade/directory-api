@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 import requests
+from django.core.cache import cache
 from django.urls import reverse
 
 from core.tests.helpers import create_response
@@ -57,6 +58,7 @@ def test_user_location_create_already_exists(user_location_data, authed_client):
 @pytest.mark.django_db
 @patch('personalisation.helpers.search_with_activitystream')
 def test_events_api(mock_search_with_activitystream, authed_client, settings):
+    cache.clear()
     """We mock the call to ActivityStream"""
     document = {
         "content": "The Independent Hotel Show is the only industry event ... in 2012 to support.",
@@ -146,6 +148,7 @@ def test_events_api(mock_search_with_activitystream, authed_client, settings):
 
 @pytest.mark.django_db
 def test_export_opportunities_api(authed_client, settings):
+    cache.clear()
     with patch('personalisation.helpers.get_opportunities') as get_opportunities:
         mock_results = {
             'relevant_opportunities': [

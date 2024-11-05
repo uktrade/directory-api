@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 import requests.exceptions
+from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -82,6 +83,7 @@ def test_lookup_by_postcode_success_multiple_region_ids(mock_postcode_to_region_
 @pytest.mark.django_db
 @mock.patch('exporting.helpers.postcode_to_region_id')
 def test_lookup_by_postcode_unsuppported_post_code(mock_postcode_to_region_id, api_client):
+    cache.clear()
     mock_postcode_to_region_id.return_value = 'some-unsupported-office'
 
     url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})
@@ -104,6 +106,7 @@ def test_lookup_by_postcode_unsuppported_post_code(mock_postcode_to_region_id, a
 @pytest.mark.django_db
 @mock.patch('exporting.helpers.postcode_to_region_id')
 def test_lookup_by_postcode_unsuppported_error(mock_postcode_to_region_id, api_client):
+    cache.clear()
     mock_postcode_to_region_id.side_effect = requests.exceptions.RequestException()
 
     url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})
@@ -126,6 +129,7 @@ def test_lookup_by_postcode_unsuppported_error(mock_postcode_to_region_id, api_c
 @pytest.mark.django_db
 @mock.patch('exporting.helpers.postcode_to_region_id')
 def test_lookup_by_postcode_attribute_error(mock_postcode_to_region_id, api_client):
+    cache.clear()
     mock_postcode_to_region_id.side_effect = AttributeError()
 
     url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})

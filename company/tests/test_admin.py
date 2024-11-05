@@ -10,6 +10,7 @@ from directory_constants import company_types
 from django.conf import settings
 from django.contrib.admin import site
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.signing import Signer
 from django.test import Client
 from django.urls import reverse
@@ -177,6 +178,7 @@ class DownloadCaseStudyCSVTestCase(TestCase):
 
         self.freezer = freeze_time("2012-01-14 12:00:00")
         self.freezer.start()
+        cache.clear()
 
     def tearDown(self):
         self.freezer.stop()
