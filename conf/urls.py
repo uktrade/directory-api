@@ -356,10 +356,12 @@ urlpatterns = [
     ),
     re_path(
         r'^dataservices/countries-territories-regions/$',
+        dataservices.views.CountriesTerritoriesRegionsView.as_view(),
         name='dataservices-countries-territories-regions',
     ),
     path(
         'dataservices/country-territory-region/<str:iso2_code>',
+        dataservices.views.CountryTerritoryRegionView.as_view(),
         name='dataservices-country-territory-region',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
