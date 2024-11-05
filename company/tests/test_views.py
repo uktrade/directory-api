@@ -1335,6 +1335,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
     ],
 )
 def test_search_results(url, term, filter_name, filter_value, expected, search_data, api_client):
+    cache.clear()
     data = {
         'term': term,
         'page': '1',
