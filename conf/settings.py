@@ -84,6 +84,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
+
+# 'django.middleware.cache.FetchFromCacheMiddleware' should always be the last middleware element
+MIDDLEWARE += [
     'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
