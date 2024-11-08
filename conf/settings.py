@@ -87,9 +87,7 @@ MIDDLEWARE = [
 ]
 
 # 'django.middleware.cache.FetchFromCacheMiddleware' should always be the last middleware element
-MIDDLEWARE += [
-    'django.middleware.cache.FetchFromCacheMiddleware',
-]
+MIDDLEWARE = MIDDLEWARE.append('django.middleware.cache.FetchFromCacheMiddleware')
 
 ROOT_URLCONF = 'conf.urls'
 
