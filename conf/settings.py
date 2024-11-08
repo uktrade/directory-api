@@ -578,12 +578,6 @@ SIGAUTH_NAMESPACE_WHITELIST = [
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
 
-if DEBUG:
-
-    # Allows developers to access a DEBUG only view called CacheView.
-    SIGAUTH_URL_NAMES_WHITELIST += [
-        'company-cache',
-    ]
 
 SOLE_TRADER_NUMBER_SEED = env.sole_trader_number_seed
 

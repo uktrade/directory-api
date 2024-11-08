@@ -9,7 +9,6 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 import activitystream.views
 import buyer.views
-import company.temp_api_views
 import company.views
 import dataservices.views
 import enrolment.views
@@ -428,12 +427,6 @@ if settings.FEATURE_ENFORCE_STAFF_SSO_ENABLED:
     ]
 
     urlpatterns = [re_path('^', include(authbroker_urls))] + urlpatterns
-
-if settings.DEBUG:
-
-    urlpatterns = [
-        re_path(r'^company/cache/$', company.temp_api_views.CacheView.as_view(), name='company-cache'),
-    ] + urlpatterns
 
 if settings.FEATURE_OPENAPI_ENABLED:
     urlpatterns += [
