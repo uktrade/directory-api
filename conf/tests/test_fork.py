@@ -1,10 +1,12 @@
-import pytest
-import os
 import logging
+import os
 from unittest.mock import patch
+
+import pytest
 from gevent.server import StreamServer
-from conf.gunicorn import post_fork
 from gunicorn.workers.ggevent import GeventWorker
+
+from conf.gunicorn import post_fork
 
 logger = logging.getLogger(__name__)
 

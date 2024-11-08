@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path, re_path, reverse_lazy
-from django.views.decorators.cache import cache_page
 from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -46,6 +45,7 @@ activity_stream_urls = [
 urlpatterns = [
     re_path(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
     path('pingdom/ping.xml', PingDomView.as_view(), name='pingdom'),
+    path('admin/clearcache/', include('clearcache.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     re_path(r'^enrolment/$', enrolment.views.EnrolmentCreateAPIView.as_view(), name='enrolment'),
@@ -355,12 +355,12 @@ urlpatterns = [
     ),
     re_path(
         r'^dataservices/countries-territories-regions/$',
-        cache_page(60 * 60)(dataservices.views.CountriesTerritoriesRegionsView.as_view()),
+        dataservices.views.CountriesTerritoriesRegionsView.as_view(),
         name='dataservices-countries-territories-regions',
     ),
     path(
         'dataservices/country-territory-region/<str:iso2_code>',
-        cache_page(60 * 60)(dataservices.views.CountryTerritoryRegionView.as_view()),
+        dataservices.views.CountryTerritoryRegionView.as_view(),
         name='dataservices-country-territory-region',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),

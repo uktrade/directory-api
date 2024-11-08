@@ -39,6 +39,8 @@ class BaseSettings(PydanticBaseSettings):
 
     opensearch_company_index_alias: str = 'companies-alias'
 
+    is_docker: bool = False
+
     # AWS
     aws_s3_region_name: str = ''
     aws_storage_bucket_name: str = ''
