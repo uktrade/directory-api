@@ -1,5 +1,5 @@
 import io
-from datetime import datetime
+from dateutil import parser
 from zipfile import ZipFile
 
 import pandas as pd
@@ -82,7 +82,7 @@ class MarketGuidesDataIngestionCommand(BaseDataWorkspaceIngestionCommand):
         great_metadata = self.get_view_metadata(view_name)
         great_metadata_date = None
         if great_metadata is not None:
-            great_metadata_date = datetime.strptime(great_metadata, '%Y-%m-%dT%H:%M:%S').date()
+            great_metadata_date = parser.parse(great_metadata).date()
             if swapped_date > great_metadata_date:
                 self.stdout.write(
                     self.style.SUCCESS(f'Importing {view_name} data into {settings.APP_ENVIRONMENT} env.')

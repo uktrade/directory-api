@@ -45,6 +45,7 @@ activity_stream_urls = [
 urlpatterns = [
     re_path(r'^healthcheck/', include((healthcheck_urls, 'healthcheck'), namespace='healthcheck')),
     path('pingdom/ping.xml', PingDomView.as_view(), name='pingdom'),
+    path('admin/clearcache/', include('clearcache.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^activity-stream/', include((activity_stream_urls, 'activity-stream'), namespace='activity-stream')),
     re_path(r'^enrolment/$', enrolment.views.EnrolmentCreateAPIView.as_view(), name='enrolment'),
@@ -351,6 +352,16 @@ urlpatterns = [
         r'^dataservices/dbt-investment-opportunity/$',
         dataservices.views.DBTInvestmentOpportunityView.as_view(),
         name='dataservices-dbt-investment-opportunity',
+    ),
+    re_path(
+        r'^dataservices/countries-territories-regions/$',
+        dataservices.views.CountriesTerritoriesRegionsView.as_view(),
+        name='dataservices-countries-territories-regions',
+    ),
+    path(
+        'dataservices/country-territory-region/<str:iso2_code>',
+        dataservices.views.CountryTerritoryRegionView.as_view(),
+        name='dataservices-country-territory-region',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),

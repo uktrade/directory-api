@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 import sqlalchemy
 from django.core import management
+from django.core.cache import cache
 from django.test import override_settings
 from freezegun import freeze_time
 from import_export import results
@@ -62,6 +63,8 @@ def test_import_countries_data_sets(model_name, management_cmd, object_count):
 @pytest.mark.django_db
 def test_import_country_data_crud():
     from dataservices.tests import factories
+
+    cache.clear()
 
     old_country = factories.CountryFactory(is_active=True)
     change_country = factories.CountryFactory(name='Ital', iso2='IT')
@@ -885,3 +888,18 @@ def test_import_dbt_investment_opportunities(read_sql_mock):
     # write
     management.call_command('import_dbt_investment_opportunities', '--write')
     assert len(models.DBTInvestmentOpportunity.objects.all()) == 1
+
+
+@pytest.mark.django_db
+def test_import_countries_territories_regions():
+    management.call_command('import_countries_territories_regions_dw', '--write')
+    assert models.CountryTerritoryRegion.objects.all().count() == 269
+
+
+@mock.patch(
+    'dataservices.management.commands.import_countries_territories_regions_dw.Command.DEFAULT_FILENAME', new='abc.csv'
+)
+def test_import_countries_territories_regions_errors(capsys):
+    management.call_command('import_countries_territories_regions_dw', '--write')
+    captured = capsys.readouterr()
+    assert captured[1] == "[Errno 2] No such file or directory: 'abc.csv'\n"

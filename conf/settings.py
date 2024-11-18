@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'clearcache',
     'django.contrib.admin',
     'rest_framework',
     'django_extensions',
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -82,6 +84,11 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
+
+# 'django.middleware.cache.FetchFromCacheMiddleware' should always be the last middleware element
+MIDDLEWARE += [
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'conf.urls'
@@ -123,6 +130,8 @@ CACHES = {
         },
     }
 }
+
+CACHE_MIDDLEWARE_SECONDS = 60 * 30  # 30 minutes
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -373,11 +382,6 @@ if not is_copilot():
 AWS_STORAGE_BUCKET_NAME_DATA_SCIENCE = env.aws_storage_bucket_name_data_science
 AWS_S3_REGION_NAME_DATA_SCIENCE = env.aws_s3_region_name_data_science
 
-# Setting for email buckets which holds images
-AWS_ACCESS_KEY_ID_EMAIL = env.aws_access_key_id_email
-AWS_SECRET_ACCESS_KEY_EMAIL = env.aws_secret_access_key_email
-AWS_STORAGE_BUCKET_NAME_EMAIL = env.aws_storage_bucket_name_email
-
 # Admin proxy
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -552,6 +556,8 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-sector-gva-value-band',
     'dataservices-all-sectors-gva-value-bands',
     'dataservices-dbt-investment-opportunity',
+    'dataservices-countries-territories-regions',
+    'dataservices-country-territory-region',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',
@@ -566,9 +572,16 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'buyer_by_email',
     'delete_test_buyers',
     'company-disconnect-supplier',
+    'clearcache_admin',
 ]
+
+SIGAUTH_NAMESPACE_WHITELIST = [
+    'admin',
+]
+
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
+
 
 SOLE_TRADER_NUMBER_SEED = env.sole_trader_number_seed
 

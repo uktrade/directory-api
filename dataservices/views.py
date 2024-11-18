@@ -1174,3 +1174,92 @@ class DBTInvestmentOpportunityView(generics.ListAPIView):
     permission_classes = []
     serializer_class = serializers.DBTInvestmentOpportunitySerializer
     queryset = models.SectorGVAValueBand.objects.all()
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    "id": 1,
+                    "created": "2024-10-28T10:41:50.387278Z",
+                    "modified": "2024-10-28T10:41:50.387281Z",
+                    "reference_id": "CTHMTC00120",
+                    "name": "Italy",
+                    "type": "Country",
+                    "iso1_code": "380",
+                    "iso2_code": "IT",
+                    "iso3_code": "ITA",
+                    "overseas_region": "Europe",
+                    "start_date": None,
+                    "end_date": None,
+                },
+                {
+                    "id": 2,
+                    "created": "2024-10-28T10:41:50.386827Z",
+                    "modified": "2024-10-28T10:41:50.386829Z",
+                    "reference_id": "CTHMTC00086",
+                    "name": "France",
+                    "type": "Country",
+                    "iso1_code": "250",
+                    "iso2_code": "FR",
+                    "iso3_code": "FRA",
+                    "overseas_region": "Europe",
+                    "start_date": None,
+                    "end_date": None,
+                },
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='Countries, territories and regions',
+)
+class CountriesTerritoriesRegionsView(generics.ListAPIView):
+    permission_classes = []
+    serializer_class = serializers.CountriesTerritoriesRegionsSerializer
+    queryset = models.CountryTerritoryRegion.objects.all()
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value={
+                "id": 1,
+                "created": "2024-10-28T10:41:50.387278Z",
+                "modified": "2024-10-28T10:41:50.387281Z",
+                "reference_id": "CTHMTC00120",
+                "name": "Italy",
+                "type": "Country",
+                "iso1_code": "380",
+                "iso2_code": "IT",
+                "iso3_code": "ITA",
+                "overseas_region": "Europe",
+                "start_date": None,
+                "end_date": None,
+            },
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    parameters=[
+        OpenApiParameter(
+            location='path',
+            name='iso2_code',
+            description='Get a specific country by ISO2 code',
+            required=False,
+            type=str,
+            examples=[OpenApiExample('IT', value='IT')],
+        ),
+    ],
+    description='Countries, territories and regions',
+)
+class CountryTerritoryRegionView(generics.RetrieveAPIView):
+    permission_classes = []
+    queryset = models.CountryTerritoryRegion.objects.all()
+    serializer_class = serializers.CountriesTerritoriesRegionsSerializer
+    lookup_field = 'iso2_code'

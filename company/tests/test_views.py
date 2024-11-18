@@ -8,6 +8,7 @@ from unittest import mock
 import pytest
 from directory_constants import choices, company_types, sectors, user_roles
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
@@ -1334,6 +1335,7 @@ def test_search_wildcard_filters_multiple(url, api_client, settings):
     ],
 )
 def test_search_results(url, term, filter_name, filter_value, expected, search_data, api_client):
+    cache.clear()
     data = {
         'term': term,
         'page': '1',
@@ -2259,6 +2261,7 @@ def test_company_user_retrieve_no_company_user(authed_client, authed_supplier):
 
 @pytest.mark.django_db
 def test_gecko_num_registered_company_user_view_returns_correct_json():
+    cache.clear()
     client = APIClient()
     models.CompanyUser.objects.create(**VALID_SUPPLIER_REQUEST_DATA)
     # Use basic auth with user=gecko and pass=X
@@ -2274,6 +2277,7 @@ def test_gecko_num_registered_company_user_view_returns_correct_json():
 
 @pytest.mark.django_db
 def test_gecko_num_registered_company_user_view_requires_auth():
+    cache.clear()
     client = APIClient()
 
     response = client.get(reverse('gecko-total-registered-suppliers'))
