@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'clearcache',
     'django.contrib.admin',
     'rest_framework',
     'django_extensions',
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'core.middleware.SignatureCheckMiddleware',
     'core.middleware.AdminPermissionCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -82,6 +84,11 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
+
+# 'django.middleware.cache.FetchFromCacheMiddleware' should always be the last middleware element
+MIDDLEWARE += [
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'conf.urls'
@@ -123,6 +130,8 @@ CACHES = {
         },
     }
 }
+
+CACHE_MIDDLEWARE_SECONDS = 60 * 30  # 30 minutes
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -563,9 +572,16 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'buyer_by_email',
     'delete_test_buyers',
     'company-disconnect-supplier',
+    'clearcache_admin',
 ]
+
+SIGAUTH_NAMESPACE_WHITELIST = [
+    'admin',
+]
+
 if STORAGE_CLASS_NAME == 'local-storage':
     SIGAUTH_URL_NAMES_WHITELIST.append('media')
+
 
 SOLE_TRADER_NUMBER_SEED = env.sole_trader_number_seed
 

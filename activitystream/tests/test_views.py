@@ -3,6 +3,7 @@ from unittest import mock
 
 import mohawk
 import pytest
+from django.core.cache import cache
 from freezegun import freeze_time
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -306,6 +307,7 @@ def test_if_61_seconds_in_past_401_returned(api_client, activities_url):
     """If the Authorization header is generated 61 seconds in the past, then a
     401 is returned
     """
+    cache.clear()
     past = datetime.datetime.now() - datetime.timedelta(seconds=61)
     with freeze_time(past):
         auth = _auth_sender(activities_url).request_header
