@@ -885,3 +885,23 @@ def get_s3_data_transfer_data():
         },
     ]
     yield data
+
+
+@pytest.fixture
+def dbtsector_data():
+    yield [
+       {
+            'id': 1,
+            'field_01': 'SL0003',
+            'field_02': '',
+            'field_03': 'Technology and Advanced Manufacturing',
+            'field_04': 'Advanced engineering',
+            'field_05': 'Metallurgical process plant',
+            'field_06': '',
+            'field_07': '',
+            'updated_date': '2021-08-19T07:12:32.744274+00:00',
+            'full_sector_name': 'Advanced engineering : Metallurgical process plant',
+            'sector_cluster__april_2023': 'Sustainability and Infrastructure',
+        },
+    ]
+

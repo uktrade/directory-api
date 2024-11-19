@@ -305,9 +305,9 @@ def test_unzip_s3_gzip_file_eof(mock_decompressobj):
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
 @mock.patch.object(Engine, 'connect')
-def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
+def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    dmch.save_postcode_data(data=postcode_data)
+    dmch.save_dbt_sectors_data(data=dbtsector_data)
     assert mock_ingest.call_count == 1
 
 
