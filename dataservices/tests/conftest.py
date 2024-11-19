@@ -890,7 +890,7 @@ def get_s3_data_transfer_data():
 @pytest.fixture
 def dbtsector_data():
     yield [
-       {
+        {
             'id': 1,
             'field_01': 'SL0003',
             'field_02': '',
@@ -904,4 +904,3 @@ def dbtsector_data():
             'sector_cluster__april_2023': 'Sustainability and Infrastructure',
         },
     ]
-
