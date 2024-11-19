@@ -314,5 +314,5 @@ def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
 @pytest.mark.django_db
 def test_get_table_batch(postcode_data):
     metadata = sa.MetaData()
-    ret = dmch.get_table_batch(postcode_data, dmch.get_postgres_table(metadata))
+    ret = dmch.get_table_batch(postcode_data, dmch.get_dbtsector_postgres_table(metadata))
     assert next(ret[2]) is not None
