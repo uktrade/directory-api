@@ -255,5 +255,4 @@ def save_dbt_sectors_data(data):
     def batches(_):
         yield get_dbtsector_table_batch(data, data_table)
 
-    breakpoint()
     ingest_data(engine, metadata, on_before_visible, batches)
