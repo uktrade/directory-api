@@ -1,11 +1,15 @@
 import io
-from dateutil import parser
+import json
+import zlib
 from zipfile import ZipFile
 
+import boto3
 import pandas as pd
+import pg_bulk_ingest
 import requests
 import sqlalchemy as sa
 import xmltodict
+from dateutil import parser
 from django.conf import settings
 from django.core.management import BaseCommand
 
@@ -131,3 +135,125 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     }
 
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
+
+
+def unzip_s3_gzip_file(file_body, max_bytes):
+    dobj = zlib.decompressobj(max_bytes)
+    for chunk in file_body:
+        uncompressed_chunk = dobj.decompress(chunk)
+        if uncompressed_chunk:
+            yield uncompressed_chunk
+        elif dobj.eof:
+            unused = dobj.unused_data
+            dobj = zlib.decompressobj(max_bytes)
+            uncompressed_chunk = dobj.decompress(unused)
+            if uncompressed_chunk:
+                yield uncompressed_chunk
+
+    uncompressed_chunk = dobj.flush()
+    if uncompressed_chunk:
+        yield uncompressed_chunk
+
+
+def read_jsonl_lines(text_lines):
+    return [json.loads(jline) for jline in text_lines]
+
+
+def get_s3_paginator(prefix):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    return s3.get_paginator('list_objects').paginate(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
+    )
+
+
+def get_s3_file(key):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    response = s3.get_object(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
+        Key=key,
+    )
+    return response
+
+
+def get_postgres_engine():
+    return sa.create_engine(settings.DATABASE_URL, future=True)
+
+
+def get_dbtsector_postgres_table(metadata):
+    return sa.Table(
+        "dataservices_dbtsector",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("sector_id", sa.TEXT, nullable=True),
+        sa.Column("full_sector_name", sa.TEXT, nullable=True),
+        sa.Column("sector_cluster_name", sa.TEXT, nullable=True),
+        sa.Column("sector_name", sa.TEXT, nullable=True),
+        sa.Column("sub_sector_name", sa.TEXT, nullable=True),
+        sa.Column("sub_sub_sector_name", sa.TEXT, nullable=True),
+        sa.Index(None, "id"),
+        schema="public",
+    )
+
+
+def ingest_data(engine, metadata, on_before_visible, batches):
+    with engine.connect() as conn:
+        pg_bulk_ingest.ingest(
+            conn=conn,
+            metadata=metadata,
+            batches=batches,
+            on_before_visible=on_before_visible,
+            high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
+            upsert=pg_bulk_ingest.Upsert.OFF,
+            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+        )
+
+
+def get_dbtsector_table_batch(data, data_table):
+    table_data = (
+        (
+            data_table,
+            (
+                dbt_sector['id'],
+                dbt_sector['field_01'],
+                dbt_sector['full_sector_name'],
+                dbt_sector['sector_cluster__april_2023'],
+                dbt_sector['field_04'],
+                dbt_sector['field_05'],
+                dbt_sector['field_02'],
+            ),
+        )
+        for dbt_sector in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def save_dbt_sectors_data(data):
+    engine = get_postgres_engine()
+
+    metadata = sa.MetaData()
+
+    data_table = get_dbtsector_postgres_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_dbtsector_table_batch(data, data_table)
+
+    breakpoint()
+    ingest_data(engine, metadata, on_before_visible, batches)

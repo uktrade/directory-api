@@ -795,33 +795,16 @@ def test_comtrade_load_data(read_sql_mock):
 
 
 @pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_dbt_sectors(read_sql_mock):
-    data = {
-        'id': [1],
-        'updated_date': [''],
-        'field_01': ['SL0001'],
-        'field_03': [''],
-        'full_sector_name': ['Advanced engineering'],
-        'field_04': ['Advanced engineering'],
-        'field_05': [''],
-        'field_02': [''],
-        'field_06': [''],
-        'field_07': [''],
-        'sector_cluster__april_2023': ['Sustainability and Infrastructure'],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(data)]
-
-    assert len(models.DBTSector.objects.all()) == 0
-
-    # dry run
+@mock.patch('dataservices.management.commands.helpers.save_dbt_sector_data')
+@mock.patch('dataservices.management.commands.helpers.get_s3_file')
+@mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
+def test_import_postcodes_data_set_from_s3(
+    mock_get_s3_paginator, mock_get_s3_file, mock_save_dbt_sector_data, get_s3_file_data, get_s3_data_transfer_data
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     management.call_command('import_dbt_sectors')
-    assert len(models.DBTSector.objects.all()) == 0
-
-    # write
-    management.call_command('import_dbt_sectors', '--write')
-    assert len(models.DBTSector.objects.all()) == 1
+    assert mock_save_dbt_sector_data.call_count == 1
 
 
 @pytest.mark.django_db
