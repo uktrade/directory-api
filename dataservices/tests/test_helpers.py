@@ -274,10 +274,19 @@ def test_unzip_s3_gzip_file_flush(mock_decompressobj):
 @pytest.mark.django_db
 @mock.patch.object(zlib, 'decompressobj')
 def test_unzip_s3_gzip_file_success(mock_decompressobj, dbsector_data):
-    mock_decompressobj.decompress.return_value = dbsector_data_data
-    body_json = {
-        'pcd': 'N17 9SJ',
-        'rgn': 'London',
+    mock_decompressobj.decompress.return_value = dbsector_data
+    body_json = body_json = {
+        'id': 1,
+        'field_01': 'SL0003',
+        'field_02': '',
+        'field_03': 'Technology and Advanced Manufacturing',
+        'field_04': 'Advanced engineering',
+        'field_05': 'Metallurgical process plant',
+        'field_06': '',
+        'field_07': '',
+        'updated_date': '2021-08-19T07:12:32.744274+00:00',
+        'full_sector_name': 'Advanced engineering : Metallurgical process plant',
+        'sector_cluster__april_2023': 'Sustainability and Infrastructure',
     }
     body_encoded = json.dumps(body_json).encode()
     gzipped_body = gzip.compress(body_encoded)
