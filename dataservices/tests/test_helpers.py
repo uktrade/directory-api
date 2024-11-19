@@ -236,7 +236,7 @@ def test_get_s3_paginator(mock_paginate, get_s3_data_transfer_data):
     client = boto3.client('s3')
     stubber = Stubber(client)
     mock_paginate.return_value = get_s3_data_transfer_data
-    prefix = settings.POSTCODE_FROM_S3_PREFIX
+    prefix = settings.DBT_SECTOR_S3_PREFIX
     stubber.activate()
 
     with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
@@ -273,8 +273,8 @@ def test_unzip_s3_gzip_file_flush(mock_decompressobj):
 
 @pytest.mark.django_db
 @mock.patch.object(zlib, 'decompressobj')
-def test_unzip_s3_gzip_file_success(mock_decompressobj, postcode_data):
-    mock_decompressobj.decompress.return_value = postcode_data
+def test_unzip_s3_gzip_file_success(mock_decompressobj, dbsector_data):
+    mock_decompressobj.decompress.return_value = dbsector_data_data
     body_json = {
         'pcd': 'N17 9SJ',
         'rgn': 'London',
@@ -312,7 +312,7 @@ def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
 
 
 @pytest.mark.django_db
-def test_get_table_batch(postcode_data):
+def test_get_dbtsector_table_batch(dbtsector_data):
     metadata = sa.MetaData()
-    ret = dmch.get_table_batch(postcode_data, dmch.get_dbtsector_postgres_table(metadata))
+    ret = dmch.get_dbtsector_table_batch(dbtsector_data, dmch.get_dbtsector_postgres_table(metadata))
     assert next(ret[2]) is not None
