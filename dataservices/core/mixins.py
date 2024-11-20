@@ -17,7 +17,7 @@ class S3DownloadMixin:
             prefix: str - Bucket Path on the Dataservices s3 bucket.
             save_func: method - Method that saves the <data> param to the database.
         """
-        assert all([prefix, save_func])
+        assert None not in [prefix, save_func]
 
         page_iterator = get_s3_paginator(prefix)
         files = []

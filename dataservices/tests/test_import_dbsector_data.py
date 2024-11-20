@@ -1,7 +1,6 @@
 from unittest import mock
 import pytest
 
-from django.conf import settings
 from django.core import management
 
 
@@ -15,6 +14,6 @@ def test_import_dbtsector_data_set_from_s3(
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     management.call_command(
-        'import_dbt_sectors', prefix=settings.DBT_SECTOR_S3_PREFIX, save_func=mock_save_dbt_sector_data
+        'import_dbt_sectors'
     )
     assert mock_save_dbt_sector_data.call_count == 1
