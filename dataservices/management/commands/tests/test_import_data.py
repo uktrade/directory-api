@@ -794,9 +794,6 @@ def test_comtrade_load_data(read_sql_mock):
     assert data_chn_wld.first().uk_or_world == 'WLD'
 
 
-
-
-
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
