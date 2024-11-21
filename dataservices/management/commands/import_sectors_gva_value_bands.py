@@ -7,7 +7,7 @@ from dataservices.management.commands.helpers import save_sectors_gva_value_band
 
 class Command(BaseCommand, S3DownloadMixin):
 
-    help = 'Import DBT Sector list data from s3'
+    help = 'Import sector GVA value bands data from s3'
 
     def handle(self, *args, **options):
         self.do_handle(
