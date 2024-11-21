@@ -77,7 +77,6 @@ def test_import_sectors_gva_value_bands_data_set_from_s3(
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
-    breakpoint()
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     mock_read_jsonl_lines.return_value = sectors_gva_value_bands
