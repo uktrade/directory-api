@@ -52,13 +52,7 @@ data = {
 }
 
 
-@pytest.mark.parametrize(
-    "get_s3_file_data",
-    [
-        data,
-    ],
-    indirect=True,
-)
+@pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.save_sectors_gva_value_bands_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
