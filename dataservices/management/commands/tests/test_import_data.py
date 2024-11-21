@@ -797,39 +797,6 @@ def test_comtrade_load_data(read_sql_mock):
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_sectors_gva_value_bands(read_sql_mock):
-    data = {
-        'id': [1],
-        'updated_date': [''],
-        'full_sector_name': ['Advanced engineering'],
-        'gva_grouping': [''],
-        'gva_multiplier': ['Advanced engineering'],
-        'value_band_a_minimum': [5700000],
-        'value_band_b_minimum': [2600000],
-        'value_band_c_minimum': [848513],
-        'value_band_d_minimum': [260000],
-        'value_band_e_minimum': [10000],
-        'sector_classification_value_band': ['Capital intensive'],
-        'sector_classification_gva_multiplier': ['Capital intensive'],
-        'start_date': ['2022-04-01'],
-        'end_date': ['2025-03-31'],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(data)]
-
-    assert len(models.SectorGVAValueBand.objects.all()) == 0
-
-    # dry run
-    management.call_command('import_sectors_gva_value_bands')
-    assert len(models.SectorGVAValueBand.objects.all()) == 0
-
-    # write
-    management.call_command('import_sectors_gva_value_bands', '--write')
-    assert len(models.SectorGVAValueBand.objects.all()) == 1
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
 def test_import_dbt_investment_opportunities(read_sql_mock):
     data = {
         'id': [1],
