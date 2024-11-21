@@ -765,22 +765,9 @@ def countries_territories_regions():
 
 
 @pytest.fixture
-def get_s3_file_data():
-    body_json = {
-        'id': 1,
-        'field_01': 'SL0003',
-        'field_02': '',
-        'field_03': 'Technology and Advanced Manufacturing',
-        'field_04': 'Advanced engineering',
-        'field_05': 'Metallurgical process plant',
-        'field_06': '',
-        'field_07': '',
-        'updated_date': '2021-08-19T07:12:32.744274+00:00',
-        'full_sector_name': 'Advanced engineering : Metallurgical process plant',
-        'sector_cluster__april_2023': 'Sustainability and Infrastructure',
-    }
-
-    body_encoded = json.dumps(body_json).encode()
+def get_s3_file_data(request):
+    data = request.param
+    body_encoded = json.dumps(data).encode()
     gzipped_body = gzip.compress(body_encoded)
     body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
     data = {
@@ -846,7 +833,7 @@ def get_s3_data_transfer_data():
                 },
             ],
             'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
-            'Prefix': 'data-flow/exports/production/ExportDITSectorReferenceDataset',
+            'Prefix': 'data-flow/exports/production/dataset',
             'MaxKeys': 1000,
             'EncodingType': 'url',
         },
@@ -879,7 +866,7 @@ def get_s3_data_transfer_data():
                 }
             ],
             'Name': 'paas-s3-broker-prod-lon-4ba96c09-0310-4f05-9eac-b0ff2f69357a',
-            'Prefix': 'data-flow/exports/production/ExportDITSectorReferenceDataset',
+            'Prefix': 'data-flow/exports/production/dataset',
             'MaxKeys': 1000,
             'EncodingType': 'url',
         },

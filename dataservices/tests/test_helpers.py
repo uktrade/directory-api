@@ -245,8 +245,25 @@ def test_get_s3_paginator(mock_paginate, get_s3_data_transfer_data):
     assert response == get_s3_data_transfer_data
 
 
+data = {
+    'id': 1,
+    'field_01': 'SL0003',
+    'field_02': '',
+    'field_03': 'Technology and Advanced Manufacturing',
+    'field_04': 'Advanced engineering',
+    'field_05': 'Metallurgical process plant',
+    'field_06': '',
+    'field_07': '',
+    'updated_date': '2021-08-19T07:12:32.744274+00:00',
+    'full_sector_name': 'Advanced engineering : Metallurgical process plant',
+    'sector_cluster__april_2023': 'Sustainability and Infrastructure',
+}
+
+
+@pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
 @pytest.mark.django_db
 def test_get_s3_file(get_s3_file_data):
+    get_s3_file_data
     client = boto3.client('s3')
     stubber = Stubber(client)
     key = 'testfile_jsonl.zx'
