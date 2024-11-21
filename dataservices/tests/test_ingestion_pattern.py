@@ -4,7 +4,7 @@ import pytest
 from django.core import management
 
 
-data = {
+dbsector_data = {
     'id': 1,
     'field_01': 'SL0003',
     'field_02': '',
@@ -19,7 +19,7 @@ data = {
 }
 
 
-@pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
+@pytest.mark.parametrize("get_s3_file_data", [dbsector_data], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.save_dbt_sectors_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
@@ -33,7 +33,7 @@ def test_import_dbtsector_data_set_from_s3(
     assert mock_save_dbt_sector_data.call_count == 1
 
 
-data = {
+sectors_gva_value_bands_data = {
     'id': 1,
     'end_date': '2022-03-31',
     'start_date': '2021-04-01',
@@ -52,7 +52,7 @@ data = {
 }
 
 
-@pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
+@pytest.mark.parametrize("get_s3_file_data", [sectors_gva_value_bands_data], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.save_sectors_gva_value_bands_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
