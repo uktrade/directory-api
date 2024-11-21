@@ -211,7 +211,9 @@ class BaseSettings(PydanticBaseSettings):
     aws_access_key_id_data_services: str = ''
     aws_secret_access_key_data_services: str = ''
     aws_storage_bucket_name_data_services: str = ''
+
     dbt_sector_s3_prefix: str = ''
+    dbt_sectors_gva_value_bands_data_s3_prefix: str = ''
 
 
 class CIEnvironment(BaseSettings):

@@ -904,3 +904,26 @@ def dbtsector_data():
             'sector_cluster__april_2023': 'Sustainability and Infrastructure',
         },
     ]
+
+
+@pytest.fixture
+def sectors_gva_value_bands_data():
+    yield [
+        {
+            'id': 1,
+            'end_date': '2022-03-31',
+            'start_date': '2021-04-01',
+            'gva_grouping': 'Transport equipment',
+            'updated_date': '2022-06-16T12:59:44.743973+00:00',
+            'gva_multiplier': 0.209650945,
+            'full_sector_name': 'Automotive',
+            'value_band_a_minimum': 13500000,
+            'value_band_b_minimum': 5057796,
+            'value_band_c_minimum': 1530000,
+            'value_band_d_minimum': 397422,
+            'value_band_e_minimum': 10000,
+            'sector_gva_and_value_band_id': 382,
+            'sector_classification_value_band': 'Capital intensive',
+            'sector_classification_gva_multiplier': 'Capital intensive',
+        }
+    ]

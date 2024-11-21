@@ -606,4 +606,6 @@ if not is_copilot():
     AWS_SECRET_ACCESS_KEY_DATA_SERVICES = env.aws_secret_access_key_data_services
 
 AWS_STORAGE_BUCKET_NAME_DATA_SERVICES = env.aws_storage_bucket_name_data_services
+
 DBT_SECTOR_S3_PREFIX = env.dbt_sector_s3_prefix
+DBT_SECTORS_GVA_VALUE_BANDS_DATA_S3_PREFIX = env.dbt_sectors_gva_value_bands_data_s3_prefix
