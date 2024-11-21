@@ -62,3 +62,4 @@ pydantic-settings==2.3.1
 gunicorn==22.0.0
 psycogreen==1.0.2
 gevent==23.9.1
+pg_bulk_ingest==0.0.54

@@ -1,8 +1,21 @@
+import gzip
+import io
+import json
 import re
+import zlib
 from unittest import mock
+from unittest.mock import patch
 
+import boto3
+import pg_bulk_ingest
 import pytest
+import sqlalchemy as sa
+from botocore.paginate import Paginator
+from botocore.response import StreamingBody
+from botocore.stub import Stubber
 from django.conf import settings
+from django.test import override_settings
+from sqlalchemy.future.engine import Engine
 
 from dataservices import helpers, models
 from dataservices.management.commands import helpers as dmch
@@ -215,3 +228,136 @@ def test_notify_error_message(mock_notify):
 )
 def test_align_vertical_names(statista_vertical_name, expected_vertical_name):
     assert dmch.align_vertical_names(statista_vertical_name) == expected_vertical_name
+
+
+@pytest.mark.django_db
+@patch.object(Paginator, 'paginate')
+def test_get_s3_paginator(mock_paginate, get_s3_data_transfer_data):
+    client = boto3.client('s3')
+    stubber = Stubber(client)
+    mock_paginate.return_value = get_s3_data_transfer_data
+    prefix = settings.DBT_SECTOR_S3_PREFIX
+    stubber.activate()
+
+    with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
+        response = dmch.get_s3_paginator(prefix=prefix)
+
+    assert response == get_s3_data_transfer_data
+
+
+data = {
+    'id': 1,
+    'field_01': 'SL0003',
+    'field_02': '',
+    'field_03': 'Technology and Advanced Manufacturing',
+    'field_04': 'Advanced engineering',
+    'field_05': 'Metallurgical process plant',
+    'field_06': '',
+    'field_07': '',
+    'updated_date': '2021-08-19T07:12:32.744274+00:00',
+    'full_sector_name': 'Advanced engineering : Metallurgical process plant',
+    'sector_cluster__april_2023': 'Sustainability and Infrastructure',
+}
+
+
+@pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
+@pytest.mark.django_db
+def test_get_s3_file(get_s3_file_data):
+    get_s3_file_data
+    client = boto3.client('s3')
+    stubber = Stubber(client)
+    key = 'testfile_jsonl.zx'
+    stubber.add_response(
+        method='get_object',
+        service_response=get_s3_file_data,
+        expected_params={'Bucket': settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, 'Key': key},
+    )
+    stubber.activate()
+    with mock.patch('boto3.client', mock.MagicMock(return_value=client)):
+        response = dmch.get_s3_file(key=key)
+
+    assert response == get_s3_file_data
+
+
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_flush(mock_decompressobj):
+    mock_decompressobj.flush.return_value = 'Not Null'
+    file = dmch.unzip_s3_gzip_file(file_body=b'', max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
+
+
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_success(mock_decompressobj, dbtsector_data):
+    mock_decompressobj.decompress.return_value = dbtsector_data
+    body_json = body_json = {
+        'id': 1,
+        'field_01': 'SL0003',
+        'field_02': '',
+        'field_03': 'Technology and Advanced Manufacturing',
+        'field_04': 'Advanced engineering',
+        'field_05': 'Metallurgical process plant',
+        'field_06': '',
+        'field_07': '',
+        'updated_date': '2021-08-19T07:12:32.744274+00:00',
+        'full_sector_name': 'Advanced engineering : Metallurgical process plant',
+        'sector_cluster__april_2023': 'Sustainability and Infrastructure',
+    }
+    body_encoded = json.dumps(body_json).encode()
+    gzipped_body = gzip.compress(body_encoded)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
+
+
+@pytest.mark.django_db
+@mock.patch.object(zlib, 'decompressobj')
+def test_unzip_s3_gzip_file_eof(mock_decompressobj):
+    mock_decompressobj.decompress.return_value = mock.Mock(return_value=EOFError)
+    body_bytes = bytearray([1] * (32 + zlib.MAX_WBITS + 1))
+    gzipped_body = gzip.compress(body_bytes)
+    body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
+    file = dmch.unzip_s3_gzip_file(file_body=body, max_bytes=(32 + zlib.MAX_WBITS))
+    val = next(file)
+    assert val is not None
+    val = next(file)
+    assert val is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    dmch.save_dbt_sectors_data(data=dbtsector_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_dbtsector_table_batch(dbtsector_data):
+    metadata = sa.MetaData()
+    ret = dmch.get_dbtsector_table_batch(dbtsector_data, dmch.get_dbtsector_postgres_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors_gva_value_bands_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    dmch.save_sectors_gva_value_bands_data(data=sectors_gva_value_bands_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
+    metadata = sa.MetaData()
+    ret = dmch.get_sectors_gva_value_bands_batch(
+        sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table(metadata)
+    )
+    assert next(ret[2]) is not None
