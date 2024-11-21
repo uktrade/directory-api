@@ -766,8 +766,8 @@ def countries_territories_regions():
 
 @pytest.fixture
 def get_s3_file_data(request):
-    data = request.param
-    body_encoded = json.dumps(data).encode()
+    json_data = request.param
+    body_encoded = json.dumps(json_data).encode()
     gzipped_body = gzip.compress(body_encoded)
     body = StreamingBody(io.BytesIO(gzipped_body), len(gzipped_body))
     data = {
