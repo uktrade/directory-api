@@ -9,7 +9,6 @@ from unittest.mock import patch
 import boto3
 import pg_bulk_ingest
 import pytest
-import sqlalchemy as sa
 from botocore.paginate import Paginator
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
@@ -339,8 +338,7 @@ def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
 
 @pytest.mark.django_db
 def test_get_dbtsector_table_batch(dbtsector_data):
-    metadata = sa.MetaData()
-    ret = dmch.get_dbtsector_table_batch(dbtsector_data, dmch.get_dbtsector_postgres_table(metadata))
+    ret = dmch.get_dbtsector_table_batch(dbtsector_data, dmch.get_dbtsector_postgres_table())
     assert next(ret[2]) is not None
 
 
@@ -356,9 +354,8 @@ def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors
 
 @pytest.mark.django_db
 def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
-    metadata = sa.MetaData()
     ret = dmch.get_sectors_gva_value_bands_batch(
-        sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table(metadata)
+        sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table()
     )
     assert next(ret[2]) is not None
 
@@ -375,8 +372,7 @@ def test_save_investment_opportunities_data(mock_connection, mock_ingest, invest
 
 @pytest.mark.django_db
 def test_get_investment_opportunities_batch(investment_opportunities_data):
-    metadata = sa.MetaData()
     ret = dmch.get_investment_opportunities_batch(
-        investment_opportunities_data, dmch.get_investment_opportunities_data_table(metadata)
+        investment_opportunities_data, dmch.get_investment_opportunities_data_tab()
     )
     assert next(ret[2]) is not None
