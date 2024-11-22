@@ -914,3 +914,25 @@ def sectors_gva_value_bands_data():
             'sector_classification_gva_multiplier': 'Capital intensive',
         }
     ]
+
+@pytest.fixture
+def investment_opportunities_data():
+    yield [
+        {
+            'id': 1,
+            'launched': True,
+            'location': 'Telford',
+            'net_zero': True,
+            'sub_sector': 'Agri-Tech',
+            'description': 'An opportunity',
+            'levelling_up': True,
+            'updated_date': '2024-07-10T11:39:16.672666+00:00',
+            'sector_cluster': 'Agriculture, Food & Drink',
+            'nomination_round': 1,
+            'opportunity_type': 'High potential opportunity',
+            'opportunity_title': 'Precision Agriculture',
+            'investment_opportunity_code': 'INVESTMENT_OPPORTUNITY_001',
+            'science_technology_superpower': True,
+
+        }
+    ]

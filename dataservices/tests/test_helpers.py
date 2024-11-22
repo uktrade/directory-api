@@ -374,7 +374,7 @@ def test_save_investment_opportunities_data(mock_connection, mock_ingest, invest
 
 
 @pytest.mark.django_db
-def test_get_investment_opportumnities_batch(investment_opportunities_data):
+def test_get_investment_opportunities_batch(investment_opportunities_data):
     metadata = sa.MetaData()
     ret = dmch.get_investment_opportunities_batch(
         investment_opportunities_data, dmch.get_investment_opportunities_data_table(metadata)
