@@ -934,6 +934,5 @@ def investment_opportunities_data():
             'opportunity_title': 'Precision Agriculture',
             'investment_opportunity_code': 'INVESTMENT_OPPORTUNITY_001',
             'science_technology_superpower': True,
-
         }
     ]
