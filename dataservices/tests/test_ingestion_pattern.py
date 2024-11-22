@@ -43,7 +43,7 @@ dbsector_data = [
 @pytest.mark.parametrize("get_s3_file_data", [dbsector_data[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
-@mock.patch('dataservices.management.commands.helpers.save_dbt_sectors_data')
+@mock.patch('dataservices.management.commands.import_dbt_sectors.save_dbt_sectors_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
 @mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
 def test_import_dbtsector_data_set_from_s3(
@@ -85,7 +85,7 @@ sectors_gva_value_bands = [
 @pytest.mark.parametrize("get_s3_file_data", [sectors_gva_value_bands[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
-@mock.patch('dataservices.management.commands.helpers.save_sectors_gva_value_bands_data')
+@mock.patch('dataservices.management.commands.import_sectors_gva_value_bands.save_sectors_gva_value_bands_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
 @mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
 def test_import_sectors_gva_value_bands_data_set_from_s3(
@@ -126,7 +126,7 @@ investment_opportunities = [
 @pytest.mark.parametrize("get_s3_file_data", [investment_opportunities[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
-@mock.patch('dataservices.management.commands.helpers.save_investment_opportunities_data')
+@mock.patch('dataservices.management.commands.import_dbt_investment_opportunities.save_investment_opportunities_data')
 @mock.patch('dataservices.management.commands.helpers.get_s3_file')
 @mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
 def test_import_investment_opportunities_data_set_from_s3(
