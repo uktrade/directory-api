@@ -82,3 +82,44 @@ def test_import_sectors_gva_value_bands_data_set_from_s3(
     mock_read_jsonl_lines.return_value = sectors_gva_value_bands
     management.call_command('import_sectors_gva_value_bands')
     assert mock_save_sectors_gva_value_bands_data.call_count == 1
+
+
+investment_opportunities = [
+    {
+        'id': 1,
+        'launched': True,
+        'location': 'Telford',
+        'net_zero': True,
+        'sub_sector': 'Agri-Tech',
+        'description': 'An opportunity',
+        'levelling_up': True,
+        'updated_date': '2024-07-10T11:39:16.672666+00:00',
+        'sector_cluster': 'Agriculture, Food & Drink',
+        'nomination_round': 1,
+        'opportunity_type': 'High potential opportunity',
+        'opportunity_title': 'Precision Agriculture',
+        'investment_opportunity_code': 'INVESTMENT_OPPORTUNITY_001',
+        'science_technology_superpower': True,
+    }
+]
+
+
+@pytest.mark.parametrize("get_s3_file_data", [investment_opportunities[0]], indirect=True)
+@pytest.mark.django_db
+@mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
+@mock.patch('dataservices.management.commands.helpers.save_investment_opportunities_data')
+@mock.patch('dataservices.management.commands.helpers.get_s3_file')
+@mock.patch('dataservices.management.commands.helpers.get_s3_paginator')
+def test_import_investment_opportunities_data_set_from_s3(
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_save_invesment_opportunities_data,
+    mock_read_jsonl_lines,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    mock_read_jsonl_lines.return_value = investment_opportunities
+    management.call_command('import_dbt_investment_opportunities')
+    assert mock_save_invesment_opportunities_data.call_count == 1

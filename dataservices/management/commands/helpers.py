@@ -185,11 +185,35 @@ def get_s3_file(key):
     return response
 
 
-def get_postgres_engine():
-    return sa.create_engine(settings.DATABASE_URL, future=True)
+engine = sa.create_engine(settings.DATABASE_URL, future=True)
+metadata = sa.MetaData()
 
 
-def get_dbtsector_postgres_table(metadata):
+def get_dbtsector_table_batch(data, data_table):
+    table_data = (
+        (
+            data_table,
+            (
+                dbt_sector['id'],
+                dbt_sector['field_01'],
+                dbt_sector['full_sector_name'],
+                dbt_sector['sector_cluster__april_2023'],
+                dbt_sector['field_04'],
+                dbt_sector['field_05'],
+                dbt_sector['field_02'],
+            ),
+        )
+        for dbt_sector in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def get_dbtsector_postgres_table():
     return sa.Table(
         "dataservices_dbtsector",
         metadata,
@@ -218,36 +242,8 @@ def ingest_data(engine, metadata, on_before_visible, batches):
         )
 
 
-def get_dbtsector_table_batch(data, data_table):
-    table_data = (
-        (
-            data_table,
-            (
-                dbt_sector['id'],
-                dbt_sector['field_01'],
-                dbt_sector['full_sector_name'],
-                dbt_sector['sector_cluster__april_2023'],
-                dbt_sector['field_04'],
-                dbt_sector['field_05'],
-                dbt_sector['field_02'],
-            ),
-        )
-        for dbt_sector in data
-    )
-
-    return (
-        None,
-        None,
-        table_data,
-    )
-
-
 def save_dbt_sectors_data(data):
-    engine = get_postgres_engine()
-
-    metadata = sa.MetaData()
-
-    data_table = get_dbtsector_postgres_table(metadata)
+    data_table = get_dbtsector_postgres_table()
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
@@ -258,7 +254,7 @@ def save_dbt_sectors_data(data):
     ingest_data(engine, metadata, on_before_visible, batches)
 
 
-def get_sectors_gva_value_bands_table(metadata):
+def get_sectors_gva_value_bands_table():
     return sa.Table(
         "dataservices_sectorgvavalueband",
         metadata,
@@ -306,16 +302,76 @@ def get_sectors_gva_value_bands_batch(data, data_table):
 
 
 def save_sectors_gva_value_bands_data(data):
-    engine = get_postgres_engine()
 
-    metadata = sa.MetaData()
-
-    data_table = get_sectors_gva_value_bands_table(metadata)
+    data_table = get_sectors_gva_value_bands_table()
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
 
     def batches(_):
         yield get_sectors_gva_value_bands_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
+
+
+def get_investment_opportunities_data_table():
+    return sa.Table(
+        "dataservices_dbtinvestmentopportunity",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("opportunity_title", sa.TEXT),
+        sa.Column("description", sa.TEXT),
+        sa.Column("nomination_round", sa.FLOAT),
+        sa.Column("launched", sa.BOOLEAN),
+        sa.Column("opportunity_type", sa.TEXT),
+        sa.Column("location", sa.TEXT),
+        sa.Column("sub_sector", sa.TEXT),
+        sa.Column("levelling_up", sa.BOOLEAN),
+        sa.Column("net_zero", sa.BOOLEAN),
+        sa.Column("science_technology_superpower", sa.BOOLEAN),
+        sa.Column("sector_cluster", sa.TEXT),
+        schema="public",
+    )
+
+
+def get_investment_opportunities_batch(data, data_table):
+    breakpoint()
+    table_data = (
+        (
+            data_table,
+            (
+                investment_opportunity['id'],
+                investment_opportunity['opportunity_title'],
+                investment_opportunity['description'],
+                investment_opportunity['nomination_round'],
+                investment_opportunity['launched'],
+                investment_opportunity['opportunity_type'],
+                investment_opportunity['location'],
+                investment_opportunity['sub_sector'],
+                investment_opportunity['levelling_up'],
+                investment_opportunity['net_zero'],
+                investment_opportunity['science_technology_superpower'],
+                investment_opportunity['sector_cluster'],
+            ),
+        )
+        for investment_opportunity in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def save_investment_opportunities_data(data):
+
+    data_table = get_investment_opportunities_data_table()
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_investment_opportunities_batch(data, data_table)
 
     ingest_data(engine, metadata, on_before_visible, batches)
