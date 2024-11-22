@@ -1,8 +1,27 @@
 from unittest import mock
+
+import pg_bulk_ingest
 import pytest
-
+import sqlalchemy as sa
 from django.core import management
+from django.test import override_settings
+from sqlalchemy.future.engine import Engine
 
+from dataservices.management.commands.import_dbt_investment_opportunities import (
+    get_investment_opportunities_batch,
+    get_investment_opportunities_data_table,
+    save_investment_opportunities_data,
+)
+from dataservices.management.commands.import_dbt_sectors import (
+    get_dbtsector_postgres_table,
+    get_dbtsector_table_batch,
+    save_dbt_sectors_data,
+)
+from dataservices.management.commands.import_sectors_gva_value_bands import (
+    get_sectors_gva_value_bands_batch,
+    get_sectors_gva_value_bands_table,
+    save_sectors_gva_value_bands_data,
+)
 
 dbsector_data = [
     {
@@ -123,3 +142,56 @@ def test_import_investment_opportunities_data_set_from_s3(
     mock_read_jsonl_lines.return_value = investment_opportunities
     management.call_command('import_dbt_investment_opportunities')
     assert mock_save_invesment_opportunities_data.call_count == 1
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_dbt_sectors_data(data=dbtsector_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_dbtsector_table_batch(dbtsector_data):
+    metadata = sa.MetaData()
+    ret = get_dbtsector_table_batch(dbtsector_data, get_dbtsector_postgres_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors_gva_value_bands_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_sectors_gva_value_bands_data(data=sectors_gva_value_bands_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
+    metadata = sa.MetaData()
+    ret = get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data, get_sectors_gva_value_bands_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_investment_opportunities_data(mock_connection, mock_ingest, investment_opportunities_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_investment_opportunities_data(data=investment_opportunities_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_investment_opportunities_batch(investment_opportunities_data):
+    metadata = sa.MetaData()
+    ret = get_investment_opportunities_batch(
+        investment_opportunities_data, get_investment_opportunities_data_table(metadata)
+    )
+    assert next(ret[2]) is not None
