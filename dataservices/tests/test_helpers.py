@@ -361,3 +361,22 @@ def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
         sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table(metadata)
     )
     assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_investment_opportunities_data(mock_connection, mock_ingest, investment_opportunities_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    dmch.save_investment_opportunities_data(data=investment_opportunities_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_investment_opportumnities_batch(investment_opportunities_data):
+    metadata = sa.MetaData()
+    ret = dmch.get_investment_opportunities_batch(
+        investment_opportunities_data, dmch.get_investment_opportunities_data_table(metadata)
+    )
+    assert next(ret[2]) is not None
