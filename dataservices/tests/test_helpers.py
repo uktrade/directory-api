@@ -354,9 +354,7 @@ def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors
 
 @pytest.mark.django_db
 def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
-    ret = dmch.get_sectors_gva_value_bands_batch(
-        sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table()
-    )
+    ret = dmch.get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data, dmch.get_sectors_gva_value_bands_table())
     assert next(ret[2]) is not None
 
 
