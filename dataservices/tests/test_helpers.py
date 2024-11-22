@@ -292,7 +292,7 @@ def test_unzip_s3_gzip_file_flush(mock_decompressobj):
 @mock.patch.object(zlib, 'decompressobj')
 def test_unzip_s3_gzip_file_success(mock_decompressobj, dbtsector_data):
     mock_decompressobj.decompress.return_value = dbtsector_data
-    body_json = body_json = {
+    body_json = {
         'id': 1,
         'field_01': 'SL0003',
         'field_02': '',
