@@ -377,6 +377,6 @@ def test_save_investment_opportunities_data(mock_connection, mock_ingest, invest
 def test_get_investment_opportunities_batch(investment_opportunities_data):
     metadata = sa.MetaData()
     ret = dmch.get_investment_opportunities_batch(
-        investment_opportunities_data, dmch.get_investment_opportunities_data_tab(metadata)
+        investment_opportunities_data, dmch.get_investment_opportunities_data_table(metadata)
     )
     assert next(ret[2]) is not None
