@@ -17,7 +17,7 @@ def get_sectors_gva_value_bands_table(metadata):
         sa.Column("value_band_a_minimum", sa.INTEGER, nullable=False),
         sa.Column("value_band_b_minimum", sa.INTEGER, nullable=False),
         sa.Column("value_band_c_minimum", sa.INTEGER, nullable=False),
-        sa.Column("value_band_adminimum", sa.INTEGER, nullable=False),
+        sa.Column("value_band_d_minimum", sa.INTEGER, nullable=False),
         sa.Column("value_band_e_minimum", sa.INTEGER, nullable=False),
         sa.Column("start_date", sa.DATE, nullable=False),
         sa.Column("end_date", sa.DATE, nullable=False),
