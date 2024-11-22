@@ -186,7 +186,6 @@ def get_s3_file(key):
 
 
 engine = sa.create_engine(settings.DATABASE_URL, future=True)
-metadata = sa.MetaData()
 
 
 def get_dbtsector_table_batch(data, data_table):
@@ -213,7 +212,7 @@ def get_dbtsector_table_batch(data, data_table):
     )
 
 
-def get_dbtsector_postgres_table():
+def get_dbtsector_postgres_table(metadata):
     return sa.Table(
         "dataservices_dbtsector",
         metadata,
@@ -243,7 +242,10 @@ def ingest_data(engine, metadata, on_before_visible, batches):
 
 
 def save_dbt_sectors_data(data):
-    data_table = get_dbtsector_postgres_table()
+
+    metadata = sa.MetaData()
+
+    data_table = get_dbtsector_postgres_table(metadata)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
@@ -254,7 +256,7 @@ def save_dbt_sectors_data(data):
     ingest_data(engine, metadata, on_before_visible, batches)
 
 
-def get_sectors_gva_value_bands_table():
+def get_sectors_gva_value_bands_table(metadata):
     return sa.Table(
         "dataservices_sectorgvavalueband",
         metadata,
@@ -303,7 +305,9 @@ def get_sectors_gva_value_bands_batch(data, data_table):
 
 def save_sectors_gva_value_bands_data(data):
 
-    data_table = get_sectors_gva_value_bands_table()
+    metadata = sa.MetaData()
+
+    data_table = get_sectors_gva_value_bands_table(metadata)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
@@ -314,7 +318,8 @@ def save_sectors_gva_value_bands_data(data):
     ingest_data(engine, metadata, on_before_visible, batches)
 
 
-def get_investment_opportunities_data_table():
+def get_investment_opportunities_data_table(metadata):
+
     return sa.Table(
         "dataservices_dbtinvestmentopportunity",
         metadata,
@@ -335,7 +340,7 @@ def get_investment_opportunities_data_table():
 
 
 def get_investment_opportunities_batch(data, data_table):
-    breakpoint()
+
     table_data = (
         (
             data_table,
@@ -366,7 +371,9 @@ def get_investment_opportunities_batch(data, data_table):
 
 def save_investment_opportunities_data(data):
 
-    data_table = get_investment_opportunities_data_table()
+    metadata = sa.MetaData()
+
+    data_table = get_investment_opportunities_data_table(metadata)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
