@@ -915,6 +915,7 @@ def sectors_gva_value_bands_data():
         }
     ]
 
+
 @pytest.fixture
 def investment_opportunities_data():
     yield [
