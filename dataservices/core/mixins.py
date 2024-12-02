@@ -67,7 +67,7 @@ class S3DownloadMixin:
             save_func: method - Method that saves the <data> param to the database.
         """
         assert None not in [prefix, save_func]
-       
+
         page_iterator = get_s3_paginator(prefix)
         files = []
         for page in page_iterator:
