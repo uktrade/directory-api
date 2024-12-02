@@ -12,6 +12,7 @@ from botocore.paginate import Paginator
 from botocore.response import StreamingBody
 from botocore.stub import Stubber
 from django.conf import settings
+from django.test import override_settings
 
 from dataservices import helpers, models
 from dataservices.management.commands import helpers as dmch
@@ -256,6 +257,7 @@ data = {
 }
 
 
+@override_settings(AWS_STORAGE_BUCKET_NAME_DATA_SERVICES='test_bucket')
 @pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
 @pytest.mark.django_db
 def test_get_s3_file(get_s3_file_data):
