@@ -17,7 +17,7 @@ from django.core import management
 from django.test import override_settings
 from sqlalchemy.future.engine import Engine
 
-from dataservices.core.mixins import get_s3_file, unzip_s3_gzip_file, get_s3_paginator
+from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
 from dataservices.management.commands import helpers
 from dataservices.management.commands.import_dbt_investment_opportunities import save_investment_opportunities_data
 from dataservices.management.commands.import_dbt_sectors import save_dbt_sectors_data
