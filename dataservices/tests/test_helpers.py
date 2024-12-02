@@ -259,7 +259,6 @@ data = {
 @pytest.mark.parametrize("get_s3_file_data", [data], indirect=True)
 @pytest.mark.django_db
 def test_get_s3_file(get_s3_file_data):
-    get_s3_file_data
     client = boto3.client('s3')
     stubber = Stubber(client)
     key = 'testfile_jsonl.zx'
