@@ -165,7 +165,7 @@ def get_eyb_salary_batch(data, data_table):
                 eyb_salary['code'],
                 eyb_salary['median_salary'],
                 eyb_salary['mean_salary'],
-                eyb_salary['dataset_year'],
+                eyb_salary['year'],
             ),
         )
         for _, eyb_salary in df.iterrows()

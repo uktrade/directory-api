@@ -254,7 +254,7 @@ def test_eyb_salary_data(mock_connection, mock_ingest, eyb_salary_data):
 @pytest.mark.django_db
 def test_get_eyb_salary_batch(eyb_salary_data):
     df = pd.json_normalize(eyb_salary_data)
-    df = df.rename(columns={'geo_description': 'region', 'soc_code': 'code'})
+    df = df.rename(columns={'geo_description': 'region', 'soc_code': 'code', 'dataset_year': 'year'})
     eyb_salary_data = json.loads(df.to_json(orient='records'))
     metadata = sa.MetaData()
     ret = helpers.get_eyb_salary_batch(eyb_salary_data, helpers.get_eyb_salary_table(metadata))
