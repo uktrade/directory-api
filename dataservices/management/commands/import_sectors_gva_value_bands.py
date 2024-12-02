@@ -1,8 +1,30 @@
+import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import save_sectors_gva_value_bands_data
+from dataservices.management.commands.helpers import (
+    get_sectors_gva_value_bands_batch,
+    get_sectors_gva_value_bands_table,
+    ingest_data,
+)
+
+
+def save_sectors_gva_value_bands_data(data):
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_sectors_gva_value_bands_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_sectors_gva_value_bands_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
 
 
 class Command(BaseCommand, S3DownloadMixin):

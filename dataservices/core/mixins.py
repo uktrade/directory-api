@@ -1,9 +1,58 @@
 import io
+import json
 import zlib
 
+import boto3
+from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
 
-from dataservices.management.commands.helpers import get_s3_file, get_s3_paginator, read_jsonl_lines, unzip_s3_gzip_file
+
+def unzip_s3_gzip_file(file_body, max_bytes):
+    dobj = zlib.decompressobj(max_bytes)
+    for chunk in file_body:
+        uncompressed_chunk = dobj.decompress(chunk)
+        if uncompressed_chunk:
+            yield uncompressed_chunk
+        elif dobj.eof:
+            unused = dobj.unused_data
+            dobj = zlib.decompressobj(max_bytes)
+            uncompressed_chunk = dobj.decompress(unused)
+            if uncompressed_chunk:
+                yield uncompressed_chunk
+
+    uncompressed_chunk = dobj.flush()
+    if uncompressed_chunk:
+        yield uncompressed_chunk
+
+
+def read_jsonl_lines(text_lines):
+    return [json.loads(jline) for jline in text_lines]
+
+
+def get_s3_paginator(prefix):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    return s3.get_paginator('list_objects').paginate(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
+    )
+
+
+def get_s3_file(key):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+    response = s3.get_object(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
+        Key=key,
+    )
+    return response
 
 
 class S3DownloadMixin:

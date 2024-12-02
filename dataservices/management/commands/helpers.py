@@ -1,9 +1,6 @@
 import io
-import json
-import zlib
 from zipfile import ZipFile
 
-import boto3
 import pandas as pd
 import pg_bulk_ingest
 import requests
@@ -137,74 +134,6 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
-def unzip_s3_gzip_file(file_body, max_bytes):
-    dobj = zlib.decompressobj(max_bytes)
-    for chunk in file_body:
-        uncompressed_chunk = dobj.decompress(chunk)
-        if uncompressed_chunk:
-            yield uncompressed_chunk
-        elif dobj.eof:
-            unused = dobj.unused_data
-            dobj = zlib.decompressobj(max_bytes)
-            uncompressed_chunk = dobj.decompress(unused)
-            if uncompressed_chunk:
-                yield uncompressed_chunk
-
-    uncompressed_chunk = dobj.flush()
-    if uncompressed_chunk:
-        yield uncompressed_chunk
-
-
-def read_jsonl_lines(text_lines):
-    return [json.loads(jline) for jline in text_lines]
-
-
-def get_s3_paginator(prefix):
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-        region_name=settings.AWS_S3_REGION_NAME,
-    )
-    return s3.get_paginator('list_objects').paginate(
-        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
-    )
-
-
-def get_s3_file(key):
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-        region_name=settings.AWS_S3_REGION_NAME,
-    )
-    response = s3.get_object(
-        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
-        Key=key,
-    )
-    return response
-
-
-def get_postgres_engine():
-    return sa.create_engine(settings.DATABASE_URL, future=True)
-
-
-def get_dbtsector_postgres_table(metadata):
-    return sa.Table(
-        "dataservices_dbtsector",
-        metadata,
-        sa.Column("id", sa.INTEGER, nullable=False),
-        sa.Column("sector_id", sa.TEXT, nullable=True),
-        sa.Column("full_sector_name", sa.TEXT, nullable=True),
-        sa.Column("sector_cluster_name", sa.TEXT, nullable=True),
-        sa.Column("sector_name", sa.TEXT, nullable=True),
-        sa.Column("sub_sector_name", sa.TEXT, nullable=True),
-        sa.Column("sub_sub_sector_name", sa.TEXT, nullable=True),
-        sa.Index(None, "id"),
-        schema="public",
-    )
-
-
 def ingest_data(engine, metadata, on_before_visible, batches):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
@@ -242,20 +171,20 @@ def get_dbtsector_table_batch(data, data_table):
     )
 
 
-def save_dbt_sectors_data(data):
-    engine = get_postgres_engine()
-
-    metadata = sa.MetaData()
-
-    data_table = get_dbtsector_postgres_table(metadata)
-
-    def on_before_visible(conn, ingest_table, batch_metadata):
-        pass
-
-    def batches(_):
-        yield get_dbtsector_table_batch(data, data_table)
-
-    ingest_data(engine, metadata, on_before_visible, batches)
+def get_dbtsector_postgres_table(metadata):
+    return sa.Table(
+        "dataservices_dbtsector",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("sector_id", sa.TEXT, nullable=True),
+        sa.Column("full_sector_name", sa.TEXT, nullable=True),
+        sa.Column("sector_cluster_name", sa.TEXT, nullable=True),
+        sa.Column("sector_name", sa.TEXT, nullable=True),
+        sa.Column("sub_sector_name", sa.TEXT, nullable=True),
+        sa.Column("sub_sub_sector_name", sa.TEXT, nullable=True),
+        sa.Index(None, "id"),
+        schema="public",
+    )
 
 
 def get_sectors_gva_value_bands_table(metadata):
@@ -305,17 +234,52 @@ def get_sectors_gva_value_bands_batch(data, data_table):
     )
 
 
-def save_sectors_gva_value_bands_data(data):
-    engine = get_postgres_engine()
+def get_investment_opportunities_data_table(metadata):
 
-    metadata = sa.MetaData()
+    return sa.Table(
+        "dataservices_dbtinvestmentopportunity",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("opportunity_title", sa.TEXT),
+        sa.Column("description", sa.TEXT),
+        sa.Column("nomination_round", sa.FLOAT),
+        sa.Column("launched", sa.BOOLEAN),
+        sa.Column("opportunity_type", sa.TEXT),
+        sa.Column("location", sa.TEXT),
+        sa.Column("sub_sector", sa.TEXT),
+        sa.Column("levelling_up", sa.BOOLEAN),
+        sa.Column("net_zero", sa.BOOLEAN),
+        sa.Column("science_technology_superpower", sa.BOOLEAN),
+        sa.Column("sector_cluster", sa.TEXT),
+        schema="public",
+    )
 
-    data_table = get_sectors_gva_value_bands_table(metadata)
 
-    def on_before_visible(conn, ingest_table, batch_metadata):
-        pass
+def get_investment_opportunities_batch(data, data_table):
 
-    def batches(_):
-        yield get_sectors_gva_value_bands_batch(data, data_table)
+    table_data = (
+        (
+            data_table,
+            (
+                investment_opportunity['id'],
+                investment_opportunity['opportunity_title'],
+                investment_opportunity['description'],
+                investment_opportunity['nomination_round'],
+                investment_opportunity['launched'],
+                investment_opportunity['opportunity_type'],
+                investment_opportunity['location'],
+                investment_opportunity['sub_sector'],
+                investment_opportunity['levelling_up'],
+                investment_opportunity['net_zero'],
+                investment_opportunity['science_technology_superpower'],
+                investment_opportunity['sector_cluster'],
+            ),
+        )
+        for investment_opportunity in data
+    )
 
-    ingest_data(engine, metadata, on_before_visible, batches)
+    return (
+        None,
+        None,
+        table_data,
+    )

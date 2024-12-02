@@ -1,52 +1,38 @@
-import pandas as pd
 import sqlalchemy as sa
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from dataservices.models import DBTInvestmentOpportunity
+from dataservices.core.mixins import S3DownloadMixin
+from dataservices.management.commands.helpers import (
+    get_investment_opportunities_batch,
+    get_investment_opportunities_data_table,
+    ingest_data,
+)
 
-from .helpers import BaseDataWorkspaceIngestionCommand
+
+def save_investment_opportunities_data(data):
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_investment_opportunities_data_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_investment_opportunities_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
 
 
-class Command(BaseDataWorkspaceIngestionCommand):
+class Command(BaseCommand, S3DownloadMixin):
+
     help = 'Import DBT investment opportunities data from Data Workspace'
-    sql = '''
-        SELECT
-            id,
-            updated_date,
-            investment_opportunity_code,
-            opportunity_title,
-            description,
-            nomination_round,
-            launched,
-            opportunity_type,
-            location,
-            sub_sector,
-            levelling_up,
-            net_zero,
-            science_technology_superpower,
-            sector_cluster
-        FROM public.dit_investment_opportunities
-    '''
 
-    def load_data(self):
-        data = []
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
-
-        for chunk in chunks:
-            for _idx, row in chunk.iterrows():
-                data.append(
-                    DBTInvestmentOpportunity(
-                        opportunity_title=row.opportunity_title,
-                        description=row.description,
-                        nomination_round=row.nomination_round,
-                        launched=row.launched,
-                        opportunity_type=row.opportunity_type,
-                        location=row.location,
-                        sub_sector=row.sub_sector,
-                        levelling_up=row.levelling_up,
-                        net_zero=row.net_zero,
-                        science_technology_superpower=row.science_technology_superpower,
-                        sector_cluster=row.sector_cluster,
-                    )
-                )
-
-        return data
+    def handle(self, *args, **options):
+        self.do_handle(
+            prefix=settings.INVESTMENT_OPPORTUNITIES_S3_PREFIX,
+            save_func=save_investment_opportunities_data,
+        )

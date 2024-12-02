@@ -795,39 +795,6 @@ def test_comtrade_load_data(read_sql_mock):
 
 
 @pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_dbt_investment_opportunities(read_sql_mock):
-    data = {
-        'id': [1],
-        'updated_date': [''],
-        'investment_opportunity_code': ['INVESTMENT_OPPORTUNITY_001'],
-        'opportunity_title': ['Precision Agriculture'],
-        'description': ['An opportunity to meet the demand for new food production systems to support changing'],
-        'nomination_round': [1],
-        'launched': [True],
-        'opportunity_type': ['High potential opportunity'],
-        'location': ['North East'],
-        'sub_sector': ['Food and Drink'],
-        'levelling_up': [True],
-        'net_zero': [True],
-        'science_technology_superpower': [False],
-        'sector_cluster': ['Agriculture, Food & Drink'],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(data)]
-
-    assert len(models.DBTInvestmentOpportunity.objects.all()) == 0
-
-    # dry run
-    management.call_command('import_dbt_investment_opportunities')
-    assert len(models.DBTInvestmentOpportunity.objects.all()) == 0
-
-    # write
-    management.call_command('import_dbt_investment_opportunities', '--write')
-    assert len(models.DBTInvestmentOpportunity.objects.all()) == 1
-
-
-@pytest.mark.django_db
 def test_import_countries_territories_regions():
     management.call_command('import_countries_territories_regions_dw', '--write')
     assert models.CountryTerritoryRegion.objects.all().count() == 269
