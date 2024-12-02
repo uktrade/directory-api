@@ -29,7 +29,6 @@ dbsector_data = [
 ]
 
 
-@pytest.mark.parametrize("get_s3_file_data", [dbsector_data[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
 @mock.patch('dataservices.management.commands.import_dbt_sectors.save_dbt_sectors_data')
@@ -40,10 +39,9 @@ def test_import_dbtsector_data_set_from_s3(
     mock_get_s3_file,
     mock_save_dbt_sector_data,
     mock_read_jsonl_lines,
-    get_s3_file_data,
     get_s3_data_transfer_data,
 ):
-    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_file.return_value = dbsector_data[0]
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     mock_read_jsonl_lines.return_value = dbsector_data
     management.call_command('import_dbt_sectors')
@@ -71,7 +69,6 @@ sectors_gva_value_bands = [
 ]
 
 
-@pytest.mark.parametrize("get_s3_file_data", [sectors_gva_value_bands[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
 @mock.patch('dataservices.management.commands.import_sectors_gva_value_bands.save_sectors_gva_value_bands_data')
@@ -82,10 +79,9 @@ def test_import_sectors_gva_value_bands_data_set_from_s3(
     mock_get_s3_file,
     mock_save_sectors_gva_value_bands_data,
     mock_read_jsonl_lines,
-    get_s3_file_data,
     get_s3_data_transfer_data,
 ):
-    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_file.return_value = sectors_gva_value_bands[0]
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     mock_read_jsonl_lines.return_value = sectors_gva_value_bands
     management.call_command('import_sectors_gva_value_bands')
@@ -112,7 +108,6 @@ investment_opportunities = [
 ]
 
 
-@pytest.mark.parametrize("get_s3_file_data", [investment_opportunities[0]], indirect=True)
 @pytest.mark.django_db
 @mock.patch('dataservices.management.commands.helpers.read_jsonl_lines')
 @mock.patch('dataservices.management.commands.import_dbt_investment_opportunities.save_investment_opportunities_data')
@@ -123,10 +118,9 @@ def test_import_investment_opportunities_data_set_from_s3(
     mock_get_s3_file,
     mock_save_invesment_opportunities_data,
     mock_read_jsonl_lines,
-    get_s3_file_data,
     get_s3_data_transfer_data,
 ):
-    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_file.return_value = investment_opportunities[0]
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     mock_read_jsonl_lines.return_value = investment_opportunities
     management.call_command('import_dbt_investment_opportunities')
