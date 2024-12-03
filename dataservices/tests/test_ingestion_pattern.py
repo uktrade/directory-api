@@ -22,6 +22,7 @@ from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzi
 from dataservices.management.commands import helpers
 from dataservices.management.commands.import_dbt_investment_opportunities import save_investment_opportunities_data
 from dataservices.management.commands.import_dbt_sectors import save_dbt_sectors_data
+from dataservices.management.commands.import_eyb_rent_data import save_eyb_rent_data
 from dataservices.management.commands.import_eyb_salary_data import save_eyb_salary_data
 from dataservices.management.commands.import_sectors_gva_value_bands import save_sectors_gva_value_bands_data
 
@@ -186,6 +187,41 @@ def test_import_eyb_salary_data_set_from_s3(
     assert mock_save_eyb_salary_data.call_count == 1
 
 
+eyb_rents = [
+    {
+        'id': 1,
+        'geo_description': ['Yorkshire and The Humber', 'North West', 'Northern Ireland'],
+        'vertical': ['Industrial', ' Industrial', 'Office'],
+        'sub_vertical': ['Large Warehouses', 'Small Warehouses', 'Work office'],
+        'gbp_per_square_foot_per_month': [0.708, 1.2, None],
+        'square_feet': [340000, 5000, 16671],
+        'gbp_per_month': [332031.25, 9402.34, None],
+        'release_year': [2023, 2023, 2023],
+    }
+]
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.core.mixins.read_jsonl_lines')
+@pytest.mark.parametrize("get_s3_file_data", [eyb_rents[0]], indirect=True)
+@mock.patch('dataservices.management.commands.import_eyb_rent_data.save_eyb_rent_data')
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+def test_import_eyb_rent_data_set_from_s3(
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_save_eyb_rent_data,
+    mock_read_jsonl_lines,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    mock_read_jsonl_lines.return_value = eyb_rents
+    management.call_command('import_eyb_rent_data')
+    assert mock_save_eyb_rent_data.call_count == 1
+
+
 @pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
@@ -258,6 +294,26 @@ def test_get_eyb_salary_batch(eyb_salary_data):
     eyb_salary_data = json.loads(df.to_json(orient='records'))
     metadata = sa.MetaData()
     ret = helpers.get_eyb_salary_batch(eyb_salary_data, helpers.get_eyb_salary_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_eyb_rent_data(mock_connection, mock_ingest, eyb_rent_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_eyb_rent_data(data=eyb_rent_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_eyb_rent_batch(eyb_rent_data):
+    df = pd.json_normalize(eyb_rent_data)
+    df = df.rename(columns={'geo_description': 'region', 'dataset_year': 'release_year'})
+    eyb_rent_data = json.loads(df.to_json(orient='records'))
+    metadata = sa.MetaData()
+    ret = helpers.get_eyb_rent_batch(eyb_rent_data, helpers.get_eyb_rent_table(metadata))
     assert next(ret[2]) is not None
 
 
