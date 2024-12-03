@@ -1,50 +1,34 @@
-import pandas as pd
 import sqlalchemy as sa
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from dataservices.models import EYBSalaryData
+from dataservices.core.mixins import S3DownloadMixin
+from dataservices.management.commands.helpers import get_eyb_salary_batch, get_eyb_salary_table, ingest_data
 
-from .helpers import BaseDataWorkspaceIngestionCommand, align_vertical_names
+
+def save_eyb_salary_data(data):
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_eyb_salary_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_eyb_salary_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
 
 
-class Command(BaseDataWorkspaceIngestionCommand):
+class Command(BaseCommand, S3DownloadMixin):
+
     help = 'Import Statista salary data from Data Workspace'
-    sql = '''
-        SELECT
-            statista.region as geo_description,
-            statista.vertical,
-            statista.professional_level,
-            statista.occupation,
-            statista.code,
-            statista.median_salary,
-            statista.mean_salary,
-            statista.year
-        FROM statista.average_annual_salary_uk statista
-    '''
 
-    def load_data(self):
-        data = []
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
-
-        for chunk in chunks:
-            # in the source data some of the salary columns contain 'x', ':' and so on. Also represented as strings
-            chunk = chunk.replace(
-                to_replace={'mean_salary': r'[^0-9.]', 'median_salary': r'[^0-9.]'}, value='0', regex=True
-            )
-            chunk = chunk.fillna(value='0')
-            chunk = chunk.astype({'mean_salary': 'int32', 'median_salary': 'int32'})
-
-            for _idx, row in chunk.iterrows():
-                data.append(
-                    EYBSalaryData(
-                        geo_description=row.geo_description.strip(),
-                        vertical=align_vertical_names(row.vertical.strip()),
-                        professional_level=row.professional_level.strip(),
-                        occupation=row.occupation.strip(),
-                        soc_code=row.code,
-                        median_salary=row.median_salary,
-                        mean_salary=row.mean_salary,
-                        dataset_year=row.year,
-                    )
-                )
-
-        return data
+    def handle(self, *args, **options):
+        self.do_handle(
+            prefix=settings.EYB_SALARY_S3_PREFIX,
+            save_func=save_eyb_salary_data,
+        )

@@ -6,6 +6,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import boto3
+import pandas as pd
 import pg_bulk_ingest
 import pytest
 import sqlalchemy as sa
@@ -17,10 +18,11 @@ from django.core import management
 from django.test import override_settings
 from sqlalchemy.future.engine import Engine
 
-from dataservices.core.mixins import get_s3_file, unzip_s3_gzip_file, get_s3_paginator
+from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
 from dataservices.management.commands import helpers
 from dataservices.management.commands.import_dbt_investment_opportunities import save_investment_opportunities_data
 from dataservices.management.commands.import_dbt_sectors import save_dbt_sectors_data
+from dataservices.management.commands.import_eyb_salary_data import save_eyb_salary_data
 from dataservices.management.commands.import_sectors_gva_value_bands import save_sectors_gva_value_bands_data
 
 dbsector_data = [
@@ -144,6 +146,46 @@ def test_import_investment_opportunities_data_set_from_s3(
     assert mock_save_invesment_opportunities_data.call_count == 1
 
 
+eyb_salaries = [
+    {
+        'id': 1,
+        'region': ['East', 'North West', 'Northern Ireland'],
+        'vertical': ['Food and drink', 'Technology and Smart Cities', 'Creative Industries'],
+        'professional_level': ['Directory/executive', 'Entry-level', 'Middle/Senior Management'],
+        'occupation': [
+            'Restaurant and catering establishment managers and proprietors',
+            'IT user support technicians',
+            'Public relations professionals',
+        ],
+        'code': [1222, 3132, 2493],
+        'median_salary': ['x', 32149, 35172],
+        'mean_salary': [40189, ' ', 38777],
+        'year': [2023, 2023, 2023],
+    }
+]
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.core.mixins.read_jsonl_lines')
+@pytest.mark.parametrize("get_s3_file_data", [eyb_salaries[0]], indirect=True)
+@mock.patch('dataservices.management.commands.import_eyb_salary_data.save_eyb_salary_data')
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+def test_import_eyb_salary_data_set_from_s3(
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_save_eyb_salary_data,
+    mock_read_jsonl_lines,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    mock_read_jsonl_lines.return_value = eyb_salaries
+    management.call_command('import_eyb_salary_data')
+    assert mock_save_eyb_salary_data.call_count == 1
+
+
 @pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
@@ -196,6 +238,26 @@ def test_get_investment_opportunities_batch(investment_opportunities_data):
     ret = helpers.get_investment_opportunities_batch(
         investment_opportunities_data, helpers.get_investment_opportunities_data_table(metadata)
     )
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_eyb_salary_data(mock_connection, mock_ingest, eyb_salary_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_eyb_salary_data(data=eyb_salary_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_eyb_salary_batch(eyb_salary_data):
+    df = pd.json_normalize(eyb_salary_data)
+    df = df.rename(columns={'geo_description': 'region', 'soc_code': 'code', 'dataset_year': 'year'})
+    eyb_salary_data = json.loads(df.to_json(orient='records'))
+    metadata = sa.MetaData()
+    ret = helpers.get_eyb_salary_batch(eyb_salary_data, helpers.get_eyb_salary_table(metadata))
     assert next(ret[2]) is not None
 
 

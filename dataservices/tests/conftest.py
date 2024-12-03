@@ -562,7 +562,7 @@ def eyb_salary_data():
 
     for record in records:
         models.EYBSalaryData.objects.create(**record)
-    yield
+    yield records
     models.EYBSalaryData.objects.all().delete()
 
 

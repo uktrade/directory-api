@@ -147,6 +147,55 @@ def ingest_data(engine, metadata, on_before_visible, batches):
         )
 
 
+def get_eyb_salary_batch(data, data_table):
+    df = pd.json_normalize(data)
+    df = df.replace(to_replace={'mean_salary': r'[^0-9.]', 'median_salary': r'[^0-9.]'}, value='0', regex=True)
+    df = df.fillna(value='0')
+    df = df.astype({'mean_salary': 'int32', 'median_salary': 'int32'})
+
+    table_data = (
+        (
+            data_table,
+            (
+                eyb_salary['id'],
+                eyb_salary['region'].strip(),
+                align_vertical_names(eyb_salary['vertical'].strip()),
+                eyb_salary['professional_level'].strip(),
+                eyb_salary['occupation'].strip(),
+                eyb_salary['code'],
+                eyb_salary['median_salary'],
+                eyb_salary['mean_salary'],
+                eyb_salary['year'],
+            ),
+        )
+        for _, eyb_salary in df.iterrows()
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def get_eyb_salary_table(metadata):
+
+    return sa.Table(
+        "dataservices_eybsalarydata",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("geo_description", sa.TEXT, nullable=False),
+        sa.Column("vertical", sa.TEXT, nullable=False),
+        sa.Column("professional_level", sa.TEXT, nullable=False),
+        sa.Column("occupation", sa.TEXT, nullable=True),
+        sa.Column("soc_code", sa.INTEGER, nullable=True),
+        sa.Column("median_salary", sa.INTEGER, nullable=True),
+        sa.Column("mean_salary", sa.INTEGER, nullable=True),
+        sa.Column("dataset_year", sa.SMALLINT, nullable=True),
+        schema="public",
+    )
+
+
 def get_dbtsector_table_batch(data, data_table):
     table_data = (
         (
