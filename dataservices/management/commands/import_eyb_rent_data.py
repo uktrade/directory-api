@@ -1,43 +1,34 @@
-import pandas as pd
 import sqlalchemy as sa
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from dataservices.models import EYBCommercialPropertyRent
+from dataservices.core.mixins import S3DownloadMixin
+from dataservices.management.commands.helpers import get_eyb_rent_batch, get_eyb_rent_table, ingest_data
 
-from .helpers import BaseDataWorkspaceIngestionCommand
+
+def save_eyb_rent_data(data):
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_eyb_rent_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_eyb_rent_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
 
 
-class Command(BaseDataWorkspaceIngestionCommand):
+class Command(BaseCommand, S3DownloadMixin):
+
     help = 'Import Statista commercial rent data from Data Workspace'
-    sql = '''
-        SELECT
-            statista.region as geo_description,
-            statista.vertical,
-            statista.sub_vertical,
-            statista.gbp_per_square_foot_per_month,
-            statista.square_feet,
-            statista.gbp_per_month,
-            statista.release_year
-        FROM statista.commercial_property_rent statista
-    '''
 
-    def load_data(self):
-        data = []
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
-
-        for chunk in chunks:
-            for _idx, row in chunk.iterrows():
-                data.append(
-                    EYBCommercialPropertyRent(
-                        geo_description=row.geo_description.strip(),
-                        vertical=row.vertical.strip(),
-                        sub_vertical=row.sub_vertical.strip(),
-                        gbp_per_square_foot_per_month=(
-                            row.gbp_per_square_foot_per_month if row.gbp_per_month > 0 else None
-                        ),
-                        square_feet=row.square_feet if row.square_feet > 0 else None,
-                        gbp_per_month=row.gbp_per_month if row.gbp_per_month > 0 else None,
-                        dataset_year=row.release_year,
-                    )
-                )
-
-        return data
+    def handle(self, *args, **options):
+        self.do_handle(
+            prefix=settings.EYB_RENT_S3_PREFIX,
+            save_func=save_eyb_rent_data,
+        )

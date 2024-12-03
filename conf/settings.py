@@ -611,3 +611,4 @@ DBT_SECTOR_S3_PREFIX = env.dbt_sector_s3_prefix
 DBT_SECTORS_GVA_VALUE_BANDS_DATA_S3_PREFIX = env.dbt_sectors_gva_value_bands_data_s3_prefix
 INVESTMENT_OPPORTUNITIES_S3_PREFIX = env.investment_opportunities_s3_prefix
 EYB_SALARY_S3_PREFIX = env.eyb_salary_s3_prefix
+EYB_RENT_S3_PREFIX = env.eyb_rent_s3_prefix
