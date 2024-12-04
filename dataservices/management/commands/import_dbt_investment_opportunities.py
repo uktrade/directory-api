@@ -3,11 +3,58 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import (
-    get_investment_opportunities_batch,
-    get_investment_opportunities_data_table,
-    ingest_data,
-)
+from dataservices.management.commands.helpers import ingest_data
+
+
+def get_investment_opportunities_data_table(metadata):
+
+    return sa.Table(
+        "dataservices_dbtinvestmentopportunity",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("opportunity_title", sa.TEXT),
+        sa.Column("description", sa.TEXT),
+        sa.Column("nomination_round", sa.FLOAT),
+        sa.Column("launched", sa.BOOLEAN),
+        sa.Column("opportunity_type", sa.TEXT),
+        sa.Column("location", sa.TEXT),
+        sa.Column("sub_sector", sa.TEXT),
+        sa.Column("levelling_up", sa.BOOLEAN),
+        sa.Column("net_zero", sa.BOOLEAN),
+        sa.Column("science_technology_superpower", sa.BOOLEAN),
+        sa.Column("sector_cluster", sa.TEXT),
+        schema="public",
+    )
+
+
+def get_investment_opportunities_batch(data, data_table):
+
+    table_data = (
+        (
+            data_table,
+            (
+                investment_opportunity['id'],
+                investment_opportunity['opportunity_title'],
+                investment_opportunity['description'],
+                investment_opportunity['nomination_round'],
+                investment_opportunity['launched'],
+                investment_opportunity['opportunity_type'],
+                investment_opportunity['location'],
+                investment_opportunity['sub_sector'],
+                investment_opportunity['levelling_up'],
+                investment_opportunity['net_zero'],
+                investment_opportunity['science_technology_superpower'],
+                investment_opportunity['sector_cluster'],
+            ),
+        )
+        for investment_opportunity in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
 
 
 def save_investment_opportunities_data(data):
@@ -29,7 +76,7 @@ def save_investment_opportunities_data(data):
 
 class Command(BaseCommand, S3DownloadMixin):
 
-    help = 'Import DBT investment opportunities data from Data Workspace'
+    help = 'Import DBT investment opportunities data from s3'
 
     def handle(self, *args, **options):
         self.do_handle(

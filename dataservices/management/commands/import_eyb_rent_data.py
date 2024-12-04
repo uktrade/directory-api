@@ -71,7 +71,7 @@ def save_eyb_rent_data(data):
 
 class Command(BaseCommand, S3DownloadMixin):
 
-    help = 'Import Statista commercial rent data from Data Workspace'
+    help = 'Import Statista commercial rent data from s3'
 
     def handle(self, *args, **options):
         self.do_handle(
