@@ -628,6 +628,27 @@ def eyb_rent_data():
 
 
 @pytest.fixture
+def postcode_data():
+    records = [
+        {'id': 2656, 'post_code': 'AB101AA', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2657, 'post_code': 'AB101AB', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2658, 'post_code': 'AB101AD', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2659, 'post_code': 'AB101AF', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2660, 'post_code': 'AB101AG', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2661, 'post_code': 'AB101AH', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2662, 'post_code': 'AB101AJ', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2663, 'post_code': 'AB101AL', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2664, 'post_code': 'AB101AN', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2665, 'post_code': 'AB101AP', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2666, 'post_code': 'AB101AQ', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+    ]
+    for record in records:
+        models.Postcode.objects.create(**record)
+    yield records
+    models.Postcode.objects.all().delete()
+
+
+@pytest.fixture
 def gva_bandings():
     records = [
         {
