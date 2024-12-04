@@ -3,7 +3,53 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import get_eyb_rent_batch, get_eyb_rent_table, ingest_data
+from dataservices.management.commands.helpers import ingest_data
+
+
+def get_eyb_rent_batch(data, data_table):
+    table_data = (
+        (
+            data_table,
+            (
+                eyb_rent['id'],
+                eyb_rent['region'].strip(),
+                eyb_rent['vertical'].strip(),
+                eyb_rent['sub_vertical'].strip(),
+                (
+                    eyb_rent['gbp_per_square_foot_per_month']
+                    if eyb_rent['gbp_per_month'] and eyb_rent['gbp_per_month'] > 0
+                    else None
+                ),
+                eyb_rent['square_feet'] if eyb_rent['square_feet'] and eyb_rent['square_feet'] > 0 else None,
+                eyb_rent['gbp_per_month'] if eyb_rent['gbp_per_month'] and eyb_rent['gbp_per_month'] > 0 else None,
+                eyb_rent['release_year'],
+            ),
+        )
+        for eyb_rent in data
+    )
+
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def get_eyb_rent_table(metadata):
+
+    return sa.Table(
+        "dataservices_eybcommercialpropertyrent",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("geo_description", sa.TEXT, nullable=False),
+        sa.Column("vertical", sa.TEXT, nullable=False),
+        sa.Column("sub_vertical", sa.TEXT, nullable=False),
+        sa.Column("gbp_per_square_foot_per_month", sa.DECIMAL, nullable=True),
+        sa.Column("square_feet", sa.DECIMAL, nullable=True),
+        sa.Column("gbp_per_month", sa.DECIMAL, nullable=True),
+        sa.Column("dataset_year", sa.SMALLINT, nullable=True),
+        schema="public",
+    )
 
 
 def save_eyb_rent_data(data):

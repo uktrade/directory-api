@@ -22,7 +22,11 @@ from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzi
 from dataservices.management.commands import helpers
 from dataservices.management.commands.import_dbt_investment_opportunities import save_investment_opportunities_data
 from dataservices.management.commands.import_dbt_sectors import save_dbt_sectors_data
-from dataservices.management.commands.import_eyb_rent_data import save_eyb_rent_data
+from dataservices.management.commands.import_eyb_rent_data import (
+    get_eyb_rent_batch,
+    get_eyb_rent_table,
+    save_eyb_rent_data,
+)
 from dataservices.management.commands.import_eyb_salary_data import save_eyb_salary_data
 from dataservices.management.commands.import_sectors_gva_value_bands import save_sectors_gva_value_bands_data
 
@@ -313,7 +317,7 @@ def test_get_eyb_rent_batch(eyb_rent_data):
     df = df.rename(columns={'geo_description': 'region', 'dataset_year': 'release_year'})
     eyb_rent_data = json.loads(df.to_json(orient='records'))
     metadata = sa.MetaData()
-    ret = helpers.get_eyb_rent_batch(eyb_rent_data, helpers.get_eyb_rent_table(metadata))
+    ret = get_eyb_rent_batch(eyb_rent_data, get_eyb_rent_table(metadata))
     assert next(ret[2]) is not None
 
 
