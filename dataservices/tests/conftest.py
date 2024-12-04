@@ -7,6 +7,7 @@ import pytest
 from botocore.response import StreamingBody
 
 from dataservices import models
+from exporting.models import Postcode
 
 
 @pytest.fixture(autouse=True)
@@ -941,3 +942,24 @@ def investment_opportunities_data():
             'science_technology_superpower': True,
         }
     ]
+
+
+@pytest.fixture
+def postcode_data():
+    records = [
+        {'id': 2656, 'post_code': 'AB101AA', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2657, 'post_code': 'AB101AB', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2658, 'post_code': 'AB101AD', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2659, 'post_code': 'AB101AF', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2660, 'post_code': 'AB101AG', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2661, 'post_code': 'AB101AH', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2662, 'post_code': 'AB101AJ', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2663, 'post_code': 'AB101AL', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2664, 'post_code': 'AB101AN', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2665, 'post_code': 'AB101AP', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+        {'id': 2666, 'post_code': 'AB101AQ', 'region': 'Scotland', 'european_electoral_region': 'S15000001'},
+    ]
+    for record in records:
+        Postcode.objects.create(**record)
+    yield records
+    Postcode.objects.all().delete()
