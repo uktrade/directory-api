@@ -8,7 +8,7 @@ from dataservices.core.mixins import S3DownloadMixin
 from dataservices.management.commands.helpers import ingest_data
 
 
-def map_eer_to_reqion(eer_code: str) -> str:
+def map_eer_to_european_reqion(eer_code: str) -> str:
     mapping = {
         'E15000001': 'North East',
         'E15000002': 'North West',
@@ -37,7 +37,7 @@ def get_postcode_table_batch(data, data_table):
                 postcode['id'],
                 postcode['pcd'].replace(' ', '') if postcode['pcd'] else postcode['pcd'],
                 postcode['region_name'].strip() if postcode['region_name'] else postcode['region_name'],
-                map_eer_to_reqion(postcode['eer']),
+                map_eer_to_european_reqion(postcode['eer']),
                 datetime.now(),
                 datetime.now(),
             ),
