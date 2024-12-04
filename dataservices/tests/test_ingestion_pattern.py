@@ -19,21 +19,36 @@ from django.test import override_settings
 from sqlalchemy.future.engine import Engine
 
 from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
-from dataservices.management.commands import helpers
-from dataservices.management.commands.import_dbt_investment_opportunities import save_investment_opportunities_data
-from dataservices.management.commands.import_dbt_sectors import save_dbt_sectors_data
+from dataservices.management.commands.import_dbt_investment_opportunities import (
+    get_investment_opportunities_batch,
+    get_investment_opportunities_data_table,
+    save_investment_opportunities_data,
+)
+from dataservices.management.commands.import_dbt_sectors import (
+    get_dbtsector_postgres_table,
+    get_dbtsector_table_batch,
+    save_dbt_sectors_data,
+)
 from dataservices.management.commands.import_eyb_rent_data import (
     get_eyb_rent_batch,
     get_eyb_rent_table,
     save_eyb_rent_data,
 )
-from dataservices.management.commands.import_eyb_salary_data import save_eyb_salary_data
+from dataservices.management.commands.import_eyb_salary_data import (
+    get_eyb_salary_batch,
+    get_eyb_salary_table,
+    save_eyb_salary_data,
+)
 from dataservices.management.commands.import_postcodes_from_s3 import (
     get_postcode_postgres_table,
     get_postcode_table_batch,
     save_postcode_data,
 )
-from dataservices.management.commands.import_sectors_gva_value_bands import save_sectors_gva_value_bands_data
+from dataservices.management.commands.import_sectors_gva_value_bands import (
+    get_sectors_gva_value_bands_batch,
+    get_sectors_gva_value_bands_table,
+    save_sectors_gva_value_bands_data,
+)
 
 dbsector_data = [
     {
@@ -270,7 +285,7 @@ def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
 @pytest.mark.django_db
 def test_get_dbtsector_table_batch(dbtsector_data):
     metadata = sa.MetaData()
-    ret = helpers.get_dbtsector_table_batch(dbtsector_data, helpers.get_dbtsector_postgres_table(metadata))
+    ret = get_dbtsector_table_batch(dbtsector_data, get_dbtsector_postgres_table(metadata))
     assert next(ret[2]) is not None
 
 
@@ -287,9 +302,7 @@ def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors
 @pytest.mark.django_db
 def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
     metadata = sa.MetaData()
-    ret = helpers.get_sectors_gva_value_bands_batch(
-        sectors_gva_value_bands_data, helpers.get_sectors_gva_value_bands_table(metadata)
-    )
+    ret = get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data, get_sectors_gva_value_bands_table(metadata))
     assert next(ret[2]) is not None
 
 
@@ -306,8 +319,8 @@ def test_save_investment_opportunities_data(mock_connection, mock_ingest, invest
 @pytest.mark.django_db
 def test_get_investment_opportunities_batch(investment_opportunities_data):
     metadata = sa.MetaData()
-    ret = helpers.get_investment_opportunities_batch(
-        investment_opportunities_data, helpers.get_investment_opportunities_data_table(metadata)
+    ret = get_investment_opportunities_batch(
+        investment_opportunities_data, get_investment_opportunities_data_table(metadata)
     )
     assert next(ret[2]) is not None
 
@@ -328,7 +341,7 @@ def test_get_eyb_salary_batch(eyb_salary_data):
     df = df.rename(columns={'geo_description': 'region', 'soc_code': 'code', 'dataset_year': 'year'})
     eyb_salary_data = json.loads(df.to_json(orient='records'))
     metadata = sa.MetaData()
-    ret = helpers.get_eyb_salary_batch(eyb_salary_data, helpers.get_eyb_salary_table(metadata))
+    ret = get_eyb_salary_batch(eyb_salary_data, get_eyb_salary_table(metadata))
     assert next(ret[2]) is not None
 
 

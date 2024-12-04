@@ -20,7 +20,7 @@ class RetrieveOfficesByPostCode(ListAPIView):
             return None
 
     def get_queryset(self):
-        post_code = self.kwargs['postcode']
+        post_code = self.kwargs['postcode'].replace(' ', '')
 
         region_id = self.region_from_database(post_code)
 

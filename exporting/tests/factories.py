@@ -2,6 +2,7 @@ import factory
 import factory.fuzzy
 
 from exporting import models
+from dataservices.models import Postcode
 
 
 class OfficeFactory(factory.django.DjangoModelFactory):
@@ -14,3 +15,12 @@ class OfficeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Office
+
+
+class PostcodeFactory(factory.django.DjangoModelFactory):
+    post_code = factory.fuzzy.FuzzyText(length=20)
+    region = factory.fuzzy.FuzzyText(length=50)
+    european_electoral_region = factory.fuzzy.FuzzyText(length=50)
+
+    class Meta:
+        model = Postcode
