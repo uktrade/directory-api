@@ -119,6 +119,21 @@ class MarketGuidesDataIngestionCommand(BaseDataWorkspaceIngestionCommand):
             return view_data.data['source']['last_release']
 
 
+def align_vertical_names(statista_vertical_name: str) -> str:
+    """
+    Some vertical names used by statista do not map to the internal vertical names used in IGUK
+    """
+    mapping = {
+        'Technology & Smart Cities': 'Technology and smart cities',
+        'Pharmaceuticals and Biotech': 'Pharmaceuticals and biotechnology',
+        'Manufacture of medical and dental instruments and supplies': 'Medical devices and equipment',
+        'Automovie': 'Automotive',
+        'Finance and Professional Services': 'Financial and professional services',
+    }
+
+    return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
+
+
 def ingest_data(engine, metadata, on_before_visible, batches):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(

@@ -4,22 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import ingest_data
-
-
-def align_vertical_names(statista_vertical_name: str) -> str:
-    """
-    Some vertical names used by statista do not map to the internal vertical names used in IGUK
-    """
-    mapping = {
-        'Technology & Smart Cities': 'Technology and smart cities',
-        'Pharmaceuticals and Biotech': 'Pharmaceuticals and biotechnology',
-        'Manufacture of medical and dental instruments and supplies': 'Medical devices and equipment',
-        'Automovie': 'Automotive',
-        'Finance and Professional Services': 'Financial and professional services',
-    }
-
-    return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
+from dataservices.management.commands.helpers import align_vertical_names, ingest_data
 
 
 def get_eyb_salary_batch(data, data_table):
