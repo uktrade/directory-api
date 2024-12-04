@@ -1,52 +1,85 @@
-import pandas as pd
 import sqlalchemy as sa
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from dataservices.models import DBTInvestmentOpportunity
+from dataservices.core.mixins import S3DownloadMixin
+from dataservices.management.commands.helpers import ingest_data
 
-from .helpers import BaseDataWorkspaceIngestionCommand
+
+def get_investment_opportunities_data_table(metadata):
+
+    return sa.Table(
+        "dataservices_dbtinvestmentopportunity",
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("opportunity_title", sa.TEXT),
+        sa.Column("description", sa.TEXT),
+        sa.Column("nomination_round", sa.FLOAT),
+        sa.Column("launched", sa.BOOLEAN),
+        sa.Column("opportunity_type", sa.TEXT),
+        sa.Column("location", sa.TEXT),
+        sa.Column("sub_sector", sa.TEXT),
+        sa.Column("levelling_up", sa.BOOLEAN),
+        sa.Column("net_zero", sa.BOOLEAN),
+        sa.Column("science_technology_superpower", sa.BOOLEAN),
+        sa.Column("sector_cluster", sa.TEXT),
+        schema="public",
+    )
 
 
-class Command(BaseDataWorkspaceIngestionCommand):
-    help = 'Import DBT investment opportunities data from Data Workspace'
-    sql = '''
-        SELECT
-            id,
-            updated_date,
-            investment_opportunity_code,
-            opportunity_title,
-            description,
-            nomination_round,
-            launched,
-            opportunity_type,
-            location,
-            sub_sector,
-            levelling_up,
-            net_zero,
-            science_technology_superpower,
-            sector_cluster
-        FROM public.dit_investment_opportunities
-    '''
+def get_investment_opportunities_batch(data, data_table):
 
-    def load_data(self):
-        data = []
-        chunks = pd.read_sql(sa.text(self.sql), self.engine, chunksize=5000)
+    table_data = (
+        (
+            data_table,
+            (
+                investment_opportunity['id'],
+                investment_opportunity['opportunity_title'],
+                investment_opportunity['description'],
+                investment_opportunity['nomination_round'],
+                investment_opportunity['launched'],
+                investment_opportunity['opportunity_type'],
+                investment_opportunity['location'],
+                investment_opportunity['sub_sector'],
+                investment_opportunity['levelling_up'],
+                investment_opportunity['net_zero'],
+                investment_opportunity['science_technology_superpower'],
+                investment_opportunity['sector_cluster'],
+            ),
+        )
+        for investment_opportunity in data
+    )
 
-        for chunk in chunks:
-            for _idx, row in chunk.iterrows():
-                data.append(
-                    DBTInvestmentOpportunity(
-                        opportunity_title=row.opportunity_title,
-                        description=row.description,
-                        nomination_round=row.nomination_round,
-                        launched=row.launched,
-                        opportunity_type=row.opportunity_type,
-                        location=row.location,
-                        sub_sector=row.sub_sector,
-                        levelling_up=row.levelling_up,
-                        net_zero=row.net_zero,
-                        science_technology_superpower=row.science_technology_superpower,
-                        sector_cluster=row.sector_cluster,
-                    )
-                )
+    return (
+        None,
+        None,
+        table_data,
+    )
 
-        return data
+
+def save_investment_opportunities_data(data):
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_investment_opportunities_data_table(metadata)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_investment_opportunities_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
+
+
+class Command(BaseCommand, S3DownloadMixin):
+
+    help = 'Import DBT investment opportunities data from s3'
+
+    def handle(self, *args, **options):
+        self.do_handle(
+            prefix=settings.INVESTMENT_OPPORTUNITIES_S3_PREFIX,
+            save_func=save_investment_opportunities_data,
+        )

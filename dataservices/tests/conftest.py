@@ -562,7 +562,7 @@ def eyb_salary_data():
 
     for record in records:
         models.EYBSalaryData.objects.create(**record)
-    yield
+    yield records
     models.EYBSalaryData.objects.all().delete()
 
 
@@ -570,55 +570,60 @@ def eyb_salary_data():
 def eyb_rent_data():
     records = [
         {
+            "id": 1,
             "geo_description": "London",
             "vertical": "Industrial",
             "sub_vertical": "Large Warehouses",
-            "gbp_per_square_foot_per_month": "2.292",
-            "square_feet": "340000.000",
-            "gbp_per_month": "779166.667",
+            "gbp_per_square_foot_per_month": 2.292,
+            "square_feet": 340000.000,
+            "gbp_per_month": 779166.667,
             "dataset_year": 2023,
         },
         {
+            "id": 2,
             "geo_description": "London",
             "vertical": "Industrial",
             "sub_vertical": "Small Warehouses",
-            "gbp_per_square_foot_per_month": "1.863",
-            "square_feet": "5000.000",
-            "gbp_per_month": "9317.130",
+            "gbp_per_square_foot_per_month": 1.863,
+            "square_feet": 5000.000,
+            "gbp_per_month": 9317.130,
             "dataset_year": 2023,
         },
         {
+            "id": 3,
             "geo_description": "London",
             "vertical": "Retail",
             "sub_vertical": "High Street Retail",
-            "gbp_per_square_foot_per_month": "74.722",
-            "square_feet": "2195.000",
-            "gbp_per_month": "164015.278",
+            "gbp_per_square_foot_per_month": 74.722,
+            "square_feet": 2195.000,
+            "gbp_per_month": 164015.278,
             "dataset_year": 2023,
         },
         {
+            "id": 4,
             "geo_description": "London",
             "vertical": "Retail",
             "sub_vertical": "Prime shopping centre",
-            "gbp_per_square_foot_per_month": "14.443",
-            "square_feet": "2195.000",
-            "gbp_per_month": "31702.791",
+            "gbp_per_square_foot_per_month": 14.443,
+            "square_feet": 2195.000,
+            "gbp_per_month": 31702.791,
             "dataset_year": 2023,
         },
         {
+            "id": 5,
             "geo_description": "London",
             "vertical": "Office",
             "sub_vertical": "Work Office",
-            "gbp_per_square_foot_per_month": "8.684",
-            "square_feet": "16671.000",
-            "gbp_per_month": "144770.269",
+            "gbp_per_square_foot_per_month": 8.684,
+            "square_feet": 16671.000,
+            "gbp_per_month": 144770.269,
             "dataset_year": 2023,
         },
     ]
 
     for record in records:
         models.EYBCommercialPropertyRent.objects.create(**record)
-    yield
+    yield records
     models.EYBCommercialPropertyRent.objects.all().delete()
 
 
@@ -912,5 +917,27 @@ def sectors_gva_value_bands_data():
             'sector_gva_and_value_band_id': 382,
             'sector_classification_value_band': 'Capital intensive',
             'sector_classification_gva_multiplier': 'Capital intensive',
+        }
+    ]
+
+
+@pytest.fixture
+def investment_opportunities_data():
+    yield [
+        {
+            'id': 1,
+            'launched': True,
+            'location': 'Telford',
+            'net_zero': True,
+            'sub_sector': 'Agri-Tech',
+            'description': 'An opportunity',
+            'levelling_up': True,
+            'updated_date': '2024-07-10T11:39:16.672666+00:00',
+            'sector_cluster': 'Agriculture, Food & Drink',
+            'nomination_round': 1,
+            'opportunity_type': 'High potential opportunity',
+            'opportunity_title': 'Precision Agriculture',
+            'investment_opportunity_code': 'INVESTMENT_OPPORTUNITY_001',
+            'science_technology_superpower': True,
         }
     ]
