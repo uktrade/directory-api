@@ -564,3 +564,19 @@ class DBTInvestmentOpportunity(models.Model):
     net_zero = models.BooleanField()
     science_technology_superpower = models.BooleanField()
     sector_cluster = models.CharField()
+
+
+class Postcode(TimeStampedModel):
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=[
+                    'post_code',
+                ]
+            ),
+        ]
+        ordering = ['post_code', 'region', 'european_electoral_region']
+
+    post_code = models.TextField(blank=False, null=False)
+    region = models.TextField(blank=True, null=True)
+    european_electoral_region = models.TextField(blank=True, null=True)

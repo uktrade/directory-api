@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 from zipfile import ZipFile
 
 import pandas as pd
@@ -134,6 +135,28 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
+def map_eer_to_reqion(eer_code: str) -> str:
+   
+    mapping = {
+        'E15000001': 'North East',
+        'E15000002': 'North West',
+        'E15000003': 'Yorkshire and The Humber',
+        'E15000004': 'East Midlands',
+        'E15000005': 'West Midlands',
+        'E15000006': 'Eastern',
+        'E15000007': 'London',
+        'E15000008': 'South East',
+        'E15000009': 'South West',
+        'L99999999': '(pseudo) Channel Islands',
+        'M99999999': '(pseudo) Isle of Man',
+        'N07000001': 'Northern Ireland',
+        'S15000001': 'Scotland',
+        'W08000001': 'Wales',
+    }
+
+    return mapping[eer_code] if eer_code in mapping.keys() else eer_code
+
+
 def ingest_data(engine, metadata, on_before_visible, batches):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
@@ -145,6 +168,44 @@ def ingest_data(engine, metadata, on_before_visible, batches):
             upsert=pg_bulk_ingest.Upsert.OFF,
             delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
         )
+
+
+def get_postcode_table_batch(data, data_table):
+    table_data = (
+        (
+            data_table,
+            (
+                postcode['id'],
+                postcode['pcd'],
+                postcode['region_name'],
+                map_eer_to_reqion(postcode['eer']),
+                datetime.now(),  # noqa F601
+                datetime.now(),
+            ),
+        )
+        for postcode in data
+    )
+    return (
+        None,
+        None,
+        table_data,
+    )
+
+
+def get_postcode_postgres_table(metadata):
+
+    return sa.Table(
+        "dataservices_postcode",
+        metadata,
+        sa.Column("id", sa.INTEGER, primary_key=True),
+        sa.Column("post_code", sa.TEXT, nullable=False),
+        sa.Column("region", sa.TEXT, nullable=True),
+        sa.Column("european_electoral_region", sa.TEXT, nullable=True),
+        sa.Column("created", sa.TIMESTAMP, nullable=True),
+        sa.Column("modified", sa.TIMESTAMP, nullable=True),
+        sa.Index(None, "post_code"),
+        schema="public",
+    )
 
 
 def get_eyb_rent_batch(data, data_table):
