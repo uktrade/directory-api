@@ -107,11 +107,15 @@ def test_lookup_by_postcode_success_use_database_multiple_region_ids(mock_region
 
 
 @pytest.mark.django_db
-@mock.patch.object(RetrieveOfficesByPostCode, 'region_from_database')
-def test_lookup_by_postcode_use_database_unsuppported_post_code(mock_region_from_database, api_client):
-    mock_region_from_database.return_value = 'some-unsupported-office'
+def test_lookup_by_postcode_use_database_unsupported_post_code(api_client, postcode, office):
+    post_code = 'ABC123'
+    postcode.region = 'London'
+    postcode.post_code = post_code
+    postcode.save()
+    office.region_id = 'some-unsupported-office'
+    office.save()
 
-    url = reverse('offices-by-postcode', kwargs={'postcode': 'ABC 123'})
+    url = reverse('offices-by-postcode', kwargs={'postcode': post_code})
 
     response = api_client.get(url)
 
