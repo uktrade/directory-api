@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import sqlalchemy as sa
@@ -34,10 +35,18 @@ def get_postcode_table_batch(data, data_table):
         (
             data_table,
             (
-                postcode['id'],
-                postcode['pcd'].replace(' ', '') if postcode['pcd'] else postcode['pcd'],
-                postcode['region_name'].strip() if postcode['region_name'] else postcode['region_name'],
-                map_eer_to_european_reqion(postcode['eer']),
+                json.loads(postcode)['id'],
+                (
+                    json.loads(postcode)['pcd'].replace(' ', '')
+                    if json.loads(postcode)['pcd']
+                    else json.loads(postcode)['pcd']
+                ),
+                (
+                    json.loads(postcode)['region_name'].strip()
+                    if json.loads(postcode)['region_name']
+                    else json.loads(postcode)['region_name']
+                ),
+                map_eer_to_european_reqion(json.loads(postcode)['eer']),
                 datetime.now(),
                 datetime.now(),
             ),

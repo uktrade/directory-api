@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -7,17 +9,18 @@ from dataservices.management.commands.helpers import ingest_data
 
 
 def get_dbtsector_table_batch(data, data_table):
+
     table_data = (
         (
             data_table,
             (
-                dbt_sector['id'],
-                dbt_sector['field_01'],
-                dbt_sector['full_sector_name'],
-                dbt_sector['sector_cluster__april_2023'],
-                dbt_sector['field_04'],
-                dbt_sector['field_05'],
-                dbt_sector['field_02'],
+                json.loads(dbt_sector)['id'],
+                json.loads(dbt_sector)['field_01'],
+                json.loads(dbt_sector)['full_sector_name'],
+                json.loads(dbt_sector)['sector_cluster__april_2023'],
+                json.loads(dbt_sector)['field_04'],
+                json.loads(dbt_sector)['field_05'],
+                json.loads(dbt_sector)['field_02'],
             ),
         )
         for dbt_sector in data
