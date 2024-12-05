@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -30,17 +32,17 @@ def get_sectors_gva_value_bands_batch(data, data_table):
         (
             data_table,
             (
-                sectors_gva_value_bands['id'],
-                sectors_gva_value_bands['full_sector_name'],
-                sectors_gva_value_bands['value_band_a_minimum'],
-                sectors_gva_value_bands['value_band_b_minimum'],
-                sectors_gva_value_bands['value_band_c_minimum'],
-                sectors_gva_value_bands['value_band_d_minimum'],
-                sectors_gva_value_bands['value_band_e_minimum'],
-                sectors_gva_value_bands['start_date'],
-                sectors_gva_value_bands['end_date'],
-                sectors_gva_value_bands['sector_classification_value_band'],
-                sectors_gva_value_bands['sector_classification_gva_multiplier'],
+                json.loads(sectors_gva_value_bands)['id'],
+                json.loads(sectors_gva_value_bands)['full_sector_name'],
+                json.loads(sectors_gva_value_bands)['value_band_a_minimum'],
+                json.loads(sectors_gva_value_bands)['value_band_b_minimum'],
+                json.loads(sectors_gva_value_bands)['value_band_c_minimum'],
+                json.loads(sectors_gva_value_bands)['value_band_d_minimum'],
+                json.loads(sectors_gva_value_bands)['value_band_e_minimum'],
+                json.loads(sectors_gva_value_bands)['start_date'],
+                json.loads(sectors_gva_value_bands)['end_date'],
+                json.loads(sectors_gva_value_bands)['sector_classification_value_band'],
+                json.loads(sectors_gva_value_bands)['sector_classification_gva_multiplier'],
             ),
         )
         for sectors_gva_value_bands in data

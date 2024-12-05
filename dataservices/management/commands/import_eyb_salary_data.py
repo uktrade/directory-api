@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 import sqlalchemy as sa
 from django.conf import settings
@@ -7,7 +9,12 @@ from dataservices.core.mixins import S3DownloadMixin
 from dataservices.management.commands.helpers import align_vertical_names, ingest_data
 
 
+def read_jsonl_lines(text_lines):
+    return [json.loads(jline) for jline in text_lines]
+
+
 def get_eyb_salary_batch(data, data_table):
+    data = read_jsonl_lines(data)
     df = pd.json_normalize(data)
     df = df.replace(to_replace={'mean_salary': r'[^0-9.]', 'median_salary': r'[^0-9.]'}, value='0', regex=True)
     df = df.fillna(value='0')

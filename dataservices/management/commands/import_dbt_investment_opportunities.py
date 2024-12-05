@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -33,18 +35,18 @@ def get_investment_opportunities_batch(data, data_table):
         (
             data_table,
             (
-                investment_opportunity['id'],
-                investment_opportunity['opportunity_title'],
-                investment_opportunity['description'],
-                investment_opportunity['nomination_round'],
-                investment_opportunity['launched'],
-                investment_opportunity['opportunity_type'],
-                investment_opportunity['location'],
-                investment_opportunity['sub_sector'],
-                investment_opportunity['levelling_up'],
-                investment_opportunity['net_zero'],
-                investment_opportunity['science_technology_superpower'],
-                investment_opportunity['sector_cluster'],
+                json.loads(investment_opportunity)['id'],
+                json.loads(investment_opportunity)['opportunity_title'],
+                json.loads(investment_opportunity)['description'],
+                json.loads(investment_opportunity)['nomination_round'],
+                json.loads(investment_opportunity)['launched'],
+                json.loads(investment_opportunity)['opportunity_type'],
+                json.loads(investment_opportunity)['location'],
+                json.loads(investment_opportunity)['sub_sector'],
+                json.loads(investment_opportunity)['levelling_up'],
+                json.loads(investment_opportunity)['net_zero'],
+                json.loads(investment_opportunity)['science_technology_superpower'],
+                json.loads(investment_opportunity)['sector_cluster'],
             ),
         )
         for investment_opportunity in data

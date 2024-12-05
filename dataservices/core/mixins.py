@@ -1,5 +1,4 @@
 import io
-import json
 import zlib
 
 import boto3
@@ -23,10 +22,6 @@ def unzip_s3_gzip_file(file_body, max_bytes):
     uncompressed_chunk = dobj.flush()
     if uncompressed_chunk:
         yield uncompressed_chunk
-
-
-def read_jsonl_lines(text_lines):
-    return [json.loads(jline) for jline in text_lines]
 
 
 def get_s3_paginator(prefix):
@@ -86,6 +81,4 @@ class S3DownloadMixin:
                     chunks = unzip_s3_gzip_file(body, (32 + zlib.MAX_WBITS))
                     text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
                     if text_lines:
-                        results = read_jsonl_lines(text_lines)
-                        if results:
-                            save_func(results)
+                        save_func(text_lines)
