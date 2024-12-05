@@ -28,6 +28,7 @@ def get_sectors_gva_value_bands_table(metadata):
 
 
 def get_sectors_gva_value_bands_batch(data, data_table):
+
     table_data = (
         (
             data_table,

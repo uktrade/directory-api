@@ -9,6 +9,7 @@ from dataservices.management.commands.helpers import ingest_data
 
 
 def get_dbtsector_table_batch(data, data_table):
+
     table_data = (
         (
             data_table,
