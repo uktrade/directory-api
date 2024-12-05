@@ -14,3 +14,12 @@ class OfficeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Office
+
+
+class PostcodeFactory(factory.django.DjangoModelFactory):
+    post_code = factory.fuzzy.FuzzyText(length=10)
+    region = factory.fuzzy.FuzzyText(length=20)
+    european_electoral_region = factory.fuzzy.FuzzyText(length=20)
+
+    class Meta:
+        model = models.Postcode
