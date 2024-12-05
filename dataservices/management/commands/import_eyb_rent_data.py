@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -11,18 +13,26 @@ def get_eyb_rent_batch(data, data_table):
         (
             data_table,
             (
-                eyb_rent['id'],
-                eyb_rent['region'].strip(),
-                eyb_rent['vertical'].strip(),
-                eyb_rent['sub_vertical'].strip(),
+                json.loads(eyb_rent)['id'],
+                json.loads(eyb_rent)['region'].strip(),
+                json.loads(eyb_rent)['vertical'].strip(),
+                json.loads(eyb_rent)['sub_vertical'].strip(),
                 (
-                    eyb_rent['gbp_per_square_foot_per_month']
-                    if eyb_rent['gbp_per_month'] and eyb_rent['gbp_per_month'] > 0
+                    json.loads(eyb_rent)['gbp_per_square_foot_per_month']
+                    if json.loads(eyb_rent)['gbp_per_month'] and json.loads(eyb_rent)['gbp_per_month'] > 0
                     else None
                 ),
-                eyb_rent['square_feet'] if eyb_rent['square_feet'] and eyb_rent['square_feet'] > 0 else None,
-                eyb_rent['gbp_per_month'] if eyb_rent['gbp_per_month'] and eyb_rent['gbp_per_month'] > 0 else None,
-                eyb_rent['release_year'],
+                (
+                    json.loads(eyb_rent)['square_feet']
+                    if json.loads(eyb_rent)['square_feet'] and json.loads(eyb_rent)['square_feet'] > 0
+                    else None
+                ),
+                (
+                    json.loads(eyb_rent)['gbp_per_month']
+                    if json.loads(eyb_rent)['gbp_per_month'] and json.loads(eyb_rent)['gbp_per_month'] > 0
+                    else None
+                ),
+                json.loads(eyb_rent)['release_year'],
             ),
         )
         for eyb_rent in data

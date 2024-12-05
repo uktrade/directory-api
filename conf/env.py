@@ -217,6 +217,7 @@ class BaseSettings(PydanticBaseSettings):
     investment_opportunities_s3_prefix: str = ''
     eyb_salary_s3_prefix: str = ''
     eyb_rent_s3_prefix: str = ''
+    postcode_from_s3_prefix: str = ''
 
 
 class CIEnvironment(BaseSettings):
