@@ -26,7 +26,7 @@ def postcode():
 
 @pytest.mark.django_db
 def test_lookup_by_postcode_use_database_success(api_client, office, postcode):
-    post_code = 'ABC 123'
+    post_code = 'ABC123'
     postcode.region = 'London'
     postcode.post_code = post_code
     postcode.save()
@@ -66,9 +66,9 @@ def test_lookup_by_postcode_use_database_success(api_client, office, postcode):
 
 @pytest.mark.django_db
 def test_lookup_by_postcode_use_database_failure(api_client, office, postcode):
-    post_code = 'ABC 123'
+    post_code = 'ABC123'
     postcode.region = 'London'
-    postcode.post_code = 'N17 9SJ'
+    postcode.post_code = 'N179SJ'
     postcode.save()
     office.region_id = 'london'
     office.save()
