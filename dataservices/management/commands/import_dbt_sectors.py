@@ -28,6 +28,23 @@ def get_dbtsector_table_batch(data, data_table):
                     ),
                 )
             )
+
+        for dbt_sector in data:
+            json_data = json.loads(dbt_sector)
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['id'],
+                        json_data['field_01'],
+                        json_data['full_sector_name'],
+                        json_data['sector_cluster__april_2023'],
+                        json_data['field_04'],
+                        json_data['field_05'],
+                        json_data['field_02'],
+                    ),
+                )
+            )
     
     return (
         None,

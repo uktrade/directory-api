@@ -31,31 +31,35 @@ def get_investment_opportunities_data_table(metadata):
 
 def get_investment_opportunities_batch(data, data_table):
 
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(investment_opportunity)['id'],
-                json.loads(investment_opportunity)['opportunity_title'],
-                json.loads(investment_opportunity)['description'],
-                json.loads(investment_opportunity)['nomination_round'],
-                json.loads(investment_opportunity)['launched'],
-                json.loads(investment_opportunity)['opportunity_type'],
-                json.loads(investment_opportunity)['location'],
-                json.loads(investment_opportunity)['sub_sector'],
-                json.loads(investment_opportunity)['levelling_up'],
-                json.loads(investment_opportunity)['net_zero'],
-                json.loads(investment_opportunity)['science_technology_superpower'],
-                json.loads(investment_opportunity)['sector_cluster'],
-            ),
-        )
-        for investment_opportunity in data
-    )
+    def get_table_data():
+        for investment_opportunity in data:
+
+            json_data = json.loads(investment_opportunity)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['id'],
+                        json_data['opportunity_title'],
+                        json_data['description'],
+                        json_data['nomination_round'],
+                        json_data['launched'],
+                        json_data['opportunity_type'],
+                        json_data['location'],
+                        json_data['sub_sector'],
+                        json_data['levelling_up'],
+                        json_data['net_zero'],
+                        json_data['science_technology_superpower'],
+                        json_data['sector_cluster'],
+                    ),
+                )
+            )
 
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 
