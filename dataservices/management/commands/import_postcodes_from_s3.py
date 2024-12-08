@@ -31,32 +31,37 @@ def map_eer_to_european_reqion(eer_code: str) -> str:
 
 
 def get_postcode_table_batch(data, data_table):
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(postcode)['id'],
+
+    def get_table_data():
+        for postcode in data:
+            json_data = json.loads(postcode)
+
+            yield (
                 (
-                    json.loads(postcode)['pcd'].replace(' ', '')
-                    if json.loads(postcode)['pcd']
-                    else json.loads(postcode)['pcd']
-                ),
-                (
-                    json.loads(postcode)['region_name'].strip()
-                    if json.loads(postcode)['region_name']
-                    else json.loads(postcode)['region_name']
-                ),
-                map_eer_to_european_reqion(json.loads(postcode)['eer']),
-                datetime.now(),
-                datetime.now(),
-            ),
-        )
-        for postcode in data
-    )
+                    data_table,
+                    (
+                        json_data['id'],
+                        (
+                            json_data['pcd'].replace(' ', '')
+                            if json_data['pcd']
+                            else json_data['pcd']
+                        ),
+                        (
+                            json_data['region_name'].strip()
+                            if json_data['region_name']
+                            else json_data['region_name']
+                        ),
+                        map_eer_to_european_reqion(json_data['eer']),
+                        datetime.now(),
+                        datetime.now(),
+                    ),
+                ) 
+            )
+
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 
