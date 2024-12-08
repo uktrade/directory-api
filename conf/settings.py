@@ -613,3 +613,6 @@ INVESTMENT_OPPORTUNITIES_S3_PREFIX = env.investment_opportunities_s3_prefix
 EYB_SALARY_S3_PREFIX = env.eyb_salary_s3_prefix
 EYB_RENT_S3_PREFIX = env.eyb_rent_s3_prefix
 POSTCODE_FROM_S3_PREFIX = env.postcode_from_s3_prefix
+NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX = env.nomis_uk_business_employee_counts_from_s3_prefix
+SIC_CODES_DIT_SECTOR_MAPPING = env.sic_codes_dit_sector_mapping
+ 
