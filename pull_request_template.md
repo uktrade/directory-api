@@ -1,5 +1,7 @@
-(Please add a sentence or two explaining the context of this PR. Reviewers can go to the ticket for detail.)
-CONTEXT: This changeset adds/removes/updates [summary of feature/area/code] so that [summary of benefit].
+## What
+<What is this PR doing, e.g. implementations, algorithms, etc.?>
+## Why
+<Why is this change happening, e.g. goals, use cases, stories, etc.?>
 
 _Tick or delete as appropriate:_
 
