@@ -4,7 +4,6 @@ from datetime import date, datetime
 from itertools import cycle, islice
 from unittest import mock
 
-import numpy as np
 import pandas as pd
 import pytest
 import sqlalchemy
