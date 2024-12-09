@@ -41,16 +41,8 @@ def get_postcode_table_batch(data, data_table):
                     data_table,
                     (
                         json_data['id'],
-                        (
-                            json_data['pcd'].replace(' ', '')
-                            if json_data['pcd']
-                            else json_data['pcd']
-                        ),
-                        (
-                            json_data['region_name'].strip()
-                            if json_data['region_name']
-                            else json_data['region_name']
-                        ),
+                        (json_data['pcd'].replace(' ', '') if json_data['pcd'] else json_data['pcd']),
+                        (json_data['region_name'].strip() if json_data['region_name'] else json_data['region_name']),
                         map_eer_to_european_reqion(json_data['eer']),
                         datetime.now(),
                         datetime.now(),
