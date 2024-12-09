@@ -2,13 +2,14 @@ import logging
 
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, weak=False)
+@receiver(post_delete, weak=False)
 def clear_the_cache(**kwargs):
     '''
     We have implemented Django caching middleware. By default, this caches all GET requests.
