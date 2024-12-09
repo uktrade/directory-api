@@ -10,30 +10,42 @@ from dataservices.management.commands.helpers import ingest_data
 
 
 def get_uk_business_employee_counts_batch(data, data_table):
-    
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(uk_business_employee_count)['geo_description'],
-                json.loads(uk_business_employee_count)['geo_code'],
-                json.loads(uk_business_employee_count)['sic_code'],
-                json.loads(uk_business_employee_count)['sic_description'],
-                json.loads(uk_business_employee_count)['total_business_count'],
-                json.loads(uk_business_employee_count)['business_count_release_year'],
-                # missing employee data represented as np.nan which results in error saving django model
-                # columns are int in dataframe so cannot store None resulting in below conditional assignment
-                json.loads(uk_business_employee_count)['total_employee_count'] if json.loads(uk_business_employee_count)['total_employee_count'] and json.loads(uk_business_employee_count)['total_employee_count'] > 0 else None,
-                json.loads(uk_business_employee_count)['employee_count_release_year'] if json.loads(uk_business_employee_count)['employee_count_release_year'] and json.loads(uk_business_employee_count)['employee_count_release_year'] > 0 else None, 
-            ),
-        )
-        for uk_business_employee_count in data
-    )
+
+    def get_table_data():
+
+        for uk_business_employee_count in data:
+            json_data = json.loads(uk_business_employee_count)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['geo_description'],
+                        json_data['geo_code'],
+                        json_data['sic_code'],
+                        json_data['sic_description'],
+                        json_data['total_business_count'],
+                        json_data['business_count_release_year'],
+                        # missing employee data represented as np.nan which results in error saving django model
+                        # columns are int in dataframe so cannot store None resulting in below conditional assignment
+                        (
+                            json_data['total_employee_count']
+                            if json_data['total_employee_count'] and json_data['total_employee_count'] > 0
+                            else None
+                        ),
+                        (
+                            json_data['employee_count_release_year']
+                            if json_data['employee_count_release_year'] and json_data['employee_count_release_year'] > 0
+                            else None
+                        ),
+                    ),
+                )
+            )
 
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 
@@ -55,23 +67,29 @@ def get_uk_business_employee_counts_postgres_table(metadata, table_name):
 
 
 def get_sic_codes_dit_sector_mapping_batch(data, data_table):
-    
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(sic_codes_dit_sector_mapping)['dbt_full_sector_name'],
-                json.loads(sic_codes_dit_sector_mapping)['dbt_sector_name'],
-                json.loads(sic_codes_dit_sector_mapping)['sic_code'],
-            ),
-        )
-        for sic_codes_dit_sector_mapping in data
-    )
+
+    def get_table_data():
+
+        for sic_codes_dit_sector_mapping in data:
+            breakpoint()
+
+            json_data = json.loads(sic_codes_dit_sector_mapping)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['dbt_full_sector_name'],
+                        json_data['dbt_sector_name'],
+                        json_data['sic_code'],
+                    ),
+                )
+            )
 
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 
@@ -88,6 +106,10 @@ def get_sic_codes_dit_sector_mapping_postgres_table(metadata, table_name):
 
 
 def save_uk_business_employee_counts_data(data):
+    pass
+
+
+def save_uk_business_employee_counts_tmp_data(data):
 
     table_name = 'dataservices_tmp_eybbusinessclusterinformation'
 
@@ -168,11 +190,23 @@ def get_data():
     for chunk in chunks:
         for _, row in chunk.iterrows():
             data.append(
-
+                (
+                    row.geo_description,
+                    row.geo_code,
+                    row.sic_code,
+                    row.sic_description,
+                    row.total_business_count,
+                    row.business_count_release_year,
+                    # missing employee data represented as np.nan which results in error saving django model
+                    # columns are int in dataframe so cannot store None resulting in below conditional assignment
+                    row.total_employee_count if row.total_employee_count > 0 else None,
+                    row.employee_count_release_year if row.employee_count_release_year > 0 else None,
+                    row.dbt_full_sector_name,
+                    row.dbt_sector_name,
+                )
             )
 
     return data
-
 
 
 class Command(BaseCommand, S3DownloadMixin):
@@ -182,19 +216,19 @@ class Command(BaseCommand, S3DownloadMixin):
     def handle(self, *args, **options):
         self.do_handle(
             prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
-            save_func=save_uk_business_employee_counts_data,
+            save_func=save_uk_business_employee_counts_tmp_data,
         )
         self.do_handle(
             prefix=settings.SIC_CODES_DIT_SECTOR_MAPPING,
             save_func=save_sic_codes_dit_sector_mapping_data,
         )
         data = get_data()
+        save_uk_business_employee_counts_data(data)
 
         table_name = 'dataservices_tmp_eybbusinessclusterinformation'
         delete_temp_table(table_name)
         table_name = 'dataservices_tmp_sic_codes_dit_sector_mapping'
         delete_temp_table(table_name)
-
 
 
 # class Command(BaseDataWorkspaceIngestionCommand):

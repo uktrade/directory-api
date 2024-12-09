@@ -45,7 +45,7 @@ def get_dbtsector_table_batch(data, data_table):
                     ),
                 )
             )
-    
+
     return (
         None,
         None,

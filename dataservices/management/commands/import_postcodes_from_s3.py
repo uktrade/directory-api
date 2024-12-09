@@ -55,7 +55,7 @@ def get_postcode_table_batch(data, data_table):
                         datetime.now(),
                         datetime.now(),
                     ),
-                ) 
+                )
             )
 
     return (

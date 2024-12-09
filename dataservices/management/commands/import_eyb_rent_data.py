@@ -14,35 +14,34 @@ def get_eyb_rent_batch(data, data_table):
 
         for eyb_rent in data:
             json_data = json.loads(eyb_rent)
-        
+
             yield (
                 (
                     data_table,
-                (
-                    json_data['id'],
-                    json_data['region'].strip(),
-                    json_data['vertical'].strip(),
-                    json_data['sub_vertical'].strip(),
                     (
-                        json_data['gbp_per_square_foot_per_month']
-                        if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
-                        else None
+                        json_data['id'],
+                        json_data['region'].strip(),
+                        json_data['vertical'].strip(),
+                        json_data['sub_vertical'].strip(),
+                        (
+                            json_data['gbp_per_square_foot_per_month']
+                            if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
+                            else None
+                        ),
+                        (
+                            json_data['square_feet']
+                            if json_data['square_feet'] and json_data['square_feet'] > 0
+                            else None
+                        ),
+                        (
+                            json_data['gbp_per_month']
+                            if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
+                            else None
+                        ),
+                        json_data['release_year'],
                     ),
-                    (
-                        json_data['square_feet']
-                        if json_data['square_feet'] and json_data['square_feet'] > 0
-                        else None
-                    ),
-                    (
-                        json_data['gbp_per_month']
-                        if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
-                        else None
-                    ),
-                    json_data['release_year'],
-                ),
+                )
             )
-            )
-    
 
     return (
         None,
