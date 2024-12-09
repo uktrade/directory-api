@@ -57,3 +57,52 @@ def test_run_comtrade_data_ingest(mock_call_command):
     period = '2023'
     tasks.run_comtrade_data_ingest(period)
     assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_countries_territories_regions_dw(mock_call_command):
+    tasks.run_import_countries_territories_regions_dw()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_dbt_investment_opportunities(mock_call_command):
+    tasks.run_import_dbt_investment_opportunities()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_dbt_sectors(mock_call_command):
+    tasks.run_import_dbt_sectors()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_eyb_business_cluster_information(mock_call_command):
+    tasks.run_import_eyb_business_cluster_information()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_eyb_rent_data(mock_call_command):
+    tasks.run_import_eyb_rent_data()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_eyb_salary_data(mock_call_command):
+    tasks.run_import_eyb_salary_data()
+    assert mock_call_command.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch('dataservices.tasks.call_command')
+def test_run_import_sectors_gva_value_bands(mock_call_command):
+    tasks.run_import_sectors_gva_value_bands()
+    assert mock_call_command.call_count == 1
