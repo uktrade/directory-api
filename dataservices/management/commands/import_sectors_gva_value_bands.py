@@ -29,30 +29,33 @@ def get_sectors_gva_value_bands_table(metadata):
 
 def get_sectors_gva_value_bands_batch(data, data_table):
 
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(sectors_gva_value_bands)['id'],
-                json.loads(sectors_gva_value_bands)['full_sector_name'],
-                json.loads(sectors_gva_value_bands)['value_band_a_minimum'],
-                json.loads(sectors_gva_value_bands)['value_band_b_minimum'],
-                json.loads(sectors_gva_value_bands)['value_band_c_minimum'],
-                json.loads(sectors_gva_value_bands)['value_band_d_minimum'],
-                json.loads(sectors_gva_value_bands)['value_band_e_minimum'],
-                json.loads(sectors_gva_value_bands)['start_date'],
-                json.loads(sectors_gva_value_bands)['end_date'],
-                json.loads(sectors_gva_value_bands)['sector_classification_value_band'],
-                json.loads(sectors_gva_value_bands)['sector_classification_gva_multiplier'],
-            ),
-        )
-        for sectors_gva_value_bands in data
-    )
+    def get_table_data():
+        for sectors_gva_value_band in data:
+            json_data = json.loads(sectors_gva_value_band)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['id'],
+                        json_data['full_sector_name'],
+                        json_data['value_band_a_minimum'],
+                        json_data['value_band_b_minimum'],
+                        json_data['value_band_c_minimum'],
+                        json_data['value_band_d_minimum'],
+                        json_data['value_band_e_minimum'],
+                        json_data['start_date'],
+                        json_data['end_date'],
+                        json_data['sector_classification_value_band'],
+                        json_data['sector_classification_gva_multiplier'],
+                    ),
+                )
+            )
 
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 

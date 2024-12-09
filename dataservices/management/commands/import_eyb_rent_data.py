@@ -9,39 +9,44 @@ from dataservices.management.commands.helpers import ingest_data
 
 
 def get_eyb_rent_batch(data, data_table):
-    table_data = (
-        (
-            data_table,
-            (
-                json.loads(eyb_rent)['id'],
-                json.loads(eyb_rent)['region'].strip(),
-                json.loads(eyb_rent)['vertical'].strip(),
-                json.loads(eyb_rent)['sub_vertical'].strip(),
+
+    def get_table_data():
+
+        for eyb_rent in data:
+            json_data = json.loads(eyb_rent)
+
+            yield (
                 (
-                    json.loads(eyb_rent)['gbp_per_square_foot_per_month']
-                    if json.loads(eyb_rent)['gbp_per_month'] and json.loads(eyb_rent)['gbp_per_month'] > 0
-                    else None
-                ),
-                (
-                    json.loads(eyb_rent)['square_feet']
-                    if json.loads(eyb_rent)['square_feet'] and json.loads(eyb_rent)['square_feet'] > 0
-                    else None
-                ),
-                (
-                    json.loads(eyb_rent)['gbp_per_month']
-                    if json.loads(eyb_rent)['gbp_per_month'] and json.loads(eyb_rent)['gbp_per_month'] > 0
-                    else None
-                ),
-                json.loads(eyb_rent)['release_year'],
-            ),
-        )
-        for eyb_rent in data
-    )
+                    data_table,
+                    (
+                        json_data['id'],
+                        json_data['region'].strip(),
+                        json_data['vertical'].strip(),
+                        json_data['sub_vertical'].strip(),
+                        (
+                            json_data['gbp_per_square_foot_per_month']
+                            if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
+                            else None
+                        ),
+                        (
+                            json_data['square_feet']
+                            if json_data['square_feet'] and json_data['square_feet'] > 0
+                            else None
+                        ),
+                        (
+                            json_data['gbp_per_month']
+                            if json_data['gbp_per_month'] and json_data['gbp_per_month'] > 0
+                            else None
+                        ),
+                        json_data['release_year'],
+                    ),
+                )
+            )
 
     return (
         None,
         None,
-        table_data,
+        get_table_data(),
     )
 
 
