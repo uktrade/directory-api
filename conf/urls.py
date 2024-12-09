@@ -12,7 +12,6 @@ import buyer.views
 import company.views
 import dataservices.views
 import enrolment.views
-import exporting.views
 import exportplan.views
 import notifications.views
 import personalisation.views
@@ -186,11 +185,6 @@ urlpatterns = [
         r'^investment-support-directory/search/$',
         company.views.InvestmentSupportDirectorySearchAPIView.as_view(),
         name='investment-support-directory-search',
-    ),
-    re_path(
-        r'exporting/offices/(?P<postcode>.*)/$',
-        exporting.views.RetrieveOfficesByPostCode.as_view(),
-        name='offices-by-postcode',
     ),
     re_path(r'^personalisation/events/', personalisation.views.EventsView.as_view(), name='personalisation-events'),
     re_path(
