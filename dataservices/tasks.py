@@ -39,3 +39,38 @@ def run_comtrade_data_ingest(period):
 @app.task()
 def run_postcode_data_ingest():
     call_command('import_postcodes_from_s3')
+
+
+@app.task()
+def run_import_countries_territories_regions_dw():
+    call_command('import_countries_territories_regions_dw', '--write')
+
+
+@app.task()
+def run_import_dbt_investment_opportunities():
+    call_command('import_dbt_investment_opportunities')
+
+
+@app.task()
+def run_import_dbt_sectors():
+    call_command('import_dbt_sectors')
+
+
+@app.task()
+def run_import_eyb_business_cluster_information():
+    call_command('import_eyb_business_cluster_information', '--write')
+
+
+@app.task()
+def run_import_eyb_rent_data():
+    call_command('import_eyb_rent_data')
+
+
+@app.task()
+def run_import_eyb_salary_data():
+    call_command('import_eyb_salary_data')
+
+
+@app.task()
+def run_import_sectors_gva_value_bands():
+    call_command('import_sectors_gva_value_bands')
