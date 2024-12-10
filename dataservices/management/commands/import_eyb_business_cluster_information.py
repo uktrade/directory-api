@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pandas as pd
 import sqlalchemy as sa
@@ -8,6 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from dataservices.core.mixins import S3DownloadMixin
 from dataservices.management.commands.helpers import ingest_data
+
+logger = logging.getLogger(__name__)
 
 
 def get_uk_business_employee_counts_tmp_batch(data, data_table):
@@ -54,8 +57,7 @@ def get_uk_business_employee_counts_batch(data, data_table):
 
     def get_table_data():
 
-        for uk_business_employee_count in data:
-            json_data = json.loads(uk_business_employee_count)
+        for json_data in data:
 
             yield (
                 (
@@ -127,21 +129,22 @@ def get_uk_business_employee_counts_postgres_table(metadata, table_name):
     )
 
 
-def get_sic_codes_dit_sector_mapping_batch(data, data_table):
+def get_ref_sic_codes_mapping_batch(data, data_table):
 
     def get_table_data():
 
-        for sic_codes_dit_sector_mapping in data:
+        for ref_sic_codes_mapping in data:
 
-            json_data = json.loads(sic_codes_dit_sector_mapping)
+            json_data = json.loads(ref_sic_codes_mapping)
 
             yield (
                 (
                     data_table,
                     (
-                        json_data['dbt_full_sector_name'],
-                        json_data['dbt_sector_name'],
+                        json_data['id'],
                         json_data['sic_code'],
+                        json_data['mapping_id'],
+                        json_data['dit_sector_list_id'],
                     ),
                 )
             )
@@ -153,19 +156,59 @@ def get_sic_codes_dit_sector_mapping_batch(data, data_table):
     )
 
 
-def get_sic_codes_dit_sector_mapping_postgres_table(metadata, table_name):
+def get_sector_reference_dataset_batch(data, data_table):
+
+    def get_table_data():
+
+        for sector_reference_dataset in data:
+
+            json_data = json.loads(sector_reference_dataset)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['id'],
+                        json_data['field_04'],
+                        json_data['full_sector_name'],
+                    ),
+                )
+            )
+
+    return (
+        None,
+        None,
+        get_table_data(),
+    )
+
+
+def get_ref_sic_codes_mapping_postgres_table(metadata, table_name):
     return sa.Table(
         table_name,
         metadata,
-        sa.Column("dbt_full_sector_name", sa.TEXT, nullable=True),
-        sa.Column("dbt_sector_name", sa.TEXT, nullable=True),
+        sa.Column("id", sa.INTEGER, nullable=False),
         sa.Column("sic_code", sa.TEXT, nullable=False),
-        sa.Index(None, "sic_code"),
+        sa.Column("mapping_id", sa.TEXT, nullable=True),
+        sa.Column("dit_sector_list_id", sa.INTEGER, nullable=True),
+        sa.Index(None, "dit_sector_list_id"),
+        schema="public",
+    )
+
+
+def get_sector_reference_dataset_postgres_table(metadata, table_name):
+    return sa.Table(
+        table_name,
+        metadata,
+        sa.Column("id", sa.INTEGER, nullable=False),
+        sa.Column("field_04", sa.TEXT, nullable=True),
+        sa.Column("full_sector_name", sa.TEXT, nullable=True),
+        sa.Index(None, "id"),
         schema="public",
     )
 
 
 def save_uk_business_employee_counts_data():
+
     sql = """
         SELECT
             nubec.geo_description,
@@ -179,39 +222,42 @@ def save_uk_business_employee_counts_data():
             sector_mapping.dbt_full_sector_name,
             sector_mapping.dbt_sector_name
         FROM dataservices_tmp_eybbusinessclusterinformation nubec
-        LEFT JOIN (
+          LEFT JOIN (
             SELECT
-                scmds.dbt_full_sector_name,
-                scmds.bt_sector_name,
-                scmds.five_digit_sic
-            from dataservices_tmp_sic_codes_dit_sector_mapping scmds
-        ) AS sector_mapping
-        ON nubec.sic_code = sector_mapping.five_digit_sic
+                sectorref.full_sector_name as dbt_full_sector_name,
+                sectorref.field_04 as dbt_sector_name,
+                substring(((dataservices_tmp_ref_sic_codes_mapping.sic_code + 100000)::varchar) from 2 for 5) as five_digit_sic  # noqa:E501
+            from dataservices_tmp_sector_reference sectorref
+            INNER JOIN dataservices_tmp_ref_sic_codes_mapping ON dataservices_tmp_ref_sic_codes_mapping.dit_sector_list_id = dataservices_tmp_sector_reference.id
+          ) as sector_mapping
         WHERE nubec.geo_code <> 'K02000001'
+        ON nubec.sic_code = sector_mapping.five_digit_sic
     """
 
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
     data = []
 
-    chunks = pd.read_sql(sa.text(sql), engine, chunksize=5000)
+    breakpoint()
+    with engine.connect() as connection:
+        chunks = pd.read_sql_query(sa.text(sql), connection, chunksize=5000)
 
-    for chunk in chunks:
-        for _, row in chunk.iterrows():
-            data.append(
-                (
-                    row.geo_description,
-                    row.geo_code,
-                    row.sic_code,
-                    row.sic_description,
-                    row.total_business_count,
-                    row.business_count_release_year,
-                    row.total_employee_count,
-                    row.employee_count_release_year,
-                    row.dbt_full_sector_name,
-                    row.dbt_sector_name,
+        for chunk in chunks:
+            for _, row in chunk.iterrows():
+                data.append(
+                    {
+                        'geo_description': row.geo_description,
+                        'geo_code': row.geo_code,
+                        'sic_code': row.sic_code,
+                        'sic_description': row.sic_description,
+                        'total_business_count': row.total_business_count,
+                        'business_count_release_year': row.business_count_release_year,
+                        'total_employee_count': row.total_employee_count,
+                        'employee_count_release_year': row.employee_count_release_year,
+                        'dbt_full_sector_name': row.dbt_full_sector_name,
+                        'dbt_sector_name': row.dbt_sector_name,
+                    }
                 )
-            )
 
     metadata = sa.MetaData()
 
@@ -245,21 +291,40 @@ def save_uk_business_employee_counts_tmp_data(data):
     ingest_data(engine, metadata, on_before_visible, batches)
 
 
-def save_sic_codes_dit_sector_mapping_tmp_data(data):
+def save_ref_sic_codes_mapping_tmp_data(data):
 
-    table_name = 'dataservices_tmp_sic_codes_dit_sector_mapping'
+    table_name = 'dataservices_tmp_ref_sic_codes_mapping'
 
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
     metadata = sa.MetaData()
 
-    data_table = get_sic_codes_dit_sector_mapping_postgres_table(metadata, table_name)
+    data_table = get_ref_sic_codes_mapping_postgres_table(metadata, table_name)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
 
     def batches(_):
-        yield get_sic_codes_dit_sector_mapping_batch(data, data_table)
+        yield get_ref_sic_codes_mapping_batch(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
+
+
+def save_sector_reference_dataset_tmp_data(data):
+
+    table_name = 'dataservices_tmp_sector_reference'
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+    metadata = sa.MetaData()
+
+    data_table = get_sector_reference_dataset_postgres_table(metadata, table_name)
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield get_sector_reference_dataset_batch(data, data_table)
 
     ingest_data(engine, metadata, on_before_visible, batches)
 
@@ -270,7 +335,7 @@ def delete_temp_tables(table_names):
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
     metadata.reflect(bind=engine)
     for name in table_names:
-        table = metadata.tables[name]
+        table = metadata.tables.get(name, None)
         if table is not None:
             Base.metadata.drop_all(engine, [table], checkfirst=True)
 
@@ -286,58 +351,25 @@ class Command(BaseCommand, S3DownloadMixin):
                 prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
                 save_func=save_uk_business_employee_counts_tmp_data,
             )
-            sic_code_data = self.load_sic_code_data()
-            save_sic_codes_dit_sector_mapping_tmp_data(sic_code_data)
+            self.do_handle(
+                prefix=settings.REF_SIC_CODES_MAPPING_FROM_S3_PREFIX,
+                save_func=save_ref_sic_codes_mapping_tmp_data,
+            )
+            self.do_handle(
+                prefix=settings.SECTOR_REFERENCE_DATASET_FROM_S3_PREFIX,
+                save_func=save_sector_reference_dataset_tmp_data,
+            )
             save_uk_business_employee_counts_data()
         except Exception:
-            pass
+            logger.exception("import_eyb_business_cluster_information failed to ingest data from s3")
         finally:
             delete_temp_tables(
                 [
                     'dataservices_tmp_eybbusinessclusterinformation',
-                    'dataservices_tmp_sic_codes_dit_sector_mapping',
+                    'dataservices_tmp_ref_sic_codes_mapping',
+                    'dataservices_tmp_sector_reference',
                 ]
             )
-
-    def load_sic_code_data(self):
-        sql = '''
-            SELECT
-                scmds."DIT full sector name" as dbt_full_sector_name,
-                scmds."DIT sector" as dbt_sector_name,
-                -- necessary because sic codes are stored as integer in source table meaning leading 0 was dropped
-                substring(((scmds."SIC code" + 100000)::varchar) from 2 for 5) as five_digit_sic
-            from public.ref_sic_codes_dit_sector_mapping scmds
-        '''
-
-        data = []
-        engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
-        s = "SELECT"
-        s += " table_schema"
-        s += ", table_name"
-        s += " FROM information_schema.tables"
-        s += " WHERE"
-        s += " ("
-        s += " table_schema = '"+SCHEMA+"'"
-        s += " AND table_type = 'BASE TABLE'"
-        s += " )"
-        s += " ORDER BY table_schema, table_name;"
-        cursor.execute(s)
-        list_tables = cursor.fetchall()
-        chunks = pd.read_sql(sa.text(sql), engine, chunksize=5000)
-
-        for chunk in chunks:
-            for _, row in chunk.iterrows():
-                data.append(
-                    (
-                        row.dbt_full_sector_name,
-                        row.dbt_sector_name,
-                        row.five_digit_sic,
-                    )
-                )
-
-        return data
 
 
 # class Command(BaseDataWorkspaceIngestionCommand):
