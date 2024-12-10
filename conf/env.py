@@ -219,7 +219,6 @@ class BaseSettings(PydanticBaseSettings):
     eyb_rent_s3_prefix: str = ''
     postcode_from_s3_prefix: str = ''
     nomis_uk_business_employee_counts_from_s3_prefix: str = ''
-    sic_codes_dit_sector_mapping: str = ''
 
 
 class CIEnvironment(BaseSettings):
