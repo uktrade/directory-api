@@ -280,20 +280,24 @@ class Command(BaseCommand, S3DownloadMixin):
     help = 'Import ONS total UK business and employee counts per region and section, 2 and 5 digit Standard Industrial Classification'  # noqa:E501
 
     def handle(self, *args, **options):
-        self.do_handle(
-            prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
-            save_func=save_uk_business_employee_counts_tmp_data,
-        )
-        sic_code_data = self.load_sic_code_data()
-        save_sic_codes_dit_sector_mapping_tmp_data(sic_code_data)
-        save_uk_business_employee_counts_data()
 
-        delete_temp_tables(
-            [
-                'dataservices_tmp_eybbusinessclusterinformation',
-                'dataservices_tmp_sic_codes_dit_sector_mapping',
-            ]
-        )
+        try:
+            self.do_handle(
+                prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
+                save_func=save_uk_business_employee_counts_tmp_data,
+            )
+            sic_code_data = self.load_sic_code_data()
+            save_sic_codes_dit_sector_mapping_tmp_data(sic_code_data)
+            save_uk_business_employee_counts_data()
+        except Exception:
+            pass
+        finally:
+            delete_temp_tables(
+                [
+                    'dataservices_tmp_eybbusinessclusterinformation',
+                    'dataservices_tmp_sic_codes_dit_sector_mapping',
+                ]
+            )
 
     def load_sic_code_data(self):
         sql = """
