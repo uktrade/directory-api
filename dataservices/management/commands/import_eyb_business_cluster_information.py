@@ -300,17 +300,31 @@ class Command(BaseCommand, S3DownloadMixin):
             )
 
     def load_sic_code_data(self):
-        sql = """
+        sql = '''
             SELECT
                 scmds."DIT full sector name" as dbt_full_sector_name,
                 scmds."DIT sector" as dbt_sector_name,
                 -- necessary because sic codes are stored as integer in source table meaning leading 0 was dropped
                 substring(((scmds."SIC code" + 100000)::varchar) from 2 for 5) as five_digit_sic
             from public.ref_sic_codes_dit_sector_mapping scmds
-        """
+        '''
 
         data = []
         engine = sa.create_engine(settings.DATA_WORKSPACE_DATASETS_URL, execution_options={'stream_results': True})
+        connection = engine.raw_connection()
+        cursor = connection.cursor()
+        s = "SELECT"
+        s += " table_schema"
+        s += ", table_name"
+        s += " FROM information_schema.tables"
+        s += " WHERE"
+        s += " ("
+        s += " table_schema = '"+SCHEMA+"'"
+        s += " AND table_type = 'BASE TABLE'"
+        s += " )"
+        s += " ORDER BY table_schema, table_name;"
+        cursor.execute(s)
+        list_tables = cursor.fetchall()
         chunks = pd.read_sql(sa.text(sql), engine, chunksize=5000)
 
         for chunk in chunks:
