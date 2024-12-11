@@ -1,9 +1,10 @@
 import io
 import zlib
-
+import sqlalchemy as sa
 import boto3
 from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
+from sqlalchemy.ext.declarative import declarative_base
 
 
 def unzip_s3_gzip_file(file_body, max_bytes):
@@ -51,6 +52,16 @@ def get_s3_file(key):
 
 
 class S3DownloadMixin:
+
+    def delete_temp_tables(self, table_names):
+        Base = declarative_base()
+        metadata = sa.MetaData()
+        engine = sa.create_engine(settings.DATABASE_URL, future=True)
+        metadata.reflect(bind=engine)
+        for name in table_names:
+            table = metadata.tables.get(name, None)
+            if table is not None:
+                Base.metadata.drop_all(engine, [table], checkfirst=True)
 
     def do_handle(self, prefix, save_func):
         """
