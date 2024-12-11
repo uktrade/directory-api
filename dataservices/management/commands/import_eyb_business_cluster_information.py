@@ -144,9 +144,7 @@ def get_ref_sic_codes_mapping_batch(data, data_table):
                 (
                     data_table,
                     (
-                        json_data['id'],
                         json_data['sic_code'],
-                        json_data['mapping_id'],
                         json_data['dit_sector_list_id'],
                     ),
                 )
@@ -189,9 +187,7 @@ def get_ref_sic_codes_mapping_postgres_table(metadata, table_name):
     return sa.Table(
         table_name,
         metadata,
-        sa.Column("id", sa.INTEGER, nullable=False),
         sa.Column("sic_code", sa.INTEGER, nullable=False),
-        sa.Column("mapping_id", sa.TEXT, nullable=True),
         sa.Column("dit_sector_list_id", sa.INTEGER, nullable=True),
         sa.Index(None, "dit_sector_list_id"),
         schema="public",
