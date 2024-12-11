@@ -9,6 +9,15 @@ from import_export import resources
 from dataservices import models
 
 
+@admin.register(models.ComtradeReport)
+class ComtradeReportAdmin(admin.ModelAdmin):
+    formfield_overrides = {TextField: {'widget': forms.TextInput}}
+
+    search_fields = ('year', 'classification', 'country_iso3', 'commodity_code', 'trade_value')
+
+    list_display = ('year', 'classification', 'country_iso3', 'commodity_code', 'trade_value')
+
+
 class CorruptionPerceptionsIndexResource(resources.ModelResource):
     class Meta:
         model = models.CorruptionPerceptionsIndex
