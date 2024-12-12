@@ -5,16 +5,15 @@ import pandas as pd
 import sqlalchemy as sa
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from sqlalchemy.ext.declarative import declarative_base
 
 from dataservices.core.mixins import S3DownloadMixin
+from dataservices.models import Country
 from dataservices.management.commands.helpers import ingest_data
-from dataservices.models import Country, UKTradeInGoodsByCountry
 
 logger = logging.getLogger(__name__)
 
 
-def get_uk_trade_in_goods_batch(data, data_table):
+def get_uk_trade_in_goods_tmp_batch(data, data_table):
 
     def get_table_data():
 
@@ -52,8 +51,8 @@ def get_uk_trade_in_goods_batch(data, data_table):
             ):
                 continue
 
-            imports = 0.0
-            exports = 0.0
+            imports = None
+            exports = None
 
             if json_data['direction'] == 'imports':
                 imports = json_data['value']
@@ -81,7 +80,7 @@ def get_uk_trade_in_goods_batch(data, data_table):
     )
 
 
-def get_uk_trade_in_goods_postgres_table(metadata):
+def get_uk_trade_in_goods_tmp_postgres_table(metadata):
     return sa.Table(
         "dataservices_tmp_uktradeingoodsbycountry",
         metadata,
@@ -95,40 +94,131 @@ def get_uk_trade_in_goods_postgres_table(metadata):
     )
 
 
+def get_uk_trade_in_goods_postgres_table(metadata):
+    return sa.Table(
+        "dataservices_uktradeingoodsbycountry",
+        metadata,
+        sa.Column("country_id", sa.INTEGER, nullable=False),
+        sa.Column("year", sa.INTEGER, nullable=False),
+        sa.Column("quarter", sa.SMALLINT, nullable=False),
+        sa.Column("commodity_code", sa.TEXT, nullable=True),
+        sa.Column("commodity_name", sa.TEXT, nullable=False),
+        sa.Column("imports", sa.DECIMAL, nullable=True),
+        sa.Column("exports", sa.DECIMAL, nullable=True),
+        schema="public",
+    )
+
+
+def get_uk_trade_in_goods_batch(data, data_table):
+
+    def get_table_data():
+
+        for uk_trade_in_goods in data:
+            json_data = json.loads(uk_trade_in_goods)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['country_id'],
+                        json_data['year'],
+                        json_data['quarter'],
+                        json_data['commodity_code'],
+                        json_data['commodity_name'],
+                        json_data['imports'],
+                        json_data['exports'],
+                    ),
+                )
+            )
+
+    return (
+        None,
+        None,
+        get_table_data(),
+    )
+
+
 def save_uk_trade_in_goods_tmp_data(data):
 
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
     metadata = sa.MetaData()
 
-    data_table = get_uk_trade_in_goods_postgres_table(metadata)
+    data_table = get_uk_trade_in_goods_tmp_postgres_table(metadata)
 
     def on_before_visible(conn, ingest_table, batch_metadata):
         pass
 
     def batches(_):
-        yield get_uk_trade_in_goods_batch(data, data_table)
+        yield get_uk_trade_in_goods_tmp_batch(data, data_table)
 
     ingest_data(engine, metadata, on_before_visible, batches)
 
 
 def save_uk_trade_in_goods_data():
-    pass
+
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+    data = []
+
+    sql = '''
+        SELECT
+            ons_iso_alpha_2_code AS iso2,
+            period,
+            product_code AS commodity_code,
+            product_name AS commodity_name,
+            sum(imports) AS imports,
+            sum(exports) AS exports
+        FROM public.dataservices_tmp_uktradeingoodsbycountry
+        GROUP BY
+            iso2,
+            period,
+            commodity_code,
+            commodity_name;
+    '''
+
+    with engine.connect() as connection:
+        chunks = pd.read_sql_query(sa.text(sql), connection, chunksize=10000)
+
+        for chunk in chunks:
+            for _, row in chunk.iterrows():
+                for _, row in chunk.iterrows():
+                    try:
+                        country = Country.objects.get(iso2=row.iso2)
+                    except Country.DoesNotExist:
+                        continue
+
+                    year, quarter = row.period.replace('quarter/', '').split('-Q')
+                    imports = None if row.imports != row.imports else row.imports
+                    exports = None if row.exports != row.exports else row.exports
+
+                    data.append(
+                        {
+                            'country_id': country.id,
+                            'year': year,
+                            'quarter': quarter,
+                            'commodity_code': row.commodity_code,
+                            'commodity_name': row.commodity_name,
+                            'imports': imports,
+                            'exports': exports,
+                        }
+                    )
+
+    metadata = sa.MetaData()
+
+    data_table = get_uk_trade_in_goods_postgres_table(metadata, 'dataservices_eybbusinessclusterinformation')
+
+    def on_before_visible(conn, ingest_table, batch_metadata):
+        pass
+
+    def batches(_):
+        yield save_uk_trade_in_goods_data(data, data_table)
+
+    ingest_data(engine, metadata, on_before_visible, batches)
 
 
 class Command(BaseCommand, S3DownloadMixin):
 
     help = help = 'Import ONS UK trade in goods data by country from s3'
-
-    def delete_temp_tables(self, table_names):
-        Base = declarative_base()
-        metadata = sa.MetaData()
-        engine = sa.create_engine(settings.DATABASE_URL, future=True)
-        metadata.reflect(bind=engine)
-        for name in table_names:
-            table = metadata.tables.get(name, None)
-            if table is not None:
-                Base.metadata.drop_all(engine, [table], checkfirst=True)
 
     def handle(self, *args, **options):
         try:
