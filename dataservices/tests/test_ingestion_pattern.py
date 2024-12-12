@@ -48,6 +48,20 @@ from dataservices.management.commands.import_sectors_gva_value_bands import (
     get_sectors_gva_value_bands_table,
     save_sectors_gva_value_bands_data,
 )
+from dataservices.management.commands.import_eyb_business_cluster_information import (
+    get_ref_sic_codes_mapping_batch,
+    get_ref_sic_codes_mapping_postgres_table,
+    get_sector_reference_dataset_batch,
+    get_sector_reference_dataset_postgres_table,
+    get_uk_business_employee_counts_batch,
+    get_uk_business_employee_counts_postgres_table,
+    get_uk_business_employee_counts_postgres_tmp_table,
+    get_uk_business_employee_counts_tmp_batch,
+    save_ref_sic_codes_mapping_data,
+    save_sector_reference_dataset_data,
+    save_uk_business_employee_counts_tmp_data,
+)
+
 
 dbsector_data = [
     {
@@ -253,6 +267,54 @@ def test_import_postcode_data_set_from_s3(
     assert mock_save_postcode_data.call_count == 1
 
 
+uk_business_employee_counts = [
+    {
+        "geo_code": "K02000002",
+        "sic_code": "01",
+        "geo_description": "United Kingdom",
+        "sic_description": "Crop and animal production, hunting and related service activities",
+        "total_business_count": 132540,
+        "total_employee_count": None,
+        "business_count_release_year": 2023,
+        "employee_count_release_year": None,
+        "dbt_full_sector_name": "Metallurgical process plant",
+        "dbt_sector_name": "Advanced engineering",
+    },
+]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("get_s3_file_data", [uk_business_employee_counts[0]], indirect=True)
+@mock.patch(
+    'dataservices.management.commands.import_eyb_business_cluster_information.save_uk_business_employee_counts_data'
+)  # noqa:E501
+@mock.patch(
+    'dataservices.management.commands.import_eyb_business_cluster_information.save_uk_business_employee_counts_tmp_data'
+)  # noqa:E501
+@mock.patch(
+    'dataservices.management.commands.import_eyb_business_cluster_information.save_ref_sic_codes_mapping_data'
+)  # noqa:E501
+@mock.patch(
+    'dataservices.management.commands.import_eyb_business_cluster_information.save_sector_reference_dataset_data'
+)  # noqa:E501
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+def test_import_eyb_business_cluster_information_from_s3(
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_save_sector_reference_dataset_data,
+    mock_save_ref_sic_codes_mapping_data,
+    mock_save_uk_business_employee_counts_tmp_data,
+    mock_save_uk_business_employee_counts_data,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    management.call_command('import_eyb_business_cluster_information')
+    assert mock_save_uk_business_employee_counts_data.call_count == 1
+
+
 @pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
@@ -354,6 +416,73 @@ def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
 def test_get_postcode_batch(postcode_data):
     metadata = sa.MetaData()
     ret = get_postcode_table_batch(postcode_data, get_postcode_postgres_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_get_uk_business_employee_counts_tmp(mock_connection, mock_ingest, uk_business_employee_counts_str_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_uk_business_employee_counts_tmp_data(data=uk_business_employee_counts_str_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_uk_business_employee_counts_tmp_batch(uk_business_employee_counts_str_data):
+    metadata = sa.MetaData()
+    ret = get_uk_business_employee_counts_tmp_batch(
+        uk_business_employee_counts_str_data,
+        get_uk_business_employee_counts_postgres_tmp_table(metadata, 'tmp_nomis_table'),
+    )
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+def test_get_uk_business_employee_counts_batch(uk_business_employee_counts_data):
+    metadata = sa.MetaData()
+    ret = get_uk_business_employee_counts_batch(
+        uk_business_employee_counts_data, get_uk_business_employee_counts_postgres_table(metadata, 'nomis_table')
+    )
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_ref_sic_codes_mapping(mock_connection, mock_ingest, ref_sic_codes_mapping_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_ref_sic_codes_mapping_data(data=ref_sic_codes_mapping_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_ref_sic_codes_mapping_batch(ref_sic_codes_mapping_data):
+    metadata = sa.MetaData()
+    ret = get_ref_sic_codes_mapping_batch(
+        ref_sic_codes_mapping_data, get_ref_sic_codes_mapping_postgres_table(metadata, 'tmp_sic+_codes_mapping_ref')
+    )
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_sector_reference_dataset(mock_connection, mock_ingest, sector_reference_dataset_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_sector_reference_dataset_data(data=sector_reference_dataset_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_sector_reference_datase_batch(sector_reference_dataset_data):
+    metadata = sa.MetaData()
+    ret = get_sector_reference_dataset_batch(
+        sector_reference_dataset_data, get_sector_reference_dataset_postgres_table(metadata, 'tmp_sector_ref')
+    )
     assert next(ret[2]) is not None
 
 

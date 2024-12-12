@@ -58,7 +58,7 @@ def run_import_dbt_sectors():
 
 @app.task()
 def run_import_eyb_business_cluster_information():
-    call_command('import_eyb_business_cluster_information', '--write')
+    call_command('import_eyb_business_cluster_information')
 
 
 @app.task()
