@@ -63,7 +63,6 @@ def get_uk_trade_in_goods_tmp_batch(data, data_table):
                 (
                     data_table,
                     (
-                        country_id,
                         json_data['ons_iso_alpha_2_code'],
                         json_data['period'],
                         json_data['product_code'],
