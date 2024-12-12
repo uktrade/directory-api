@@ -51,11 +51,6 @@ def get_uk_trade_in_goods_tmp_batch(data, data_table):
             ):
                 continue
 
-            try:
-                country_id = Country.objects.get(iso2=json_data['ons_iso_alpha_2_code']).id
-            except Country.DoesNotExist:
-                continue
-
             imports = None
             exports = None
 
