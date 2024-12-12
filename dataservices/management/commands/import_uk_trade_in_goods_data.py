@@ -88,8 +88,8 @@ def get_uk_trade_in_goods_tmp_postgres_table(metadata):
         sa.Column("period", sa.TEXT, nullable=False),
         sa.Column("product_code", sa.TEXT, nullable=True),
         sa.Column("product_name", sa.TEXT, nullable=False),
-        sa.Column("imports", sa.DECIMAL, nullable=True),
-        sa.Column("exports", sa.DECIMAL, nullable=True),
+        sa.Column("imports", sa.DECIMAL(10,2), nullable=True),
+        sa.Column("exports", sa.DECIMAL(10,2), nullable=True),
         schema="public",
     )
 
@@ -103,8 +103,8 @@ def get_uk_trade_in_goods_postgres_table(metadata):
         sa.Column("quarter", sa.SMALLINT, nullable=False),
         sa.Column("commodity_code", sa.TEXT, nullable=True),
         sa.Column("commodity_name", sa.TEXT, nullable=False),
-        sa.Column("imports", sa.DECIMAL, nullable=True),
-        sa.Column("exports", sa.DECIMAL, nullable=True),
+        sa.Column("imports", sa.DECIMAL(10,2), nullable=True),
+        sa.Column("exports", sa.DECIMAL(10,2), nullable=True),
         schema="public",
     )
 
@@ -182,7 +182,7 @@ def save_uk_trade_in_goods_data():
             for _, row in chunk.iterrows():
 
                 try:
-                    country = Country.objects.get(iso2=row.ons_iso_alpha_2_code)
+                    country = Country.objects.get(iso2=row.iso2)
                 except Country.DoesNotExist:
                     continue
 
@@ -198,6 +198,7 @@ def save_uk_trade_in_goods_data():
                         'commodity_name': row.commodity_name,
                         'imports': imports,
                         'exports': exports,
+                        'country_id': country.id,
                     }
                 )
 
@@ -210,8 +211,6 @@ def save_uk_trade_in_goods_data():
 
     def batches(_):
         yield save_uk_trade_in_goods_data(data, data_table)
-
-    breakpoint()
 
     ingest_data(engine, metadata, on_before_visible, batches)
 
