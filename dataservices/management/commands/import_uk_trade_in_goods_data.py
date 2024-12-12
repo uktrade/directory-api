@@ -7,8 +7,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.models import Country
 from dataservices.management.commands.helpers import ingest_data
+from dataservices.models import Country
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,11 @@ def get_uk_trade_in_goods_tmp_batch(data, data_table):
             ):
                 continue
 
+            try:
+                country_id = Country.objects.get(iso2=json_data['ons_iso_alpha_2_code']).id
+            except Country.DoesNotExist:
+                continue
+
             imports = None
             exports = None
 
@@ -63,6 +68,7 @@ def get_uk_trade_in_goods_tmp_batch(data, data_table):
                 (
                     data_table,
                     (
+                        country_id,
                         json_data['ons_iso_alpha_2_code'],
                         json_data['period'],
                         json_data['product_code'],
@@ -120,7 +126,6 @@ def get_uk_trade_in_goods_batch(data, data_table):
                 (
                     data_table,
                     (
-                        json_data['country_id'],
                         json_data['year'],
                         json_data['quarter'],
                         json_data['commodity_code'],
@@ -181,27 +186,26 @@ def save_uk_trade_in_goods_data():
 
         for chunk in chunks:
             for _, row in chunk.iterrows():
-                for _, row in chunk.iterrows():
-                    try:
-                        country = Country.objects.get(iso2=row.iso2)
-                    except Country.DoesNotExist:
-                        continue
 
-                    year, quarter = row.period.replace('quarter/', '').split('-Q')
-                    imports = None if row.imports != row.imports else row.imports
-                    exports = None if row.exports != row.exports else row.exports
+                try:
+                    country = Country.objects.get(iso2=row.ons_iso_alpha_2_code)
+                except Country.DoesNotExist:
+                    continue
 
-                    data.append(
-                        {
-                            'country_id': country.id,
-                            'year': year,
-                            'quarter': quarter,
-                            'commodity_code': row.commodity_code,
-                            'commodity_name': row.commodity_name,
-                            'imports': imports,
-                            'exports': exports,
-                        }
-                    )
+                year, quarter = row.period.replace('quarter/', '').split('-Q')
+                imports = None if row.imports != row.imports else row.imports
+                exports = None if row.exports != row.exports else row.exports
+
+                data.append(
+                    {
+                        'year': year,
+                        'quarter': quarter,
+                        'commodity_code': row.commodity_code,
+                        'commodity_name': row.commodity_name,
+                        'imports': imports,
+                        'exports': exports,
+                    }
+                )
 
     metadata = sa.MetaData()
 
@@ -212,6 +216,8 @@ def save_uk_trade_in_goods_data():
 
     def batches(_):
         yield save_uk_trade_in_goods_data(data, data_table)
+
+    breakpoint()
 
     ingest_data(engine, metadata, on_before_visible, batches)
 
