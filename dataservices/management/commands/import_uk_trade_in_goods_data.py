@@ -23,7 +23,7 @@ def get_uk_trade_in_goods_tmp_batch(data, data_table):
             if json_data['period_type'] != 'quarter':
                 continue
 
-            if json_data['period_type'] in (
+            if json_data['product_code'] in (
                 '0',
                 '1',
                 '2',
