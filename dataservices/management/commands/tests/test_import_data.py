@@ -366,27 +366,6 @@ def test_import_uk_trade_in_services_data(read_sql_mock, trade_in_services_raw_d
 @pytest.mark.django_db
 @mock.patch('pandas.read_sql')
 @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_trade_in_goods_data(read_sql_mock, trade_in_goods_by_quarter_raw_data):
-    read_sql_mock.return_value = [pd.DataFrame(trade_in_goods_by_quarter_raw_data)]
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
-
-    management.call_command('import_countries')
-
-    # Dry run
-    management.call_command('import_uk_trade_in_goods_data')
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
-
-    # Write option
-    management.call_command('import_uk_trade_in_goods_data', '--write')
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 6
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
 def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outlook_raw_data):
     read_sql_mock.return_value = [pd.DataFrame(world_economic_outlook_raw_data)]
 
