@@ -88,8 +88,8 @@ def get_uk_trade_in_goods_tmp_postgres_table(metadata):
         sa.Column("period", sa.TEXT, nullable=False),
         sa.Column("product_code", sa.TEXT, nullable=True),
         sa.Column("product_name", sa.TEXT, nullable=False),
-        sa.Column("imports", sa.DECIMAL(10,2), nullable=True),
-        sa.Column("exports", sa.DECIMAL(10,2), nullable=True),
+        sa.Column("imports", sa.DECIMAL(10, 2), nullable=True),
+        sa.Column("exports", sa.DECIMAL(10, 2), nullable=True),
         schema="public",
     )
 
@@ -103,8 +103,8 @@ def get_uk_trade_in_goods_postgres_table(metadata):
         sa.Column("quarter", sa.SMALLINT, nullable=False),
         sa.Column("commodity_code", sa.TEXT, nullable=True),
         sa.Column("commodity_name", sa.TEXT, nullable=False),
-        sa.Column("imports", sa.DECIMAL(10,2), nullable=True),
-        sa.Column("exports", sa.DECIMAL(10,2), nullable=True),
+        sa.Column("imports", sa.DECIMAL(10, 2), nullable=True),
+        sa.Column("exports", sa.DECIMAL(10, 2), nullable=True),
         schema="public",
     )
 
@@ -155,7 +155,7 @@ def save_uk_trade_in_goods_tmp_data(data):
 
 
 def save_uk_trade_in_goods_data():
-
+    breakpoint()
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
     data = []
 
@@ -202,6 +202,7 @@ def save_uk_trade_in_goods_data():
                     }
                 )
 
+    breakpoint()
     metadata = sa.MetaData()
 
     data_table = get_uk_trade_in_goods_postgres_table(metadata, 'dataservices_eybbusinessclusterinformation')
@@ -210,7 +211,7 @@ def save_uk_trade_in_goods_data():
         pass
 
     def batches(_):
-        yield save_uk_trade_in_goods_data(data, data_table)
+        yield get_uk_trade_in_goods_batch(data, data_table)
 
     ingest_data(engine, metadata, on_before_visible, batches)
 
