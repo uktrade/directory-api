@@ -155,7 +155,7 @@ def save_uk_trade_in_goods_tmp_data(data):
 
 
 def save_uk_trade_in_goods_data():
-    breakpoint()
+
     engine = sa.create_engine(settings.DATABASE_URL, future=True)
     data = []
 
@@ -202,7 +202,6 @@ def save_uk_trade_in_goods_data():
                     }
                 )
 
-    breakpoint()
     metadata = sa.MetaData()
 
     data_table = get_uk_trade_in_goods_postgres_table(metadata, 'dataservices_eybbusinessclusterinformation')

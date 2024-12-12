@@ -61,6 +61,13 @@ from dataservices.management.commands.import_eyb_business_cluster_information im
     save_sector_reference_dataset_data,
     save_uk_business_employee_counts_tmp_data,
 )
+from dataservices.management.commands.import_uk_trade_in_goods_data import (
+    get_uk_trade_in_goods_batch,
+    get_uk_trade_in_goods_tmp_postgres_table,
+    get_uk_trade_in_goods_tmp_batch,
+    get_uk_trade_in_goods_postgres_table,
+    save_uk_trade_in_goods_tmp_data,
+)
 
 
 dbsector_data = [
@@ -316,6 +323,26 @@ def test_import_eyb_business_cluster_information_from_s3(
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("get_s3_file_data", [uk_business_employee_counts[0]], indirect=True)
+@mock.patch(
+    'dataservices.management.commands.import_eyb_business_cluster_information.save_uk_business_employee_counts_data'
+)  # noqa:E501
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+def test_import_uk_trade_in_goods_data_from_s3(
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_save_uk_business_employee_counts_data,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    management.call_command('import_eyb_business_cluster_information')
+    assert mock_save_uk_business_employee_counts_data.call_count == 1
+
+
+@pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
 @mock.patch.object(Engine, 'connect')
@@ -449,6 +476,32 @@ def test_get_uk_business_employee_counts_batch(uk_business_employee_counts_data)
 
 
 @pytest.mark.django_db
+def test_get_uk_trade_in_goods_data_batch(uk_trade_in_goods_str_data):
+    metadata = sa.MetaData()
+    ret = get_uk_trade_in_goods_batch(uk_trade_in_goods_str_data, get_uk_trade_in_goods_postgres_table(metadata))
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+def test_get_uk_trade_in_goods_tmp_data_batch(uk_trade_in_goods_str_tmp_data):
+    metadata = sa.MetaData()
+    ret = get_uk_trade_in_goods_tmp_batch(
+        uk_trade_in_goods_str_tmp_data, get_uk_trade_in_goods_tmp_postgres_table(metadata)
+    )
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_uk_trade_in_goods_tmp_data(mock_connection, mock_ingest, uk_trade_in_goods_str_tmp_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    save_uk_trade_in_goods_tmp_data(data=uk_trade_in_goods_str_tmp_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
 @mock.patch.object(Engine, 'connect')
@@ -478,7 +531,7 @@ def test_save_sector_reference_dataset(mock_connection, mock_ingest, sector_refe
 
 
 @pytest.mark.django_db
-def test_get_sector_reference_datase_batch(sector_reference_dataset_data):
+def test_get_sector_reference_database_batch(sector_reference_dataset_data):
     metadata = sa.MetaData()
     ret = get_sector_reference_dataset_batch(
         sector_reference_dataset_data, get_sector_reference_dataset_postgres_table(metadata, 'tmp_sector_ref')

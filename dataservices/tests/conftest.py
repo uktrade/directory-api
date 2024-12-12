@@ -395,6 +395,102 @@ def uk_business_employee_counts_str_data(uk_business_employee_counts_data):
 
 
 @pytest.fixture
+def uk_trade_in_goods_data():
+    yield [
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "AA",
+            "commodity_name": "Fruit",
+            "imports": 1.0,
+            "exports": None,
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "BB",
+            "commodity_name": "Bananas",
+            "exports": 2.1,
+            "imports": None,
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "AA",
+            "commodity_name": "Trees",
+            "imports": 0.0,
+            "exports": None,
+        },
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_goods_str_data(uk_trade_in_goods_data):
+    data = []
+    for line in uk_trade_in_goods_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_trade_in_goods_tmp_data():
+    yield [
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "exports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Grenada",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GD",
+        },  # noqa: E501
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "exports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Georgia",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GE",
+        },  # noqa: E501
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "imports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Guernsey",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GG",
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_goods_str_tmp_data(uk_trade_in_goods_tmp_data):
+    data = []
+    for line in uk_trade_in_goods_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
 def eyb_salary_s3_data():
     yield [
         '{"id": "1", "code": 1121, "year": 2021, "region": "East", "created": "2024-06-04T20:04:59", "modified": "2024-06-04T20:04:59", "vertical": "Food and Drink", "color_tag": null, "occupation": "Production managers and directors in manufacturing", "mean_salary": "55763", "median_salary": "43137", "professional_level": "Director/Executive", "compliance_asset_id": null, "annual_percantage_change": null, "annual_percentage_change": null, "number_of_jobs_thousands": null}\n',  # noqa: E501
