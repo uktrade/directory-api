@@ -614,3 +614,6 @@ EYB_SALARY_S3_PREFIX = env.eyb_salary_s3_prefix
 EYB_RENT_S3_PREFIX = env.eyb_rent_s3_prefix
 POSTCODE_FROM_S3_PREFIX = env.postcode_from_s3_prefix
 TRADE_UK_GOODS_NSA_FROM_S3_PREFIX = env.trade_uk_goods_nsa_from_s3_prefix
+NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX = env.nomis_uk_business_employee_counts_from_s3_prefix
+REF_SIC_CODES_MAPPING_FROM_S3_PREFIX = env.ref_sic_codes_mapping_from_s3_prefix
+SECTOR_REFERENCE_DATASET_FROM_S3_PREFIX = env.sector_reference_dataset_from_s3_prefix
