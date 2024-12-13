@@ -117,22 +117,22 @@ def get_uk_trade_in_goods_postgres_table(metadata):
 
 
 def get_uk_trade_in_goods_batch(data, data_table):
-
+            
+    breakpoint()
     def get_table_data():
 
         for uk_trade_in_goods in data:
-            json_data = json.loads(uk_trade_in_goods)
 
             yield (
                 (
                     data_table,
                     (
-                        json_data['year'],
-                        json_data['quarter'],
-                        json_data['commodity_code'],
-                        json_data['commodity_name'],
-                        json_data['imports'],
-                        json_data['exports'],
+                        uk_trade_in_goods['year'],
+                        uk_trade_in_goods['quarter'],
+                        uk_trade_in_goods['commodity_code'],
+                        uk_trade_in_goods['commodity_name'],
+                        uk_trade_in_goods['imports'],
+                        uk_trade_in_goods['exports'],
                     ),
                 )
             )
@@ -187,21 +187,28 @@ def save_uk_trade_in_goods_data():
 
         cnt = 0
         while True:
+            if cnt == 2:
+                break
+
             batch = connection.execute(sa.text(sql)).fetchmany(100000)
 
             if not batch:
                 break
 
             for row in batch:
+  
+                if cnt == 2:
+                    break
 
                 try:
                     country = Country.objects.get(iso2=row.iso2)
                 except Country.DoesNotExist:
                     continue
 
+                breakpoint()
                 year, quarter = row.period.replace('quarter/', '').split('-Q')
-                imports = None if row.imports != row.imports else row.imports
-                exports = None if row.exports != row.exports else row.exports
+                imports = None if not row.imports else float(row.imports)
+                exports = None if not row.exports else float(row.exports)
 
                 data.append(
                     {
@@ -216,7 +223,7 @@ def save_uk_trade_in_goods_data():
                 )
 
                 cnt += 1
-                if cnt % 100000:
+                if cnt % 100000 == 0:
                     logger.info(f'Processing record {cnt}')
 
     metadata = sa.MetaData()
