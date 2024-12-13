@@ -130,7 +130,7 @@ def total_trade_records(countries):
 @pytest.fixture()
 def trade_in_services_records(countries):
     records = [
-        {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
+        {'code': '0', 'name': 'null value', 'exports': None, 'imports': None},
         {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
         {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
         {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
@@ -170,7 +170,7 @@ def trade_in_services_records(countries):
 def trade_in_goods_records(countries):
     for idx, iso2 in enumerate(['DE', 'FR', 'CN']):
         records = [
-            {'code': '0', 'name': 'none value', 'exports': None, 'imports': None},
+            {'code': '0', 'name': 'null value', 'exports': None, 'imports': None},
             {'code': '1', 'name': 'first', 'exports': 6, 'imports': 1},
             {'code': '2', 'name': 'second', 'exports': 5, 'imports': 1},
             {'code': '3', 'name': 'third', 'exports': 4, 'imports': 1},
@@ -322,6 +322,76 @@ def business_cluster_information_data():
         models.EYBBusinessClusterInformation.objects.create(**record)
     yield
     models.EYBBusinessClusterInformation.objects.all().delete()
+
+
+@pytest.fixture
+def sector_reference_dataset_data():
+    yield [
+        '{"id": 3, "field_04": "Advanced engineering",  "full_sector_name": "Advanced engineering : Metallurgical process plant"}\n',  # noqa: E501
+        '{"id": 4, "field_04": "Advanced engineering",  "full_sector_name": "Advanced engineering : Metals, minerals and materials"}\n',  # noqa: E501
+        '{"id": 38, "field_04": "Automotive", "full_sector_name": "Automotive"}\n',  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def ref_sic_codes_mapping_data():
+    yield [
+        '{"id": 1, "sic_code": 1110, "mapping_id": "SIC-SEC-106", "updated_date": "2021-08-19T10:05:34.680837+00:00", "sic_description": "Growing of cereals (except rice), leguminous crops and oil seeds", "dit_sector_list_id": 21}\n',  # noqa: E501
+        '{"id": 2, "sic_code": 1120, "mapping_id": "SIC-SEC-107", "updated_date": "2021-08-19T10:05:34.689149+00:00", "sic_description": "Growing of rice", "dit_sector_list_id": 21}\n',  # noqa: E501
+        '{"id": 3, "sic_code": 1130, "mapping_id": "SIC-SEC-129", "updated_date": "2021-08-19T10:05:34.696666+00:00", "sic_description": "Growing of vegetables and melons, roots and tubers", "dit_sector_list_id": 31}\n',  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_business_employee_counts_data():
+    yield [
+        {
+            "geo_code": "K02000002",
+            "sic_code": "01",
+            "geo_description": "United Kingdom",
+            "sic_description": "Crop and animal production, hunting and related service activities",
+            "total_business_count": 132540,
+            "total_employee_count": None,
+            "business_count_release_year": 2023,
+            "employee_count_release_year": None,
+            "dbt_full_sector_name": "Metallurgical process plant",
+            "dbt_sector_name": "Advanced engineering",
+        },  # noqa: E501
+        {
+            "geo_code": "K02000003",
+            "sic_code": "03",
+            "geo_description": "United Kingdom",
+            "sic_description": "Fishing and aquaculture",
+            "total_business_count": 4070,
+            "total_employee_count": None,
+            "business_count_release_year": 2023,
+            "employee_count_release_year": None,
+            "dbt_full_sector_name": "Metallurgical process plant",
+            "dbt_sector_name": "Advanced engineering",
+        },  # noqa: E501
+        {
+            "geo_code": "K02000004",
+            "sic_code": "03",
+            "geo_description": "United Kingdom",
+            "sic_description": "Fishing and aquaculture",
+            "total_business_count": 4070,
+            "total_employee_count": None,
+            "business_count_release_year": 2023,
+            "employee_count_release_year": None,
+            "dbt_full_sector_name": "Automotive",
+            "dbt_sector_name": "Automotive",
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_business_employee_counts_str_data(uk_business_employee_counts_data):
+
+    data = []
+    for line in uk_business_employee_counts_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
 
 
 @pytest.fixture
