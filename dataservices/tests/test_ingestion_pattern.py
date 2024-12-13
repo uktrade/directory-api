@@ -476,9 +476,9 @@ def test_get_uk_business_employee_counts_batch(uk_business_employee_counts_data)
 
 
 @pytest.mark.django_db
-def test_get_uk_trade_in_goods_data_batch(uk_trade_in_goods_str_data):
+def test_get_uk_trade_in_goods_data_batch(uk_trade_in_goods_data):
     metadata = sa.MetaData()
-    ret = get_uk_trade_in_goods_batch(uk_trade_in_goods_str_data, get_uk_trade_in_goods_postgres_table(metadata))
+    ret = get_uk_trade_in_goods_batch(uk_trade_in_goods_data, get_uk_trade_in_goods_postgres_table(metadata))
     assert next(ret[2]) is not None
 
 

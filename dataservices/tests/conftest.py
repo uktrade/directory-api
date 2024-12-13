@@ -404,6 +404,7 @@ def uk_trade_in_goods_data():
             "commodity_name": "Fruit",
             "imports": 1.0,
             "exports": None,
+            "country_id": 1,
         },
         {
             "year": 2024,
@@ -412,6 +413,7 @@ def uk_trade_in_goods_data():
             "commodity_name": "Bananas",
             "exports": 2.1,
             "imports": None,
+            "country_id": 2,
         },
         {
             "year": 2024,
@@ -420,6 +422,7 @@ def uk_trade_in_goods_data():
             "commodity_name": "Trees",
             "imports": 0.0,
             "exports": None,
+            "country_id": 3,
         },
     ]
 
