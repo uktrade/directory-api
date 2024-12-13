@@ -117,8 +117,7 @@ def get_uk_trade_in_goods_postgres_table(metadata):
 
 
 def get_uk_trade_in_goods_batch(data, data_table):
-            
-    breakpoint()
+
     def get_table_data():
 
         for uk_trade_in_goods in data:
@@ -127,6 +126,7 @@ def get_uk_trade_in_goods_batch(data, data_table):
                 (
                     data_table,
                     (
+                        uk_trade_in_goods['country_id'],
                         uk_trade_in_goods['year'],
                         uk_trade_in_goods['quarter'],
                         uk_trade_in_goods['commodity_code'],
@@ -187,8 +187,6 @@ def save_uk_trade_in_goods_data():
 
         cnt = 0
         while True:
-            if cnt == 2:
-                break
 
             batch = connection.execute(sa.text(sql)).fetchmany(100000)
 
@@ -196,16 +194,12 @@ def save_uk_trade_in_goods_data():
                 break
 
             for row in batch:
-  
-                if cnt == 2:
-                    break
 
                 try:
                     country = Country.objects.get(iso2=row.iso2)
                 except Country.DoesNotExist:
                     continue
 
-                breakpoint()
                 year, quarter = row.period.replace('quarter/', '').split('-Q')
                 imports = None if not row.imports else float(row.imports)
                 exports = None if not row.exports else float(row.exports)
@@ -223,7 +217,7 @@ def save_uk_trade_in_goods_data():
                 )
 
                 cnt += 1
-                if cnt % 100000 == 0:
+                if (cnt % 100000) == 0:
                     logger.info(f'Processing record {cnt}')
 
     metadata = sa.MetaData()
