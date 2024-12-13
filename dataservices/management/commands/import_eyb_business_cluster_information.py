@@ -300,6 +300,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         finally:
             self.delete_temp_tables(TEMP_TABLES)
 
+
     def save_uk_business_employee_counts_data(self, data=[], save_data=True):
         if save_data:
             self.save_tmp_table_data(save_data)

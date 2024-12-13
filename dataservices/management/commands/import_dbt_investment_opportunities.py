@@ -68,7 +68,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     def load_data(self, save_data=True, *args, **options):
         data = self.do_handle(prefix=settings.INVESTMENT_OPPORTUNITIES_S3_PREFIX)
-        return data, self.save_investment_opportunities_data
+        return data, Command.save_investment_opportunities_data
 
     def save_investment_opportunities_data(self, data):
 

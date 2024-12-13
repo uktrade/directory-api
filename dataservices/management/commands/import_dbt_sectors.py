@@ -61,7 +61,8 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         )
         return data, self.save_dbt_sectors_data
 
-    def save_dbt_sectors_data(self, data):
+    @staticmethod
+    def save_dbt_sectors_data(data):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
