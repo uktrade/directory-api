@@ -3,10 +3,9 @@ from datetime import datetime
 
 import sqlalchemy as sa
 from django.conf import settings
-from django.core.management.base import BaseCommand
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import ingest_data
+from dataservices.management.commands.helpers import BaseS3IngestionCommand, ingest_data
 
 
 def map_eer_to_european_reqion(eer_code: str) -> str:
@@ -73,29 +72,27 @@ def get_postcode_postgres_table(metadata):
     )
 
 
-def save_postcode_data(data):
-
-    engine = sa.create_engine(settings.DATABASE_URL, future=True)
-
-    metadata = sa.MetaData()
-
-    data_table = get_postcode_postgres_table(metadata)
-
-    def on_before_visible(conn, ingest_table, batch_metadata):
-        pass
-
-    def batches(_):
-        yield get_postcode_table_batch(data, data_table)
-
-    ingest_data(engine, metadata, on_before_visible, batches)
-
-
-class Command(BaseCommand, S3DownloadMixin):
+class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import Postcode data from s3'
 
-    def handle(self, *args, **options):
-        self.do_handle(
+    def load_data(self, save_data=True, *args, **options):
+        data = self.do_handle(
             prefix=settings.POSTCODE_FROM_S3_PREFIX,
-            save_func=save_postcode_data,
         )
+        return data, self.save_postcode_data
+
+    def save_postcode_data(self, data):
+        engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+        metadata = sa.MetaData()
+
+        data_table = get_postcode_postgres_table(metadata)
+
+        def on_before_visible(conn, ingest_table, batch_metadata):
+            pass
+
+        def batches(_):
+            yield get_postcode_table_batch(data, data_table)
+
+        ingest_data(engine, metadata, on_before_visible, batches)

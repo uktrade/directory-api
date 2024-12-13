@@ -76,6 +76,49 @@ class BaseDataWorkspaceIngestionCommand(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
 
 
+class BaseS3IngestionCommand(BaseCommand):
+
+    save_func = None
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--write',
+            action='store_true',
+            help='Store dataset records',
+        )
+
+    def load_data(self):
+        """
+        The procedure for fetching the data. Subclasses must implement this method.
+        """
+        raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
+
+    def handle(self, *args, **options):
+        data, self.save_func = self.load_data(save_data=False)
+        prefix = 'Would create'
+        if isinstance(data, list):
+            count = len(data)
+        else:
+            count = None
+
+        if options['write'] and self.save_func:
+            if isinstance(data, list):
+                count = len(data)
+                prefix = 'Created'
+            else:
+                count = None
+            breakpoint()
+            self.save_func(data)
+        else:
+            if isinstance(data, list):
+                count = len(data)
+            else:
+                count = len(data.readlines())
+
+        if count:
+            self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+
+
 class MarketGuidesDataIngestionCommand(BaseDataWorkspaceIngestionCommand):
     def should_ingestion_run(self, view_name, table_name):
         dataflow_metadata = self.get_dataflow_metadata(table_name)
