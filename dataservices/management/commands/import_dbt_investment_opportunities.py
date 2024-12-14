@@ -68,10 +68,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     def load_data(self, save_data=True, *args, **options):
         data = self.do_handle(prefix=settings.INVESTMENT_OPPORTUNITIES_S3_PREFIX)
-        return data, Command.save_investment_opportunities_data
+        return data
 
-    def save_investment_opportunities_data(self, data):
-
+    def save_import_data(self, data):
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
         metadata = sa.MetaData()

@@ -288,20 +288,19 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         if save_data:
             return
 
-        data = self.save_uk_business_employee_counts_data(save_data=save_data)
+        data = self.save_import_data(save_data=save_data)
         return data
 
     def load_data(self, save_data=True, *args, **options):
         try:
             data = self.save_tmp_table_data(save_data)
-            return data, self.save_uk_business_employee_counts_data
+            return data
         except Exception:
             logger.exception("import_eyb_business_cluster_information failed to ingest data from s3")
         finally:
             self.delete_temp_tables(TEMP_TABLES)
 
-
-    def save_uk_business_employee_counts_data(self, data=[], save_data=True):
+    def save_import_data(self, data=[], save_data=True):
         if save_data:
             self.save_tmp_table_data(save_data)
 

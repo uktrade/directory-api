@@ -70,9 +70,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         data = self.do_handle(
             prefix=settings.EYB_SALARY_S3_PREFIX,
         )
-        return data, self.save_eyb_salary_data
+        return data
 
-    def save_eyb_salary_data(self, data):
+    def save_import_data(self, data):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 

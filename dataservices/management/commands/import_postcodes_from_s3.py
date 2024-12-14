@@ -80,9 +80,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         data = self.do_handle(
             prefix=settings.POSTCODE_FROM_S3_PREFIX,
         )
-        return data, self.save_postcode_data
+        return data
 
-    def save_postcode_data(self, data):
+    def save_import_data(self, data):
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
         metadata = sa.MetaData()

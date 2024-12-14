@@ -59,10 +59,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         data = self.do_handle(
             prefix=settings.DBT_SECTOR_S3_PREFIX,
         )
-        return data, self.save_dbt_sectors_data
+        return data
 
-    @staticmethod
-    def save_dbt_sectors_data(data):
+    def save_import_data(self, data):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
