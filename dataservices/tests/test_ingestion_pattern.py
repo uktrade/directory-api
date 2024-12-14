@@ -18,35 +18,15 @@ from django.test import override_settings
 from sqlalchemy.future.engine import Engine
 
 from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
+from dataservices.management.commands.import_dbt_investment_opportunities import Command as investment_command
 from dataservices.management.commands.import_dbt_investment_opportunities import (
     get_investment_opportunities_batch,
     get_investment_opportunities_data_table,
-    save_investment_opportunities_data,
 )
-from dataservices.management.commands.import_dbt_sectors import (
-    get_dbtsector_postgres_table,
-    get_dbtsector_table_batch,
-    save_dbt_sectors_data,
-)
-from dataservices.management.commands.import_eyb_rent_data import (
-    get_eyb_rent_batch,
-    get_eyb_rent_table,
-    save_eyb_rent_data,
-)
-from dataservices.management.commands.import_eyb_salary_data import (
-    get_eyb_salary_batch,
-    get_eyb_salary_table,
-    save_eyb_salary_data,
-)
-from dataservices.management.commands.import_postcodes_from_s3 import (
-    get_postcode_postgres_table,
-    get_postcode_table_batch,
-    save_postcode_data,
-)
-from dataservices.management.commands.import_sectors_gva_value_bands import (
-    get_sectors_gva_value_bands_batch,
-    get_sectors_gva_value_bands_table,
-    save_sectors_gva_value_bands_data,
+from dataservices.management.commands.import_dbt_sectors import Command as sectors_command
+from dataservices.management.commands.import_dbt_sectors import get_dbtsector_postgres_table, get_dbtsector_table_batch
+from dataservices.management.commands.import_eyb_business_cluster_information import (
+    Command as eyb_business_cluster_command,
 )
 from dataservices.management.commands.import_eyb_business_cluster_information import (
     get_ref_sic_codes_mapping_batch,
@@ -61,7 +41,20 @@ from dataservices.management.commands.import_eyb_business_cluster_information im
     save_sector_reference_dataset_data,
     save_uk_business_employee_counts_tmp_data,
 )
-
+from dataservices.management.commands.import_eyb_rent_data import Command as rent_command
+from dataservices.management.commands.import_eyb_rent_data import get_eyb_rent_batch, get_eyb_rent_table
+from dataservices.management.commands.import_eyb_salary_data import Command as salary_command
+from dataservices.management.commands.import_eyb_salary_data import get_eyb_salary_batch, get_eyb_salary_table
+from dataservices.management.commands.import_postcodes_from_s3 import Command as postcode_command
+from dataservices.management.commands.import_postcodes_from_s3 import (
+    get_postcode_postgres_table,
+    get_postcode_table_batch,
+)
+from dataservices.management.commands.import_sectors_gva_value_bands import Command as gva_value_bands_sector_command
+from dataservices.management.commands.import_sectors_gva_value_bands import (
+    get_sectors_gva_value_bands_batch,
+    get_sectors_gva_value_bands_table,
+)
 
 dbsector_data = [
     {
@@ -82,20 +75,23 @@ dbsector_data = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [dbsector_data[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_dbt_sectors.save_dbt_sectors_data')
+@mock.patch.object(sectors_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(sectors_command, 'load_data')
 def test_import_dbtsector_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_dbt_sector_data,
+    mock_save_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_dbt_sectors')
-    assert mock_save_dbt_sector_data.call_count == 1
+    mock_load_data.return_value = dbsector_data
+    management.call_command('import_dbt_sectors', '--write')
+    assert mock_save_import_data.call_count == 1
 
 
 sectors_gva_value_bands = [
@@ -121,20 +117,23 @@ sectors_gva_value_bands = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [sectors_gva_value_bands[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_sectors_gva_value_bands.save_sectors_gva_value_bands_data')
+@mock.patch.object(gva_value_bands_sector_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(gva_value_bands_sector_command, 'load_data')
 def test_import_sectors_gva_value_bands_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_sectors_gva_value_bands_data,
+    mock_save_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_sectors_gva_value_bands')
-    assert mock_save_sectors_gva_value_bands_data.call_count == 1
+    mock_load_data.return_value = sectors_gva_value_bands
+    management.call_command('import_sectors_gva_value_bands', '--write')
+    assert mock_save_import_data.call_count == 1
 
 
 investment_opportunities = [
@@ -159,20 +158,23 @@ investment_opportunities = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [investment_opportunities[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_dbt_investment_opportunities.save_investment_opportunities_data')
+@mock.patch.object(investment_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(investment_command, 'load_data')
 def test_import_investment_opportunities_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_invesment_opportunities_data,
+    mock_save_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_dbt_investment_opportunities')
-    assert mock_save_invesment_opportunities_data.call_count == 1
+    mock_load_data.return_value = investment_opportunities
+    management.call_command('import_dbt_investment_opportunities', '--write')
+    assert mock_save_import_data.call_count == 1
 
 
 eyb_salaries = [
@@ -196,20 +198,23 @@ eyb_salaries = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [eyb_salaries[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_eyb_salary_data.save_eyb_salary_data')
+@mock.patch.object(salary_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(salary_command, 'load_data')
 def test_import_eyb_salary_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_eyb_salary_data,
+    mock_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_eyb_salary_data')
-    assert mock_save_eyb_salary_data.call_count == 1
+    mock_load_data.return_value = eyb_salaries
+    management.call_command('import_eyb_salary_data', '--write')
+    assert mock_import_data.call_count == 1
 
 
 eyb_rents = [
@@ -228,20 +233,23 @@ eyb_rents = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [eyb_rents[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_eyb_rent_data.save_eyb_rent_data')
+@mock.patch.object(rent_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(rent_command, 'load_data')
 def test_import_eyb_rent_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_eyb_rent_data,
+    mock_save_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_eyb_rent_data')
-    assert mock_save_eyb_rent_data.call_count == 1
+    mock_load_data.return_value = eyb_rents
+    management.call_command('import_eyb_rent_data', '--write')
+    assert mock_save_import_data.call_count == 1
 
 
 postcodes = [
@@ -251,20 +259,23 @@ postcodes = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [postcodes[0]], indirect=True)
-@mock.patch('dataservices.management.commands.import_postcodes_from_s3.save_postcode_data')
+@mock.patch.object(postcode_command, 'save_import_data')
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(postcode_command, 'load_data')
 def test_import_postcode_data_set_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
-    mock_save_postcode_data,
+    mock_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_postcodes_from_s3')
-    assert mock_save_postcode_data.call_count == 1
+    mock_load_data.return_value = postcodes
+    management.call_command('import_postcodes_from_s3', '--write')
+    assert mock_import_data.call_count == 1
 
 
 uk_business_employee_counts = [
@@ -285,9 +296,7 @@ uk_business_employee_counts = [
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("get_s3_file_data", [uk_business_employee_counts[0]], indirect=True)
-@mock.patch(
-    'dataservices.management.commands.import_eyb_business_cluster_information.save_uk_business_employee_counts_data'
-)  # noqa:E501
+@mock.patch.object(eyb_business_cluster_command, 'save_import_data')  # noqa:E501
 @mock.patch(
     'dataservices.management.commands.import_eyb_business_cluster_information.save_uk_business_employee_counts_tmp_data'
 )  # noqa:E501
@@ -299,20 +308,23 @@ uk_business_employee_counts = [
 )  # noqa:E501
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(eyb_business_cluster_command, 'load_data')  # noqa:E501
 def test_import_eyb_business_cluster_information_from_s3(
+    mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
     mock_save_sector_reference_dataset_data,
     mock_save_ref_sic_codes_mapping_data,
     mock_save_uk_business_employee_counts_tmp_data,
-    mock_save_uk_business_employee_counts_data,
+    mock_save_import_data,
     get_s3_file_data,
     get_s3_data_transfer_data,
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    management.call_command('import_eyb_business_cluster_information')
-    assert mock_save_uk_business_employee_counts_data.call_count == 1
+    mock_load_data.return_vaue = uk_business_employee_counts
+    management.call_command('import_eyb_business_cluster_information', '--write')
+    assert mock_save_import_data.call_count == 1
 
 
 @pytest.mark.django_db
@@ -321,7 +333,8 @@ def test_import_eyb_business_cluster_information_from_s3(
 @mock.patch.object(Engine, 'connect')
 def test_save_dbtsector_data(mock_connection, mock_ingest, dbtsector_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_dbt_sectors_data(data=dbtsector_data)
+    command = sectors_command()
+    command.save_import_data(data=dbtsector_data)
     assert mock_ingest.call_count == 1
 
 
@@ -338,7 +351,8 @@ def test_get_dbtsector_table_batch(dbtsector_data):
 @mock.patch.object(Engine, 'connect')
 def test_save_sectors_gva_value_bands_data(mock_connection, mock_ingest, sectors_gva_value_bands_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_sectors_gva_value_bands_data(data=sectors_gva_value_bands_data)
+    command = gva_value_bands_sector_command()
+    command.save_import_data(data=sectors_gva_value_bands_data)
     assert mock_ingest.call_count == 1
 
 
@@ -355,7 +369,8 @@ def test_get_sectors_gva_value_bands_batch(sectors_gva_value_bands_data):
 @mock.patch.object(Engine, 'connect')
 def test_save_investment_opportunities_data(mock_connection, mock_ingest, investment_opportunities_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_investment_opportunities_data(data=investment_opportunities_data)
+    command = investment_command()
+    command.save_import_data(data=investment_opportunities_data)
     assert mock_ingest.call_count == 1
 
 
@@ -374,7 +389,8 @@ def test_get_investment_opportunities_batch(investment_opportunities_data):
 @mock.patch.object(Engine, 'connect')
 def test_eyb_salary_data(mock_connection, mock_ingest, eyb_salary_s3_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_eyb_salary_data(data=eyb_salary_s3_data)
+    command = salary_command()
+    command.save_import_data(data=eyb_salary_s3_data)
     assert mock_ingest.call_count == 1
 
 
@@ -391,7 +407,8 @@ def test_get_eyb_salary_batch(eyb_salary_s3_data):
 @mock.patch.object(Engine, 'connect')
 def test_eyb_rent_data(mock_connection, mock_ingest, eyb_rent_s3_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_eyb_rent_data(data=eyb_rent_s3_data)
+    command = rent_command()
+    command.save_import_data(data=eyb_rent_s3_data)
     assert mock_ingest.call_count == 1
 
 
@@ -408,7 +425,8 @@ def test_get_eyb_rent_batch(eyb_rent_s3_data):
 @mock.patch.object(Engine, 'connect')
 def test_save_postcode_data(mock_connection, mock_ingest, postcode_data):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
-    save_postcode_data(data=postcode_data)
+    command = postcode_command()
+    command.save_import_data(data=postcode_data)
     assert mock_ingest.call_count == 1
 
 
