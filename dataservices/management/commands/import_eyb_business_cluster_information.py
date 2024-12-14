@@ -370,4 +370,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
         ingest_data(engine, metadata, on_before_visible, batches)
 
+        if save_data:
+            self.delete_temp_tables(TEMP_TABLES)
+
         return data
