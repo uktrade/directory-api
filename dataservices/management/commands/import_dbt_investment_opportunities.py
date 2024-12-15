@@ -66,7 +66,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import DBT investment opportunities data from s3'
 
-    def load_data(self, save_data=True, *args, **options):
+    def load_data(self, delete_temp_files=True, *args, **options):
         data = self.do_handle(prefix=settings.INVESTMENT_OPPORTUNITIES_S3_PREFIX)
         return data
 
