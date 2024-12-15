@@ -2,8 +2,10 @@ import io
 import zlib
 
 import boto3
+import sqlalchemy as sa
 from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
+from sqlalchemy.ext.declarative import declarative_base
 
 
 def unzip_s3_gzip_file(file_body, max_bytes):
@@ -52,16 +54,25 @@ def get_s3_file(key):
 
 class S3DownloadMixin:
 
-    def do_handle(self, prefix, save_func):
+    def delete_temp_tables(self, table_names):
+        Base = declarative_base()
+        metadata = sa.MetaData()
+        engine = sa.create_engine(settings.DATABASE_URL, future=True)
+        metadata.reflect(bind=engine)
+        for name in table_names:
+            table = metadata.tables.get(name, None)
+            if table is not None:
+                Base.metadata.drop_all(engine, [table], checkfirst=True)
+
+    def do_handle(self, prefix):
         """
         Download latest data file from s3
         unzip downloaded data file
         store latest data in the database
         params:
             prefix: str - Bucket Path on the Dataservices s3 bucket.
-            save_func: method - Method that saves the <data> param to the database.
         """
-        assert None not in [prefix, save_func]
+        assert None not in [prefix]
 
         page_iterator = get_s3_paginator(prefix)
         files = []
@@ -81,4 +92,6 @@ class S3DownloadMixin:
                     chunks = unzip_s3_gzip_file(body, (32 + zlib.MAX_WBITS))
                     text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
                     if text_lines:
-                        save_func(text_lines)
+                        return text_lines
+                    else:
+                        return None
