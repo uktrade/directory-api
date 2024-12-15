@@ -1,23 +1,17 @@
 import csv
+import json
 import logging
 
 import pandas as pd
 import sqlalchemy as sa
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.db import connection
 
 from core.helpers import get_s3_file_stream
-from dataservices.management.commands.helpers import BaseDataWorkspaceIngestionCommand
-from dataservices.models import ComtradeReport
-
-import json
-
-import sqlalchemy as sa
-from django.conf import settings
-from django.core.management.base import BaseCommand
-
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import ingest_data
+from dataservices.management.commands.helpers import BaseDataWorkspaceIngestionCommand, ingest_data
+from dataservices.models import ComtradeReport
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +61,7 @@ def get_comtrade_tmp_table(metadata):
         sa.Column("country_iso3", sa.TEXT, nullable=False),
         sa.Column("uk_or_world", sa.TEXT, nullable=False),
         sa.Column("commodity_code", sa.TEXT, nullable=False),
-        sa.Column("trade_value", sa.DECIMAL(15,0), nullable=False),
+        sa.Column("trade_value", sa.DECIMAL(15, 0), nullable=False),
         sa.Column("country_id", sa.INTEGER, nullable=True),
         schema="public",
     )
@@ -180,7 +174,6 @@ class Command(BaseCommand, S3DownloadMixin):
         else:
             self.populate_from_s3()
 
-    
     def populate_from_s3(self):
         try:
             self.do_handle(
@@ -245,10 +238,8 @@ class Command(BaseCommand, S3DownloadMixin):
         )
 
 
-
 class Command(BaseDataWorkspaceIngestionCommand):
     help = 'Import Comtrade data'
-
 
     def load_data(self, period):
         sql = '''

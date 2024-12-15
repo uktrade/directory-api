@@ -82,7 +82,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         )
         return data
 
-    def save_import_data(self, data):
+    def save_import_data(self, data, delete_temp_tables=True):
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
         metadata = sa.MetaData()
@@ -96,3 +96,5 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             yield get_postcode_table_batch(data, data_table)
 
         ingest_data(engine, metadata, on_before_visible, batches)
+
+        return data

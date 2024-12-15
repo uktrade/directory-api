@@ -93,7 +93,7 @@ class BaseS3IngestionCommand(BaseCommand):
         """
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
 
-    def save_import_data(self, data):
+    def save_import_data(self, data, delete_temp_tables=True):
         """
         The procedure for saving the data. Subclasses must implement this method.
         """
@@ -102,12 +102,12 @@ class BaseS3IngestionCommand(BaseCommand):
     def handle(self, *args, **options):
 
         if not options['write']:
-            data = self.load_data(save_data=False)
+            data = self.load_data(delete_temp_files=True)
             prefix = 'Would create'
         else:
             prefix = 'Created'
-            data = self.load_data(save_data=True)
-            self.save_import_data(data)
+            data = self.load_data(delete_temp_files=False)
+            self.save_import_data(data=data, delete_temp_tables=False)
 
         if isinstance(data, list):
             count = len(data)
