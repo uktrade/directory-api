@@ -66,7 +66,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import Statista salary data from s3'
 
-    def load_data(self, save_data=True, *args, **options):
+    def load_data(self, delete_temp_tables=True, *args, **options):
         data = self.do_handle(
             prefix=settings.EYB_SALARY_S3_PREFIX,
         )
@@ -87,3 +87,5 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             yield get_eyb_salary_batch(data, data_table)
 
         ingest_data(engine, metadata, on_before_visible, batches)
+
+        return data
