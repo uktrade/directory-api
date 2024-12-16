@@ -65,7 +65,7 @@ class RetrieveLastYearImportDataByCountryView(generics.GenericAPIView):
         comtrade_response = helpers.get_comtrade_data_by_country(
             commodity_code=self.request.GET.get('commodity_code', ''),
             country_list=self.request.GET.getlist('countries', ''),
-        ).order_by("-year")
+        )
         return Response(status=status.HTTP_200_OK, data=comtrade_response)
 
 
