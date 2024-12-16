@@ -347,7 +347,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                             }
                         )
 
-        if not delete_temp_tables:
+        if delete_temp_tables:
             return data
 
         metadata = sa.MetaData()
