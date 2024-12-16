@@ -29,7 +29,7 @@ class TTLCache:
 
 def get_comtrade_data_by_country(commodity_code, country_list):
     data = {}
-    for record in models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code):
+    for record in models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code).order_by('-year'):
         iso_code = record.country.iso2
         data[iso_code] = data.get(iso_code, [])
         data[iso_code].append(serializers.ComtradeReportSerializer(record).data)
