@@ -272,7 +272,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import ONS total UK business and employee counts per region and section, 2 and 5 digit Standard Industrial Classification'  # noqa:E501
 
-    def load_data(self, save_data=True, delete_temp_tables=True, *args, **options):
+    def load_data(self, delete_temp_tables=True, *args, **options):
         try:
             data = self.do_handle(
                 prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
@@ -286,7 +286,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 prefix=settings.SECTOR_REFERENCE_DATASET_FROM_S3_PREFIX,
             )
             save_sector_reference_dataset_data(data)
-            return self.save_import_data(delete_temp_tables=delete_temp_tables, data=[])
+
+            return self.save_import_data(delete_temp_tables=delete_temp_tables)
+
         except Exception:
             logger.exception("import_eyb_business_cluster_information failed to ingest data from s3")
         finally:

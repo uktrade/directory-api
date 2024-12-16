@@ -70,7 +70,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import Statista commercial rent data from s3'
 
-    def load_data(self, delete_temp_files=True, *args, **options):
+    def load_data(self, delete_temp_tables=True, *args, **options):
         data = self.do_handle(
             prefix=settings.EYB_RENT_S3_PREFIX,
         )

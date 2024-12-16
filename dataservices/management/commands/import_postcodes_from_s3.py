@@ -76,7 +76,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     help = 'Import Postcode data from s3'
 
-    def load_data(self, save_data=True, *args, **options):
+    def load_data(self, delete_temp_tables=True, *args, **options):
         data = self.do_handle(
             prefix=settings.POSTCODE_FROM_S3_PREFIX,
         )
