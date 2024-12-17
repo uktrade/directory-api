@@ -569,5 +569,5 @@ class DBTInvestmentOpportunity(models.Model):
 class DBTIngestionHistory(models.Model):
     import_name = models.CharField()
     imported_file = models.CharField()
-    imported_when = models.DateField()
+    imported_when = models.DateTimeField()
     import_status = models.BooleanField(default=True)

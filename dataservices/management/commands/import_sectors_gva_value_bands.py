@@ -63,10 +63,10 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
     help = 'Import sector GVA value bands data from s3'
 
     def load_data(self, delete_temp_tables=True, *args, **options):
-        data = self.do_handle(
+        data, last_file_added = self.do_handle(
             prefix=settings.DBT_SECTORS_GVA_VALUE_BANDS_DATA_S3_PREFIX,
         )
-        return data
+        return data, last_file_added
 
     def save_import_data(self, data, delete_temp_tables=True):
 

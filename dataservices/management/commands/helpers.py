@@ -1,4 +1,5 @@
 import io
+import sys
 from zipfile import ZipFile
 
 import pandas as pd
@@ -11,7 +12,11 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 from core.helpers import notifications_client
+from dataservices.core.mixins import store_ingestion_data
 from dataservices.models import Metadata
+
+DATA_FIELD = 0
+DATA_FILE_NAME_FIELD = 1
 
 
 def flatten_ordered_dict(d):
@@ -98,19 +103,21 @@ class BaseS3IngestionCommand(BaseCommand):
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
 
     def handle(self, *args, **options):
-
         if options and not options['write']:
-            data = self.load_data(delete_temp_tables=True)
+            data, _ = self.load_data(delete_temp_tables=True)
+            actual_data = data if isinstance(data, list) else data[0]
             prefix = 'Would create'
         else:
             prefix = 'Created'
             data, last_file_added = self.load_data(delete_temp_tables=False)
-            self.save_import_data(data, last_file_added)
+            actual_data = data if isinstance(data, list) else data[0]
+            self.save_import_data(data[DATA_FIELD])
+            store_ingestion_data([last_file_added], sys.argv[1])
 
-        if isinstance(data, list):
-            count = len(data)
-        elif isinstance(data, io.TextIOWrapper):
-            count = len(data.readlines())
+        if isinstance(actual_data, list):
+            count = len(actual_data)
+        elif isinstance(actual_data, io.TextIOWrapper):
+            count = len(actual_data.readlines())
         else:
             count = None
 
@@ -176,7 +183,14 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
-def ingest_data(engine, metadata, on_before_visible, batches):
+def ingest_data(
+    engine,
+    metadata,
+    on_before_visible,
+    batches,
+    upsert=pg_bulk_ingest.Upsert.OFF,
+    delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
             conn=conn,
@@ -184,6 +198,6 @@ def ingest_data(engine, metadata, on_before_visible, batches):
             batches=batches,
             on_before_visible=on_before_visible,
             high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
-            upsert=pg_bulk_ingest.Upsert.OFF,
-            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+            upsert=upsert,
+            delete=delete,
         )

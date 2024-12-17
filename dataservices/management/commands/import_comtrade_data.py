@@ -1,30 +1,31 @@
 import csv
 import json
 import logging
-from datetime import datetime
 
+import pg_bulk_ingest
 import sqlalchemy as sa
 from django.conf import settings
 from django.db import connection
 
 from core.helpers import get_s3_file_stream
-from dataservices.core.mixins import S3DownloadMixin
+from dataservices.core.mixins import S3DownloadMixin, store_ingestion_data
 from dataservices.management.commands.helpers import BaseS3IngestionCommand, ingest_data
-from dataservices.models import ComtradeReport, DBTIngestionHistory
+from dataservices.models import ComtradeReport
 
 logger = logging.getLogger(__name__)
 
 LIVE_TABLE = 'dataservices_comtradereport'
+DATA_FIELD = 0
+DATA_FILE_NAME_FIELD = 1
 
 
 def get_comtrade_batch(data, data_table):
 
-    breakpoint()
     data = sorted(
         data,
         key=lambda x: (
             x[
-                'year',
+                x['year'],
                 x['reporter_country_iso3'],
                 x['trade_flow_code'],
                 x['partner_country_iso3'],
@@ -150,13 +151,16 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             self.populate_db_from_s3(options['filenames'] and options['filenames'][0], test=options['test'])
         elif options['load_data'] and options['write'] and options['period']:
             prefix = 'Created'
-            data, last_file_added = self.load_data(options['period'], delete_temp_tables=False)
-            self.save_import_data(data, last_file_added)
-            self.print_results(data[0] if data else [], prefix)
+            data, file_names = self.load_data(options['period'], delete_temp_tables=False)
+
+            if data:
+                self.save_import_data(data)
+            store_ingestion_data(file_names, 'import_comtrade_data')
+            self.print_results(data[DATA_FIELD] if data else [], prefix)
         elif options['load_data'] and options['period']:
-            data = self.load_data(options['period'], delete_temp_tables=True)
+            data, _ = self.load_data(options['period'], delete_temp_tables=True)
             prefix = 'Would create'
-            self.print_results(data[0], prefix)
+            self.print_results(data[DATA_FIELD] if data else [], prefix)
 
     def populate_db_from_s3_file(self, filename, test):
         # Read from S3, write into local DB, hook up country table
@@ -193,31 +197,43 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     def load_data(self, period, delete_temp_tables=True, *args, **options):
         try:
-            data, last_added = self.do_handle(prefix=settings.COMMTRADE_DATASET_FROM_S3_PREFIX)
-            return self.filter_and_distinct_data(data, period), last_added
+            data, file_names = self.do_handle(
+                prefix=settings.COMMTRADE_DATASET_FROM_S3_PREFIX,
+                multiple_files=True,
+                import_name='import_comtrade_data',
+            )
+            return self.aggregate_filter_and_distinct_data(data, period), file_names
         except Exception:
             logger.exception("import_comtrade failed to ingest data from s3")
 
-    def filter_and_distinct_data(self, data, period):
+    def aggregate_filter_and_distinct_data(self, data, period):
 
         json_data = []
-        for line in data:
-            json_data.append(json.loads(line))
 
-        data = [
-            line
-            for line in json_data
-            if line['period'] == period
-            and line['fob_trade_value_in_usd'] is not None
-            and line['commodity_code'] != 'TOTAL'
-            and (
-                (line['reporter_country_iso3'] == 'GBR' and line['trade_flow_code'] == 'X')
-                or (line['partner_country_iso3'] == 'W00' and line['trade_flow_code'] == 'M')
-            )
-        ]
-        return list(set(data))
+        for files in data:
+            for line in files['file']:
+                js = json.loads(line)
+                if js['period'] != period or js['fob_trade_value_in_usd'] is None or js['commodity_code'] == 'TOTAL':
+                    continue
+                if js['reporter_country_iso3'] not in (
+                    'GBR',
+                    'W00',
+                ):
+                    continue
+                if js['trade_flow_code'] not in (
+                    'X',
+                    'M',
+                ):
+                    continue
+                if js['reporter_country_iso3'] == 'GBR' and js['trade_flow_code'] != 'X':
+                    continue
+                if js['partner_country_iso3'] == 'W00' and js['trade_flow_code'] != 'M':
+                    continue
+                json_data.append(line)
 
-    def save_import_data(self, data, delete_temp_tables=True, last_file_added=None):
+        return list(set(json_data))
+
+    def save_import_data(self, data, delete_temp_tables=True):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
@@ -229,20 +245,11 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             pass
 
         def batches(_):
-            yield get_comtrade_batch(data, data_table)
+            yield get_comtrade_batch(data[DATA_FIELD], data_table)
 
-        ingest_data(engine, metadata, on_before_visible, batches)
+        ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
 
         self.link_countries()
-
-        if last_file_added:
-            history = DBTIngestionHistory(
-                import_name='import_comtrade_data',
-                imported_file=last_file_added,
-                imported_when=datetime.now(),
-                import_status=True,
-            )
-            self.store_ingestion_data(history)
 
         return data
 

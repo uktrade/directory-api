@@ -89,7 +89,7 @@ def test_import_dbtsector_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = dbsector_data
+    mock_load_data.return_value = dbsector_data, 'test_file'
     management.call_command('import_dbt_sectors', '--write')
     assert mock_save_import_data.call_count == 1
 
@@ -131,7 +131,7 @@ def test_import_sectors_gva_value_bands_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = sectors_gva_value_bands
+    mock_load_data.return_value = sectors_gva_value_bands, 'test_file'
     management.call_command('import_sectors_gva_value_bands', '--write')
     assert mock_save_import_data.call_count == 1
 
@@ -172,7 +172,7 @@ def test_import_investment_opportunities_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = investment_opportunities
+    mock_load_data.return_value = investment_opportunities, 'test_file'
     management.call_command('import_dbt_investment_opportunities', '--write')
     assert mock_save_import_data.call_count == 1
 
@@ -212,7 +212,7 @@ def test_import_eyb_salary_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = eyb_salaries
+    mock_load_data.return_value = eyb_salaries, 'test_file'
     management.call_command('import_eyb_salary_data', '--write')
     assert mock_import_data.call_count == 1
 
@@ -247,7 +247,7 @@ def test_import_eyb_rent_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = eyb_rents
+    mock_load_data.return_value = eyb_rents, 'test_file'
     management.call_command('import_eyb_rent_data', '--write')
     assert mock_save_import_data.call_count == 1
 
@@ -273,7 +273,7 @@ def test_import_postcode_data_set_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = postcodes
+    mock_load_data.return_value = postcodes, 'test_file'
     management.call_command('import_postcodes_from_s3', '--write')
     assert mock_import_data.call_count == 1
 
@@ -322,7 +322,7 @@ def test_import_eyb_business_cluster_information_from_s3(
 ):
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_vaue = uk_business_employee_counts
+    mock_load_data.return_value = uk_business_employee_counts, 'test_file'
     management.call_command('import_eyb_business_cluster_information', '--write')
     assert mock_save_import_data.call_count == 1
 
