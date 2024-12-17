@@ -564,3 +564,10 @@ class DBTInvestmentOpportunity(models.Model):
     net_zero = models.BooleanField()
     science_technology_superpower = models.BooleanField()
     sector_cluster = models.CharField()
+
+
+class DBTIngestionHistory(models.Model):
+    import_name = models.CharField()
+    imported_file = models.CharField()
+    imported_when = models.DateField()
+    import_status = models.BooleanField(default=True)

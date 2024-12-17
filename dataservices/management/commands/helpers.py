@@ -78,8 +78,6 @@ class BaseDataWorkspaceIngestionCommand(BaseCommand):
 
 class BaseS3IngestionCommand(BaseCommand):
 
-    save_func = None
-
     def add_arguments(self, parser):
         parser.add_argument(
             '--write',
@@ -93,7 +91,7 @@ class BaseS3IngestionCommand(BaseCommand):
         """
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
 
-    def save_import_data(self, data, delete_temp_tables=True):
+    def save_import_data(self, data, delete_temp_tables=True, last_file_added=None):
         """
         The procedure for saving the data. Subclasses must implement this method.
         """
@@ -101,13 +99,13 @@ class BaseS3IngestionCommand(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if not options['write']:
+        if options and not options['write']:
             data = self.load_data(delete_temp_tables=True)
             prefix = 'Would create'
         else:
             prefix = 'Created'
-            data = self.load_data(delete_temp_tables=False)
-            self.save_import_data(data)
+            data, last_file_added = self.load_data(delete_temp_tables=False)
+            self.save_import_data(data, last_file_added)
 
         if isinstance(data, list):
             count = len(data)

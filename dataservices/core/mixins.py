@@ -7,6 +7,8 @@ from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
 from sqlalchemy.ext.declarative import declarative_base
 
+from dataservices.models import DBTIngestionHistory
+
 
 def unzip_s3_gzip_file(file_body, max_bytes):
     dobj = zlib.decompressobj(max_bytes)
@@ -54,6 +56,9 @@ def get_s3_file(key):
 
 class S3DownloadMixin:
 
+    def store_ingestion_data(self, data):
+        DBTIngestionHistory.objects.create(data)
+
     def delete_temp_tables(self, table_names):
         Base = declarative_base()
         metadata = sa.MetaData()
@@ -92,6 +97,6 @@ class S3DownloadMixin:
                     chunks = unzip_s3_gzip_file(body, (32 + zlib.MAX_WBITS))
                     text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
                     if text_lines:
-                        return text_lines
+                        return text_lines, last_added
                     else:
                         return None
