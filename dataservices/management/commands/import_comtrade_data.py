@@ -19,20 +19,20 @@ LIVE_TABLE = 'dataservices_comtradereport'
 
 def get_comtrade_batch(data, data_table):
 
+    breakpoint()
     data = sorted(
         data,
         key=lambda x: (
-            x[
-                x['year'],
-                x['reporter_country_iso3'],
-                x['trade_flow_code'],
-                x['partner_country_iso3'],
-                x['classification'],
-                x['commodity_code'],
-                x['fob_trade_value_in_usd'],
-            ]
+            x['year'],
+            x['reporter_country_iso3'],
+            x['trade_flow_code'],
+            x['partner_country_iso3'],
+            x['classification'],
+            x['commodity_code'],
+            x['fob_trade_value_in_usd'],
         ),
     )
+    breakpoint()
 
     def get_table_data():
 

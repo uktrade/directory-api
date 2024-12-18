@@ -114,7 +114,6 @@ class S3DownloadMixin:
             prefix: str - Bucket Path on the Dataservices s3 bucket.
         return:
             text_lines - TextWrapper for files
-            last_added - last added file or files
         """
         assert None not in [prefix]
 

@@ -106,23 +106,6 @@ def test_import_all():
     models.SuggestedCountry.objects.count() == 493
 
 
-# @pytest.mark.django_db TODO
-# def test_import_comtrade():
-#     management.call_command('import_countries')
-#     management.call_command('import_comtrade_data', '--test')
-#     data = models.ComtradeReport.objects.filter(country_iso3='FRA', year='2019', commodity_code='010649')
-#     assert len(models.ComtradeReport.objects.all()) == 1000
-#     assert data.first().country.iso3 == 'FRA'
-#     assert data.first().commodity_code == '010649'
-#     assert len(data) == 2
-#     assert data.first().trade_value == 9189567
-#     assert data.first().country_id is not None
-#     management.call_command('import_comtrade_data', '--unlink_countries')
-#     assert data.first().country_id is None
-#     management.call_command('import_comtrade_data', '--link_countries')
-#     assert data.first().country_id is not None
-
-
 @pytest.mark.django_db
 def test_import_raw_comtrade():
     management.call_command('import_comtrade_data', '--raw', 'dataservices/resources/comtrade_sample.csv')
@@ -655,47 +638,6 @@ def test_import_markets_countries_territories_no_arg(capfd):
     captured = capfd.readouterr()
     assert models.Market.objects.count() == 0
     assert captured.err == 'Must provide the --write argument. This is destructive for existing data.\n'
-
-
-# @pytest.mark.django_db TODO
-# @mock.patch('pandas.read_sql')
-# @override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-# def test_comtrade_load_data(read_sql_mock):
-#     data = {
-#         'year': [2023, 2022, 2021],
-#         'reporter_country_iso3': ['GBR', 'GBR', 'CHN'],
-#         'trade_flow_code': ['X', 'X', 'M'],
-#         'partner_country_iso3': ['FRA', 'USA', 'W00'],
-#         'classification': ['HS', 'HS', 'HS'],
-#         'commodity_code': ['010649', '010649', '010649'],
-#         'fob_trade_value_in_usd': [9189567, None, 4520000],
-#     }
-#     read_sql_mock.return_value = [pd.DataFrame(data)]
-#     assert len(models.ComtradeReport.objects.all()) == 0
-
-#     management.call_command('import_comtrade_data', '--load_data', '--period=2023', '--write')
-
-#     data_gbr_fra = models.ComtradeReport.objects.filter(country_iso3='FRA', year='2023', commodity_code='010649')
-#     data_gbr_usa = models.ComtradeReport.objects.filter(country_iso3='USA', year='2022', commodity_code='010649')
-#     data_chn_wld = models.ComtradeReport.objects.filter(country_iso3='CHN', year='2021', commodity_code='010649')
-
-#     assert data_gbr_fra.exists()
-#     assert data_gbr_fra.first().country_iso3 == 'FRA'
-#     assert data_gbr_fra.first().commodity_code == '010649'
-#     assert data_gbr_fra.first().trade_value == 9189567
-#     assert data_gbr_fra.first().uk_or_world == 'GBR'
-
-#     assert data_gbr_usa.exists()
-#     assert data_gbr_usa.first().country_iso3 == 'USA'
-#     assert data_gbr_usa.first().commodity_code == '010649'
-#     assert data_gbr_usa.first().trade_value == 0.0
-#     assert data_gbr_usa.first().uk_or_world == 'GBR'
-
-#     assert data_chn_wld.exists()
-#     assert data_chn_wld.first().country_iso3 == 'CHN'
-#     assert data_chn_wld.first().commodity_code == '010649'
-#     assert data_chn_wld.first().trade_value == 4520000
-#     assert data_chn_wld.first().uk_or_world == 'WLD'
 
 
 @pytest.mark.django_db
