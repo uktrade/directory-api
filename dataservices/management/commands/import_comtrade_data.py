@@ -19,7 +19,6 @@ LIVE_TABLE = 'dataservices_comtradereport'
 
 def get_comtrade_batch(data, data_table):
 
-    breakpoint()
     data = sorted(
         data,
         key=lambda x: (
@@ -32,7 +31,6 @@ def get_comtrade_batch(data, data_table):
             x['fob_trade_value_in_usd'],
         ),
     )
-    breakpoint()
 
     def get_table_data():
 

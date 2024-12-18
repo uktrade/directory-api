@@ -673,7 +673,7 @@ def test_import_comtrade_data_set_from_s3_valid_period(
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
 @mock.patch.object(Engine, 'connect')
-def test_save_comtrade_dataset(mock_connection, mock_ingest, comtrade_data):
+def test_save_comtrade_dataset(mock_connection, mock_ingest):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
     command = comtrade_command()
     command.save_import_data(data=comtrade_data)
@@ -681,7 +681,7 @@ def test_save_comtrade_dataset(mock_connection, mock_ingest, comtrade_data):
 
 
 @pytest.mark.django_db
-def test_get_comtrade_batch(comtrade_data):
+def test_get_comtrade_batch():
     metadata = sa.MetaData()
     ret = get_comtrade_batch(comtrade_data, get_comtrade_table(metadata, 'tmp_sector_ref'))
     assert next(ret[2]) is not None
