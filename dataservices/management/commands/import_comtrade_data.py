@@ -156,11 +156,11 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             if data:
                 self.save_import_data(data)
             store_ingestion_data(file_names, 'import_comtrade_data')
-            self.print_results(data[DATA_FIELD] if data else [], prefix)
+            self.print_results(data if data else [], prefix)
         elif options['load_data'] and options['period']:
-            data, _ = self.load_data(options['period'], delete_temp_tables=True)
+            data = self.load_data(options['period'], delete_temp_tables=True)
             prefix = 'Would create'
-            self.print_results(data[DATA_FIELD] if data else [], prefix)
+            self.print_results(data if data else [], prefix)
 
     def populate_db_from_s3_file(self, filename, test):
         # Read from S3, write into local DB, hook up country table

@@ -105,13 +105,13 @@ class BaseS3IngestionCommand(BaseCommand):
     def handle(self, *args, **options):
         if options and not options['write']:
             data, _ = self.load_data(delete_temp_tables=True)
-            actual_data = data if isinstance(data, list) else data[0]
+            actual_data = data
             prefix = 'Would create'
         else:
             prefix = 'Created'
             data, last_file_added = self.load_data(delete_temp_tables=False)
-            actual_data = data if isinstance(data, list) else data[0]
-            self.save_import_data(data[DATA_FIELD])
+            actual_data = data
+            self.save_import_data(data)
             store_ingestion_data([last_file_added], sys.argv[1])
 
         if isinstance(actual_data, list):

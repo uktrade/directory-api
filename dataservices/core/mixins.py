@@ -97,9 +97,9 @@ class S3DownloadMixin:
                 chunks = unzip_s3_gzip_file(body, (32 + zlib.MAX_WBITS))
                 text_lines = io.TextIOWrapper(to_file_like_obj(chunks), encoding="utf-8", newline="")
                 if text_lines:
-                    return text_lines, last_added
+                    return text_lines
                 else:
-                    return None, None
+                    return None
 
     def do_handle(self, prefix, multiple_files=False, import_name=None):
         """
@@ -130,12 +130,13 @@ class S3DownloadMixin:
             all_files = []
             for file in files:
                 data = self.return_data(file[DATA_FIELD])
-                all_files.append(
-                    {
-                        'file': data[DATA_FIELD],
-                    }
-                )
+                if data:
+                    all_files.append(
+                        {
+                            'file': data,
+                        }
+                    )
 
-            return all_files, [file for file in files]
+            return all_files, files
         else:
             return None, None
