@@ -28,9 +28,13 @@ class TTLCache:
 
 
 def get_comtrade_data_by_country(commodity_code, country_list):
+    '''
+    Comtrade data is ingested annually. The trade_value is cumulative so we
+    should always report the highest figure for the most recent year
+    '''
     data = {}
     qs = models.ComtradeReport.objects.filter(country__iso2__in=country_list, commodity_code=commodity_code).order_by(
-        '-year'
+        '-trade_value'
     )
     for record in qs:
         iso_code = record.country.iso2
