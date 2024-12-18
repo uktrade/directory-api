@@ -14,7 +14,7 @@ from dataservices.models import ComtradeReport
 
 logger = logging.getLogger(__name__)
 
-LIVE_TABLE = 'dataservices_comtradereport' = settings.COMTRADE_NEXT_PERIOD
+LIVE_TABLE = 'dataservices_comtradereport'
 
 
 def get_comtrade_batch(data, data_table):

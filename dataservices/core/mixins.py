@@ -78,7 +78,9 @@ class S3DownloadMixin:
     def get_all_files_not_ingested(self, files, import_name, period):
         ingested_files = self.get_ingested_files_for_import(import_name)
         return [
-            file for file in files if file not in ingested_files and f'comtrade__goods_annual_raw_{period}' not in file
+            file
+            for file in files
+            if file not in ingested_files and f'comtrade__goods_annual_raw_{period}' not in file[DATA_FIELD]
         ]
 
     def delete_temp_tables(self, table_names):
@@ -128,7 +130,6 @@ class S3DownloadMixin:
             last_added = sorted(files, key=lambda x: x[DATA_FILE_NAME_FIELD])[-1][DATA_FIELD]
             return self.return_data(last_added), last_added
         elif files:
-            breakpoint()
             files = self.get_all_files_not_ingested(files, import_name, period)
             all_files = []
             for file in files:
