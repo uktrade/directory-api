@@ -1,6 +1,5 @@
 import io
 import zlib
-from datetime import datetime
 
 import boto3
 import sqlalchemy as sa
@@ -40,8 +39,8 @@ def get_s3_paginator(prefix):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
         region_name=settings.AWS_S3_REGION_NAME,
     )
-    return s3.get_paginator('list_objects').paginate(
-        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
+    return s3.get_paginator('list_objects_v2').paginate(
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, PaginationConfig={"PageSize": 1000}, Prefix=prefix
     )
 
 
@@ -50,7 +49,6 @@ def store_ingestion_data(file_names, import_name):
         DBTIngestionHistory(
             import_name=import_name,
             imported_file=file_name,
-            imported_when=datetime.now(),
             import_status=True,
         ).save()
 
@@ -76,17 +74,14 @@ class S3DownloadMixin:
             DBTIngestionHistory.objects.filter(import_name=import_name, import_status=True).values_list('imported_file')
         )
 
-    def get_all_files_not_ingested(self, files, import_name, period):
+    def get_all_files_not_ingested(self, data, import_name, period):
 
         ingested_files = self.get_ingested_files_for_import(import_name)
 
-        data = [
-            file
-            for file in files
-            if file not in ingested_files and f'{COMTRADE_FILE_NAME}_{period}' not in file[DATA_FIELD]
+        files = [
+            file for file in data if file not in ingested_files and f'{COMTRADE_FILE_NAME}_{period}' in file[DATA_FIELD]
         ]
-
-        return data
+        return files
 
     def delete_temp_tables(self, table_names):
         Base = declarative_base()
@@ -122,19 +117,21 @@ class S3DownloadMixin:
         assert None not in [prefix]
 
         page_iterator = get_s3_paginator(prefix)
-        files = []
-        for page in page_iterator:
-            if "Contents" in page:
-                for obj in page['Contents']:
-                    this_page = obj['Key']
-                    this_last_modified_date = obj['LastModified']
-                    files.append((this_page, this_last_modified_date))
+        data = []
 
-        if files and not multiple_files:
-            last_added = sorted(files, key=lambda x: x[DATA_FILE_NAME_FIELD])[-1][DATA_FIELD]
+        for page in page_iterator:
+            files = page.get("Contents")
+            for file in files:
+                this_page = file['Key']
+                this_last_modified_date = file['LastModified']
+                data.append((this_page, this_last_modified_date))
+
+        if data and not multiple_files:
+            last_added = sorted(data, key=lambda x: x[DATA_FILE_NAME_FIELD])[-1][DATA_FIELD]
             return self.return_data(last_added), last_added
-        elif files:
-            files = self.get_all_files_not_ingested(files, import_name, period)
+        elif data:
+            breakpoint()
+            files = self.get_all_files_not_ingested(data, import_name, period)
             all_files = []
             for file in files:
                 data = self.return_data(file[DATA_FIELD])
