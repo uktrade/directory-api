@@ -77,15 +77,15 @@ class S3DownloadMixin:
         )
 
     def get_all_files_not_ingested(self, files, import_name, period):
-        breakpoint()
+
         ingested_files = self.get_ingested_files_for_import(import_name)
-        breakpoint()
+
         data = [
             file
             for file in files
             if file not in ingested_files and f'{COMTRADE_FILE_NAME}_{period}' not in file[DATA_FIELD]
         ]
-        breakpoint()
+
         return data
 
     def delete_temp_tables(self, table_names):
