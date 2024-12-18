@@ -12,6 +12,7 @@ from dataservices.models import DBTIngestionHistory
 
 DATA_FIELD = 0
 DATA_FILE_NAME_FIELD = 1
+COMTRADE_FILE_NAME = 'comtrade__goods_annual_raw'
 
 
 def unzip_s3_gzip_file(file_body, max_bytes):
@@ -80,7 +81,7 @@ class S3DownloadMixin:
         return [
             file
             for file in files
-            if file not in ingested_files and f'comtrade__goods_annual_raw_{period}' not in file[DATA_FIELD]
+            if file not in ingested_files and f'{COMTRADE_FILE_NAME}_{period}' not in file[DATA_FIELD]
         ]
 
     def delete_temp_tables(self, table_names):
