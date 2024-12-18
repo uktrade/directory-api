@@ -130,18 +130,7 @@ class S3DownloadMixin:
             last_added = sorted(data, key=lambda x: x[DATA_FILE_NAME_FIELD])[-1][DATA_FIELD]
             return self.return_data(last_added), last_added
         elif data:
-            breakpoint()
             files = self.get_all_files_not_ingested(data, import_name, period)
-            all_files = []
-            for file in files:
-                data = self.return_data(file[DATA_FIELD])
-                if data:
-                    all_files.append(
-                        {
-                            'file': data,
-                        }
-                    )
-
-            return all_files, files
+            return files
         else:
             return None, None

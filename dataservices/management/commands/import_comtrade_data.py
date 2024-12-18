@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 
+import pandas as pd
 import pg_bulk_ingest
 import sqlalchemy as sa
 from django.conf import settings
@@ -16,38 +17,31 @@ from dataservices.models import ComtradeReport
 logger = logging.getLogger(__name__)
 
 LIVE_TABLE = 'dataservices_comtradereport'
+TEMP_TABLE = 'dataservices_tmp_comtradereport'
+
+DATA_FILE = 0
+DATA_FILE_NAME = 1
 
 
-def get_comtrade_batch(data, data_table):
-
-    data = sorted(
-        data,
-        key=lambda x: (
-            x['year'],
-            x['reporter_country_iso3'],
-            x['trade_flow_code'],
-            x['partner_country_iso3'],
-            x['classification'],
-            x['commodity_code'],
-            x['fob_trade_value_in_usd'],
-        ),
-    )
+def get_comtrade_tmp_batch(data, data_table):
 
     def get_table_data():
 
         for comtrade in data:
 
+            json_data = json.loads(comtrade)
+
             yield (
                 (
                     data_table,
                     (
-                        comtrade['year'],
-                        comtrade['reporter_country_iso3'],
-                        comtrade['trade_flow_code'],
-                        comtrade['partner_country_iso3'],
-                        comtrade['classification'],
-                        comtrade['commodity_code'],
-                        comtrade['fob_trade_value_in_usd'],
+                        json_data['year'],
+                        json_data['classification'],
+                        json_data['reporter_country_iso3'],
+                        json_data['trade_flow_code'],
+                        json_data['partner_country_iso3'],
+                        json_data['commodity_code'],
+                        json_data['fob_trade_value_in_usd'],
                     ),
                 )
             )
@@ -56,6 +50,50 @@ def get_comtrade_batch(data, data_table):
         None,
         None,
         get_table_data(),
+    )
+
+
+def get_comtrade_batch(data, data_table):
+
+    def get_table_data():
+
+        for comtrade in data:
+
+            json_data = json.loads(comtrade)
+
+            yield (
+                (
+                    data_table,
+                    (
+                        json_data['year'],
+                        json_data['classification'],
+                        json_data['country_iso3'],
+                        json_data['uk_or_world'],
+                        json_data['commodity_code'],
+                        json_data['trade_value'],
+                    ),
+                )
+            )
+
+    return (
+        None,
+        None,
+        get_table_data(),
+    )
+
+
+def get_comtrade_tmp_table(metadata, table_name):
+    return sa.Table(
+        table_name,
+        metadata,
+        sa.Column("year", sa.INTEGER, nullable=True),
+        sa.Column("classification", sa.TEXT, nullable=True),
+        sa.Column("reporter_country_iso3", sa.TEXT, nullable=True),
+        sa.Column("trade_flow_code", sa.TEXT, nullable=False),
+        sa.Column("partner_country_iso3", sa.TEXT, nullable=True),
+        sa.Column("commodity_code", sa.TEXT, nullable=True),
+        sa.Column("fob_trade_value_in_usd", sa.DECIMAL(15, 0), nullable=True),
+        schema="public",
     )
 
 
@@ -153,11 +191,12 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             prefix = 'Created'
             data, file_names = self.load_data(options['period'], delete_temp_tables=False)
             if data:
-                self.save_import_data(data)
+                self.save_import_data(data, delete_temp_tables=True)
+                self.link_countries()
             store_ingestion_data(file_names, sys.argv[1])
             self.print_results(data if data else [], prefix)
         elif options['load_data'] and options['period']:
-            data = self.load_data(options['period'], delete_temp_tables=True)
+            data, _ = self.load_data(options['period'], delete_temp_tables=True)
             prefix = 'Would create'
             self.print_results(data if data else [], prefix)
 
@@ -194,62 +233,132 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
         self.link_countries()
 
+    def get_temp_data(self):
+
+        engine = sa.create_engine(settings.DATABASE_URL, future=True)
+
+        sql = f'''
+            SELECT
+                DISTINCT
+                    year,
+                    reporter_country_iso3 ,
+                    trade_flow_code ,
+                    partner_country_iso3 ,
+                    classification,
+                    commodity_code,
+                    fob_trade_value_in_usd
+            FROM public.{TEMP_TABLE}
+            WHERE commodity_code <> 'TOTAL'
+            AND (
+                (reporter_country_iso3 = 'GBR' AND trade_flow_code = 'X')
+                OR (partner_country_iso3 = 'W00' AND trade_flow_code = 'M')
+            )
+            AND  commodity_code <> 'TOTAL'
+            AND fob_trade_value_in_usd IS NOT NULL
+            ORDER BY
+                year,
+                reporter_country_iso3,
+                trade_flow_code,
+                partner_country_iso3,
+                classification,
+                commodity_code,
+                fob_trade_value_in_usd
+        '''
+
+        data = []
+
+        with engine.connect() as connection:
+            chunks = pd.read_sql_query(sa.text(sql), connection, chunksize=5000)
+
+            for chunk in chunks:
+                for _, row in chunk.iterrows():
+
+                    flow = row.trade_flow_code
+                    uk_or_world = None
+                    country_iso3 = None
+                    if row.reporter_country_iso3 == 'GBR' and flow == 'X':
+                        uk_or_world = row.reporter_country_iso3
+                        country_iso3 = row.partner_country_iso3
+                    if row.partner_country_iso3 == 'W00' and flow == 'M':
+                        uk_or_world = 'WLD'
+                        country_iso3 = row.reporter_country_iso3
+
+                    trade_value = row.fob_trade_value_in_usd
+
+                    if pd.isna(trade_value):
+                        trade_value = 0.0
+
+                    data.append(
+                        {
+                            'year': row.year,
+                            'country_iso3': country_iso3,
+                            'uk_or_world': uk_or_world,
+                            'classification': row.classification,
+                            'commodity_code': row.commodity_code,
+                            'trade_value': float(trade_value),
+                        }
+                    )
+        return data
+
     def load_data(self, period, delete_temp_tables=True, *args, **options):
         try:
-            data, file_names = self.do_handle(
+            data = self.do_handle(
                 prefix=settings.COMMTRADE_DATASET_FROM_S3_PREFIX,
                 multiple_files=True,
                 import_name='import_comtrade_data',
                 period=period,
             )
-            return self.aggregate_filter_and_distinct_data(data), file_names
+            file_names = []
+            cnt = 0
+            for file in data:
+                cnt += 1
+                if cnt > 1:
+                    break
+                file_names.append(file[DATA_FILE])
+                data = self.return_data(file[DATA_FILE])
+                self.save_import_data(data, delete_temp_tables=delete_temp_tables, table_name=TEMP_TABLE)
+            return self.get_temp_data(), file_names
         except Exception:
             logger.exception("import_comtrade failed to ingest data from s3")
+        finally:
+            pass
+            # if delete_temp_tables:
+            #     self.delete_temp_tables(
+            #         [
+            #             TEMP_TABLE,
+            #         ]
+            #     )
 
-    def aggregate_filter_and_distinct_data(self, data):
-
-        json_data = []
-
-        for files in data:
-            for line in files['file']:
-                js = json.loads(line)
-                if js['fob_trade_value_in_usd'] is None or js['commodity_code'] == 'TOTAL':
-                    continue
-                if js['reporter_country_iso3'] not in (
-                    'GBR',
-                    'W00',
-                ):
-                    continue
-                if js['trade_flow_code'] not in (
-                    'X',
-                    'M',
-                ):
-                    continue
-                if js['reporter_country_iso3'] == 'GBR' and js['trade_flow_code'] != 'X':
-                    continue
-                if js['partner_country_iso3'] == 'W00' and js['trade_flow_code'] != 'M':
-                    continue
-                json_data.append(line)
-
-        return list(set(json_data))
-
-    def save_import_data(self, data, delete_temp_tables=True):
+    def save_import_data(self, data, delete_temp_tables=True, table_name=LIVE_TABLE):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
         metadata = sa.MetaData()
 
-        data_table = get_comtrade_table(metadata, LIVE_TABLE)
+        data_table = (
+            get_comtrade_tmp_table(metadata, table_name)
+            if table_name == TEMP_TABLE
+            else get_comtrade_table(metadata, table_name)
+        )
 
         def on_before_visible(conn, ingest_table, batch_metadata):
             pass
 
         def batches(_):
-            yield get_comtrade_batch(data, data_table)
+            yield (
+                get_comtrade_tmp_batch(data, data_table)
+                if table_name == TEMP_TABLE
+                else get_comtrade_batch(data, data_table)
+            )
 
         ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
 
-        self.link_countries()
+        # if delete_temp_tables:
+        #     self.delete_temp_tables(
+        #         [
+        #             TEMP_TABLE,
+        #         ]
+        #     )
 
         return data
 

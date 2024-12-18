@@ -19,7 +19,12 @@ from sqlalchemy.future.engine import Engine
 
 from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
 from dataservices.management.commands.import_comtrade_data import Command as comtrade_command
-from dataservices.management.commands.import_comtrade_data import get_comtrade_batch, get_comtrade_table
+from dataservices.management.commands.import_comtrade_data import (
+    get_comtrade_batch,
+    get_comtrade_table,
+    get_comtrade_tmp_batch,
+    get_comtrade_tmp_table,
+)
 from dataservices.management.commands.import_dbt_investment_opportunities import Command as investment_command
 from dataservices.management.commands.import_dbt_investment_opportunities import (
     get_investment_opportunities_batch,
@@ -681,7 +686,16 @@ def test_save_comtrade_dataset(mock_connection, mock_ingest):
 
 
 @pytest.mark.django_db
-def test_get_comtrade_batch():
+def test_get_comtrade_tmp_batch(comtrade_tmp_str_data):
     metadata = sa.MetaData()
-    ret = get_comtrade_batch(comtrade_data, get_comtrade_table(metadata, 'tmp_sector_ref'))
+    table = get_comtrade_tmp_table(metadata, 'tmp_comtradef')
+    ret = get_comtrade_tmp_batch(comtrade_tmp_str_data, table)
+    assert next(ret[2]) is not None
+
+
+@pytest.mark.django_db
+def test_get_comtrade_batch(comtrade_str_data):
+    metadata = sa.MetaData()
+    table = get_comtrade_table(metadata, 'comtrade')
+    ret = get_comtrade_batch(comtrade_str_data, table)
     assert next(ret[2]) is not None
