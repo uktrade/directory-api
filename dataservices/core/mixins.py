@@ -75,9 +75,11 @@ class S3DownloadMixin:
             DBTIngestionHistory.objects.filter(import_name=import_name, import_status=True).values_list('imported_file')
         )
 
-    def get_all_files_not_ingested(self, files, import_name):
+    def get_all_files_not_ingested(self, files, import_name, period):
         ingested_files = self.get_ingested_files_for_import(import_name)
-        return [file for file in files if file not in ingested_files]
+        return [
+            file for file in files if file not in ingested_files and f'comtrade__goods_annual_raw_{period}' not in file
+        ]
 
     def delete_temp_tables(self, table_names):
         Base = declarative_base()
@@ -101,7 +103,7 @@ class S3DownloadMixin:
                 else:
                     return None
 
-    def do_handle(self, prefix, multiple_files=False, import_name=None):
+    def do_handle(self, prefix, multiple_files=False, import_name=None, period=None):
         """
         Download latest data file from s3
         unzip downloaded data file
@@ -126,7 +128,8 @@ class S3DownloadMixin:
             last_added = sorted(files, key=lambda x: x[DATA_FILE_NAME_FIELD])[-1][DATA_FIELD]
             return self.return_data(last_added), last_added
         elif files:
-            files = self.get_all_files_not_ingested(files, import_name)
+            breakpoint()
+            files = self.get_all_files_not_ingested(files, import_name, period)
             all_files = []
             for file in files:
                 data = self.return_data(file[DATA_FIELD])

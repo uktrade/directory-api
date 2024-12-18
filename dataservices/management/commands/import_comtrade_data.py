@@ -14,9 +14,7 @@ from dataservices.models import ComtradeReport
 
 logger = logging.getLogger(__name__)
 
-LIVE_TABLE = 'dataservices_comtradereport'
-DATA_FIELD = 0
-DATA_FILE_NAME_FIELD = 1
+LIVE_TABLE = 'dataservices_comtradereport' = settings.COMTRADE_NEXT_PERIOD
 
 
 def get_comtrade_batch(data, data_table):
@@ -150,9 +148,11 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         elif options['filenames'] and options['from_s3_file']:
             self.populate_db_from_s3(options['filenames'] and options['filenames'][0], test=options['test'])
         elif options['load_data'] and options['write'] and options['period']:
+            if int(options['period']) < settings.COMTRADE_NEXT_PERIOD:
+                self.stdout.write(f'Period less than {settings.COMTRADE_NEXT_PERIOD}')
+                return
             prefix = 'Created'
             data, file_names = self.load_data(options['period'], delete_temp_tables=False)
-
             if data:
                 self.save_import_data(data)
             store_ingestion_data(file_names, 'import_comtrade_data')
@@ -201,6 +201,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 prefix=settings.COMMTRADE_DATASET_FROM_S3_PREFIX,
                 multiple_files=True,
                 import_name='import_comtrade_data',
+                period=period,
             )
             return self.aggregate_filter_and_distinct_data(data, period), file_names
         except Exception:
@@ -245,7 +246,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             pass
 
         def batches(_):
-            yield get_comtrade_batch(data[DATA_FIELD], data_table)
+            yield get_comtrade_batch(data, data_table)
 
         ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
 

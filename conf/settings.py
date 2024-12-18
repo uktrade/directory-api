@@ -617,3 +617,5 @@ NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX = env.nomis_uk_business_employe
 REF_SIC_CODES_MAPPING_FROM_S3_PREFIX = env.ref_sic_codes_mapping_from_s3_prefix
 SECTOR_REFERENCE_DATASET_FROM_S3_PREFIX = env.sector_reference_dataset_from_s3_prefix
 COMMTRADE_DATASET_FROM_S3_PREFIX = env.commtrade_dataset_from_s3_prefix
+
+COMTRADE_NEXT_PERIOD = env.comtrade_next_period

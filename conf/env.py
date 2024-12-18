@@ -222,6 +222,7 @@ class BaseSettings(PydanticBaseSettings):
     ref_sic_codes_mapping_from_s3_prefix: str = ''
     sector_reference_dataset_from_s3_prefix: str = ''
     commtrade_dataset_from_s3_prefix: str = ''
+    comtrade_next_period: int = 2024
 
 
 class CIEnvironment(BaseSettings):

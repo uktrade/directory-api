@@ -15,9 +15,6 @@ from core.helpers import notifications_client
 from dataservices.core.mixins import store_ingestion_data
 from dataservices.models import Metadata
 
-DATA_FIELD = 0
-DATA_FILE_NAME_FIELD = 1
-
 
 def flatten_ordered_dict(d):
     # flatten rows of ordered  dict so can be accessed as key\values
@@ -104,7 +101,7 @@ class BaseS3IngestionCommand(BaseCommand):
 
     def handle(self, *args, **options):
         if options and not options['write']:
-            data, _ = self.load_data(delete_temp_tables=True)
+            data, last_file_added = self.load_data(delete_temp_tables=True)
             actual_data = data
             prefix = 'Would create'
         else:

@@ -17,8 +17,6 @@ TEMP_TABLES = [
     'dataservices_tmp_sector_reference',
 ]
 
-DATA_FIELD = 0
-
 
 def get_uk_business_employee_counts_tmp_batch(data, data_table):
 
@@ -279,17 +277,17 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             data, _ = self.do_handle(
                 prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
             )
-            save_uk_business_employee_counts_tmp_data(data[DATA_FIELD])
+            save_uk_business_employee_counts_tmp_data(data)
             data, _ = self.do_handle(
                 prefix=settings.REF_SIC_CODES_MAPPING_FROM_S3_PREFIX,
             )
-            save_ref_sic_codes_mapping_data(data[DATA_FIELD])
+            save_ref_sic_codes_mapping_data(data)
             data, _ = self.do_handle(
                 prefix=settings.SECTOR_REFERENCE_DATASET_FROM_S3_PREFIX,
             )
-            save_sector_reference_dataset_data(data[DATA_FIELD])
+            save_sector_reference_dataset_data(data)
 
-            return self.save_import_data(delete_temp_tables=delete_temp_tables), 'test_file'
+            return self.save_import_data(delete_temp_tables=delete_temp_tables), None
 
         except Exception:
             logger.exception("import_eyb_business_cluster_information failed to ingest data from s3")
