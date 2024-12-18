@@ -274,7 +274,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     def load_data(self, delete_temp_tables=True, *args, **options):
         try:
-            data, _ = self.do_handle(
+            data, last_file_added = self.do_handle(
                 prefix=settings.NOMIS_UK_BUSINESS_EMPLOYEE_COUNTS_FROM_S3_PREFIX,
             )
             save_uk_business_employee_counts_tmp_data(data)
@@ -287,7 +287,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             )
             save_sector_reference_dataset_data(data)
 
-            return self.save_import_data(delete_temp_tables=delete_temp_tables), None
+            return self.save_import_data(delete_temp_tables=delete_temp_tables), [last_file_added]
 
         except Exception:
             logger.exception("import_eyb_business_cluster_information failed to ingest data from s3")

@@ -1,6 +1,7 @@
 import csv
 import json
 import logging
+import sys
 
 import pg_bulk_ingest
 import sqlalchemy as sa
@@ -153,7 +154,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             data, file_names = self.load_data(options['period'], delete_temp_tables=False)
             if data:
                 self.save_import_data(data)
-            store_ingestion_data(file_names, 'import_comtrade_data')
+            store_ingestion_data(file_names, sys.argv[1])
             self.print_results(data if data else [], prefix)
         elif options['load_data'] and options['period']:
             data = self.load_data(options['period'], delete_temp_tables=True)
@@ -201,18 +202,18 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 import_name='import_comtrade_data',
                 period=period,
             )
-            return self.aggregate_filter_and_distinct_data(data, period), file_names
+            return self.aggregate_filter_and_distinct_data(data), file_names
         except Exception:
             logger.exception("import_comtrade failed to ingest data from s3")
 
-    def aggregate_filter_and_distinct_data(self, data, period):
+    def aggregate_filter_and_distinct_data(self, data):
 
         json_data = []
 
         for files in data:
             for line in files['file']:
                 js = json.loads(line)
-                if js['period'] != period or js['fob_trade_value_in_usd'] is None or js['commodity_code'] == 'TOTAL':
+                if js['fob_trade_value_in_usd'] is None or js['commodity_code'] == 'TOTAL':
                     continue
                 if js['reporter_country_iso3'] not in (
                     'GBR',
