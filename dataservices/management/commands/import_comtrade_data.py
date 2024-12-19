@@ -31,6 +31,18 @@ def get_comtrade_tmp_batch(data, data_table):
 
             json_data = json.loads(comtrade)
 
+            if json_data['commodity_code'] == 'TOTAL' or not json_data['fob_trade_value_in_usd']:
+                continue
+
+            if json_data['trade_flow_code'] not in ('X', 'M'):
+                continue
+
+            if json_data['trade_flow_code'] == 'X' and json_data['reporter_country_iso3'] != 'GBR':
+                continue
+
+            if json_data['trade_flow_code'] == 'M' and json_data['partner_country_iso3'] != 'W00':
+                continue
+
             yield (
                 (
                     data_table,
@@ -266,13 +278,6 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                     commodity_code,
                     fob_trade_value_in_usd
             FROM public.{TEMP_TABLE}
-            WHERE commodity_code <> 'TOTAL'
-            AND (
-                (reporter_country_iso3 = 'GBR' AND trade_flow_code = 'X')
-                OR (partner_country_iso3 = 'W00' AND trade_flow_code = 'M')
-            )
-            AND  commodity_code <> 'TOTAL'
-            AND fob_trade_value_in_usd IS NOT NULL
             ORDER BY
                 year,
                 reporter_country_iso3,
