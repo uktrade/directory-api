@@ -164,7 +164,7 @@ def test_dbt_platform_environment(database_credentials, environment):
     os.environ['APP_ENVIRONMENT'] = 'local'
     os.environ['COPILOT_ENVIRONMENT_NAME'] = 'test'
     os.environ['DATABASE_CREDENTIALS'] = database_credentials
-    os.environ['CELERY_BROKER_URL'] = 'rediss://examplepassword@example.com:6379'
+    os.environ['REDIS_ENDPOINT'] = 'rediss://examplepassword@example.com:6379'
     os.environ['OPENSEARCH_URL'] = 'https://exampleuser:examplepassword@example.com:19676'
 
     reload(environment_reader)

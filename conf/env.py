@@ -255,7 +255,7 @@ class DBTPlatformEnvironment(BaseSettings):
     e.g. DBTPlatformEnvironment.app_environment loads and validates the APP_ENVIRONMENT environment variable.
     """
 
-    celery_broker_url: str = ''
+    redis_endpoint: str = ''
     opensearch_url: str
 
     @computed_field(return_type=list[str])
@@ -272,7 +272,7 @@ class DBTPlatformEnvironment(BaseSettings):
     @computed_field(return_type=str)
     @property
     def redis_url(self):
-        return self.celery_broker_url
+        return self.redis_endpoint
 
     @computed_field(return_type=dict)
     @property
