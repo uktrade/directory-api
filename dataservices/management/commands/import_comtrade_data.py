@@ -328,7 +328,10 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             )
             file_names = []
 
+            cnt = 0
             for file in data:
+                cnt += 1
+                self.stdout.write(f'PROCESSIMG FILE {cnt}')
                 file_names.append(file[DATA_FILE])
                 data = self.return_data(file[DATA_FILE])
                 self.save_import_data(data, table_name=TEMP_TABLE)
