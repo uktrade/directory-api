@@ -56,12 +56,12 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
     help = 'Import DBT Sector list data from s3'
 
     def load_data(self, delete_temp_tables=True, *args, **options):
-        data = self.do_handle(
+        data, last_file_added = self.do_handle(
             prefix=settings.DBT_SECTOR_S3_PREFIX,
         )
-        return data
+        return data, last_file_added
 
-    def save_import_data(self, data):
+    def save_import_data(self, data, delete_temp_tables=True):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
