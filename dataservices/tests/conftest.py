@@ -1008,4 +1008,29 @@ def comtrade_tmp_str_data():
 
 @pytest.fixture
 def comtrade_str_data():
-    yield []
+    yield [
+        {
+            'year': 2023,
+            'country_iso3': None,
+            'uk_or_world': None,
+            'classification': 'H6',
+            'commodity_code': '85',
+            'trade_value': 2100.0,
+        },
+        {
+            'year': 2023,
+            'country_iso3': None,
+            'uk_or_world': None,
+            'classification': 'H6',
+            'commodity_code': '85',
+            'trade_value': 3453.0,
+        },
+        {
+            'year': 2023,
+            'country_iso3': None,
+            'uk_or_world': None,
+            'classification': 'H6',
+            'commodity_code': '85',
+            'trade_value': 3723.0,
+        },
+    ]

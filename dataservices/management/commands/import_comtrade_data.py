@@ -59,18 +59,17 @@ def get_comtrade_batch(data, data_table):
 
         for comtrade in data:
 
-            json_data = json.loads(comtrade)
-
             yield (
                 (
                     data_table,
                     (
-                        json_data['year'],
-                        json_data['classification'],
-                        json_data['country_iso3'],
-                        json_data['uk_or_world'],
-                        json_data['commodity_code'],
-                        json_data['trade_value'],
+                        comtrade['year'],
+                        comtrade['classification'],
+                        comtrade['country_iso3'],
+                        comtrade['uk_or_world'],
+                        comtrade['commodity_code'],
+                        comtrade['trade_value'],
+                        None,
                     ),
                 )
             )
@@ -188,17 +187,36 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             if int(options['period']) < settings.COMTRADE_NEXT_PERIOD:
                 self.stdout.write(f'Period less than {settings.COMTRADE_NEXT_PERIOD}')
                 return
-            prefix = 'Created'
-            data, file_names = self.load_data(options['period'], delete_temp_tables=False)
-            if data:
-                self.save_import_data(data, delete_temp_tables=True)
-                self.link_countries()
-            store_ingestion_data(file_names, sys.argv[1])
-            self.print_results(data if data else [], prefix)
+            try:
+                prefix = 'Created'
+                data, file_names = self.load_data(options['period'])
+                if data:
+                    self.save_import_data(data)
+                    self.link_countries()
+                store_ingestion_data(file_names, sys.argv[1])
+                self.print_results(data if data else [], prefix)
+            except Exception:
+                logger.exception("import_comtrade failed to ingest data from s3")
+            finally:
+                self.delete_temp_tables(
+                    [
+                        TEMP_TABLE,
+                    ]
+                )
+
         elif options['load_data'] and options['period']:
-            data, _ = self.load_data(options['period'], delete_temp_tables=True)
-            prefix = 'Would create'
-            self.print_results(data if data else [], prefix)
+            try:
+                data, _ = self.load_data(options['period'])
+                prefix = 'Would create'
+                self.print_results(data if data else [], prefix)
+            except Exception:
+                logger.exception("import_comtrade failed to ingest data from s3")
+            finally:
+                self.delete_temp_tables(
+                    [
+                        TEMP_TABLE,
+                    ]
+                )
 
     def populate_db_from_s3_file(self, filename, test):
         # Read from S3, write into local DB, hook up country table
@@ -300,7 +318,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                     )
         return data
 
-    def load_data(self, period, delete_temp_tables=True, *args, **options):
+    def load_data(self, period, *args, **options):
         try:
             data = self.do_handle(
                 prefix=settings.COMMTRADE_DATASET_FROM_S3_PREFIX,
@@ -309,27 +327,16 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 period=period,
             )
             file_names = []
-            cnt = 0
+
             for file in data:
-                cnt += 1
-                if cnt > 1:
-                    break
                 file_names.append(file[DATA_FILE])
                 data = self.return_data(file[DATA_FILE])
-                self.save_import_data(data, delete_temp_tables=delete_temp_tables, table_name=TEMP_TABLE)
+                self.save_import_data(data, table_name=TEMP_TABLE)
             return self.get_temp_data(), file_names
         except Exception:
             logger.exception("import_comtrade failed to ingest data from s3")
-        finally:
-            pass
-            # if delete_temp_tables:
-            #     self.delete_temp_tables(
-            #         [
-            #             TEMP_TABLE,
-            #         ]
-            #     )
 
-    def save_import_data(self, data, delete_temp_tables=True, table_name=LIVE_TABLE):
+    def save_import_data(self, data, table_name=LIVE_TABLE):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
@@ -352,13 +359,6 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             )
 
         ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
-
-        # if delete_temp_tables:
-        #     self.delete_temp_tables(
-        #         [
-        #             TEMP_TABLE,
-        #         ]
-        #     )
 
         return data
 
