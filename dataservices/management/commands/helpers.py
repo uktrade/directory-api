@@ -1,4 +1,5 @@
 import io
+import sys
 from zipfile import ZipFile
 
 import pandas as pd
@@ -11,6 +12,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 
 from core.helpers import notifications_client
+from dataservices.core.mixins import store_ingestion_data
 from dataservices.models import Metadata
 
 
@@ -78,8 +80,6 @@ class BaseDataWorkspaceIngestionCommand(BaseCommand):
 
 class BaseS3IngestionCommand(BaseCommand):
 
-    save_func = None
-
     def add_arguments(self, parser):
         parser.add_argument(
             '--write',
@@ -93,21 +93,21 @@ class BaseS3IngestionCommand(BaseCommand):
         """
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
 
-    def save_import_data(self, data):
+    def save_import_data(self, data, delete_temp_tables=True, last_file_added=None):
         """
         The procedure for saving the data. Subclasses must implement this method.
         """
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
 
     def handle(self, *args, **options):
-
-        if not options['write']:
-            data = self.load_data(delete_temp_tables=True)
+        if options and not options['write']:
+            data, last_file_added = self.load_data(delete_temp_tables=True)
             prefix = 'Would create'
         else:
             prefix = 'Created'
-            data = self.load_data(delete_temp_tables=False)
+            data, last_file_added = self.load_data(delete_temp_tables=False)
             self.save_import_data(data)
+            store_ingestion_data([last_file_added], sys.argv[1])
 
         if isinstance(data, list):
             count = len(data)
@@ -178,7 +178,14 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
-def ingest_data(engine, metadata, on_before_visible, batches):
+def ingest_data(
+    engine,
+    metadata,
+    on_before_visible,
+    batches,
+    upsert=pg_bulk_ingest.Upsert.OFF,
+    delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
             conn=conn,
@@ -186,6 +193,6 @@ def ingest_data(engine, metadata, on_before_visible, batches):
             batches=batches,
             on_before_visible=on_before_visible,
             high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
-            upsert=pg_bulk_ingest.Upsert.OFF,
-            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+            upsert=upsert,
+            delete=delete,
         )
