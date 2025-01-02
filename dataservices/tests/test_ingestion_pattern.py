@@ -664,6 +664,6 @@ def test_save_comtrade_dataset(mock_connection, mock_ingest):
 @pytest.mark.django_db
 def test_get_comtrade_batch(comtrade_str_data):
     metadata = sa.MetaData()
-    table = get_comtrade_table(metadata, 'comtrade')
+    table = get_comtrade_table(metadata)
     ret = get_comtrade_batch(comtrade_str_data, table)
     assert next(ret[2]) is not None

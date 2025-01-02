@@ -15,7 +15,7 @@ from dataservices.models import ComtradeReport, DBTIngestionHistory
 logger = logging.getLogger(__name__)
 
 LIVE_TABLE = 'dataservices_comtradereport'
-TEMP_TABLE = 'dataservices_tmp_comtradereport'
+
 
 DATA_FILE = 0
 DATA_FILE_NAME = 1
@@ -64,10 +64,10 @@ def get_comtrade_batch(data, data_table):
     )
 
 
-def get_comtrade_table(metadata, table_name):
+def get_comtrade_table(metadata):
 
     return sa.Table(
-        table_name,
+        LIVE_TABLE,
         metadata,
         sa.Column("year", sa.INTEGER, nullable=True),
         sa.Column("classification", sa.TEXT, nullable=False),
