@@ -374,3 +374,8 @@ class UKFreetradeAgreementsAdmin(admin.ModelAdmin):
     )
 
     list_display = ('country', 'name')
+
+
+@admin.register(models.DBTIngestionHistory)
+class DBTIngestionHistoryAdmin(admin.ModelAdmin):
+    list_display = ('import_name', 'imported_file', 'imported_when', 'import_status', 'period')

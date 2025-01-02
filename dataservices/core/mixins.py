@@ -7,6 +7,10 @@ from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
 from sqlalchemy.ext.declarative import declarative_base
 
+from dataservices.models import DBTIngestionHistory
+
+COMTRADE_FILE_NAME = 'comtrade__goods_annual_raw'
+
 
 def unzip_s3_gzip_file(file_body, max_bytes):
     dobj = zlib.decompressobj(max_bytes)
@@ -54,6 +58,26 @@ def get_s3_file(key):
 
 class S3DownloadMixin:
 
+    def store_ingestion_data(self, file_names, import_name, period):
+        for file_name in file_names:
+            DBTIngestionHistory(
+                idmport_name=import_name, imported_file=file_name, import_status=True, period=period
+            ).save()
+
+    def get_ingested_files_for_import(self, import_name, period):
+        return list(
+            DBTIngestionHistory.objects.filter(import_name=import_name, import_status=True, period=period).values_list(
+                'imported_file'
+            )
+        )
+
+    def get_all_files_not_ingested_for_period(self, data, import_name, period):
+
+        ingested_files = self.get_ingested_files_for_import(import_name)
+
+        files = [file for file in data if file not in ingested_files and f'{COMTRADE_FILE_NAME}_{period}' in file[0]]
+        return files
+
     def delete_temp_tables(self, table_names):
         Base = declarative_base()
         metadata = sa.MetaData()
@@ -64,7 +88,7 @@ class S3DownloadMixin:
             if table is not None:
                 Base.metadata.drop_all(engine, [table], checkfirst=True)
 
-    def do_handle(self, prefix):
+    def do_handle(self, prefix, period=None, import_name=None):
         """
         Download latest data file from s3
         unzip downloaded data file
@@ -84,6 +108,8 @@ class S3DownloadMixin:
                     files.append((this_page, this_last_modified_date))
 
         if files:
+            if period and import_name:
+                files = self.get_all_files_not_ingested_for_period(files, import_name, period)
             last_added = sorted(files, key=lambda x: x[1])[-1][0]
             s3_file = get_s3_file(last_added)
             if s3_file:
