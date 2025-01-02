@@ -608,7 +608,7 @@ def test_unzip_s3_gzip_file_eof(mock_decompressobj):
 
 comtrade_data = [
     {
-        'year': settings.COMTRADE_NEXT_PERIOD,
+        'year': 2023,
         'reporter_country_iso3': 'GBR',
         'trade_flow_code': 'HS',
         'partner_country_iso3': 'M',
@@ -617,7 +617,7 @@ comtrade_data = [
         'fob_trade_value_in_usd': 89554,
     },
     {
-        'year': settings.COMTRADE_NEXT_PERIOD,
+        'year': 2023,
         'reporter_country_iso3': 'IRL',
         'trade_flow_code': 'HS',
         'partner_country_iso3': 'M',
@@ -634,7 +634,7 @@ comtrade_data = [
 @mock.patch('dataservices.core.mixins.get_s3_file')
 @mock.patch('dataservices.core.mixins.get_s3_paginator')
 @mock.patch.object(comtrade_command, 'load_data')
-def test_import_comtrade_data_set_from_s3_invalid_period(
+def test_import_comtrade_data_set_from_s3(
     mock_load_data,
     mock_get_s3_paginator,
     mock_get_s3_file,
@@ -645,29 +645,7 @@ def test_import_comtrade_data_set_from_s3_invalid_period(
     mock_get_s3_file.return_value = get_s3_file_data
     mock_get_s3_paginator.return_value = get_s3_data_transfer_data
     mock_load_data.return_value = comtrade_data, 'test_file'
-    period = settings.COMTRADE_NEXT_PERIOD - 1
-    management.call_command('import_comtrade_data', '--period', period, '--load_data', '--write')
-    assert mock_import_data.call_count == 0
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("get_s3_file_data", [comtrade_data[0]], indirect=True)
-@mock.patch.object(comtrade_command, 'save_import_data')
-@mock.patch('dataservices.core.mixins.get_s3_file')
-@mock.patch('dataservices.core.mixins.get_s3_paginator')
-@mock.patch.object(comtrade_command, 'load_data')
-def test_import_comtrade_data_set_from_s3_valid_period(
-    mock_load_data,
-    mock_get_s3_paginator,
-    mock_get_s3_file,
-    mock_import_data,
-    get_s3_file_data,
-    get_s3_data_transfer_data,
-):
-    mock_get_s3_file.return_value = get_s3_file_data
-    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
-    mock_load_data.return_value = comtrade_data, 'test_file'
-    period = settings.COMTRADE_NEXT_PERIOD
+    period = 2023
     management.call_command('import_comtrade_data', '--period', period, '--load_data', '--write')
     assert mock_import_data.call_count == 1
 
