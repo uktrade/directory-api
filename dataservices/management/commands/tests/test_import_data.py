@@ -314,109 +314,6 @@ def metadata_last_release_raw_data():
     }
 
 
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_total_trade_data(read_sql_mock):
-    mock_data = {
-        'ons_iso_alpha_2_code': ['CN', 'CN', 'CN', 'CN', 'CN', 'CN', 'XX'],
-        'period': ['2021-Q1', '2021-Q2', '2021-Q3', '2021-Q4', '2022-Q1', '2022-Q2', '2021-Q1'],
-        'imports': [1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
-        'exports': [1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
-    }
-    read_sql_mock.return_value = [pd.DataFrame(mock_data)]
-
-    assert len(models.UKTotalTradeByCountry.objects.all()) == 0
-
-    management.call_command('import_countries')
-
-    # Dry run
-    management.call_command('import_uk_total_trade_data')
-
-    assert len(models.UKTotalTradeByCountry.objects.all()) == 0
-
-    # Write option
-    management.call_command('import_uk_total_trade_data', '--write')
-
-    assert len(models.UKTotalTradeByCountry.objects.all()) == 7
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_trade_in_services_data(read_sql_mock, trade_in_services_raw_data):
-    read_sql_mock.return_value = [pd.DataFrame(trade_in_services_raw_data)]
-
-    assert len(models.UKTradeInServicesByCountry.objects.all()) == 0
-
-    management.call_command('import_countries')
-
-    # Dry run
-    management.call_command('import_uk_trade_in_services_data')
-
-    assert len(models.UKTradeInServicesByCountry.objects.all()) == 0
-
-    # Write option
-    management.call_command('import_uk_trade_in_services_data', '--write')
-
-    assert len(models.UKTradeInServicesByCountry.objects.all()) == 6
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_uk_trade_in_goods_data(read_sql_mock, trade_in_goods_by_quarter_raw_data):
-    read_sql_mock.return_value = [pd.DataFrame(trade_in_goods_by_quarter_raw_data)]
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
-
-    management.call_command('import_countries')
-
-    # Dry run
-    management.call_command('import_uk_trade_in_goods_data')
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 0
-
-    # Write option
-    management.call_command('import_uk_trade_in_goods_data', '--write')
-
-    assert len(models.UKTradeInGoodsByCountry.objects.all()) == 6
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_world_economic_outlook_data(read_sql_mock, world_economic_outlook_raw_data):
-    read_sql_mock.return_value = [pd.DataFrame(world_economic_outlook_raw_data)]
-
-    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 0
-
-    management.call_command('import_countries')
-
-    # Dry run
-    management.call_command('import_world_economic_outlook_data')
-
-    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 0
-
-    # Write option
-    management.call_command('import_world_economic_outlook_data', '--write')
-
-    assert len(models.WorldEconomicOutlookByCountry.objects.all()) == 10
-
-
-@pytest.mark.django_db
-@mock.patch('pandas.read_sql')
-@override_settings(DATA_WORKSPACE_DATASETS_URL='postgresql://')
-def test_import_metadata_source_data(read_sql_mock, metadata_last_release_raw_data):
-    read_sql_mock.return_value = pd.DataFrame(metadata_last_release_raw_data)
-
-    assert len(models.Metadata.objects.all()) == 0
-
-    management.call_command('import_metadata_source_data')
-
-    assert len(models.Metadata.objects.all()) == 4
-
-
 def test_import_metadata_source_data_filter_tables():
     table_names_view_names = {
         't1': ['v1'],
@@ -493,25 +390,6 @@ def test_import_market_guides_data_error(mock_call_command, mock_should_run, moc
     assert mock_call_command.call_count == 4
     assert 'oops' in str(mock_call_command.side_effect)
     assert mock_error_email.call_count == 4
-    assert 'area_of_error' in mock_email_string
-    assert 'error_type' in mock_email_string
-    assert 'error_details' in mock_email_string
-
-
-@pytest.mark.django_db
-@mock.patch('dataservices.management.commands.helpers.notifications_client')
-@mock.patch('dataservices.management.commands.import_metadata_source_data.getattr')
-@mock.patch('pandas.read_sql')
-def test_import_market_guides_metadata_error(mock_read_sql, mock_model_save, mock_error_email, workspace_data):
-    mock_read_sql.return_value = pd.DataFrame(workspace_data)
-    mock_model_save.side_effect = Exception('nope')
-    mock_error_email.return_value = mock.Mock()
-
-    management.call_command('import_metadata_source_data')
-
-    mock_email_string = str(mock_error_email.mock_calls)
-    assert 'nope' in str(mock_model_save.side_effect)
-    assert mock_error_email.call_count == 1
     assert 'area_of_error' in mock_email_string
     assert 'error_type' in mock_email_string
     assert 'error_details' in mock_email_string

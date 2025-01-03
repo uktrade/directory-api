@@ -45,6 +45,7 @@ from dataservices.management.commands.import_eyb_rent_data import Command as ren
 from dataservices.management.commands.import_eyb_rent_data import get_eyb_rent_batch, get_eyb_rent_table
 from dataservices.management.commands.import_eyb_salary_data import Command as salary_command
 from dataservices.management.commands.import_eyb_salary_data import get_eyb_salary_batch, get_eyb_salary_table
+from dataservices.management.commands.import_metadata_source_data import Command as metadata_data_command
 from dataservices.management.commands.import_postcodes_from_s3 import Command as postcode_command
 from dataservices.management.commands.import_postcodes_from_s3 import (
     get_postcode_postgres_table,
@@ -55,6 +56,9 @@ from dataservices.management.commands.import_sectors_gva_value_bands import (
     get_sectors_gva_value_bands_batch,
     get_sectors_gva_value_bands_table,
 )
+from dataservices.management.commands.import_uk_total_trade_data import Command as total_trade_command
+from dataservices.management.commands.import_uk_trade_in_goods_data import Command as trade_in_goods_command
+from dataservices.management.commands.import_uk_trade_in_services_data import Command as trade_in_services_command
 
 dbsector_data = [
     {
@@ -599,3 +603,67 @@ def test_unzip_s3_gzip_file_eof(mock_decompressobj):
     assert val is not None
     val = next(file)
     assert val is not None
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_ingest_uk_total_trade_data(mock_connection, mock_ingest, uk_total_trade_str_tmp_data, uk_total_trade_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    command = total_trade_command()
+    ret = command.get_temp_batch(uk_total_trade_str_tmp_data, command.get_temp_postgres_table())
+    assert next(ret[2]) is not None
+
+    ret = command.get_batch(uk_total_trade_data, command.get_postgres_table())
+    assert next(ret[2]) is not None
+
+    command.save_import_data([])
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_ingest_uk_trade_in_goods_data(
+    mock_connection, mock_ingest, uk_trade_in_goods_str_tmp_data, uk_trade_in_goods_data
+):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    command = trade_in_goods_command()
+    ret = command.get_temp_batch(uk_trade_in_goods_str_tmp_data, command.get_temp_postgres_table())
+    assert next(ret[2]) is not None
+
+    ret = command.get_batch(uk_trade_in_goods_data, command.get_postgres_table())
+    assert next(ret[2]) is not None
+
+    command.save_import_data(data=uk_trade_in_goods_str_tmp_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_get_uk_trade_in_services_data(
+    mock_connection, mock_ingest, uk_trade_in_services_str_tmp_data, uk_trade_in_services_data
+):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    command = trade_in_services_command()
+    ret = command.get_batch(uk_trade_in_services_data, command.get_postgres_table())
+    assert next(ret[2]) is not None
+
+    command.save_import_data(data=uk_trade_in_services_str_tmp_data)
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_import_metadata_data(mock_connection, mock_ingest, metadata_str_tmp_data):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    command = metadata_data_command()
+
+    ret = command.get_temp_batch(metadata_str_tmp_data, command.get_temp_postgres_table())
+    assert next(ret[2]) is not None

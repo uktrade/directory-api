@@ -395,6 +395,550 @@ def uk_business_employee_counts_str_data(uk_business_employee_counts_data):
 
 
 @pytest.fixture
+def uk_total_trade_tmp_data():
+    yield [
+        {
+            "value": 0.0,
+            "period": "2018-01",
+            "period_type": "quarter",
+            "product_name": "goods-and-services",
+            "direction": "exports",
+            "ons_iso_alpha_2_code": "GD",
+            "country_id": 1,
+        },  # noqa: E501
+        {
+            "value": 0.0,
+            "period": "2018-01",
+            "period_type": "quarter",
+            "product_name": "goods-and-services",
+            "direction": "exports",
+            "ons_iso_alpha_2_code": "GE",
+            "country_id": 2,
+        },  # noqa: E501
+        {
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "period_type": "quarter",
+            "product_name": "goods-and-services",
+            "direction": "imports",
+            "ons_iso_alpha_2_code": "GG",
+            "country_id": 3,
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_total_trade_str_tmp_data(uk_total_trade_tmp_data):
+    data = []
+    for line in uk_total_trade_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_total_trade_data():
+    yield [
+        {
+            "year": 2024,
+            "quarter": 4,
+            "imports": 1.0,
+            "exports": None,
+            "country_id": 1,
+            "ons_iso_alpha_2_code": "GD",
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "exports": 2.1,
+            "imports": None,
+            "country_id": 2,
+            "ons_iso_alpha_2_code": "GE",
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "imports": 0.0,
+            "exports": None,
+            "country_id": 3,
+            "ons_iso_alpha_2_code": "GG",
+        },
+    ]
+
+
+@pytest.fixture
+def uk_total_trade_str_data(uk_total_trade_data):
+    data = []
+    for line in uk_total_trade_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_trade_in_goods_tmp_data():
+    yield [
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "exports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Grenada",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GD",
+            "country_id": 1,
+        },  # noqa: E501
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "exports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Georgia",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GE",
+            "country_id": 2,
+        },  # noqa: E501
+        {
+            "unit": "gbp",
+            "value": 0.0,
+            "marker": "",
+            "period": "2018-01",
+            "direction": "imports",
+            "period_type": "quarter",
+            "measure_type": "gbp-total",
+            "product_code": "XX",
+            "product_name": "Live animals",
+            "ons_region_name": "Guernsey",
+            "seasonal_adjustment": "NSA",
+            "ons_iso_alpha_2_code": "GG",
+            "country_id": 3,
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_goods_str_tmp_data(uk_trade_in_goods_tmp_data):
+    data = []
+    for line in uk_trade_in_goods_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_trade_in_goods_data():
+    yield [
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "AA",
+            "commodity_name": "Fruit",
+            "imports": 1.0,
+            "exports": None,
+            "country_id": 1,
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "BB",
+            "commodity_name": "Bananas",
+            "exports": 2.1,
+            "imports": None,
+            "country_id": 2,
+        },
+        {
+            "year": 2024,
+            "quarter": 4,
+            "commodity_code": "AA",
+            "commodity_name": "Trees",
+            "imports": 0.0,
+            "exports": None,
+            "country_id": 3,
+        },
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_goods_str_data(uk_trade_in_goods_data):
+    data = []
+    for line in uk_trade_in_goods_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_trade_in_services_tmp_data():
+    yield [
+        {
+            "ons_iso_alpha_2_code": "AA",
+            "period": "quarter/2016-Q1",
+            "period_type": "quarter",
+            "product_code": "1",
+            "product_name": "Finance",
+            "direction": "exports",
+            "value": 1.0,
+        },  # noqa: E501
+        {
+            "ons_iso_alpha_2_code": "AA",
+            "period": "quarter/2016-Q2",
+            "period_type": "quarter",
+            "product_code": "1",
+            "product_name": "Finance",
+            "direction": "exports",
+            "value": 1.0,
+        },  # noqa: E501
+        {
+            "ons_iso_alpha_2_code": "AA",
+            "period": "quarter/2016-Q3",
+            "period_type": "quarter",
+            "product_code": "1",
+            "product_name": "Finance",
+            "direction": "exports",
+            "value": 1.0,
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_services_str_tmp_data(uk_trade_in_services_tmp_data):
+    data = []
+    for line in uk_trade_in_services_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def uk_trade_in_services_data():
+    yield [
+        {
+            "period": "quarter/2016-Q1",
+            "period_type": "quarter",
+            "service_code": "AA",
+            "service_name": "Finance",
+            "imports": None,
+            "exports": 1.0,
+            "country_id": 1,
+        },
+        {
+            "period": "quarter/2016-Q2",
+            "period_type": "quarter",
+            "service_code": "AA",
+            "service_name": "Finance",
+            "imports": None,
+            "exports": 1.0,
+            "country_id": 1,
+        },
+        {
+            "period": "quarter/2016-Q3",
+            "period_type": "quarter",
+            "service_code": "AA",
+            "service_name": "Finance",
+            "imports": None,
+            "exports": 1.0,
+            "country_id": 1,
+        },
+    ]
+
+
+@pytest.fixture
+def uk_trade_in_services_str_data(uk_trade_in_services_data):
+    data = []
+    for line in uk_trade_in_services_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def world_economic_outlook_tmp_data():
+    yield [
+        {
+            "weo_subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "notes",
+            "units": "GBP (Billion)",
+            "scale": "",
+            "year_1980": 1,
+            "year_1981": 1,
+            "year_1982": 1,
+            "year_1983": 1,
+            "year_1984": 1,
+            "year_1985": 1,
+            "year_1986": 1,
+            "year_1987": 1,
+            "year_1988": 1,
+            "year_1989": 1,
+            "year_1990": 1,
+            "year_1991": 1,
+            "year_1992": 1,
+            "year_1993": 1,
+            "year_1994": 1,
+            "year_1995": 1,
+            "year_1996": 1,
+            "year_1997": 1,
+            "year_1998": 1,
+            "year_1999": 1,
+            "year_2000": 1,
+            "year_2001": 1,
+            "year_2002": 1,
+            "year_2003": 1,
+            "year_2004": 1,
+            "year_2005": 1,
+            "year_2006": 1,
+            "year_2007": 1,
+            "year_2008": 1,
+            "year_2009": 1,
+            "year_2010": 1,
+            "year_2011": 1,
+            "year_2012": 1,
+            "year_2013": 1,
+            "year_2014": 1,
+            "year_2015": 1,
+            "year_2016": 1,
+            "year_2017": 1,
+            "year_2018": 1,
+            "year_2019": 1,
+            "year_2020": 1,
+            "year_2021": 1,
+            "year_2022": 1,
+            "year_2023": 1,
+            "year_2024": 1,
+            "year_2025": 1,
+            "year_2026": 1,
+            "year_2027": 1,
+            "year_2028": 1,
+            "year_2029": 1,
+            "estimates_start_after": 2024,
+            "iso": "GD",
+        },  # noqa: E501
+        {
+            "weo_subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "notes",
+            "units": "GBP (Billion)",
+            "scale": "",
+            "year_1980": 2,
+            "year_1981": 2,
+            "year_1982": 2,
+            "year_1983": 2,
+            "year_1984": 2,
+            "year_1985": 2,
+            "year_1986": 2,
+            "year_1987": 2,
+            "year_1988": 2,
+            "year_1989": 2,
+            "year_1990": 2,
+            "year_1991": 2,
+            "year_1992": 2,
+            "year_1993": 2,
+            "year_1994": 2,
+            "year_1995": 2,
+            "year_1996": 2,
+            "year_1997": 2,
+            "year_1998": 2,
+            "year_1999": 2,
+            "year_2000": 2,
+            "year_2001": 2,
+            "year_2002": 2,
+            "year_2003": 2,
+            "year_2004": 2,
+            "year_2005": 2,
+            "year_2006": 2,
+            "year_2007": 2,
+            "year_2008": 2,
+            "year_2009": 2,
+            "year_2010": 2,
+            "year_2011": 2,
+            "year_2012": 2,
+            "year_2013": 2,
+            "year_2014": 2,
+            "year_2015": 2,
+            "year_2016": 2,
+            "year_2017": 2,
+            "year_2018": 2,
+            "year_2019": 2,
+            "year_2020": 2,
+            "year_2021": 2,
+            "year_2022": 2,
+            "year_2023": 2,
+            "year_2024": 2,
+            "year_2025": 2,
+            "year_2026": 2,
+            "year_2027": 2,
+            "year_2028": 2,
+            "year_2029": 2,
+            "estimates_start_after": 2024,
+            "iso": "GE",
+        },  # noqa: E501
+        {
+            "weo_subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "notes",
+            "units": "GBP (Billion)",
+            "scale": "",
+            "year_1980": 3,
+            "year_1981": 3,
+            "year_1982": 3,
+            "year_1983": 3,
+            "year_1984": 3,
+            "year_1985": 3,
+            "year_1986": 3,
+            "year_1987": 3,
+            "year_1988": 3,
+            "year_1989": 3,
+            "year_1990": 3,
+            "year_1991": 3,
+            "year_1992": 3,
+            "year_1993": 3,
+            "year_1994": 3,
+            "year_1995": 3,
+            "year_1996": 3,
+            "year_1997": 3,
+            "year_1998": 3,
+            "year_1999": 3,
+            "year_2000": 3,
+            "year_2001": 3,
+            "year_2002": 3,
+            "year_2003": 3,
+            "year_2004": 3,
+            "year_2005": 3,
+            "year_2006": 3,
+            "year_2007": 3,
+            "year_2008": 3,
+            "year_2009": 3,
+            "year_2010": 3,
+            "year_2011": 3,
+            "year_2012": 3,
+            "year_2013": 3,
+            "year_2014": 3,
+            "year_2015": 3,
+            "year_2016": 3,
+            "year_2017": 3,
+            "year_2018": 3,
+            "year_2019": 3,
+            "year_2020": 3,
+            "year_2021": 3,
+            "year_2022": 3,
+            "year_2023": 3,
+            "year_2024": 3,
+            "year_2025": 3,
+            "year_2026": 3,
+            "year_2027": 3,
+            "year_2028": 3,
+            "year_2029": 3,
+            "estimates_start_after": 2024,
+            "iso": "GG",
+        },  # noqa: E501
+    ]
+
+
+@pytest.fixture
+def world_economic_outlook_str_tmp_data(world_economic_outlook_tmp_data):
+    data = []
+    for line in world_economic_outlook_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def world_economic_outlook_data():
+    yield [
+        {
+            "subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "Notes",
+            "year": 2024,
+            "value": 1,
+            "estimates_start_after": 2024,
+            "units": "GBP (Millions)",
+            "scale": None,
+            "country_id": 1,
+            "ons_iso_alpha_3_code": "GD",
+        },
+        {
+            "subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "Notes",
+            "year": 2024,
+            "value": 1,
+            "estimates_start_after": 2024,
+            "units": "GBP (Millions)",
+            "scale": None,
+            "country_id": 2,
+            "ons_iso_alpha_3_code": "GE",
+        },
+        {
+            "subject_code": "NGDPD",
+            "subject_descriptor": "NGDPD",
+            "subject_notes": "Notes",
+            "year": 2024,
+            "value": 1,
+            "estimates_start_after": 2024,
+            "units": "GBP (Millions)",
+            "scale": None,
+            "country_id": 3,
+            "ons_iso_alpha_3_code": "GG",
+        },
+    ]
+
+
+@pytest.fixture
+def world_economic_outlook_str_data(world_economic_outlook_data):
+    data = []
+    for line in world_economic_outlook_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
+def metadata_tmp_data():
+    yield [
+        {
+            "id": 1,
+            "table_name": "trade__uk_totals_sa",
+            "source_data_modified_utc": "2023-07-20T03:38:38.677221",
+            "dataflow_swapped_tables_utc": "2023-07-20T03:45:14.115896",
+        },
+        {
+            "id": 2,
+            "table_name": "trade__uk_goods_nsa",
+            "source_data_modified_utc": "2022-04-28T00:00:00",
+            "dataflow_swapped_tables_utc": "2022-05-12T08:51:45.623427",
+        },
+        {
+            "id": 3,
+            "table_name": "trade__uk_services_nsa",
+            "source_data_modified_utc": "2022-05-12T00:00:00",
+            "dataflow_swapped_tables_utc": "2022-05-12T16:40:11.207127",
+        },
+    ]
+
+
+@pytest.fixture
+def metadata_str_tmp_data(metadata_tmp_data):
+    data = []
+    for line in metadata_tmp_data:
+        line = json.dumps(line)
+        data.append(line)
+    yield data
+
+
+@pytest.fixture
 def eyb_salary_s3_data():
     yield [
         '{"id": "1", "code": 1121, "year": 2021, "region": "East", "created": "2024-06-04T20:04:59", "modified": "2024-06-04T20:04:59", "vertical": "Food and Drink", "color_tag": null, "occupation": "Production managers and directors in manufacturing", "mean_salary": "55763", "median_salary": "43137", "professional_level": "Director/Executive", "compliance_asset_id": null, "annual_percantage_change": null, "annual_percentage_change": null, "number_of_jobs_thousands": null}\n',  # noqa: E501
