@@ -79,6 +79,8 @@ class BaseDataWorkspaceIngestionCommand(BaseCommand):
 class BaseS3IngestionCommand(BaseCommand):
 
     save_func = None
+    engine = sa.create_engine(settings.DATABASE_URL, future=True)
+    metadata = sa.MetaData()
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -98,6 +100,17 @@ class BaseS3IngestionCommand(BaseCommand):
         The procedure for saving the data. Subclasses must implement this method.
         """
         raise NotImplementedError('subclasses of MarketGuidesDataIngestionCommand must provide a load_data() method')
+
+    def save_temp_data(self, data):
+        data_table = self.get_temp_postgres_table()
+
+        def on_before_visible(conn, ingest_table, batch_metadata):
+            pass
+
+        def batches(_):
+            yield self.get_temp_batch(data, data_table)
+
+        ingest_data(self.engine, self.metadata, on_before_visible, batches)
 
     def handle(self, *args, **options):
 
