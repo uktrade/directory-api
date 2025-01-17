@@ -17,7 +17,7 @@ django-staff-sso-client==4.2.1
 django-storages==1.13.2
 django-timezone-field==6.1.0
 djangorestframework==3.15.2
-django-log-formatter-asim==0.0.4
+django-log-formatter-asim==0.0.6
 directory-client-core==7.2.13
 directory-components==40.2.3
 directory-constants==24.1.3
