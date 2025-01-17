@@ -62,37 +62,29 @@ def get_comtrade_table(metadata):
     )
 
 
-def filter_data_by_period(data, period):
-    ret = []
+def filter_data_by_period_count(data, period):
+    
+    cnt = 0
     for row in data:
         line = json.loads(row)
-        if str(line['period']) != period:
-            continue
-        flow = line['trade_flow_code']
-        uk_or_world = None
-        country_iso3 = None
-        if line['reporter_country_iso3'] == 'GBR' and flow == 'X':
-            uk_or_world = line['reporter_country_iso3']
-            country_iso3 = line['partner_country_iso3']
-        if line['partner_country_iso3'] == 'W00' and flow == 'M':
-            uk_or_world = 'WLD'
-            country_iso3 = line['reporter_country_iso3']
+        if str(line['period']) == period:
+            flow = line['trade_flow_code']
+            uk_or_world = None
+            country_iso3 = None
+            if line['reporter_country_iso3'] == 'GBR' and flow == 'X':
+                uk_or_world = line['reporter_country_iso3']
+                country_iso3 = line['partner_country_iso3']
+            if line['partner_country_iso3'] == 'W00' and flow == 'M':
+                uk_or_world = 'WLD'
+                country_iso3 = line['reporter_country_iso3']
 
-        trade_value = line['fob_trade_value_in_usd']
-        if pd.isna(trade_value):
-            trade_value = 0.0
-        if country_iso3 and uk_or_world:
-            ret.append(
-                {
-                    'country_iso3': country_iso3,
-                    'year': line['year'],
-                    'classification': line['classification'],
-                    'commodity_code': line['commodity_code'],
-                    'trade_value': float(trade_value),
-                    'uk_or_world': uk_or_world,
-                }
-            )
-    return ret
+            trade_value = line['fob_trade_value_in_usd']
+            if pd.isna(trade_value):
+                trade_value = 0.0
+            if country_iso3 and uk_or_world:
+                cnt += 1
+            
+    return cnt
 
 
 class Command(BaseS3IngestionCommand, S3DownloadMixin):
@@ -150,9 +142,8 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             self.stdout.write('Un-linking countries')
             cursor.execute(f"UPDATE {LIVE_TABLE} set country_id=null;")
 
-    def print_results(self, data, prefix):
-        count = len(data)
-        self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+    def print_results(self, cnt, prefix):
+        self.stdout.write(self.style.SUCCESS(f'{prefix} {cnt} records.'))
 
     def delete_data_for_period(self, period):
         with connection.cursor() as cursor:
@@ -194,9 +185,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             if self.is_invalid_period(options['period']):
                 return
             try:
-                data = self.load_data(options['period'])
+                cnt = self.load_data(options['period'])
                 prefix = 'Would create'
-                self.print_results(data if data else [], prefix)
+                self.print_results(cnt, prefix)
             except Exception:
                 logger.exception("import_comtrade failed to ingest data from s3")
 
@@ -237,8 +228,8 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         data = self.do_handle(
             prefix=settings.COMTRADE_S3_PREFIX,
         )
-        data = filter_data_by_period(data, period)
-        return data
+        return filter_data_by_period_count(data, period)
+
 
     def save_import_data(self, data):
 
