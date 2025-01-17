@@ -100,13 +100,13 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
     help = 'Import Comtrade data'
 
     def link_countries(self):
-        cursor = connection.cursor()
         self.stdout.write('Linking countries')
-        cursor.execute(
-            f"UPDATE {LIVE_TABLE} as d \
-            set country_id=c.id \
-            from dataservices_country as c where d.country_iso3=c.iso3;"
-        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE {LIVE_TABLE} as d \
+                set country_id=c.id \
+                from dataservices_country as c where d.country_iso3=c.iso3;"
+            )
 
     def load_raw_files(self, filenames):
         # Loads a raw file as downloaded from comtrade on top of existing data in db
@@ -146,17 +146,17 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
     def unlink_countries(self):
-        cursor = connection.cursor()
-        self.stdout.write('Un-linking countries')
-        cursor.execute(f"UPDATE {LIVE_TABLE} set country_id=null;")
+        with connection.cursor() as cursor:
+            self.stdout.write('Un-linking countries')
+            cursor.execute(f"UPDATE {LIVE_TABLE} set country_id=null;")
 
     def print_results(self, data, prefix):
         count = len(data)
         self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
 
     def delete_data_for_period(self, period):
-        cursor = connection.cursor()
-        cursor.execute(f"DELETE FROM {LIVE_TABLE} where year={period};")
+        with connection.cursor() as cursor:
+            cursor.execute(f"DELETE FROM {LIVE_TABLE} where year={period};")
 
     def is_invalid_period(self, period):
         if int(period) < settings.COMTRADE_FIRST_PERIOD:
@@ -202,34 +202,34 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
     def populate_db_from_s3_file(self, filename, test):
         # Read from S3, write into local DB, hook up country table
-        cursor = connection.cursor()
-        filestream = get_s3_file_stream(filename or settings.COMTRADE_DATA_FILE_NAME)
-        file_reader = csv.DictReader(filestream.split())
-        self.stdout.write('*********   Loading comtrade data')
-        written = 0
-        for row in file_reader:
-            cursor.execute(
-                f"INSERT INTO \
-                {LIVE_TABLE} \
-                (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
-                VALUES\
-                (%s, %s, %s, %s, %s, %s, %s)",
-                [
-                    row.get('id'),
-                    row.get('year'),
-                    row.get('classification'),
-                    row.get('commodity_code'),
-                    row.get('trade_value'),
-                    row.get('uk_or_world'),
-                    row.get('country_iso3'),
-                ],
-            )
+        with connection.cursor() as cursor:
+            filestream = get_s3_file_stream(filename or settings.COMTRADE_DATA_FILE_NAME)
+            file_reader = csv.DictReader(filestream.split())
+            self.stdout.write('*********   Loading comtrade data')
+            written = 0
+            for row in file_reader:
+                cursor.execute(
+                    f"INSERT INTO \
+                    {LIVE_TABLE} \
+                    (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
+                    VALUES\
+                    (%s, %s, %s, %s, %s, %s, %s)",
+                    [
+                        row.get('id'),
+                        row.get('year'),
+                        row.get('classification'),
+                        row.get('commodity_code'),
+                        row.get('trade_value'),
+                        row.get('uk_or_world'),
+                        row.get('country_iso3'),
+                    ],
+                )
 
-            written = written + 1
-            if written % 1000 == 0:
-                print(f'  {written} rows written', end='\r', flush=True)
-            if written >= 1000 and test:
-                break
+                written = written + 1
+                if written % 1000 == 0:
+                    print(f'  {written} rows written', end='\r', flush=True)
+                if written >= 1000 and test:
+                    break
         self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
         self.link_countries()
 
