@@ -744,7 +744,7 @@ def test_import_comtrade_data_set_from_s3_valid_period(
 def test_save_comtrade_dataset(mock_connection, mock_ingest):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
     command = comtrade_command()
-    command.save_import_data(data=comtrade_data, period=2023)
+    command.save_import_data(data=comtrade_data, period='2023')
     assert mock_ingest.call_count == 1
 
 
@@ -752,5 +752,5 @@ def test_save_comtrade_dataset(mock_connection, mock_ingest):
 def test_get_comtrade_batch(comtrade_str_data):
     metadata = sa.MetaData()
     table = get_comtrade_table(metadata)
-    ret = get_comtrade_batch(comtrade_str_data, table, 2023)
+    ret = get_comtrade_batch(comtrade_str_data, table, '2023')
     assert next(ret[2]) is not None

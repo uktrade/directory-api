@@ -44,6 +44,7 @@ def get_comtrade_batch(data, data_table, period):
             if not country_iso3 or not uk_or_world:
                 continue
 
+           
             yield (
                 (
                     data_table,

@@ -1541,31 +1541,40 @@ def postcode_data():
     ]
 
 
+# @pytest.fixture
+# def comtrade_batch_data():
+#     yield [
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 2100.0,
+#         },
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 3453.0,
+#         },
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 3723.0,
+#         },
+#     ]
+
+
 @pytest.fixture
 def comtrade_str_data():
     yield [
-        {
-            'year': 2023,
-            'country_iso3': None,
-            'uk_or_world': None,
-            'classification': 'H6',
-            'commodity_code': '85',
-            'trade_value': 2100.0,
-        },
-        {
-            'year': 2023,
-            'country_iso3': None,
-            'uk_or_world': None,
-            'classification': 'H6',
-            'commodity_code': '85',
-            'trade_value': 3453.0,
-        },
-        {
-            'year': 2023,
-            'country_iso3': None,
-            'uk_or_world': None,
-            'classification': 'H6',
-            'commodity_code': '85',
-            'trade_value': 3723.0,
-        },
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "283539", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 508, "fob_trade_value_in_usd": 98000.0, "reporter_country_iso3": "MOZ", "partner_country_iso3": "W00"}\n',  # noqa: E501
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "293369", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 642, "fob_trade_value_in_usd": 2820.69, "reporter_country_iso3": "ROU", "partner_country_iso3": "W00"}\n',  # noqa: E501
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "85", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 688, "fob_trade_value_in_usd": 280159980.0, "reporter_country_iso3": "SRB", "partner_country_iso3": "W00"}\n',  # noqa: E501
     ]
