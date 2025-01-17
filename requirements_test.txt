@@ -174,7 +174,7 @@ django-import-export==3.3.6
     # via -r requirements.in
 django-json-widget==1.1.1
     # via -r requirements.in
-django-log-formatter-asim==0.0.4
+django-log-formatter-asim==0.0.6
     # via -r requirements.in
 django-redis==5.4.0
     # via -r requirements.in

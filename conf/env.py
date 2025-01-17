@@ -226,6 +226,9 @@ class BaseSettings(PydanticBaseSettings):
     trade_uk_services_nsa_from_s3_prefix: str = ''
     imf_world_economic_outlook_s3_prefix: str = ''
     datasets_metadata_s3_prefix: str = ''
+    comtrade_s3_prefix: str = ''
+
+    comtrade_first_period: int = 2020
 
 
 class CIEnvironment(BaseSettings):

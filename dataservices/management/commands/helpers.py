@@ -191,7 +191,7 @@ def align_vertical_names(statista_vertical_name: str) -> str:
     return mapping[statista_vertical_name] if statista_vertical_name in mapping.keys() else statista_vertical_name
 
 
-def ingest_data(engine, metadata, on_before_visible, batches):
+def ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH):
     with engine.connect() as conn:
         pg_bulk_ingest.ingest(
             conn=conn,
@@ -200,5 +200,5 @@ def ingest_data(engine, metadata, on_before_visible, batches):
             on_before_visible=on_before_visible,
             high_watermark=pg_bulk_ingest.HighWatermark.LATEST,
             upsert=pg_bulk_ingest.Upsert.OFF,
-            delete=pg_bulk_ingest.Delete.BEFORE_FIRST_BATCH,
+            delete=delete,
         )
