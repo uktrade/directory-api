@@ -18,22 +18,42 @@ logger = logging.getLogger(__name__)
 LIVE_TABLE = 'dataservices_comtradereport'
 
 
-def get_comtrade_batch(data, data_table):
+def get_comtrade_batch(data, data_table, period):
 
     def get_table_data():
 
         for comtrade in data:
 
+            line = json.loads(comtrade)
+            if str(line['period']) != period:
+                continue
+
+            flow = line['trade_flow_code']
+            uk_or_world = None
+            country_iso3 = None
+            if line['reporter_country_iso3'] == 'GBR' and flow == 'X':
+                uk_or_world = line['reporter_country_iso3']
+                country_iso3 = line['partner_country_iso3']
+            if line['partner_country_iso3'] == 'W00' and flow == 'M':
+                uk_or_world = 'WLD'
+                country_iso3 = line['reporter_country_iso3']
+
+            trade_value = line['fob_trade_value_in_usd']
+            if pd.isna(trade_value):
+                trade_value = 0.0
+            if not country_iso3 or not uk_or_world:
+                continue
+
             yield (
                 (
                     data_table,
                     (
-                        comtrade['year'],
-                        comtrade['classification'],
-                        comtrade['country_iso3'],
-                        comtrade['uk_or_world'],
-                        comtrade['commodity_code'],
-                        comtrade['trade_value'],
+                        line['year'],
+                        line['classification'],
+                        country_iso3,
+                        uk_or_world,
+                        line['commodity_code'],
+                        trade_value,
                         None,
                     ),
                 )
@@ -62,37 +82,29 @@ def get_comtrade_table(metadata):
     )
 
 
-def filter_data_by_period(data, period):
-    ret = []
+def filter_data_by_period_count(data, period):
+
+    cnt = 0
     for row in data:
         line = json.loads(row)
-        if str(line['period']) != period:
-            continue
-        flow = line['trade_flow_code']
-        uk_or_world = None
-        country_iso3 = None
-        if line['reporter_country_iso3'] == 'GBR' and flow == 'X':
-            uk_or_world = line['reporter_country_iso3']
-            country_iso3 = line['partner_country_iso3']
-        if line['partner_country_iso3'] == 'W00' and flow == 'M':
-            uk_or_world = 'WLD'
-            country_iso3 = line['reporter_country_iso3']
+        if str(line['period']) == period:
+            flow = line['trade_flow_code']
+            uk_or_world = None
+            country_iso3 = None
+            if line['reporter_country_iso3'] == 'GBR' and flow == 'X':
+                uk_or_world = line['reporter_country_iso3']
+                country_iso3 = line['partner_country_iso3']
+            if line['partner_country_iso3'] == 'W00' and flow == 'M':
+                uk_or_world = 'WLD'
+                country_iso3 = line['reporter_country_iso3']
 
-        trade_value = line['fob_trade_value_in_usd']
-        if pd.isna(trade_value):
-            trade_value = 0.0
-        if country_iso3 and uk_or_world:
-            ret.append(
-                {
-                    'country_iso3': country_iso3,
-                    'year': line['year'],
-                    'classification': line['classification'],
-                    'commodity_code': line['commodity_code'],
-                    'trade_value': float(trade_value),
-                    'uk_or_world': uk_or_world,
-                }
-            )
-    return ret
+            trade_value = line['fob_trade_value_in_usd']
+            if pd.isna(trade_value):
+                trade_value = 0.0
+            if country_iso3 and uk_or_world:
+                cnt += 1
+
+    return cnt
 
 
 class Command(BaseS3IngestionCommand, S3DownloadMixin):
@@ -100,13 +112,13 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
     help = 'Import Comtrade data'
 
     def link_countries(self):
-        cursor = connection.cursor()
         self.stdout.write('Linking countries')
-        cursor.execute(
-            f"UPDATE {LIVE_TABLE} as d \
-            set country_id=c.id \
-            from dataservices_country as c where d.country_iso3=c.iso3;"
-        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE {LIVE_TABLE} as d \
+                set country_id=c.id \
+                from dataservices_country as c where d.country_iso3=c.iso3;"
+            )
 
     def load_raw_files(self, filenames):
         # Loads a raw file as downloaded from comtrade on top of existing data in db
@@ -146,17 +158,16 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 self.stdout.write(self.style.SUCCESS(f'{read} read, {written} written'))
 
     def unlink_countries(self):
-        cursor = connection.cursor()
-        self.stdout.write('Un-linking countries')
-        cursor.execute(f"UPDATE {LIVE_TABLE} set country_id=null;")
+        with connection.cursor() as cursor:
+            self.stdout.write('Un-linking countries')
+            cursor.execute(f"UPDATE {LIVE_TABLE} set country_id=null;")
 
-    def print_results(self, data, prefix):
-        count = len(data)
-        self.stdout.write(self.style.SUCCESS(f'{prefix} {count} records.'))
+    def print_results(self, cnt, prefix):
+        self.stdout.write(self.style.SUCCESS(f'{prefix} {cnt} records.'))
 
     def delete_data_for_period(self, period):
-        cursor = connection.cursor()
-        cursor.execute(f"DELETE FROM {LIVE_TABLE} where year={period};")
+        with connection.cursor() as cursor:
+            cursor.execute(f"DELETE FROM {LIVE_TABLE} where year={period};")
 
     def is_invalid_period(self, period):
         if int(period) < settings.COMTRADE_FIRST_PERIOD:
@@ -181,12 +192,11 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 return
             try:
                 prefix = 'Created'
-                data = self.load_data(options['period'])
+                data = self.load_data(options['period'], read_only=False)
                 if data:
                     self.delete_data_for_period(options['period'])
-                    self.save_import_data(data)
+                    self.save_import_data(data, options['period'])
                     self.link_countries()
-                self.print_results(data if data else [], prefix)
             except Exception:
                 logger.exception("import_comtrade failed to ingest data from s3")
 
@@ -194,53 +204,55 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             if self.is_invalid_period(options['period']):
                 return
             try:
-                data = self.load_data(options['period'])
+                cnt = self.load_data(options['period'])
                 prefix = 'Would create'
-                self.print_results(data if data else [], prefix)
+                self.print_results(cnt, prefix)
             except Exception:
                 logger.exception("import_comtrade failed to ingest data from s3")
 
     def populate_db_from_s3_file(self, filename, test):
         # Read from S3, write into local DB, hook up country table
-        cursor = connection.cursor()
-        filestream = get_s3_file_stream(filename or settings.COMTRADE_DATA_FILE_NAME)
-        file_reader = csv.DictReader(filestream.split())
-        self.stdout.write('*********   Loading comtrade data')
-        written = 0
-        for row in file_reader:
-            cursor.execute(
-                f"INSERT INTO \
-                {LIVE_TABLE} \
-                (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
-                VALUES\
-                (%s, %s, %s, %s, %s, %s, %s)",
-                [
-                    row.get('id'),
-                    row.get('year'),
-                    row.get('classification'),
-                    row.get('commodity_code'),
-                    row.get('trade_value'),
-                    row.get('uk_or_world'),
-                    row.get('country_iso3'),
-                ],
-            )
+        with connection.cursor() as cursor:
+            filestream = get_s3_file_stream(filename or settings.COMTRADE_DATA_FILE_NAME)
+            file_reader = csv.DictReader(filestream.split())
+            self.stdout.write('*********   Loading comtrade data')
+            written = 0
+            for row in file_reader:
+                cursor.execute(
+                    f"INSERT INTO \
+                    {LIVE_TABLE} \
+                    (id, year, classification, commodity_code, trade_value, uk_or_world, country_iso3 )\
+                    VALUES\
+                    (%s, %s, %s, %s, %s, %s, %s)",
+                    [
+                        row.get('id'),
+                        row.get('year'),
+                        row.get('classification'),
+                        row.get('commodity_code'),
+                        row.get('trade_value'),
+                        row.get('uk_or_world'),
+                        row.get('country_iso3'),
+                    ],
+                )
 
-            written = written + 1
-            if written % 1000 == 0:
-                print(f'  {written} rows written', end='\r', flush=True)
-            if written >= 1000 and test:
-                break
+                written = written + 1
+                if written % 1000 == 0:
+                    print(f'  {written} rows written', end='\r', flush=True)
+                if written >= 1000 and test:
+                    break
         self.stdout.write(self.style.SUCCESS(f'Loaded table - {written} rows written'))
         self.link_countries()
 
-    def load_data(self, period, *args, **options):
+    def load_data(self, period, read_only=True, *args, **options):
         data = self.do_handle(
             prefix=settings.COMTRADE_S3_PREFIX,
         )
-        data = filter_data_by_period(data, period)
-        return data
+        if read_only:
+            return filter_data_by_period_count(data, period)
+        else:
+            return data
 
-    def save_import_data(self, data):
+    def save_import_data(self, data, period):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
@@ -252,7 +264,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             pass
 
         def batches(_):
-            yield get_comtrade_batch(data, data_table)
+            yield get_comtrade_batch(data, data_table, period)
 
         ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
 
