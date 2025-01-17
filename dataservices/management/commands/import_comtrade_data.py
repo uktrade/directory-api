@@ -158,6 +158,12 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         cursor = connection.cursor()
         cursor.execute(f"DELETE FROM {LIVE_TABLE} where year={period};")
 
+    def is_invalid_period(self, period):
+        if int(period) < settings.COMTRADE_FIRST_PERIOD:
+            self.stdout.write(f'Period less than {settings.COMTRADE_FIRST_PERIOD}')
+            return True
+        return False
+
     def handle(self, *args, **options):
 
         if options['wipe'] and options['period']:
@@ -171,8 +177,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         elif options['filenames'] and options['from_s3_file']:
             self.populate_db_from_s3(options['filenames'] and options['filenames'][0], test=options['test'])
         elif options['load_data'] and options['write'] and options['period']:
-            if int(options['period']) < settings.COMTRADE_FIRST_PERIOD:
-                self.stdout.write(f'Period less than {settings.COMTRADE_FIRST_PERIOD}')
+            if self.is_invalid_period(options['period']):
                 return
             try:
                 prefix = 'Created'
@@ -186,8 +191,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 logger.exception("import_comtrade failed to ingest data from s3")
 
         elif options['load_data'] and options['period']:
-            if int(options['period']) < settings.COMTRADE_FIRST_PERIOD:
-                self.stdout.write(f'Period less than {settings.COMTRADE_FIRST_PERIOD}')
+            if self.is_invalid_period(options['period']):
                 return
             try:
                 data = self.load_data(options['period'])
