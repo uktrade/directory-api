@@ -673,7 +673,7 @@ def test_import_metadata_data(mock_connection, mock_ingest, metadata_str_tmp_dat
 
 comtrade_data = [
     {
-        'year': settings.COMTRADE_NEXT_PERIOD,
+        'year': settings.COMTRADE_FIRST_PERIOD,
         'reporter_country_iso3': 'GBR',
         'trade_flow_code': 'HS',
         'partner_country_iso3': 'M',
@@ -682,7 +682,7 @@ comtrade_data = [
         'fob_trade_value_in_usd': 89554,
     },
     {
-        'year': settings.COMTRADE_NEXT_PERIOD,
+        'year': settings.COMTRADE_FIRST_PERIOD,
         'reporter_country_iso3': 'IRL',
         'trade_flow_code': 'HS',
         'partner_country_iso3': 'M',
