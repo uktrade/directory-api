@@ -18,6 +18,8 @@ from django.test import override_settings
 from sqlalchemy.future.engine import Engine
 
 from dataservices.core.mixins import get_s3_file, get_s3_paginator, unzip_s3_gzip_file
+from dataservices.management.commands.import_comtrade_data import Command as comtrade_command
+from dataservices.management.commands.import_comtrade_data import get_comtrade_batch, get_comtrade_table
 from dataservices.management.commands.import_dbt_investment_opportunities import Command as investment_command
 from dataservices.management.commands.import_dbt_investment_opportunities import (
     get_investment_opportunities_batch,
@@ -666,4 +668,89 @@ def test_import_metadata_data(mock_connection, mock_ingest, metadata_str_tmp_dat
     command = metadata_data_command()
 
     ret = command.get_temp_batch(metadata_str_tmp_data, command.get_temp_postgres_table())
+    assert next(ret[2]) is not None
+
+
+comtrade_data = [
+    {
+        'year': settings.COMTRADE_FIRST_PERIOD,
+        'reporter_country_iso3': 'GBR',
+        'trade_flow_code': 'HS',
+        'partner_country_iso3': 'M',
+        'classification': 'H5',
+        'commodity_code': '010649',
+        'fob_trade_value_in_usd': 89554,
+    },
+    {
+        'year': settings.COMTRADE_FIRST_PERIOD,
+        'reporter_country_iso3': 'IRL',
+        'trade_flow_code': 'HS',
+        'partner_country_iso3': 'M',
+        'classification': 'H5',
+        'commodity_code': '010690',
+        'fob_trade_value_in_usd': 212331,
+    },
+]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("get_s3_file_data", [comtrade_data[0]], indirect=True)
+@mock.patch.object(comtrade_command, 'save_import_data')
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(comtrade_command, 'load_data')
+def test_import_comtrade_data_set_from_s3_invalid_period(
+    mock_load_data,
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_import_data,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    mock_load_data.return_value = comtrade_data, 'test_file'
+    period = settings.COMTRADE_FIRST_PERIOD - 1
+    management.call_command('import_comtrade_data', '--period', period, '--load_data', '--write')
+    assert mock_import_data.call_count == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("get_s3_file_data", [comtrade_data[0]], indirect=True)
+@mock.patch.object(comtrade_command, 'save_import_data')
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
+@mock.patch.object(comtrade_command, 'load_data')
+def test_import_comtrade_data_set_from_s3_valid_period(
+    mock_load_data,
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_import_data,
+    get_s3_file_data,
+    get_s3_data_transfer_data,
+):
+    mock_get_s3_file.return_value = get_s3_file_data
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+    mock_load_data.return_value = comtrade_data, 'test_file'
+    period = settings.COMTRADE_FIRST_PERIOD
+    management.call_command('import_comtrade_data', '--period', period, '--load_data', '--write')
+    assert mock_import_data.call_count == 1
+
+
+@pytest.mark.django_db
+@override_settings(DATABASE_URL='postgresql://')
+@mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
+@mock.patch.object(Engine, 'connect')
+def test_save_comtrade_dataset(mock_connection, mock_ingest):
+    mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    command = comtrade_command()
+    command.save_import_data(data=comtrade_data, period='2023')
+    assert mock_ingest.call_count == 1
+
+
+@pytest.mark.django_db
+def test_get_comtrade_batch(comtrade_str_data):
+    metadata = sa.MetaData()
+    table = get_comtrade_table(metadata)
+    ret = get_comtrade_batch(comtrade_str_data, table, '2023')
     assert next(ret[2]) is not None

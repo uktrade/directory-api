@@ -1539,3 +1539,42 @@ def postcode_data():
         '{"id": 2657, "ccg": "S03000012", "ced": "S99999999", "eer": "S15000001", "imd": 3888, "lat": 57.149606, "pcd": "AB101AB", "pct": "S03000012", "pfa": "S23000009", "rgn": "S99999999", "stp": "S99999999", "ctry": "S92000003", "lep1": "S99999999", "lep2": "S99999999", "long": -2.096916, "nuts": "S30000026", "oa01": "S00000036", "oa11": "S00090540", "park": "S99999999", "pcd2": "AB10 1AB", "pcds": "AB10 1AB", "pcon": "S14000001", "ttwa": "S22000047", "wz11": "S34000028", "bua11": "S99999999", "nhser": "S99999999", "oac01": "2A1", "oac11": "2B1", "oscty": "S99999999", "streg": 0, "calncv": "S99999999", "dointr": "2011-06-01", "doterm": null, "lsoa01": "S01000125", "lsoa11": "S01006646", "msoa01": "S02000024", "msoa11": "S02001261", "oslaua": "S12000033", "osward": "S13002842", "parish": "S99999999", "teclec": "S09000001", "buasd11": "S99999999", "casward": "01C28", "ru11ind": "1", "ur01ind": "1", "oseast1m": "394235", "osgrdind": 1, "oshlthau": "S08000020", "osnrth1m": "0806529", "usertype": 1, "statsward": "99ZZ00", "region_name": "Scotland", "pcd_normalised": "AB101AB", "publication_date": "2022-11-01", "local_authority_district_name": "Aberdeen City", "parliamentary_constituency_name": "Aberdeen North", "lep1_local_enterprise_partnership_name": null, "lep2_local_enterprise_partnership_name": null}\n',  # noqa: E501
         '{"id": 2658, "ccg": "S03000012", "ced": "S99999999", "eer": "S15000001", "imd": 3888, "lat": 57.148125, "pcd": "AB101AD", "pct": "S03000012", "pfa": "S23000009", "rgn": "S99999999", "stp": "S99999999", "ctry": "S92000003", "lep1": "S99999999", "lep2": "S99999999", "long": -2.09554, "nuts": "S30000026", "oa01": "S00000036", "oa11": "S00090540", "park": "S99999999", "pcd2": "AB10 1AD", "pcds": "AB10 1AD", "pcon": "S14000001", "ttwa": "S22000047", "wz11": "S34000028", "bua11": "S99999999", "nhser": "S99999999", "oac01": "2A1", "oac11": "2B1", "oscty": "S99999999", "streg": 0, "calncv": "S99999999", "dointr": "1996-06-01", "doterm": "2000-09-01", "lsoa01": "S01000125", "lsoa11": "S01006646", "msoa01": "S02000024", "msoa11": "S02001261", "oslaua": "S12000033", "osward": "S13002842", "parish": "S99999999", "teclec": "S09000001", "buasd11": "S99999999", "casward": "01C28", "ru11ind": "1", "ur01ind": "1", "oseast1m": "394318", "osgrdind": 1, "oshlthau": "S08000020", "osnrth1m": "0806364", "usertype": 1, "statsward": "99ZZ00", "region_name": "Scotland", "pcd_normalised": "AB101AD", "publication_date": "2022-11-01", "local_authority_district_name": "Aberdeen City", "parliamentary_constituency_name": "Aberdeen North", "lep1_local_enterprise_partnership_name": null, "lep2_local_enterprise_partnership_name": null}\n',  # noqa: E501
     ]
+
+
+# @pytest.fixture
+# def comtrade_batch_data():
+#     yield [
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 2100.0,
+#         },
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 3453.0,
+#         },
+#         {
+#             'year': 2023,
+#             'country_iso3': None,
+#             'uk_or_world': None,
+#             'classification': 'H6',
+#             'commodity_code': '85',
+#             'trade_value': 3723.0,
+#         },
+#     ]
+
+
+@pytest.fixture
+def comtrade_str_data():
+    yield [
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "283539", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 508, "fob_trade_value_in_usd": 98000.0, "reporter_country_iso3": "MOZ", "partner_country_iso3": "W00"}\n',  # noqa: E501
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "293369", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 642, "fob_trade_value_in_usd": 2820.69, "reporter_country_iso3": "ROU", "partner_country_iso3": "W00"}\n',  # noqa: E501
+        '{"year": 2023, "period": 2023, "classification": "H6", "commodity_code": "85", "trade_flow_code": "M", "partner_country_code": 0, "reporter_country_code": 688, "fob_trade_value_in_usd": 280159980.0, "reporter_country_iso3": "SRB", "partner_country_iso3": "W00"}\n',  # noqa: E501
+    ]

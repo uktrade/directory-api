@@ -615,3 +615,6 @@ TRADE_UK_GOODS_NSA_FROM_S3_PREFIX = env.trade_uk_goods_nsa_from_s3_prefix
 TRADE_UK_SERVICES_NSA_FROM_S3_PREFIX = env.trade_uk_services_nsa_from_s3_prefix
 IMF_WORLD_ECONOMIC_OUTLOOK_S3_PREFIX = env.imf_world_economic_outlook_s3_prefix
 DATASETS_METADATA_S3_PREFIX = env.datasets_metadata_s3_prefix
+COMTRADE_S3_PREFIX = env.comtrade_s3_prefix
+
+COMTRADE_FIRST_PERIOD = env.comtrade_first_period
