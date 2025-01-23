@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comtradereport',
             name='id',
-            field=models.BigAutoField(auto_add=True, primary_key=True, serialize=False),
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
         ),
     ]
