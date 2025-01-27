@@ -3,7 +3,6 @@
 from django.db import migrations, models
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='comtradereport',
             name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
         ),
     ]
