@@ -752,5 +752,5 @@ def test_save_comtrade_dataset(mock_connection, mock_ingest):
 def test_get_comtrade_batch(comtrade_str_data):
     metadata = sa.MetaData()
     table = get_comtrade_table(metadata)
-    ret = get_comtrade_batch(comtrade_str_data, table, '2023')
+    ret = get_comtrade_batch(comtrade_str_data, table, '2023', 0)
     assert next(ret[2]) is not None

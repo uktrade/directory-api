@@ -26,13 +26,23 @@ def unzip_s3_gzip_file(file_body, max_bytes):
         yield uncompressed_chunk
 
 
+def _get_s3_client_kwargs():
+    kwargs = {}
+    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SCIENCE') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SCIENCE'):
+        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE
+        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+
+    return kwargs
+
+
 def get_s3_paginator(prefix):
+
     s3 = boto3.client(
         's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-        region_name=settings.AWS_S3_REGION_NAME,
+        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
     )
+
     return s3.get_paginator('list_objects').paginate(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
     )
@@ -41,10 +51,10 @@ def get_s3_paginator(prefix):
 def get_s3_file(key):
     s3 = boto3.client(
         's3',
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-        region_name=settings.AWS_S3_REGION_NAME,
+        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
     )
+
     response = s3.get_object(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
         Key=key,
