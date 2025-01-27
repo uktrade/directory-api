@@ -3,9 +3,9 @@ import zlib
 
 import boto3
 import sqlalchemy as sa
+from dbt_copilot_python.utility import is_copilot
 from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
-from dbt_copilot_python.utility import is_copilot
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -37,7 +37,9 @@ def get_s3_paginator(prefix):
             region_name=settings.AWS_S3_REGION_NAME,
         )
     else:
-        s3 = boto3.client('s3',)
+        s3 = boto3.client(
+            's3',
+        )
 
     return s3.get_paginator('list_objects').paginate(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
@@ -53,7 +55,9 @@ def get_s3_file(key):
             region_name=settings.AWS_S3_REGION_NAME,
         )
     else:
-        s3 = boto3.client('s3',)
+        s3 = boto3.client(
+            's3',
+        )
 
     response = s3.get_object(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
