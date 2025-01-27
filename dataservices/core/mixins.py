@@ -3,7 +3,6 @@ import zlib
 
 import boto3
 import sqlalchemy as sa
-from dbt_copilot_python.utility import is_copilot
 from django.conf import settings
 from pg_bulk_ingest import to_file_like_obj
 from sqlalchemy.ext.declarative import declarative_base
@@ -27,19 +26,22 @@ def unzip_s3_gzip_file(file_body, max_bytes):
         yield uncompressed_chunk
 
 
+def _get_s3_client_kwargs():
+    kwargs = {}
+    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SCIENCE') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SCIENCE'):
+        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE
+        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+
+    return kwargs
+
+
 def get_s3_paginator(prefix):
 
-    if not is_copilot:
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-    else:
-        s3 = boto3.client(
-            's3',
-        )
+    s3 = boto3.client(
+        's3',
+        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
+    )
 
     return s3.get_paginator('list_objects').paginate(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES, Prefix=prefix
@@ -47,17 +49,11 @@ def get_s3_paginator(prefix):
 
 
 def get_s3_file(key):
-    if not is_copilot:
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID_DATA_SERVICES,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES,
-            region_name=settings.AWS_S3_REGION_NAME,
-        )
-    else:
-        s3 = boto3.client(
-            's3',
-        )
+    s3 = boto3.client(
+        's3',
+        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        **_get_s3_client_kwargs(),
+    )
 
     response = s3.get_object(
         Bucket=settings.AWS_STORAGE_BUCKET_NAME_DATA_SERVICES,
