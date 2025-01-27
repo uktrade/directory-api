@@ -28,7 +28,9 @@ def unzip_s3_gzip_file(file_body, max_bytes):
 
 def _get_s3_client_kwargs():
     kwargs = {}
-    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SERVICES') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SERVICES'):
+    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SERVICES') and hasattr(
+        settings, 'AWS_SECRET_ACCESS_KEY_DATA_SERVICES'
+    ):
         kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SERVICES
         kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES
 
