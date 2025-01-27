@@ -7,6 +7,7 @@ import pg_bulk_ingest
 import sqlalchemy as sa
 from django.conf import settings
 from django.db import connection
+from django.db.models import Max
 
 from core.helpers import get_s3_file_stream
 from dataservices.core.mixins import S3DownloadMixin
@@ -18,9 +19,9 @@ logger = logging.getLogger(__name__)
 LIVE_TABLE = 'dataservices_comtradereport'
 
 
-def get_comtrade_batch(data, data_table, period):
+def get_comtrade_batch(data, data_table, period, row_count):
 
-    def get_table_data():
+    def get_table_data(row_count):
 
         for comtrade in data:
 
@@ -44,6 +45,7 @@ def get_comtrade_batch(data, data_table, period):
             if not country_iso3 or not uk_or_world:
                 continue
 
+            row_count+=1
             yield (
                 (
                     data_table,
@@ -55,6 +57,7 @@ def get_comtrade_batch(data, data_table, period):
                         line['commodity_code'],
                         trade_value,
                         None,
+                        row_count,
                     ),
                 )
             )
@@ -62,7 +65,7 @@ def get_comtrade_batch(data, data_table, period):
     return (
         None,
         None,
-        get_table_data(),
+        get_table_data(row_count),
     )
 
 
@@ -78,6 +81,8 @@ def get_comtrade_table(metadata):
         sa.Column("commodity_code", sa.TEXT, nullable=False),
         sa.Column("trade_value", sa.DECIMAL(15, 0), nullable=False),
         sa.Column("country_id", sa.INTEGER, nullable=True),
+        sa.Column("id", sa.BIGINT, primary_key=True, autoincrement=True),
+        sa.Index(None, "commodity_code", "country_id", "uk_or_world"),
         schema="public",
     )
 
@@ -256,6 +261,9 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
         engine = sa.create_engine(settings.DATABASE_URL, future=True)
 
+        res = ComtradeReport.objects.aggregate(max_id=Max('id'))
+        row_count = res['max_id']
+
         metadata = sa.MetaData()
 
         data_table = get_comtrade_table(metadata)
@@ -264,7 +272,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             pass
 
         def batches(_):
-            yield get_comtrade_batch(data, data_table, period)
+            yield get_comtrade_batch(data, data_table, period, row_count)
 
         ingest_data(engine, metadata, on_before_visible, batches, delete=pg_bulk_ingest.Delete.OFF)
 
