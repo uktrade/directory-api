@@ -28,9 +28,9 @@ def unzip_s3_gzip_file(file_body, max_bytes):
 
 def _get_s3_client_kwargs():
     kwargs = {}
-    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SCIENCE') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SCIENCE'):
-        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SCIENCE
-        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SCIENCE
+    if hasattr(settings, 'AWS_ACCESS_KEY_ID_DATA_SERVICES') and hasattr(settings, 'AWS_SECRET_ACCESS_KEY_DATA_SERVICES'):
+        kwargs['aws_access_key_id'] = settings.AWS_ACCESS_KEY_ID_DATA_SERVICES
+        kwargs['aws_secret_access_key'] = settings.AWS_SECRET_ACCESS_KEY_DATA_SERVICES
 
     return kwargs
 
@@ -39,7 +39,7 @@ def get_s3_paginator(prefix):
 
     s3 = boto3.client(
         's3',
-        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        region_name=settings.AWS_S3_REGION_NAME,
         **_get_s3_client_kwargs(),
     )
 
@@ -51,7 +51,7 @@ def get_s3_paginator(prefix):
 def get_s3_file(key):
     s3 = boto3.client(
         's3',
-        region_name=settings.AWS_S3_REGION_NAME_DATA_SCIENCE,
+        region_name=settings.AWS_S3_REGION_NAME,
         **_get_s3_client_kwargs(),
     )
 
