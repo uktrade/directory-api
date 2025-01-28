@@ -8,7 +8,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataservices', '0009_country'),
+         ('dataservices', '0001_initial'),
         ('personalisation', '0003_countryofinterest'),
     ]
 
