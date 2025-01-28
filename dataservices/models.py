@@ -302,7 +302,7 @@ class TradingBlocs(TimeStampedModel):
 
 
 class ComtradeReport(models.Model):
-    id = (models.BigAutoField(auto_created=True, primary_key=True, serialize=False),)
+    id = models.AutoField(auto_created=True, primary_key=True, serialize=False),  # fmt: skip
     year = models.IntegerField(null=True, blank=True)
     classification = models.CharField(unique=False, blank=False, null=False, max_length=3)
     country_iso3 = models.CharField(unique=False, blank=False, null=False, max_length=3)
