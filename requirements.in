@@ -1,5 +1,5 @@
 dbt-copilot-python==0.2.1
-django==4.2.17
+django==4.2.19
 django-celery-beat==2.5.0
 django-cleanup==8.1.0
 django-clearcache>=1.2.1
