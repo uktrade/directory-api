@@ -29,7 +29,7 @@ notifications-python-client==10.0.0
 boto3==1.24.*
 celery[redis]>=5.2.2
 certifi==2024.07.04
-cryptography==43.0.1
+cryptography==44.0.1
 deprecated==1.2.*
 dj-database-url
 drf-spectacular==0.26.1
