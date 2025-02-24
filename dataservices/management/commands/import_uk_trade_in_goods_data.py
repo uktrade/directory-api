@@ -21,37 +21,6 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             for uk_trade_in_goods in data:
                 json_data = json.loads(uk_trade_in_goods)
 
-                if json_data['period_type'] != 'quarter':
-                    continue
-
-                if json_data['product_code'] in (
-                    '0',
-                    '1',
-                    '2',
-                    '3',
-                    '33',
-                    '3OF',
-                    '4',
-                    '5',
-                    '6',
-                    '7',
-                    '78',
-                    '79',
-                    '792/3',
-                    '7E',
-                    '7EI',
-                    '7EK',
-                    '7M',
-                    '7MC',
-                    '7MI',
-                    '7MK',
-                    '8',
-                    '8O',
-                    '8OC',
-                    'T',
-                ):
-                    continue
-
                 yield (
                     (
                         data_table,
