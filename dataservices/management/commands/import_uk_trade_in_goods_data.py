@@ -14,7 +14,7 @@ TEMP_TABLE = 'dataflow_trade_uk_goods_nsa_tmp'
 
 
 class Command(BaseS3IngestionCommand, S3DownloadMixin):
-    help = help = 'Import ONS UK trade in goods data by country from s3'
+    help = 'Import ONS UK trade in goods data by country from s3'
 
     def get_temp_batch(self, data, data_table):
         def get_table_data():
@@ -111,6 +111,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 self.delete_temp_tables([TEMP_TABLE])
 
     def save_import_data(self, data):
+        BATCH_SIZE = 50000  # Process 50,000 records at a time
         sql = f'''
             SELECT
                 iso2,
@@ -148,15 +149,23 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
 
         with self.engine.connect() as connection:
             cnt = 0
+            current_batch = []
+            data_table = self.get_postgres_table()
 
-            batch = connection.execute(sa.text(sql))
+            def process_batch(batch_data):
+                ingest_data(
+                    self.engine, self.metadata, lambda *_: None, lambda _: [self.get_batch(batch_data, data_table)]
+                )
+                logger.info(f'Processed batch of {len(batch_data)} records')
 
-            for row in batch:
+            # Execute the SQL query and process results in batches
+            result_set = connection.execute(sa.text(sql))
+            for row in result_set:
                 year, quarter = row.period.replace('quarter/', '').split('-Q')
                 imports = None if not row.imports else float(row.imports)
                 exports = None if not row.exports else float(row.exports)
 
-                data.append(
+                current_batch.append(
                     {
                         'year': year,
                         'quarter': quarter,
@@ -169,15 +178,12 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                 )
 
                 cnt += 1
-                if (cnt % 100000) == 0:
+                if len(current_batch) >= BATCH_SIZE:
+                    process_batch(current_batch)
+                    current_batch = []
+                elif (cnt % 100000) == 0:
                     logger.info(f'Processing record {cnt}')
 
-        data_table = self.get_postgres_table()
-
-        def on_before_visible(conn, ingest_table, batch_metadata):
-            pass
-
-        def batches(_):
-            yield self.get_batch(data, data_table)
-
-        ingest_data(self.engine, self.metadata, on_before_visible, batches)
+            # Process any remaining records
+            if current_batch:
+                process_batch(current_batch)

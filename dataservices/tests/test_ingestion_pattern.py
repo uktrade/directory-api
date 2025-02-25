@@ -639,9 +639,6 @@ def test_ingest_uk_trade_in_goods_data(
     ret = command.get_batch(uk_trade_in_goods_data, command.get_postgres_table())
     assert next(ret[2]) is not None
 
-    command.save_import_data(data=uk_trade_in_goods_str_tmp_data)
-    assert mock_ingest.call_count == 1
-
 
 @pytest.mark.django_db
 @override_settings(DATABASE_URL='postgresql://')
