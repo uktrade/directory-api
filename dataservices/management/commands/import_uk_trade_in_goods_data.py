@@ -103,7 +103,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         try:
             data = self.do_handle(prefix=settings.TRADE_UK_GOODS_NSA_FROM_S3_PREFIX)
             self.save_temp_data(data)
-            self.save_import_data([])
+            self.save_import_data(data)
         except Exception:
             logger.exception("import_uk_trade_in_goods_data failed to ingest data from s3")
         finally:
@@ -152,14 +152,20 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             current_batch = []
             data_table = self.get_postgres_table()
 
-            def process_batch(batch_data):
-                ingest_data(
-                    self.engine, self.metadata, lambda *_: None, lambda _: [self.get_batch(batch_data, data_table)]
-                )
-                logger.info(f'Processed batch of {len(batch_data)} records')
+            # First fetch all results to avoid long-running connection
+            result_set = list(connection.execute(sa.text(sql)))
 
-            # Execute the SQL query and process results in batches
-            result_set = connection.execute(sa.text(sql))
+            def process_batch(batch_data):
+                # Use a fresh connection for each batch
+                with self.engine.connect() as batch_connection:
+                    ingest_data(
+                        batch_connection,
+                        self.metadata,
+                        lambda *_: None,
+                        lambda _: [self.get_batch(batch_data, data_table)],
+                    )
+                    logger.info(f'Processed batch of {len(batch_data)} records')
+
             for row in result_set:
                 year, quarter = row.period.replace('quarter/', '').split('-Q')
                 imports = None if not row.imports else float(row.imports)
