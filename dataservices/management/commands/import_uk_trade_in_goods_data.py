@@ -1,11 +1,13 @@
 import json
 import logging
+import random
+import time
 
 import sqlalchemy as sa
 from django.conf import settings
 
 from dataservices.core.mixins import S3DownloadMixin
-from dataservices.management.commands.helpers import BaseS3IngestionCommand, ingest_data
+from dataservices.management.commands.helpers import BaseS3IngestionCommand
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,6 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
         def get_table_data():
             for uk_trade_in_goods in data:
                 json_data = json.loads(uk_trade_in_goods)
-
                 yield (
                     (
                         data_table,
@@ -35,35 +36,7 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
                     )
                 )
 
-        return (
-            None,
-            None,
-            get_table_data(),
-        )
-
-    def get_batch(self, data, data_table):
-        def get_table_data():
-            for uk_trade_in_goods in data:
-                yield (
-                    (
-                        data_table,
-                        (
-                            uk_trade_in_goods['country_id'],
-                            uk_trade_in_goods['year'],
-                            uk_trade_in_goods['quarter'],
-                            uk_trade_in_goods['commodity_code'],
-                            uk_trade_in_goods['commodity_name'],
-                            uk_trade_in_goods['imports'],
-                            uk_trade_in_goods['exports'],
-                        ),
-                    )
-                )
-
-        return (
-            None,
-            None,
-            get_table_data(),
-        )
+        return (None, None, get_table_data())
 
     def get_temp_postgres_table(self):
         return sa.Table(
@@ -84,112 +57,73 @@ class Command(BaseS3IngestionCommand, S3DownloadMixin):
             schema="public",
         )
 
-    def get_postgres_table(self):
-        return sa.Table(
-            LIVE_TABLE,
-            self.metadata,
-            sa.Column("country_id", sa.INTEGER, nullable=True),
-            sa.Column("year", sa.INTEGER, nullable=False),
-            sa.Column("quarter", sa.SMALLINT, nullable=False),
-            sa.Column("commodity_code", sa.TEXT, nullable=True),
-            sa.Column("commodity_name", sa.TEXT, nullable=False),
-            sa.Column("imports", sa.DECIMAL(10, 2), nullable=True),
-            sa.Column("exports", sa.DECIMAL(10, 2), nullable=True),
-            schema="public",
-            keep_existing=True,
-        )
-
     def load_data(self, delete_temp_tables=True, *args, **options):
         try:
             data = self.do_handle(prefix=settings.TRADE_UK_GOODS_NSA_FROM_S3_PREFIX)
             self.save_temp_data(data)
-            self.save_import_data(data)
+            self.save_import_data()
         except Exception:
             logger.exception("import_uk_trade_in_goods_data failed to ingest data from s3")
         finally:
             if delete_temp_tables:
                 self.delete_temp_tables([TEMP_TABLE])
 
-    def save_import_data(self, data):
-        BATCH_SIZE = 50000  # Process 50,000 records at a time
-        sql = f'''
+    def save_import_data(self):
+        """Direct SQL approach for better performance"""
+        MAX_RETRIES = 5
+        QUERY_TIMEOUT = 120  # seconds
+
+        # SQL for direct insert from temp table to live table
+        direct_sql = f"""
+            INSERT INTO {LIVE_TABLE}
+            (country_id, year, quarter, commodity_code, commodity_name, imports, exports)
             SELECT
-                iso2,
-                period,
-                commodity_code,
-                commodity_name,
-                sum(imports) AS imports,
-                sum(exports) AS exports,
-                country_id
-            FROM
-                (
-                    SELECT
-                        dataservices_country.id AS country_id,
-                        ons_iso_alpha_2_code AS iso2,
-                        period,
-                        product_code AS commodity_code,
-                        product_name AS commodity_name,
-                        CASE WHEN direction = 'imports' THEN
-                            value
-                        END AS imports,
-                        CASE WHEN direction = 'exports' THEN
-                            value
-                        END AS exports
-                    FROM
-                        {TEMP_TABLE}
-                        LEFT JOIN dataservices_country ON {TEMP_TABLE}.ons_iso_alpha_2_code = dataservices_country.iso2
-                ) s
+                c.id as country_id,
+                CAST(SPLIT_PART(REPLACE(t.period, 'quarter/', ''), '-Q', 1) AS INTEGER) as year,
+                CAST(SPLIT_PART(REPLACE(t.period, 'quarter/', ''), '-Q', 2) AS SMALLINT) as quarter,
+                t.product_code as commodity_code,
+                t.product_name as commodity_name,
+                CASE WHEN SUM(CASE WHEN t.direction = 'imports' THEN t.value ELSE 0 END) > 0
+                     THEN SUM(CASE WHEN t.direction = 'imports' THEN t.value ELSE 0 END)
+                     ELSE NULL
+                END as imports,
+                CASE WHEN SUM(CASE WHEN t.direction = 'exports' THEN t.value ELSE 0 END) > 0
+                     THEN SUM(CASE WHEN t.direction = 'exports' THEN t.value ELSE 0 END)
+                     ELSE NULL
+                END as exports
+            FROM {TEMP_TABLE} t
+            LEFT JOIN dataservices_country c ON t.ons_iso_alpha_2_code = c.iso2
             GROUP BY
-                iso2,
-                period,
-                commodity_code,
-                commodity_name,
-                country_id;
-        '''
+                c.id,
+                t.period,
+                t.product_code,
+                t.product_name
+        """
 
-        with self.engine.connect() as connection:
-            cnt = 0
-            current_batch = []
-            data_table = self.get_postgres_table()
+        # Truncate and insert with retry logic
+        for attempt in range(MAX_RETRIES):
+            try:
+                with self.engine.connect() as connection:
+                    # Truncate the target table
+                    logger.info(f"Truncating and repopulating {LIVE_TABLE}")
+                    connection.execute(sa.text(f"TRUNCATE TABLE {LIVE_TABLE}"))
 
-            # First fetch all results to avoid long-running connection
-            result_set = list(connection.execute(sa.text(sql)))
+                    # Set timeout and execute insert
+                    connection.execute(sa.text(f"SET statement_timeout = {QUERY_TIMEOUT * 1000}"))
+                    result = connection.execute(sa.text(direct_sql))
+                    connection.commit()
 
-            def process_batch(batch_data):
-                # Use a fresh connection for each batch
-                with self.engine.connect() as batch_connection:
-                    ingest_data(
-                        batch_connection,
-                        self.metadata,
-                        lambda *_: None,
-                        lambda _: [self.get_batch(batch_data, data_table)],
+                    # Log success
+                    logger.info(f"Successfully inserted {result.rowcount} records")
+                    return
+
+            except Exception as e:
+                if attempt < MAX_RETRIES - 1:
+                    sleep_time = (2**attempt) + random.uniform(0, 1)
+                    logger.warning(
+                        f"Error, retrying in {sleep_time:.2f}s (attempt {attempt+1}/{MAX_RETRIES}): {str(e)}"
                     )
-                    logger.info(f'Processed batch of {len(batch_data)} records')
-
-            for row in result_set:
-                year, quarter = row.period.replace('quarter/', '').split('-Q')
-                imports = None if not row.imports else float(row.imports)
-                exports = None if not row.exports else float(row.exports)
-
-                current_batch.append(
-                    {
-                        'year': year,
-                        'quarter': quarter,
-                        'commodity_code': row.commodity_code,
-                        'commodity_name': row.commodity_name,
-                        'imports': imports,
-                        'exports': exports,
-                        'country_id': row.country_id,
-                    }
-                )
-
-                cnt += 1
-                if len(current_batch) >= BATCH_SIZE:
-                    process_batch(current_batch)
-                    current_batch = []
-                elif (cnt % 100000) == 0:
-                    logger.info(f'Processing record {cnt}')
-
-            # Process any remaining records
-            if current_batch:
-                process_batch(current_batch)
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"Failed after {MAX_RETRIES} attempts: {str(e)}")
+                    raise
