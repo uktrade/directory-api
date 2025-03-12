@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from conf import settings
+from core.tests.helpers import create_response
 from dataservices import models
 from dataservices.tests import factories
 
@@ -881,3 +882,46 @@ def test_dataservices_country_territory_region(iso2_code, expected_id, countries
     api_data = json.loads(response.content)
 
     assert api_data['id'] == expected_id
+
+
+@mock.patch(
+    'dataservices.views.requests.get',
+    return_value=create_response(
+        {
+            'details': {
+                'ordered_featured_documents': [
+                    {
+                        "document_type": "Press release",
+                        "href": "/government/news/employment-rights-bill-to-boost-productivity",
+                        "image": {
+                            "alt_text": "",
+                            "high_resolution_url": "https://assets.publishing.service.gov.uk/media/67c7ab48866e12.png",
+                            "medium_resolution_url": "https://assets.publishing.service.gov.uk/media/67c71ee866.png",  # noqa: E501 # /PS-IGNORE
+                            "url": "https://assets.publishing.service.gov.uk/media/67c71a39a0f0c95a498d22.png",  # noqa: E501 # /PS-IGNORE
+                        },
+                        "public_updated_at": "2025-03-04T12:07:17.000+00:00",
+                        "summary": "The Government will today table amendments to the Employment Rights Bill.\n",
+                        "title": "Employment Rights Bill to boost productivity for British workers",
+                    },
+                    {
+                        "document_type": "Press release",
+                        "href": "/government/news/talks-relaunch-on-india-trade-deal-to-boost-uks-growth-agenda",
+                        "image": {
+                            "alt_text": "Jonathan Reynolds and Piyush Goyal in Delhi",
+                            "high_resolution_url": "https://assets.publishing.service.gov.uk/media/67b63e782d.png",
+                            "medium_resolution_url": "https://assets.publishing.service.gov.uk/media/67b313f.png",
+                            "url": "https://assets.publishing.service.gov.uk/media/67bcb5a598ea2db44fadddd_.png",  # noqa: E501 # /PS-IGNORE
+                        },
+                        "public_updated_at": "2025-02-23T00:00:00.000+00:00",
+                        "summary": "UK-India free trade talks are being relaunched.\n",
+                        "title": "Talks relaunch on India trade deal to boost UK’s growth agenda",
+                    },
+                ]
+            }
+        },
+    ),
+)
+@pytest.mark.django_db
+def test_dataservices_news_content(mock_news, client):
+    response = client.get(reverse('dataservices-news-content'))
+    assert len(response.json()) == 2
