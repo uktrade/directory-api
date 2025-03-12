@@ -1,13 +1,19 @@
 import json
 
+import requests
+import sentry_sdk
 from django.apps import apps
 from django.db.models import Avg, Max, Sum
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
+from django.views.decorators.cache import cache_page
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.serializers import CharField
+from rest_framework.views import APIView
 
 from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api
@@ -313,7 +319,7 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
 @extend_schema(
     responses={
         200: inline_serializer(
-            name='SuggestedCountries200Response',
+            name='SuggestedCountries200Response',  # /PS-IGNORE
             fields={
                 'hs_code': CharField(),
                 'country__name': CharField(),
@@ -322,7 +328,7 @@ class RetrieveSocietyDataByCountryView(generics.GenericAPIView):
             },
         ),
         500: inline_serializer(
-            name='SuggestedCountries500Response',
+            name='SuggestedCountries500Response',  # /PS-IGNORE
             fields={'error_message': CharField(default='hs_code missing in request params')},
         ),
     },
@@ -1263,3 +1269,73 @@ class CountryTerritoryRegionView(generics.RetrieveAPIView):
     queryset = models.CountryTerritoryRegion.objects.all()
     serializer_class = serializers.CountriesTerritoriesRegionsSerializer
     lookup_field = 'iso2_code'
+
+
+@extend_schema(
+    responses=OpenApiTypes.OBJECT,
+    examples=[
+        OpenApiExample(
+            'GET Request 200 Example',
+            value=[
+                {
+                    "document_type": "Press release",
+                    "href": "/government/news/employment-rights-bill-to-boost-productivity",
+                    "image": {
+                        "alt_text": "",
+                        "high_resolution_url": "https://assets.publishing.service.gov.uk/media/67c7ab48866e12.png",
+                        "medium_resolution_url": "https://assets.publishing.service.gov.uk/media/67c71ee866.png",  # noqa: E501 # /PS-IGNORE
+                        "url": "https://assets.publishing.service.gov.uk/media/67c71a39a0f0c95a498d22.png",  # noqa: E501 # /PS-IGNORE
+                    },
+                    "public_updated_at": "2025-03-04T12:07:17.000+00:00",
+                    "summary": "The Government will today table amendments to the Employment Rights Bill.\n",
+                    "title": "Employment Rights Bill to boost productivity for British workers",
+                },
+                {
+                    "document_type": "Press release",
+                    "href": "/government/news/talks-relaunch-on-india-trade-deal-to-boost-uks-growth-agenda",
+                    "image": {
+                        "alt_text": "Jonathan Reynolds and Piyush Goyal in Delhi",
+                        "high_resolution_url": "https://assets.publishing.service.gov.uk/media/67b63e782d.png",
+                        "medium_resolution_url": "https://assets.publishing.service.gov.uk/media/67b313f.png",
+                        "url": "https://assets.publishing.service.gov.uk/media/67bcb5a598ea2db44fadddd_.png",  # noqa: E501 # /PS-IGNORE
+                    },
+                    "public_updated_at": "2025-02-23T00:00:00.000+00:00",
+                    "summary": "UK-India free trade talks are being relaunched.\n",
+                    "title": "Talks relaunch on India trade deal to boost UK’s growth agenda",
+                },
+            ],
+            response_only=True,
+            status_codes=[200],
+        ),
+    ],
+    description='News content',
+)
+class NewsContent(APIView):
+    permission_classes = []
+
+    @method_decorator(cache_page(60 * 60))
+    def get(self, request, format=None):
+        """
+        Returns an array of news items or an empty array if there is an error
+        Uses a cache as the GET method calls a 3rd party api and the results of the API call change infrequently
+        Any exceptions are captured and logged to sentry
+        """
+
+        headers = {'User-Agent': 'requests/2.32.3'}
+        dbt_news_articles_url = (
+            'https://www.gov.uk/api/content/government/organisations/department-for-business-and-trade'
+        )
+        news_articles = []
+
+        try:
+            r = requests.get(dbt_news_articles_url, headers=headers)
+            r.raise_for_status()
+            page_content = r.json()
+            news_articles = page_content['details']['ordered_featured_documents']
+            # remove html from the summary field
+            for article in news_articles:
+                article['summary'] = strip_tags(article['summary'])
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+        finally:
+            return Response(news_articles)

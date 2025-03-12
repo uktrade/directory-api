@@ -553,6 +553,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-dbt-investment-opportunity',
     'dataservices-countries-territories-regions',
     'dataservices-country-territory-region',
+    'dataservices-news-content',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',
