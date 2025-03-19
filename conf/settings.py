@@ -554,6 +554,7 @@ SIGAUTH_URL_NAMES_WHITELIST = [
     'dataservices-countries-territories-regions',
     'dataservices-country-territory-region',
     'dataservices-news-content',
+    'dataservices-growth-hubs-commerce-chambers',
     'enrolment-preverified',
     'enrolment-claim-preverified',
     'offices-by-postcode',
