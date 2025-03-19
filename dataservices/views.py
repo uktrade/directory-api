@@ -1352,8 +1352,7 @@ class LocalSupportByPostcode(generics.GenericAPIView):
         postcode = self.request.GET.getlist('postcode', '')
         postcode_data = get_postcode_data(postcode[0])
 
-        response['in_england'] = postcode_data['result']['country'] == 'England'
-        response['in_london'] = postcode_data['result']['region'] == 'London'
+        response['postcode_data'] = postcode_data['result']
 
         response['growth_hubs'] = get_growth_hub_by_postcode(postcode_data['result'])
 
