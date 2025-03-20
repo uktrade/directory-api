@@ -1,0 +1,4074 @@
+[
+  {
+    "name": "Berkshire Growth Hub",
+    "description": "If you are looking to grow your business Berkshire Growth Hub can offer support.\nEarly-stage businesses can receive support via email and be signposted to sources of business support, and online resources available through the Growth Hub website. These include a provider marketplace, directory, and events listings.\nFor those with ambitious growth plans or the potential to scale quickly, a range of tailored support services and intensive 1:1 coaching from a Business Adviser is available. This support can assist your business to develop strategies and plans for growth, connecting you with a range of local and national schemes and programmes.",
+    "contacts": {
+      "website": "https://www.berkshiregrowthhub.co.uk/",
+      "phone": "tel:+44-118-209-0000",
+      "email": "info@berkshiregrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000036",
+          "name": "Bracknell Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000038",
+          "name": "Reading",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000039",
+          "name": "Slough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000037",
+          "name": "West Berkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000040",
+          "name": "Windsor and Maidenhead",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000041",
+          "name": "Wokingham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000036",
+          "name": "Bracknell Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000038",
+          "name": "Reading",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000039",
+          "name": "Slough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000037",
+          "name": "West Berkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000040",
+          "name": "Windsor and Maidenhead",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000041",
+          "name": "Wokingham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "BEST Growth Hub (Business Essex, Southend and Thurrock)",
+    "description": "The BEST Growth Hub has a wide range of support for all your business needs. Check out their website portal for access to an online directory of business support, funding information, employment, skills, news and business-related events.  Businesses across Essex, Southend and Thurrock can work with Business Navigators who will provide free, one-on-one support to assess your business needs and refer you to the most relevant business support and information.\nThere are also other opportunities such as access to training workshops, digital enhancement packages for start-ups and Federation of Small Businesses membership discounts.",
+    "contacts": {
+      "website": "https://www.bestgrowthhub.org.uk/",
+      "phone": "tel:+44-1424-322686",
+      "email": "info@bestgrowthhub.org.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000012",
+          "name": "Essex",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000034",
+          "name": "Thurrock",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000033",
+          "name": "Southend-on-Sea",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000066",
+          "name": "Basildon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000067",
+          "name": "Braintree",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000068",
+          "name": "Brentwood",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000069",
+          "name": "Castle Point",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000070",
+          "name": "Chelmsford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000071",
+          "name": "Colchester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000072",
+          "name": "Epping Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000073",
+          "name": "Harlow",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000074",
+          "name": "Maldon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000075",
+          "name": "Rochford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000033",
+          "name": "Southend-on-Sea",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000076",
+          "name": "Tendring",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000034",
+          "name": "Thurrock",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000077",
+          "name": "Uttlesford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Boost Business Lancashire Growth Hub",
+    "description": "Boost helps growth-hungry Lancashire businesses realise their potential by providing simple access to a range of leading-edge funded programmes, delivered by specialists with a track record of supporting growth for start-ups and established businesses.\nThe Hub Boost can help clients with business planning & strategy, digital marketing, matching you with a mentor to offer support and specialist knowledge and experience, international trade to access new global markets, accessing finance to fund growth, innovation and new product development, skills training for your workforce and becoming a low carbon business.\nA calendar of business support events can also be found on the website: https://www.boostbusinesslancashire.co.uk/events/",
+    "contacts": {
+      "website": "http://www.boostbusinesslancashire.co.uk/",
+      "phone": "tel:+44-800-488-0057",
+      "email": "info@boostbusinesslancashire.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000017",
+          "name": "Lancashire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000009",
+          "name": "Blackpool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000008",
+          "name": "Blackburn with Darwen",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000008",
+          "name": "Blackburn with Darwen",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000009",
+          "name": "Blackpool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000117",
+          "name": "Burnley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000118",
+          "name": "Chorley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000119",
+          "name": "Fylde",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000120",
+          "name": "Hyndburn",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000121",
+          "name": "Lancaster",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000122",
+          "name": "Pendle",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000123",
+          "name": "Preston",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000124",
+          "name": "Ribble Valley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000125",
+          "name": "Rossendale",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000126",
+          "name": "South Ribble",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000127",
+          "name": "West Lancashire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000128",
+          "name": "Wyre",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Buckinghamshire Business First Growth Hub",
+    "description": "Buckinghamshire Business First (BBF) is the Growth Hub covering the Buckinghamshire LEP, and also a membership organisation offering in-depth services to help develop and grow your business.\nServices provided include online resources and virtual adviser tool, telephone support, face-to-face business advice and specialist mentoring. They provide rural business support, help to reduce carbon emissions, energy usage and to increase sustainability. Access to grants and funding opportunities. They also offer workforce support to employers with recruiting, developing and training employees. News, events and workshops. Business directory. Access to local and national contract opportunities. Inward investment and re-location support. Business hub workspaces in Chesham, Great Missenden, High Wycombe, and Buckingham.\nMember registration is free to all Buckinghamshire businesses in the first instance.",
+    "contacts": {
+      "website": "https://www.bbf.uk.com/",
+      "phone": "tel:+44-1494-927130",
+      "email": "BusinessSupport@bbf.uk.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000060",
+          "name": "Buckinghamshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000060",
+          "name": "Buckinghamshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "Business Growth West Midlands",
+    "description": "Are you looking to start or grow a business in the West Midlands?\nBusiness Growth West Midlands offers free, tailored guidance and information to help you overcome challenges and source finance and funding options.  They can also support your aims for sustainability and offer advice on upskilling your staff or bringing an apprentice into your business.  To express your interest, complete the online contact form or call the team to discuss further.  The service is provided by West Midlands Combined Authority, in partnership with councils across the region.",
+    "contacts": {
+      "website": "https://www.businessgrowthwestmidlands.org.uk/",
+      "phone": "tel:+44-345-646-1352",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E12000005",
+          "name": "West Midlands",
+          "type": {
+            "level": 4,
+            "label": "REGION"
+          }
+        },
+        {
+          "code": "E47000007",
+          "name": "West Midlands",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E08000025",
+          "name": "Birmingham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000234",
+          "name": "Bromsgrove",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000192",
+          "name": "Cannock Chase",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000026",
+          "name": "Coventry",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000027",
+          "name": "Dudley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000193",
+          "name": "East Staffordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000019",
+          "name": "Herefordshire, County of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000194",
+          "name": "Lichfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000235",
+          "name": "Malvern Hills",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000195",
+          "name": "Newcastle-under-Lyme",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000218",
+          "name": "North Warwickshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000219",
+          "name": "Nuneaton and Bedworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000236",
+          "name": "Redditch",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000220",
+          "name": "Rugby",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000028",
+          "name": "Sandwell",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000051",
+          "name": "Shropshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000029",
+          "name": "Solihull",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000196",
+          "name": "South Staffordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000197",
+          "name": "Stafford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000198",
+          "name": "Staffordshire Moorlands",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000021",
+          "name": "Stoke-on-Trent",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000221",
+          "name": "Stratford-on-Avon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000199",
+          "name": "Tamworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000020",
+          "name": "Telford and Wrekin",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000030",
+          "name": "Walsall",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000222",
+          "name": "Warwick",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000031",
+          "name": "Wolverhampton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000237",
+          "name": "Worcester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000238",
+          "name": "Wychavon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000239",
+          "name": "Wyre Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "REGION"
+    }
+  },
+  {
+    "name": "Business Lincolnshire Growth Hub (DS)",
+    "description": "Online and locally based support to help businesses grow in the Greater Lincolnshire and Rutland area. The Growth Hub website signposts to a range of business support information, funding, local directories and opportunities, events, workspaces and a toolbox with access to useful resources. The Growth Hub hosts a number of skilled and experienced business advisers, we also have a number of specialists who can work with businesses to address their specific needs and requirements. All our advisors are experienced in running a business and working in different industries and sectors.\nTo speak to an adviser about your business, make an enquiry here.",
+    "contacts": {
+      "website": "http://www.businesslincolnshire.com/",
+      "phone": "tel:+44-1522-550609",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000019",
+          "name": "Lincolnshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000012",
+          "name": "North East Lincolnshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000013",
+          "name": "North Lincolnshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000017",
+          "name": "Rutland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000136",
+          "name": "Boston",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000137",
+          "name": "East Lindsey",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000138",
+          "name": "Lincoln",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000012",
+          "name": "North East Lincolnshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000139",
+          "name": "North Kesteven",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000013",
+          "name": "North Lincolnshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000017",
+          "name": "Rutland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000140",
+          "name": "South Holland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000141",
+          "name": "South Kesteven",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000142",
+          "name": "West Lindsey",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Business Surrey (DS)",
+    "description": "Business Surrey is a Surrey County Council service providing free practical advice and support for businesses at all stages of their journey.\nThe support they can provide businesses includes:\n- A free Business Support Directory with national and local support\n- Tailored one-to-one support for high growth businesses\n- Access to free and low-cost training to develop your workforce\n- Support on relocating and finding premises\n- Support in accessing funding and grants to help your business grow\n- Regulation and Licensing advice (via Trading Standards)\n- Connect with Surrey Careers Hub to inspire our future workforce\n- Events and networking opportunities",
+    "contacts": {
+      "website": "https://www.businesssurrey.co.uk/",
+      "phone": null,
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000030",
+          "name": "Surrey",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000207",
+          "name": "Elmbridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000208",
+          "name": "Epsom and Ewell",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000209",
+          "name": "Guildford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000210",
+          "name": "Mole Valley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000211",
+          "name": "Reigate and Banstead",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000212",
+          "name": "Runnymede",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000213",
+          "name": "Spelthorne",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000214",
+          "name": "Surrey Heath",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000215",
+          "name": "Tandridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000216",
+          "name": "Waverley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000217",
+          "name": "Woking",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Business West Sussex",
+    "description": "Business West Sussex growth hub focus on engaging directly with people starting and growing a business.\nThe team will discuss your needs and put you in touch with local, regional and national support initiatives that can help you develop your business.  For those needing more support, a business account manager will offer 1:1 support to identify barriers and help your business growth journey.\nThe website is available to all stages of business and provides a range of local information and resources.\nThey also have an online Hub where you can find out about a wide range of business support, advice, training courses, and one-to-one advice from a range of business specialists.",
+    "contacts": {
+      "website": "https://west-sussex-business-hub.mn.co/",
+      "phone": null,
+      "email": "WSCC.GrowthHub@westsussex.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000032",
+          "name": "West Sussex",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000223",
+          "name": "Adur",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000224",
+          "name": "Arun",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000225",
+          "name": "Chichester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000226",
+          "name": "Crawley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000227",
+          "name": "Horsham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000228",
+          "name": "Mid Sussex",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000229",
+          "name": "Worthing",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Cheshire and Warrington Growth Hub",
+    "description": "Cheshire and Warrington Growth Hub provide an excellent source of business support to all stages of business providing impartial, clear and expert guidance to help businesses identify the most appropriate solutions to meet their growth ambitions.\nThey provide links to a range of business offers and funding opportunities across Cheshire and Warrington and help growing companies navigate the business support landscape. The website also contains a local support finder directory, business guides on starting a business, skills bootcamps, and events, list of tender opportunities and a local services section with funding available in the area.",
+    "contacts": {
+      "website": "https://cheshireandwarrington.com/growth-and-skills/growth-hub/",
+      "phone": "tel:+44-330-024-5007",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000007",
+          "name": "Warrington",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000049",
+          "name": "Cheshire East",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000050",
+          "name": "Cheshire West and Chester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000049",
+          "name": "Cheshire East",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000050",
+          "name": "Cheshire West and Chester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000007",
+          "name": "Warrington",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "Cornwall and Isles of Scilly Growth Hub",
+    "description": "The Cornwall & Isles of Scilly Growth Hub works with local businesses, including self-employed people, not-for-profit organisations and people that want to start a business.\nThe Hub offers free, independent, and impartial business reviews with one of their connectors to help identify and access the right funding, support and training to help the business achieve their growth ambitions.  Businesses looking to develop and grow can access a range of business support initiatives and local programmes through the Growth Hub.\nA friendly team of locally based experts, they work directly with you to help identify and access support, skills training and grant funding to help start or grow your business.  Local businesses can also register with the Growth Hub website and get a free local business directory listing, share news and add events to the business calendar.",
+    "contacts": {
+      "website": "https://www.ciosgrowthhub.com/",
+      "phone": "tel:+44-1209-708660",
+      "email": "hello@ciosgrowthhub.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000052",
+          "name": "Cornwall",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000053",
+          "name": "Isles of Scilly",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000052",
+          "name": "Cornwall",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000053",
+          "name": "Isles of Scilly",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "CPCA Growth Hub",
+    "description": "Online signposting support and resources including sections on starting up, growing a business, employment & training, current sources of funding and finance, a bespoke business support search facility by postcode, news, workshops, and events. The Hub also has Business Advisers offering face-to-face support for scaleable and growing businesses. They can help the business identify government-funded schemes and source professional services from the local community.",
+    "contacts": {
+      "website": "https://cpcagrowthhub.co.uk/",
+      "phone": null,
+      "email": "hello@cpcagrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000008",
+          "name": "Cambridgeshire and Peterborough",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000008",
+          "name": "Cambridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000009",
+          "name": "East Cambridgeshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000010",
+          "name": "Fenland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000011",
+          "name": "Huntingdonshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000031",
+          "name": "Peterborough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000012",
+          "name": "South Cambridgeshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "Cumbria Accelerator",
+    "description": "If you're looking for business support then you can find an extensive range of advice and help via the Cumbria Accelerator. It provides information and tools including reviews and diagnostics, action planning, one-to-one advice and workshops on a range of key issues for businesses.\nThe website has a business support section that lists business and funding support, as well as additional events and support programmes run by partner organisations.\nThe Business Advisors will meet with you to understand your issues and opportunities and will be able to help you address these, helping you to find funding, skills support, ways to be more efficient or innovative or even new sales opportunities.",
+    "contacts": {
+      "website": "https://enterprisingcumbria.org.uk/welcome-enterprising-cumbria",
+      "phone": null,
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000063",
+          "name": "Cumberland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000064",
+          "name": "Westmorland and Furness",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000063",
+          "name": "Cumberland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000064",
+          "name": "Westmorland and Furness",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "CW Growth Hub",
+    "description": "If you are based in the Coventry and Warwickshire area of the West Midlands, the CW Growth Hub has a wealth of support to help your business.\nThey offer specialist brokerage and signposting to a range of local support programmes, mentoring, workshops and events, start-up support and access to finance and funding for businesses that aspire to grow.\nA dedicated Account Manager will guide businesses through the support available on key business areas such as planning and property advice, skills and training, innovation in creating new products, processes and services, international trade, procurement opportunities to tender for contracts and advice on becoming bid ready. There is also a directory to access supply chain opportunities for the area. Hub services are open to all business sectors, with referrals to partners where needed.",
+    "contacts": {
+      "website": "https://www.cwgrowthhub.co.uk/",
+      "phone": "tel:+44-300-060-3747",
+      "email": "support@cwgrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E08000026",
+          "name": "Coventry",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E10000031",
+          "name": "Warwickshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E08000026",
+          "name": "Coventry",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000218",
+          "name": "North Warwickshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000219",
+          "name": "Nuneaton and Bedworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000220",
+          "name": "Rugby",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000221",
+          "name": "Stratford-on-Avon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000222",
+          "name": "Warwick",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "D2N2 Growth Hub",
+    "description": "For all business stages, we offer access to a wide range of online resources, access to the enquiry hub and brokerage service that provides signposting and referrals to a vast network of other specialist programmes through our network of public, private and third sector partners.\nIn addition to this, we can support any trading business through free, impartial one to one advice delivered by our team of expert business advisers and enquiry team. We also have comprehensive events and webinar programme covering everything from HR right through to social media marketing, access to finance, digital, international trade and building resilience. There is also a range of scale-up services available for ambitious, scale-up and growing businesses.",
+    "contacts": {
+      "website": "http://www.d2n2growthhub.co.uk/",
+      "phone": "tel:+44-333-006-9178",
+      "email": "info@d2n2growthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000007",
+          "name": "Derbyshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000015",
+          "name": "Derby",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E10000024",
+          "name": "Nottinghamshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000018",
+          "name": "Nottingham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000032",
+          "name": "Amber Valley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000170",
+          "name": "Ashfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000171",
+          "name": "Bassetlaw",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000033",
+          "name": "Bolsover",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000172",
+          "name": "Broxtowe",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000034",
+          "name": "Chesterfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000015",
+          "name": "Derby",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000035",
+          "name": "Derbyshire Dales",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000036",
+          "name": "Erewash",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000173",
+          "name": "Gedling",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000037",
+          "name": "High Peak",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000174",
+          "name": "Mansfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000175",
+          "name": "Newark and Sherwood",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000038",
+          "name": "North East Derbyshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000018",
+          "name": "Nottingham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000176",
+          "name": "Rushcliffe",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000039",
+          "name": "South Derbyshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Dorset LEP Business",
+    "description": "Helping businesses across Dorset find the right advice, support and funding to enable them to grow and prosper.\nThey provide specialised programmes as well as signposting to a range of advice and support via their website. Businesses can make contact via an enquiry form or email.\nDorset LEP funded business programmes can be found here: https://www.dorsetlep.co.uk/business-growth-programmes\nThe Dorset LEP Business service is delivered by Dorset Local Enterprise Partnership.",
+    "contacts": {
+      "website": "https://www.dorsetlep.co.uk/",
+      "phone": null,
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000059",
+          "name": "Dorset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000059",
+          "name": "Dorset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "East Sussex Growth Hub",
+    "description": "Are you based in or looking to relocate and grow your business in East Sussex?\nYour local Growth Hub offers a range of free online, telephone and face-to-face support (face-to-face support is offered on a case-by-case basis). A team of experienced Business Navigators can provide information to help guide businesses to sources of advice, support, and finance. Online information including: business networking calendar and local business news.",
+    "contacts": {
+      "website": "https://www.eastsussex.gov.uk/business/support/east-sussex-growth-hub",
+      "phone": "tel:+44-1273-335878",
+      "email": "growth.hub@eastsussex.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000011",
+          "name": "East Sussex",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000061",
+          "name": "Eastbourne",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000062",
+          "name": "Hastings",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000063",
+          "name": "Lewes",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000064",
+          "name": "Rother",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000065",
+          "name": "Wealden",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "GM Business Growth Hub (Manchester)",
+    "description": "If you're looking for support for your business GM Business Growth Hub offers a great variety of programmes that could benefit you.\nThe Business Growth Hub works with ambitious businesses that want to grow their bottom line, boost their profile and create new business growth. The key aim is to help people to think differently about their business and explore different ways of developing their company.\nThey support businesses at all stages of their growth journey with a broad range of services, including the Start-Up Programme, one-to-one and peer-to-peer business support, events, specialist programmes i.e. sustainability, innovation, leadership and workforce development. Most of their support is fully-funded and is provided at no direct cost.",
+    "contacts": {
+      "website": "http://www.businessgrowthhub.com/",
+      "phone": "tel:+44-161-359-3050",
+      "email": "bgh@growthco.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E08000003",
+          "name": "Manchester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E47000001",
+          "name": "Greater Manchester",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E08000001",
+          "name": "Bolton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000002",
+          "name": "Bury",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000003",
+          "name": "Manchester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000004",
+          "name": "Oldham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000005",
+          "name": "Rochdale",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000006",
+          "name": "Salford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000007",
+          "name": "Stockport",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000008",
+          "name": "Tameside",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000009",
+          "name": "Trafford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000010",
+          "name": "Wigan",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "Grow London Local",
+    "description": "Welcome to Grow London Local! \u200b\nOne place to access all areas of small business support. From Barnet to Waltham Forest, Grow London Local can support you with accessing the business finance you need, marketing to help boost your sales and upskilling your team or yourself if you are not sure where to start. \u200b\nFrom there, we will introduce you to the right support network that suits your business to allow for the best chance of success.\u200b",
+    "contacts": {
+      "website": "https://www.growlondonlocal.london/",
+      "phone": null,
+      "email": "hello@growlondonlocal.london"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E12000007",
+          "name": "London",
+          "type": {
+            "level": 4,
+            "label": "REGION"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E09000002",
+          "name": "Barking and Dagenham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000003",
+          "name": "Barnet",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000004",
+          "name": "Bexley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000005",
+          "name": "Brent",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000006",
+          "name": "Bromley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000007",
+          "name": "Camden",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000001",
+          "name": "City of London",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000008",
+          "name": "Croydon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000009",
+          "name": "Ealing",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000010",
+          "name": "Enfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000011",
+          "name": "Greenwich",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000012",
+          "name": "Hackney",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000013",
+          "name": "Hammersmith and Fulham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000014",
+          "name": "Haringey",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000015",
+          "name": "Harrow",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000016",
+          "name": "Havering",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000017",
+          "name": "Hillingdon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000018",
+          "name": "Hounslow",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000019",
+          "name": "Islington",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000020",
+          "name": "Kensington and Chelsea",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000021",
+          "name": "Kingston upon Thames",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000022",
+          "name": "Lambeth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000023",
+          "name": "Lewisham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000024",
+          "name": "Merton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000025",
+          "name": "Newham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000026",
+          "name": "Redbridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000027",
+          "name": "Richmond upon Thames",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000028",
+          "name": "Southwark",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000029",
+          "name": "Sutton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000030",
+          "name": "Tower Hamlets",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000031",
+          "name": "Waltham Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000032",
+          "name": "Wandsworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E09000033",
+          "name": "Westminster",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "REGION"
+    }
+  },
+  {
+    "name": "Growth Platform - Liverpool City Region Growth Hub (DS)",
+    "description": "The Local Growth Hub provides guidance to businesses to help them navigate through the range of business support available across Liverpool City Region. The service can be accessed through www.growthplatform.org which also provides other information such as sector information and support, skills support, inward investment support, news and events, current tender opportunities and signposting to the most appropriate\nassistance from a range of commercial and publicly funded services. The Local Growth Hub directs businesses to our \u2018Business Support Service\u2019 which is managed by our 6 LA\u2019s and delivered by a range of local business support partners who can also provide online and face to face advice and guidance. There is also specific support for hard to reach groups such as social enterprises, women in business, disabled entrepreneurs\nand BAME community.",
+    "contacts": {
+      "website": "https://growthplatform.org/",
+      "phone": null,
+      "email": "localgrowthhub@liverpoolcityregion-ca.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000004",
+          "name": "Liverpool City Region",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        },
+        {
+          "code": "E08000012",
+          "name": "Liverpool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000006",
+          "name": "Halton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000011",
+          "name": "Knowsley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000012",
+          "name": "Liverpool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000014",
+          "name": "Sefton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000013",
+          "name": "St. Helens",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000015",
+          "name": "Wirral",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "Heart of the South West (HotSW) Growth Hub",
+    "description": "Heart of the South West Growth Hub can offer free advice and support services to businesses in Devon, Somerset, Plymouth and Torbay. Whether you need advice on how to access funding, finding business premises, a digital business review, business planning or on a specific business challenge, they can help.\nAt the Growth Hub, they have business advisers who are experienced in helping businesses at all stages of development as well as specific support programmes, a network of industry and local authority experts, useful resources and free events to help your business grow and develop.\nWhile some support in provided in-house, advisers can connect you with the most appropriate support providers to answer your specific questions.",
+    "contacts": {
+      "website": "https://www.heartofswgrowthhub.co.uk/",
+      "phone": "tel:+44-345-604-7047",
+      "email": "info@heartofswgrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E12000009",
+          "name": "South West",
+          "type": {
+            "level": 4,
+            "label": "REGION"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000022",
+          "name": "Bath and North East Somerset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000058",
+          "name": "Bournemouth, Christchurch and Poole",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000023",
+          "name": "Bristol, City of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000078",
+          "name": "Cheltenham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000052",
+          "name": "Cornwall",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000079",
+          "name": "Cotswold",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000059",
+          "name": "Dorset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000040",
+          "name": "East Devon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000041",
+          "name": "Exeter",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000080",
+          "name": "Forest of Dean",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000081",
+          "name": "Gloucester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000053",
+          "name": "Isles of Scilly",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000042",
+          "name": "Mid Devon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000043",
+          "name": "North Devon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000024",
+          "name": "North Somerset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000026",
+          "name": "Plymouth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000066",
+          "name": "Somerset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000025",
+          "name": "South Gloucestershire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000044",
+          "name": "South Hams",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000082",
+          "name": "Stroud",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000030",
+          "name": "Swindon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000045",
+          "name": "Teignbridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000083",
+          "name": "Tewkesbury",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000027",
+          "name": "Torbay",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000046",
+          "name": "Torridge",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000047",
+          "name": "West Devon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000054",
+          "name": "Wiltshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "REGION"
+    }
+  },
+  {
+    "name": "Hertfordshire Growth Hub",
+    "description": "Hertfordshire Growth Hub is the central point of access for business support in the county. It helps businesses gain access to the guidance they need to unlock their potential for growth. This includes access to funding, investment, as well as advice and guidance on how to plan and manage growth and innovation.\nIn-depth one-to-one advisory support is provided by Growth Account Managers, for eligible businesses. Businesses at all stages can register on the website for free and will benefit from immediate access to an online marketplace, events directory, and exclusive knowledge bank which provides tailored content based on the outcomes of the business diagnostic completed at registration.",
+    "contacts": {
+      "website": "http://www.hertsgrowthhub.com/",
+      "phone": "tel:+44-1707-952777",
+      "email": "enquiries@hertsgrowthhub.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000015",
+          "name": "Hertfordshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000095",
+          "name": "Broxbourne",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000096",
+          "name": "Dacorum",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000242",
+          "name": "East Hertfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000098",
+          "name": "Hertsmere",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000099",
+          "name": "North Hertfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000240",
+          "name": "St Albans",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000243",
+          "name": "Stevenage",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000102",
+          "name": "Three Rivers",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000103",
+          "name": "Watford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000241",
+          "name": "Welwyn Hatfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Kent and Medway Growth Hub",
+    "description": "An excellent source of business support can be found in Kent and Medway Growth Hub.\nThey provide a business signposting support service via telephone, e-mail, and webchat service. Giving guidance around grant funding, identifying relevant support programmes and listing local business events.",
+    "contacts": {
+      "website": "http://kentandmedwaygrowthhub.org.uk/",
+      "phone": "tel:+44-333-360-2300",
+      "email": "business@kentandmedwaygrowthhub.org.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000016",
+          "name": "Kent",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000035",
+          "name": "Medway",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000105",
+          "name": "Ashford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000106",
+          "name": "Canterbury",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000107",
+          "name": "Dartford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000108",
+          "name": "Dover",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000112",
+          "name": "Folkestone and Hythe",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000109",
+          "name": "Gravesham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000110",
+          "name": "Maidstone",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000035",
+          "name": "Medway",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000111",
+          "name": "Sevenoaks",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000113",
+          "name": "Swale",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000114",
+          "name": "Thanet",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000115",
+          "name": "Tonbridge and Malling",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000116",
+          "name": "Tunbridge Wells",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "LLEP Business Gateway (Leicester and Leicestershire Growth Hub) (DS)",
+    "description": "The web portal provides signposting services to a variety of business support including, starting a business, accessing finance, recruitment and training, premises and investing, news and events, and business growth.\nA business support directory offers business support from both public and private sectors in the region. They have experienced business advisors and delivery partners to carry out business reviews to assess the support needed, and support growth businesses in sourcing any funding or local and national support programmes available to them.",
+    "contacts": {
+      "website": "https://bizgateway.org.uk/",
+      "phone": "tel:+44-116-454-2917",
+      "email": "growthhub@bizgateway.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000018",
+          "name": "Leicestershire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000016",
+          "name": "Leicester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000129",
+          "name": "Blaby",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000130",
+          "name": "Charnwood",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000131",
+          "name": "Harborough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000132",
+          "name": "Hinckley and Bosworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000016",
+          "name": "Leicester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000133",
+          "name": "Melton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000134",
+          "name": "North West Leicestershire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000135",
+          "name": "Oadby and Wigston",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Marches Growth Hub",
+    "description": "Is your business looking for support?\nThe Marches Business support web portal (encompasses finance & funding, employment and skills, events and networking and advice and support).  Face-to-face support is also available for all stages of business, along with meeting space and hot desk facilities via the physical hub locations.\nThey also have an interactive tool to search for funding in the area and a range of events for local businesses.  Visit the website to see what's happening and reserve a place.",
+    "contacts": {
+      "website": "https://www.marchesgrowthhub.co.uk/",
+      "phone": "tel:+44-1743-250526",
+      "email": "invest@telford.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000019",
+          "name": "Herefordshire, County of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000051",
+          "name": "Shropshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000020",
+          "name": "Telford and Wrekin",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000019",
+          "name": "Herefordshire, County of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000051",
+          "name": "Shropshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000020",
+          "name": "Telford and Wrekin",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "New Anglia Growth Hub",
+    "description": "All SME businesses that have been trading for at least one year are supported with a range of services, from day-to-day business advice right up to specialist sector advice. Referrals to local and national business support, funding and finance, face-to-face support through a team of Growth, Skills and High Growth Advisers, as well as useful information resources and the latest regional news and events through the Growth Hub website. There is also information on the Growth Hub events to support operational and marketing processes. The funding opportunities section of the website shows a range of funding options that are currently available.\nBusinesses can sign up to receive updates on funding opportunities, business news, upcoming events and more.",
+    "contacts": {
+      "website": "https://www.newangliagrowthhub.co.uk/",
+      "phone": "tel:+44-300-333-6536",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000020",
+          "name": "Norfolk",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E10000029",
+          "name": "Suffolk",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000200",
+          "name": "Babergh",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000143",
+          "name": "Breckland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000144",
+          "name": "Broadland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000244",
+          "name": "East Suffolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000145",
+          "name": "Great Yarmouth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000202",
+          "name": "Ipswich",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000146",
+          "name": "King's Lynn and West Norfolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000203",
+          "name": "Mid Suffolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000147",
+          "name": "North Norfolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000148",
+          "name": "Norwich",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000149",
+          "name": "South Norfolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000245",
+          "name": "West Suffolk",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "North East Growth Hub (DS)",
+    "description": "A single point of access to an expansive network of business and finance support. The website has specific sections for Finance and Funding, Business Support, Insights, Events, as well as a dedicated section for Toolkits which provides a range of valuable toolkit resources on different business topics including Business startup, finance & funding, markets, operations and net zero.\nLocal face to face support is provided by a team of Growth Hub Connectors, who are experienced business advisers, working directly with trading businesses that are looking to grow. You can book an appointment with a Growth Hub Connector here. The Growth Hub\u2019s team of connectors support all trading businesses and have particular experience in advanced manufacturing, digitalisation, female leadership, skills and operations. The team also work closely with energy team to bring the region\u2019s energy sector together to deliver on the energy strategy.",
+    "contacts": {
+      "website": "https://growthhub.northeast-ca.gov.uk/",
+      "phone": "tel:+44-191-561-5468",
+      "email": "info@northeastgrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E12000001",
+          "name": "North East",
+          "type": {
+            "level": 4,
+            "label": "REGION"
+          }
+        },
+        {
+          "code": "E47000014",
+          "name": "North East",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000047",
+          "name": "County Durham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000005",
+          "name": "Darlington",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000037",
+          "name": "Gateshead",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000001",
+          "name": "Hartlepool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000002",
+          "name": "Middlesbrough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000021",
+          "name": "Newcastle upon Tyne",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000022",
+          "name": "North Tyneside",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000057",
+          "name": "Northumberland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000003",
+          "name": "Redcar and Cleveland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000023",
+          "name": "South Tyneside",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000004",
+          "name": "Stockton-on-Tees",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000024",
+          "name": "Sunderland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "REGION"
+    }
+  },
+  {
+    "name": "OxLEP Growth Hub",
+    "description": "We are here to help Oxfordshire\u2019s small and medium sized businesses (SME\u2019s) access the support they need to thrive at each stage of a business\u2019s journey \u2013 pre start through to Scale Up.\nThe Growth Hub aims to signpost businesses to the most appropriate business support, schemes, and events. To do this, businesses complete our short business support tool so we can better understand their needs and provide them with more targeted help and advice.\nWe offer invaluable business support, including one to one support through our mentoring programme, peer networks activity, workshops and events, as well as signposting to local and national business support services, schemes, and events.",
+    "contacts": {
+      "website": "https://www.oxlepbusiness.co.uk/oxlep-business-support-tool",
+      "phone": "tel:+44-345-241-1196",
+      "email": "business@oxfordshirelep.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000025",
+          "name": "Oxfordshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000177",
+          "name": "Cherwell",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000178",
+          "name": "Oxford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000179",
+          "name": "South Oxfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000180",
+          "name": "Vale of White Horse",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000181",
+          "name": "West Oxfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Solent Partnerships Growth Hub (DS)",
+    "description": "Solent Partnerships Growth Hub team can help you and your business take the next steps to success - whether that is starting out, consolidating what you have done so far, or growing your business. Solent Partners provide a suite of free resources and programmes that are specifically designed for Solent-based businesses to grow, evolve, and flourish.\nThe team is made up of experts who can offer tailored advice, signposting to relevant funding sources and support.",
+    "contacts": {
+      "website": "https://solentpartners.com/our-services/",
+      "phone": "tel:+44-23-9268-8055",
+      "email": "info@solentpartners.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E07000091",
+          "name": "New Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000046",
+          "name": "Isle of Wight",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000045",
+          "name": "Southampton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000086",
+          "name": "Eastleigh",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000087",
+          "name": "Fareham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000088",
+          "name": "Gosport",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000044",
+          "name": "Portsmouth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000090",
+          "name": "Havant",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000086",
+          "name": "Eastleigh",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000087",
+          "name": "Fareham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000088",
+          "name": "Gosport",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000090",
+          "name": "Havant",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000046",
+          "name": "Isle of Wight",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000091",
+          "name": "New Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000044",
+          "name": "Portsmouth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000045",
+          "name": "Southampton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "South Yorkshire Growth Hub",
+    "description": "If you are looking for business support, the South Yorkshire Growth Hub may be able to help.\nThey offer a range of support for people starting and growing a business, including signposting and tailored advice from a team of Gateway Advisers.\nFor businesses looking to grow, the team offers access to specialist guidance on seeking finance, skills development, innovation, selling overseas, and a supply chain support service.  The website also provides helpful online resources, a business directory and support finder tool, news and events listings, and a register of regional training providers.",
+    "contacts": {
+      "website": "https://business.southyorkshire-ca.gov.uk/",
+      "phone": "tel:+44-800-952-0002",
+      "email": "enquiries@southyorkshire-ca.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000002",
+          "name": "South Yorkshire",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E08000016",
+          "name": "Barnsley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000017",
+          "name": "Doncaster",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000018",
+          "name": "Rotherham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000019",
+          "name": "Sheffield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "Stoke-on-Trent and Staffordshire Business Growth Hub (DS)",
+    "description": "The Stoke-on-Trent & Staffordshire Business Growth Hub is a brilliant resource for business support with a wide range of services that can aid businesses to make that next step to growth.\nThey can offer general business advice and referrals to national and local business support programmes. Businesses can also book a face-to-face appointment with an experienced Business Advisor in their location for support relevant to your business.\nAdvisors are not all sector specialists and will link businesses with specialists where appropriate.\nThe Growth Hub also offers a variety of events, workshops, masterclasses, webinars and seminars on a diverse range of specialist subjects to help accelerate business growth.\nStoke-on-Trent & Staffordshire Business Growth Hub uses the national Business Support Service and the Staffordshire Business Helpline for initial telephone enquiries. The Growth Hub can be contacted directly via email",
+    "contacts": {
+      "website": "https://www.stokestaffsgrowthhub.co.uk/",
+      "phone": "tel:+44-300-111-8002",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000028",
+          "name": "Staffordshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        },
+        {
+          "code": "E06000021",
+          "name": "Stoke-on-Trent",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000192",
+          "name": "Cannock Chase",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000193",
+          "name": "East Staffordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000194",
+          "name": "Lichfield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000195",
+          "name": "Newcastle-under-Lyme",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000196",
+          "name": "South Staffordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000197",
+          "name": "Stafford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000198",
+          "name": "Staffordshire Moorlands",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000021",
+          "name": "Stoke-on-Trent",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000199",
+          "name": "Tamworth",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "Swindon and Wiltshire Growth Hub",
+    "description": "If you're looking for an excellent resource of business support then Swindon and Wiltshire Growth Hub provide a range of information that could help you.\nThey offer an online information portal as well as telephone and face-to-face support to help businesses grow across Swindon and Wiltshire. The website holds a wide range of useful tools and resources, such as guides and webinars, along with details of specialist programmes and schemes. A team of Growth Hub Navigators offer a free impartial business diagnostic service, as well as discussion on topics such as digital improvement and skills development. There is also an online members directory advertising local services and encouraging opportunities to collaborate and share news and events.",
+    "contacts": {
+      "website": "https://growthhub.swlep.co.uk/",
+      "phone": "tel:+44-1249-477287",
+      "email": "hello@swgrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000030",
+          "name": "Swindon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000054",
+          "name": "Wiltshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000030",
+          "name": "Swindon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000054",
+          "name": "Wiltshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "The Growth Hub Gloucestershire (DS)",
+    "description": "The Growth Hub offers funded business support, designed to help Gloucestershire businesses grow.\nFrom pre-stage through to established Companies, there is one to one business advice and support, expert-led events and online self-service resources .\nGloucestershire Growth Hub has grown to become one of the most highly recognised and successful Growth Hubs in the country.\nThe team of Business Navigators, deliver support and signposting across all disciplines include strategy, finance, leadership, export, operations and HR. In addition our sector specialists can focus in on business sustainability, green recovery, waste management and energy management,.\nThe Growth Hub also offers a Mentoring Programme, where businesses at any stage, for a period of time, can work with a trained and experienced Mentor on specific challenges within their business.\nWhere is it for?\nThe Gloucestershire Growth Hub has dedicated Growth Hub centres in Gloucester, Cirencester, Tewkesbury, Stroud, Cheltenham and the Forest of Dean.\nThe network provision does not extend to South Gloucestershire, as this area is supported by West Of England.",
+    "contacts": {
+      "website": "https://www.thegrowthhub.biz/",
+      "phone": null,
+      "email": "talktous@thegrowthhub.biz"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000013",
+          "name": "Gloucestershire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000078",
+          "name": "Cheltenham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000079",
+          "name": "Cotswold",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000080",
+          "name": "Forest of Dean",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000081",
+          "name": "Gloucester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000082",
+          "name": "Stroud",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000083",
+          "name": "Tewkesbury",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "The Hampshire Growth Hub (DS)",
+    "description": "Are you looking to start, grow or scale your business in Hampshire? If you are, the Hampshire Growth Hub is on hand to help you. They can provide one-to-one tailored business support, focusing on your growth plans and priorities. The hub have access to an extensive range of local, regional and national services, providing personalised support and provide guidance and information on:\n- finding finance and funding\n- budgeting and forecasting\n- business strategy and business planning\n- research and development\n- access to skills and talent\n- sales, marketing, social media and PR\n- premises\n- achieving your net zero goals",
+    "contacts": {
+      "website": "https://www.hants.gov.uk/business/hampshire-growth-hub",
+      "phone": "tel:+44-330-124-2068",
+      "email": null
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000014",
+          "name": "Hampshire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000084",
+          "name": "Basingstoke and Deane",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000085",
+          "name": "East Hampshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000086",
+          "name": "Eastleigh",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000087",
+          "name": "Fareham",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000088",
+          "name": "Gosport",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000089",
+          "name": "Hart",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000090",
+          "name": "Havant",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000091",
+          "name": "New Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000092",
+          "name": "Rushmoor",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000093",
+          "name": "Test Valley",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000094",
+          "name": "Winchester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "The HEY Growth Hub",
+    "description": "Online access to business resources and information covering Exporting, Intellectual Property, Tenders, Sites and Premises, and Apprenticeships. A Business Support tool provides impartial advice, support, and signposting, with links to local, regional and national information on advice, grant schemes, and support programmes. The #GrowmySME programme offers support, grants and workshops.\nA Knowledge Centre provides access to a wealth of information including videos, online resources and downloadable e-books. LEP TV channels offer a variety of videos containing important information and advice on growing and developing your business.\nA network of Business Advisors provide support and advice across the region helping businesses locate appropriate grants, finance and technical expertise. Support is tailored to the individual and covers all stages of business development from start up to established.",
+    "contacts": {
+      "website": "https://heygrowthhub.com/",
+      "phone": null,
+      "email": "growthhub@heylep.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000011",
+          "name": "East Riding of Yorkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000010",
+          "name": "Kingston upon Hull, City of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000011",
+          "name": "East Riding of Yorkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000010",
+          "name": "Kingston upon Hull, City of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "The South Midlands Growth Hub",
+    "description": "Need help achieving your growth aspirations? The Growth Hub may be able to help. They offer a range of services including 1-2-1 support from business advisers and signposting to other schemes and programmes.\nThe website contains helpful resources including a business services supplier marketplace, information on sources of finance, news, and upcoming events.",
+    "contacts": {
+      "website": "https://www.semlepgrowthhub.com/",
+      "phone": "tel:+44-300-012-3435",
+      "email": "growthhub@semlep.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E06000061",
+          "name": "North Northamptonshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000062",
+          "name": "West Northamptonshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000042",
+          "name": "Milton Keynes",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000055",
+          "name": "Bedford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000056",
+          "name": "Central Bedfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000032",
+          "name": "Luton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000055",
+          "name": "Bedford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000056",
+          "name": "Central Bedfordshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000032",
+          "name": "Luton",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000042",
+          "name": "Milton Keynes",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000061",
+          "name": "North Northamptonshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000062",
+          "name": "West Northamptonshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "LOCAL_AUTHORITY_DISTRICT"
+    }
+  },
+  {
+    "name": "TVCA Business Solutions",
+    "description": "The Business Solutions team is there to help ambitious businesses and budding entrepreneurs in Tees Valley to grow. They have expert local knowledge and insight to help you navigate the business support landscape. Business consultancy is at the core of what they do, working with you to understand your unique business needs and opportunities.\nUsing strong local links they can start conversations, make connections and introduce you to their local networks and partners to help get you where you want to be. Access tailored one-to-one support and join specialist programmes, workshops, events, and much more.\nYou can also get support to understand the finance and funding options which might be available to unlock your growth potential. Support is fully funded, which means there is no cost to your business.",
+    "contacts": {
+      "website": "https://teesvalley-ca.gov.uk/business/business-growth-support/",
+      "phone": "tel:+44-1325-792600",
+      "email": "business@teesvalley-ca.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000006",
+          "name": "Tees Valley",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000005",
+          "name": "Darlington",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000001",
+          "name": "Hartlepool",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000002",
+          "name": "Middlesbrough",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000003",
+          "name": "Redcar and Cleveland",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000004",
+          "name": "Stockton-on-Tees",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "West of England Growth Hub (WoE)",
+    "description": "If you're looking for support for your business you can contact West of England Growth Hub via telephone or email and they also offer face to face support.\nThey provide expertise through a network of partners and services supporting local businesses. Enterprise Advisers will provide referrals to resources and schemes on a wide range of topics including finance, international trade, innovation and growth, procurement, legislation and procedures, HR and training, events, networks and crisis management.  They also offer green business support to help your business become more sustainable, and information on skills support.\nThe Hub offers support to help you achieve your growth goals and you can also sign up to receive tailored updates and recommendations based on your preferences.",
+    "contacts": {
+      "website": "https://www.westofengland-ca.gov.uk/growth-hub/",
+      "phone": "tel:+44-117-456-6955",
+      "email": "wearegrowth@westofengland-ca.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000009",
+          "name": "West of England",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000022",
+          "name": "Bath and North East Somerset",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000023",
+          "name": "Bristol, City of",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000025",
+          "name": "South Gloucestershire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "West Yorkshire Business and Skills",
+    "description": "The web portal provides signposting services to a wide variety of business support including skills planning and training, digital capabilities, resource efficiency, innovation, research and development, access to finance, sustainable travel and business growth. They provide signposting and impartial referrals to local and national sources of business support and finance.\nSME Growth Managers provide intensive face to face support focused on small businesses with the ambition and ability to grow (excludes Barnsley).\nAn active programme of workshops, events and eNewsletter to help SMEs keep abreast of available support.",
+    "contacts": {
+      "website": "https://www.wybusiness-skills.com/business-support/",
+      "phone": "tel:+44-113-348-1818",
+      "email": "business@westyorks-ca.gov.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000003",
+          "name": "West Yorkshire",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E08000032",
+          "name": "Bradford",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000033",
+          "name": "Calderdale",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000034",
+          "name": "Kirklees",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000035",
+          "name": "Leeds",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E08000036",
+          "name": "Wakefield",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  },
+  {
+    "name": "Worcestershire Growth Hub",
+    "description": "Could your business benefit from support in Worcestershire? The Worcestershire Growth Hub has an excellent supply of information that could aid you.\nProviding a single point of contact for all Worcestershire business support needs, whether it be for starting your business, running your business, growing your business or funding your business. There is a dedicated funding finder section too.\nAs well as the web portal there is a telephone helpline, e-mail enquiry support and a business engagement team that liaises with business support partners and specialist advisers to broker solutions.",
+    "contacts": {
+      "website": "https://worcestershiregrowthhub.co.uk/",
+      "phone": "tel:+44-1905-677888",
+      "email": "info@worcestershiregrowthhub.co.uk"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E10000034",
+          "name": "Worcestershire",
+          "type": {
+            "level": 2,
+            "label": "COUNTY"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E07000234",
+          "name": "Bromsgrove",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000235",
+          "name": "Malvern Hills",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000236",
+          "name": "Redditch",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000237",
+          "name": "Worcester",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000238",
+          "name": "Wychavon",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E07000239",
+          "name": "Wyre Forest",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COUNTY"
+    }
+  },
+  {
+    "name": "York and North Yorkshire Growth Hub",
+    "description": "The growth hub provides support via a web portal signposting business owners to appropriate business support services. The portal includes an extensive range of business articles, guides, and a range of e-books. It also details event listings and a list of funded support that businesses can access.\nThe hub offers direct support over the phone, virtual calls, and face-to-face support via a team of relationship managers that have their own specialisms, including marketing, agriculture, manufacturing, and sustainability. The relationship manager will support businesses to source appropriate funding and work with them to provide long term wider business support. The growth hub is available to support businesses at any stage from pre-trading to established businesses.",
+    "contacts": {
+      "website": "https://www.ynygrowthhub.com/",
+      "phone": "tel:+44-800-246-5045",
+      "email": "support@ynygrowthhub.com"
+    },
+    "coverage": {
+      "boundaries": [
+        {
+          "code": "E47000012",
+          "name": "York and North Yorkshire",
+          "type": {
+            "level": 3,
+            "label": "COMBINED_AUTHORITY"
+          }
+        },
+        {
+          "code": "E06000014",
+          "name": "York",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000065",
+          "name": "North Yorkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "lads": [
+        {
+          "code": "E06000065",
+          "name": "North Yorkshire",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        },
+        {
+          "code": "E06000014",
+          "name": "York",
+          "type": {
+            "level": 1,
+            "label": "LOCAL_AUTHORITY_DISTRICT"
+          }
+        }
+      ],
+      "max_granularity": "COMBINED_AUTHORITY"
+    }
+  }
+]
