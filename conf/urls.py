@@ -358,7 +358,14 @@ urlpatterns = [
         name='dataservices-country-territory-region',
     ),
     re_path(
-        r'^dataservices/news-content/$', dataservices.views.NewsContent.as_view(), name='dataservices-news-content'
+        r'^dataservices/news-content/$',
+        dataservices.views.NewsContent.as_view(),
+        name='dataservices-news-content',
+    ),
+    re_path(
+        r'^dataservices/growth-hubs-commerce-chambers/$',
+        dataservices.views.LocalSupportByPostcode.as_view(),
+        name='dataservices-growth-hubs-commerce-chambers',
     ),
     re_path(r'^testapi/buyer/(?P<email>.*)/$', testapi.views.BuyerTestAPIView.as_view(), name='buyer_by_email'),
     re_path(r'^testapi/test-buyers/$', testapi.views.BuyerTestAPIView.as_view(), name='delete_test_buyers'),

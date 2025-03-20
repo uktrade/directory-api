@@ -19,7 +19,10 @@ from dataservices import filters, helpers, models, renderers, serializers
 from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
+    get_chamber_by_postcode,
+    get_growth_hub_by_postcode,
     get_multiple_serialized_instance_from_model,
+    get_postcode_data,
     get_serialized_instance_from_model,
 )
 from dataservices.models import Country, RuleOfLaw
@@ -1339,3 +1342,20 @@ class NewsContent(APIView):
             sentry_sdk.capture_exception(e)
         finally:
             return Response(news_articles)
+
+
+class LocalSupportByPostcode(generics.GenericAPIView):
+    permission_classes = []
+
+    def get(self, *args, **kwargs):
+        response = {}
+        postcode = self.request.GET.getlist('postcode', '')
+        postcode_data = get_postcode_data(postcode[0])
+
+        response['postcode_data'] = postcode_data['result']
+
+        response['growth_hubs'] = get_growth_hub_by_postcode(postcode_data['result'])
+
+        response['chambers_of_commerce'] = get_chamber_by_postcode(postcode_data['result'])
+
+        return Response(response, status=status.HTTP_200_OK)

@@ -100,14 +100,30 @@ def test_import_rank_of_law_data_with_no_country():
 
 
 @pytest.mark.django_db
-def test_import_all():
+@mock.patch('dataservices.management.commands.import_suggested_countries.get_s3_file_stream')
+def test_import_all(mock_get_s3_file_stream):
+    # Mock the S3 file stream to return a mock CSV data
+    mock_csv_data = """HS Code,Country 1,Country 2,Country 3
+1234,US,CA,MX
+5678,GB,FR,DE
+"""
+    mock_get_s3_file_stream.return_value = mock_csv_data
+
     models.SuggestedCountry.objects.count() == 0
     management.call_command('import_all')
     models.SuggestedCountry.objects.count() == 493
 
 
 @pytest.mark.django_db
-def test_import_raw_comtrade():
+@mock.patch('dataservices.management.commands.import_comtrade_data.get_s3_file_stream')
+def test_import_raw_comtrade(mock_get_s3_file_stream):
+    # Mock the S3 file stream to return a mock CSV data
+    mock_csv_data = """id,year,classification,commodity_code,trade_value,uk_or_world,country_iso3
+1,2019,HS,390720,345434516,WLD,FRA
+2,2019,HS,390720,123456789,GBR,FRA
+"""
+    mock_get_s3_file_stream.return_value = mock_csv_data
+
     management.call_command('import_comtrade_data', '--raw', 'dataservices/resources/comtrade_sample.csv')
     data = models.ComtradeReport.objects.filter(country_iso3='FRA', commodity_code='390720')
     assert len(models.ComtradeReport.objects.all()) == 389
