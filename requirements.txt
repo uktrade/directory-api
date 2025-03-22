@@ -204,7 +204,7 @@ greenlet==3.1.1
     #   sqlalchemy
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements.in
 html5lib==1.1
     # via xhtml2pdf
