@@ -195,4 +195,4 @@ def get_chamber_by_postcode(postcode_data):
                 'distance': distance,
             }
         )
-    return sorted(chambers_by_distance, key=lambda d: d['distance'], reverse=True)[:5]
+    return sorted(chambers_by_distance, key=lambda d: d['distance'], reverse=False)[:5]
