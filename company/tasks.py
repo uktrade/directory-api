@@ -21,3 +21,8 @@ def suppliers_csv_upload():
 def detect_duplicate_companies():
     if lock_acquired('detect_duplicate_companies'):
         helpers.notify_duplicate_companies()
+
+
+@app.task
+def obsfucate_personal_details():
+    call_command('obsfucate_personal_details')

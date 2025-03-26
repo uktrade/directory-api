@@ -226,7 +226,15 @@ def test_get_cia_factbook_data_no_key(api_client):
 
 
 @pytest.mark.django_db
-def test_suggested_countries_api(client):
+@mock.patch('dataservices.management.commands.import_suggested_countries.get_s3_file_stream')
+def test_suggested_countries_api(mock_get_s3_file_stream, client):
+    # Mock the S3 file stream to return a mock CSV data
+    mock_csv_data = """HS Code,Country 1,Country 2,Country 3,Country 4,Country 5
+1,US,CA,MX,GB,FR
+5678,GB,FR,DE,IT,ES
+"""
+    mock_get_s3_file_stream.return_value = mock_csv_data
+
     # Two with same country and sector
     management.call_command('import_countries')
     management.call_command('import_suggested_countries')
@@ -239,7 +247,15 @@ def test_suggested_countries_api(client):
 
 
 @pytest.mark.django_db
-def test_suggested_countries_api_without_hs_code(client):
+@mock.patch('dataservices.management.commands.import_suggested_countries.get_s3_file_stream')
+def test_suggested_countries_api_without_hs_code(mock_get_s3_file_stream, client):
+    # Mock the S3 file stream to return a mock CSV data
+    mock_csv_data = """HS Code,Country 1,Country 2,Country 3,Country 4,Country 5
+1,US,CA,MX,GB,FR
+5678,GB,FR,DE,IT,ES
+"""
+    mock_get_s3_file_stream.return_value = mock_csv_data
+
     # Two with same country and sector
     management.call_command('import_countries')
     management.call_command('import_suggested_countries')

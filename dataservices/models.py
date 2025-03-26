@@ -565,3 +565,46 @@ class DBTInvestmentOpportunity(models.Model):
     net_zero = models.BooleanField()
     science_technology_superpower = models.BooleanField()
     sector_cluster = models.CharField()
+
+
+class BoundaryType(models.TextChoices):
+    # a higher level means lower zoom (i.e. a bigger area)
+    REGION = 4, "region"
+    COMBINED_AUTHORITY = 3, "combined authority"
+    COUNTY = 2, "county"
+    LOCAL_AUTHORITY_DISTRICT = 1, "local authority district"
+
+
+class Boundary(models.Model):
+    code = models.CharField(blank=False, unique=True)
+    name = models.CharField(blank=False)
+    type = models.CharField(max_length=1, choices=BoundaryType.choices)
+
+
+class Place(models.Model):
+    address = models.CharField()
+    postcode = models.CharField()
+    latitude = models.CharField()
+    longitude = models.CharField()
+    northings = models.CharField()
+    eastings = models.CharField()
+
+
+class ContactCard(models.Model):
+    website = models.URLField(null=True, blank=True)
+    phone = models.CharField(null=True, blank=True)
+    email = models.CharField(null=True, blank=True)
+
+
+class GrowthHub(models.Model):
+    name = models.CharField(blank=False, unique=True)
+    description = models.CharField()
+    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
+    boundaries = models.ManyToManyField(Boundary)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class ChamberOfCommerce(models.Model):
+    name = models.CharField()
+    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)

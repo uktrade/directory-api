@@ -628,10 +628,21 @@ def test_ingest_uk_total_trade_data(mock_connection, mock_ingest, uk_total_trade
 @override_settings(DATABASE_URL='postgresql://')
 @mock.patch.object(pg_bulk_ingest, 'ingest', return_value=None)
 @mock.patch.object(Engine, 'connect')
+@mock.patch('dataservices.core.mixins.get_s3_file')
+@mock.patch('dataservices.core.mixins.get_s3_paginator')
 def test_ingest_uk_trade_in_goods_data(
-    mock_connection, mock_ingest, uk_trade_in_goods_str_tmp_data, uk_trade_in_goods_data
+    mock_get_s3_paginator,
+    mock_get_s3_file,
+    mock_connection,
+    mock_ingest,
+    uk_trade_in_goods_str_tmp_data,
+    uk_trade_in_goods_data,
+    get_s3_data_transfer_data,
 ):
     mock_connection.return_value.__enter__.return_value = mock.MagicMock()
+    mock_get_s3_file.return_value = {'Body': mock.MagicMock()}
+    mock_get_s3_paginator.return_value = get_s3_data_transfer_data
+
     command = trade_in_goods_command()
     ret = command.get_temp_batch(uk_trade_in_goods_str_tmp_data, command.get_temp_postgres_table())
     assert next(ret[2]) is not None
