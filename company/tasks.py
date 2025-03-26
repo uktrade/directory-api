@@ -1,6 +1,7 @@
 from django.core.management import call_command
 
 from company import helpers
+from company.management.commands import obsfucate_personal_details
 from conf.celery import app
 from notifications.tasks import lock_acquired
 
@@ -21,3 +22,8 @@ def suppliers_csv_upload():
 def detect_duplicate_companies():
     if lock_acquired('detect_duplicate_companies'):
         helpers.notify_duplicate_companies()
+
+
+@app.task
+def obsfucate_personal_details():
+    obsfucate_personal_details()
