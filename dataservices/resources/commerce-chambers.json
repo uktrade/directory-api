@@ -3,7 +3,7 @@
     "name": "Thames Valley Chamber of Commerce Group (Swindon)",
     "contacts": {
       "website": "https://www.thamesvalleychamber.co.uk/",
-      "phone": "tel:+44-1753-870500",
+      "phone": "01753 870500",
       "email": "customerservices@thamesvalleychamber.co.uk"
     },
     "place": {
@@ -11,15 +11,15 @@
       "postcode": "SN1 4BJ",
       "latitude": 51.55196,
       "longitude": -1.7770191,
-      "eastings": 183698.0346836265,
-      "northings": 415556.42665166565
+      "eastings": 415556.42665166565,
+      "northings": 183698.0346836265
     }
   },
   {
     "name": "East Midlands Chamber (Derbyshire, Nottinghamshire, Leicestershire)",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/stores/east-midlands-chamber-derbyshire-nottinghamshire-leicestershire/",
-      "phone": "tel:+44-333-320-0333",
+      "phone": "0333 320 0333",
       "email": "information@emc-dnl.co.uk"
     },
     "place": {
@@ -27,15 +27,15 @@
       "postcode": "S41 8ND",
       "latitude": 53.2646561,
       "longitude": -1.4383351,
-      "eastings": 374329.38632316113,
-      "northings": 437560.8514209004
+      "eastings": 437560.8514209004,
+      "northings": 374329.38632316113
     }
   },
   {
     "name": "East Midlands Chamber (Leicestershire)",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/stores/east-midlands-chamber-leicestershire/",
-      "phone": "tel:+44-333-320-0333",
+      "phone": "0333 320 0333",
       "email": "information@emc-dnl.co.uk"
     },
     "place": {
@@ -43,15 +43,15 @@
       "postcode": "LE3",
       "latitude": 52.6366425,
       "longitude": -1.1443291,
-      "eastings": 304663.0261745708,
-      "northings": 458003.08728286636
+      "eastings": 458003.08728286636,
+      "northings": 304663.0261745708
     }
   },
   {
     "name": "East Midlands Chamber (Nottinghamshire)",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/stores/east-midlands-chamber-nottinghamshire/",
-      "phone": "tel:+44-333-320-0333",
+      "phone": "0333 320 0333",
       "email": "information@emc-dnl.co.uk"
     },
     "place": {
@@ -59,15 +59,15 @@
       "postcode": "NG2 1EP",
       "latitude": 52.941452,
       "longitude": -1.1638501,
-      "eastings": 338553.6632009574,
-      "northings": 456288.3958291808
+      "eastings": 456288.3958291808,
+      "northings": 338553.6632009574
     }
   },
   {
     "name": "West & North Yorkshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/west-north-yorkshire-chamber-of-commerce/",
-      "phone": "tel:+44-1274-772777",
+      "phone": "01274 772777",
       "email": "info@wnychamber.co.uk"
     },
     "place": {
@@ -75,15 +75,15 @@
       "postcode": "BD1 5AH",
       "latitude": 53.7944565,
       "longitude": -1.7473072,
-      "eastings": 433155.26198484655,
-      "northings": 416743.6707603197
+      "eastings": 416743.6707603197,
+      "northings": 433155.26198484655
     }
   },
   {
     "name": "Sheffield Chamber of Commerce & Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/sheffield-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-114-201-8888",
+      "phone": "0114 201 8888",
       "email": "membership@scci.org.uk"
     },
     "place": {
@@ -91,15 +91,15 @@
       "postcode": "S1 4FS",
       "latitude": 53.3793793,
       "longitude": -1.47364,
-      "eastings": 387074.46358125,
-      "northings": 435112.0649539527
+      "eastings": 435112.0649539527,
+      "northings": 387074.46358125
     }
   },
   {
     "name": "Hull & Humber Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/hull-humber-chamber-of-commerce/",
-      "phone": "tel:+44-1482-324976",
+      "phone": "01482 324976",
       "email": "info@hull-humber-chamber.co.uk"
     },
     "place": {
@@ -107,15 +107,15 @@
       "postcode": "HU3 1YE",
       "latitude": 53.7496643,
       "longitude": -0.3470833,
-      "eastings": 429409.11493902013,
-      "northings": 509093.6468673272
+      "eastings": 509093.6468673272,
+      "northings": 429409.11493902013
     }
   },
   {
     "name": "Doncaster Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/doncaster-chamber-of-commerce/",
-      "phone": "tel:+44-1302-640100",
+      "phone": "01302 640100",
       "email": "chamber@doncaster-chamber.co.uk"
     },
     "place": {
@@ -123,8 +123,8 @@
       "postcode": "DN4 5HZ",
       "latitude": 53.5116272,
       "longitude": -1.1317837,
-      "eastings": 402008.80884716444,
-      "northings": 457673.91241281235
+      "eastings": 457673.91241281235,
+      "northings": 402008.80884716444
     }
   },
   {
@@ -139,15 +139,15 @@
       "postcode": "S70 2EY",
       "latitude": 53.5565796,
       "longitude": -1.4800102,
-      "eastings": 406785.2904320347,
-      "northings": 434544.7550476017
+      "eastings": 434544.7550476017,
+      "northings": 406785.2904320347
     }
   },
   {
     "name": "Staffordshire Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/staffordshire-chamber-of-commerce-industry/",
-      "phone": "tel:+44-1782-202222",
+      "phone": "01782 202222",
       "email": "info@staffordshirechambers.co.uk"
     },
     "place": {
@@ -155,15 +155,15 @@
       "postcode": "ST1 5BE",
       "latitude": 53.0260162,
       "longitude": -2.1944516,
-      "eastings": 347652.0468725934,
-      "northings": 387054.9656089952
+      "eastings": 387054.9656089952,
+      "northings": 347652.0468725934
     }
   },
   {
     "name": "Shropshire Chamber of Commerce and Enterprise",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/shropshire-chamber-of-commerce/",
-      "phone": "tel:+44-1952-208200",
+      "phone": "01952 208200",
       "email": "enquiries@shropshire-chamber.co.uk"
     },
     "place": {
@@ -171,15 +171,15 @@
       "postcode": "TF3 3BA",
       "latitude": 52.6750526,
       "longitude": -2.4203,
-      "eastings": 308675.633979592,
-      "northings": 371678.4462810305
+      "eastings": 371678.4462810305,
+      "northings": 308675.633979592
     }
   },
   {
     "name": "Herefordshire & Worcestershire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/herefordshire-worcestershire-chamber-of-commerce/",
-      "phone": "tel:+44-1905-673600",
+      "phone": "01905 673600",
       "email": "enquiries@hwchamber.co.uk"
     },
     "place": {
@@ -187,15 +187,15 @@
       "postcode": "WR4 9NE",
       "latitude": 52.2164917,
       "longitude": -2.1911831,
-      "eastings": 257602.2721738908,
-      "northings": 387034.79642321536
+      "eastings": 387034.79642321536,
+      "northings": 257602.2721738908
     }
   },
   {
     "name": "Greater Birmingham Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/greater-birmingham-chambers-of-commerce/",
-      "phone": "tel:+44-121-454-6171",
+      "phone": "0121 454 6171",
       "email": "info@birmingham-chamber.com"
     },
     "place": {
@@ -203,15 +203,15 @@
       "postcode": "B15 3DH",
       "latitude": 52.4709358,
       "longitude": -1.9244007,
-      "eastings": 285889.9783759966,
-      "northings": 405232.11424283835
+      "eastings": 405232.11424283835,
+      "northings": 285889.9783759966
     }
   },
   {
     "name": "Coventry & Warwickshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/coventry-warwickshire-chamber-of-commerce/",
-      "phone": "tel:+44-24-7665-4321",
+      "phone": "024 7665 4321",
       "email": "info@cw-chamber.co.uk"
     },
     "place": {
@@ -219,15 +219,15 @@
       "postcode": "CV1 2TL",
       "latitude": 52.4018555,
       "longitude": -1.5045472,
-      "eastings": 278318.34174593113,
-      "northings": 433804.979774939
+      "eastings": 433804.979774939,
+      "northings": 278318.34174593113
     }
   },
   {
     "name": "Black Country Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/black-country-chamber-of-commerce/",
-      "phone": "tel:+44-330-024-0820",
+      "phone": "0330 024 0820",
       "email": "website@blackcountrychamber.co.uk"
     },
     "place": {
@@ -235,15 +235,15 @@
       "postcode": "WV10 9TG",
       "latitude": 52.6025658,
       "longitude": -2.1278002,
-      "eastings": 300536.96339773975,
-      "northings": 391441.15468877106
+      "eastings": 391441.15468877106,
+      "northings": 300536.96339773975
     }
   },
   {
     "name": "West Cheshire & North Wales Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/west-cheshire-and-north-wales-chamber-of-commerce/",
-      "phone": "tel:+44-1244-669988",
+      "phone": "01244 669988",
       "email": "info@wcnwchamber.org.uk"
     },
     "place": {
@@ -251,15 +251,15 @@
       "postcode": "CH4 7AD",
       "latitude": 53.1860809,
       "longitude": -2.884841,
-      "eastings": 365807.0077482089,
-      "northings": 340969.94717592467
+      "eastings": 340969.94717592467,
+      "northings": 365807.0077482089
     }
   },
   {
     "name": "Chambers Wales South East, South West and Mid",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/chambers-wales-south-east-south-west-and-mid/",
-      "phone": "tel:+44-1633-254041",
+      "phone": "01633 254041",
       "email": "info@cw-seswm.com"
     },
     "place": {
@@ -267,15 +267,15 @@
       "postcode": "NP20 2AQ",
       "latitude": 51.5787277,
       "longitude": -2.9870672,
-      "eastings": 187113.32483651,
-      "northings": 331698.9326693885
+      "eastings": 331698.9326693885,
+      "northings": 187113.32483651
     }
   },
   {
     "name": "Somerset Chamber of Commerce & Industry Ltd",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/somerset-chamber-of-commerce/",
-      "phone": "tel:+44-1823-444924",
+      "phone": "01823 444924",
       "email": "membership@somerset-chamber.co.uk"
     },
     "place": {
@@ -283,15 +283,15 @@
       "postcode": "TA1 2PX",
       "latitude": 51.0131645,
       "longitude": -3.0690336,
-      "eastings": 124298.53649992417,
-      "northings": 325103.26881580683
+      "eastings": 325103.26881580683,
+      "northings": 124298.53649992417
     }
   },
   {
     "name": "Dorset Chamber of Commerce & Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/dorset-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-1202-714800",
+      "phone": "01202 714800",
       "email": "contact@dorsetchamber.co.uk"
     },
     "place": {
@@ -299,15 +299,15 @@
       "postcode": "BH12 4NZ",
       "latitude": 50.7449989,
       "longitude": -1.9518259,
-      "eastings": 93934.84516557035,
-      "northings": 403494.7417052327
+      "eastings": 403494.7417052327,
+      "northings": 93934.84516557035
     }
   },
   {
     "name": "Devon & Plymouth Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/devon-plymouth-chamber-of-commerce/",
-      "phone": "tel:+44-1752-220471",
+      "phone": "01752 220471",
       "email": "reception@devonchamber.co.uk"
     },
     "place": {
@@ -315,15 +315,15 @@
       "postcode": "PL6 5QZ",
       "latitude": 50.4159241,
       "longitude": -4.123827,
-      "eastings": 59497.46054802963,
-      "northings": 249209.0072775367
+      "eastings": 249209.0072775367,
+      "northings": 59497.46054802963
     }
   },
   {
     "name": "Cornwall Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/cornwall-chamber-of-commerce/",
-      "phone": "tel:+44-1209-216006",
+      "phone": "01209 216006",
       "email": "hello@cornwallchamber.co.uk"
     },
     "place": {
@@ -331,15 +331,15 @@
       "postcode": "TR15 1SP",
       "latitude": 50.2396049,
       "longitude": -5.2235327,
-      "eastings": 42708.86982457701,
-      "northings": 170243.95863256758
+      "eastings": 170243.95863256758,
+      "northings": 42708.86982457701
     }
   },
   {
     "name": "Business West",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/business-west-chambers-of-commerce/",
-      "phone": "tel:+44-1275-373373",
+      "phone": "01275 373373",
       "email": "info@businesswest.co.uk"
     },
     "place": {
@@ -347,15 +347,15 @@
       "postcode": "BS8 3RA",
       "latitude": 51.4695358,
       "longitude": -2.6590407,
-      "eastings": 174713.9440630718,
-      "northings": 354319.39435202413
+      "eastings": 354319.39435202413,
+      "northings": 174713.9440630718
     }
   },
   {
     "name": "Thames Valley Chamber of Commerce Group",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/thames-valley-chamber-of-commerce-group/",
-      "phone": "tel:+44-1753-870500",
+      "phone": "01753 870500",
       "email": "customerservices@tvchamber.co.uk"
     },
     "place": {
@@ -363,15 +363,15 @@
       "postcode": "SL1 4SS",
       "latitude": 51.5232887,
       "longitude": -0.6201092,
-      "eastings": 181387.83031032776,
-      "northings": 495829.3493448427
+      "eastings": 495829.3493448427,
+      "northings": 181387.83031032776
     }
   },
   {
     "name": "Sussex Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/sussex-chamber-of-commerce/",
-      "phone": "tel:+44-1444-259259",
+      "phone": "01444 259259",
       "email": "info@sussexchamberofcommerce.co.uk"
     },
     "place": {
@@ -379,15 +379,15 @@
       "postcode": "RH15 9LR",
       "latitude": 50.9549904,
       "longitude": -0.1457107,
-      "eastings": 118921.58223292773,
-      "northings": 530334.2281189072
+      "eastings": 530334.2281189072,
+      "northings": 118921.58223292773
     }
   },
   {
     "name": "Surrey Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/surrey-chambers-of-commerce/",
-      "phone": "tel:+44-1483-735540",
+      "phone": "01483 735540",
       "email": "info@surrey-chambers.co.uk"
     },
     "place": {
@@ -395,15 +395,15 @@
       "postcode": "GU21 5LY",
       "latitude": 51.3273392,
       "longitude": -0.5408526,
-      "eastings": 159703.87892186962,
-      "northings": 501761.42475681374
+      "eastings": 501761.42475681374,
+      "northings": 159703.87892186962
     }
   },
   {
     "name": "London Chamber of Commerce & Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/london-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-20-7248-4444",
+      "phone": "020 7248 4444",
       "email": "lc@londonchamber.co.uk"
     },
     "place": {
@@ -411,15 +411,15 @@
       "postcode": "EC4R 1AP",
       "latitude": 51.5115547,
       "longitude": -0.0931658,
-      "eastings": 180903.94193090266,
-      "northings": 532418.3698164666
+      "eastings": 532418.3698164666,
+      "northings": 180903.94193090266
     }
   },
   {
     "name": "Kent Invicta Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/kent-invicta-chamber-of-commerce/",
-      "phone": "tel:+44-1233-503838",
+      "phone": "01233 503838",
       "email": "info@kentinvictachamber.co.uk"
     },
     "place": {
@@ -427,15 +427,15 @@
       "postcode": "TN24 0LH",
       "latitude": 51.1246071,
       "longitude": 0.8974643,
-      "eastings": 140139.1452425728,
-      "northings": 602850.7415999019
+      "eastings": 602850.7415999019,
+      "northings": 140139.1452425728
     }
   },
   {
     "name": "Isle of Wight Chamber of Commerce, Tourism and Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/isle-of-wight-chamber-of-commerce/",
-      "phone": "tel:+44-1983-520777",
+      "phone": "01983 520777",
       "email": "chamber@iwchamber.co.uk"
     },
     "place": {
@@ -443,15 +443,15 @@
       "postcode": "PO36 0LT",
       "latitude": 50.6506157,
       "longitude": -1.216747,
-      "eastings": 83730.85454834852,
-      "northings": 455469.1799838217
+      "eastings": 455469.1799838217,
+      "northings": 83730.85454834852
     }
   },
   {
     "name": "Hampshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/hampshire-chamber-of-commerce/",
-      "phone": "tel:+44-1329-242420",
+      "phone": "01329 242420",
       "email": "info@hampshirechamber.co.uk"
     },
     "place": {
@@ -459,15 +459,15 @@
       "postcode": "PO14 1NH",
       "latitude": 50.850872,
       "longitude": -1.199419,
-      "eastings": 106012.12515093264,
-      "northings": 456453.10040336475
+      "eastings": 456453.10040336475,
+      "northings": 106012.12515093264
     }
   },
   {
     "name": "Renfrewshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/renfrewshire-chamber-of-commerce/",
-      "phone": "tel:+44-141-847-5450",
+      "phone": "0141 847 5450",
       "email": "info@renfrewshirechamber.com"
     },
     "place": {
@@ -475,15 +475,15 @@
       "postcode": "PA3",
       "latitude": 55.8610649,
       "longitude": -4.4516129,
-      "eastings": 665816.5228434599,
-      "northings": 246660.40963812676
+      "eastings": 246660.40963812676,
+      "northings": 665816.5228434599
     }
   },
   {
     "name": "Inverness Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/inverness-chamber-of-commerce/",
-      "phone": "tel:+44-1463-718131",
+      "phone": "01463 718131",
       "email": "info@inverness-chamber.co.uk"
     },
     "place": {
@@ -491,15 +491,15 @@
       "postcode": "IV1 1HT",
       "latitude": 57.4779854,
       "longitude": -4.2242293,
-      "eastings": 845266.9326259879,
-      "northings": 266729.03569369053
+      "eastings": 266729.03569369053,
+      "northings": 845266.9326259879
     }
   },
   {
     "name": "Glasgow Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/glasgow-chamber-of-commerce/",
-      "phone": "tel:+44-141-204-2121",
+      "phone": "0141 204 2121",
       "email": "chamber@glasgowchamberofcommerce.com"
     },
     "place": {
@@ -507,15 +507,15 @@
       "postcode": "G2 1EQ",
       "latitude": 55.8614578,
       "longitude": -4.2514977,
-      "eastings": 665434.5596345549,
-      "northings": 259183.87527717708
+      "eastings": 259183.87527717708,
+      "northings": 665434.5596345549
     }
   },
   {
     "name": "Fife Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/fife-chamber-of-commerce/",
-      "phone": "tel:+44-1592-647740",
+      "phone": "01592 647740",
       "email": "info@fifechamber.co.uk"
     },
     "place": {
@@ -523,15 +523,15 @@
       "postcode": "KY2 6HD",
       "latitude": 56.1360588,
       "longitude": -3.2030175,
-      "eastings": 694357.503271984,
-      "northings": 325332.7258305453
+      "eastings": 325332.7258305453,
+      "northings": 694357.503271984
     }
   },
   {
     "name": "Edinburgh Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/edinburgh-chamber-of-commerce/",
-      "phone": "tel:+44-131-221-2999",
+      "phone": "0131 221 2999",
       "email": "info@edinburghchamber.co.uk"
     },
     "place": {
@@ -539,15 +539,15 @@
       "postcode": "EH2 2JG",
       "latitude": 55.9533424,
       "longitude": -3.1999052,
-      "eastings": 674018.9632664431,
-      "northings": 325172.75473583344
+      "eastings": 325172.75473583344,
+      "northings": 674018.9632664431
     }
   },
   {
     "name": "Dundee and Angus Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/dundee-and-angus-chamber-of-commerce/",
-      "phone": "tel:+44-1382-228545",
+      "phone": "01382 228545",
       "email": "info@dundeeandanguschamber.co.uk"
     },
     "place": {
@@ -555,15 +555,15 @@
       "postcode": "DD1 3JA",
       "latitude": 56.4621429,
       "longitude": -2.9606507,
-      "eastings": 730414.696811615,
-      "northings": 340901.4644759108
+      "eastings": 340901.4644759108,
+      "northings": 730414.696811615
     }
   },
   {
     "name": "Ayrshire Chamber of Commerce and Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/ayrshire-chamber-of-commerce/",
-      "phone": "tel:+44-1292-678666",
+      "phone": "01292 678666",
       "email": "enquiries@ayrshire-chamber.org"
     },
     "place": {
@@ -571,15 +571,15 @@
       "postcode": "KA9 2PL",
       "latitude": 55.5083961,
       "longitude": -4.6112032,
-      "eastings": 626945.9717638608,
-      "northings": 235196.3741550608
+      "eastings": 235196.3741550608,
+      "northings": 626945.9717638608
     }
   },
   {
     "name": "Aberdeen & Grampian Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/aberdeen-grampian-chamber-of-commerce/",
-      "phone": "tel:+44-1224-343900",
+      "phone": "01224 343900",
       "email": "info@agcc.co.uk"
     },
     "place": {
@@ -587,15 +587,15 @@
       "postcode": "AB23 8GX",
       "latitude": 57.1873741,
       "longitude": -2.0831461,
-      "eastings": 810734.0501215059,
-      "northings": 395073.70428568486
+      "eastings": 395073.70428568486,
+      "northings": 810734.0501215059
     }
   },
   {
     "name": "Northern Ireland Chamber of Commerce & Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/northern-ireland-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-28-9024-4113",
+      "phone": "028 9024 4113",
       "email": "mail@northernirelandchamber.com"
     },
     "place": {
@@ -603,15 +603,15 @@
       "postcode": "BT2 8BA",
       "latitude": 54.5934029,
       "longitude": -5.9293547,
-      "eastings": 529122.7681780435,
-      "northings": 146263.82106791937
+      "eastings": 146263.82106791937,
+      "northings": 529122.7681780435
     }
   },
   {
     "name": "Wirral Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/wirral-chamber-of-commerce/",
-      "phone": "tel:+44-151-650-6940",
+      "phone": "0151 650 6940",
       "email": "info@wirralchamber.co.uk"
     },
     "place": {
@@ -619,15 +619,15 @@
       "postcode": "CH41 1FN",
       "latitude": 53.3980865,
       "longitude": -3.020864,
-      "eastings": 389512.53533720353,
-      "northings": 332217.6284897694
+      "eastings": 332217.6284897694,
+      "northings": 389512.53533720353
     }
   },
   {
     "name": "South Cheshire Chamber of Commerce and Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/south-cheshire-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-1270-504700",
+      "phone": "01270 504700",
       "email": "info@sccci.co.uk"
     },
     "place": {
@@ -635,15 +635,15 @@
       "postcode": "CW1 5DU",
       "latitude": 53.0920181,
       "longitude": -2.4236906,
-      "eastings": 355060.8823597186,
-      "northings": 371722.9977456916
+      "eastings": 371722.9977456916,
+      "northings": 355060.8823597186
     }
   },
   {
     "name": "North & Western Lancashire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/north-western-lancashire-chamber-of-commerce/",
-      "phone": "tel:+44-1772-653000",
+      "phone": "01772 653000",
       "email": "info@lancschamber.co.uk"
     },
     "place": {
@@ -651,15 +651,15 @@
       "postcode": "PR2 9WT",
       "latitude": 53.7976456,
       "longitude": -2.690166,
-      "eastings": 433701.5928195013,
-      "northings": 354637.20546999143
+      "eastings": 354637.20546999143,
+      "northings": 433701.5928195013
     }
   },
   {
     "name": "Liverpool Chamber of Commerce CIC",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/liverpool-sefton-chambers-of-commerce/",
-      "phone": "tel:+44-151-227-1234",
+      "phone": "0151 227 1234",
       "email": "membership@liverpoolchamber.org.uk"
     },
     "place": {
@@ -667,15 +667,15 @@
       "postcode": "L3 9LQ",
       "latitude": 53.4093475,
       "longitude": -2.9928164,
-      "eastings": 390739.00469207467,
-      "northings": 334099.9768273785
+      "eastings": 334099.9768273785,
+      "northings": 390739.00469207467
     }
   },
   {
     "name": "Greater Manchester Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/greater-manchester-chamber-of-commerce/",
-      "phone": "tel:+44-161-393-4321",
+      "phone": "0161 393 4321",
       "email": "info@gmchamber.co.uk"
     },
     "place": {
@@ -683,15 +683,15 @@
       "postcode": "M3 3WD",
       "latitude": 53.4792633,
       "longitude": -2.2487161,
-      "eastings": 398086.95213490824,
-      "northings": 383590.80847043364
+      "eastings": 383590.80847043364,
+      "northings": 398086.95213490824
     }
   },
   {
     "name": "East Lancashire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/east-lancashire-chamber-of-commerce/",
-      "phone": "tel:+44-1254-356400",
+      "phone": "01254 356400",
       "email": "info@chamberelancs.co.uk"
     },
     "place": {
@@ -699,15 +699,15 @@
       "postcode": "BB5 5JR",
       "latitude": 53.7688942,
       "longitude": -2.3895299,
-      "eastings": 430352.15734688856,
-      "northings": 374422.1112955828
+      "eastings": 374422.1112955828,
+      "northings": 430352.15734688856
     }
   },
   {
     "name": "Cumbria Chamber of Commerce and Industry",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/cumbria-chamber-of-commerce/",
-      "phone": "tel:+44-845-226-0040",
+      "phone": "0845 226 0040",
       "email": "info@cumbriachamber.co.uk"
     },
     "place": {
@@ -715,15 +715,15 @@
       "postcode": "CA3 8DA",
       "latitude": 54.893528,
       "longitude": -2.9329746,
-      "eastings": 555819.3016929162,
-      "northings": 340258.4269711424
+      "eastings": 340258.4269711424,
+      "northings": 555819.3016929162
     }
   },
   {
     "name": "North East Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/north-east-england-chamber-of-commerce/",
-      "phone": "tel:+44-300-303-6322",
+      "phone": "0300 303 6322",
       "email": "your@necc.co.uk"
     },
     "place": {
@@ -731,15 +731,15 @@
       "postcode": "DH1 5TS",
       "latitude": 54.7886391,
       "longitude": -1.5878612,
-      "eastings": 543826.0127248816,
-      "northings": 426601.71910524636
+      "eastings": 426601.71910524636,
+      "northings": 543826.0127248816
     }
   },
   {
     "name": "Suffolk Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/suffolk-chamber-of-commerce/",
-      "phone": "tel:+44-1473-680600",
+      "phone": "01473 680600",
       "email": "info@suffolkchamber.co.uk"
     },
     "place": {
@@ -747,15 +747,15 @@
       "postcode": "IP2 8SQ",
       "latitude": 52.0493355,
       "longitude": 1.1580718,
-      "eastings": 243699.35350483074,
-      "northings": 616639.5002427311
+      "eastings": 616639.5002427311,
+      "northings": 243699.35350483074
     }
   },
   {
     "name": "Norfolk Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/norfolk-chambers-of-commerce/",
-      "phone": "tel:+44-1603-625977",
+      "phone": "01603 625977",
       "email": "hello@norfolkchambers.co.uk"
     },
     "place": {
@@ -763,15 +763,15 @@
       "postcode": "NR1 3FS",
       "latitude": 52.6286621,
       "longitude": 1.2982562,
-      "eastings": 308538.54631324095,
-      "northings": 623311.442671988
+      "eastings": 623311.442671988,
+      "northings": 308538.54631324095
     }
   },
   {
     "name": "Hertfordshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/hertfordshire-chamber-of-commerce-and-industry/",
-      "phone": "tel:+44-1707-502180",
+      "phone": "01707 502180",
       "email": "enquiries@hertschamber.com"
     },
     "place": {
@@ -779,15 +779,15 @@
       "postcode": "AL9 5AD",
       "latitude": 51.7634163,
       "longitude": -0.2140413,
-      "eastings": 208700.62222215813,
-      "northings": 523346.40349392756
+      "eastings": 523346.40349392756,
+      "northings": 208700.62222215813
     }
   },
   {
     "name": "Essex Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/essex-chambers-of-commerce/",
-      "phone": "tel:+44-1702-560100",
+      "phone": "01702 560100",
       "email": "enquiries@essexchambers.co.uk"
     },
     "place": {
@@ -795,15 +795,15 @@
       "postcode": "SS3 0FF",
       "latitude": 51.5524445,
       "longitude": 0.7876362,
-      "eastings": 187410.63218448078,
-      "northings": 593358.3193826757
+      "eastings": 593358.3193826757,
+      "northings": 187410.63218448078
     }
   },
   {
     "name": "Cambridgeshire Chambers of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/cambridgeshire-chambers-of-commerce/",
-      "phone": "tel:+44-1223-237414",
+      "phone": "01223 237414",
       "email": "enquiries@cambscci.co.uk"
     },
     "place": {
@@ -811,15 +811,15 @@
       "postcode": "CB24 3AH",
       "latitude": 52.2659988,
       "longitude": 0.0770753,
-      "eastings": 265123.28734034847,
-      "northings": 541837.1582767391
+      "eastings": 541837.1582767391,
+      "northings": 265123.28734034847
     }
   },
   {
     "name": "Bedfordshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/bedfordshire-chamber-of-commerce/",
-      "phone": "tel:+44-1582-522448",
+      "phone": "01582 522448",
       "email": "info@chamber-business.com"
     },
     "place": {
@@ -827,15 +827,15 @@
       "postcode": "LU2 0LB",
       "latitude": 51.8735428,
       "longitude": -0.3940112,
-      "eastings": 220659.0009040442,
-      "northings": 510657.3376882955
+      "eastings": 510657.3376882955,
+      "northings": 220659.0009040442
     }
   },
   {
     "name": "Northamptonshire Chamber of Commerce (inc Milton Keynes Chamber)",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/northamptonshire-chamber-of-commerce-incorporating-milton-keynes-chamber/%20AUTHOR",
-      "phone": "tel:+44-1604-490490",
+      "phone": "01604 490490",
       "email": "info@northants-chamber.co.uk"
     },
     "place": {
@@ -843,15 +843,15 @@
       "postcode": "NN4 7XD",
       "latitude": 52.2296524,
       "longitude": -0.86115,
-      "eastings": 259659.50450441538,
-      "northings": 477878.9041125514
+      "eastings": 477878.9041125514,
+      "northings": 259659.50450441538
     }
   },
   {
     "name": "Lincolnshire Chamber of Commerce",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/lincolnshire-chamber-of-commerce-including-rutland-chamber-of-commerce/",
-      "phone": "tel:+44-1522-523333",
+      "phone": "01522 523333",
       "email": "enquiries@lincs-chamber.co.uk"
     },
     "place": {
@@ -859,15 +859,15 @@
       "postcode": "LN2 4WJ",
       "latitude": 53.2399254,
       "longitude": -0.508603,
-      "eastings": 372468.1670860042,
-      "northings": 499629.666633589
+      "eastings": 499629.666633589,
+      "northings": 372468.1670860042
     }
   },
   {
     "name": "East Midlands Chamber (Derbyshire)",
     "contacts": {
       "website": "https://www.britishchambers.org.uk/locations/east-midlands-chamber-derbyshire/",
-      "phone": "tel:+44-333-320-0333",
+      "phone": "0333 320 0333",
       "email": "information@emc-dnl.co.uk"
     },
     "place": {
@@ -875,8 +875,8 @@
       "postcode": "DE1 3LD",
       "latitude": 52.9266167,
       "longitude": -1.4884285,
-      "eastings": 336698.9491421793,
-      "northings": 434487.8043879581
+      "eastings": 434487.8043879581,
+      "northings": 336698.9491421793
     }
   }
 ]

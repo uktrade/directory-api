@@ -576,8 +576,8 @@ class BoundaryType(models.TextChoices):
 
 
 class Boundary(models.Model):
-    code = models.CharField()
-    name = models.CharField()
+    code = models.CharField(blank=False, unique=True)
+    name = models.CharField(blank=False)
     type = models.CharField(max_length=1, choices=BoundaryType.choices)
 
 
@@ -597,14 +597,14 @@ class ContactCard(models.Model):
 
 
 class GrowthHub(models.Model):
-    name = models.CharField()
+    name = models.CharField(blank=False, unique=True)
     description = models.CharField()
-    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE)
+    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
     boundaries = models.ManyToManyField(Boundary)
     place = models.ForeignKey(Place, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class ChamberOfCommerce(models.Model):
     name = models.CharField()
-    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE)
+    contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
