@@ -26,4 +26,4 @@ def detect_duplicate_companies():
 
 @app.task
 def obsfucate_personal_details():
-    obsfucate_personal_details()
+    call_command('obsfucate_personal_details')
