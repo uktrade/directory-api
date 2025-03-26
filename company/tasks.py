@@ -1,7 +1,6 @@
 from django.core.management import call_command
 
 from company import helpers
-from company.management.commands import obsfucate_personal_details
 from conf.celery import app
 from notifications.tasks import lock_acquired
 
