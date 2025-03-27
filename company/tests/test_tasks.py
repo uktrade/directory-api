@@ -37,4 +37,3 @@ def test_obsfucate_personal_details_prod_env(mock_mask_company_user):
     CompanyUserFactory()
     tasks.obsfucate_personal_details()
     assert mock_mask_company_user.call_count == 0
-
