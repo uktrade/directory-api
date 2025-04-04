@@ -11,14 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Website',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField()),
-                ('label', models.CharField(blank=True, null=True)),
-            ],
-        ),
         migrations.RemoveField(
             model_name='growthhub',
             name='description',
@@ -51,24 +43,6 @@ class Migration(migrations.Migration):
             model_name='chamberofcommerce',
             name='name',
             field=models.CharField(unique=True),
-        ),
-        migrations.AddField(
-            model_name='contactcard',
-            name='contact_form',
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name='contact_form',
-                to='dataservices.website',
-            ),
-        ),
-        migrations.AlterField(
-            model_name='contactcard',
-            name='website',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='dataservices.website'
-            ),
         ),
         migrations.RenameModel(
             old_name='GrowthHub',

@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='contactcard',
-            name='contact_form',
-        ),
         migrations.AddField(
             model_name='contactcard',
             name='contact_form_label',
@@ -33,8 +29,5 @@ class Migration(migrations.Migration):
             model_name='contactcard',
             name='website',
             field=models.URLField(blank=True, null=True),
-        ),
-        migrations.DeleteModel(
-            name='Website',
         ),
     ]
