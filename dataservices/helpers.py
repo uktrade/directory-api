@@ -164,25 +164,23 @@ def get_support_hub_by_postcode(postcode_data):
         for support_hub in support_hub_objects:
             if not any(d['name'] == support_hub.name for d in support_hubs):
                 contact_card = models.ContactCard.objects.filter(id=support_hub.contacts.id)[0]
-                return_object = {
-                    'name': support_hub.name,
-                    'digest': support_hub.digest,
-                    'contacts': {
-                        'website': contact_card.website.url,
-                        'website_label': contact_card.website.label,
-                        'phone': contact_card.phone,
-                        'email': contact_card.email,
-                        'contact_form': None,
-                        'contact_form_label': None,
-                    },
-                    'boundary_name': boundary.name,
-                    'boundary_type': models.BoundaryType(boundary.type).label,
-                    'boundary_level': boundary.type,
-                }
-                if contact_card.contact_form:
-                    return_object['contacts']['contact_form'] = contact_card.contact_form.url
-                    return_object['contacts']['contact_form_label'] = contact_card.contact_form.label
-                support_hubs.append(return_object)
+                support_hubs.append(
+                    {
+                        'name': support_hub.name,
+                        'digest': support_hub.digest,
+                        'contacts': {
+                            'website': contact_card.website,
+                            'website_label': contact_card.website_label,
+                            'phone': contact_card.phone,
+                            'email': contact_card.email,
+                            'contact_form': contact_card.contact_form_url,
+                            'contact_form_label': contact_card.contact_form_label,
+                        },
+                        'boundary_name': boundary.name,
+                        'boundary_type': models.BoundaryType(boundary.type).label,
+                        'boundary_level': boundary.type,
+                    }
+                )
 
     return support_hubs
 
@@ -195,25 +193,20 @@ def get_chamber_by_postcode(postcode_data):
         place = models.Place.objects.filter(id=chamber.place.id).values()[0]
         contact_card = models.ContactCard.objects.filter(id=chamber.contacts.id)[0]
         distance = postcode_point.distance(Point(place['eastings'], place['northings']))
-        return_object = {
-            'name': chamber.name,
-            'digest': chamber.digest,
-            'contacts': {
-                'website': None,
-                'website_label': None,
-                'phone': contact_card.phone,
-                'email': contact_card.email,
-                'contact_form': None,
-                'contact_form_label': None,
-            },
-            'place': place,
-            'distance': distance,
-        }
-        if contact_card.website:
-            return_object['contacts']['website'] = contact_card.website.url
-            return_object['contacts']['website_label'] = contact_card.website.label
-        if contact_card.contact_form:
-            return_object['contacts']['contact_form'] = contact_card.contact_form.url
-            return_object['contacts']['contact_form_label'] = contact_card.contact_form.label
-        chambers_by_distance.append(return_object)
+        chambers_by_distance.append(
+            {
+                'name': chamber.name,
+                'digest': chamber.digest,
+                'contacts': {
+                    'website': contact_card.website,
+                    'website_label': contact_card.website_label,
+                    'phone': contact_card.phone,
+                    'email': contact_card.email,
+                    'contact_form': contact_card.contact_form_url,
+                    'contact_form_label': contact_card.contact_form_label,
+                },
+                'place': place,
+                'distance': distance,
+            }
+        )
     return sorted(chambers_by_distance, key=lambda d: d['distance'], reverse=False)[:5]

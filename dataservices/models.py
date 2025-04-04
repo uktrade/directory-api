@@ -591,16 +591,11 @@ class Place(models.Model):
     eastings = models.CharField()
 
 
-class Website(models.Model):
-    url = models.URLField(blank=False)
-    label = models.CharField(null=True, blank=True)
-
-
 class ContactCard(models.Model):
-    website = models.ForeignKey(Website, on_delete=models.CASCADE, null=True, blank=True)
-    contact_form = models.ForeignKey(
-        Website, on_delete=models.CASCADE, null=True, blank=True, related_name='contact_form'
-    )
+    website = models.URLField(null=True, blank=True)
+    website_label = models.CharField(null=True, blank=True)
+    contact_form_url = models.URLField(null=True, blank=True)
+    contact_form_label = models.CharField(null=True, blank=True)
     phone = models.CharField(null=True, blank=True)
     email = models.CharField(null=True, blank=True)
 
