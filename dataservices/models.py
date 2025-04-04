@@ -569,6 +569,7 @@ class DBTInvestmentOpportunity(models.Model):
 
 class BoundaryType(models.TextChoices):
     # a higher level means lower zoom (i.e. a bigger area)
+    COUNTRY = 5, "country"
     REGION = 4, "region"
     COMBINED_AUTHORITY = 3, "combined authority"
     COUNTY = 2, "county"
@@ -590,21 +591,30 @@ class Place(models.Model):
     eastings = models.CharField()
 
 
+class Website(models.Model):
+    url = models.URLField(blank=False)
+    label = models.CharField(null=True, blank=True)
+
+
 class ContactCard(models.Model):
-    website = models.URLField(null=True, blank=True)
+    website = models.ForeignKey(Website, on_delete=models.CASCADE, null=True, blank=True)
+    contact_form = models.ForeignKey(
+        Website, on_delete=models.CASCADE, null=True, blank=True, related_name='contact_form'
+    )
     phone = models.CharField(null=True, blank=True)
     email = models.CharField(null=True, blank=True)
 
 
-class GrowthHub(models.Model):
+class SupportHub(models.Model):
     name = models.CharField(blank=False, unique=True)
-    description = models.CharField()
+    digest = models.CharField(null=True, blank=True)
     contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
     boundaries = models.ManyToManyField(Boundary)
     place = models.ForeignKey(Place, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class ChamberOfCommerce(models.Model):
-    name = models.CharField()
+    name = models.CharField(blank=False, unique=True)
+    digest = models.CharField(null=True, blank=True)
     contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)

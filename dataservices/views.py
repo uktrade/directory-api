@@ -20,10 +20,10 @@ from dataservices.core import client_api
 from dataservices.helpers import (
     deep_extend,
     get_chamber_by_postcode,
-    get_growth_hub_by_postcode,
     get_multiple_serialized_instance_from_model,
     get_postcode_data,
     get_serialized_instance_from_model,
+    get_support_hub_by_postcode,
 )
 from dataservices.models import Country, RuleOfLaw
 from dataservices.serializers import RuleOfLawSerializer
@@ -1354,7 +1354,7 @@ class LocalSupportByPostcode(generics.GenericAPIView):
 
         response['postcode_data'] = postcode_data['result']
 
-        response['growth_hubs'] = get_growth_hub_by_postcode(postcode_data['result'])
+        response['support_hubs'] = get_support_hub_by_postcode(postcode_data['result'])
 
         response['chambers_of_commerce'] = get_chamber_by_postcode(postcode_data['result'])
 
