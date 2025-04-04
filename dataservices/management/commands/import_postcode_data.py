@@ -3,7 +3,7 @@ import json
 
 from django.core.management import BaseCommand
 
-from dataservices.models import Boundary, ChamberOfCommerce, ContactCard, Place, SupportHub, Website
+from dataservices.models import Boundary, ChamberOfCommerce, ContactCard, Place, SupportHub
 
 
 def ingest_boundaries():
@@ -24,13 +24,12 @@ def ingest_growth_hubs_json():
         raise FileNotFoundError(e)
     for hub in growth_hubs:
         cc = ContactCard.objects.get_or_create(
-            website=Website.objects.get_or_create(url=hub['website']['url'], label=hub['website']['link_text'])[0],
+            website=hub['website']['url'],
         )
+        cc[0].website_label = hub['website']['link_text']
         if hub['contacts']['contact_form']:
-            contact_form_website = Website.objects.get_or_create(
-                url=hub['contacts']['contact_form']['url'], label=hub['contacts']['contact_form']['link_text']
-            )[0]
-            cc[0].contact_form = contact_form_website
+            cc[0].contact_form_url = hub['contacts']['contact_form']['url']
+            cc[0].contact_form_label = hub['contacts']['contact_form']['link_text']
         cc[0].phone = hub['contacts']['phone_fmt']
         cc[0].email = hub['contacts']['email']
         cc[0].save()
@@ -50,10 +49,9 @@ def ingest_chambers_of_commerce():
         raise FileNotFoundError(e)
     for chamber in commerce_chambers:
         cc = ContactCard.objects.get_or_create(
-            website=Website.objects.get_or_create(url=chamber['website']['url'], label=chamber['website']['link_text'])[
-                0
-            ],
+            website=chamber['website']['url'],
         )
+        cc[0].website_label = chamber['website']['link_text']
         cc[0].phone = chamber['contacts']['phone_fmt']
         cc[0].email = chamber['contacts']['email']
         cc[0].save()
