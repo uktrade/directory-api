@@ -1354,7 +1354,7 @@ class LocalSupportByPostcode(generics.GenericAPIView):
 
         response['postcode_data'] = postcode_data['result']
 
-        response['growth_hubs'] = get_support_hub_by_postcode(postcode_data['result'])
+        response['support_hubs'] = get_support_hub_by_postcode(postcode_data['result'])
 
         response['chambers_of_commerce'] = get_chamber_by_postcode(postcode_data['result'])
 
