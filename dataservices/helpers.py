@@ -145,7 +145,6 @@ def get_multiple_serialized_instance_from_model(model_class, serializer_class, f
 
 def get_postcode_data(postcode):
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
-    response.raise_for_status()
     data = response.json()
     return data
 
