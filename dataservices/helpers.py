@@ -145,37 +145,43 @@ def get_multiple_serialized_instance_from_model(model_class, serializer_class, f
 
 def get_postcode_data(postcode):
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
-    response.raise_for_status()
     data = response.json()
     return data
 
 
-def get_growth_hub_by_postcode(postcode_data):
+def get_support_hub_by_postcode(postcode_data):
     boundaries = models.Boundary.objects.filter(
         Q(code=postcode_data['codes']['admin_district'])
         | Q(code=postcode_data['codes']['admin_county'])
-        | Q(name=postcode_data['pfa'])
+        | Q(name=postcode_data['region'])
+        | Q(name=postcode_data['country'])
     ).order_by('type')
-    growth_hubs = []
+    support_hubs = []
 
     for boundary in boundaries:
-        growth_hub_objects = boundary.growthhub_set.all().distinct()
-        for growth_hub in growth_hub_objects:
-            if not any(d['id'] == growth_hub.id for d in growth_hubs):
-                contact_card = models.ContactCard.objects.filter(id=growth_hub.contacts.id).values()[0]
-                growth_hubs.append(
+        support_hub_objects = boundary.supporthub_set.all().distinct()
+        for support_hub in support_hub_objects:
+            if not any(d['name'] == support_hub.name for d in support_hubs):
+                contact_card = models.ContactCard.objects.filter(id=support_hub.contacts.id)[0]
+                support_hubs.append(
                     {
-                        'id': growth_hub.id,
-                        'name': growth_hub.name,
-                        'description': growth_hub.description,
-                        'contacts': contact_card,
+                        'name': support_hub.name,
+                        'digest': support_hub.digest,
+                        'contacts': {
+                            'website': contact_card.website,
+                            'website_label': contact_card.website_label,
+                            'phone': contact_card.phone,
+                            'email': contact_card.email,
+                            'contact_form': contact_card.contact_form_url,
+                            'contact_form_label': contact_card.contact_form_label,
+                        },
                         'boundary_name': boundary.name,
                         'boundary_type': models.BoundaryType(boundary.type).label,
                         'boundary_level': boundary.type,
                     }
                 )
 
-    return growth_hubs
+    return support_hubs
 
 
 def get_chamber_by_postcode(postcode_data):
@@ -184,13 +190,20 @@ def get_chamber_by_postcode(postcode_data):
     postcode_point = Point(postcode_data['eastings'], postcode_data['northings'])
     for chamber in chambers:
         place = models.Place.objects.filter(id=chamber.place.id).values()[0]
-        contact_card = models.ContactCard.objects.filter(id=chamber.contacts.id).values()[0]
+        contact_card = models.ContactCard.objects.filter(id=chamber.contacts.id)[0]
         distance = postcode_point.distance(Point(place['eastings'], place['northings']))
         chambers_by_distance.append(
             {
-                'id': chamber.id,
                 'name': chamber.name,
-                'contacts': contact_card,
+                'digest': chamber.digest,
+                'contacts': {
+                    'website': contact_card.website,
+                    'website_label': contact_card.website_label,
+                    'phone': contact_card.phone,
+                    'email': contact_card.email,
+                    'contact_form': contact_card.contact_form_url,
+                    'contact_form_label': contact_card.contact_form_label,
+                },
                 'place': place,
                 'distance': distance,
             }

@@ -941,3 +941,27 @@ def test_dataservices_country_territory_region(iso2_code, expected_id, countries
 def test_dataservices_news_content(mock_news, client):
     response = client.get(reverse('dataservices-news-content'))
     assert len(response.json()) == 2
+
+
+@pytest.mark.parametrize(
+    "post_code, expected_data",
+    [
+        (
+            'SW15EW',
+            {
+                "postcode_data": {"country": "England", "region": "London"},
+                "support_hubs": [],
+                "chambers_of_commerce": [],
+            },
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_local_support_by_postcode(post_code, expected_data, client):
+    response = client.get(f"{reverse('dataservices-growth-hubs-commerce-chambers')}?postcode={post_code}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    api_data = json.loads(response.content)
+
+    assert api_data == expected_data
