@@ -86,6 +86,22 @@ def cia_factbook_data():
     return factories.CIAFactBookFactory()
 
 
+@pytest.fixture(autouse=True)
+def support_hub_data():
+    contact_card = models.ContactCard.objects.create(website='https://www.growlondonlocal.london/')
+    ebo = models.Boundary.objects.create(code='E07000061', name="Eastbourne", type=1)
+    ni = models.Boundary.objects.create(code='N09000003', name="Northern Ireland", type=1)
+    sct = models.Boundary.objects.create(code='S12000036', name="Scotland", type=1)
+    wal = models.Boundary.objects.create(code='W06000002', name="Wales", type=1)
+    lon = models.Boundary.objects.create(code='E09000033', name="London", type=1)
+
+    models.SupportHub.objects.create(name='East Sussex Growth Hub', contacts=contact_card).boundaries.add(ebo)
+    models.SupportHub.objects.create(name='NI Business Info', contacts=contact_card).boundaries.add(ni)
+    models.SupportHub.objects.create(name='Business Gateway Edinburgh', contacts=contact_card).boundaries.add(sct)
+    models.SupportHub.objects.create(name='Business Wales', contacts=contact_card).boundaries.add(wal)
+    models.SupportHub.objects.create(name='Grow London Local', contacts=contact_card).boundaries.add(lon)
+
+
 @pytest.fixture()
 def trade_barrier_data_request_mock(trade_barrier_data, requests_mocker):
     return requests_mocker.get(re.compile(f'{settings.TRADE_BARRIER_API_URI}.*'), json=trade_barrier_data)
@@ -944,24 +960,95 @@ def test_dataservices_news_content(mock_news, client):
 
 
 @pytest.mark.parametrize(
-    "post_code, expected_data",
+    "post_code, postcode_data, support_hub_name",
     [
         (
             'SW15EW',
             {
-                "postcode_data": {"country": "England", "region": "London"},
-                "support_hubs": [],
-                "chambers_of_commerce": [],
+                "country": "England",
+                "region": "London",
+                "codes": None,
             },
+            None,
+        ),
+        (
+            'BN213QD',
+            {
+                "country": "England",
+                "region": "South East",
+                "codes": {
+                    "admin_district": "E07000061",
+                    "admin_county": "E10000011",
+                },
+            },
+            "East Sussex Growth Hub",
+        ),
+        (
+            'SW1A1AA',
+            {
+                "country": "England",
+                "region": "London",
+                "codes": {
+                    "admin_district": "E09000033",
+                    "admin_county": "E99999999",
+                },
+            },
+            "Grow London Local",
+        ),
+        (
+            'EH991SP',
+            {
+                "country": "Scotland",
+                "region": None,
+                "codes": {
+                    "admin_district": "S12000036",
+                    "admin_county": "S99999999",
+                },
+            },
+            "Business Gateway Edinburgh",
+        ),
+        (
+            'LL552AY',
+            {
+                "country": "Wales",
+                "region": None,
+                "codes": {
+                    "admin_district": "W06000002",
+                    "admin_county": "W99999999",
+                },
+            },
+            "Business Wales",
+        ),
+        (
+            'BT15GS',
+            {
+                "country": "Northern Ireland",
+                "region": None,
+                "codes": {
+                    "admin_district": "N09000003",
+                    "admin_county": "N99999999",
+                },
+            },
+            "NI Business Info",
         ),
     ],
 )
 @pytest.mark.django_db
-def test_local_support_by_postcode(post_code, expected_data, client):
+def test_local_support_by_postcode(post_code, postcode_data, support_hub_name, client):
     response = client.get(f"{reverse('dataservices-growth-hubs-commerce-chambers')}?postcode={post_code}")
 
     assert response.status_code == status.HTTP_200_OK
 
-    api_data = json.loads(response.content)
+    response = json.loads(response.content)
+    response_postcode_data = response['postcode_data']
 
-    assert api_data == expected_data
+    assert response_postcode_data['country'] == postcode_data['country']
+    assert response_postcode_data['region'] == postcode_data['region']
+    if postcode_data['codes']:
+        assert response_postcode_data['codes']['admin_district'] == postcode_data['codes']['admin_district']
+        assert response_postcode_data['codes']['admin_county'] == postcode_data['codes']['admin_county']
+
+    if not support_hub_name:
+        assert response['support_hubs'] == []
+    else:
+        assert response['support_hubs'][0]['name'] == support_hub_name
