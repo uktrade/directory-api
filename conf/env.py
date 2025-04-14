@@ -66,6 +66,7 @@ class BaseSettings(PydanticBaseSettings):
     sentry_traces_sample_rate: float = 1.0
 
     session_cookie_domain: str = 'great.gov.uk'
+    bgs_session_cookie_domain: str = ''
     session_cookie_secure: bool = True
     csrf_cookie_secure: bool = True
 
@@ -140,6 +141,7 @@ class BaseSettings(PydanticBaseSettings):
     feature_comtrade_historical_data_enabled: bool = False
     feature_openapi_enabled: bool = False
     feature_enforce_staff_sso_enabled: bool = False
+    feature_bgs_login: bool = False
 
     health_check_token: str
 
