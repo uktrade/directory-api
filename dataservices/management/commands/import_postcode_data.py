@@ -2,6 +2,7 @@ import csv
 import json
 
 from django.core.management import BaseCommand
+import requests
 
 from dataservices.models import Boundary, ChamberOfCommerce, ContactCard, Place, SupportHub
 
@@ -51,6 +52,9 @@ def ingest_chambers_of_commerce():
         cc = ContactCard.objects.get_or_create(
             website=chamber['website']['url'],
         )
+        postcode = str(chamber['place']['postcode']).replace(" ", "")
+        response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
+        postcode_data = response.json()
         cc[0].website_label = chamber['website']['link_text']
         cc[0].phone = chamber['contacts']['phone_fmt']
         cc[0].email = chamber['contacts']['email']
@@ -60,10 +64,11 @@ def ingest_chambers_of_commerce():
             postcode=chamber['place']['postcode'],
             latitude=chamber['place']['latitude'],
             longitude=chamber['place']['longitude'],
-            northings=chamber['place']['northings'],
-            eastings=chamber['place']['eastings'],
+            northings=postcode_data['result']['northings'],
+            eastings=postcode_data['result']['eastings'],
         )
         coc = ChamberOfCommerce.objects.get_or_create(name=chamber['name'], digest=chamber['digest'], place=place[0])
+        coc[0].boundary = Boundary.objects.get(name=postcode_data['result']['country'])
         coc[0].contacts = cc[0]
         coc[0].save()
 
