@@ -2141,17 +2141,17 @@
     "name": "Business Wales",
     "digest": "1631d9f3",
     "website": {
-      "url": "https://www.bgateway.com/local-offices/business-wales",
-      "link_text": "bgateway.com/local-offices/business-wales"
+      "url": "https://businesswales.gov.wales/",
+      "link_text": "businesswales.gov.wales"
     },
     "contacts": {
       "phone": null,
       "email": null,
       "contact_form": {
-        "url": "https://www.bgateway.com/local-offices/business-wales/contact-us",
+        "url": "https://businesswales.gov.wales/contact-us-online-form ",
         "link_text": "Use the online form"
       },
-      "phone_fmt": null
+      "phone_fmt": "03000 6 03000"
     },
     "boundaries": [
       {
@@ -2168,17 +2168,17 @@
     "name": "NI Business Info",
     "digest": "6f02b9c3",
     "website": {
-      "url": "https://www.bgateway.com/local-offices/ni-business-info",
-      "link_text": "bgateway.com/local-offices/ni-business-info"
+      "url": "https://www.nibusinessinfo.co.uk/",
+      "link_text": "nibusinessinfo.co.uk"
     },
     "contacts": {
       "phone": null,
       "email": null,
       "contact_form": {
-        "url": "https://www.bgateway.com/local-offices/ni-business-info/contact-us",
+        "url": "https://www.nibusinessinfo.co.uk/contact-us",
         "link_text": "Use the online form"
       },
-      "phone_fmt": null
+      "phone_fmt": "0800 181 4422"
     },
     "boundaries": [
       {
