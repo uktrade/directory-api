@@ -46,12 +46,11 @@ botocore==1.27.96
     #   s3transfer
 celery[redis]==5.3.6
     # via
-    #   -r requirements.in
+    #   celery
     #   dbt-copilot-python
     #   django-celery-beat
 certifi==2024.7.4
     # via
-    #   -r requirements.in
     #   opensearch-py
     #   requests
     #   sentry-sdk
@@ -59,6 +58,8 @@ cffi==1.16.0
     # via cryptography
 cfgv==3.4.0
     # via pre-commit
+chardet==5.2.0
+    # via reportlab
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
@@ -77,13 +78,14 @@ click-repl==0.3.0
     # via celery
 coverage[toml]==7.4.1
     # via
+    #   -r requirements.in
+    #   coverage
     #   pytest-codecov
     #   pytest-cov
 cron-descriptor==1.4.3
     # via django-celery-beat
 cryptography==43.0.1
     # via
-    #   -r requirements.in
     #   pyhanko
     #   pyhanko-certvalidator
 cssselect2==0.7.0
@@ -127,7 +129,6 @@ dj-database-url==2.1.0
     # via -r requirements.in
 django==4.2.20
     # via
-    #   -r requirements.in
     #   directory-client-core
     #   directory-components
     #   directory-constants
@@ -222,9 +223,7 @@ googleapis-common-protos==1.63.0
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.1.1
-    # via
-    #   gevent
-    #   sqlalchemy
+    # via gevent
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gunicorn==23.0.0
@@ -473,7 +472,7 @@ redis==5.0.1
     # via
     #   celery
     #   django-redis
-reportlab==3.6.13
+reportlab==4.4.0
     # via
     #   svglib
     #   xhtml2pdf
@@ -488,6 +487,7 @@ requests[security]==2.32.3
     #   pyhanko
     #   pyhanko-certvalidator
     #   pytest-codecov
+    #   requests
     #   requests-mock
     #   requests-oauthlib
 requests-mock==1.6.0
@@ -536,7 +536,9 @@ sqlparse==0.5.0
 svglib==1.5.1
     # via xhtml2pdf
 tablib[html,ods,xls,xlsx,yaml]==3.5.0
-    # via django-import-export
+    # via
+    #   django-import-export
+    #   tablib
 termcolor==2.4.0
     # via pytest-sugar
 tinycss2==1.2.1
@@ -603,7 +605,7 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   opentelemetry-instrumentation
-xhtml2pdf==0.2.11
+xhtml2pdf==0.2.16
     # via -r requirements.in
 xlrd==2.0.1
     # via tablib
