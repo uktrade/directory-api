@@ -613,3 +613,4 @@ class ChamberOfCommerce(models.Model):
     digest = models.CharField(null=True, blank=True)
     contacts = models.ForeignKey(ContactCard, on_delete=models.CASCADE, null=True, blank=True)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    boundary = models.ForeignKey(Boundary, on_delete=models.CASCADE, null=True, blank=True)

@@ -186,7 +186,8 @@ def get_support_hub_by_postcode(postcode_data):
 
 def get_chamber_by_postcode(postcode_data):
     chambers_by_distance = []
-    chambers = models.ChamberOfCommerce.objects.all()
+    boundary = models.Boundary.objects.get(name=postcode_data['country'])
+    chambers = models.ChamberOfCommerce.objects.filter(boundary=boundary)
     postcode_point = Point(postcode_data['eastings'], postcode_data['northings'])
     for chamber in chambers:
         place = models.Place.objects.filter(id=chamber.place.id).values()[0]
