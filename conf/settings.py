@@ -85,6 +85,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
+# Fixed login redirect error on multisite
+FEATURE_BGS_LOGIN = env.feature_bgs_login
+if FEATURE_BGS_LOGIN:
+    MIDDLEWARE += ['core.bgs_middleware.BgsSessionMiddleware']
+
 ROOT_URLCONF = 'conf.urls'
 
 TEMPLATES = [
@@ -381,6 +386,7 @@ AWS_S3_REGION_NAME_DATA_SCIENCE = env.aws_s3_region_name_data_science
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_DOMAIN = env.session_cookie_domain
+
 SESSION_COOKIE_NAME = 'directory_api_admin_session_id'
 SESSION_COOKIE_SECURE = env.session_cookie_secure
 SESSION_COOKIE_HTTPONLY = True
