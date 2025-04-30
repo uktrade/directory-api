@@ -1,8 +1,8 @@
 import csv
 import json
 
-from django.core.management import BaseCommand
 import requests
+from django.core.management import BaseCommand
 
 from dataservices.models import Boundary, ChamberOfCommerce, ContactCard, Place, SupportHub
 

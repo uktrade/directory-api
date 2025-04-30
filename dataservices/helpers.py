@@ -146,22 +146,22 @@ def get_multiple_serialized_instance_from_model(model_class, serializer_class, f
 def get_postcode_data(postcode):
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
     data = response.json()
-    
-    if data['result']['quality'] > 5: 
+
+    if data['result']['quality'] > 5:
         outcode = data['result']['outcode']
         outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=4)
         data['result']['outcode_info'] = outcode_response.json()['result']
-        
+
         outcode_districts = data['result']['outcode_info']['admin_district']
         outcode_counties = data['result']['outcode_info']['admin_county']
-        
+
         data['result']['admin_district'] = outcode_districts[0] if outcode_districts else None
         data['result']['admin_county'] = outcode_counties[0] if outcode_counties else None
-        
+
         if data['result']['quality'] > 8:
             data['result']['eastings'] = data['result']['outcode_info']['eastings']
             data['result']['northings'] = data['result']['outcode_info']['northings']
-        
+
     return data
 
 
