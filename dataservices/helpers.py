@@ -147,7 +147,7 @@ def get_postcode_data(postcode):
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
     data = response.json()
 
-    if data['result']['quality'] > 5:
+    if data['status'] == 200 and data['result']['quality'] > 5:
         outcode = data['result']['outcode']
         outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=4)
         data['result']['outcode_info'] = outcode_response.json()['result']
