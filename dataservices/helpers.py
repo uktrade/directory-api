@@ -181,55 +181,59 @@ def get_support_hub_by_postcode(postcode_data):
         ).order_by('type')
     support_hubs = []
 
-    for boundary in boundaries:
-        support_hub_objects = boundary.supporthub_set.all().distinct()
-        for support_hub in support_hub_objects:
-            if not any(d['name'] == support_hub.name for d in support_hubs):
-                contact_card = models.ContactCard.objects.filter(id=support_hub.contacts.id)[0]
-                support_hubs.append(
-                    {
-                        'name': support_hub.name,
-                        'digest': support_hub.digest,
-                        'contacts': {
-                            'website': contact_card.website,
-                            'website_label': contact_card.website_label,
-                            'phone': contact_card.phone,
-                            'email': contact_card.email,
-                            'contact_form': contact_card.contact_form_url,
-                            'contact_form_label': contact_card.contact_form_label,
-                        },
-                        'boundary_name': boundary.name,
-                        'boundary_type': models.BoundaryType(boundary.type).label,
-                        'boundary_level': boundary.type,
-                    }
-                )
+    if boundaries:
+        for boundary in boundaries:
+            support_hub_objects = boundary.supporthub_set.all().distinct()
+            for support_hub in support_hub_objects:
+                if not any(d['name'] == support_hub.name for d in support_hubs):
+                    contact_card = models.ContactCard.objects.filter(id=support_hub.contacts.id)[0]
+                    support_hubs.append(
+                        {
+                            'name': support_hub.name,
+                            'digest': support_hub.digest,
+                            'contacts': {
+                                'website': contact_card.website,
+                                'website_label': contact_card.website_label,
+                                'phone': contact_card.phone,
+                                'email': contact_card.email,
+                                'contact_form': contact_card.contact_form_url,
+                                'contact_form_label': contact_card.contact_form_label,
+                            },
+                            'boundary_name': boundary.name,
+                            'boundary_type': models.BoundaryType(boundary.type).label,
+                            'boundary_level': boundary.type,
+                        }
+                    )
 
     return support_hubs
 
 
 def get_chamber_by_postcode(postcode_data):
     chambers_by_distance = []
-    boundary = models.Boundary.objects.get(name=postcode_data['country'])
-    chambers = models.ChamberOfCommerce.objects.filter(boundary=boundary)
-    postcode_point = Point(postcode_data['eastings'], postcode_data['northings'])
-    for chamber in chambers:
-        place = models.Place.objects.filter(id=chamber.place.id).values()[0]
-        contact_card = models.ContactCard.objects.filter(id=chamber.contacts.id)[0]
-        distance = postcode_point.distance(Point(place['eastings'], place['northings']))
-        chambers_by_distance.append(
-            {
-                'name': chamber.name,
-                'digest': chamber.digest,
-                'contacts': {
-                    'website': contact_card.website,
-                    'website_label': contact_card.website_label,
-                    'phone': contact_card.phone,
-                    'email': contact_card.email,
-                    'contact_form': contact_card.contact_form_url,
-                    'contact_form_label': contact_card.contact_form_label,
-                },
-                'place': place,
-                'distance': distance,
-            }
-        )
-    return sorted(chambers_by_distance, key=lambda d: d['distance'], reverse=False)[:5]
+    try:
+        boundary = models.Boundary.objects.get(name=postcode_data['country'])
+        chambers = models.ChamberOfCommerce.objects.filter(boundary=boundary)
+        postcode_point = Point(postcode_data['eastings'], postcode_data['northings'])
+        for chamber in chambers:
+            place = models.Place.objects.filter(id=chamber.place.id).values()[0]
+            contact_card = models.ContactCard.objects.filter(id=chamber.contacts.id)[0]
+            distance = postcode_point.distance(Point(place['eastings'], place['northings']))
+            chambers_by_distance.append(
+                {
+                    'name': chamber.name,
+                    'digest': chamber.digest,
+                    'contacts': {
+                        'website': contact_card.website,
+                        'website_label': contact_card.website_label,
+                        'phone': contact_card.phone,
+                        'email': contact_card.email,
+                        'contact_form': contact_card.contact_form_url,
+                        'contact_form_label': contact_card.contact_form_label,
+                    },
+                    'place': place,
+                    'distance': distance,
+                }
+            )
+        return sorted(chambers_by_distance, key=lambda d: d['distance'], reverse=False)[:5]
+    except models.Boundary.DoesNotExist:
+        return []
