@@ -212,7 +212,7 @@ freezegun==0.3.12
     # via -r requirements_test.in
 future==0.18.3
     # via django-json-widget
-gevent==23.9.1
+gevent==25.5.1
     # via -r requirements.in
 gitdb==4.0.11
     # via gitpython
@@ -222,7 +222,7 @@ googleapis-common-protos==1.63.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.1.1
+greenlet==3.2.2
     # via gevent
 grpcio==1.64.0
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -617,7 +617,7 @@ zipp==3.19.1
     # via importlib-metadata
 zope-event==5.0
     # via gevent
-zope-interface==7.1.1
+zope-interface==7.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
