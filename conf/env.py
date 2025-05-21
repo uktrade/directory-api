@@ -143,6 +143,9 @@ class BaseSettings(PydanticBaseSettings):
 
     health_check_token: str
 
+    # BGS
+    is_bgs_site: bool = False
+
     # Gov notification settings
     gov_notify_api_key: str
     govnotify_verification_letter_template_id: str = '22d1803a-8af5-4b06-bc6c-ffc6573c4c7d'
@@ -150,10 +153,14 @@ class BaseSettings(PydanticBaseSettings):
     # Registration letters template id
     govnotify_registration_letter_template_id: str = '8840eba9-5c5b-4f87-b495-6127b7d3e2c9'
     govnotify_new_user_invite_template_id: str = 'a69aaf87-8c9f-423e-985e-2a71ef4b2234'
+    bgs_govnotify_new_user_invite_template_id: str = 'a1de2430-63ea-4c1b-93ba-bba17362bc65'
     govnotify_new_user_invite_other_company_member_template_id: str = 'a0ee28e9-7b46-4ad6-a0e0-641200f66b41'
+    bgs_govnotify_new_user_invite_other_company_member_template_id: str = 'f4f78d9d-a9f8-4c06-90cd-d9e6fa93e3a2'
     govnotify_new_user_alert_template_id: str = '439a8415-52d8-4975-b230-15cd34305bb5'
     gov_notify_non_ch_verification_request_template_id: str = 'a63f948f-978e-4554-86da-c525bfabbaff'
+    bgs_gov_notify_non_ch_verification_request_template_id: str = '2f9cd243-c0bc-4e2f-8250-d1081c326c66'
     gov_notify_user_request_declined_template_id: str = '3be3c49f-a5ad-4e37-b864-cc0a3833705b'
+    bgs_gov_notify_user_request_declined_template_id: str = '9ab4abb8-c1c2-499c-a032-fd90bb31a229'
     gov_notify_user_request_accepted_template_id: str = '7f4f0e9c-2a04-4c3c-bd85-ef80f495b6f5'
     gov_notify_admin_new_collaboration_request_template_id: str = '240cfe51-a5fc-4826-a716-84ebaa429315'
     govnotify_new_companies_in_sector_template_id: str = '0c7aed18-00af-47a7-b2ec-6d61bb951e59'

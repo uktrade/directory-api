@@ -226,7 +226,7 @@ def test_send_request_identity_verification_message(mock_submit, mock_gov_email,
     assert mock_gov_email.call_args == mock.call(
         email_address=supplier.company_email,
         form_url='send_request_identity_verification_message',
-        template_id=settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
+        template_id=settings.BGS_GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID if settings.IS_BGS_SITE else settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
     )
 
     assert mock_submit.call_count == 1
@@ -273,7 +273,7 @@ def test_send_new_user_invite_email(mock_gov_notify_email_action, settings):
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_invite.collaborator_email,
         form_url='send_new_invite_collaborator_notification',
-        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
+        template_id=settings.BGS_GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID if settings.IS_BGS_SITE else settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
     )
 
 
@@ -292,7 +292,7 @@ def test_send_new_user_invite_email_other_company(mock_gov_notify_email_action, 
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_invite.collaborator_email,
         form_url='send_new_invite_collaborator_notification_existing',
-        template_id=settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
+        template_id=settings.BGS_GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID if settings.IS_BGS_SITE else settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
     )
 
 
@@ -471,7 +471,7 @@ def test_send_user_collaboration_request_declined_email(mock_gov_notify_email_ac
     assert mock_gov_notify_email_action.call_args == mock.call(
         email_address=collaboration_request.requestor.company_email,
         form_url='send_user_collaboration_request_email_on_decline',
-        template_id=settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID,
+        template_id=settings.BGS_GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID if settings.IS_BGS_SITE else settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID,
     )
 
 
