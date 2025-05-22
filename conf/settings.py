@@ -181,6 +181,7 @@ FEATURE_REGISTRATION_LETTERS_ENABLED = env.feature_registration_letters_enabled
 FEATURE_COMTRADE_HISTORICAL_DATA_ENABLED = env.feature_comtrade_historical_data_enabled
 FEATURE_OPENAPI_ENABLED = env.feature_openapi_enabled
 FEATURE_ENFORCE_STAFF_SSO_ENABLED = env.feature_enforce_staff_sso_enabled
+FEATURE_USE_BGS_TEMPLATES = env.feature_use_bgs_templates
 
 # SSO config
 if FEATURE_ENFORCE_STAFF_SSO_ENABLED:
@@ -626,6 +627,3 @@ DATASETS_METADATA_S3_PREFIX = env.datasets_metadata_s3_prefix
 COMTRADE_S3_PREFIX = env.comtrade_s3_prefix
 
 COMTRADE_FIRST_PERIOD = env.comtrade_first_period
-
-# BGS
-IS_BGS_SITE =  env.is_bgs_site

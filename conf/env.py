@@ -140,11 +140,9 @@ class BaseSettings(PydanticBaseSettings):
     feature_comtrade_historical_data_enabled: bool = False
     feature_openapi_enabled: bool = False
     feature_enforce_staff_sso_enabled: bool = False
+    feature_use_bgs_templates: bool = False
 
     health_check_token: str
-
-    # BGS
-    is_bgs_site: bool = False
 
     # Gov notification settings
     gov_notify_api_key: str
