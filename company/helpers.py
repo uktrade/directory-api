@@ -213,7 +213,11 @@ def send_request_identity_verification_message(company_user):
 def notify_non_companies_house_verification_request(email, company_name, form_url):
     action = actions.GovNotifyEmailAction(
         email_address=email,
-        template_id=settings.BGS_GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID if settings.FEATURE_USE_BGS_TEMPLATES else settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID,
+        template_id=(
+            settings.BGS_GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID
+            if settings.FEATURE_USE_BGS_TEMPLATES
+            else settings.GOV_NOTIFY_NON_CH_VERIFICATION_REQUEST_TEMPLATE_ID
+        ),
         form_url=form_url,
     )
     response = action.save(
@@ -228,7 +232,11 @@ def send_new_user_invite_email(collaboration_invite, form_url=None):
     invite_details = extract_invite_details(collaboration_invite)
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_invite.collaborator_email,
-        template_id=settings.BGS_GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID if settings.FEATURE_USE_BGS_TEMPLATES else settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID,
+        template_id=(
+            settings.BGS_GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID
+            if settings.FEATURE_USE_BGS_TEMPLATES
+            else settings.GOVNOTIFY_NEW_USER_INVITE_TEMPLATE_ID
+        ),
         form_url=form_url,
     )
     response = action.save(invite_details)
@@ -240,7 +248,11 @@ def send_new_user_invite_email_existing_company(collaboration_invite, existing_c
     invite_details['other_company_name'] = existing_company_name
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_invite.collaborator_email,
-        template_id=settings.BGS_GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID if settings.FEATURE_USE_BGS_TEMPLATES else settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID,
+        template_id=(
+            settings.BGS_GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID
+            if settings.FEATURE_USE_BGS_TEMPLATES
+            else settings.GOVNOTIFY_NEW_USER_INVITE_OTHER_COMPANY_MEMBER_TEMPLATE_ID
+        ),
         form_url=form_url,
     )
     response = action.save(invite_details)
@@ -279,7 +291,11 @@ def send_user_collaboration_request_declined_email(collaboration_request, form_u
     }
     action = actions.GovNotifyEmailAction(
         email_address=collaboration_request.requestor.company_email,
-        template_id=settings.BGS_GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID if settings.FEATURE_USE_BGS_TEMPLATES else settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID,
+        template_id=(
+            settings.BGS_GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID
+            if settings.FEATURE_USE_BGS_TEMPLATES
+            else settings.GOV_NOTIFY_USER_REQUEST_DECLINED_TEMPLATE_ID
+        ),
         form_url=form_url,
     )
     response = action.save(request_details)
