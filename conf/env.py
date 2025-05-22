@@ -141,7 +141,6 @@ class BaseSettings(PydanticBaseSettings):
     feature_openapi_enabled: bool = False
     feature_enforce_staff_sso_enabled: bool = False
     feature_use_bgs_templates: bool = False
-
     health_check_token: str
 
     # Gov notification settings
