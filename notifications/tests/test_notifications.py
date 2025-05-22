@@ -61,7 +61,11 @@ def test_sends_ver_code_email_when_not_input_for_8_days(mock_client, settings):
     call_args = mock_client().send_email_notification.call_args[1]
 
     assert call_args['email_address'] == company_user.company_email
-    assert call_args['template_id'] == settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+    assert (
+        call_args['template_id'] == settings.BGS_GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+        if settings.FEATURE_USE_BGS_TEMPLATES
+        else settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+    )
 
     assert SupplierEmailNotification.objects.all().count() == 1
 
