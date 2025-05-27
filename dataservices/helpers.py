@@ -147,21 +147,30 @@ def get_postcode_data(postcode):
     response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
     data = response.json()
 
-    if data['status'] == 200 and data['result']['quality'] > 5:
-        outcode = data['result']['outcode']
-        outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=4)
-        data['result']['outcode_info'] = outcode_response.json()['result']
+    if data['status'] == 200 and data['result']['quality'] <= 5:
+        return data
 
-        outcode_districts = data['result']['outcode_info']['admin_district']
-        outcode_counties = data['result']['outcode_info']['admin_county']
+    outcode = postcode[:-3]
+    outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=4)
+    if outcode_response.status_code != 200:
+        return data
 
-        data['result']['admin_district'] = outcode_districts[0] if outcode_districts else None
-        data['result']['admin_county'] = outcode_counties[0] if outcode_counties else None
+    if 'result' not in data:
+        data['result'] = {}
 
-        if data['result']['quality'] > 8:
-            data['result']['eastings'] = data['result']['outcode_info']['eastings']
-            data['result']['northings'] = data['result']['outcode_info']['northings']
+    data['result']['outcode_info'] = outcode_response.json()['result']
 
+    outcode_districts = data['result']['outcode_info']['admin_district']
+    outcode_counties = data['result']['outcode_info']['admin_county']
+    outcode_countries = data['result']['outcode_info']['country']
+
+    data['result']['admin_district'] = outcode_districts[0] if outcode_districts else None
+    data['result']['admin_county'] = outcode_counties[0] if outcode_counties else None
+    data['result']['country'] = outcode_countries[0] if outcode_countries else None
+
+    if 'quality' not in data['result'] or data['result']['quality'] > 8:
+        data['result']['eastings'] = data['result']['outcode_info']['eastings']
+        data['result']['northings'] = data['result']['outcode_info']['northings']
     return data
 
 
@@ -204,6 +213,35 @@ def get_support_hub_by_postcode(postcode_data):
                             'boundary_level': boundary.type,
                         }
                     )
+    if not support_hubs:
+        hubs_by_distance = []
+        postcode_point = Point(postcode_data['eastings'], postcode_data['northings'])
+        hubs = models.SupportHub.objects.filter(place__isnull=False)
+        for hub in hubs:
+            place = models.Place.objects.filter(id=hub.place.id).values()[0]
+            contact_card = models.ContactCard.objects.filter(id=hub.contacts.id)[0]
+            distance = postcode_point.distance(Point(place['eastings'], place['northings']))
+            hub.boundaries.order_by
+            hubs_by_distance.append({'hub': hub, 'contact_card': contact_card, 'distance': distance})
+        closest_hub = sorted(hubs_by_distance, key=lambda d: d['distance'], reverse=False)[0]
+        hub_largest_boundary = closest_hub['hub'].boundaries.order_by('-type').values()[0]
+        support_hubs.append(
+            {
+                'name': closest_hub['hub'].name,
+                'digest': closest_hub['hub'].digest,
+                'contacts': {
+                    'website': closest_hub['contact_card'].website,
+                    'website_label': closest_hub['contact_card'].website_label,
+                    'phone': closest_hub['contact_card'].phone,
+                    'email': closest_hub['contact_card'].email,
+                    'contact_form': closest_hub['contact_card'].contact_form_url,
+                    'contact_form_label': closest_hub['contact_card'].contact_form_label,
+                },
+                'boundary_name': hub_largest_boundary['name'],
+                'boundary_type': models.BoundaryType(hub_largest_boundary['type']).label,
+                'boundary_level': hub_largest_boundary['type'],
+            }
+        )
 
     return support_hubs
 

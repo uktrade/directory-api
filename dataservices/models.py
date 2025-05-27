@@ -583,10 +583,10 @@ class Boundary(models.Model):
 
 
 class Place(models.Model):
-    address = models.CharField()
-    postcode = models.CharField()
-    latitude = models.CharField()
-    longitude = models.CharField()
+    address = models.CharField(null=True, blank=True)
+    postcode = models.CharField(null=True, blank=True)
+    latitude = models.CharField(null=True, blank=True)
+    longitude = models.CharField(null=True, blank=True)
     northings = models.CharField()
     eastings = models.CharField()
 

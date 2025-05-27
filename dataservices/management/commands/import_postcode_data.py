@@ -35,6 +35,16 @@ def ingest_growth_hubs_json():
         cc[0].email = hub['contacts']['email']
         cc[0].save()
         gh = SupportHub.objects.get_or_create(name=hub['name'], digest=hub['digest'])
+        if hub['postcode'] is not None:
+            postcode = str(hub['postcode'])
+            response = requests.get(f'https://api.postcodes.io/outcodes/{postcode}', timeout=4)
+            if response.status_code == 200:
+                postcode_data = response.json()
+                place = Place.objects.get_or_create(
+                    northings=postcode_data['result']['northings'],
+                    eastings=postcode_data['result']['eastings'],
+                )
+                gh[0].place = place[0]
         gh[0].contacts = cc[0]
         gh[0].boundaries.clear()
         gh[0].save()

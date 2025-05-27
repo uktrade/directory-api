@@ -1351,14 +1351,11 @@ class LocalSupportByPostcode(generics.GenericAPIView):
         response = {}
         postcode = self.request.GET.getlist('postcode', '')
         postcode_data = get_postcode_data(postcode[0])
-        response['postcode_data'] = {
-            "country": "England",
-            "region": "London",
-        }
+        response['postcode_data'] = {}
         response['support_hubs'] = []
         response['chambers_of_commerce'] = []
 
-        if postcode_data['status'] == 200:
+        if 'result' in postcode_data:
             response['postcode_data'] = postcode_data['result']
             response['support_hubs'] = get_support_hub_by_postcode(postcode_data['result'])
             response['chambers_of_commerce'] = get_chamber_by_postcode(postcode_data['result'])
