@@ -67,7 +67,11 @@ class VerificationWaitingNotification(SupplierNotificationBase):
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT
     text_template = 'verification_code_not_given_email.txt'
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
-    template_id = settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+    template_id = (
+        settings.BGS_GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+        if settings.FEATURE_USE_BGS_TEMPLATES
+        else settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_TEMPLATE_ID
+    )
 
     def get_context_data(self):
         return super().get_context_data(verification_url=settings.VERIFICATION_CODE_URL)
@@ -89,7 +93,11 @@ class VerificationStillWaitingNotification(SupplierNotificationBase):
     subject = settings.VERIFICATION_CODE_NOT_GIVEN_SUBJECT_2ND_EMAIL
     text_template = 'verification_code_not_given_2nd_email.txt'
     unsubscribe_url = settings.FAB_NOTIFICATIONS_UNSUBSCRIBE_URL
-    template_id = settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID
+    template_id = (
+        settings.BGS_GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID
+        if settings.FEATURE_USE_BGS_TEMPLATES
+        else settings.GOVNOTIFY_VERIFICATION_CODE_NOT_GIVEN_2ND_EMAIL_TEMPLATE_ID
+    )
 
     def get_context_data(self):
         return super().get_context_data(
@@ -112,7 +120,11 @@ class NewCompaniesInSectorNotification(AnonymousSubscriberNotificationBase):
     category = constants.NEW_COMPANIES_IN_SECTOR
     subject = settings.NEW_COMPANIES_IN_SECTOR_SUBJECT
     text_template = 'new_companies_in_sector_email.txt'
-    template_id = settings.GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID
+    template_id = (
+        settings.BGS_GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID
+        if settings.FEATURE_USE_BGS_TEMPLATES
+        else settings.GOVNOTIFY_NEW_COMPANIES_IN_SECTOR_TEMPLATE_ID
+    )
 
     def __init__(self, subscriber, companies):
         self.companies = companies
