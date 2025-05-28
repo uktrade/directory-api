@@ -1351,7 +1351,10 @@ class LocalSupportByPostcode(generics.GenericAPIView):
         response = {}
         postcode = self.request.GET.getlist('postcode', '')
         postcode_data = get_postcode_data(postcode[0])
-        response['postcode_data'] = {}
+        response['postcode_data'] = {
+            "country": "England",
+            "region": "London",
+        }
         response['support_hubs'] = []
         response['chambers_of_commerce'] = []
 

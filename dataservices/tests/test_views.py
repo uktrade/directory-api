@@ -946,7 +946,14 @@ def test_dataservices_news_content(mock_news, client):
 @pytest.mark.parametrize(
     "post_code, expected_data",
     [
-        ('SW15EW', {"postcode_data": {}, "support_hubs": [], "chambers_of_commerce": []}),
+        (
+            'SW15EW',
+            {
+                "postcode_data": {"country": "England", "region": "London"},
+                "support_hubs": [],
+                "chambers_of_commerce": [],
+            },
+        ),
     ],
 )
 @pytest.mark.django_db
