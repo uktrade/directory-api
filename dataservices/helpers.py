@@ -144,14 +144,16 @@ def get_multiple_serialized_instance_from_model(model_class, serializer_class, f
 
 
 def get_postcode_data(postcode):
-    response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=4)
+    response = requests.get(f'https://api.postcodes.io/postcodes/{postcode}', timeout=8)
     data = response.json()
 
+    # Less than or equal to 5 means the postcode data contains all necessary details to proceed.
+    # If the response lacks details we make a second request for the outcode.
     if data['status'] == 200 and data['result']['quality'] <= 5:
         return data
 
     outcode = postcode[:-3]
-    outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=4)
+    outcode_response = requests.get(f'https://api.postcodes.io/outcodes/{outcode}', timeout=8)
     if outcode_response.status_code != 200:
         return data
 
@@ -168,6 +170,8 @@ def get_postcode_data(postcode):
     data['result']['admin_county'] = outcode_counties[0] if outcode_counties else None
     data['result']['country'] = outcode_countries[0] if outcode_countries else None
 
+    # Above a quality of 8 postcode data no longer contains northings or eastings.
+    # In this case we need to use the northings and eastings from the outcode.
     if 'quality' not in data['result'] or data['result']['quality'] > 8:
         data['result']['eastings'] = data['result']['outcode_info']['eastings']
         data['result']['northings'] = data['result']['outcode_info']['northings']
